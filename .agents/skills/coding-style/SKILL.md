@@ -5,8 +5,18 @@ description: Use when editing, refactoring, or creating TypeScript/React code, f
 
 # Coding Style
 
-TypeScript composes through intersections, layers dependencies one way, and names through whole concepts. Every function sits at one level of abstraction; pure logic stays separate from side effects. Files carry one responsibility and code reads like a sentence. `vp check` (oxlint + oxfmt + types) verifies each pass.
+The coding style for this repository is defined by the canonical documents:
 
-Facts live in `codex/docs/conventions/typescript.md` (repo root). They govern every edit.
+codex/docs/conventions/coding-manifesto.md — principles and architectural compass.
 
-For code that touches Canvas, WebGL, or a render loop, also read `codex/docs/conventions/graphics-architecture.md` — it extends the general rules with lifecycle proof-token and honest-core patterns specific to that domain.
+codex/docs/conventions/coding-conventions.md — detailed conventions and patterns.
+
+These documents are the single source of truth for coding style.
+
+Read and follow them when making TypeScript/React changes. Do not duplicate or reinterpret their rules here.
+
+After changes, run:
+
+```
+vp check
+```
