@@ -3,6 +3,9 @@ packages:
   - packages/*
   - tools/*
 
+allowBuilds:
+  vite-plus-monorepo@https://codeload.github.com/voidzero-dev/vite-plus/tar.gz: true
+
 catalogMode: prefer
 
 catalog:
