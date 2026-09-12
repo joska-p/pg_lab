@@ -334,21 +334,21 @@ function App() {
 
         <Section title="Typography">
           <div {...stylex.props(styles.typeRow)}>
-            <span {...stylex.props(styles.typeLabel)}>body · 14px / 400</span>
+            <span {...stylex.props(styles.typeLabel)}>body · 16px / 400</span>
             <p {...stylex.props(styles.typeBody)}>The quick brown fox jumps over the lazy dog</p>
           </div>
           <div {...stylex.props(styles.typeRow)}>
-            <span {...stylex.props(styles.typeLabel)}>label · 12px / 600</span>
+            <span {...stylex.props(styles.typeLabel)}>label · 14px / 600</span>
             <p {...stylex.props(styles.typeLabelText)}>
               The quick brown fox jumps over the lazy dog
             </p>
           </div>
           <div {...stylex.props(styles.typeRow)}>
-            <span {...stylex.props(styles.typeLabel)}>value / mono · 12px</span>
+            <span {...stylex.props(styles.typeLabel)}>value / mono · 14px</span>
             <p {...stylex.props(styles.typeValue)}>0x3F 0x2A mono metrics 0123456789</p>
           </div>
           <div {...stylex.props(styles.typeRow)}>
-            <span {...stylex.props(styles.typeLabel)}>caption · 11px</span>
+            <span {...stylex.props(styles.typeLabel)}>caption · 12px</span>
             <p {...stylex.props(styles.typeCaption)}>The quick brown fox jumps over the lazy dog</p>
           </div>
         </Section>
