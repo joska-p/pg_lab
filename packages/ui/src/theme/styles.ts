@@ -9,24 +9,28 @@ export const styles = stylex.create({
     transitionTimingFunction: motion.easingOut,
     transitionProperty: "background-color, border-color, color, box-shadow, opacity",
   },
+
   active: {
     borderColor: color.borderActive,
-    color: color.accentActive,
+    color: color.primary,
   },
+
   selected: {
-    backgroundColor: color.accent,
-    borderColor: color.accentActive,
-    color: color.onAccent,
+    backgroundColor: color.primaryBackground,
+    borderColor: color.primary,
+    color: color.primary,
   },
+
   disabled: {
     cursor: "not-allowed",
     opacity: 0.45,
   },
+
   focusRing: {
     outline: "none",
     boxShadow: {
       default: null,
-      ":focus-visible": `0 0 0 1px ${color.accent}, 0 0 0 3px color-mix(in srgb, ${color.accent} 25%, transparent)`,
+      ":focus-visible": `0 0 0 2px ${color.background}, 0 0 0 3px ${color.primary}`,
     },
   },
 });

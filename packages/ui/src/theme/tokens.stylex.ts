@@ -2,60 +2,94 @@ import * as stylex from "@stylexjs/stylex";
 import { palette } from "./palette.stylex.ts";
 
 export const color = stylex.defineVars({
-  background: palette.bg0Hard,
-  surface: palette.bg0,
-  surfaceElevated: palette.bg1,
-  text: palette.fg1,
-  textMuted: palette.fg3,
-  textDisabled: palette.bg4,
-  border: palette.bg2,
-  borderHover: palette.bg3,
-  borderActive: palette.orangeActive,
-  accent: palette.orange,
-  accentHover: palette.orangeHover,
-  accentActive: palette.orangeActive,
-  onAccent: palette.black,
-  success: palette.green,
-  warning: palette.yellow,
-  error: palette.red,
+  // ─────────────────────────────────────────
+  // Surfaces
+  // ─────────────────────────────────────────
+
+  background: palette.dark0,
+  surface: palette.dark1,
+  surfaceRaised: palette.dark2,
+  surfaceSunken: palette.dark0,
+
+  // ─────────────────────────────────────────
+  // Content
+  // ─────────────────────────────────────────
+
+  text: palette.light0,
+  textMuted: palette.light2,
+  textSubtle: palette.light3,
+
+  // ─────────────────────────────────────────
+  // Structure
+  // ─────────────────────────────────────────
+
+  border: "oklch(100% 0 0 / 7%)",
+  borderHover: "oklch(100% 0 0 / 11%)",
+  borderActive: "oklch(100% 0 0 / 16%)",
+
+  // ─────────────────────────────────────────
+  // Semantic colors
+  // ─────────────────────────────────────────
+
+  primary: palette.blue,
+  primaryBackground: "oklch(68% 0.105 235 / 12%)",
+  onPrimary: palette.dark0,
+
+  secondary: palette.green,
+  secondaryBackground: "oklch(70% 0.115 125 / 12%)",
+  onSecondary: palette.dark0,
+
+  accent: palette.pink,
+  accentBackground: "oklch(68% 0.135 350 / 12%)",
+  onAccent: palette.light0,
+
+  warning: palette.orange,
+  warningBackground: "oklch(72% 0.145 55 / 12%)",
+  onWarning: palette.dark0,
+
+  danger: palette.red,
+  dangerBackground: "oklch(65% 0.155 25 / 12%)",
+  onDanger: palette.light0,
 });
 
-export const space = stylex.defineVars({
-  xs: "4px",
-  sm: "8px",
-  md: "12px",
-  lg: "16px",
-  xl: "24px",
+export const radius = stylex.defineConsts({
+  none: "0px",
+  sm: "3px",
+  md: "5px",
+  lg: "7px",
+  full: "9999px",
 });
 
-export const radius = stylex.defineVars({
-  sm: "4px",
-  md: "6px",
-  lg: "8px",
-});
+export const typography = stylex.defineConsts({
+  fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
 
-export const typography = stylex.defineVars({
-  fontSans: 'system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-  fontMono: 'ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace',
-  sizeBody: "16px",
-  sizeLabel: "14px",
-  sizeValue: "14px",
-  sizeCaption: "12px",
-  lineBody: 1.45,
-  lineLabel: 1.4,
-  lineValue: 1.4,
-  lineCaption: 1.35,
-  weightRegular: 400,
+  fontFamilyMono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+
+  sizeXs: "11px",
+  sizeSm: "12px",
+  sizeMd: "14px",
+  sizeLg: "16px",
+  sizeXl: "20px",
+  sizeXxl: "28px",
+
+  weightNormal: 400,
   weightMedium: 500,
   weightSemibold: 600,
+
+  lineTight: 1.2,
+  lineNormal: 1.45,
 });
 
-export const shadow = stylex.defineVars({
-  panel: "0 1px 2px rgba(0, 0, 0, 0.45), 0 4px 16px rgba(0, 0, 0, 0.35)",
-  overlay: "0 4px 16px rgba(0, 0, 0, 0.5), 0 16px 48px rgba(0, 0, 0, 0.55)",
-});
-
-export const blur = stylex.defineVars({
-  panel: "12px",
-  overlay: "24px",
+export const space = stylex.defineConsts({
+  "0": "0px",
+  "1": "2px",
+  "2": "4px",
+  "3": "6px",
+  "4": "8px",
+  "5": "12px",
+  "6": "16px",
+  "7": "20px",
+  "8": "24px",
+  "9": "32px",
+  "10": "40px",
 });

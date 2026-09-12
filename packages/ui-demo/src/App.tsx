@@ -1,48 +1,54 @@
 import { useState } from "react";
 import * as stylex from "@stylexjs/stylex";
-import { motion } from "@repo/ui/src/theme/consts.stylex.ts";
-import {
-  blur,
-  color,
-  radius,
-  shadow,
-  space,
-  typography,
-} from "@repo/ui/src/theme/tokens.stylex.ts";
+import { color, radius, space, typography } from "@repo/ui/src/theme/tokens.stylex.ts";
 import { palette } from "@repo/ui/src/theme/palette.stylex.ts";
+import { lightTheme } from "@repo/ui/src/theme/themes.stylex.ts";
+import { effects } from "@repo/ui/src/theme/effects.stylex.ts";
+import { motion } from "@repo/ui/src/theme/consts.stylex.ts";
 import { styles as ui } from "@repo/ui/src/theme/styles.ts";
 
-const colors: Array<[string, string, string]> = [
-  ["background", color.background, palette.bg0Hard],
-  ["surface", color.surface, palette.bg0],
-  ["surfaceElevated", color.surfaceElevated, palette.bg1],
-  ["text", color.text, palette.fg1],
-  ["textMuted", color.textMuted, palette.fg3],
-  ["textDisabled", color.textDisabled, palette.bg4],
-  ["border", color.border, palette.bg2],
-  ["borderHover", color.borderHover, palette.bg3],
-  ["borderActive", color.borderActive, palette.orangeActive],
-  ["accent", color.accent, palette.orange],
-  ["accentHover", color.accentHover, palette.orangeHover],
-  ["accentActive", color.accentActive, palette.orangeActive],
-  ["onAccent", color.onAccent, palette.black],
-  ["success", color.success, palette.green],
-  ["warning", color.warning, palette.yellow],
-  ["error", color.error, palette.red],
+const semanticColors: Array<[string, string, string]> = [
+  ["primary", color.primary, palette.blue],
+  ["primary background", color.primaryBackground, "background"],
+  ["secondary", color.secondary, palette.green],
+  ["secondary background", color.secondaryBackground, "background"],
+  ["accent", color.accent, palette.pink],
+  ["accent background", color.accentBackground, "background"],
+  ["warning", color.warning, palette.orange],
+  ["warning background", color.warningBackground, "background"],
+  ["danger", color.danger, palette.red],
+  ["danger background", color.dangerBackground, "background"],
+];
+
+const surfaces: Array<[string, string, string]> = [
+  ["background", color.background, "page"],
+  ["surface", color.surface, "base surface"],
+  ["surface raised", color.surfaceRaised, "elevated"],
+  ["surface sunken", color.surfaceSunken, "recessed"],
+];
+
+const content: Array<[string, string]> = [
+  ["text", color.text],
+  ["text muted", color.textMuted],
+  ["text subtle", color.textSubtle],
 ];
 
 const spacings: Array<[string, string, string]> = [
-  ["xs", space.xs, "4px"],
-  ["sm", space.sm, "8px"],
-  ["md", space.md, "12px"],
-  ["lg", space.lg, "16px"],
-  ["xl", space.xl, "24px"],
+  ["1", space["1"], "2px"],
+  ["2", space["2"], "4px"],
+  ["3", space["3"], "6px"],
+  ["4", space["4"], "8px"],
+  ["5", space["5"], "12px"],
+  ["6", space["6"], "16px"],
+  ["7", space["7"], "20px"],
+  ["8", space["8"], "24px"],
+  ["9", space["9"], "32px"],
 ];
 
-const radii: Array<[string, string, string]> = [
-  ["sm", radius.sm, "4px"],
-  ["md", radius.md, "6px"],
-  ["lg", radius.lg, "8px"],
+const radii: Array<[string, string]> = [
+  ["sm", radius.sm],
+  ["md", radius.md],
+  ["lg", radius.lg],
 ];
 
 const styles = stylex.create({
@@ -50,225 +56,380 @@ const styles = stylex.create({
     minHeight: "100svh",
     backgroundColor: color.background,
     color: color.text,
-    fontFamily: typography.fontSans,
-    fontSize: typography.sizeBody,
-    lineHeight: typography.lineBody,
+    fontFamily: typography.fontFamily,
+    fontSize: typography.sizeMd,
+    lineHeight: typography.lineNormal,
+    transition: "background-color 200ms ease, color 200ms ease",
   },
+
   header: {
     maxWidth: 1040,
     margin: "0 auto",
-    padding: `${space.xl} ${space.xl} 0`,
+    padding: `${space["8"]} ${space["8"]} ${space["4"]}`,
   },
+
+  headerRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: space["6"],
+  },
+
   title: {
     margin: 0,
-    fontSize: 28,
+    fontSize: typography.sizeXxl,
     fontWeight: typography.weightSemibold,
     color: color.text,
   },
+
   tagline: {
-    margin: `${space.xs} 0 0`,
+    margin: `${space["2"]} 0 0`,
     color: color.textMuted,
+    maxWidth: 640,
   },
-  shell: {
-    maxWidth: 1040,
-    margin: "0 auto",
-    padding: `0 ${space.xl} ${space.xl}`,
-    display: "flex",
-    flexDirection: "column",
-    gap: space.lg,
-  },
-  section: {
-    backgroundColor: color.surface,
+
+  themeToggle: {
+    flexShrink: 0,
+    padding: `${space["2"]} ${space["4"]}`,
+    borderRadius: radius.md,
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: color.border,
-    borderRadius: radius.lg,
-    padding: space.lg,
+    backgroundColor: color.surface,
+    color: color.text,
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.sizeMd,
+    cursor: "pointer",
   },
+
+  shell: {
+    maxWidth: 1040,
+    margin: "0 auto",
+    padding: `0 ${space["8"]} ${space["8"]}`,
+    display: "flex",
+    flexDirection: "column",
+    gap: space["6"],
+  },
+
+  section: {
+    backgroundColor: color.surface,
+    borderRadius: radius.lg,
+    padding: space["6"],
+  },
+
   sectionTitle: {
     display: "block",
-    fontSize: typography.sizeLabel,
+    fontSize: typography.sizeMd,
     fontWeight: typography.weightSemibold,
     color: color.textMuted,
     textTransform: "uppercase",
     letterSpacing: 1,
-    marginBottom: space.lg,
+    marginBottom: space["6"],
   },
+
   swatchGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
-    gap: space.md,
+    gap: space["5"],
   },
+
+  swatchItem: {
+    display: "flex",
+    flexDirection: "column",
+    minWidth: 0,
+  },
+
   swatch: (backgroundColor: string) => ({
     aspectRatio: "1 / 1",
     borderRadius: radius.md,
     backgroundColor,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: color.borderHover,
   }),
+
+  swatchBackground: (backgroundColor: string) => ({
+    aspectRatio: "2 / 1",
+    borderRadius: radius.md,
+    backgroundColor,
+  }),
+
   swatchName: {
     display: "block",
-    marginTop: space.sm,
-    fontSize: typography.sizeValue,
+    marginTop: space["3"],
+    fontSize: typography.sizeMd,
     fontWeight: typography.weightMedium,
     color: color.text,
   },
-  swatchHex: {
+
+  swatchValue: {
     display: "block",
-    fontFamily: typography.fontMono,
-    fontSize: typography.sizeCaption,
+    marginTop: 2,
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.sizeSm,
     color: color.textMuted,
   },
+
+  surfaceGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+    gap: space["4"],
+  },
+
+  surface: (backgroundColor: string) => ({
+    minHeight: 120,
+    padding: space["5"],
+    borderRadius: radius.md,
+    backgroundColor,
+  }),
+
+  surfaceLabel: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.sizeMd,
+    color: color.textMuted,
+  },
+
+  surfaceDescription: {
+    margin: `${space["2"]} 0 0`,
+    color: color.text,
+  },
+
+  contentStack: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space["4"],
+  },
+
+  contentRow: {
+    display: "flex",
+    alignItems: "baseline",
+    gap: space["6"],
+  },
+
+  contentLabel: {
+    width: 100,
+    flexShrink: 0,
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.sizeMd,
+    color: color.textMuted,
+  },
+
+  colorBackground: (backgroundColor: string) => ({
+    backgroundColor,
+    padding: `${space["3"]} ${space["4"]}`,
+    borderRadius: radius.sm,
+  }),
+
+  semanticText: (foregroundColor: string) => ({
+    color: foregroundColor,
+    fontWeight: typography.weightMedium,
+  }),
+
   spaceRow: {
     display: "flex",
     alignItems: "center",
-    gap: space.md,
-    marginBottom: space.md,
+    gap: space["4"],
+    marginBottom: space["3"],
   },
+
+  spaceLabel: {
+    width: 70,
+    flexShrink: 0,
+    color: color.textMuted,
+    fontFamily: typography.fontFamily,
+    fontSize: typography.sizeMd,
+  },
+
   spaceBar: (width: string) => ({
     width,
     height: 10,
     borderRadius: radius.sm,
-    backgroundColor: color.accent,
+    backgroundColor: color.primary,
   }),
-  spaceLabel: {
-    width: 40,
-    color: color.textMuted,
-    fontFamily: typography.fontMono,
-    fontSize: typography.sizeCaption,
-  },
+
   radiusRow: {
     display: "flex",
-    gap: space.xl,
+    flexWrap: "wrap",
+    gap: space["8"],
   },
+
+  radiusItem: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space["3"],
+    alignItems: "center",
+  },
+
   radiusBox: (borderRadius: string) => ({
     width: 72,
     height: 72,
     borderRadius,
-    backgroundColor: color.surfaceElevated,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: color.borderHover,
+    backgroundColor: color.surfaceRaised,
   }),
+
   typeRow: {
-    marginBottom: space.sm,
+    marginBottom: space["5"],
   },
+
   typeLabel: {
     display: "block",
-    fontSize: typography.sizeCaption,
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.sizeMd,
     color: color.textMuted,
-    fontFamily: typography.fontMono,
-    marginBottom: 2,
+    marginBottom: space["2"],
   },
+
   typeBody: {
-    fontFamily: typography.fontSans,
-    fontSize: typography.sizeBody,
-    fontWeight: typography.weightRegular,
-    lineHeight: typography.lineBody,
+    margin: 0,
+    fontSize: typography.sizeMd,
+    fontWeight: typography.weightNormal,
+    lineHeight: typography.lineNormal,
   },
+
   typeLabelText: {
-    fontFamily: typography.fontSans,
-    fontSize: typography.sizeLabel,
+    margin: 0,
+    fontSize: typography.sizeMd,
     fontWeight: typography.weightSemibold,
-    lineHeight: typography.lineLabel,
-    color: color.text,
+    lineHeight: typography.lineNormal,
   },
+
   typeValue: {
-    fontFamily: typography.fontMono,
-    fontSize: typography.sizeValue,
-    fontWeight: typography.weightRegular,
-    lineHeight: typography.lineValue,
+    margin: 0,
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.sizeMd,
+    lineHeight: typography.lineNormal,
   },
+
   typeCaption: {
-    fontFamily: typography.fontSans,
-    fontSize: typography.sizeCaption,
-    fontWeight: typography.weightRegular,
-    lineHeight: typography.lineCaption,
+    margin: 0,
+    fontSize: typography.sizeMd,
     color: color.textMuted,
   },
-  elevationRow: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space.lg,
+
+  elevationGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: space["5"],
   },
+
   panel: {
-    padding: space.lg,
-    borderRadius: radius.lg,
-    backgroundColor: color.surfaceElevated,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: color.border,
+    minHeight: 100,
+    padding: space["5"],
+    borderRadius: radius.md,
+    backgroundColor: color.surfaceRaised,
   },
-  panelShadow: {
-    boxShadow: shadow.panel,
-  },
-  panelOverlay: {
-    boxShadow: shadow.overlay,
-    backdropFilter: blur.overlay,
-  },
+
   panelTitle: {
     display: "block",
-    fontSize: typography.sizeLabel,
     fontWeight: typography.weightSemibold,
-    marginBottom: space.xs,
+    marginBottom: space["2"],
   },
+
   panelHint: {
     margin: 0,
-    fontSize: typography.sizeValue,
+    fontSize: typography.sizeSm,
     color: color.textMuted,
   },
+
   buttonRow: {
     display: "flex",
     flexWrap: "wrap",
-    gap: space.md,
+    gap: space["3"],
     alignItems: "center",
   },
+
   button: {
-    padding: `${space.sm} ${space.lg}`,
+    padding: `${space["3"]} ${space["5"]}`,
     borderRadius: radius.md,
-    fontFamily: typography.fontSans,
-    fontSize: typography.sizeBody,
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.sizeMd,
     fontWeight: typography.weightMedium,
     borderWidth: "1px",
     borderStyle: "solid",
+    cursor: "pointer",
   },
+
   buttonPrimary: {
-    backgroundColor: color.accent,
-    borderColor: color.accentActive,
-    color: color.onAccent,
+    backgroundColor: color.primary,
+    borderColor: "transparent",
+    color: color.onPrimary,
   },
+
+  buttonSecondary: {
+    backgroundColor: color.secondaryBackground,
+    borderColor: "transparent",
+    color: color.secondary,
+  },
+
+  buttonAccent: {
+    backgroundColor: color.accentBackground,
+    borderColor: "transparent",
+    color: color.accent,
+  },
+
   buttonGhost: {
     backgroundColor: "transparent",
-    borderColor: color.borderHover,
+    borderColor: color.border,
     color: color.text,
   },
+
+  buttonDanger: {
+    backgroundColor: color.dangerBackground,
+    borderColor: "transparent",
+    color: color.danger,
+  },
+
+  glowPrimary: {
+    color: color.primary,
+  },
+
+  glowAccent: {
+    color: color.accent,
+  },
+
+  glowWarning: {
+    color: color.warning,
+  },
+
+  glowDemo: {
+    display: "flex",
+    alignItems: "center",
+    gap: space["6"],
+    flexWrap: "wrap",
+  },
+
+  glowOrb: {
+    width: 48,
+    height: 48,
+    borderRadius: "50%",
+  },
+
+  glowBlue: {
+    backgroundColor: color.primary,
+    color: color.primary,
+  },
+
+  glowPink: {
+    backgroundColor: color.accent,
+    color: color.accent,
+  },
+
+  glowOrange: {
+    backgroundColor: color.warning,
+    color: color.warning,
+  },
+
   motionRow: {
     display: "flex",
     flexWrap: "wrap",
-    gap: space.sm,
-    marginTop: space.lg,
+    gap: space["2"],
+    marginTop: space["6"],
   },
+
   motionTag: {
-    padding: `${space.xs} ${space.sm}`,
+    padding: `${space["2"]} ${space["3"]}`,
     borderRadius: radius.sm,
-    backgroundColor: color.surfaceElevated,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: color.border,
-    fontFamily: typography.fontMono,
-    fontSize: typography.sizeCaption,
+    backgroundColor: color.surfaceRaised,
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.sizeMd,
     color: color.textMuted,
-  },
-  swatchItem: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  radiusItem: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space.sm,
-    alignItems: "center",
   },
 });
 
@@ -283,27 +444,73 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function App() {
   const [count, setCount] = useState(0);
+  const [light, setLight] = useState(false);
 
   return (
-    <div {...stylex.props(styles.page)}>
+    <div {...stylex.props(styles.page, light && lightTheme)}>
       <header {...stylex.props(styles.header)}>
-        <h1 {...stylex.props(styles.title)}>@repo/ui — theme demo</h1>
-        <p {...stylex.props(styles.tagline)}>
-          Gruvbox dark · compact & tactile creative-instrument visual language
-        </p>
+        <div {...stylex.props(styles.headerRow)}>
+          <div>
+            <h1 {...stylex.props(styles.title)}>@repo/ui — theme demo</h1>
+
+            <p {...stylex.props(styles.tagline)}>
+              Gruvbox-inspired creative toolkit · dark first · subtle & expressive
+            </p>
+          </div>
+
+          <button
+            type="button"
+            {...stylex.props(styles.themeToggle)}
+            onClick={() => setLight((value) => !value)}
+          >
+            {light ? "Dark theme" : "Light theme"}
+          </button>
+        </div>
       </header>
 
       <main {...stylex.props(styles.shell)}>
-        <Section title="Colors">
+        <Section title="Semantic colors">
           <div {...stylex.props(styles.swatchGrid)}>
-            {colors.map(([name, ref, hex]) => (
+            {semanticColors.map(([name, ref, value]) => (
               <figure key={name} {...stylex.props(styles.swatchItem)}>
-                <div {...stylex.props(styles.swatch(ref))} />
+                <div
+                  {...stylex.props(
+                    name.includes("background") ? styles.swatchBackground(ref) : styles.swatch(ref),
+                  )}
+                />
+
                 <figcaption>
                   <span {...stylex.props(styles.swatchName)}>{name}</span>
-                  <span {...stylex.props(styles.swatchHex)}>{hex}</span>
+
+                  <span {...stylex.props(styles.swatchValue)}>{value}</span>
                 </figcaption>
               </figure>
+            ))}
+          </div>
+        </Section>
+
+        <Section title="Surfaces">
+          <div {...stylex.props(styles.surfaceGrid)}>
+            {surfaces.map(([name, ref, description]) => (
+              <div key={name} {...stylex.props(styles.surface(ref))}>
+                <span {...stylex.props(styles.surfaceLabel)}>{name}</span>
+
+                <p {...stylex.props(styles.surfaceDescription)}>{description}</p>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        <Section title="Content">
+          <div {...stylex.props(styles.contentStack)}>
+            {content.map(([name, ref]) => (
+              <div key={name} {...stylex.props(styles.contentRow)}>
+                <span {...stylex.props(styles.contentLabel)}>{name}</span>
+
+                <span {...stylex.props(styles.semanticText(ref))}>
+                  The quick brown fox jumps over the lazy dog
+                </span>
+              </div>
             ))}
           </div>
         </Section>
@@ -312,8 +519,9 @@ function App() {
           {spacings.map(([name, ref, px]) => (
             <div key={name} {...stylex.props(styles.spaceRow)}>
               <span {...stylex.props(styles.spaceLabel)}>
-                {name} ({px})
+                {name} · {px}
               </span>
+
               <div {...stylex.props(styles.spaceBar(ref))} />
             </div>
           ))}
@@ -321,12 +529,11 @@ function App() {
 
         <Section title="Radius">
           <div {...stylex.props(styles.radiusRow)}>
-            {radii.map(([name, ref, px]) => (
+            {radii.map(([name, ref]) => (
               <div key={name} {...stylex.props(styles.radiusItem)}>
                 <div {...stylex.props(styles.radiusBox(ref))} />
-                <span {...stylex.props(styles.swatchName)}>
-                  {name} ({px})
-                </span>
+
+                <span {...stylex.props(styles.swatchValue)}>{name}</span>
               </div>
             ))}
           </div>
@@ -334,37 +541,63 @@ function App() {
 
         <Section title="Typography">
           <div {...stylex.props(styles.typeRow)}>
-            <span {...stylex.props(styles.typeLabel)}>body · 16px / 400</span>
+            <span {...stylex.props(styles.typeLabel)}>body</span>
+
             <p {...stylex.props(styles.typeBody)}>The quick brown fox jumps over the lazy dog</p>
           </div>
+
           <div {...stylex.props(styles.typeRow)}>
-            <span {...stylex.props(styles.typeLabel)}>label · 14px / 600</span>
+            <span {...stylex.props(styles.typeLabel)}>label</span>
+
             <p {...stylex.props(styles.typeLabelText)}>
               The quick brown fox jumps over the lazy dog
             </p>
           </div>
+
           <div {...stylex.props(styles.typeRow)}>
-            <span {...stylex.props(styles.typeLabel)}>value / mono · 14px</span>
-            <p {...stylex.props(styles.typeValue)}>0x3F 0x2A mono metrics 0123456789</p>
+            <span {...stylex.props(styles.typeLabel)}>value / mono</span>
+
+            <p {...stylex.props(styles.typeValue)}>0x3F 0x2A · fractal iteration · 0123456789</p>
           </div>
+
           <div {...stylex.props(styles.typeRow)}>
-            <span {...stylex.props(styles.typeLabel)}>caption · 12px</span>
-            <p {...stylex.props(styles.typeCaption)}>The quick brown fox jumps over the lazy dog</p>
+            <span {...stylex.props(styles.typeLabel)}>caption</span>
+
+            <p {...stylex.props(styles.typeCaption)}>
+              Small supporting information should remain quiet.
+            </p>
           </div>
         </Section>
 
         <Section title="Elevation">
-          <div {...stylex.props(styles.elevationRow)}>
-            <div {...stylex.props(styles.panel, styles.panelShadow)}>
+          <div {...stylex.props(styles.elevationGrid)}>
+            <div {...stylex.props(styles.panel, effects.raised)}>
               <span {...stylex.props(styles.panelTitle)}>Panel</span>
-              <p {...stylex.props(styles.panelHint)}>shadow.panel — dual-layer drop shadow below</p>
+
+              <p {...stylex.props(styles.panelHint)}>Depth without a visible border.</p>
             </div>
-            <div {...stylex.props(styles.panel, styles.panelOverlay)}>
+
+            <div {...stylex.props(styles.panel, effects.floating)}>
               <span {...stylex.props(styles.panelTitle)}>Overlay</span>
+
               <p {...stylex.props(styles.panelHint)}>
-                shadow.overlay + blur.overlay · elevated surface with blurred backdrop
+                A stronger elevation treatment for floating UI.
               </p>
             </div>
+          </div>
+        </Section>
+
+        <Section title="Glow">
+          <div {...stylex.props(styles.glowDemo)}>
+            <div {...stylex.props(styles.glowOrb, styles.glowBlue, effects.glow)} />
+
+            <div {...stylex.props(styles.glowOrb, styles.glowPink, effects.glow)} />
+
+            <div {...stylex.props(styles.glowOrb, styles.glowOrange, effects.glow)} />
+
+            <span {...stylex.props(styles.panelHint)}>
+              Glow follows the element's current color.
+            </span>
           </div>
         </Section>
 
@@ -373,20 +606,43 @@ function App() {
             <button
               type="button"
               {...stylex.props(ui.interactive, ui.focusRing, styles.button, styles.buttonPrimary)}
-              onClick={() => setCount((c) => c + 1)}
+              onClick={() => setCount((value) => value + 1)}
             >
               Count is {count}
             </button>
+
+            <button
+              type="button"
+              {...stylex.props(ui.interactive, ui.focusRing, styles.button, styles.buttonSecondary)}
+            >
+              Secondary
+            </button>
+
+            <button
+              type="button"
+              {...stylex.props(ui.interactive, ui.focusRing, styles.button, styles.buttonAccent)}
+            >
+              Accent
+            </button>
+
             <button
               type="button"
               {...stylex.props(ui.interactive, ui.focusRing, styles.button, styles.buttonGhost)}
             >
               Ghost
             </button>
+
+            <button
+              type="button"
+              {...stylex.props(ui.interactive, ui.focusRing, styles.button, styles.buttonDanger)}
+            >
+              Danger
+            </button>
+
             <button
               type="button"
               disabled
-              {...stylex.props(ui.interactive, ui.disabled, styles.button, styles.buttonGhost)}
+              {...stylex.props(ui.disabled, styles.button, styles.buttonGhost)}
             >
               Disabled
             </button>
@@ -394,9 +650,13 @@ function App() {
 
           <div {...stylex.props(styles.motionRow)}>
             <span {...stylex.props(styles.motionTag)}>{motion.durationFast} fast</span>
+
             <span {...stylex.props(styles.motionTag)}>{motion.durationNormal} normal</span>
+
             <span {...stylex.props(styles.motionTag)}>{motion.durationSlow} slow</span>
+
             <span {...stylex.props(styles.motionTag)}>out {motion.easingOut}</span>
+
             <span {...stylex.props(styles.motionTag)}>in-out {motion.easingInOut}</span>
           </div>
         </Section>
