@@ -13,11 +13,13 @@
     "url": "git+https://github.com/author/library.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "type": "module",
   "exports": {
     ".": "./dist/index.mjs",
+    "./src/*": "./src/*",
     "./package.json": "./package.json"
   },
   "publishConfig": {
