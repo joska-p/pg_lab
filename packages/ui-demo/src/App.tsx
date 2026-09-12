@@ -230,7 +230,7 @@ const styles = stylex.create({
   },
 
   spaceLabel: {
-    width: 70,
+    width: 100,
     flexShrink: 0,
     color: color.textMuted,
     fontFamily: typography.fontFamily,
@@ -353,15 +353,15 @@ const styles = stylex.create({
   },
 
   buttonSecondary: {
-    backgroundColor: color.secondaryBackground,
+    backgroundColor: color.secondary,
     borderColor: "transparent",
-    color: color.secondary,
+    color: color.onSecondary,
   },
 
   buttonAccent: {
-    backgroundColor: color.accentBackground,
+    backgroundColor: color.accent,
     borderColor: "transparent",
-    color: color.accent,
+    color: color.onAccent,
   },
 
   buttonGhost: {
@@ -370,10 +370,16 @@ const styles = stylex.create({
     color: color.text,
   },
 
-  buttonDanger: {
-    backgroundColor: color.dangerBackground,
+  buttonWarning: {
+    backgroundColor: color.warning,
     borderColor: "transparent",
-    color: color.danger,
+    color: color.onWarning,
+  },
+
+  buttonDanger: {
+    backgroundColor: color.danger,
+    borderColor: "transparent",
+    color: color.onDanger,
   },
 
   glowPrimary: {
@@ -630,6 +636,13 @@ function App() {
               {...stylex.props(ui.interactive, ui.focusRing, styles.button, styles.buttonGhost)}
             >
               Ghost
+            </button>
+
+            <button
+              type="button"
+              {...stylex.props(ui.interactive, ui.focusRing, styles.button, styles.buttonWarning)}
+            >
+              Warning
             </button>
 
             <button

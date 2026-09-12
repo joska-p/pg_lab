@@ -41,7 +41,7 @@ export const color = stylex.defineVars({
 
   accent: palette.pink,
   accentBackground: "oklch(68% 0.135 350 / 12%)",
-  onAccent: palette.light0,
+  onAccent: palette.dark0,
 
   warning: palette.orange,
   warningBackground: "oklch(72% 0.145 55 / 12%)",
@@ -49,7 +49,7 @@ export const color = stylex.defineVars({
 
   danger: palette.red,
   dangerBackground: "oklch(65% 0.155 25 / 12%)",
-  onDanger: palette.light0,
+  onDanger: palette.dark0,
 });
 
 export const radius = stylex.defineConsts({
@@ -65,10 +65,10 @@ export const typography = stylex.defineConsts({
 
   fontFamilyMono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
 
-  sizeXs: "11px",
-  sizeSm: "12px",
-  sizeMd: "14px",
-  sizeLg: "16px",
+  sizeXs: "12px",
+  sizeSm: "14px",
+  sizeMd: "16px",
+  sizeLg: "18px",
   sizeXl: "20px",
   sizeXxl: "28px",
 
