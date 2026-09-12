@@ -34,14 +34,11 @@
   },
   "devDependencies": {
     "@stylexjs/stylex": "catalog:",
-    "@types/node": "^26.1.1",
-    "bumpp": "^11.1.0",
-    "typescript": "^7.0.2",
+    "@types/node": "catalog:",
+    "bumpp": "catalog:",
+    "typescript": "catalog:",
     "unplugin-stylex": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:"
-  },
-  "inlinedDependencies": {
-    "@stylexjs/stylex": "0.19.0"
   }
 }
