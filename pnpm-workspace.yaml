@@ -3,14 +3,13 @@ packages:
   - packages/*
   - tools/*
 
-allowBuilds:
-  vite-plus-monorepo@https://codeload.github.com/voidzero-dev/vite-plus/tar.gz: true
-
 catalogMode: prefer
 
 catalog:
+  "@stylexjs/stylex": ^0.19.0
   "@types/node": ^24
   typescript: ^7.0.2
+  unplugin-stylex: ^0.6.3
   vite: npm:@voidzero-dev/vite-plus-core@0.3.1
   vite-plus: 0.3.1
 overrides:

@@ -1,6 +1,8 @@
+import stylexPlugin from "unplugin-stylex/vite";
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
+  plugins: [stylexPlugin()],
   staged: {
     "*": "vp check --fix",
   },

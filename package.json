@@ -9,6 +9,8 @@
     "prepare": "vp config"
   },
   "devDependencies": {
+    "@stylexjs/stylex": "catalog:",
+    "unplugin-stylex": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:"
   },

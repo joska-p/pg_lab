@@ -1,5 +1,5 @@
 {
-  "name": "ui",
+  "name": "@repo/ui",
   "version": "0.0.0",
   "description": "A starter for creating a TypeScript package.",
   "homepage": "https://github.com/author/library#readme",
@@ -31,10 +31,15 @@
     "prepublishOnly": "vp run build"
   },
   "devDependencies": {
+    "@stylexjs/stylex": "catalog:",
     "@types/node": "^26.1.1",
     "bumpp": "^11.1.0",
     "typescript": "^7.0.2",
+    "unplugin-stylex": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:"
+  },
+  "inlinedDependencies": {
+    "@stylexjs/stylex": "0.19.0"
   }
 }
