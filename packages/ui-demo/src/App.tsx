@@ -1210,6 +1210,51 @@ function App() {
             </div>
           </Block>
 
+          <Block title="Toggle — variants (on)">
+            <div {...stylex.props(styles.chipRow)}>
+              {BUTTON_VARIANTS.map((variant) => (
+                <Toggle key={variant} label={variant} variant={variant} defaultChecked />
+              ))}
+            </div>
+          </Block>
+
+          <Block title="Toggle — variants (off)">
+            <div {...stylex.props(styles.chipRow)}>
+              {BUTTON_VARIANTS.map((variant) => (
+                <Toggle key={variant} label={variant} variant={variant} />
+              ))}
+            </div>
+          </Block>
+
+          <Block title="Segmented — variants">
+            <div {...stylex.props(styles.chipRow)}>
+              {BUTTON_VARIANTS.map((variant) => (
+                <Segmented
+                  key={variant}
+                  label={variant}
+                  variant={variant}
+                  options={["one", "two"]}
+                  defaultValue="two"
+                />
+              ))}
+            </div>
+          </Block>
+
+          <Block title="Slider — variants">
+            <div {...stylex.props(styles.controls)}>
+              {BUTTON_VARIANTS.map((variant) => (
+                <Slider
+                  key={variant}
+                  label={variant}
+                  variant={variant}
+                  min={0}
+                  max={100}
+                  defaultValue={62}
+                />
+              ))}
+            </div>
+          </Block>
+
           <Block title="default & disabled states">
             <div {...stylex.props(styles.statesGrid)}>
               <StatePanel title="Slider — default">

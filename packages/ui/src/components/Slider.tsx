@@ -8,6 +8,7 @@ import { radius, space } from "../theme/consts.stylex.ts";
 
 type SliderProps = {
   label?: string;
+  variant?: keyof typeof fillVariants;
   min: number;
   max: number;
   step?: number;
@@ -45,9 +46,13 @@ const styles = stylex.create({
     position: "relative",
     flex: 1,
     height: THUMB_SIZE,
+    // The ring lives on the container (the input is opacity: 0, so its own
+    // shadow would be invisible) but only shows for keyboard focus: mouse
+    // clicks focus the input without matching :focus-visible.
     boxShadow: {
       default: null,
-      ":focus-within": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.ring}`,
+      [stylex.when.descendant(":focus-visible")]:
+        `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.ring}`,
     },
   },
 
@@ -70,7 +75,6 @@ const styles = stylex.create({
     width: progress,
     height: TRACK_HEIGHT,
     borderRadius: radius.full,
-    backgroundColor: colors.primary,
   }),
 
   thumb: (progress: string) => ({
@@ -104,9 +108,54 @@ const styles = stylex.create({
   },
 });
 
+const fillVariants = stylex.create({
+  primary: {
+    backgroundColor: colors.primary,
+  },
+  secondary: {
+    backgroundColor: colors.secondary,
+  },
+  accent: {
+    backgroundColor: colors.accent,
+  },
+  warning: {
+    backgroundColor: colors.warning,
+  },
+  destructive: {
+    backgroundColor: colors.destructive,
+  },
+  // Muted has no saturated fill: like Toggle's knob, the signal uses the
+  // foreground token so progress stays readable on the muted track.
+  muted: {
+    backgroundColor: colors.mutedForeground,
+  },
+});
+
+const thumbVariants = stylex.create({
+  primary: {
+    borderColor: colors.primary,
+  },
+  secondary: {
+    borderColor: colors.secondary,
+  },
+  accent: {
+    borderColor: colors.accent,
+  },
+  warning: {
+    borderColor: colors.warning,
+  },
+  destructive: {
+    borderColor: colors.destructive,
+  },
+  muted: {
+    borderColor: colors.mutedForeground,
+  },
+});
+
 export function Slider(props: SliderProps) {
   const {
     label,
+    variant = "primary",
     min,
     max,
     step = 1,
@@ -142,8 +191,8 @@ export function Slider(props: SliderProps) {
 
       <div {...stylex.props(styles.container, disabled ? interactive.disabled : null, style)}>
         <div {...stylex.props(styles.track)} />
-        <div {...stylex.props(styles.fill(progress))} />
-        <div {...stylex.props(styles.thumb(progress))} />
+        <div {...stylex.props(styles.fill(progress), fillVariants[variant])} />
+        <div {...stylex.props(styles.thumb(progress), thumbVariants[variant])} />
 
         <input
           id={controlId}
@@ -155,7 +204,7 @@ export function Slider(props: SliderProps) {
           onChange={handleChange}
           disabled={disabled}
           aria-label={label}
-          {...stylex.props(styles.input)}
+          {...stylex.props(styles.input, stylex.defaultMarker())}
         />
       </div>
 

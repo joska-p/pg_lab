@@ -13,6 +13,7 @@ type SegmentOption<T extends string> = {
 
 type SegmentedProps<T extends string> = {
   label?: string;
+  variant?: keyof typeof chosenVariants;
   options: readonly T[] | readonly SegmentOption<T>[];
   value?: T;
   defaultValue?: T;
@@ -48,16 +49,56 @@ const styles = stylex.create({
     backgroundColor: "transparent",
     color: colors.mutedForeground,
   },
+});
 
-  chosen: {
+const chosenVariants = stylex.create({
+  primary: {
     borderColor: colors.primary,
     backgroundColor: colors.primary,
     color: colors.primaryForeground,
   },
+  secondary: {
+    borderColor: colors.secondary,
+    backgroundColor: colors.secondary,
+    color: colors.secondaryForeground,
+  },
+  accent: {
+    borderColor: colors.accent,
+    backgroundColor: colors.accent,
+    color: colors.accentForeground,
+  },
+  warning: {
+    borderColor: colors.warning,
+    backgroundColor: colors.warning,
+    color: colors.warningForeground,
+  },
+  destructive: {
+    borderColor: colors.destructive,
+    backgroundColor: colors.destructive,
+    color: colors.destructiveForeground,
+  },
+  // Muted carries no fill color of its own: like Toggle's OFF state, the
+  // signal goes through the border + brighter text instead of a fill that
+  // would blend into the muted group background.
+  muted: {
+    borderColor: colors.mutedForeground,
+    backgroundColor: "transparent",
+    color: colors.foreground,
+  },
 });
 
 export function Segmented<T extends string>(props: SegmentedProps<T>) {
-  const { label, options, value, defaultValue, onValueChange, disabled, id: idProp, style } = props;
+  const {
+    label,
+    variant = "primary",
+    options,
+    value,
+    defaultValue,
+    onValueChange,
+    disabled,
+    id: idProp,
+    style,
+  } = props;
 
   const id = useId();
   const groupId = idProp ?? id;
@@ -113,7 +154,7 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
               disabled={disabled}
               {...stylex.props(
                 styles.option,
-                chosen ? styles.chosen : null,
+                chosen ? chosenVariants[variant] : null,
                 interactive.base,
                 interactive.focusRing,
                 disabled ? interactive.disabled : null,

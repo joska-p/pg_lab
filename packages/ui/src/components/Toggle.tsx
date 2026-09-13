@@ -8,6 +8,7 @@ import { radius, space } from "../theme/consts.stylex.ts";
 
 type ToggleProps = {
   label?: string;
+  variant?: keyof typeof trackOnVariants;
   checked?: boolean;
   defaultChecked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
@@ -41,14 +42,8 @@ const styles = stylex.create({
     borderColor: colors.border,
     backgroundColor: {
       default: colors.muted,
-      ":hover": colors.border,
+      ":hover": colors.mutedHover,
     },
-  },
-
-  trackOn: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primary,
-    boxShadow: `0 0 6px ${colors.primary}`,
   },
 
   knob: {
@@ -66,13 +61,92 @@ const styles = stylex.create({
 
   knobOn: {
     transform: `translateX(${KNOB_TRAVEL}px)`,
-    backgroundColor: colors.primaryForeground,
+    backgroundColor: "currentColor",
+  },
+});
+
+const trackOffVariants = stylex.create({
+  primary: {
+    borderColor: colors.primary,
+  },
+  secondary: {
+    borderColor: colors.secondary,
+  },
+  accent: {
+    borderColor: colors.accent,
+  },
+  warning: {
+    borderColor: colors.warning,
+  },
+  destructive: {
+    borderColor: colors.destructive,
+  },
+  muted: {
+    borderColor: colors.muted,
+  },
+});
+
+const trackOnVariants = stylex.create({
+  primary: {
+    backgroundColor: {
+      default: colors.primary,
+      ":hover": colors.primaryHover,
+    },
+    borderColor: colors.primary,
+    color: colors.primaryForeground,
+    boxShadow: `0 0 6px ${colors.primary}`,
+  },
+  secondary: {
+    backgroundColor: {
+      default: colors.secondary,
+      ":hover": colors.secondaryHover,
+    },
+    borderColor: colors.secondary,
+    color: colors.secondaryForeground,
+    boxShadow: `0 0 6px ${colors.secondary}`,
+  },
+  accent: {
+    backgroundColor: {
+      default: colors.accent,
+      ":hover": colors.accentHover,
+    },
+    borderColor: colors.accent,
+    color: colors.accentForeground,
+    boxShadow: `0 0 6px ${colors.accent}`,
+  },
+  warning: {
+    backgroundColor: {
+      default: colors.warning,
+      ":hover": colors.warningHover,
+    },
+    borderColor: colors.warning,
+    color: colors.warningForeground,
+    boxShadow: `0 0 6px ${colors.warning}`,
+  },
+  destructive: {
+    backgroundColor: {
+      default: colors.destructive,
+      ":hover": colors.destructiveHover,
+    },
+    borderColor: colors.destructive,
+    color: colors.destructiveForeground,
+    boxShadow: `0 0 6px ${colors.destructive}`,
+  },
+  muted: {
+    backgroundColor: {
+      default: colors.muted,
+      ":hover": colors.mutedHover,
+    },
+    borderColor: colors.muted,
+    color: colors.mutedForeground,
+    boxShadow: `0 0 6px ${colors.muted}`,
   },
 });
 
 export function Toggle(props: ToggleProps) {
   const {
     label,
+    variant = "primary",
     checked,
     defaultChecked = false,
     onCheckedChange,
@@ -110,7 +184,8 @@ export function Toggle(props: ToggleProps) {
         disabled={disabled}
         {...stylex.props(
           styles.track,
-          isOn ? styles.trackOn : null,
+          trackOffVariants[variant],
+          isOn ? trackOnVariants[variant] : null,
           interactive.base,
           interactive.focusRing,
           disabled ? interactive.disabled : null,
