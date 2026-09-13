@@ -26,10 +26,12 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     gap: space["3"],
+    flexWrap: "wrap",
   },
 
   group: {
     display: "inline-flex",
+    flexWrap: "wrap",
     gap: space["1"],
     padding: space["1"],
     borderRadius: radius.md,

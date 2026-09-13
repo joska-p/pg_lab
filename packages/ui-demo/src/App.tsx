@@ -108,6 +108,7 @@ const styles = stylex.create({
   },
 
   sectionLed: {
+    display: "inline-block",
     width: 7,
     height: 7,
     borderRadius: radius.full,
@@ -267,6 +268,7 @@ const styles = stylex.create({
   },
 
   spacingBar: (width: string) => ({
+    display: "inline-block",
     height: 8,
     width,
     borderRadius: radius.full,
@@ -283,6 +285,7 @@ const styles = stylex.create({
   },
 
   radiusChip: (value: string) => ({
+    display: "inline-block",
     width: 64,
     height: 64,
     borderRadius: value,
@@ -365,6 +368,7 @@ const styles = stylex.create({
   },
 
   ringDot: {
+    display: "inline-block",
     width: 10,
     height: 10,
     borderRadius: radius.full,
@@ -406,6 +410,7 @@ const styles = stylex.create({
   },
 
   glowDot: {
+    display: "inline-block",
     width: 14,
     height: 14,
     borderRadius: radius.full,
@@ -468,6 +473,7 @@ const styles = stylex.create({
   },
 
   motionBar: {
+    display: "inline-block",
     height: "100%",
     width: "0%",
     borderRadius: radius.full,
