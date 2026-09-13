@@ -22,9 +22,12 @@
     "./theme/tokens.stylex.ts": "./src/theme/tokens.stylex.ts",
     "./theme/consts.stylex.ts": "./src/theme/consts.stylex.ts",
     "./theme/effects.stylex.ts": "./src/theme/effects.stylex.ts",
+    "./theme/shadows.stylex.ts": "./src/theme/shadows.stylex.ts",
     "./primitives/interactive.stylex.ts": "./src/primitives/interactive.stylex.ts",
+    "./primitives/text.stylex.ts": "./src/primitives/text.stylex.ts",
     "./components/Slider": "./src/components/Slider.tsx",
     "./components/Toggle": "./src/components/Toggle.tsx",
+    "./components/Button": "./src/components/Button.tsx",
     "./components/ColorField": "./src/components/ColorField.tsx",
     "./components/Segmented": "./src/components/Segmented.tsx"
   },

@@ -2,7 +2,8 @@ import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 
-import { primitives } from "../primitives/interactive.stylex.ts";
+import { interactive } from "../primitives/interactive.stylex.ts";
+import { fieldText } from "../primitives/text.stylex.ts";
 import { colors, radius, space } from "../theme/tokens.stylex.ts";
 
 type ColorFieldProps = {
@@ -71,7 +72,7 @@ export function ColorField(props: ColorFieldProps) {
   return (
     <div {...stylex.props(styles.row)}>
       {label ? (
-        <label htmlFor={controlId} {...stylex.props(primitives.label)}>
+        <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
           {label}
         </label>
       ) : null}
@@ -84,14 +85,14 @@ export function ColorField(props: ColorFieldProps) {
         disabled={disabled}
         {...stylex.props(
           styles.input,
-          primitives.interactive,
-          primitives.focusRing,
-          disabled ? primitives.disabled : null,
+          interactive.base,
+          interactive.focusRing,
+          disabled ? interactive.disabled : null,
           style,
         )}
       />
 
-      <span {...stylex.props(styles.value, primitives.value)}>{current.toUpperCase()}</span>
+      <span {...stylex.props(styles.value, fieldText.value)}>{current.toUpperCase()}</span>
     </div>
   );
 }

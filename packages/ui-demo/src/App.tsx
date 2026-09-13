@@ -6,13 +6,24 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import { colors, radius, space, typography } from "@repo/ui/theme/tokens.stylex.ts";
 import { borderWidth, motion } from "@repo/ui/theme/consts.stylex.ts";
 import { effects } from "@repo/ui/theme/effects.stylex.ts";
-import { primitives } from "@repo/ui/primitives/interactive.stylex.ts";
+import { interactive } from "@repo/ui/primitives/interactive.stylex.ts";
+import { fieldText } from "@repo/ui/primitives/text.stylex.ts";
 import { Slider } from "@repo/ui/components/Slider";
 import { Toggle } from "@repo/ui/components/Toggle";
+import { Button } from "@repo/ui/components/Button";
 import { ColorField } from "@repo/ui/components/ColorField";
 import { Segmented } from "@repo/ui/components/Segmented";
 
 const ICONS = ["soft", "firm", "crisp"] as const;
+
+const BUTTON_VARIANTS = [
+  "primary",
+  "secondary",
+  "accent",
+  "warning",
+  "destructive",
+  "muted",
+] as const;
 
 const styles = stylex.create({
   page: {
@@ -406,7 +417,69 @@ const styles = stylex.create({
   effectNote: {
     fontFamily: typography.fontFamilySans,
     fontSize: typography.fontSizeXs,
-    color: colors.mutedForeground,
+    color: colors.foreground,
+  },
+
+  blurStage: {
+    position: "relative",
+    height: 220,
+    padding: space["4"],
+    borderRadius: radius.lg,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    overflow: "hidden",
+    backgroundColor: colors.card,
+  },
+
+  texture: {
+    position: "absolute",
+    inset: 0,
+    backgroundImage:
+      "radial-gradient(150px 150px at 18% 26%, oklch(0.832 0.159 82.987 / 90%), transparent 74%), " +
+      "radial-gradient(190px 190px at 84% 62%, oklch(0.66 0.218 30.392 / 85%), transparent 74%), " +
+      "radial-gradient(130px 130px at 68% 14%, oklch(0.765 0.158 110.835 / 90%), transparent 74%), " +
+      "radial-gradient(210px 210px at 30% 85%, oklch(0.756 0.108 137.676 / 80%), transparent 74%), " +
+      "linear-gradient(135deg, oklch(0.693 0.042 169.768 / 70%) 0%, oklch(0.705 0.098 2.189 / 60%) 50%, oklch(0.731 0.182 51.693 / 70%) 10%), " +
+      "repeating-linear-gradient(45deg, oklch(1 0 0 / 22%) 0px, oklch(1 0 0 / 22%) 2px, transparent 2px, transparent 20px), " +
+      "repeating-linear-gradient(-45deg, oklch(0% 0 0 / 30%) 0px, oklch(0% 0 0 / 30%) 2px, transparent 2px, transparent 20px)",
+    backgroundBlendMode: "screen, screen, screen, screen, normal, overlay, overlay",
+  },
+
+  blurRow: {
+    position: "absolute",
+    inset: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: space["4"],
+    flexWrap: "wrap",
+    padding: space["4"],
+  },
+
+  blurChip: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: space["1"],
+    width: 132,
+    height: 104,
+    borderRadius: radius.md,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    backgroundColor: "oklch(0% 0 0 / 30%)",
+    boxShadow: "inset 0 0 0 1px oklch(1 0 0 / 6%)",
+    color: colors.foreground,
+  },
+
+  blurChipName: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    letterSpacing: typography.letterSpacingWide,
+    textTransform: "uppercase",
+    color: colors.foreground,
   },
 
   glowDot: {
@@ -473,7 +546,7 @@ const styles = stylex.create({
   },
 
   motionBar: {
-    display: "inline-block",
+    display: "block",
     height: "100%",
     width: "0%",
     borderRadius: radius.full,
@@ -500,6 +573,17 @@ const styles = stylex.create({
     fontFamily: typography.fontFamilySans,
     fontSize: typography.fontSizeSm,
     fontWeight: typography.fontWeightMedium,
+  },
+
+  selected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+    color: colors.primaryForeground,
+  },
+
+  active: {
+    borderColor: colors.ring,
+    color: colors.primary,
   },
 
   readout: {
@@ -674,7 +758,7 @@ type BlockProps = {
 function Block({ title, children }: BlockProps) {
   return (
     <div {...stylex.props(styles.block)}>
-      <span {...stylex.props(primitives.label)}>{title}</span>
+      <span {...stylex.props(fieldText.label)}>{title}</span>
       {children}
     </div>
   );
@@ -766,6 +850,29 @@ function GlowTile({ name, note, glow }: GlowTileProps) {
   );
 }
 
+const BLUR_RECIPES = [
+  { name: "blur · sm", note: "3px", blur: effects.blurSm },
+  { name: "blur · md", note: "8px", blur: effects.blurMd },
+  { name: "blur · lg", note: "16px", blur: effects.blurLg },
+  { name: "blur · fab", note: "8px · saturate 1.4", blur: effects.blurFab },
+] as const;
+
+function BlurDemo() {
+  return (
+    <div {...stylex.props(styles.blurStage)}>
+      <div aria-hidden {...stylex.props(styles.texture)} />
+      <div {...stylex.props(styles.blurRow)}>
+        {BLUR_RECIPES.map(({ name, note, blur }) => (
+          <div key={name} {...stylex.props(styles.blurChip, blur)}>
+            <span {...stylex.props(styles.blurChipName)}>{name}</span>
+            <span {...stylex.props(styles.effectNote)}>{note}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function MotionDemo() {
   const [run, setRun] = useState(false);
 
@@ -781,7 +888,7 @@ function MotionDemo() {
         <button
           type="button"
           onClick={() => setRun((value) => !value)}
-          {...stylex.props(styles.chip, primitives.interactive, primitives.focusRing)}
+          {...stylex.props(styles.chip, interactive.base, interactive.focusRing)}
         >
           {run ? "reset" : "run"}
         </button>
@@ -814,9 +921,9 @@ function ChipGroup() {
           onClick={() => setChoice(option)}
           {...stylex.props(
             styles.chip,
-            primitives.interactive,
-            primitives.focusRing,
-            choice === option ? primitives.selected : null,
+            interactive.base,
+            interactive.focusRing,
+            choice === option ? styles.selected : null,
           )}
         >
           {option}
@@ -856,10 +963,10 @@ function HoldToggle() {
       }}
       {...stylex.props(
         styles.chip,
-        primitives.interactive,
-        primitives.focusRing,
-        on ? primitives.selected : null,
-        held ? primitives.active : null,
+        interactive.base,
+        interactive.focusRing,
+        on ? styles.selected : null,
+        held ? styles.active : null,
       )}
     >
       {on ? "on" : "off"}
@@ -910,7 +1017,7 @@ function InstrumentDemo() {
             glow ? effects.glow : null,
           )}
         />
-        <span {...stylex.props(primitives.value)}>
+        <span {...stylex.props(fieldText.value)}>
           {color.toUpperCase()} · {mode.toUpperCase()} · {scale.toFixed(2)} × · GLOW{" "}
           {glow ? "ON" : "OFF"}
         </span>
@@ -927,7 +1034,7 @@ type StatePanelProps = {
 function StatePanel({ title, children }: StatePanelProps) {
   return (
     <div {...stylex.props(styles.statePanel)}>
-      <span {...stylex.props(primitives.label)}>{title}</span>
+      <span {...stylex.props(fieldText.label)}>{title}</span>
       <div {...stylex.props(styles.stateBody)}>{children}</div>
     </div>
   );
@@ -1031,6 +1138,10 @@ function App() {
             </div>
           </Block>
 
+          <Block title="blur · depth over texture">
+            <BlurDemo />
+          </Block>
+
           <Block title="motion durations">
             <MotionDemo />
           </Block>
@@ -1044,7 +1155,7 @@ function App() {
           <Block title="active (press & hold)">
             <div {...stylex.props(styles.row)}>
               <HoldToggle />
-              <span {...stylex.props(primitives.label)}>
+              <span {...stylex.props(fieldText.label)}>
                 pointer-down lights the border · click toggles selected
               </span>
             </div>
@@ -1057,9 +1168,9 @@ function App() {
                 disabled
                 {...stylex.props(
                   styles.chip,
-                  primitives.interactive,
-                  primitives.focusRing,
-                  primitives.disabled,
+                  interactive.base,
+                  interactive.focusRing,
+                  interactive.disabled,
                 )}
               >
                 unavailable
@@ -1071,8 +1182,8 @@ function App() {
 
           <Block title="label · value">
             <div {...stylex.props(styles.readout)}>
-              <span {...stylex.props(primitives.label)}>samplerate</span>
-              <span {...stylex.props(primitives.value)}>48 kHz</span>
+              <span {...stylex.props(fieldText.label)}>samplerate</span>
+              <span {...stylex.props(fieldText.value)}>48 kHz</span>
             </div>
           </Block>
         </Section>
@@ -1080,6 +1191,24 @@ function App() {
         <Section index="03" title="widgets">
           <Block title="live instrument">
             <InstrumentDemo />
+          </Block>
+
+          <Block title="Button — variants">
+            <div {...stylex.props(styles.chipRow)}>
+              {BUTTON_VARIANTS.map((variant) => (
+                <Button key={variant} variant={variant}>
+                  {variant}
+                </Button>
+              ))}
+            </div>
+          </Block>
+
+          <Block title="Button — states">
+            <div {...stylex.props(styles.chipRow)}>
+              <Button>default</Button>
+              <Button loading>loading</Button>
+              <Button disabled>disabled</Button>
+            </div>
           </Block>
 
           <Block title="default & disabled states">

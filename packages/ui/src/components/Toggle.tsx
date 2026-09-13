@@ -2,7 +2,8 @@ import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 
-import { primitives } from "../primitives/interactive.stylex.ts";
+import { interactive } from "../primitives/interactive.stylex.ts";
+import { fieldText } from "../primitives/text.stylex.ts";
 import { colors, radius, space } from "../theme/tokens.stylex.ts";
 
 type ToggleProps = {
@@ -95,7 +96,7 @@ export function Toggle(props: ToggleProps) {
   return (
     <div {...stylex.props(styles.row)}>
       {label ? (
-        <label htmlFor={controlId} {...stylex.props(primitives.label)}>
+        <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
           {label}
         </label>
       ) : null}
@@ -110,9 +111,9 @@ export function Toggle(props: ToggleProps) {
         {...stylex.props(
           styles.track,
           isOn ? styles.trackOn : null,
-          primitives.interactive,
-          primitives.focusRing,
-          disabled ? primitives.disabled : null,
+          interactive.base,
+          interactive.focusRing,
+          disabled ? interactive.disabled : null,
           style,
         )}
       >

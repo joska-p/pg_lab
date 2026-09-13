@@ -2,7 +2,8 @@ import { useId, useRef, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 
-import { primitives } from "../primitives/interactive.stylex.ts";
+import { interactive } from "../primitives/interactive.stylex.ts";
+import { fieldText } from "../primitives/text.stylex.ts";
 import { colors, radius, space } from "../theme/tokens.stylex.ts";
 
 type SegmentOption<T extends string> = {
@@ -87,7 +88,7 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
   return (
     <div {...stylex.props(styles.row)}>
       {label ? (
-        <label id={groupId} {...stylex.props(primitives.label)}>
+        <label id={groupId} {...stylex.props(fieldText.label)}>
           {label}
         </label>
       ) : null}
@@ -98,7 +99,7 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
         aria-labelledby={label ? groupId : undefined}
         aria-label={label ? undefined : "selection"}
         onKeyDown={handleKeyDown}
-        {...stylex.props(styles.group, disabled ? primitives.disabled : null, style)}
+        {...stylex.props(styles.group, disabled ? interactive.disabled : null, style)}
       >
         {items.map((option) => {
           const chosen = option.value === current;
@@ -113,9 +114,9 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
               {...stylex.props(
                 styles.option,
                 chosen ? styles.chosen : null,
-                primitives.interactive,
-                primitives.focusRing,
-                disabled ? primitives.disabled : null,
+                interactive.base,
+                interactive.focusRing,
+                disabled ? interactive.disabled : null,
               )}
             >
               {option.label ?? option.value}

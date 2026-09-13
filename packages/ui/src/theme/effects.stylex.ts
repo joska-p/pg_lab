@@ -1,5 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 
+import { shadows } from "./shadows.stylex.ts";
+
 export const effects = stylex.create({
   glow: {
     filter: "drop-shadow(0 0 8px currentColor)",
@@ -14,10 +16,38 @@ export const effects = stylex.create({
   },
 
   raised: {
-    boxShadow: "0 2px 8px oklch(0% 0 0 / 18%)",
+    boxShadow: shadows.raised,
+  },
+
+  pressable: {
+    boxShadow: {
+      default: shadows.rest,
+      ":hover": shadows.hover,
+      ":active": shadows.active,
+    },
   },
 
   floating: {
-    boxShadow: "0 6px 24px oklch(0% 0 0 / 24%), 0 2px 6px oklch(0% 0 0 / 18%)",
+    boxShadow: shadows.floating,
+  },
+
+  blurSm: {
+    backdropFilter: "blur(3px)",
+    WebkitBackdropFilter: "blur(3px)",
+  },
+
+  blurMd: {
+    backdropFilter: "blur(8px)",
+    WebkitBackdropFilter: "blur(8px)",
+  },
+
+  blurLg: {
+    backdropFilter: "blur(16px)",
+    WebkitBackdropFilter: "blur(16px)",
+  },
+
+  blurFab: {
+    backdropFilter: "blur(8px) saturate(1.4)",
+    WebkitBackdropFilter: "blur(8px) saturate(1.4)",
   },
 });

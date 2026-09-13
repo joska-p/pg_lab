@@ -44,6 +44,8 @@ export const colors = stylex.defineVars({
     [DARK]: palette.light1,
   },
 
+  primaryHover: palette.neutralBlue,
+
   secondary: {
     default: palette.brightGreen,
     [DARK]: palette.fadedGreen,
@@ -54,6 +56,8 @@ export const colors = stylex.defineVars({
     [DARK]: palette.light1,
   },
 
+  secondaryHover: palette.neutralGreen,
+
   muted: {
     default: palette.light3,
     [DARK]: palette.dark2,
@@ -62,6 +66,11 @@ export const colors = stylex.defineVars({
   mutedForeground: {
     default: palette.dark3,
     [DARK]: palette.light4,
+  },
+
+  mutedHover: {
+    default: palette.light4,
+    [DARK]: palette.dark3,
   },
 
   accent: {
@@ -74,6 +83,8 @@ export const colors = stylex.defineVars({
     [DARK]: palette.light1,
   },
 
+  accentHover: palette.neutralPurple,
+
   destructive: {
     default: palette.brightRed,
     [DARK]: palette.fadedRed,
@@ -83,6 +94,8 @@ export const colors = stylex.defineVars({
     default: palette.dark0,
     [DARK]: palette.light1,
   },
+
+  destructiveHover: palette.neutralRed,
 
   success: {
     default: palette.brightGreen,
@@ -103,6 +116,8 @@ export const colors = stylex.defineVars({
     default: palette.dark0,
     [DARK]: palette.light1,
   },
+
+  warningHover: palette.neutralYellow,
 
   border: {
     default: palette.light3,
