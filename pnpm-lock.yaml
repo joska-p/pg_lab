@@ -178,9 +178,15 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 22.20.2
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.3.0
       bumpp:
         specifier: 'catalog:'
         version: 12.3.0
+      react:
+        specifier: 'catalog:'
+        version: 19.3.0
       typescript:
         specifier: 'catalog:'
         version: 7.0.2

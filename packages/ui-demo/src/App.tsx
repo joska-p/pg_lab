@@ -1,678 +1,1125 @@
 import { useState } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react";
 import * as stylex from "@stylexjs/stylex";
-import { color, radius, space, typography } from "@repo/ui/src/theme/tokens.stylex.ts";
-import { palette } from "@repo/ui/src/theme/palette.stylex.ts";
-import { lightTheme } from "@repo/ui/src/theme/themes.stylex.ts";
-import { effects } from "@repo/ui/src/theme/effects.stylex.ts";
-import { motion } from "@repo/ui/src/theme/consts.stylex.ts";
-import { styles as ui } from "@repo/ui/src/theme/styles.ts";
+import type { StyleXStyles } from "@stylexjs/stylex";
 
-const semanticColors: Array<[string, string, string]> = [
-  ["primary", color.primary, palette.blue],
-  ["primary background", color.primaryBackground, "background"],
-  ["secondary", color.secondary, palette.green],
-  ["secondary background", color.secondaryBackground, "background"],
-  ["accent", color.accent, palette.pink],
-  ["accent background", color.accentBackground, "background"],
-  ["warning", color.warning, palette.orange],
-  ["warning background", color.warningBackground, "background"],
-  ["danger", color.danger, palette.red],
-  ["danger background", color.dangerBackground, "background"],
-];
+import { colors, radius, space, typography } from "@repo/ui/theme/tokens.stylex.ts";
+import { borderWidth, motion } from "@repo/ui/theme/consts.stylex.ts";
+import { effects } from "@repo/ui/theme/effects.stylex.ts";
+import { primitives } from "@repo/ui/primitives/interactive.stylex.ts";
+import { Slider } from "@repo/ui/components/Slider";
+import { Toggle } from "@repo/ui/components/Toggle";
+import { ColorField } from "@repo/ui/components/ColorField";
+import { Segmented } from "@repo/ui/components/Segmented";
 
-const surfaces: Array<[string, string, string]> = [
-  ["background", color.background, "page"],
-  ["surface", color.surface, "base surface"],
-  ["surface raised", color.surfaceRaised, "elevated"],
-  ["surface sunken", color.surfaceSunken, "recessed"],
-];
-
-const content: Array<[string, string]> = [
-  ["text", color.text],
-  ["text muted", color.textMuted],
-  ["text subtle", color.textSubtle],
-];
-
-const spacings: Array<[string, string, string]> = [
-  ["1", space["1"], "2px"],
-  ["2", space["2"], "4px"],
-  ["3", space["3"], "6px"],
-  ["4", space["4"], "8px"],
-  ["5", space["5"], "12px"],
-  ["6", space["6"], "16px"],
-  ["7", space["7"], "20px"],
-  ["8", space["8"], "24px"],
-  ["9", space["9"], "32px"],
-];
-
-const radii: Array<[string, string]> = [
-  ["sm", radius.sm],
-  ["md", radius.md],
-  ["lg", radius.lg],
-];
+const ICONS = ["soft", "firm", "crisp"] as const;
 
 const styles = stylex.create({
   page: {
-    minHeight: "100svh",
-    backgroundColor: color.background,
-    color: color.text,
-    fontFamily: typography.fontFamily,
-    fontSize: typography.sizeMd,
-    lineHeight: typography.lineNormal,
-    transition: "background-color 200ms ease, color 200ms ease",
+    minHeight: "100vh",
+    backgroundColor: colors.background,
+    color: colors.foreground,
+    fontFamily: typography.fontFamilySans,
+    fontWeight: typography.fontWeightRegular,
+    lineHeight: typography.lineHeightNormal,
+  },
+
+  container: {
+    maxWidth: 1024,
+    marginInline: "auto",
+    paddingInline: space["6"],
+    paddingTop: space["8"],
+    paddingBottom: space["16"],
+    display: "flex",
+    flexDirection: "column",
+    gap: space["8"],
   },
 
   header: {
-    maxWidth: 1040,
-    margin: "0 auto",
-    padding: `${space["8"]} ${space["8"]} ${space["4"]}`,
+    display: "flex",
+    flexDirection: "column",
+    gap: space["3"],
   },
 
   headerRow: {
     display: "flex",
+    alignItems: "baseline",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: space["6"],
+    gap: space["4"],
+    flexWrap: "wrap",
   },
 
   title: {
     margin: 0,
-    fontSize: typography.sizeXxl,
-    fontWeight: typography.weightSemibold,
-    color: color.text,
-  },
-
-  tagline: {
-    margin: `${space["2"]} 0 0`,
-    color: color.textMuted,
-    maxWidth: 640,
-  },
-
-  themeToggle: {
-    flexShrink: 0,
-    padding: `${space["2"]} ${space["4"]}`,
-    borderRadius: radius.md,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: color.border,
-    backgroundColor: color.surface,
-    color: color.text,
     fontFamily: typography.fontFamilyMono,
-    fontSize: typography.sizeMd,
-    cursor: "pointer",
+    fontSize: typography.fontSize3xl,
+    fontWeight: typography.fontWeightBold,
+    letterSpacing: typography.letterSpacingTight,
   },
 
-  shell: {
-    maxWidth: 1040,
-    margin: "0 auto",
-    padding: `0 ${space["8"]} ${space["8"]}`,
+  titleAccent: {
+    color: colors.accent,
+  },
+
+  metaRow: {
     display: "flex",
-    flexDirection: "column",
-    gap: space["6"],
+    gap: space["2"],
+    flexWrap: "wrap",
+  },
+
+  metaChip: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    color: colors.mutedForeground,
+    paddingBlock: 2,
+    paddingInline: space["2"],
+    borderRadius: radius.full,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+  },
+
+  intro: {
+    margin: 0,
+    maxWidth: "62ch",
+    color: colors.mutedForeground,
+    fontSize: typography.fontSizeSm,
+  },
+
+  code: {
+    fontFamily: typography.fontFamilyMono,
+    color: colors.foreground,
   },
 
   section: {
-    backgroundColor: color.surface,
-    borderRadius: radius.lg,
-    padding: space["6"],
+    display: "flex",
+    flexDirection: "column",
+    gap: space["6"],
+    paddingTop: space["6"],
+    borderTopWidth: borderWidth.hairline,
+    borderTopStyle: "solid",
+    borderTopColor: colors.border,
+  },
+
+  sectionHead: {
+    display: "flex",
+    alignItems: "center",
+    gap: space["3"],
+  },
+
+  sectionLed: {
+    width: 7,
+    height: 7,
+    borderRadius: radius.full,
+    backgroundColor: colors.accent,
+    color: colors.accent,
+  },
+
+  sectionIndex: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    color: colors.mutedForeground,
   },
 
   sectionTitle: {
-    display: "block",
-    fontSize: typography.sizeMd,
-    fontWeight: typography.weightSemibold,
-    color: color.textMuted,
+    margin: 0,
+    fontSize: typography.fontSizeLg,
+    fontWeight: typography.fontWeightSemibold,
+    letterSpacing: typography.letterSpacingWide,
     textTransform: "uppercase",
-    letterSpacing: 1,
-    marginBottom: space["6"],
   },
 
-  swatchGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
-    gap: space["5"],
-  },
-
-  swatchItem: {
-    display: "flex",
-    flexDirection: "column",
-    minWidth: 0,
-  },
-
-  swatch: (backgroundColor: string) => ({
-    aspectRatio: "1 / 1",
-    borderRadius: radius.md,
-    backgroundColor,
-  }),
-
-  swatchBackground: (backgroundColor: string) => ({
-    aspectRatio: "2 / 1",
-    borderRadius: radius.md,
-    backgroundColor,
-  }),
-
-  swatchName: {
-    display: "block",
-    marginTop: space["3"],
-    fontSize: typography.sizeMd,
-    fontWeight: typography.weightMedium,
-    color: color.text,
-  },
-
-  swatchValue: {
-    display: "block",
-    marginTop: 2,
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.sizeSm,
-    color: color.textMuted,
-  },
-
-  surfaceGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-    gap: space["4"],
-  },
-
-  surface: (backgroundColor: string) => ({
-    minHeight: 120,
-    padding: space["5"],
-    borderRadius: radius.md,
-    backgroundColor,
-  }),
-
-  surfaceLabel: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.sizeMd,
-    color: color.textMuted,
-  },
-
-  surfaceDescription: {
-    margin: `${space["2"]} 0 0`,
-    color: color.text,
-  },
-
-  contentStack: {
+  block: {
     display: "flex",
     flexDirection: "column",
     gap: space["4"],
   },
 
-  contentRow: {
-    display: "flex",
-    alignItems: "baseline",
-    gap: space["6"],
-  },
-
-  contentLabel: {
-    width: 100,
-    flexShrink: 0,
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.sizeMd,
-    color: color.textMuted,
-  },
-
-  colorBackground: (backgroundColor: string) => ({
-    backgroundColor,
-    padding: `${space["3"]} ${space["4"]}`,
-    borderRadius: radius.sm,
-  }),
-
-  semanticText: (foregroundColor: string) => ({
-    color: foregroundColor,
-    fontWeight: typography.weightMedium,
-  }),
-
-  spaceRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: space["4"],
-    marginBottom: space["3"],
-  },
-
-  spaceLabel: {
-    width: 100,
-    flexShrink: 0,
-    color: color.textMuted,
-    fontFamily: typography.fontFamily,
-    fontSize: typography.sizeMd,
-  },
-
-  spaceBar: (width: string) => ({
-    width,
-    height: 10,
-    borderRadius: radius.sm,
-    backgroundColor: color.primary,
-  }),
-
-  radiusRow: {
+  row: {
     display: "flex",
     flexWrap: "wrap",
-    gap: space["8"],
+    gap: space["4"],
   },
 
-  radiusItem: {
+  surface: {
+    flex: 1,
+    minWidth: 180,
     display: "flex",
     flexDirection: "column",
-    gap: space["3"],
-    alignItems: "center",
-  },
-
-  radiusBox: (borderRadius: string) => ({
-    width: 72,
-    height: 72,
-    borderRadius,
-    backgroundColor: color.surfaceRaised,
-  }),
-
-  typeRow: {
-    marginBottom: space["5"],
-  },
-
-  typeLabel: {
-    display: "block",
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.sizeMd,
-    color: color.textMuted,
-    marginBottom: space["2"],
-  },
-
-  typeBody: {
-    margin: 0,
-    fontSize: typography.sizeMd,
-    fontWeight: typography.weightNormal,
-    lineHeight: typography.lineNormal,
-  },
-
-  typeLabelText: {
-    margin: 0,
-    fontSize: typography.sizeMd,
-    fontWeight: typography.weightSemibold,
-    lineHeight: typography.lineNormal,
-  },
-
-  typeValue: {
-    margin: 0,
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.sizeMd,
-    lineHeight: typography.lineNormal,
-  },
-
-  typeCaption: {
-    margin: 0,
-    fontSize: typography.sizeMd,
-    color: color.textMuted,
-  },
-
-  elevationGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: space["5"],
-  },
-
-  panel: {
-    minHeight: 100,
-    padding: space["5"],
+    gap: space["2"],
+    padding: space["4"],
     borderRadius: radius.md,
-    backgroundColor: color.surfaceRaised,
-  },
-
-  panelTitle: {
-    display: "block",
-    fontWeight: typography.weightSemibold,
-    marginBottom: space["2"],
-  },
-
-  panelHint: {
-    margin: 0,
-    fontSize: typography.sizeSm,
-    color: color.textMuted,
-  },
-
-  buttonRow: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space["3"],
-    alignItems: "center",
-  },
-
-  button: {
-    padding: `${space["3"]} ${space["5"]}`,
-    borderRadius: radius.md,
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.sizeMd,
-    fontWeight: typography.weightMedium,
-    borderWidth: "1px",
+    borderWidth: borderWidth.hairline,
     borderStyle: "solid",
-    cursor: "pointer",
+    borderColor: colors.border,
   },
 
-  buttonPrimary: {
-    backgroundColor: color.primary,
-    borderColor: "transparent",
-    color: color.onPrimary,
+  surfaceName: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    letterSpacing: typography.letterSpacingWide,
+    textTransform: "uppercase",
   },
 
-  buttonSecondary: {
-    backgroundColor: color.secondary,
-    borderColor: "transparent",
-    color: color.onSecondary,
+  surfaceSample: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXl,
+    fontWeight: typography.fontWeightSemibold,
   },
 
-  buttonAccent: {
-    backgroundColor: color.accent,
-    borderColor: "transparent",
-    color: color.onAccent,
+  surfaceBg: { backgroundColor: colors.background, color: colors.foreground },
+  surfaceCard: { backgroundColor: colors.card, color: colors.cardForeground },
+  surfacePopover: { backgroundColor: colors.popover, color: colors.popoverForeground },
+
+  textFace: {
+    flex: 1,
+    minWidth: 200,
+    minHeight: 76,
+    display: "flex",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+    gap: space["3"],
+    padding: space["3"],
+    borderRadius: radius.md,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
   },
 
-  buttonGhost: {
-    backgroundColor: "transparent",
-    borderColor: color.border,
-    color: color.text,
+  textLabel: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    color: colors.mutedForeground,
   },
 
-  buttonWarning: {
-    backgroundColor: color.warning,
-    borderColor: "transparent",
-    color: color.onWarning,
+  textSample: {
+    fontFamily: typography.fontFamilySans,
+    fontSize: typography.fontSizeXl,
+    fontWeight: typography.fontWeightSemibold,
   },
 
-  buttonDanger: {
-    backgroundColor: color.danger,
-    borderColor: "transparent",
-    color: color.onDanger,
+  textOnBg: { backgroundColor: colors.background, color: colors.foreground },
+  textOnMuted: { backgroundColor: colors.muted, color: colors.mutedForeground },
+  textMutedOnBg: { backgroundColor: colors.background, color: colors.mutedForeground },
+
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+    gap: space["3"],
   },
 
-  glowPrimary: {
-    color: color.primary,
+  family: {
+    minHeight: 88,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    gap: space["2"],
+    padding: space["3"],
+    borderRadius: radius.md,
   },
 
-  glowAccent: {
-    color: color.accent,
+  familyName: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    letterSpacing: typography.letterSpacingWide,
+    textTransform: "uppercase",
   },
 
-  glowWarning: {
-    color: color.warning,
+  familySample: {
+    fontFamily: typography.fontFamilySans,
+    fontSize: typography.fontSizeLg,
+    fontWeight: typography.fontWeightSemibold,
   },
 
-  glowDemo: {
+  familyMeta: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    opacity: 0.8,
+  },
+
+  familyPrimary: { backgroundColor: colors.primary, color: colors.primaryForeground },
+  familySecondary: { backgroundColor: colors.secondary, color: colors.secondaryForeground },
+  familyAccent: { backgroundColor: colors.accent, color: colors.accentForeground },
+  familyWarning: { backgroundColor: colors.warning, color: colors.warningForeground },
+  familySuccess: { backgroundColor: colors.success, color: colors.successForeground },
+  familyDestructive: { backgroundColor: colors.destructive, color: colors.destructiveForeground },
+
+  spacingList: { display: "flex", flexDirection: "column", gap: space["2"] },
+
+  spacingRow: {
     display: "flex",
     alignItems: "center",
-    gap: space["6"],
+    gap: space["3"],
+  },
+
+  spacingKey: {
+    width: space["6"],
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    color: colors.mutedForeground,
+  },
+
+  spacingValue: {
+    minWidth: space["8"],
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    color: colors.mutedForeground,
+  },
+
+  spacingBar: (width: string) => ({
+    height: 8,
+    width,
+    borderRadius: radius.full,
+    backgroundColor: colors.accent,
+  }),
+
+  radiusList: { display: "flex", flexWrap: "wrap", gap: space["4"] },
+
+  radiusTile: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: space["2"],
+  },
+
+  radiusChip: (value: string) => ({
+    width: 64,
+    height: 64,
+    borderRadius: value,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    backgroundColor: colors.card,
+  }),
+
+  radiusName: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    color: colors.mutedForeground,
+  },
+
+  radiusValue: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    color: colors.foreground,
+  },
+
+  borderRow: { display: "flex", flexWrap: "wrap", gap: space["3"] },
+
+  borderSample: {
+    flex: 1,
+    minWidth: 130,
+    minHeight: 64,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: space["2"],
+    borderRadius: radius.sm,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    color: colors.mutedForeground,
+  },
+
+  borderOnBg: { backgroundColor: colors.background },
+  borderOnCard: { backgroundColor: colors.card, color: colors.cardForeground },
+  borderOnPopover: { backgroundColor: colors.popover, color: colors.popoverForeground },
+
+  inputField: {
+    flex: 1,
+    minWidth: 130,
+    minHeight: 64,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: space["2"],
+    borderRadius: radius.sm,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    backgroundColor: colors.input,
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    color: colors.foreground,
+  },
+
+  ringChip: {
+    flex: 1,
+    minWidth: 130,
+    minHeight: 64,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: space["2"],
+    padding: space["2"],
+    borderRadius: radius.sm,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    backgroundColor: colors.background,
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    color: colors.mutedForeground,
+  },
+
+  ringDot: {
+    width: 10,
+    height: 10,
+    borderRadius: radius.full,
+    backgroundColor: colors.ring,
+    color: colors.ring,
+  },
+
+  effectTile: {
+    flex: 1,
+    minWidth: 110,
+    minHeight: 104,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: space["2"],
+    padding: space["3"],
+    borderRadius: radius.md,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    backgroundColor: colors.card,
+  },
+
+  effectTilePopover: { backgroundColor: colors.popover },
+
+  effectName: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    letterSpacing: typography.letterSpacingWide,
+    textTransform: "uppercase",
+    color: colors.foreground,
+  },
+
+  effectNote: {
+    fontFamily: typography.fontFamilySans,
+    fontSize: typography.fontSizeXs,
+    color: colors.mutedForeground,
+  },
+
+  glowDot: {
+    width: 14,
+    height: 14,
+    borderRadius: radius.full,
+    backgroundColor: colors.accent,
+    color: colors.accent,
+  },
+
+  motionBox: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space["3"],
+    padding: space["4"],
+    borderRadius: radius.md,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    backgroundColor: colors.card,
+  },
+
+  motionHead: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: space["3"],
     flexWrap: "wrap",
   },
 
-  glowOrb: {
-    width: 48,
-    height: 48,
-    borderRadius: "50%",
-  },
-
-  glowBlue: {
-    backgroundColor: color.primary,
-    color: color.primary,
-  },
-
-  glowPink: {
-    backgroundColor: color.accent,
-    color: color.accent,
-  },
-
-  glowOrange: {
-    backgroundColor: color.warning,
-    color: color.warning,
+  motionHint: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    color: colors.mutedForeground,
   },
 
   motionRow: {
     display: "flex",
-    flexWrap: "wrap",
-    gap: space["2"],
-    marginTop: space["6"],
+    alignItems: "center",
+    gap: space["4"],
   },
 
-  motionTag: {
-    padding: `${space["2"]} ${space["3"]}`,
-    borderRadius: radius.sm,
-    backgroundColor: color.surfaceRaised,
+  motionMeta: {
+    width: 132,
+    display: "flex",
+    flexDirection: "column",
+    gap: 1,
+  },
+
+  motionName: {
     fontFamily: typography.fontFamilyMono,
-    fontSize: typography.sizeMd,
-    color: color.textMuted,
+    fontSize: typography.fontSizeXs,
+    color: colors.mutedForeground,
+  },
+
+  motionTrack: {
+    flex: 1,
+    minWidth: 96,
+    height: 10,
+    borderRadius: radius.full,
+    backgroundColor: colors.muted,
+    overflow: "hidden",
+  },
+
+  motionBar: {
+    height: "100%",
+    width: "0%",
+    borderRadius: radius.full,
+    backgroundColor: colors.accent,
+    transitionProperty: "width",
+    transitionTimingFunction: motion.easingOut,
+  },
+
+  motionBarFast: { width: "100%", transitionDuration: motion.durationFast },
+  motionBarNormal: { width: "100%", transitionDuration: motion.durationNormal },
+  motionBarSlow: { width: "100%", transitionDuration: motion.durationSlow },
+
+  chipRow: { display: "flex", flexWrap: "wrap", gap: space["2"] },
+
+  chip: {
+    paddingBlock: space["1"],
+    paddingInline: space["3"],
+    borderRadius: radius.sm,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    backgroundColor: colors.card,
+    color: colors.foreground,
+    fontFamily: typography.fontFamilySans,
+    fontSize: typography.fontSizeSm,
+    fontWeight: typography.fontWeightMedium,
+  },
+
+  readout: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: space["3"],
+    paddingBlock: space["1"],
+    paddingInline: space["3"],
+    borderRadius: radius.sm,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    backgroundColor: colors.card,
+  },
+
+  instrument: {
+    display: "grid",
+    gridTemplateColumns: {
+      default: "1fr",
+      "@media (min-width: 760px)": "1fr 1fr",
+    },
+    gap: space["5"],
+  },
+
+  controls: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    gap: space["5"],
+    padding: space["2"],
+  },
+
+  canvas: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: space["5"],
+    minHeight: 280,
+    padding: space["6"],
+    borderRadius: radius.lg,
+    backgroundColor: colors.card,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+  },
+
+  canvasCaption: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    letterSpacing: typography.letterSpacingWide,
+    textTransform: "uppercase",
+    color: colors.mutedForeground,
+  },
+
+  orbBase: {
+    width: 72,
+    height: 72,
+    borderRadius: radius.full,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: "transparent",
+    transitionProperty: "transform, box-shadow, color, background-color, border-color",
+    transitionDuration: motion.durationNormal,
+    transitionTimingFunction: motion.easingOut,
+  },
+
+  orbOutline: {
+    backgroundColor: "transparent",
+    borderColor: "currentColor",
+  },
+
+  orbAureole: {
+    boxShadow:
+      "0 0 24px color-mix(in srgb, currentColor 40%, transparent), 0 0 0 1px color-mix(in srgb, currentColor 30%, transparent)",
+  },
+
+  orbFill: (color: string) => ({ backgroundColor: color, color }),
+  orbScale: (scale: number) => ({ transform: `scale(${scale})` }),
+
+  statesGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+    gap: space["4"],
+  },
+
+  statePanel: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space["3"],
+    padding: space["4"],
+    borderRadius: radius.md,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    backgroundColor: colors.card,
+  },
+
+  stateBody: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space["3"],
+  },
+
+  footer: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: space["4"],
+    flexWrap: "wrap",
+    paddingTop: space["5"],
+    borderTopWidth: borderWidth.hairline,
+    borderTopStyle: "solid",
+    borderTopColor: colors.border,
   },
 });
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+const SPACING_ENTRIES = [
+  ["1", "4px"],
+  ["2", "8px"],
+  ["3", "12px"],
+  ["4", "16px"],
+  ["5", "20px"],
+  ["6", "24px"],
+  ["8", "32px"],
+  ["10", "40px"],
+  ["12", "48px"],
+  ["16", "64px"],
+] as const;
+
+const RADIUS_ENTRIES = [
+  ["none", "0px"],
+  ["sm", "4px"],
+  ["md", "6px"],
+  ["lg", "8px"],
+  ["xl", "12px"],
+  ["full", "9999px"],
+] as const;
+
+const FAMILIES = [
+  ["primary", "primaryForeground", styles.familyPrimary],
+  ["secondary", "secondaryForeground", styles.familySecondary],
+  ["accent", "accentForeground", styles.familyAccent],
+  ["warning", "warningForeground", styles.familyWarning],
+  ["success", "successForeground", styles.familySuccess],
+  ["destructive", "destructiveForeground", styles.familyDestructive],
+] as const;
+
+type SectionProps = {
+  index: string;
+  title: string;
+  children: ReactNode;
+};
+
+function Section({ index, title, children }: SectionProps) {
   return (
     <section {...stylex.props(styles.section)}>
-      <span {...stylex.props(styles.sectionTitle)}>{title}</span>
+      <div {...stylex.props(styles.sectionHead)}>
+        <span aria-hidden {...stylex.props(styles.sectionLed, effects.glowSubtle)} />
+        <span {...stylex.props(styles.sectionIndex)}>{index}</span>
+        <h2 {...stylex.props(styles.sectionTitle)}>{title}</h2>
+      </div>
       {children}
     </section>
   );
 }
 
-function App() {
-  const [count, setCount] = useState(0);
-  const [light, setLight] = useState(false);
+type BlockProps = {
+  title: string;
+  children: ReactNode;
+};
+
+function Block({ title, children }: BlockProps) {
+  return (
+    <div {...stylex.props(styles.block)}>
+      <span {...stylex.props(primitives.label)}>{title}</span>
+      {children}
+    </div>
+  );
+}
+
+function MetaChip({ label }: { label: string }) {
+  return <span {...stylex.props(styles.metaChip)}>{label}</span>;
+}
+
+type SurfaceTileProps = {
+  name: string;
+  style: StyleXStyles;
+  shadow?: StyleXStyles;
+};
+
+function SurfaceTile({ name, style, shadow }: SurfaceTileProps) {
+  return (
+    <div {...stylex.props(styles.surface, shadow, style)}>
+      <span {...stylex.props(styles.surfaceName)}>{name}</span>
+      <span {...stylex.props(styles.surfaceSample)}>Aa 0123</span>
+    </div>
+  );
+}
+
+type TextFaceProps = {
+  name: string;
+  sample: string;
+  style: StyleXStyles;
+};
+
+function TextFace({ name, sample, style }: TextFaceProps) {
+  return (
+    <div {...stylex.props(styles.textFace, style)}>
+      <span {...stylex.props(styles.textLabel)}>{name}</span>
+      <span aria-hidden {...stylex.props(styles.textSample)}>
+        {sample}
+      </span>
+    </div>
+  );
+}
+
+type FamilyTileProps = {
+  name: string;
+  meta: string;
+  style: StyleXStyles;
+};
+
+function FamilyTile({ name, meta, style }: FamilyTileProps) {
+  return (
+    <div {...stylex.props(styles.family, style)}>
+      <span {...stylex.props(styles.familyName)}>{name}</span>
+      <span aria-hidden {...stylex.props(styles.familySample)}>
+        Aa
+      </span>
+      <span {...stylex.props(styles.familyMeta)}>{meta}</span>
+    </div>
+  );
+}
+
+type EffectTileProps = {
+  name: string;
+  note: string;
+  style?: StyleXStyles;
+  shadow?: StyleXStyles;
+};
+
+function EffectTile({ name, note, style, shadow }: EffectTileProps) {
+  return (
+    <div {...stylex.props(styles.effectTile, shadow, style)}>
+      <span {...stylex.props(styles.effectName)}>{name}</span>
+      <span {...stylex.props(styles.effectNote)}>{note}</span>
+    </div>
+  );
+}
+
+type GlowTileProps = {
+  name: string;
+  note: string;
+  glow: StyleXStyles;
+};
+
+function GlowTile({ name, note, glow }: GlowTileProps) {
+  return (
+    <div {...stylex.props(styles.effectTile)}>
+      <span aria-hidden {...stylex.props(styles.glowDot, glow)} />
+      <span {...stylex.props(styles.effectName)}>{name}</span>
+      <span {...stylex.props(styles.effectNote)}>{note}</span>
+    </div>
+  );
+}
+
+function MotionDemo() {
+  const [run, setRun] = useState(false);
+
+  const rows = [
+    { name: "durationFast", value: "120ms", bar: styles.motionBarFast },
+    { name: "durationNormal", value: "200ms", bar: styles.motionBarNormal },
+    { name: "durationSlow", value: "320ms", bar: styles.motionBarSlow },
+  ] as const;
 
   return (
-    <div {...stylex.props(styles.page, light && lightTheme)}>
-      <header {...stylex.props(styles.header)}>
-        <div {...stylex.props(styles.headerRow)}>
-          <div>
-            <h1 {...stylex.props(styles.title)}>@repo/ui — theme demo</h1>
-
-            <p {...stylex.props(styles.tagline)}>
-              Gruvbox-inspired creative toolkit · dark first · subtle & expressive
-            </p>
+    <div {...stylex.props(styles.motionBox)}>
+      <div {...stylex.props(styles.motionHead)}>
+        <button
+          type="button"
+          onClick={() => setRun((value) => !value)}
+          {...stylex.props(styles.chip, primitives.interactive, primitives.focusRing)}
+        >
+          {run ? "reset" : "run"}
+        </button>
+        <span {...stylex.props(styles.motionHint)}>transition · width · easingOut</span>
+      </div>
+      {rows.map((row) => (
+        <div key={row.name} {...stylex.props(styles.motionRow)}>
+          <div {...stylex.props(styles.motionMeta)}>
+            <span {...stylex.props(styles.motionName)}>{row.name}</span>
+            <span {...stylex.props(styles.motionHint)}>{row.value}</span>
           </div>
-
-          <button
-            type="button"
-            {...stylex.props(styles.themeToggle)}
-            onClick={() => setLight((value) => !value)}
-          >
-            {light ? "Dark theme" : "Light theme"}
-          </button>
+          <div {...stylex.props(styles.motionTrack)}>
+            <span aria-hidden {...stylex.props(styles.motionBar, run ? row.bar : null)} />
+          </div>
         </div>
-      </header>
+      ))}
+    </div>
+  );
+}
 
-      <main {...stylex.props(styles.shell)}>
-        <Section title="Semantic colors">
-          <div {...stylex.props(styles.swatchGrid)}>
-            {semanticColors.map(([name, ref, value]) => (
-              <figure key={name} {...stylex.props(styles.swatchItem)}>
-                <div
-                  {...stylex.props(
-                    name.includes("background") ? styles.swatchBackground(ref) : styles.swatch(ref),
-                  )}
-                />
+function ChipGroup() {
+  const [choice, setChoice] = useState<string>("soft");
 
-                <figcaption>
-                  <span {...stylex.props(styles.swatchName)}>{name}</span>
+  return (
+    <div {...stylex.props(styles.chipRow)}>
+      {ICONS.map((option) => (
+        <button
+          key={option}
+          type="button"
+          onClick={() => setChoice(option)}
+          {...stylex.props(
+            styles.chip,
+            primitives.interactive,
+            primitives.focusRing,
+            choice === option ? primitives.selected : null,
+          )}
+        >
+          {option}
+        </button>
+      ))}
+    </div>
+  );
+}
 
-                  <span {...stylex.props(styles.swatchValue)}>{value}</span>
-                </figcaption>
-              </figure>
-            ))}
+function HoldToggle() {
+  const [on, setOn] = useState(false);
+  const [held, setHeld] = useState(false);
+
+  function hold() {
+    setHeld(true);
+  }
+
+  function release() {
+    setHeld(false);
+  }
+
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      onClick={() => setOn((value) => !value)}
+      onPointerDown={hold}
+      onPointerUp={release}
+      onPointerCancel={release}
+      onPointerLeave={release}
+      onKeyDown={(event: ReactKeyboardEvent) => {
+        if (event.key === " ") hold();
+      }}
+      onKeyUp={(event: ReactKeyboardEvent) => {
+        if (event.key === " ") release();
+      }}
+      {...stylex.props(
+        styles.chip,
+        primitives.interactive,
+        primitives.focusRing,
+        on ? primitives.selected : null,
+        held ? primitives.active : null,
+      )}
+    >
+      {on ? "on" : "off"}
+    </button>
+  );
+}
+
+type Mode = "solid" | "outline" | "aureole";
+
+const MODES = [
+  { value: "solid", label: "Solid" },
+  { value: "outline", label: "Outline" },
+  { value: "aureole", label: "Aureole" },
+] as const satisfies ReadonlyArray<{ value: Mode; label: string }>;
+
+function InstrumentDemo() {
+  const [color, setColor] = useState("#83a598");
+  const [mode, setMode] = useState<Mode>("outline");
+  const [glow, setGlow] = useState(true);
+  const [scale, setScale] = useState(1);
+
+  return (
+    <div {...stylex.props(styles.instrument)}>
+      <div {...stylex.props(styles.controls)}>
+        <ColorField label="orb color" value={color} onValueChange={setColor} />
+        <Segmented<Mode> label="mode" options={MODES} value={mode} onValueChange={setMode} />
+        <Toggle label="glow" checked={glow} onCheckedChange={setGlow} />
+        <Slider
+          label="scale"
+          min={0.5}
+          max={1.8}
+          step={0.01}
+          value={scale}
+          onValueChange={setScale}
+        />
+      </div>
+
+      <div {...stylex.props(styles.canvas)}>
+        <span {...stylex.props(styles.canvasCaption)}>live · instrument</span>
+        <div
+          aria-hidden
+          {...stylex.props(
+            styles.orbBase,
+            mode === "outline" ? styles.orbOutline : null,
+            mode === "aureole" ? styles.orbAureole : null,
+            styles.orbFill(color),
+            styles.orbScale(scale),
+            glow ? effects.glow : null,
+          )}
+        />
+        <span {...stylex.props(primitives.value)}>
+          {color.toUpperCase()} · {mode.toUpperCase()} · {scale.toFixed(2)} × · GLOW{" "}
+          {glow ? "ON" : "OFF"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+type StatePanelProps = {
+  title: string;
+  children: ReactNode;
+};
+
+function StatePanel({ title, children }: StatePanelProps) {
+  return (
+    <div {...stylex.props(styles.statePanel)}>
+      <span {...stylex.props(primitives.label)}>{title}</span>
+      <div {...stylex.props(styles.stateBody)}>{children}</div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <div {...stylex.props(styles.page)}>
+      <main {...stylex.props(styles.container)}>
+        <header {...stylex.props(styles.header)}>
+          <div {...stylex.props(styles.headerRow)}>
+            <h1 {...stylex.props(styles.title)}>
+              repo/<span {...stylex.props(styles.titleAccent)}>ui</span>
+            </h1>
+            <div {...stylex.props(styles.metaRow)}>
+              <MetaChip label="dark" />
+              <MetaChip label="compact" />
+              <MetaChip label="tactile" />
+              <MetaChip label="luminous" />
+            </div>
           </div>
-        </Section>
+          <p {...stylex.props(styles.intro)}>
+            Visual inventory of the <code {...stylex.props(styles.code)}>@repo/ui</code> design
+            language — semantic tokens, shared interaction primitives, and the four core widgets.
+          </p>
+        </header>
 
-        <Section title="Surfaces">
-          <div {...stylex.props(styles.surfaceGrid)}>
-            {surfaces.map(([name, ref, description]) => (
-              <div key={name} {...stylex.props(styles.surface(ref))}>
-                <span {...stylex.props(styles.surfaceLabel)}>{name}</span>
+        <Section index="01" title="theme foundation">
+          <Block title="surfaces">
+            <div {...stylex.props(styles.row)}>
+              <SurfaceTile name="background" style={styles.surfaceBg} />
+              <SurfaceTile name="card" style={styles.surfaceCard} shadow={effects.raised} />
+              <SurfaceTile name="popover" style={styles.surfacePopover} shadow={effects.floating} />
+            </div>
+          </Block>
 
-                <p {...stylex.props(styles.surfaceDescription)}>{description}</p>
+          <Block title="text levels">
+            <div {...stylex.props(styles.row)}>
+              <TextFace name="foreground" sample="Fg" style={styles.textOnBg} />
+              <TextFace name="muted" sample="Mute" style={styles.textOnMuted} />
+              <TextFace name="mutedForeground" sample="Mute" style={styles.textMutedOnBg} />
+            </div>
+          </Block>
+
+          <Block title="color families">
+            <div {...stylex.props(styles.grid)}>
+              {FAMILIES.map(([name, meta, familyStyle]) => (
+                <FamilyTile key={name} name={name} meta={meta} style={familyStyle} />
+              ))}
+            </div>
+          </Block>
+
+          <Block title="spacing scale">
+            <div {...stylex.props(styles.spacingList)}>
+              {SPACING_ENTRIES.map(([key, px]) => (
+                <div key={key} {...stylex.props(styles.spacingRow)}>
+                  <span {...stylex.props(styles.spacingKey)}>{key}</span>
+                  <span aria-hidden {...stylex.props(styles.spacingBar(px))} />
+                  <span {...stylex.props(styles.spacingValue)}>{px}</span>
+                </div>
+              ))}
+            </div>
+          </Block>
+
+          <Block title="radius scale">
+            <div {...stylex.props(styles.radiusList)}>
+              {RADIUS_ENTRIES.map(([name, px]) => (
+                <div key={name} {...stylex.props(styles.radiusTile)}>
+                  <span aria-hidden {...stylex.props(styles.radiusChip(px))} />
+                  <span {...stylex.props(styles.radiusName)}>{name}</span>
+                  <span {...stylex.props(styles.radiusValue)}>{name === "full" ? "∞" : px}</span>
+                </div>
+              ))}
+            </div>
+          </Block>
+
+          <Block title="border · effects">
+            <div {...stylex.props(styles.borderRow)}>
+              <div {...stylex.props(styles.borderSample, styles.borderOnBg)}>border · bg</div>
+              <div {...stylex.props(styles.borderSample, styles.borderOnCard)}>border · card</div>
+              <div {...stylex.props(styles.borderSample, styles.borderOnPopover)}>
+                border · popover
               </div>
-            ))}
-          </div>
-        </Section>
-
-        <Section title="Content">
-          <div {...stylex.props(styles.contentStack)}>
-            {content.map(([name, ref]) => (
-              <div key={name} {...stylex.props(styles.contentRow)}>
-                <span {...stylex.props(styles.contentLabel)}>{name}</span>
-
-                <span {...stylex.props(styles.semanticText(ref))}>
-                  The quick brown fox jumps over the lazy dog
-                </span>
+              <div {...stylex.props(styles.inputField)}>input</div>
+              <div {...stylex.props(styles.ringChip)}>
+                <span aria-hidden {...stylex.props(styles.ringDot, effects.glowSubtle)} />
+                ring
               </div>
-            ))}
-          </div>
+            </div>
+            <div {...stylex.props(styles.row)}>
+              <EffectTile name="raised" note="soft depth" shadow={effects.raised} />
+              <EffectTile
+                name="floating"
+                note="detached layer"
+                style={styles.effectTilePopover}
+                shadow={effects.floating}
+              />
+              <GlowTile name="glow · subtle" note="hint of light" glow={effects.glowSubtle} />
+              <GlowTile name="glow" note="active energy" glow={effects.glow} />
+              <GlowTile name="glow · strong" note="selection" glow={effects.glowStrong} />
+            </div>
+          </Block>
+
+          <Block title="motion durations">
+            <MotionDemo />
+          </Block>
         </Section>
 
-        <Section title="Spacing">
-          {spacings.map(([name, ref, px]) => (
-            <div key={name} {...stylex.props(styles.spaceRow)}>
-              <span {...stylex.props(styles.spaceLabel)}>
-                {name} · {px}
+        <Section index="02" title="shared primitives">
+          <Block title="interactive · focusRing · selected">
+            <ChipGroup />
+          </Block>
+
+          <Block title="active (press & hold)">
+            <div {...stylex.props(styles.row)}>
+              <HoldToggle />
+              <span {...stylex.props(primitives.label)}>
+                pointer-down lights the border · click toggles selected
               </span>
-
-              <div {...stylex.props(styles.spaceBar(ref))} />
             </div>
-          ))}
-        </Section>
+          </Block>
 
-        <Section title="Radius">
-          <div {...stylex.props(styles.radiusRow)}>
-            {radii.map(([name, ref]) => (
-              <div key={name} {...stylex.props(styles.radiusItem)}>
-                <div {...stylex.props(styles.radiusBox(ref))} />
-
-                <span {...stylex.props(styles.swatchValue)}>{name}</span>
-              </div>
-            ))}
-          </div>
-        </Section>
-
-        <Section title="Typography">
-          <div {...stylex.props(styles.typeRow)}>
-            <span {...stylex.props(styles.typeLabel)}>body</span>
-
-            <p {...stylex.props(styles.typeBody)}>The quick brown fox jumps over the lazy dog</p>
-          </div>
-
-          <div {...stylex.props(styles.typeRow)}>
-            <span {...stylex.props(styles.typeLabel)}>label</span>
-
-            <p {...stylex.props(styles.typeLabelText)}>
-              The quick brown fox jumps over the lazy dog
-            </p>
-          </div>
-
-          <div {...stylex.props(styles.typeRow)}>
-            <span {...stylex.props(styles.typeLabel)}>value / mono</span>
-
-            <p {...stylex.props(styles.typeValue)}>0x3F 0x2A · fractal iteration · 0123456789</p>
-          </div>
-
-          <div {...stylex.props(styles.typeRow)}>
-            <span {...stylex.props(styles.typeLabel)}>caption</span>
-
-            <p {...stylex.props(styles.typeCaption)}>
-              Small supporting information should remain quiet.
-            </p>
-          </div>
-        </Section>
-
-        <Section title="Elevation">
-          <div {...stylex.props(styles.elevationGrid)}>
-            <div {...stylex.props(styles.panel, effects.raised)}>
-              <span {...stylex.props(styles.panelTitle)}>Panel</span>
-
-              <p {...stylex.props(styles.panelHint)}>Depth without a visible border.</p>
+          <Block title="disabled">
+            <div {...stylex.props(styles.chipRow)}>
+              <button
+                type="button"
+                disabled
+                {...stylex.props(
+                  styles.chip,
+                  primitives.interactive,
+                  primitives.focusRing,
+                  primitives.disabled,
+                )}
+              >
+                unavailable
+              </button>
+              <Toggle label="hold" disabled defaultChecked />
+              <Slider label="gain" min={0} max={100} defaultValue={40} disabled />
             </div>
+          </Block>
 
-            <div {...stylex.props(styles.panel, effects.floating)}>
-              <span {...stylex.props(styles.panelTitle)}>Overlay</span>
-
-              <p {...stylex.props(styles.panelHint)}>
-                A stronger elevation treatment for floating UI.
-              </p>
+          <Block title="label · value">
+            <div {...stylex.props(styles.readout)}>
+              <span {...stylex.props(primitives.label)}>samplerate</span>
+              <span {...stylex.props(primitives.value)}>48 kHz</span>
             </div>
-          </div>
+          </Block>
         </Section>
 
-        <Section title="Glow">
-          <div {...stylex.props(styles.glowDemo)}>
-            <div {...stylex.props(styles.glowOrb, styles.glowBlue, effects.glow)} />
+        <Section index="03" title="widgets">
+          <Block title="live instrument">
+            <InstrumentDemo />
+          </Block>
 
-            <div {...stylex.props(styles.glowOrb, styles.glowPink, effects.glow)} />
-
-            <div {...stylex.props(styles.glowOrb, styles.glowOrange, effects.glow)} />
-
-            <span {...stylex.props(styles.panelHint)}>
-              Glow follows the element's current color.
-            </span>
-          </div>
+          <Block title="default & disabled states">
+            <div {...stylex.props(styles.statesGrid)}>
+              <StatePanel title="Slider — default">
+                <Slider label="gain" min={0} max={100} defaultValue={62} />
+              </StatePanel>
+              <StatePanel title="Slider — disabled">
+                <Slider label="gain" min={0} max={100} defaultValue={40} disabled />
+              </StatePanel>
+              <StatePanel title="Toggle — default">
+                <Toggle label="hold" defaultChecked />
+                <Toggle label="mute" />
+              </StatePanel>
+              <StatePanel title="Toggle — disabled">
+                <Toggle label="hold" disabled defaultChecked />
+              </StatePanel>
+              <StatePanel title="ColorField — default">
+                <ColorField label="warm tint" defaultValue="#b8bb26" />
+              </StatePanel>
+              <StatePanel title="ColorField — disabled">
+                <ColorField label="warm tint" disabled defaultValue="#d3869b" />
+              </StatePanel>
+              <StatePanel title="Segmented — default">
+                <Segmented
+                  label="blend"
+                  options={["multiply", "screen", "overlay"]}
+                  defaultValue="overlay"
+                />
+              </StatePanel>
+              <StatePanel title="Segmented — disabled">
+                <Segmented
+                  label="blend"
+                  options={["multiply", "screen", "overlay"]}
+                  defaultValue="screen"
+                  disabled
+                />
+              </StatePanel>
+            </div>
+          </Block>
         </Section>
 
-        <Section title="Interactive states">
-          <div {...stylex.props(styles.buttonRow)}>
-            <button
-              type="button"
-              {...stylex.props(ui.interactive, ui.focusRing, styles.button, styles.buttonPrimary)}
-              onClick={() => setCount((value) => value + 1)}
-            >
-              Count is {count}
-            </button>
-
-            <button
-              type="button"
-              {...stylex.props(ui.interactive, ui.focusRing, styles.button, styles.buttonSecondary)}
-            >
-              Secondary
-            </button>
-
-            <button
-              type="button"
-              {...stylex.props(ui.interactive, ui.focusRing, styles.button, styles.buttonAccent)}
-            >
-              Accent
-            </button>
-
-            <button
-              type="button"
-              {...stylex.props(ui.interactive, ui.focusRing, styles.button, styles.buttonGhost)}
-            >
-              Ghost
-            </button>
-
-            <button
-              type="button"
-              {...stylex.props(ui.interactive, ui.focusRing, styles.button, styles.buttonWarning)}
-            >
-              Warning
-            </button>
-
-            <button
-              type="button"
-              {...stylex.props(ui.interactive, ui.focusRing, styles.button, styles.buttonDanger)}
-            >
-              Danger
-            </button>
-
-            <button
-              type="button"
-              disabled
-              {...stylex.props(ui.disabled, styles.button, styles.buttonGhost)}
-            >
-              Disabled
-            </button>
-          </div>
-
-          <div {...stylex.props(styles.motionRow)}>
-            <span {...stylex.props(styles.motionTag)}>{motion.durationFast} fast</span>
-
-            <span {...stylex.props(styles.motionTag)}>{motion.durationNormal} normal</span>
-
-            <span {...stylex.props(styles.motionTag)}>{motion.durationSlow} slow</span>
-
-            <span {...stylex.props(styles.motionTag)}>out {motion.easingOut}</span>
-
-            <span {...stylex.props(styles.motionTag)}>in-out {motion.easingInOut}</span>
-          </div>
-        </Section>
+        <footer {...stylex.props(styles.footer)}>
+          <span {...stylex.props(styles.motionHint)}>built on @repo/ui</span>
+          <span {...stylex.props(styles.motionHint)}>semantic tokens only · no raw values</span>
+        </footer>
       </main>
     </div>
   );

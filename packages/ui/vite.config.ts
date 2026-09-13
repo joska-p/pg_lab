@@ -10,6 +10,10 @@ export default defineConfig({
     exports: true,
   },
   lint: {
+    plugins: ["react", "typescript", "oxc"],
+    rules: {
+      "react/rules-of-hooks": "error",
+    },
     options: {
       typeAware: true,
       typeCheck: true,

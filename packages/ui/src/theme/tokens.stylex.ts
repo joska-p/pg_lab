@@ -1,95 +1,170 @@
 import * as stylex from "@stylexjs/stylex";
-import { palette } from "./palette.stylex.ts";
+import { gruvboxPalette as palette } from "./gruvbox-palette.stylex.ts";
 
-export const color = stylex.defineVars({
-  // ─────────────────────────────────────────
-  // Surfaces
-  // ─────────────────────────────────────────
+const DARK = "@media (prefers-color-scheme: dark)";
 
-  background: palette.dark0,
-  surface: palette.dark1,
-  surfaceRaised: palette.dark2,
-  surfaceSunken: palette.dark0,
+export const colors = stylex.defineVars({
+  background: {
+    default: palette.light1,
+    [DARK]: palette.dark0,
+  },
 
-  // ─────────────────────────────────────────
-  // Content
-  // ─────────────────────────────────────────
+  foreground: {
+    default: palette.dark0,
+    [DARK]: palette.light1,
+  },
 
-  text: palette.light0,
-  textMuted: palette.light2,
-  textSubtle: palette.light3,
+  card: {
+    default: palette.light0,
+    [DARK]: palette.dark1,
+  },
 
-  // ─────────────────────────────────────────
-  // Structure
-  // ─────────────────────────────────────────
+  cardForeground: {
+    default: palette.dark0,
+    [DARK]: palette.light1,
+  },
 
-  border: "oklch(100% 0 0 / 7%)",
-  borderHover: "oklch(100% 0 0 / 11%)",
-  borderActive: "oklch(100% 0 0 / 16%)",
+  popover: {
+    default: palette.light0,
+    [DARK]: palette.dark1,
+  },
 
-  // ─────────────────────────────────────────
-  // Semantic colors
-  // ─────────────────────────────────────────
+  popoverForeground: {
+    default: palette.dark0,
+    [DARK]: palette.light1,
+  },
 
-  primary: palette.blue,
-  primaryBackground: "oklch(68% 0.105 235 / 12%)",
-  onPrimary: palette.dark0,
+  primary: {
+    default: palette.brightBlue,
+    [DARK]: palette.fadedBlue,
+  },
 
-  secondary: palette.green,
-  secondaryBackground: "oklch(70% 0.115 125 / 12%)",
-  onSecondary: palette.dark0,
+  primaryForeground: {
+    default: palette.dark0,
+    [DARK]: palette.light1,
+  },
 
-  accent: palette.pink,
-  accentBackground: "oklch(68% 0.135 350 / 12%)",
-  onAccent: palette.dark0,
+  secondary: {
+    default: palette.brightGreen,
+    [DARK]: palette.fadedGreen,
+  },
 
-  warning: palette.orange,
-  warningBackground: "oklch(72% 0.145 55 / 12%)",
-  onWarning: palette.dark0,
+  secondaryForeground: {
+    default: palette.dark0,
+    [DARK]: palette.light1,
+  },
 
-  danger: palette.red,
-  dangerBackground: "oklch(65% 0.155 25 / 12%)",
-  onDanger: palette.dark0,
+  muted: {
+    default: palette.light3,
+    [DARK]: palette.dark2,
+  },
+
+  mutedForeground: {
+    default: palette.dark3,
+    [DARK]: palette.light4,
+  },
+
+  accent: {
+    default: palette.brightPurple,
+    [DARK]: palette.fadedPurple,
+  },
+
+  accentForeground: {
+    default: palette.dark0,
+    [DARK]: palette.light1,
+  },
+
+  destructive: {
+    default: palette.brightRed,
+    [DARK]: palette.fadedRed,
+  },
+
+  destructiveForeground: {
+    default: palette.dark0,
+    [DARK]: palette.light1,
+  },
+
+  success: {
+    default: palette.brightGreen,
+    [DARK]: palette.fadedGreen,
+  },
+
+  successForeground: {
+    default: palette.dark0,
+    [DARK]: palette.light1,
+  },
+
+  warning: {
+    default: palette.brightYellow,
+    [DARK]: palette.fadedYellow,
+  },
+
+  warningForeground: {
+    default: palette.dark0,
+    [DARK]: palette.light1,
+  },
+
+  border: {
+    default: palette.light3,
+    [DARK]: palette.dark3,
+  },
+
+  input: {
+    default: palette.light2,
+    [DARK]: palette.dark2,
+  },
+
+  ring: {
+    default: palette.brightBlue,
+    [DARK]: palette.fadedBlue,
+  },
 });
 
-export const radius = stylex.defineConsts({
+export const radius = stylex.defineVars({
   none: "0px",
-  sm: "3px",
-  md: "5px",
-  lg: "7px",
+  sm: "4px",
+  md: "6px",
+  lg: "8px",
+  xl: "12px",
   full: "9999px",
 });
 
-export const typography = stylex.defineConsts({
-  fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-
-  fontFamilyMono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-
-  sizeXs: "12px",
-  sizeSm: "14px",
-  sizeMd: "16px",
-  sizeLg: "18px",
-  sizeXl: "20px",
-  sizeXxl: "28px",
-
-  weightNormal: 400,
-  weightMedium: 500,
-  weightSemibold: 600,
-
-  lineTight: 1.2,
-  lineNormal: 1.45,
+export const space = stylex.defineVars({
+  0: "0px",
+  1: "4px",
+  2: "8px",
+  3: "12px",
+  4: "16px",
+  5: "20px",
+  6: "24px",
+  8: "32px",
+  10: "40px",
+  12: "48px",
+  16: "64px",
 });
 
-export const space = stylex.defineConsts({
-  "0": "0px",
-  "1": "2px",
-  "2": "4px",
-  "3": "6px",
-  "4": "8px",
-  "5": "12px",
-  "6": "16px",
-  "7": "20px",
-  "8": "24px",
-  "9": "32px",
-  "10": "40px",
+export const typography = stylex.defineVars({
+  fontFamilySans: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  fontFamilyMono: '"SFMono-Regular", Consolas, "Liberation Mono", monospace',
+
+  fontSizeXs: "12px",
+  fontSizeSm: "14px",
+  fontSizeMd: "16px",
+  fontSizeLg: "18px",
+  fontSizeXl: "20px",
+  fontSize2xl: "24px",
+  fontSize3xl: "30px",
+
+  fontWeightRegular: 400,
+  fontWeightMedium: 500,
+  fontWeightSemibold: 600,
+  fontWeightBold: 700,
+
+  lineHeightTight: 1.25,
+  lineHeightNormal: 1.5,
+  lineHeightRelaxed: 1.75,
+
+  letterSpacingTight: "-0.01em",
+  letterSpacingNormal: "0",
+  letterSpacingWide: "0.02em",
 });

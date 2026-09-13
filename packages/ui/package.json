@@ -18,9 +18,15 @@
   ],
   "type": "module",
   "exports": {
-    ".": "./dist/index.mjs",
-    "./src/*": "./src/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./theme/tokens.stylex.ts": "./src/theme/tokens.stylex.ts",
+    "./theme/consts.stylex.ts": "./src/theme/consts.stylex.ts",
+    "./theme/effects.stylex.ts": "./src/theme/effects.stylex.ts",
+    "./primitives/interactive.stylex.ts": "./src/primitives/interactive.stylex.ts",
+    "./components/Slider": "./src/components/Slider.tsx",
+    "./components/Toggle": "./src/components/Toggle.tsx",
+    "./components/ColorField": "./src/components/ColorField.tsx",
+    "./components/Segmented": "./src/components/Segmented.tsx"
   },
   "publishConfig": {
     "access": "public"
@@ -34,10 +40,18 @@
   "devDependencies": {
     "@stylexjs/stylex": "catalog:",
     "@types/node": "catalog:",
+    "@types/react": "catalog:",
     "bumpp": "catalog:",
+    "react": "catalog:",
     "typescript": "catalog:",
     "unplugin-stylex": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "react": ">=19"
+  },
+  "inlinedDependencies": {
+    "@stylexjs/stylex": "0.19.0"
   }
 }
