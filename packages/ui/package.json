@@ -1,50 +1,29 @@
 {
   "name": "@repo/ui",
   "version": "0.0.0",
-  "description": "A starter for creating a TypeScript package.",
-  "homepage": "https://github.com/author/library#readme",
-  "bugs": {
-    "url": "https://github.com/author/library/issues"
-  },
-  "license": "MIT",
-  "author": "joskap <jpotin@gmail.com>",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/author/library.git"
-  },
-  "files": [
-    "dist",
-    "src"
-  ],
   "type": "module",
   "exports": {
-    "./package.json": "./package.json",
     "./theme/tokens.stylex.ts": "./src/theme/tokens.stylex.ts",
     "./theme/consts.stylex.ts": "./src/theme/consts.stylex.ts",
-    "./theme/effects.stylex.ts": "./src/theme/effects.stylex.ts",
     "./theme/shadows.stylex.ts": "./src/theme/shadows.stylex.ts",
-    "./primitives/interactive.stylex.ts": "./src/primitives/interactive.stylex.ts",
-    "./primitives/text.stylex.ts": "./src/primitives/text.stylex.ts",
+    "./behaviors/effects.stylex.ts": "./src/behaviors/effects.stylex.ts",
+    "./behaviors/interactive.stylex.ts": "./src/behaviors/interactive.stylex.ts",
+    "./behaviors/text.stylex.ts": "./src/behaviors/text.stylex.ts",
     "./components/Slider": "./src/components/Slider.tsx",
     "./components/Toggle": "./src/components/Toggle.tsx",
     "./components/Button": "./src/components/Button.tsx",
     "./components/ColorField": "./src/components/ColorField.tsx",
     "./components/Segmented": "./src/components/Segmented.tsx"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "build": "vp pack",
     "dev": "vp pack --watch",
-    "check": "vp check",
-    "prepublishOnly": "vp run build"
+    "check": "vp check"
   },
   "devDependencies": {
     "@stylexjs/stylex": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "bumpp": "catalog:",
     "react": "catalog:",
     "typescript": "catalog:",
     "unplugin-stylex": "catalog:",

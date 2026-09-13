@@ -2,12 +2,11 @@ import { useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-
-import { colors, radius, space, typography } from "@repo/ui/theme/tokens.stylex.ts";
-import { borderWidth, motion } from "@repo/ui/theme/consts.stylex.ts";
-import { effects } from "@repo/ui/theme/effects.stylex.ts";
-import { interactive } from "@repo/ui/primitives/interactive.stylex.ts";
-import { fieldText } from "@repo/ui/primitives/text.stylex.ts";
+import { colors } from "@repo/ui/theme/tokens.stylex.ts";
+import { borderWidth, motion, radius, space, typography } from "@repo/ui/theme/consts.stylex.ts";
+import { effects } from "@repo/ui/behaviors/effects.stylex.ts";
+import { interactive } from "@repo/ui/behaviors/interactive.stylex.ts";
+import { fieldText } from "@repo/ui/behaviors/text.stylex.ts";
 import { Slider } from "@repo/ui/components/Slider";
 import { Toggle } from "@repo/ui/components/Toggle";
 import { Button } from "@repo/ui/components/Button";

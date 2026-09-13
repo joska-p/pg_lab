@@ -1,5 +1,4 @@
 import * as stylex from "@stylexjs/stylex";
-
 import { motion } from "../theme/consts.stylex.ts";
 import { colors } from "../theme/tokens.stylex.ts";
 

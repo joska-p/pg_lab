@@ -1,10 +1,10 @@
 import { useId, useRef, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-
-import { interactive } from "../primitives/interactive.stylex.ts";
-import { fieldText } from "../primitives/text.stylex.ts";
-import { colors, radius, space } from "../theme/tokens.stylex.ts";
+import { interactive } from "../behaviors/interactive.stylex.ts";
+import { fieldText } from "../behaviors/text.stylex.ts";
+import { colors } from "../theme/tokens.stylex.ts";
+import { radius, space } from "../theme/consts.stylex.ts";
 
 type SegmentOption<T extends string> = {
   value: T;
