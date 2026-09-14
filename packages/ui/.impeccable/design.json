@@ -1,0 +1,607 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-14T00:00:00Z",
+  "title": "Design System: The Terminal Atelier",
+  "extensions": {
+    "colorMeta": {
+      "bg-ground": {
+        "role": "neutral",
+        "displayName": "Matte Ground",
+        "canonical": "oklch(0.277 0 0)",
+        "lightValue": "oklch(0.894 0.057 89.24)",
+        "dualMode": true,
+        "tonalRamp": [
+          "oklch(0.15 0.008 50)",
+          "oklch(0.26 0.008 50)",
+          "oklch(0.37 0.008 50)",
+          "oklch(0.48 0.008 50)",
+          "oklch(0.59 0.008 50)",
+          "oklch(0.70 0.008 50)",
+          "oklch(0.80 0.008 50)",
+          "oklch(0.90 0.008 50)"
+        ]
+      },
+      "ground-fg": {
+        "role": "neutral",
+        "displayName": "Ground Foreground",
+        "canonical": "oklch(0.894 0.057 89.24)",
+        "lightValue": "oklch(0.277 0 0)",
+        "dualMode": true,
+        "tonalRamp": [
+          "oklch(0.15 0.008 50)",
+          "oklch(0.26 0.008 50)",
+          "oklch(0.37 0.008 50)",
+          "oklch(0.48 0.008 50)",
+          "oklch(0.59 0.008 50)",
+          "oklch(0.70 0.008 50)",
+          "oklch(0.80 0.008 50)",
+          "oklch(0.90 0.008 50)"
+        ]
+      },
+      "panel-surface": {
+        "role": "neutral",
+        "displayName": "Panel Surface",
+        "canonical": "oklch(0.344 0.007 48.523)",
+        "lightValue": "oklch(0.956 0.055 96.155)",
+        "dualMode": true,
+        "tonalRamp": [
+          "oklch(0.15 0.01 50)",
+          "oklch(0.26 0.01 50)",
+          "oklch(0.37 0.01 50)",
+          "oklch(0.48 0.01 50)",
+          "oklch(0.59 0.01 50)",
+          "oklch(0.70 0.01 50)",
+          "oklch(0.80 0.01 50)",
+          "oklch(0.90 0.01 50)"
+        ]
+      },
+      "panel-fg": {
+        "role": "neutral",
+        "displayName": "Panel Foreground",
+        "canonical": "oklch(0.894 0.057 89.24)",
+        "lightValue": "oklch(0.277 0 0)",
+        "dualMode": true,
+        "tonalRamp": [
+          "oklch(0.15 0.008 50)",
+          "oklch(0.26 0.008 50)",
+          "oklch(0.37 0.008 50)",
+          "oklch(0.48 0.008 50)",
+          "oklch(0.59 0.008 50)",
+          "oklch(0.70 0.008 50)",
+          "oklch(0.80 0.008 50)",
+          "oklch(0.90 0.008 50)"
+        ]
+      },
+      "aurora": {
+        "role": "primary",
+        "displayName": "Aurora Quartz",
+        "canonical": "oklch(0.471 0.082 215.806)",
+        "lightValue": "oklch(0.693 0.042 169.768)",
+        "dualMode": true,
+        "tonalRamp": [
+          "oklch(0.15 0.082 190)",
+          "oklch(0.26 0.082 190)",
+          "oklch(0.37 0.082 190)",
+          "oklch(0.48 0.082 190)",
+          "oklch(0.59 0.082 190)",
+          "oklch(0.70 0.082 190)",
+          "oklch(0.80 0.082 190)",
+          "oklch(0.90 0.082 190)"
+        ]
+      },
+      "aurora-strong": {
+        "role": "primary",
+        "displayName": "Aurora Quartz Strong",
+        "canonical": "oklch(0.576 0.066 199.487)",
+        "lightValue": "oklch(0.576 0.066 199.487)",
+        "dualMode": false,
+        "tonalRamp": [
+          "oklch(0.15 0.066 199)",
+          "oklch(0.26 0.066 199)",
+          "oklch(0.37 0.066 199)",
+          "oklch(0.48 0.066 199)",
+          "oklch(0.59 0.066 199)",
+          "oklch(0.70 0.066 199)",
+          "oklch(0.80 0.066 199)",
+          "oklch(0.90 0.066 199)"
+        ]
+      },
+      "solder": {
+        "role": "secondary",
+        "displayName": "Solder Green",
+        "canonical": "oklch(0.546 0.112 106.464)",
+        "lightValue": "oklch(0.765 0.158 110.835)",
+        "dualMode": true,
+        "tonalRamp": [
+          "oklch(0.15 0.14 110)",
+          "oklch(0.26 0.14 110)",
+          "oklch(0.37 0.14 110)",
+          "oklch(0.48 0.14 110)",
+          "oklch(0.59 0.14 110)",
+          "oklch(0.70 0.14 110)",
+          "oklch(0.80 0.14 110)",
+          "oklch(0.90 0.14 110)"
+        ]
+      },
+      "solder-strong": {
+        "role": "secondary",
+        "displayName": "Solder Green Strong",
+        "canonical": "oklch(0.656 0.135 109.119)",
+        "lightValue": "oklch(0.656 0.135 109.119)",
+        "dualMode": false,
+        "tonalRamp": [
+          "oklch(0.15 0.135 109)",
+          "oklch(0.26 0.135 109)",
+          "oklch(0.37 0.135 109)",
+          "oklch(0.48 0.135 109)",
+          "oklch(0.59 0.135 109)",
+          "oklch(0.70 0.135 109)",
+          "oklch(0.80 0.135 109)",
+          "oklch(0.90 0.135 109)"
+        ]
+      },
+      "neon-violet": {
+        "role": "tertiary",
+        "displayName": "Neon Violet",
+        "canonical": "oklch(0.489 0.124 344.276)",
+        "lightValue": "oklch(0.705 0.098 2.189)",
+        "dualMode": true,
+        "tonalRamp": [
+          "oklch(0.15 0.11 352)",
+          "oklch(0.26 0.11 352)",
+          "oklch(0.37 0.11 352)",
+          "oklch(0.48 0.11 352)",
+          "oklch(0.59 0.11 352)",
+          "oklch(0.70 0.11 352)",
+          "oklch(0.80 0.11 352)",
+          "oklch(0.90 0.11 352)"
+        ]
+      },
+      "neon-violet-strong": {
+        "role": "tertiary",
+        "displayName": "Neon Violet Strong",
+        "canonical": "oklch(0.597 0.111 352.218)",
+        "lightValue": "oklch(0.597 0.111 352.218)",
+        "dualMode": false,
+        "tonalRamp": [
+          "oklch(0.15 0.111 352)",
+          "oklch(0.26 0.111 352)",
+          "oklch(0.37 0.111 352)",
+          "oklch(0.48 0.111 352)",
+          "oklch(0.59 0.111 352)",
+          "oklch(0.70 0.111 352)",
+          "oklch(0.80 0.111 352)",
+          "oklch(0.90 0.111 352)"
+        ]
+      },
+      "amber": {
+        "role": "tertiary",
+        "displayName": "Amber LED",
+        "canonical": "oklch(0.618 0.128 70.674)",
+        "lightValue": "oklch(0.832 0.159 82.987)",
+        "dualMode": true,
+        "tonalRamp": [
+          "oklch(0.15 0.15 80)",
+          "oklch(0.26 0.15 80)",
+          "oklch(0.37 0.15 80)",
+          "oklch(0.48 0.15 80)",
+          "oklch(0.59 0.15 80)",
+          "oklch(0.70 0.15 80)",
+          "oklch(0.80 0.15 80)",
+          "oklch(0.90 0.15 80)"
+        ]
+      },
+      "amber-strong": {
+        "role": "tertiary",
+        "displayName": "Amber LED Strong",
+        "canonical": "oklch(0.725 0.143 77.708)",
+        "lightValue": "oklch(0.725 0.143 77.708)",
+        "dualMode": false,
+        "tonalRamp": [
+          "oklch(0.15 0.143 77)",
+          "oklch(0.26 0.143 77)",
+          "oklch(0.37 0.143 77)",
+          "oklch(0.48 0.143 77)",
+          "oklch(0.59 0.143 77)",
+          "oklch(0.70 0.143 77)",
+          "oklch(0.80 0.143 77)",
+          "oklch(0.90 0.143 77)"
+        ]
+      },
+      "amber-fg": {
+        "role": "tertiary",
+        "displayName": "Amber Ink",
+        "canonical": "oklch(0.894 0.057 89.24)",
+        "lightValue": "oklch(0.241 0.005 219.672)",
+        "dualMode": true,
+        "tonalRamp": [
+          "oklch(0.15 0.005 220)",
+          "oklch(0.26 0.005 220)",
+          "oklch(0.37 0.005 220)",
+          "oklch(0.48 0.005 220)",
+          "oklch(0.59 0.005 220)",
+          "oklch(0.70 0.005 220)",
+          "oklch(0.80 0.005 220)",
+          "oklch(0.90 0.005 220)"
+        ]
+      },
+      "error": {
+        "role": "tertiary",
+        "displayName": "Error Red",
+        "canonical": "oklch(0.437 0.179 28.26)",
+        "lightValue": "oklch(0.66 0.218 30.392)",
+        "dualMode": true,
+        "tonalRamp": [
+          "oklch(0.15 0.2 30)",
+          "oklch(0.26 0.2 30)",
+          "oklch(0.37 0.2 30)",
+          "oklch(0.48 0.2 30)",
+          "oklch(0.59 0.2 30)",
+          "oklch(0.70 0.2 30)",
+          "oklch(0.80 0.2 30)",
+          "oklch(0.90 0.2 30)"
+        ]
+      },
+      "error-strong": {
+        "role": "tertiary",
+        "displayName": "Error Red Strong",
+        "canonical": "oklch(0.546 0.203 28.662)",
+        "lightValue": "oklch(0.546 0.203 28.662)",
+        "dualMode": false,
+        "tonalRamp": [
+          "oklch(0.15 0.203 28.6)",
+          "oklch(0.26 0.203 28.6)",
+          "oklch(0.37 0.203 28.6)",
+          "oklch(0.48 0.203 28.6)",
+          "oklch(0.59 0.203 28.6)",
+          "oklch(0.70 0.203 28.6)",
+          "oklch(0.80 0.203 28.6)",
+          "oklch(0.90 0.203 28.6)"
+        ]
+      },
+      "muted-well": {
+        "role": "neutral",
+        "displayName": "Muted Well",
+        "canonical": "oklch(0.411 0.012 51.866)",
+        "lightValue": "oklch(0.756 0.041 82.284)",
+        "dualMode": true,
+        "tonalRamp": [
+          "oklch(0.15 0.012 52)",
+          "oklch(0.26 0.012 52)",
+          "oklch(0.37 0.012 52)",
+          "oklch(0.48 0.012 52)",
+          "oklch(0.59 0.012 52)",
+          "oklch(0.70 0.012 52)",
+          "oklch(0.80 0.012 52)",
+          "oklch(0.90 0.012 52)"
+        ]
+      },
+      "muted-well-hover": {
+        "role": "neutral",
+        "displayName": "Muted Well Hover",
+        "canonical": "oklch(0.482 0.018 61.042)",
+        "lightValue": "oklch(0.69 0.035 76.307)",
+        "dualMode": true,
+        "tonalRamp": [
+          "oklch(0.15 0.02 61)",
+          "oklch(0.26 0.02 61)",
+          "oklch(0.37 0.02 61)",
+          "oklch(0.48 0.02 61)",
+          "oklch(0.59 0.02 61)",
+          "oklch(0.70 0.02 61)",
+          "oklch(0.80 0.02 61)",
+          "oklch(0.90 0.02 61)"
+        ]
+      },
+      "muted-fg": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "oklch(0.69 0.035 76.307)",
+        "lightValue": "oklch(0.482 0.018 61.042)",
+        "dualMode": true,
+        "tonalRamp": [
+          "oklch(0.15 0.03 62)",
+          "oklch(0.26 0.03 62)",
+          "oklch(0.37 0.03 62)",
+          "oklch(0.48 0.03 62)",
+          "oklch(0.59 0.03 62)",
+          "oklch(0.70 0.03 62)",
+          "oklch(0.80 0.03 62)",
+          "oklch(0.90 0.03 62)"
+        ]
+      },
+      "input-well": {
+        "role": "neutral",
+        "displayName": "Input Well",
+        "canonical": "oklch(0.411 0.012 51.866)",
+        "lightValue": "oklch(0.825 0.051 85.116)",
+        "dualMode": true,
+        "tonalRamp": [
+          "oklch(0.15 0.012 85)",
+          "oklch(0.26 0.012 85)",
+          "oklch(0.37 0.012 85)",
+          "oklch(0.48 0.012 85)",
+          "oklch(0.59 0.012 85)",
+          "oklch(0.70 0.012 85)",
+          "oklch(0.80 0.012 85)",
+          "oklch(0.90 0.012 85)"
+        ]
+      },
+      "border-hair": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "color-mix(in srgb, oklch(0.482 0.018 61.042) 55%, transparent)",
+        "lightValue": "color-mix(in srgb, oklch(0.756 0.041 82.284) 55%, transparent)",
+        "dualMode": true,
+        "tonalRamp": [
+          "oklch(0.15 0.02 61)",
+          "oklch(0.26 0.02 61)",
+          "oklch(0.37 0.02 61)",
+          "oklch(0.48 0.02 61)",
+          "oklch(0.59 0.02 61)",
+          "oklch(0.70 0.02 61)",
+          "oklch(0.80 0.02 61)",
+          "oklch(0.90 0.02 61)"
+        ]
+      },
+      "ring-halo": {
+        "role": "primary",
+        "displayName": "Ring Halo",
+        "canonical": "oklch(0.471 0.082 215.806)",
+        "lightValue": "oklch(0.693 0.042 169.768)",
+        "dualMode": true,
+        "tonalRamp": [
+          "oklch(0.15 0.082 190)",
+          "oklch(0.26 0.082 190)",
+          "oklch(0.37 0.082 190)",
+          "oklch(0.48 0.082 190)",
+          "oklch(0.59 0.082 190)",
+          "oklch(0.70 0.082 190)",
+          "oklch(0.80 0.082 190)",
+          "oklch(0.90 0.082 190)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "SectionHeading titles — uppercase, wide tracked, 18px. The system's largest size."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Panel titles inside control panels — uppercase, wide tracked, 14px."
+      },
+      "label": {
+        "displayName": "Section label",
+        "purpose": "Monospace 12px uppercase labels for sections and tiles."
+      },
+      "body": { "displayName": "Body", "purpose": "Compact paragraph text, ~62ch max." },
+      "field-label": {
+        "displayName": "Field label",
+        "purpose": "Labels above inputs and alongside controls."
+      },
+      "readout": {
+        "displayName": "Readout",
+        "purpose": "Monospace rendering of numbers, identifiers, and values."
+      }
+    },
+    "shadows": [
+      {
+        "name": "rest",
+        "value": "0 1px 2px color-mix(in srgb, var(--shadow-color) 20%, transparent), 0 1px 1px color-mix(in srgb, var(--shadow-color) 12%, transparent)",
+        "purpose": "Resting pressable controls. Tinted by the carrier's own color."
+      },
+      {
+        "name": "hover",
+        "value": "0 2px 8px color-mix(in srgb, var(--shadow-color) 24%, transparent)",
+        "purpose": "Raised hover state."
+      },
+      {
+        "name": "active",
+        "value": "inset 0 1px 1px color-mix(in srgb, var(--shadow-color) 20%, transparent)",
+        "purpose": "Pressed-in state."
+      },
+      {
+        "name": "raised",
+        "value": "0 4px 12px color-mix(in srgb, var(--shadow-color) 22%, transparent)",
+        "purpose": "Docked panels and lifted cards."
+      },
+      {
+        "name": "floating",
+        "value": "0 8px 28px color-mix(in srgb, var(--shadow-color) 28%, transparent), 0 2px 8px color-mix(in srgb, var(--shadow-color) 20%, transparent)",
+        "purpose": "Glass floating UI above the canvas."
+      },
+      {
+        "name": "sunken",
+        "value": "inset 0 1px 2px color-mix(in srgb, var(--shadow-color) 22%, transparent)",
+        "purpose": "Embedded recessed wells (inputs, tracks, rails)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "duration-fast",
+        "value": "120ms",
+        "purpose": "State transitions, active scale, knob/slider movement."
+      },
+      { "name": "duration-normal", "value": "200ms", "purpose": "Hover and panel transitions." },
+      {
+        "name": "duration-slow",
+        "value": "320ms",
+        "purpose": "Loading spinners and roomier transitions."
+      },
+      {
+        "name": "easing-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Default exit easing for state changes."
+      },
+      {
+        "name": "easing-in-out",
+        "value": "cubic-bezier(0.65, 0, 0.35, 1)",
+        "purpose": "Symmetrical transitions."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "stack",
+        "value": "720px",
+        "purpose": "Below this width the shell flows to a column, portrait-style."
+      },
+      {
+        "name": "portrait",
+        "value": "orientation: portrait",
+        "purpose": "Panel docks horizontally under the canvas; landscape docks it vertically beside."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The default action. Mat hued, self-tinted shadows, halo focus.",
+      "html": "<button class=\"ds-btn-primary\">primary</button>",
+      "css": ".ds-btn-primary { background: oklch(0.693 0.042 169.768); border: 1px solid oklch(0.693 0.042 169.768); color: oklch(0.894 0.057 89.24); padding: 8px 16px; border-radius: 4px; font: 500 14px/1.25 system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; cursor: pointer; transition: background-color 120ms cubic-bezier(0.16,1,0.3,1), box-shadow 120ms cubic-bezier(0.16,1,0.3,1), transform 120ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-primary:hover { background: oklch(0.576 0.066 199.487); box-shadow: 0 2px 8px color-mix(in srgb, oklch(0.576 0.066 199.487) 24%, transparent); } .ds-btn-primary:active { transform: scale(0.98); box-shadow: inset 0 1px 1px color-mix(in srgb, oklch(0.576 0.066 199.487) 20%, transparent); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px oklch(0.277 0 0), 0 0 0 3px oklch(0.471 0.082 215.806); }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Alt action in Solder Green.",
+      "html": "<button class=\"ds-btn-secondary\">secondary</button>",
+      "css": ".ds-btn-secondary { background: oklch(0.765 0.158 110.835); border: 1px solid oklch(0.765 0.158 110.835); color: oklch(0.277 0 0); padding: 8px 16px; border-radius: 4px; font: 500 14px/1.25 system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; cursor: pointer; transition: background-color 120ms cubic-bezier(0.16,1,0.3,1), box-shadow 120ms cubic-bezier(0.16,1,0.3,1), transform 120ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-secondary:hover { background: oklch(0.656 0.135 109.119); box-shadow: 0 2px 8px color-mix(in srgb, oklch(0.656 0.135 109.119) 24%, transparent); } .ds-btn-secondary:active { transform: scale(0.98); box-shadow: inset 0 1px 1px color-mix(in srgb, oklch(0.656 0.135 109.119) 20%, transparent); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 2px oklch(0.277 0 0), 0 0 0 3px oklch(0.693 0.042 169.768); }"
+    },
+    {
+      "name": "Sunken Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "An editable well: recessed fill, hairline border, monospace value, variant halo on focus.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-field-label\" for=\"ds-input\">name</label><input class=\"ds-input\" id=\"ds-input\" type=\"text\" value=\"bass-01\" /></div>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 4px; } .ds-field-label { font: 500 14px/1.25 system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; letter-spacing: -0.01em; color: oklch(0.69 0.035 76.307); } .ds-input { margin: 0; width: 220px; padding: 8px 12px; border-radius: 4px; border: 1px solid color-mix(in srgb, oklch(0.482 0.018 61.042) 55%, transparent); background: oklch(0.411 0.012 51.866); color: oklch(0.894 0.057 89.24); outline: none; font: 400 14px/1.5 \"SFMono-Regular\", Consolas, \"Liberation Mono\", monospace; transition: border-color 120ms cubic-bezier(0.16,1,0.3,1), box-shadow 120ms cubic-bezier(0.16,1,0.3,1); } .ds-input:focus { border-color: oklch(0.471 0.082 215.806); box-shadow: 0 0 0 2px oklch(0.277 0 0), 0 0 0 3px oklch(0.471 0.082 215.806); }"
+    },
+    {
+      "name": "Slider",
+      "kind": "custom",
+      "refersTo": "input-default",
+      "description": "Aurora fill on a muted track, ground thumb bordered in the variant hue, self-tinted shadow.",
+      "html": "<div class=\"ds-slider\" style=\"width: 240px\"><div class=\"ds-slider-track\"></div><div class=\"ds-slider-fill\" style=\"width: 62%\"></div><div class=\"ds-slider-thumb\" style=\"left: 62%\"></div></div>",
+      "css": ".ds-slider { position: relative; height: 14px; } .ds-slider-track { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); height: 4px; border-radius: 9999px; background: oklch(0.411 0.012 51.866); } .ds-slider-fill { position: absolute; left: 0; top: 50%; transform: translateY(-50%); height: 4px; border-radius: 9999px; background: oklch(0.471 0.082 215.806); } .ds-slider-thumb { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 9999px; background: oklch(0.277 0 0); border: 1px solid oklch(0.471 0.082 215.806); box-shadow: 0 1px 2px color-mix(in srgb, oklch(0.277 0 0) 20%, transparent), 0 1px 1px color-mix(in srgb, oklch(0.277 0 0) 12%, transparent); }"
+    },
+    {
+      "name": "Toggle (on)",
+      "kind": "input",
+      "refersTo": "toggle",
+      "description": "Filled track + 6px same-hue glow when on — the Pilot Light Rule at work.",
+      "html": "<button class=\"ds-toggle\" role=\"switch\" aria-checked=\"true\"><span class=\"ds-toggle-knob\"></span></button>",
+      "css": ".ds-toggle { position: relative; width: 34px; height: 20px; border-radius: 9999px; border: 1px solid oklch(0.471 0.082 215.806); background: oklch(0.471 0.082 215.806); box-shadow: 0 0 6px oklch(0.471 0.082 215.806); cursor: pointer; transition: background-color 120ms cubic-bezier(0.16,1,0.3,1), box-shadow 120ms cubic-bezier(0.16,1,0.3,1); } .ds-toggle-knob { position: absolute; top: 2px; left: 18px; width: 14px; height: 14px; border-radius: 9999px; background: oklch(0.894 0.057 89.24); transition: transform 120ms cubic-bezier(0.16,1,0.3,1), background-color 120ms cubic-bezier(0.16,1,0.3,1); } .ds-toggle:focus-visible { outline: none; box-shadow: 0 0 0 2px oklch(0.277 0 0), 0 0 0 3px oklch(0.471 0.082 215.806); }"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Chosen segment fills; muted variant signals through border + brighter text instead of a fill.",
+      "html": "<div class=\"ds-seg\" role=\"radiogroup\" aria-label=\"wave\"><button class=\"ds-seg-opt\">sine</button><button class=\"ds-seg-opt ds-seg-chosen\" aria-checked=\"true\">saw</button></div>",
+      "css": ".ds-seg { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 6px; background: oklch(0.411 0.012 51.866); } .ds-seg-opt { padding: 1px 12px; border-radius: 4px; border: 1px solid transparent; background: transparent; color: oklch(0.69 0.035 76.307); font: 400 14px/1.5 system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; cursor: pointer; transition: background-color 120ms cubic-bezier(0.16,1,0.3,1), border-color 120ms cubic-bezier(0.16,1,0.3,1), color 120ms cubic-bezier(0.16,1,0.3,1); } .ds-seg-chosen { border-color: oklch(0.471 0.082 215.806); background: oklch(0.471 0.082 215.806); color: oklch(0.894 0.057 89.24); } .ds-seg-opt:focus-visible { outline: none; box-shadow: 0 0 0 2px oklch(0.277 0 0), 0 0 0 3px oklch(0.471 0.082 215.806); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "A quiet container: Panel Surface, hairline border, flat at rest.",
+      "html": "<div class=\"ds-card\"><span class=\"ds-sec-label\">slider</span><span class=\"ds-body\">Cutoff sits on a muted track.</span></div>",
+      "css": ".ds-card { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 6px; border: 1px solid color-mix(in srgb, oklch(0.482 0.018 61.042) 55%, transparent); background: oklch(0.344 0.007 48.523); color: oklch(0.894 0.057 89.24); } .ds-sec-label { font: 400 12px/1.5 \"SFMono-Regular\", Consolas, \"Liberation Mono\", monospace; letter-spacing: 0.02em; text-transform: uppercase; color: oklch(0.69 0.035 76.307); } .ds-body { max-width: 62ch; font: 400 14px/1.5 system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; }"
+    },
+    {
+      "name": "Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Monospace outline pill; variants tint border and text only.",
+      "html": "<span class=\"ds-badge ds-badge-pro\">primary</span><span class=\"ds-badge\">neutral</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; margin-right: 4px; padding: 2px 8px; border-radius: 9999px; border: 1px solid color-mix(in srgb, oklch(0.482 0.018 61.042) 55%, transparent); background: transparent; color: oklch(0.69 0.035 76.307); font: 400 12px/1.5 \"SFMono-Regular\", Consolas, \"Liberation Mono\", monospace; } .ds-badge-pro { color: oklch(0.471 0.082 215.806); border-color: oklch(0.471 0.082 215.806); }"
+    },
+    {
+      "name": "Readout",
+      "kind": "custom",
+      "refersTo": "badge",
+      "description": "The instrument display — label : monospace value in a hairline pill.",
+      "html": "<div class=\"ds-readout\"><span class=\"ds-readout-label\">out</span><span class=\"ds-readout-value\">saw · 8v · live</span></div>",
+      "css": ".ds-readout { display: inline-flex; align-items: center; gap: 12px; padding: 4px 12px; border-radius: 4px; border: 1px solid color-mix(in srgb, oklch(0.482 0.018 61.042) 55%, transparent); background: oklch(0.344 0.007 48.523); } .ds-readout-label { font: 500 14px/1.25 system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; letter-spacing: -0.01em; color: oklch(0.69 0.035 76.307); } .ds-readout-value { font: 400 14px/1.5 \"SFMono-Regular\", Consolas, \"Liberation Mono\", monospace; color: oklch(0.894 0.057 89.24); }"
+    },
+    {
+      "name": "Section Heading",
+      "kind": "nav",
+      "refersTo": "badge",
+      "description": "Signature: a glowing LED, optional mono index, uppercase title.",
+      "html": "<div class=\"ds-sec-head\"><span class=\"ds-led\"></span><span class=\"ds-index\">02</span><h2 class=\"ds-sec-title\">controls</h2></div>",
+      "css": ".ds-sec-head { display: flex; align-items: center; gap: 12px; } .ds-led { display: inline-block; width: 7px; height: 7px; border-radius: 9999px; background: oklch(0.489 0.124 344.276); color: oklch(0.489 0.124 344.276); filter: drop-shadow(0 0 5px currentColor); } .ds-index { font: 400 12px/1.25 \"SFMono-Regular\", Consolas, \"Liberation Mono\", monospace; color: oklch(0.69 0.035 76.307); } .ds-sec-title { margin: 0; font: 600 18px/1.25 system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; letter-spacing: 0.02em; text-transform: uppercase; color: oklch(0.894 0.057 89.24); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Terminal Atelier",
+    "overview": "The Terminal Atelier treats every interface as a workbench for making — a matte, warm-technical surface lit like a dim room where the thing being made is the only thing that should draw the eye. The ground is never black, never glossy, never corporate: it is Gruvbox-warm dark layered in quiet wells, and the UI that frames the canvas is a precise instrument rather than a dressed-up dashboard. Everything recedes by default and answers when touched. Borders are barely-there hairlines; controls sit flat and calm until a state calls for them. Luminance is a currency spent deliberately: an active slider fill, a glowing toggle, an LED dot before a heading, the aura of a focused ring. Where the interface floats above the work — a floating control panel, a menu, a handle — it turns into glass, translucent and lightly blurred, so the canvas stays present through the chrome.",
+    "keyCharacteristics": [
+      "Matte, layered dark ground — never pure black, warmed by Gruvbox.",
+      "Canvas-first: surrounding UI occupies as little attention as possible.",
+      "Instrument-grade controls: tactile, confident, immediate feedback.",
+      "Luminous accents as state language — glow means active, selected, or live.",
+      "Glass + light backdrop blur reserved for floating UI above the canvas.",
+      "Hairline borders, restrained radius, tonal surfaces instead of heavy shadows.",
+      "Compact technical typography with monospace readouts.",
+      "Responsive and touch-first: no interaction depends on hover."
+    ],
+    "rules": [
+      {
+        "name": "The Pilot Light Rule",
+        "body": "Glow — actual luminosity — is a state language for active, selected, and live elements only. Idle elements stay matte; a glowing thing is a living thing.",
+        "section": "colors"
+      },
+      {
+        "name": "The Warm Ground Rule",
+        "body": "Never pure black. Depth comes from the layered Gruvbox darks (dark0→dark4), not from subtracting light to zero.",
+        "section": "colors"
+      },
+      {
+        "name": "The One-Token Rule",
+        "body": "Components consume semantic tokens only.",
+        "section": "colors"
+      },
+      {
+        "name": "The Upper-Label Rule",
+        "body": "Titles and section labels are uppercase with wide tracking; body and field labels stay sentence-case.",
+        "section": "typography"
+      },
+      {
+        "name": "The Mono Readout Rule",
+        "body": "Any displayed number, identifier, or parameter value renders in monospace.",
+        "section": "typography"
+      },
+      {
+        "name": "The Shadow-Paints-Itself Rule",
+        "body": "Every shadow derives from a `shadowColor` variable via color-mix; an element sets its shadow color to its own background, so shadows are tinted by their carrier and never a flat black.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Glass-on-Floating-Only Rule",
+        "body": "Blur and translucency exist only on UI that floats above other content.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep the canvas the visual priority — scaffolding occupies minimal attention and never competes with the work.",
+      "Do spend glow on active, selected, or live state only (Pilot Light Rule).",
+      "Do use glass (translucent + blur) for floating UI and keep in-flow surfaces opaque.",
+      "Do use monospace for readings and values (Mono Readout Rule); uppercase + wide tracking for titles (Upper-Label Rule).",
+      "Do let shadows be tinted by the element that casts them.",
+      "Do show keyboard focus with the 2px-ground + 3px-ring halo, whatever the color.",
+      "Do build every control so touch works with no hover dependency."
+    ],
+    "donts": [
+      "Don't feel like a SaaS dashboard — no gloss, no corporate blues-per-suite, no heavy decorations.",
+      "Don't use pure black; warm near-black Gruvbox layers are the ground (Warm Ground Rule).",
+      "Don't blur in-flow content — backdrop blur is only for floating UI (Glass-on-Floating-Only Rule).",
+      "Don't lean on big shadows; surfaces are flat by default and shadow is a response to state.",
+      "Don't reach for display-size headlines; the compact hierarchy is the system.",
+      "Don't animate decoratively or perpetually — motion is fast (120–320ms) and purposeful.",
+      "Don't hardcode raw palette values in app code; semantic tokens are the only interface to color."
+    ]
+  }
+}

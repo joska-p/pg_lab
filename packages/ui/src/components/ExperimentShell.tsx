@@ -30,6 +30,7 @@ const styles = stylex.create({
   },
 
   stageSlot: {
+    position: "relative",
     flex: 1,
     display: "flex",
     minWidth: 0,

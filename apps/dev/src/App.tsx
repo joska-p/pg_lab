@@ -27,7 +27,7 @@ import {
   ShellWrapper,
 } from "@repo/ui";
 import { effects } from "@repo/ui/behaviors/effects.stylex";
-import { borderWidth, radius, space, typography } from "@repo/ui/theme/consts.stylex";
+import { borderWidth, motion, radius, space, typography } from "@repo/ui/theme/consts.stylex";
 import { shadowColor } from "@repo/ui/theme/shadows.stylex";
 import { colors } from "@repo/ui/theme/tokens.stylex";
 
@@ -89,16 +89,13 @@ const layoutStyles = stylex.create({
 
 const synthStyles = stylex.create({
   container: (tint: string, muted: boolean) => ({
-    flex: 1,
-    minHeight: 200,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: space["8"],
-    backgroundImage: `radial-gradient(120% 120% at 25% 20%, ${tint}59, transparent 60%), linear-gradient(135deg, #14141b, #23232e)`,
-    opacity: muted ? 0.45 : 1,
-    transition: "opacity 200ms",
+    position: "absolute",
+    inset: 0,
+    zIndex: -1,
     borderRadius: radius.md,
+    backgroundImage: `radial-gradient(120% 120% at 25% 20%, ${tint}59, transparent 60%), linear-gradient(135deg, ${colors.background}, ${colors.card})`,
+    opacity: muted ? 0.45 : 1,
+    transition: `opacity ${motion.durationNormal}`,
   }),
 });
 
@@ -135,8 +132,7 @@ const tileStyles = stylex.create({
     color: colors.mutedForeground,
   },
   backdrop: {
-    backgroundImage:
-      "linear-gradient(135deg, #8ec07c59, #d3869b59), linear-gradient(135deg, #14141b, #23232e)",
+    backgroundImage: `linear-gradient(135deg, color-mix(in oklab, ${colors.secondary} 35%, transparent), color-mix(in oklab, ${colors.accent} 35%, transparent)), linear-gradient(135deg, ${colors.background}, ${colors.card})`,
   },
   glowText: {
     color: colors.accent,
@@ -288,9 +284,7 @@ function Controls() {
 
         <Card style={layoutStyles.half}>
           <ControlSection title="TextInput">
-            <Stack gap="8" direction="horizontal" wrap>
-              {" "}
-              justify="between"
+            <Stack gap="8" direction="horizontal" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
                 <TextInput key={variant} label={variant} variant={variant} defaultValue={variant} />
               ))}
@@ -438,7 +432,6 @@ function App() {
   const [theme, setTheme] = useTheme();
   const [synth, setSynth] = useState<Synth>(DEFAULT_SYNTH);
   const [panelPlacement, setPanelPlacement] = useState<"docked" | "floating">("floating");
-  // ... existing state ...
 
   function patchSynth(next: Partial<Synth>) {
     setSynth((current) => ({ ...current, ...next }));
@@ -479,7 +472,6 @@ function App() {
             </ControlSection>
 
             <ControlSection title="Mini Synth">
-              {/* Synth Controls extracted from FakeSynth */}
               <TextInput
                 label="name"
                 value={synth.name}
@@ -567,13 +559,7 @@ function App() {
             </Stack>
 
             {/* Visual Part of Synth */}
-
-            <div {...stylex.props(synthStyles.container(synth.tint, synth.mute))}>
-              <Readout
-                label={synth.name}
-                value={`${synth.wave} · ${synth.filter} · ${synth.cutoff}`}
-              />
-            </div>
+            <div {...stylex.props(synthStyles.container(synth.tint, synth.mute))} />
 
             <Controls />
             <Foundations />

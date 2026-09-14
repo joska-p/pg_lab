@@ -5,7 +5,6 @@ import { borderWidth, radius, space } from "../theme/consts.stylex";
 
 const styles = stylex.create({
   base: {
-    position: "relative",
     flex: 1,
     alignSelf: "stretch",
     minWidth: 0,
@@ -19,6 +18,7 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: colors.border,
     backgroundColor: colors.background,
+    isolation: "isolate",
   },
 });
 
