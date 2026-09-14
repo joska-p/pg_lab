@@ -1,6 +1,7 @@
 {
-  "name": "@repo/ui",
+  "name": "ui",
   "version": "0.0.0",
+  "private": true,
   "type": "module",
   "exports": {
     "./theme/tokens.stylex.ts": "./src/theme/tokens.stylex.ts",
@@ -16,24 +17,24 @@
     "./components/Segmented": "./src/components/Segmented.tsx"
   },
   "scripts": {
-    "build": "vp pack",
-    "dev": "vp pack --watch",
-    "check": "vp check"
+    "dev": "vp dev --host",
+    "build": "tsc -b && vp build",
+    "lint": "vp lint",
+    "preview": "vp preview"
+  },
+  "dependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@stylexjs/stylex": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
     "typescript": "catalog:",
     "unplugin-stylex": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:"
-  },
-  "peerDependencies": {
-    "react": ">=19"
-  },
-  "inlinedDependencies": {
-    "@stylexjs/stylex": "0.19.0"
   }
 }

@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { gruvboxPalette as palette } from "./gruvbox-palette.stylex.ts";
+import { gruvboxPalette as palette } from "./gruvbox-palette.stylex";
 
 const DARK = "@media (prefers-color-scheme: dark)";
 

@@ -1,11 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { interactive } from "../behaviors/interactive.stylex.ts";
-import { motion } from "../theme/consts.stylex.ts";
-import { effects } from "../behaviors/effects.stylex.ts";
-import { radius, space, typography } from "../theme/consts.stylex.ts";
-import { colors } from "../theme/tokens.stylex.ts";
-import { shadowColor } from "../theme/shadows.stylex.ts";
+import { interactive } from "../behaviors/interactive.stylex";
+import { motion } from "../theme/consts.stylex";
+import { effects } from "../behaviors/effects.stylex";
+import { radius, space, typography } from "../theme/consts.stylex";
+import { colors } from "../theme/tokens.stylex";
+import { shadowColor } from "../theme/shadows.stylex";
 
 const spin = stylex.keyframes({
   from: { transform: "rotate(0deg)" },

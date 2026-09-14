@@ -2,16 +2,16 @@ import { useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { colors } from "@repo/ui/theme/tokens.stylex.ts";
-import { borderWidth, motion, radius, space, typography } from "@repo/ui/theme/consts.stylex.ts";
-import { effects } from "@repo/ui/behaviors/effects.stylex.ts";
-import { interactive } from "@repo/ui/behaviors/interactive.stylex.ts";
-import { fieldText } from "@repo/ui/behaviors/text.stylex.ts";
-import { Slider } from "@repo/ui/components/Slider";
-import { Toggle } from "@repo/ui/components/Toggle";
-import { Button } from "@repo/ui/components/Button";
-import { ColorField } from "@repo/ui/components/ColorField";
-import { Segmented } from "@repo/ui/components/Segmented";
+import { colors } from "./theme/tokens.stylex";
+import { borderWidth, motion, radius, space, typography } from "./theme/consts.stylex";
+import { effects } from "./behaviors/effects.stylex";
+import { interactive } from "./behaviors/interactive.stylex";
+import { fieldText } from "./behaviors/text.stylex";
+import { Slider } from "./components/Slider";
+import { Toggle } from "./components/Toggle";
+import { Button } from "./components/Button";
+import { ColorField } from "./components/ColorField";
+import { Segmented } from "./components/Segmented";
 
 const ICONS = ["soft", "firm", "crisp"] as const;
 
