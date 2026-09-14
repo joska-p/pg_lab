@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { shadowColor } from "../theme/shadows.stylex";
+import { shadowColor, shadows } from "../theme/shadows.stylex";
 import { colors } from "../theme/tokens.stylex";
 
 // Stateless six-family color intents (`primary | secondary | accent | warning
@@ -79,64 +79,96 @@ export const intentFills = stylex.create({
   muted: { backgroundColor: colors.mutedForeground },
 });
 
-// Border-only slice (Slider thumb, Radio circle): same muted signal rule.
+// Border-only slice (Slider thumb, Radio circle) — now also seeds the shadow
+// tint so a variant's mark harmonizes border AND derived shadow (the Slider
+// thumb's rest cast follows its family instead of a neutral gray). Same muted
+// signal rule: `muted` = `mutedForeground`.
 export const intentBorders = stylex.create({
-  primary: { borderColor: colors.primary },
-  secondary: { borderColor: colors.secondary },
-  accent: { borderColor: colors.accent },
-  warning: { borderColor: colors.warning },
-  destructive: { borderColor: colors.destructive },
-  muted: { borderColor: colors.mutedForeground },
+  primary: {
+    borderColor: colors.primary,
+    [shadowColor.color]: colors.primary,
+  },
+  secondary: {
+    borderColor: colors.secondary,
+    [shadowColor.color]: colors.secondary,
+  },
+  accent: {
+    borderColor: colors.accent,
+    [shadowColor.color]: colors.accent,
+  },
+  warning: {
+    borderColor: colors.warning,
+    [shadowColor.color]: colors.warning,
+  },
+  destructive: {
+    borderColor: colors.destructive,
+    [shadowColor.color]: colors.destructive,
+  },
+  muted: {
+    borderColor: colors.mutedForeground,
+    [shadowColor.color]: colors.mutedForeground,
+  },
 });
 
 // Text-entry focus (TextInput, NumberField, TextArea, Select — the four
 // byte-identical local `focusVariants`): a mouse click into a text field must
 // show the ring, so these target `:focus`, unlike pressable `:focus-visible`.
+// Default rest is a real recess: `shadows.sunken`, whose tint is seeded by the
+// `[shadowColor.color]` below — the well glows with its family at rest, so a
+// variant's border/shadow language holds even before the focus ring lands
+// (muted stays neutral: its signal is an explicit `mutedForeground`, too
+// bright for a shadow). The ring replaces the inset on focus.
 export const fieldFocus = stylex.create({
   primary: {
     borderColor: { default: colors.border, ":focus": colors.primary },
+    [shadowColor.color]: colors.primary,
     boxShadow: {
-      default: null,
+      default: shadows.sunken,
       ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.primary}`,
     },
   },
 
   secondary: {
     borderColor: { default: colors.border, ":focus": colors.secondary },
+    [shadowColor.color]: colors.secondary,
     boxShadow: {
-      default: null,
+      default: shadows.sunken,
       ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.secondary}`,
     },
   },
 
   accent: {
     borderColor: { default: colors.border, ":focus": colors.accent },
+    [shadowColor.color]: colors.accent,
     boxShadow: {
-      default: null,
+      default: shadows.sunken,
       ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.accent}`,
     },
   },
 
   warning: {
     borderColor: { default: colors.border, ":focus": colors.warning },
+    [shadowColor.color]: colors.warning,
     boxShadow: {
-      default: null,
+      default: shadows.sunken,
       ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.warning}`,
     },
   },
 
   destructive: {
     borderColor: { default: colors.border, ":focus": colors.destructive },
+    [shadowColor.color]: colors.destructive,
     boxShadow: {
-      default: null,
+      default: shadows.sunken,
       ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.destructive}`,
     },
   },
 
   muted: {
     borderColor: { default: colors.border, ":focus": colors.mutedForeground },
+    [shadowColor.color]: colors.muted,
     boxShadow: {
-      default: null,
+      default: shadows.sunken,
       ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.mutedForeground}`,
     },
   },

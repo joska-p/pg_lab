@@ -38,6 +38,9 @@ const styles = stylex.create({
     gap: space["1"],
     padding: space["1"],
     borderRadius: radius.md,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
     backgroundColor: colors.muted,
   },
 

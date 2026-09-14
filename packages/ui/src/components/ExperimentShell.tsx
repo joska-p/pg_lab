@@ -145,9 +145,12 @@ export function ExperimentShell(props: ExperimentShellProps) {
           id={panelId}
           {...stylex.props(
             styles.panel,
-            effects.raised,
             placement === "floating" ? styles.panelFloating : null,
-            effects.glass,
+            // Glass is reserved for floating UI over a backdrop (translucency
+            // makes text contrast depend on what sits behind). Docked keeps a
+            // solid ground + a raised cast so the panel still lifts off the
+            // stage without compositing a 24px blur in normal flow.
+            placement === "floating" ? effects.glass : effects.raised,
             visible ? null : styles.hidden,
           )}
         >

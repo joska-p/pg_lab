@@ -28,6 +28,7 @@ export { ControlPanel } from "./components/ControlPanel";
 export { ControlSection } from "./components/ControlSection";
 export { ControlField } from "./components/ControlField";
 export { Card } from "./components/Card";
+export { Surface } from "./components/Surface";
 export { Stack } from "./components/Stack";
 export { Badge } from "./components/Badge";
 export { SectionHeading } from "./components/SectionHeading";

@@ -85,10 +85,12 @@ export const colors = stylex.defineVars({
   // Quiet by default (D1): a translucent mix so borders recede instead of
   // drawing hard rectangles. Hover/focus states brighten locally per
   // component (see DESIGN.md: barely visible → visible → luminous).
-  // Decorative: non-text contrast (~1.1–1.7:1) is a documented shortfall.
+  // Decorative: non-text contrast is a documented shortfall. Dark was
+  // quieted one step (dark3 55% → dark2 50%, D-critique): the lighter
+  // dark3 line read as a bright outline on the dark card ground.
   // Mixed in oklab (D4) — a transparent blend is endpoint-identical in any
   // space, but oklab matches the palette's color model.
-  border: `light-dark(color-mix(in oklab, ${palette.light3} 55%, transparent), color-mix(in oklab, ${palette.dark3} 55%, transparent))`,
+  border: `light-dark(color-mix(in oklab, ${palette.light3} 55%, transparent), color-mix(in oklab, ${palette.dark2} 50%, transparent))`,
 
   // Editable wells (text fields, selects, multiline inputs). A distinct
   // role from muted surfaces even where values converge in dark mode:

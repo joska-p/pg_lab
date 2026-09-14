@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
-import type { StyleXStyles } from "@stylexjs/stylex";
 import {
   Button,
   Card,
@@ -19,6 +18,7 @@ import {
   Slider,
   Stack,
   Stage,
+  Surface,
   Swatch,
   Text,
   TextArea,
@@ -26,11 +26,6 @@ import {
   Toggle,
   ShellWrapper,
 } from "@repo/ui";
-import { effects } from "@repo/ui/behaviors/effects.stylex";
-import { colorIntents } from "@repo/ui/behaviors/intents.stylex";
-import { borderWidth, motion, radius, space, typography } from "@repo/ui/theme/consts.stylex";
-import { shadowColor } from "@repo/ui/theme/shadows.stylex";
-import { colors } from "@repo/ui/theme/tokens.stylex";
 
 const BUTTON_VARIANTS = [
   "primary",
@@ -88,76 +83,7 @@ const layoutStyles = stylex.create({
   },
 });
 
-const synthStyles = stylex.create({
-  container: (tint: string, muted: boolean) => ({
-    display: "grid",
-    placeContent: "center",
-    minHeight: 300,
-    borderRadius: radius.md,
-    backgroundImage: `radial-gradient(120% 120% at 25% 20%, ${tint}59, transparent 60%), linear-gradient(135deg, ${colors.background}, ${colors.card})`,
-    opacity: muted ? 0.45 : 1,
-    transition: `opacity ${motion.durationNormal}`,
-  }),
-});
-
-const tileStyles = stylex.create({
-  base: {
-    display: "flex",
-    alignItems: "flex-end",
-    flex: "1 1 160px",
-    minHeight: 108,
-    padding: space["8"],
-    borderRadius: radius.md,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-  },
-  cardBg: {
-    backgroundColor: colors.card,
-    color: colors.cardForeground,
-  },
-  backdrop: {
-    backgroundImage: `linear-gradient(135deg, color-mix(in oklab, ${colors.secondary} 35%, transparent), color-mix(in oklab, ${colors.accent} 35%, transparent)), linear-gradient(135deg, ${colors.background}, ${colors.card})`,
-  },
-  glowText: {
-    color: colors.accent,
-  },
-});
-
-// Tints for ELEVATION tiles on neutral surfaces only: `card` and `accent` are
-// not color intents (the six-family `colorIntents` map covers primary…
-// muted), so these two shadow tints stay local. Intent-driven tiles (raised,
-// sunken, pressable) come straight from `colorIntents` below.
-const surfaceTints = stylex.create({
-  accent: { [shadowColor.color]: colors.accent },
-  card: { [shadowColor.color]: colors.card },
-});
-
-function Tile({
-  bg,
-  tint,
-  effect,
-  label,
-  children,
-}: {
-  bg?: StyleXStyles;
-  tint?: StyleXStyles;
-  effect?: StyleXStyles | StyleXStyles[];
-  label: string;
-  children?: React.ReactNode;
-}) {
-  const applied = Array.isArray(effect) ? effect : [effect];
-  return (
-    <div {...stylex.props(tileStyles.base, bg, tint, ...applied)}>
-      {children}
-      <span>{label}</span>
-    </div>
-  );
-}
-
-const CARD_VARIANTS = ["glass", "surface", "raised", "sunken"] as const;
+const CARD_VARIANTS = ["surface", "raised", "sunken"] as const;
 
 function CardShowcase() {
   return (
@@ -184,7 +110,7 @@ function Controls() {
       <SectionHeading index="02" title="controls" />
 
       <Stack direction="horizontal" gap="8" wrap>
-        <Card variant="glass" style={layoutStyles.half}>
+        <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="Button">
             <Stack direction="horizontal" gap="8" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -198,7 +124,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card variant="glass" style={layoutStyles.half}>
+        <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="Slider">
             <Stack gap="8">
               {BUTTON_VARIANTS.map((variant) => (
@@ -216,7 +142,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card variant="glass" style={layoutStyles.half}>
+        <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="Toggle">
             <Stack direction="horizontal" gap="8" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -228,7 +154,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card variant="glass" style={layoutStyles.half}>
+        <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="Checkbox">
             <Stack direction="horizontal" gap="8" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -240,7 +166,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card variant="glass" style={layoutStyles.half}>
+        <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="Segmented">
             <Stack gap="8" direction="horizontal" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -257,7 +183,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card variant="glass" style={layoutStyles.half}>
+        <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="Select">
             <Stack gap="8" direction="horizontal" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -274,7 +200,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card variant="glass" style={layoutStyles.half}>
+        <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="RadioGroup">
             <Stack gap="8" direction="horizontal" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -291,7 +217,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card variant="glass" style={layoutStyles.half}>
+        <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="TextInput">
             <Stack gap="8" direction="horizontal" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -302,7 +228,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card variant="glass" style={layoutStyles.half}>
+        <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="NumberField">
             <Stack gap="8" direction="horizontal" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -320,7 +246,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card variant="glass" style={layoutStyles.half}>
+        <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="TextArea">
             <Stack gap="8" direction="horizontal" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -337,7 +263,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card variant="glass" style={layoutStyles.half}>
+        <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="ColorField">
             <ColorField label="warm tint" defaultValue="#b8bb26" />
             <ColorField label="disabled" disabled defaultValue="#d3869b" />
@@ -353,7 +279,7 @@ function Foundations() {
     <Stack gap="8">
       <SectionHeading index="03" title="foundations" />
 
-      <Card variant="glass">
+      <Card variant="surface">
         <ControlSection title="surfaces">
           <Stack direction="horizontal" gap="8" wrap>
             <Swatch variant="background" meta="app ground" />
@@ -363,37 +289,26 @@ function Foundations() {
         </ControlSection>
       </Card>
 
-      <Card variant="glass">
+      <Card variant="surface">
         <ControlSection title="elevation">
           <Stack direction="horizontal" gap="8" wrap>
-            <Tile bg={tileStyles.cardBg} effect={effects.flat} label="flat · border only" />
-            <Tile bg={colorIntents.primary} effect={effects.raised} label="raised · tinted" />
-            <Tile bg={colorIntents.muted} effect={effects.sunken} label="sunken · inset" />
-            <Tile
-              bg={tileStyles.cardBg}
-              tint={surfaceTints.accent}
-              effect={effects.floating}
-              label="floating"
-            />
-            <Tile
-              bg={tileStyles.backdrop}
-              tint={surfaceTints.card}
-              effect={[effects.glass, effects.floating]}
-              label="glass · over backdrop"
-            />
-            <Tile
-              bg={colorIntents.secondary}
-              effect={effects.pressable}
+            <Surface elevation="flat" tint="card" label="flat · border only" />
+            <Surface elevation="raised" tint="primary" label="raised · tinted" />
+            <Surface elevation="sunken" tint="muted" label="sunken · inset" />
+            <Surface elevation="floating" tint="card" label="floating" />
+            <Surface elevation="glass" tint="backdrop" label="glass · over backdrop" />
+            <Surface
+              elevation="flat"
+              tint="secondary"
+              interactive
               label="press me · rest / hover / active"
             />
-            <Tile bg={tileStyles.cardBg} label="glow = state, not elevation">
-              <span {...stylex.props(tileStyles.glowText, effects.glowSubtle)}>●&nbsp;</span>
-            </Tile>
+            <Surface elevation="flat" tint="card" glow label="glow = state, not elevation" />
           </Stack>
         </ControlSection>
       </Card>
 
-      <Card variant="glass">
+      <Card variant="surface">
         <ControlSection title="families">
           <Stack direction="horizontal" gap="8" wrap>
             <Swatch variant="primary" meta="primaryForeground" />
@@ -406,7 +321,7 @@ function Foundations() {
         </ControlSection>
       </Card>
 
-      <Card variant="glass">
+      <Card variant="surface">
         <ControlSection title="type">
           <Text>Body copy stays compact and readable. No oversized headings.</Text>
           <Text variant="muted">Muted carries secondary information without competing.</Text>
@@ -556,14 +471,14 @@ function App() {
               </Text>
             </Stack>
 
-            {/* Visual Part of Synth */}
+            {/* Synth canvas: a Surface colored by the live synth state. */}
 
-            <div {...stylex.props(synthStyles.container(synth.tint, synth.mute))}>
+            <Surface color={synth.tint} size="tall" align="center" muted={synth.mute}>
               <Readout
                 label={synth.name}
                 value={`${synth.wave} · ${synth.filter} · ${synth.cutoff}`}
               />
-            </div>
+            </Surface>
 
             <CardShowcase />
 

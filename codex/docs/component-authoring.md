@@ -192,17 +192,24 @@ const colorVariants = stylex.create({
   hover shade.
 - Elevation lives in `behaviors/effects.stylex.ts` (Phase B model): `flat`
   (no cast shadow, border only), `raised` (tinted diffuse cast shadow),
-  `sunken` (inset, embedded) plus the `pressable` (`rest`/`hover`/`active`)
-  and `floating` composites. Every consumer of an elevation sets
-  `shadowColor` to its own background (teinte auto — Phase B, S3: `Button`
-  per variant, `ExperimentShell` panel with `card`, `Slider` thumb with
-  `background`).
-- The glow (`glow`/`glowSubtle`/`glowStrong`) stays orthogonal: state accent
-  (selection, activity, handles), never elevation.
+  `sunken` (two-layer inset: a top-light line + a soft bottom shade — a recess
+  needs a lighter inner top edge, so the tint never collapses into the
+  surface it hollows) plus the `pressable` (`rest`/`hover`/`active`) and
+  `floating` composites. Every consumer of an elevation sets `shadowColor` to
+  its own background (teinte auto — Phase B, S3: `Button` per variant,
+  `ExperimentShell` panel with `card`, `Slider` thumb with `background`).
+  `sunken` also serves as the recess for editable wells and rails: fields
+  (`fieldFocus` map) tint it with `colors.input`, the Slider track and
+  Segmented rail keep the boundary visible via `colors.border`/inset. The
+  depth ladder is alpha-ordered (`rest < raised < hover < floating`).
+- The glow (`glow`/`glowSubtle`/`glowStrong`, plus the 55 %-mixed `glowRing`)
+  stays orthogonal: state accent (selection, activity, handles), never
+  elevation.
 - `grain` is a near-invisible monochrome noise overlay for tactile texture
-  (`Page`, `Stage`); `glass` (translucent `card` + 12px blur) is for floating
-  UI over a backdrop only — in-flow surfaces stay opaque so text contrast
-  never depends on what's behind them.
+  (`Page`, `Stage`); `glass` (translucent `card` + 24px blur + a cast shadow
+  derived from `shadowColor`/`shadows.floating`) is for floating UI over a
+  backdrop only — in-flow surfaces stay opaque so text contrast never depends
+  on what's behind them.
 - Borders stay quiet by default: the `border` token is a translucent mix,
   never a hard rectangle (see DESIGN.md, restrained borders).
 
@@ -286,13 +293,13 @@ Start local, extract deliberately:
 
 All are stateless — no `:hover`, `:active`, or selected fill:
 
-| map             | carries                                                                                   | consumers                                        |
-| --------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| `colorIntents`  | `[shadowColor.color]` + `backgroundColor` + `borderColor` + foreground (the full surface) | Button, Toggle-on, Checkbox-on, Segmented chosen |
-| `intentHovers`  | `background-color` `:hover` per family (the `<family>Hover` tokens)                       | Button, Toggle-on, Checkbox-on                   |
-| `intentFills`   | `backgroundColor` only; `muted` = `mutedForeground`                                       | Slider fill, Radio dot                           |
-| `intentBorders` | `borderColor` only; `muted` = `mutedForeground`                                           | Toggle-off, Slider thumb, Radio circle           |
-| `fieldFocus`    | field border + ring on `:focus` per family                                                | TextInput, NumberField, TextArea, Select         |
+| map             | carries                                                                                                   | consumers                                        |
+| --------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| `colorIntents`  | `[shadowColor.color]` + `backgroundColor` + `borderColor` + foreground (the full surface)                 | Button, Toggle-on, Checkbox-on, Segmented chosen |
+| `intentHovers`  | `background-color` `:hover` per family (the `<family>Hover` tokens)                                       | Button, Toggle-on, Checkbox-on                   |
+| `intentFills`   | `backgroundColor` only; `muted` = `mutedForeground`                                                       | Slider fill, Radio dot                           |
+| `intentBorders` | `borderColor` + `[shadowColor.color]` (border AND cast harmonize per family); `muted` = `mutedForeground` | Toggle-off, Slider thumb, Radio circle           |
+| `fieldFocus`    | field border + `[shadowColor.color]` (well tint) + ring on `:focus` per family                            | TextInput, NumberField, TextArea, Select         |
 
 ### Composition recipe
 
@@ -325,9 +332,9 @@ export function Button({ variant = "primary", style }: Props) {
   depends on application order. `intentHovers` is the one deliberate shared
   `:hover`: three consumers need the byte-identical hover background, and
   `:hover` has no "last applied wins" ordering problem — documented as shared.
-- **`effects.glowRing`** (`0 0 6px` on `shadowColor`) is the tinted halo for
-  on/off marks — an effect, not a per-family map. Apply a `colorIntents[variant]`
-  map first (it sets the tint var), then the effect.
+- **`effects.glowRing`** (`0 0 6px`, 55 %-mixed, on `shadowColor`) is the
+  tinted halo for on/off marks — an effect, not a per-family map. Apply a
+  `colorIntents[variant]` map first (it sets the tint var), then the effect.
 - **`muted` divergences (S8) are documented, not unified.** Canonical
   `colorIntents.muted` = fill `muted` / border `muted` / foreground
   `mutedForeground`. The slices `intentFills`/`intentBorders` signal through
@@ -352,7 +359,9 @@ export function Button({ variant = "primary", style }: Props) {
 Rings are visible for keyboard, silent for mouse — per context (D2 audit):
 
 - Pressables (buttons, toggles, chips, radio options): `interactive.focusRing`
-  (`:focus-visible`).
+  (`:focus-visible`). For pressable composites (`effects.pressable`), the ring
+  is composed INTO the shadow list on `:focus-visible` (rest cast + 2px/3px
+  ring) so keyboard focus keeps its lift instead of replacing it.
 - Text-entry fields: the shared `fieldFocus` map on `:focus` (a mouse click
   into a text field must show the ring).
 - Hidden-input composites: the Slider pattern — ring on the visible container

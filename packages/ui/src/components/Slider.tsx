@@ -67,6 +67,10 @@ const styles = stylex.create({
     height: TRACK_HEIGHT,
     borderRadius: radius.full,
     backgroundColor: colors.muted,
+    // Recessed groove (self-tinted by the muted fill): the unfilled rail reads
+    // as hollow, the progress fill as raised on top of it.
+    [shadowColor.color]: colors.muted,
+    boxShadow: shadows.sunken,
   },
 
   fill: (progress: string) => ({
@@ -91,8 +95,10 @@ const styles = stylex.create({
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
-    // Automatic tint (Phase B, S3): shadow follows the thumb's own fill.
-    [shadowColor.color]: colors.background,
+    // Harmonic variant language: `intentBorders[variant]` seeds the shadow
+    // tint, so the knob's resting cast follows its family (border + shadow
+    // agree), per the "shadow paints itself" rule — the knob filler stays the
+    // neutral `background` while its ring and halo carry the color.
     boxShadow: shadows.rest,
   }),
 
