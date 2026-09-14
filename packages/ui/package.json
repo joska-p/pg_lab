@@ -1,30 +1,42 @@
 {
-  "name": "ui",
+  "name": "@repo/ui",
   "version": "0.0.0",
-  "private": true,
+  "description": "This is a small personal UI toolkit for creative mini-apps.",
+  "license": "MIT",
+  "author": "Joska <joska-p@gmail.com>",
+  "files": [
+    "src",
+    "dist"
+  ],
   "type": "module",
   "exports": {
-    "./theme/tokens.stylex.ts": "./src/theme/tokens.stylex.ts",
-    "./theme/consts.stylex.ts": "./src/theme/consts.stylex.ts",
-    "./theme/shadows.stylex.ts": "./src/theme/shadows.stylex.ts",
-    "./behaviors/effects.stylex.ts": "./src/behaviors/effects.stylex.ts",
-    "./behaviors/interactive.stylex.ts": "./src/behaviors/interactive.stylex.ts",
-    "./behaviors/text.stylex.ts": "./src/behaviors/text.stylex.ts",
-    "./components/Slider": "./src/components/Slider.tsx",
-    "./components/Toggle": "./src/components/Toggle.tsx",
-    "./components/Button": "./src/components/Button.tsx",
-    "./components/ColorField": "./src/components/ColorField.tsx",
-    "./components/Segmented": "./src/components/Segmented.tsx"
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./package.json": "./package.json",
+    "./theme/*": {
+      "types": "./src/theme/*.ts",
+      "import": "./src/theme/*.ts"
+    },
+    "./behaviors/*": {
+      "types": "./src/behaviors/*.ts",
+      "import": "./src/behaviors/*.ts"
+    },
+    "./components/*": {
+      "types": "./src/components/*.tsx",
+      "import": "./src/components/*.tsx"
+    },
+    "./stylex-preset": {
+      "types": "./stylex-preset.ts",
+      "import": "./stylex-preset.ts"
+    }
   },
   "scripts": {
-    "dev": "vp dev --host",
-    "build": "tsc -b && vp build",
-    "lint": "vp lint",
-    "preview": "vp preview"
-  },
-  "dependencies": {
-    "react": "catalog:",
-    "react-dom": "catalog:"
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "test": "vp test",
+    "check": "vp check"
   },
   "devDependencies": {
     "@rolldown/plugin-babel": "catalog:",
@@ -37,5 +49,10 @@
     "unplugin-stylex": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "@stylexjs/stylex": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
   }
 }

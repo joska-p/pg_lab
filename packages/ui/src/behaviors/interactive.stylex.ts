@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { motion } from "../theme/consts.stylex.ts";
-import { colors } from "../theme/tokens.stylex.ts";
+import { motion } from "../theme/consts.stylex";
+import { colors } from "../theme/tokens.stylex";
 
 export const interactive = stylex.create({
   base: {

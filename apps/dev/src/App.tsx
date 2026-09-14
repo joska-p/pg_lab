@@ -2,16 +2,12 @@ import { useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { colors } from "./theme/tokens.stylex";
-import { borderWidth, motion, radius, space, typography } from "./theme/consts.stylex";
-import { effects } from "./behaviors/effects.stylex";
-import { interactive } from "./behaviors/interactive.stylex";
-import { fieldText } from "./behaviors/text.stylex";
-import { Slider } from "./components/Slider";
-import { Toggle } from "./components/Toggle";
-import { Button } from "./components/Button";
-import { ColorField } from "./components/ColorField";
-import { Segmented } from "./components/Segmented";
+import { Slider, Toggle, Button, ColorField, Segmented } from "@repo/ui";
+import { colors } from "@repo/ui/theme/tokens.stylex";
+import { borderWidth, motion, radius, space, typography } from "@repo/ui/theme/consts.stylex";
+import { effects } from "@repo/ui/behaviors/effects.stylex";
+import { interactive } from "@repo/ui/behaviors/interactive.stylex";
+import { fieldText } from "@repo/ui/behaviors/text.stylex";
 
 const ICONS = ["soft", "firm", "crisp"] as const;
 

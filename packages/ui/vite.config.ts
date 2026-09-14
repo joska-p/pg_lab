@@ -1,41 +1,21 @@
-import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { defineConfig } from "vite-plus";
-import { lazyPlugins } from "vite-plus";
-import stylexPlugin from "unplugin-stylex/vite";
-import babel from "@rolldown/plugin-babel";
 
-// https://vite.dev/config/
+// @repo/ui ships StyleX source for consumers to compile, so no Vite
+// transform plugins belong here (vp pack runs tsdown, not Vite).
+// pack must not rewrite package.json exports: they intentionally point
+// at ./src so every app compiles the same source with the shared preset.
 export default defineConfig({
-  lint: {
-    plugins: ["react", "typescript", "oxc"],
-    rules: {
-      "react/rules-of-hooks": "error",
-      "react/only-export-components": [
-        "warn",
-        {
-          allowConstantExport: true,
-        },
-      ],
-      "vite-plus/prefer-vite-plus-imports": "error",
+  pack: {
+    dts: {
+      generator: "tsgo",
     },
+    exports: false,
+  },
+  lint: {
     options: {
       typeAware: true,
       typeCheck: true,
     },
-    jsPlugins: [
-      {
-        name: "vite-plus",
-        specifier: "vite-plus/oxlint-plugin",
-      },
-    ],
   },
-  plugins: lazyPlugins(() => [
-    stylexPlugin({
-      useCSSLayers: true,
-    }),
-    babel({
-      presets: [reactCompilerPreset()],
-    }),
-    react(),
-  ]),
+  fmt: {},
 });

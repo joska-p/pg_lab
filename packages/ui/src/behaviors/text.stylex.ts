@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { colors } from "../theme/tokens.stylex.ts";
-import { typography } from "../theme/consts.stylex.ts";
+import { colors } from "../theme/tokens.stylex";
+import { typography } from "../theme/consts.stylex";
 
 export const fieldText = stylex.create({
   label: {

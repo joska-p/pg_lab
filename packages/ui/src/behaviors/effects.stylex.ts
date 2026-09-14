@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { shadows } from "../theme/shadows.stylex.ts";
+import { shadows } from "../theme/shadows.stylex";
 
 export const effects = stylex.create({
   glow: {
