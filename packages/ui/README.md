@@ -307,6 +307,13 @@ The goal is to build a **small, coherent toolkit for creative interfaces**.
 
 # StyleX
 
+### Setup contract (lib ↔ apps)
+
+How this library is distributed and consumed is defined in
+`codex/docs/ui-setup.md` (source distribution, shared `stylex-preset`,
+per-app compilation). Read it before changing `package.json` `exports`,
+`vite.config.ts`, or StyleX options.
+
 ### Troubleshooting
 
 1. Ensure the CSS file with `@stylex` is imported

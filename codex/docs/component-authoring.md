@@ -23,8 +23,9 @@ existing widgets (`Toggle`, `Slider`, `Segmented`, `ColorField`, `Button`):
 - `disabled` handling, and a `style?: StyleXStyles` prop passed **last** to
   `stylex.props` so callers can always override.
 - Register the export in `packages/ui/package.json` under `exports`
-  (e.g. `"./components/Button": "./src/components/Button.tsx"`).
-- Showcase it in `packages/ui-demo/src/App.tsx`.
+  (covered by the `"./components/*"` wildcard for
+  `src/components/<Name>.tsx`).
+- Showcase it in `apps/dev/src/App.tsx`.
 - Run `vp check` after each change.
 
 ### Boilerplate skeleton
@@ -33,8 +34,8 @@ existing widgets (`Toggle`, `Slider`, `Segmented`, `ColorField`, `Button`):
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 
-import { interactive } from "../primitives/interactive.stylex.ts";
-import { colors, radius, space, typography } from "../theme/tokens.stylex.ts";
+import { interactive } from "../behaviors/interactive.stylex";
+import { colors, radius, space, typography } from "../theme/tokens.stylex";
 
 const styles = stylex.create({
   base: { ... },
@@ -59,11 +60,11 @@ export function Component({ disabled, style }: ComponentProps) {
 
 Before writing any style, ask where the value belongs.
 
-| Question                                                                                                                                                       | Answer                                                                                |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| Does this value represent a semantic concept that flips for light/dark, or an interaction feedback driven by an element's identity (shadow tint, hover shade)? | A **token** in `theme/tokens.stylex.ts` or `theme/shadows.stylex.ts`.                 |
-| Does 2+ components genuinely share the same **behavioral** style (cursor + transitions, focus ring, disabled opacity, label/value typography)?                 | A **primitive** in `primitives/interactive.stylex.ts` or `primitives/text.stylex.ts`. |
-| Is this the **visual intent** of this one component (the fill of a selected chip, a pressed state, a variant of a button)?                                     | A **local** `stylex.create` map in the component file.                                |
+| Question                                                                                                                                                       | Answer                                                                              |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Does this value represent a semantic concept that flips for light/dark, or an interaction feedback driven by an element's identity (shadow tint, hover shade)? | A **token** in `theme/tokens.stylex.ts` or `theme/shadows.stylex.ts`.               |
+| Does 2+ components genuinely share the same **behavioral** style (cursor + transitions, focus ring, disabled opacity, label/value typography)?                 | A **primitive** in `behaviors/interactive.stylex.ts` or `behaviors/text.stylex.ts`. |
+| Is this the **visual intent** of this one component (the fill of a selected chip, a pressed state, a variant of a button)?                                     | A **local** `stylex.create` map in the component file.                              |
 
 ### Rules of thumb
 
@@ -74,7 +75,8 @@ Before writing any style, ask where the value belongs.
   their final value depends on ordering ("last applied wins") which is
   component-specific.
 - Primitive files stay few and shared: today only `interactive`
-  (`base`/`focusRing`/`disabled`) and `fieldText` (`label`/`value`). Add a new
+  (`base`/`focusRing`/`disabled`) in `behaviors/interactive.stylex.ts` and
+  `fieldText` (`label`/`value`) in `behaviors/text.stylex.ts`. Add a new
   primitive only when a second real consumer exists.
 - Per the StyleX principle of co-location, prefer a small local solution until
   the sharing is real. Do not abstract in advance.
@@ -110,7 +112,7 @@ tokens derive from via `color-mix`. An element opts in by setting the variable
 with its root color:
 
 ```ts
-import { shadowColor } from "../theme/shadows.stylex.ts";
+import { shadowColor } from "../theme/shadows.stylex";
 
 const colorVariants = stylex.create({
   primary: {
@@ -126,8 +128,8 @@ const colorVariants = stylex.create({
   keeps a blue-tinted shadow even while the background shifts to the neutral
   hover shade.
 
-When you add a new theme module, export it in `package.json` under
-`./theme/<name>.stylex.ts`.
+When you add a new theme module, it is covered by the `"./theme/*"` wildcard
+in `packages/ui/package.json` `exports` — no registration needed.
 
 ---
 
@@ -135,7 +137,7 @@ When you add a new theme module, export it in `package.json` under
 
 A variant is a plain map in `stylex.create`, keyed by name, applied with a
 lookup (`colorVariants[variant]`). See the full pattern in
-`codex/temp/stylexVariants.txt` and the canonical implementation in
+`codex/docs/stylex-variants.txt` and the canonical implementation in
 `Button.tsx`.
 
 ### Recipe
