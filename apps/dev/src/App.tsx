@@ -93,12 +93,12 @@ const layoutStyles = stylex.create({
 const synthStyles = stylex.create({
   container: (tint: string, muted: boolean) => ({
     flex: 1,
-    minHeight: 400,
+    minHeight: 200,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     padding: space["6"],
-    background: `radial-gradient(120% 120% at 25% 20%, ${tint}59, transparent 60%), linear-gradient(135deg, #14141b, #23232e)`,
+    backgroundImage: `radial-gradient(120% 120% at 25% 20%, ${tint}59, transparent 60%), linear-gradient(135deg, #14141b, #23232e)`,
     opacity: muted ? 0.45 : 1,
     transition: "opacity 200ms",
     borderRadius: radius.md,
