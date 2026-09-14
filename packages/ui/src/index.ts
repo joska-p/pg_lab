@@ -25,7 +25,6 @@ export { Stack } from "./components/Stack";
 export { Badge } from "./components/Badge";
 export { SectionHeading } from "./components/SectionHeading";
 export { Readout } from "./components/Readout";
-export { Page } from "./components/Page";
 export { Text } from "./components/Text";
 export { Swatch } from "./components/Swatch";
 export { ShellWrapper } from "./components/ShellWrapper";

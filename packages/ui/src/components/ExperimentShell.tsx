@@ -9,8 +9,6 @@ import { Button } from "./Button";
 
 const PANEL_WIDTH = 280;
 const PANEL_MAX_MOBILE = 300;
-// Mirrors space["3"] (12px) from theme/consts: clearance between the panel
-// edge and its toggle, and the panel inset from the shell edge.
 const PANEL_GAP = 12;
 const TOGGLE_CLEARANCE = PANEL_GAP * 2;
 
@@ -42,15 +40,12 @@ const styles = stylex.create({
   panel: {
     display: "flex",
     flexDirection: "column",
-    // Automatic tint (Phase B, S3): the panel floats above the stage, so it
-    // tints its own elevation shadow with its background.
     [shadowColor.color]: colors.card,
     width: PANEL_WIDTH,
     flexShrink: 0,
     minHeight: 0,
     maxHeight: "100%",
     overflowY: "auto",
-    padding: space["4"],
     borderRadius: radius.md,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
@@ -96,9 +91,6 @@ const styles = stylex.create({
     zIndex: zIndex.overlay,
   },
 
-  // Floating + visible: le panneau occupe le coin haut-droite, donc le
-  // toggle se décale à sa gauche (panel + clearance). Sur mobile le panneau
-  // devient une feuille basse : le toggle reste en haut-droite.
   toggleClearOfFloatingPanel: {
     right: `calc(${PANEL_WIDTH}px + ${TOGGLE_CLEARANCE}px)`,
     "@media (max-width: 720px)": {
@@ -154,7 +146,7 @@ export function ExperimentShell(props: ExperimentShellProps) {
             styles.panel,
             effects.raised,
             placement === "floating" ? styles.panelFloating : null,
-            placement === "floating" ? effects.glass : null,
+            effects.glass,
             visible ? null : styles.hidden,
           )}
         >

@@ -1,6 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { effects } from "../behaviors/effects.stylex";
 import { colors } from "../theme/tokens.stylex";
 import { borderWidth, radius, space } from "../theme/consts.stylex";
 
@@ -31,7 +30,7 @@ type StageProps = {
 
 export function Stage({ label, style, children }: StageProps) {
   return (
-    <section aria-label={label ?? "stage"} {...stylex.props(styles.base, effects.grain, style)}>
+    <section aria-label={label ?? "stage"} {...stylex.props(styles.base, style)}>
       {children}
     </section>
   );

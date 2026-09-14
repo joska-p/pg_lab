@@ -8,8 +8,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     gap: space["4"],
-    minHeight: 0,
-    overflowY: "auto",
+    padding: space["4"],
   },
 
   title: {

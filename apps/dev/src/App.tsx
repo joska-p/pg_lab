@@ -80,10 +80,7 @@ const DEFAULT_SYNTH: Synth = {
   notes: "",
 };
 
-// Hero and FakeSynth components are now obsolete as their logic is moved to App
-
 const layoutStyles = stylex.create({
-  // Two-up responsive grid: cards share a row on wide screens, stack below.
   half: {
     flex: "1 1 320px",
     minWidth: 0,
@@ -97,7 +94,7 @@ const synthStyles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: space["6"],
+    padding: space["8"],
     backgroundImage: `radial-gradient(120% 120% at 25% 20%, ${tint}59, transparent 60%), linear-gradient(135deg, #14141b, #23232e)`,
     opacity: muted ? 0.45 : 1,
     transition: "opacity 200ms",
@@ -111,7 +108,7 @@ const tileStyles = stylex.create({
     alignItems: "flex-end",
     flex: "1 1 160px",
     minHeight: 108,
-    padding: space["3"],
+    padding: space["8"],
     borderRadius: radius.md,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
@@ -178,10 +175,10 @@ function Tile({
 
 function Controls() {
   return (
-    <Stack gap="3">
+    <Stack gap="8">
       <SectionHeading index="02" title="controls" />
 
-      <Stack direction="horizontal" gap="4" wrap>
+      <Stack direction="horizontal" gap="8" wrap>
         <Card style={layoutStyles.half}>
           <ControlSection title="Button">
             <Stack direction="horizontal" gap="8" wrap justify="between">
@@ -350,7 +347,7 @@ function Controls() {
 
 function Foundations() {
   return (
-    <Stack gap="2">
+    <Stack gap="8">
       <SectionHeading index="03" title="foundations" />
 
       <Card>
@@ -542,7 +539,7 @@ function App() {
                 onValueChange={(notes) => patchSynth({ notes })}
               />
               <ControlField label="actions">
-                <Stack direction="horizontal" gap="2" wrap>
+                <Stack direction="horizontal" gap="8" wrap>
                   <Button variant="secondary" onClick={randomizeSynth}>
                     randomize
                   </Button>
@@ -560,8 +557,8 @@ function App() {
         }
       >
         <Stage label="Workspace Stage">
-          <Stack gap="2">
-            <Stack gap="2">
+          <Stack gap="8">
+            <Stack gap="8">
               <SectionHeading index="00" title="repo/ui" />
               <Text variant="muted">
                 A small toolkit for creative mini-apps. Canvas first, panel second — and this page
@@ -580,7 +577,7 @@ function App() {
 
             <Controls />
             <Foundations />
-            <Stack direction="horizontal" gap="2" wrap>
+            <Stack direction="horizontal" gap="8" wrap>
               <Text variant="muted">built on @repo/ui</Text>
               <Text variant="muted">components only · no raw values</Text>
             </Stack>
