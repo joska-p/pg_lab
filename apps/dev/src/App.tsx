@@ -89,9 +89,9 @@ const layoutStyles = stylex.create({
 
 const synthStyles = stylex.create({
   container: (tint: string, muted: boolean) => ({
-    position: "absolute",
-    inset: 0,
-    zIndex: -1,
+    display: "grid",
+    placeContent: "center",
+    minHeight: 300,
     borderRadius: radius.md,
     backgroundImage: `radial-gradient(120% 120% at 25% 20%, ${tint}59, transparent 60%), linear-gradient(135deg, ${colors.background}, ${colors.card})`,
     opacity: muted ? 0.45 : 1,
@@ -559,7 +559,13 @@ function App() {
             </Stack>
 
             {/* Visual Part of Synth */}
-            <div {...stylex.props(synthStyles.container(synth.tint, synth.mute))} />
+
+            <div {...stylex.props(synthStyles.container(synth.tint, synth.mute))}>
+              <Readout
+                label={synth.name}
+                value={`${synth.wave} · ${synth.filter} · ${synth.cutoff}`}
+              />
+            </div>
 
             <Controls />
             <Foundations />
