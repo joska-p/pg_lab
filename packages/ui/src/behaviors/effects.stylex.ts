@@ -54,12 +54,15 @@ export const effects = stylex.create({
   // Only meaningful where content sits behind the element (floating panel,
   // overlays) — in-flow surfaces stay opaque so text contrast never depends
   // on what's behind them.
+  // D4: deepened 30% → 45% opacity so the panel keeps a stable dark ground
+  // even over bright stage content, and mixed in oklab (the tint blend is
+  // endpoint-identical, but matches the palette's color model).
 
   glass: {
-    backgroundColor: `color-mix(in srgb, ${colors.background} 30%, transparent)`,
+    backgroundColor: `color-mix(in oklab, ${colors.background} 45%, transparent)`,
     backdropFilter: "blur(24px) saturate(180%)",
-    borderColor: `color-mix(in srgb, ${colors.foreground} 12%, transparent)`,
-    boxShadow: `0 8px 32px color-mix(in srgb, ${colors.background} 50%, transparent)`,
+    borderColor: `color-mix(in oklab, ${colors.foreground} 12%, transparent)`,
+    boxShadow: `0 8px 32px color-mix(in oklab, ${colors.background} 50%, transparent)`,
   },
 
   blurSm: {

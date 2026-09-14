@@ -3,8 +3,8 @@
 How `@repo/ui` (StyleX design tokens + components) is distributed to apps in
 this monorepo, and how to scaffold a new app that honors the contract.
 
-Related: `component-authoring.md` (adding components), `coding-conventions.md`,
-`stylex-mindset.txt`, `stylex-variants.txt`.
+Related: `component-authoring.md` (adding components), `coding-conventions.md`.
+StyleX reference: <https://stylexjs.com>.
 
 ---
 

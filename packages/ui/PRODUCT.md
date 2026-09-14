@@ -23,7 +23,7 @@ A lightweight, StyleX-powered toolkit whose interfaces feel like a creative inst
 - Monorepo driven by Vite+; apps consume `@repo/ui` workspace source and compile it per-app with `unplugin-stylex` using the library-owned `stylexPreset`.
 - `apps/dev` is the reference implementation and test bed where components are exercised in a real surface.
 - Responsive behavior is built in, not a separate mobile design: portrait stacks the control panel under the canvas, landscape docks it beside. Touch is a first-class requirement; no interaction depends on hover.
-- Setup, distribution and authoring contracts live in `codex/docs/` (`ui-setup.md`, `component-authoring.md`, `coding-conventions.md`, StyleX notes).
+- Setup, distribution and authoring contracts live in `codex/docs/` (`ui-setup.md`, `component-authoring.md`, `coding-conventions.md`).
 
 ## Capabilities and Constraints
 
@@ -39,7 +39,7 @@ A lightweight, StyleX-powered toolkit whose interfaces feel like a creative inst
 - Name: `@repo/ui`.
 - Gruvbox palette is the theme foundation.
 - Binding identity: the UI must feel like a creative instrument, not a SaaS dashboard; canvas is always the visual priority.
-- The visual language lives in the existing README and tokens, not in this record.
+- The visual language lives in `DESIGN.md` and the tokens, not in this record.
 
 ## Evidence on Hand
 

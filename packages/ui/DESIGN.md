@@ -3,9 +3,9 @@ name: The Terminal Atelier (@repo/ui)
 description: A matte, compact, tactile UI toolkit for creative mini-apps — Gruvbox-warm, canvas-first, quietly luminous.
 colors:
   bg-ground: "light-dark(oklch(0.894 0.057 89.24), oklch(0.277 0 0))"
-  ground-fg: "light-dark(oklch(0.277 0 0), oklch(0.894 0.057 89.24))"
-  panel-surface: "light-dark(oklch(0.956 0.055 96.155), oklch(0.344 0.007 48.523))"
-  panel-fg: "light-dark(oklch(0.277 0 0), oklch(0.894 0.057 89.24))"
+  ground-fg: "light-dark(oklch(0.222 0.000 0.0), oklch(0.965 0.039 100.9))"
+  panel-surface: "light-dark(oklch(0.956 0.055 96.2), oklch(0.314 0.004 48.5))"
+  panel-fg: "light-dark(oklch(0.222 0.000 0.0), oklch(0.965 0.039 100.9))"
   aurora: "light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806))"
   aurora-strong: "oklch(0.576 0.066 199.487)"
   solder: "light-dark(oklch(0.765 0.158 110.835), oklch(0.546 0.112 106.464))"
@@ -17,11 +17,11 @@ colors:
   amber-fg: "light-dark(oklch(0.241 0.005 219.672), oklch(0.894 0.057 89.24))"
   error: "light-dark(oklch(0.66 0.218 30.392), oklch(0.437 0.179 28.26))"
   error-strong: "oklch(0.546 0.203 28.662)"
-  muted-well: "light-dark(oklch(0.756 0.041 82.284), oklch(0.411 0.012 51.866))"
-  muted-well-hover: "light-dark(oklch(0.69 0.035 76.307), oklch(0.482 0.018 61.042))"
-  muted-fg: "light-dark(oklch(0.482 0.018 61.042), oklch(0.69 0.035 76.307))"
-  input-well: "light-dark(oklch(0.825 0.051 85.116), oklch(0.411 0.012 51.866))"
-  border-hair: "light-dark(color-mix(in srgb, oklch(0.756 0.041 82.284) 55%, transparent), color-mix(in srgb, oklch(0.482 0.018 61.042) 55%, transparent))"
+  muted-well: "light-dark(oklch(0.756 0.041 82.3), oklch(0.357 0.007 51.9))"
+  muted-well-hover: "light-dark(oklch(0.69 0.035 76.3), oklch(0.482 0.018 61.0))"
+  muted-fg: "light-dark(oklch(0.266 0.003 211.0), oklch(0.756 0.041 82.3))"
+  input-well: "light-dark(oklch(0.825 0.051 85.1), oklch(0.324 0.004 51.9))"
+  border-hair: "light-dark(color-mix(in oklab, oklch(0.756 0.041 82.3) 55%, transparent), color-mix(in oklab, oklch(0.482 0.018 61.0) 55%, transparent))"
   ring-halo: "light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806))"
 typography:
   headline:
@@ -141,28 +141,23 @@ The character is **Terminal-hued**: the Gruvbox accents are named like bench har
 - Compact technical typography with monospace readouts.
 - Responsive and touch-first: no interaction depends on hover.
 
-## Colors
+## Color
 
-A dual-mode Gruvbox system: every semantic token is a `light-dark()` pair — bright accent + faded shadow resolve on dark, the faded variant on light — and the app picks the live scheme via `color-scheme`. Components depend only on semantic tokens; the raw palette (`gruvbox-palette.stylex.ts`) is verbatim Gruvbox and is never referenced directly by components.
+A dual-mode Gruvbox system: every semantic token is a `light-dark()` pair and the app picks the live scheme via `color-scheme`. Components depend only on semantic tokens; the raw palette (`gruvbox-palette.stylex.ts`) is verbatim Gruvbox and is never referenced directly by components. Exact values live in `theme/tokens.stylex.ts` and in the frontmatter above.
 
-### Primary
+Hardware naming:
 
-- **Aurora Quartz** (`light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806))`): the default action color and the focus identity — primary buttons, slider fills, toggle-on track, selected segments, focus halos. A quiet blue-teal: the system's "on" color. Its neutral step **Aurora Quartz Strong** (`oklch(0.576 0.066 199.487)`) is the hover.
-- **Solder Green** (`light-dark(oklch(0.765 0.158 110.835), oklch(0.546 0.112 106.464))`): secondary/alt actions and their signal — second-choice buttons and far less chrome than primary.
+- **Aurora Quartz** — primary (default action, focus identity, slider fill, toggle-on, selected segments).
+- **Solder Green** — secondary (alt actions, second-choice chrome).
+- **Neon Violet** — accent (signature/highlight moments: SectionHeading LED, accent controls, glow text). The most deliberately "instrument-decoration" of the hues.
+- **Amber LED** — warning/caution; its foreground **Amber Ink** is almost black in light mode for contrast on yellow.
+- **Error Red** — destructive states only.
+- **Matte Ground** — app ground (Stage, canvas backdrop). Never pure black.
+- **Panel Surface** — card/popover/floating fills, one step off the ground.
+- **Muted Well** — non-editable recesses (tracks, rails, toggle-off); **Muted Ink** is its text/signal.
+- **Input Well** — editable recesses (fields, selects), always bordered, distinct from muted.
 
-### Tertiary
-
-- **Neon Violet** (`light-dark(oklch(0.705 0.098 2.189), oklch(0.489 0.124 344.276))`: the accent used for signature and highlight moments — SectionHeading LED dots, accent buttons and sliders, glow text in the stage. Intentionally the most "instrument-decoration" of the hues.
-- **Amber LED** (`light-dark(oklch(0.832 0.159 82.987), oklch(0.618 0.128 70.674))`: warnings and caution states; its foreground uses **Amber Ink** (`light-dark(oklch(0.241 0.005 219.672), oklch(0.894 0.057 89.24))` — nearly black in light mode for contrast on yellow.
-- **Error Red** (`light-dark(oklch(0.66 0.218 30.392), oklch(0.437 0.179 28.26))`: destructive states only.
-
-### Neutral
-
-- **Matte Ground** (`light-dark(oklch(0.894 0.057 89.24), oklch(0.277 0 0))`: the app ground — Stage surface and canvas backdrop. Warm, dark, never pure black.
-- **Panel Surface** (`light-dark(oklch(0.956 0.055 96.155), oklch(0.344 0.007 48.523))`: card, popover, and floating panel fills — one step off the ground. **Ground Foreground** (`light-dark(oklch(0.277 0 0), oklch(0.894 0.057 89.24))`: primary text on warm surfaces.
-- **Muted Well** (`light-dark(oklch(0.756 0.041 82.284), oklch(0.411 0.012 51.866))`: tracks, group wells, segmented rails, toggle-off tracks — non-editable recessed fills. **Muted Ink** (`light-dark(oklch(0.482 0.018 61.042), oklch(0.69 0.035 76.307))`: secondary text and the muted variant's signal.
-- **Input Well** (`light-dark(oklch(0.825 0.051 85.116), oklch(0.411 0.012 51.866))`: editable recesses — text fields, selects, textareas — always bordered, always distinct from muted surfaces.
-- **Hairline** (`border-hair`): a translucent mix (55% of the layer color) so borders recede instead of drawing rectangles.
+Contrast (D4): where a pair falls under WCAG 4.5:1, the token is _derived_ via `color-mix(in oklab, …)` toward black/white (text) or toward `background` (dark elevated surfaces) — the palette itself is never edited. Audit: `uv run --no-project python scripts/audit_contrast.py`. Shortfalls (dark colored button text, decorative borders, dark track fill) are deliberate and listed in `component-authoring.md` § Colors.
 
 ### Named Rules
 
@@ -170,23 +165,18 @@ A dual-mode Gruvbox system: every semantic token is a `light-dark()` pair — br
 
 **The Warm Ground Rule.** Never pure black. Depth comes from the layered Gruvbox darks (dark0→dark4), not from subtracting light to zero.
 
-**The One-Token Rule.** Components consume semantic tokens only. The raw Gruvbox palette values in `gruvbox-palette.stylex.ts` are the single source of truth and are never referenced by components directly — nearest equivalent, toggle-on track.
+**The One-Token Rule.** Components consume semantic tokens only. The raw Gruvbox palette is the single source of truth and is never referenced by components directly.
 
 ## Typography
 
-**Body/UI Font:** system-ui stack (system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif)
-**Readout/Label Font:** SFMono-Regular / Consolas / "Liberation Mono" (monospace)
+**Character:** compact, dense, technical — the voice of a bench instrument, not a magazine. Sans does the UI work; monospace takes over whenever a value is an instrument reading. Hierarchy roles and sizes live in the frontmatter and `theme/consts.stylex.ts`.
 
-**Character:** compact, dense, technical — the voice of a bench instrument, not a magazine. Sans does the UI work; monospace takes over whenever a value is an instrument reading. Labels uppercase themselves via wide tracking.
-
-### Hierarchy
-
-- **Headline** (sans, 600, 18px, 1.25, +0.02em, uppercase): SectionHeading titles. This is the _largest_ size in the system; there are no display headlines.
-- **Title** (sans, 600, 14px, 1.25, +0.02em, uppercase): panel titles inside floating/docked control panels.
-- **Section label** (mono, 400, 12px, +0.02em, uppercase): ControlSection and tile labels.
-- **Field label** (sans, 500, 14px, -0.01em): labels above inputs and alongside controls.
-- **Body** (sans, 400, 14px, 1.5, ~62ch max): paragraph text. Compact and readable, never oversized.
-- **Readout** (mono, 400, 14px): values in Readouts, input values, slider output — numbers and technical strings.
+- **Headline** — SectionHeading titles (largest size in the system; no display headlines exist).
+- **Title** — panel titles inside floating/docked control panels.
+- **Section label** (mono) — ControlSection and tile labels.
+- **Field label** — labels above inputs and alongside controls.
+- **Body** — paragraph text, compact and readable.
+- **Readout** (mono) — values in Readouts, input values, slider output.
 
 ### Named Rules
 
@@ -206,12 +196,12 @@ ShellWrapper
       └─ ControlSection → widget
 ```
 
-Cards group widgets in the stage; inside a panel, `ControlSection`s stack with a 12px gap and widget rows use the space scale (base 4px: 1=4, 2=8, 3=12, 4=16, 8=32, 12=48…). Stack direction is "vertical" or "horizontal"; gaps are string tokens on the same scale.
+Cards group widgets in the stage; inside a panel, `ControlSection`s stack with a 12px gap and widget rows use the `space` scale (base 4px: 1=4, 2=8, 3=12, 4=16, 8=32, 12=48). `Stack` directions and gaps are string tokens.
 
 Responsive behavior is structural, not a separate design:
 
 - **Landscape** → panel docks vertically beside the canvas (fixed 280px, collapsible).
-- **Portrait / ≤720px** → layout flows to a column; panel docks horizontally under (or floats) the canvas; the shell's toggle clears the floating panel.
+- **Portrait / ≤720px** → layout flows to a column; panel docks horizontally under (or floats) the canvas.
 - The panel is always secondary, always collapsible, and easy to hide.
 
 ## Elevation & Depth
@@ -219,38 +209,40 @@ Responsive behavior is structural, not a separate design:
 **Glass-first, lifted.** The system is matte by default but leans into translucent lift wherever UI floats above the canvas. Depth has four rungs and one orthogonal state channel:
 
 1. **Flat** — no shadow, hairline border only. The resting state for in-flow surfaces (cards, wells).
-2. **Raised** — a small tinted cast shadow (hover: `0 2px 8px`; resting pressable: `0 1px 2px` + `0 1px 1px`). The shadow _paints itself_ in the element's own color, so a green button casts green and a card casts card.
+2. **Raised** — a small tinted cast shadow. The shadow _paints itself_ in the element's own color, so a green button casts green and a card casts card.
 3. **Sunken** — inset hairline shadow for embedded, recessed wells (input fields, tracks, muted group rails).
-4. **Floating** — **glass**: translucency + `backdrop-filter: blur(24px) saturate(180%)` with a soft floating cast (`0 8px 28px` + `0 2px 8px`). Reserved for UI that sits over the canvas: floating panels, overlays, toolbars. A lighter blur scale (3/8/16px, `blurSm`/`blurMd`/`blurLg`, plus `blurFab` for small floating handles) supports it.
+4. **Floating** — **glass**: translucency + `backdrop-filter: blur(24px) saturate(180%)` with a soft floating cast. Reserved for UI that sits over the canvas: floating panels, overlays, toolbars. A lighter blur scale (3/8/16px) plus `blurFab` supports it.
 
 Glow (drop-shadow on `currentColor`) is **orthogonal to elevation**: it communicates active/selected/live state; it never simulates height. In-flow surfaces stay opaque so text contrast never depends on what's behind them — only floating layers hold glass.
 
 ### Shadow Vocabulary
 
-- **rest** (`0 1px 2px` + `0 1px 1px`, tinted, ~20%/12%): resting pressable controls.
-- **hover** (`0 2px 8px`, tinted, ~24%): raised hover.
-- **raised** (`0 4px 12px`, tinted, ~22%): docked panels, floating-card elevation.
-- **active** (`inset 0 1px 1px`, tinted, ~20%): pressed-in state.
-- **sunken** (`inset 0 1px 2px`, tinted, ~22%): embedded wells.
-- **floating** (`0 8px 28px` + `0 2px 8px`, tinted, ~28%/20%): glass and floating UI.
+Exact values in `theme/shadows.stylex.ts` (all `color-mix`-derived from `--shadow-color`):
+
+- **rest** — resting pressable controls.
+- **hover** — raised hover.
+- **raised** — docked panels, floating-card elevation.
+- **active** (inset) — pressed-in state.
+- **sunken** (inset) — embedded wells, slider tracks, toggle-off.
+- **floating** — glass and floating UI.
 
 ### Named Rules
 
-**The Shadow-Paints-Itself Rule.** Every shadow derives from `--shadow-color` via `color-mix`; an element sets its shadow color to its own background (`[shadowColor.color]`), so shadows are always tinted by their carrier and never a flat black.
+**The Shadow-Paints-Itself Rule.** Every shadow derives from `--shadow-color`; an element sets its shadow color to its own background (`[shadowColor.color]`), so shadows are always tinted by their carrier and never a flat black.
 
 **The Glass-on-Floating-Only Rule.** Blur and translucency exist only on UI that floats above other content. Anything in normal document flow stays opaque — blur is for floating, not for everything.
 
 ## Shapes
 
-Radius is a small, quiet scale: `0 / 4 / 6 / 8 / 12 / full`. Panels and cards sit at 4–8px; wells at 4px; the only perfect circles belong to intentional interactive shapes — slider thumbs (14px), toggle tracks, badges, LED dots. Borders are hairline (1px) and translucent. The silhouette discipline: _not everything is a card_. Plans/rows/labels are typography first, boxes second; avoid stacking rounded rectangles into a "ui kit shoebox."
+Radius is a small, quiet scale (`0 / 4 / 6 / 8 / 12 / full`) in `theme/consts.stylex.ts`. Panels and cards sit at 4–8px; wells at 4px; the only perfect circles belong to intentional interactive shapes — slider thumbs, toggle tracks, badges, LED dots. Borders are hairline (1px) and translucent. The silhouette discipline: _not everything is a card_. Plans/rows/labels are typography first, boxes second; avoid stacking rounded rectangles into a "ui kit shoebox."
 
 ## Components
 
 ### Buttons
 
-- **Shape:** 4px radius, hairline solid border matching the fill color, `8px 2 / 16px 2` padding, medium 14px sans.
+- **Shape:** 4px radius, hairline solid border matching the fill color, compact padding, medium 14px sans.
 - **Primary:** Aurora Quartz fill + border, warm ground text. Hover → Aurora Quartz Strong. Active → pressed tinted shadow + `scale(0.98)`.
-- **Secondary / Accent / Warning / Destructive:** same anatomy, each in its family hue (Solder Green, Neon Violet, Amber LED, Error Red); muted = Muted Well fill, Muted Ink text (no saturated fill).
+- **Secondary / Accent / Warning / Destructive:** same anatomy, each in its family hue; muted = Muted Well fill, Muted Ink text (no saturated fill).
 - **Loading:** 12px `currentColor` spinner plus `aria-busy`; disabled = 45% opacity, `not-allowed`.
 - **Focus:** the universal halo — `0 0 0 2px` ground behind `0 0 0 3px` family ring; keyboard only.
 
@@ -265,21 +257,21 @@ Treated as **sunken wells**: Input Well fill, hairline border, 4px radius. On fo
 
 ### Slider / Toggle / Segmented
 
-- **Slider:** 4px thumb, full-radius track (4px tall) in Muted Well; fill in the variant hue; thumb is the ground color with a variant-hue border and a self-tinted rest shadow; the keyboard focus ring lives on the container (the native input is invisible); a monospace right-aligned output (min 40px) reads the value.
-- **Toggle:** 34×20 full-radius track, 14px knob on 2px inset. Off = Muted Well track + variant border; **On = filled with the variant hue and a 6px same-hue glow** — the archetype of the Pilot Light Rule. Knob travels 14px on the fast easing.
-- **Segmented:** a Muted Well rail (4px padding, 6px radius); the chosen segment fills with the variant (muted chosen = variant border + brighter text over transparent, never a fill on a fill).
+- **Slider:** 4px thumb, full-radius track in Muted Well; fill in the variant hue; thumb is the ground color with a variant-hue border and a self-tinted rest shadow; the keyboard focus ring lives on the container (the native input is invisible); a monospace right-aligned output reads the value.
+- **Toggle:** full-radius track, small knob on 2px inset. Off = Muted Well track + variant border; **On = filled with the variant hue and a 6px same-hue glow** — the archetype of the Pilot Light Rule.
+- **Segmented:** a Muted Well rail; the chosen segment fills with the variant (muted chosen = variant border + brighter text over transparent, never a fill on a fill).
 
 ### Badges
 
-Monospace 12px outline pills — transparent fill, hairline border, full radius, 2px/8px padding. Neutral = Muted Ink; variants tint border + text only (no fill beyond neutral).
+Monospace outline pills — transparent fill, hairline border, full radius, tight padding. Neutral = Muted Ink; variants tint border + text only (no fill beyond neutral).
 
 ### Readout
 
-An instrument display: hairline-bordered pill (4px radius, Panel Surface) pairing a 14px field label with a monospace value — the canonical "label : value" reading.
+An instrument display: hairline-bordered pill (4px radius, Panel Surface) pairing a field label with a monospace value — the canonical "label : value" reading.
 
 ### Signature Component: SectionHeading
 
-The system's identity piece — a glowing accent LED dot (`7px`, full radius, Neon Violet, `drop-shadow(0 0 5px currentColor)`), an optional mono index (`02`), and an uppercase wide-tracked 18px title. It opens a section of the atelier like a status light coming on.
+The system's identity piece — a glowing accent LED dot (7px, full radius, Neon Violet, soft drop-shadow), an optional mono index, and an uppercase wide-tracked 18px title. It opens a section of the atelier like a status light coming on.
 
 ## Do's and Don'ts
 

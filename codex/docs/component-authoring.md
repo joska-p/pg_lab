@@ -4,8 +4,8 @@ How to add a component to `@repo/ui`, and how to decide between a local style, a
 primitive, and a theme token.
 
 The patterns below are the current state of the toolkit. Read them with
-`codex/docs/coding-conventions.md` and the StyleX docs in
-`codex/docs/` (`stylex-variants.txt`, `stylex-mindset.txt`).
+`codex/docs/coding-conventions.md`. StyleX reference:
+<https://stylexjs.com>.
 
 ---
 
@@ -142,6 +142,30 @@ for non-editable neutral surfaces (tracks, group wells, muted fills). Their
 values converge in dark mode (`dark2`); disambiguation comes from border +
 context, not from the fill value.
 
+### Contrast (Phase D4)
+
+The gruvbox palette is canonical — never edit it. Where a pair falls under
+WCAG 4.5:1, the **token** is derived by mixing the palette value in OKLab
+(`color-mix(in oklab, ...)`, first value of the `light-dark()` pair is
+light): toward black/white for text, toward `background` for elevated dark
+surfaces. Hue stays gruvbox; only lightness moves. The audit is scripted and
+must keep matching tokens (`uv run --no-project python scripts/audit_contrast.py`).
+
+Current state (D4):
+
+- Light mode reads ≥ 4.5:1 everywhere except colored signal buttons
+  (`accent` 4.15, `destructive` 3.08 are marked as signal tints, low alert) —
+  body, labels, inputs, chips all pass.
+- Dark mode: body on `background` passes (4.85). Elevated surfaces cap at
+  ~4.1:1 (`card`), ~4.0 `input`, ~3.5 chips — a stricter pass would require
+  flattening the dark ladder onto `background`, structurally rejected.
+- Dark colored-button text (~2–2.7:1, destructive 5.51 excepted) and the
+  decorative 55 %-translucent `border` (~1.1–1.7:1) are documented shortfalls:
+  the art direction keeps those surfaces tinted and quiet.
+- `in srgb` mixes were switched to `in oklab` (border, shadows, glass) to match
+  the palette's color model; transparent blends are endpoint-identical, so this
+  is a consistency change, not a color change.
+
 ### Shadows
 
 `theme/shadows.stylex.ts` is the single source of truth for shadow color
@@ -180,7 +204,7 @@ const colorVariants = stylex.create({
   UI over a backdrop only — in-flow surfaces stay opaque so text contrast
   never depends on what's behind them.
 - Borders stay quiet by default: the `border` token is a translucent mix,
-  never a hard rectangle (see README Borders).
+  never a hard rectangle (see DESIGN.md, restrained borders).
 
 When you add a new theme module, it is covered by the `"./theme/*"` wildcard
 in `packages/ui/package.json` `exports` — no registration needed.
@@ -191,8 +215,7 @@ in `packages/ui/package.json` `exports` — no registration needed.
 
 A variant is a plain map in `stylex.create`, keyed by name, applied with a
 lookup (`colorVariants[variant]`). The prop carrying the variant is named
-`variant` (Phase A, S6). See the full pattern in
-`codex/docs/stylex-variants.txt` and the canonical implementation in
+`variant` (Phase A, S6). See the canonical implementation in
 `Button.tsx`.
 
 ### Recipe

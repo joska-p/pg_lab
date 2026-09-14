@@ -9,11 +9,13 @@ export const shadowColor = stylex.defineVars({
   color: "oklch(0% 0 0)",
 });
 
+// Transparent blends are endpoint-identical in any color space, but oklab
+// matches the palette's color model (D4).
 export const shadows = stylex.defineConsts({
-  rest: `0 1px 2px color-mix(in srgb, ${shadowColor.color} 20%, transparent), 0 1px 1px color-mix(in srgb, ${shadowColor.color} 12%, transparent)`,
-  hover: `0 2px 8px color-mix(in srgb, ${shadowColor.color} 24%, transparent)`,
-  active: `inset 0 1px 1px color-mix(in srgb, ${shadowColor.color} 20%, transparent)`,
-  raised: `0 4px 12px color-mix(in srgb, ${shadowColor.color} 22%, transparent)`,
-  floating: `0 8px 28px color-mix(in srgb, ${shadowColor.color} 28%, transparent), 0 2px 8px color-mix(in srgb, ${shadowColor.color} 20%, transparent)`,
-  sunken: `inset 0 1px 2px color-mix(in srgb, ${shadowColor.color} 22%, transparent)`,
+  rest: `0 1px 2px color-mix(in oklab, ${shadowColor.color} 20%, transparent), 0 1px 1px color-mix(in oklab, ${shadowColor.color} 12%, transparent)`,
+  hover: `0 2px 8px color-mix(in oklab, ${shadowColor.color} 24%, transparent)`,
+  active: `inset 0 1px 1px color-mix(in oklab, ${shadowColor.color} 20%, transparent)`,
+  raised: `0 4px 12px color-mix(in oklab, ${shadowColor.color} 22%, transparent)`,
+  floating: `0 8px 28px color-mix(in oklab, ${shadowColor.color} 28%, transparent), 0 2px 8px color-mix(in oklab, ${shadowColor.color} 20%, transparent)`,
+  sunken: `inset 0 1px 2px color-mix(in oklab, ${shadowColor.color} 22%, transparent)`,
 });
