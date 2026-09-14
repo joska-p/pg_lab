@@ -27,6 +27,7 @@
     "react-dom": "catalog:"
   },
   "devDependencies": {
+    "@rolldown/plugin-babel": "catalog:",
     "@stylexjs/stylex": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
