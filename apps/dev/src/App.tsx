@@ -1,16 +1,30 @@
 import { useState } from "react";
-import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react";
-import * as stylex from "@stylexjs/stylex";
-import type { StyleXStyles } from "@stylexjs/stylex";
-import { Slider, Toggle, Button, ColorField, Segmented } from "@repo/ui";
-import { ControlField, ControlPanel, ControlSection, ExperimentShell, Stage } from "@repo/ui";
-import { colors } from "@repo/ui/theme/tokens.stylex";
-import { borderWidth, motion, radius, space, typography } from "@repo/ui/theme/consts.stylex";
-import { effects } from "@repo/ui/behaviors/effects.stylex";
-import { interactive } from "@repo/ui/behaviors/interactive.stylex";
-import { fieldText } from "@repo/ui/behaviors/text.stylex";
-
-const ICONS = ["soft", "firm", "crisp"] as const;
+import {
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  ColorField,
+  ControlField,
+  ControlPanel,
+  ControlSection,
+  ExperimentShell,
+  NumberField,
+  Page,
+  RadioGroup,
+  Readout,
+  SectionHeading,
+  Select,
+  Segmented,
+  Slider,
+  Stack,
+  Stage,
+  Swatch,
+  Text,
+  TextArea,
+  TextInput,
+  Toggle,
+} from "@repo/ui";
 
 const BUTTON_VARIANTS = [
   "primary",
@@ -21,1349 +35,421 @@ const BUTTON_VARIANTS = [
   "muted",
 ] as const;
 
-const styles = stylex.create({
-  page: {
-    minHeight: "100vh",
-    backgroundColor: colors.background,
-    color: colors.foreground,
-    fontFamily: typography.fontFamilySans,
-    fontWeight: typography.fontWeightRegular,
-    lineHeight: typography.lineHeightNormal,
-  },
-
-  container: {
-    maxWidth: 1024,
-    marginInline: "auto",
-    paddingInline: space["6"],
-    paddingTop: space["8"],
-    paddingBottom: space["16"],
-    display: "flex",
-    flexDirection: "column",
-    gap: space["8"],
-  },
-
-  header: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space["3"],
-  },
-
-  headerRow: {
-    display: "flex",
-    alignItems: "baseline",
-    justifyContent: "space-between",
-    gap: space["4"],
-    flexWrap: "wrap",
-  },
-
-  title: {
-    margin: 0,
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSize3xl,
-    fontWeight: typography.fontWeightBold,
-    letterSpacing: typography.letterSpacingTight,
-  },
-
-  titleAccent: {
-    color: colors.accent,
-  },
-
-  metaRow: {
-    display: "flex",
-    gap: space["2"],
-    flexWrap: "wrap",
-  },
-
-  metaChip: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    color: colors.mutedForeground,
-    paddingBlock: 2,
-    paddingInline: space["2"],
-    borderRadius: radius.full,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-  },
-
-  intro: {
-    margin: 0,
-    maxWidth: "62ch",
-    color: colors.mutedForeground,
-    fontSize: typography.fontSizeSm,
-  },
-
-  code: {
-    fontFamily: typography.fontFamilyMono,
-    color: colors.foreground,
-  },
-
-  section: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space["6"],
-    paddingTop: space["6"],
-    borderTopWidth: borderWidth.hairline,
-    borderTopStyle: "solid",
-    borderTopColor: colors.border,
-  },
-
-  sectionHead: {
-    display: "flex",
-    alignItems: "center",
-    gap: space["3"],
-  },
-
-  sectionLed: {
-    display: "inline-block",
-    width: 7,
-    height: 7,
-    borderRadius: radius.full,
-    backgroundColor: colors.accent,
-    color: colors.accent,
-  },
-
-  sectionIndex: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    color: colors.mutedForeground,
-  },
-
-  sectionTitle: {
-    margin: 0,
-    fontSize: typography.fontSizeLg,
-    fontWeight: typography.fontWeightSemibold,
-    letterSpacing: typography.letterSpacingWide,
-    textTransform: "uppercase",
-  },
-
-  block: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space["4"],
-  },
-
-  row: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space["4"],
-  },
-
-  surface: {
-    flex: 1,
-    minWidth: 180,
-    display: "flex",
-    flexDirection: "column",
-    gap: space["2"],
-    padding: space["4"],
-    borderRadius: radius.md,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-  },
-
-  surfaceName: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    letterSpacing: typography.letterSpacingWide,
-    textTransform: "uppercase",
-  },
-
-  surfaceSample: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXl,
-    fontWeight: typography.fontWeightSemibold,
-  },
-
-  surfaceBg: { backgroundColor: colors.background, color: colors.foreground },
-  surfaceCard: { backgroundColor: colors.card, color: colors.cardForeground },
-  surfacePopover: { backgroundColor: colors.popover, color: colors.popoverForeground },
-
-  textFace: {
-    flex: 1,
-    minWidth: 200,
-    minHeight: 76,
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    gap: space["3"],
-    padding: space["3"],
-    borderRadius: radius.md,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-  },
-
-  textLabel: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    color: colors.mutedForeground,
-  },
-
-  textSample: {
-    fontFamily: typography.fontFamilySans,
-    fontSize: typography.fontSizeXl,
-    fontWeight: typography.fontWeightSemibold,
-  },
-
-  textOnBg: { backgroundColor: colors.background, color: colors.foreground },
-  textOnMuted: { backgroundColor: colors.muted, color: colors.mutedForeground },
-  textMutedOnBg: { backgroundColor: colors.background, color: colors.mutedForeground },
-
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
-    gap: space["3"],
-  },
-
-  family: {
-    minHeight: 88,
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    gap: space["2"],
-    padding: space["3"],
-    borderRadius: radius.md,
-  },
-
-  familyName: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    letterSpacing: typography.letterSpacingWide,
-    textTransform: "uppercase",
-  },
-
-  familySample: {
-    fontFamily: typography.fontFamilySans,
-    fontSize: typography.fontSizeLg,
-    fontWeight: typography.fontWeightSemibold,
-  },
-
-  familyMeta: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    opacity: 0.8,
-  },
-
-  familyPrimary: { backgroundColor: colors.primary, color: colors.primaryForeground },
-  familySecondary: { backgroundColor: colors.secondary, color: colors.secondaryForeground },
-  familyAccent: { backgroundColor: colors.accent, color: colors.accentForeground },
-  familyWarning: { backgroundColor: colors.warning, color: colors.warningForeground },
-  familySuccess: { backgroundColor: colors.success, color: colors.successForeground },
-  familyDestructive: { backgroundColor: colors.destructive, color: colors.destructiveForeground },
-
-  spacingList: { display: "flex", flexDirection: "column", gap: space["2"] },
-
-  spacingRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: space["3"],
-  },
-
-  spacingKey: {
-    width: space["6"],
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    color: colors.mutedForeground,
-  },
-
-  spacingValue: {
-    minWidth: space["8"],
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    color: colors.mutedForeground,
-  },
-
-  spacingBar: (width: string) => ({
-    display: "inline-block",
-    height: 8,
-    width,
-    borderRadius: radius.full,
-    backgroundColor: colors.accent,
-  }),
-
-  radiusList: { display: "flex", flexWrap: "wrap", gap: space["4"] },
-
-  radiusTile: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: space["2"],
-  },
-
-  radiusChip: (value: string) => ({
-    display: "inline-block",
-    width: 64,
-    height: 64,
-    borderRadius: value,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-    backgroundColor: colors.card,
-  }),
-
-  radiusName: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    color: colors.mutedForeground,
-  },
-
-  radiusValue: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    color: colors.foreground,
-  },
-
-  borderRow: { display: "flex", flexWrap: "wrap", gap: space["3"] },
-
-  borderSample: {
-    flex: 1,
-    minWidth: 130,
-    minHeight: 64,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: space["2"],
-    borderRadius: radius.sm,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    color: colors.mutedForeground,
-  },
-
-  borderOnBg: { backgroundColor: colors.background },
-  borderOnCard: { backgroundColor: colors.card, color: colors.cardForeground },
-  borderOnPopover: { backgroundColor: colors.popover, color: colors.popoverForeground },
-
-  inputField: {
-    flex: 1,
-    minWidth: 130,
-    minHeight: 64,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: space["2"],
-    borderRadius: radius.sm,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-    backgroundColor: colors.input,
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    color: colors.foreground,
-  },
-
-  ringChip: {
-    flex: 1,
-    minWidth: 130,
-    minHeight: 64,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: space["2"],
-    padding: space["2"],
-    borderRadius: radius.sm,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-    backgroundColor: colors.background,
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    color: colors.mutedForeground,
-  },
-
-  ringDot: {
-    display: "inline-block",
-    width: 10,
-    height: 10,
-    borderRadius: radius.full,
-    backgroundColor: colors.ring,
-    color: colors.ring,
-  },
-
-  effectTile: {
-    flex: 1,
-    minWidth: 110,
-    minHeight: 104,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: space["2"],
-    padding: space["3"],
-    borderRadius: radius.md,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-    backgroundColor: colors.card,
-  },
-
-  effectTilePopover: { backgroundColor: colors.popover },
-
-  effectName: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    letterSpacing: typography.letterSpacingWide,
-    textTransform: "uppercase",
-    color: colors.foreground,
-  },
-
-  effectNote: {
-    fontFamily: typography.fontFamilySans,
-    fontSize: typography.fontSizeXs,
-    color: colors.foreground,
-  },
-
-  blurStage: {
-    position: "relative",
-    height: 220,
-    padding: space["4"],
-    borderRadius: radius.lg,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-    overflow: "hidden",
-    backgroundColor: colors.card,
-  },
-
-  texture: {
-    position: "absolute",
-    inset: 0,
-    backgroundImage:
-      "radial-gradient(150px 150px at 18% 26%, oklch(0.832 0.159 82.987 / 90%), transparent 74%), " +
-      "radial-gradient(190px 190px at 84% 62%, oklch(0.66 0.218 30.392 / 85%), transparent 74%), " +
-      "radial-gradient(130px 130px at 68% 14%, oklch(0.765 0.158 110.835 / 90%), transparent 74%), " +
-      "radial-gradient(210px 210px at 30% 85%, oklch(0.756 0.108 137.676 / 80%), transparent 74%), " +
-      "linear-gradient(135deg, oklch(0.693 0.042 169.768 / 70%) 0%, oklch(0.705 0.098 2.189 / 60%) 50%, oklch(0.731 0.182 51.693 / 70%) 10%), " +
-      "repeating-linear-gradient(45deg, oklch(1 0 0 / 22%) 0px, oklch(1 0 0 / 22%) 2px, transparent 2px, transparent 20px), " +
-      "repeating-linear-gradient(-45deg, oklch(0% 0 0 / 30%) 0px, oklch(0% 0 0 / 30%) 2px, transparent 2px, transparent 20px)",
-    backgroundBlendMode: "screen, screen, screen, screen, normal, overlay, overlay",
-  },
-
-  blurRow: {
-    position: "absolute",
-    inset: 0,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: space["4"],
-    flexWrap: "wrap",
-    padding: space["4"],
-  },
-
-  blurChip: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: space["1"],
-    width: 132,
-    height: 104,
-    borderRadius: radius.md,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-    backgroundColor: "oklch(0% 0 0 / 30%)",
-    boxShadow: "inset 0 0 0 1px oklch(1 0 0 / 6%)",
-    color: colors.foreground,
-  },
-
-  blurChipName: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    letterSpacing: typography.letterSpacingWide,
-    textTransform: "uppercase",
-    color: colors.foreground,
-  },
-
-  glowDot: {
-    display: "inline-block",
-    width: 14,
-    height: 14,
-    borderRadius: radius.full,
-    backgroundColor: colors.accent,
-    color: colors.accent,
-  },
-
-  motionBox: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space["3"],
-    padding: space["4"],
-    borderRadius: radius.md,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-    backgroundColor: colors.card,
-  },
-
-  motionHead: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: space["3"],
-    flexWrap: "wrap",
-  },
-
-  motionHint: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    color: colors.mutedForeground,
-  },
-
-  motionRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: space["4"],
-  },
-
-  motionMeta: {
-    width: 132,
-    display: "flex",
-    flexDirection: "column",
-    gap: 1,
-  },
-
-  motionName: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    color: colors.mutedForeground,
-  },
-
-  motionTrack: {
-    flex: 1,
-    minWidth: 96,
-    height: 10,
-    borderRadius: radius.full,
-    backgroundColor: colors.muted,
-    overflow: "hidden",
-  },
-
-  motionBar: {
-    display: "block",
-    height: "100%",
-    width: "0%",
-    borderRadius: radius.full,
-    backgroundColor: colors.accent,
-    transitionProperty: "width",
-    transitionTimingFunction: motion.easingOut,
-  },
-
-  motionBarFast: { width: "100%", transitionDuration: motion.durationFast },
-  motionBarNormal: { width: "100%", transitionDuration: motion.durationNormal },
-  motionBarSlow: { width: "100%", transitionDuration: motion.durationSlow },
-
-  chipRow: { display: "flex", flexWrap: "wrap", gap: space["2"] },
-
-  chip: {
-    paddingBlock: space["1"],
-    paddingInline: space["3"],
-    borderRadius: radius.sm,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-    backgroundColor: colors.card,
-    color: colors.foreground,
-    fontFamily: typography.fontFamilySans,
-    fontSize: typography.fontSizeSm,
-    fontWeight: typography.fontWeightMedium,
-  },
-
-  selected: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-    color: colors.primaryForeground,
-  },
-
-  active: {
-    borderColor: colors.ring,
-    color: colors.primary,
-  },
-
-  readout: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: space["3"],
-    paddingBlock: space["1"],
-    paddingInline: space["3"],
-    borderRadius: radius.sm,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-    backgroundColor: colors.card,
-  },
-
-  instrument: {
-    display: "grid",
-    gridTemplateColumns: {
-      default: "1fr",
-      "@media (min-width: 760px)": "1fr 1fr",
-    },
-    gap: space["5"],
-  },
-
-  controls: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    gap: space["5"],
-    padding: space["2"],
-  },
-
-  canvas: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: space["5"],
-    minHeight: 280,
-    padding: space["6"],
-    borderRadius: radius.lg,
-    backgroundColor: colors.card,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-  },
-
-  canvasCaption: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    letterSpacing: typography.letterSpacingWide,
-    textTransform: "uppercase",
-    color: colors.mutedForeground,
-  },
-
-  demoFill: {
-    flex: 1,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 280,
-  },
-
-  demoPlaceholder: (hue: number) => ({
-    flex: 1,
-    alignSelf: "stretch",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundImage: `linear-gradient(135deg, oklch(0.7 0.15 ${hue} / 70%), oklch(0.55 0.18 ${(hue + 60) % 360} / 70%))`,
-  }),
-
-  orbBase: {
-    width: 72,
-    height: 72,
-    borderRadius: radius.full,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: "transparent",
-    transitionProperty: "transform, box-shadow, color, background-color, border-color",
-    transitionDuration: motion.durationNormal,
-    transitionTimingFunction: motion.easingOut,
-  },
-
-  orbOutline: {
-    backgroundColor: "transparent",
-    borderColor: "currentColor",
-  },
-
-  orbAureole: {
-    boxShadow:
-      "0 0 24px color-mix(in srgb, currentColor 40%, transparent), 0 0 0 1px color-mix(in srgb, currentColor 30%, transparent)",
-  },
-
-  orbFill: (color: string) => ({ backgroundColor: color, color }),
-  orbScale: (scale: number) => ({ transform: `scale(${scale})` }),
-
-  statesGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-    gap: space["4"],
-  },
-
-  statePanel: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space["3"],
-    padding: space["4"],
-    borderRadius: radius.md,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-    backgroundColor: colors.card,
-  },
-
-  stateBody: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space["3"],
-  },
-
-  footer: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: space["4"],
-    flexWrap: "wrap",
-    paddingTop: space["5"],
-    borderTopWidth: borderWidth.hairline,
-    borderTopStyle: "solid",
-    borderTopColor: colors.border,
-  },
-});
-
-const SPACING_ENTRIES = [
-  ["1", "4px"],
-  ["2", "8px"],
-  ["3", "12px"],
-  ["4", "16px"],
-  ["5", "20px"],
-  ["6", "24px"],
-  ["8", "32px"],
-  ["10", "40px"],
-  ["12", "48px"],
-  ["16", "64px"],
+const WAVES = ["sine", "saw", "square", "triangle"] as const;
+type Wave = (typeof WAVES)[number];
+
+const FILTERS = ["lowpass", "highpass", "bandpass"] as const;
+type Filter = (typeof FILTERS)[number];
+
+const QUALITIES = [
+  { value: "lo", label: "lo-fi" },
+  { value: "hi", label: "hi-fi" },
 ] as const;
+type Quality = (typeof QUALITIES)[number]["value"];
 
-const RADIUS_ENTRIES = [
-  ["none", "0px"],
-  ["sm", "4px"],
-  ["md", "6px"],
-  ["lg", "8px"],
-  ["xl", "12px"],
-  ["full", "9999px"],
-] as const;
+const TINTS = ["#83a598", "#d3869b", "#b8bb26", "#fe8019", "#8ec07c"] as const;
 
-const FAMILIES = [
-  ["primary", "primaryForeground", styles.familyPrimary],
-  ["secondary", "secondaryForeground", styles.familySecondary],
-  ["accent", "accentForeground", styles.familyAccent],
-  ["warning", "warningForeground", styles.familyWarning],
-  ["success", "successForeground", styles.familySuccess],
-  ["destructive", "destructiveForeground", styles.familyDestructive],
-] as const;
-
-type SectionProps = {
-  index: string;
-  title: string;
-  children: ReactNode;
-};
-
-function Section({ index, title, children }: SectionProps) {
-  return (
-    <section {...stylex.props(styles.section)}>
-      <div {...stylex.props(styles.sectionHead)}>
-        <span aria-hidden {...stylex.props(styles.sectionLed, effects.glowSubtle)} />
-        <span {...stylex.props(styles.sectionIndex)}>{index}</span>
-        <h2 {...stylex.props(styles.sectionTitle)}>{title}</h2>
-      </div>
-      {children}
-    </section>
-  );
-}
-
-type BlockProps = {
-  title: string;
-  children: ReactNode;
-};
-
-function Block({ title, children }: BlockProps) {
-  return (
-    <div {...stylex.props(styles.block)}>
-      <span {...stylex.props(fieldText.label)}>{title}</span>
-      {children}
-    </div>
-  );
-}
-
-function MetaChip({ label }: { label: string }) {
-  return <span {...stylex.props(styles.metaChip)}>{label}</span>;
-}
-
-type SurfaceTileProps = {
+type Synth = {
   name: string;
-  style: StyleXStyles;
-  shadow?: StyleXStyles;
+  voices: number;
+  wave: Wave;
+  filter: Filter;
+  cutoff: number;
+  quality: Quality;
+  tint: string;
+  glide: boolean;
+  mute: boolean;
+  notes: string;
 };
 
-function SurfaceTile({ name, style, shadow }: SurfaceTileProps) {
-  return (
-    <div {...stylex.props(styles.surface, shadow, style)}>
-      <span {...stylex.props(styles.surfaceName)}>{name}</span>
-      <span {...stylex.props(styles.surfaceSample)}>Aa 0123</span>
-    </div>
-  );
-}
-
-type TextFaceProps = {
-  name: string;
-  sample: string;
-  style: StyleXStyles;
+const DEFAULT_SYNTH: Synth = {
+  name: "bass-01",
+  voices: 8,
+  wave: "saw",
+  filter: "lowpass",
+  cutoff: 62,
+  quality: "hi",
+  tint: "#83a598",
+  glide: false,
+  mute: false,
+  notes: "",
 };
 
-function TextFace({ name, sample, style }: TextFaceProps) {
+function Hero() {
   return (
-    <div {...stylex.props(styles.textFace, style)}>
-      <span {...stylex.props(styles.textLabel)}>{name}</span>
-      <span aria-hidden {...stylex.props(styles.textSample)}>
-        {sample}
-      </span>
-    </div>
+    <Stack gap={3}>
+      <Stack direction="horizontal" gap={2} wrap>
+        <Badge>dark</Badge>
+        <Badge>compact</Badge>
+        <Badge>tactile</Badge>
+        <Badge>luminous</Badge>
+      </Stack>
+      <SectionHeading index="00" title="repo/ui" />
+      <Text tone="muted">
+        A small toolkit for creative mini-apps. Canvas first, panel second — and this page imports
+        nothing but components.
+      </Text>
+    </Stack>
   );
 }
 
-type FamilyTileProps = {
-  name: string;
-  meta: string;
-  style: StyleXStyles;
-};
+function FakeSynth() {
+  const [synth, setSynth] = useState<Synth>(DEFAULT_SYNTH);
 
-function FamilyTile({ name, meta, style }: FamilyTileProps) {
-  return (
-    <div {...stylex.props(styles.family, style)}>
-      <span {...stylex.props(styles.familyName)}>{name}</span>
-      <span aria-hidden {...stylex.props(styles.familySample)}>
-        Aa
-      </span>
-      <span {...stylex.props(styles.familyMeta)}>{meta}</span>
-    </div>
-  );
-}
-
-type EffectTileProps = {
-  name: string;
-  note: string;
-  style?: StyleXStyles;
-  shadow?: StyleXStyles;
-};
-
-function EffectTile({ name, note, style, shadow }: EffectTileProps) {
-  return (
-    <div {...stylex.props(styles.effectTile, shadow, style)}>
-      <span {...stylex.props(styles.effectName)}>{name}</span>
-      <span {...stylex.props(styles.effectNote)}>{note}</span>
-    </div>
-  );
-}
-
-type GlowTileProps = {
-  name: string;
-  note: string;
-  glow: StyleXStyles;
-};
-
-function GlowTile({ name, note, glow }: GlowTileProps) {
-  return (
-    <div {...stylex.props(styles.effectTile)}>
-      <span aria-hidden {...stylex.props(styles.glowDot, glow)} />
-      <span {...stylex.props(styles.effectName)}>{name}</span>
-      <span {...stylex.props(styles.effectNote)}>{note}</span>
-    </div>
-  );
-}
-
-const BLUR_RECIPES = [
-  { name: "blur · sm", note: "3px", blur: effects.blurSm },
-  { name: "blur · md", note: "8px", blur: effects.blurMd },
-  { name: "blur · lg", note: "16px", blur: effects.blurLg },
-  { name: "blur · fab", note: "8px · saturate 1.4", blur: effects.blurFab },
-] as const;
-
-function BlurDemo() {
-  return (
-    <div {...stylex.props(styles.blurStage)}>
-      <div aria-hidden {...stylex.props(styles.texture)} />
-      <div {...stylex.props(styles.blurRow)}>
-        {BLUR_RECIPES.map(({ name, note, blur }) => (
-          <div key={name} {...stylex.props(styles.blurChip, blur)}>
-            <span {...stylex.props(styles.blurChipName)}>{name}</span>
-            <span {...stylex.props(styles.effectNote)}>{note}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function MotionDemo() {
-  const [run, setRun] = useState(false);
-
-  const rows = [
-    { name: "durationFast", value: "120ms", bar: styles.motionBarFast },
-    { name: "durationNormal", value: "200ms", bar: styles.motionBarNormal },
-    { name: "durationSlow", value: "320ms", bar: styles.motionBarSlow },
-  ] as const;
-
-  return (
-    <div {...stylex.props(styles.motionBox)}>
-      <div {...stylex.props(styles.motionHead)}>
-        <button
-          type="button"
-          onClick={() => setRun((value) => !value)}
-          {...stylex.props(styles.chip, interactive.base, interactive.focusRing)}
-        >
-          {run ? "reset" : "run"}
-        </button>
-        <span {...stylex.props(styles.motionHint)}>transition · width · easingOut</span>
-      </div>
-      {rows.map((row) => (
-        <div key={row.name} {...stylex.props(styles.motionRow)}>
-          <div {...stylex.props(styles.motionMeta)}>
-            <span {...stylex.props(styles.motionName)}>{row.name}</span>
-            <span {...stylex.props(styles.motionHint)}>{row.value}</span>
-          </div>
-          <div {...stylex.props(styles.motionTrack)}>
-            <span aria-hidden {...stylex.props(styles.motionBar, run ? row.bar : null)} />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ChipGroup() {
-  const [choice, setChoice] = useState<string>("soft");
-
-  return (
-    <div {...stylex.props(styles.chipRow)}>
-      {ICONS.map((option) => (
-        <button
-          key={option}
-          type="button"
-          onClick={() => setChoice(option)}
-          {...stylex.props(
-            styles.chip,
-            interactive.base,
-            interactive.focusRing,
-            choice === option ? styles.selected : null,
-          )}
-        >
-          {option}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function HoldToggle() {
-  const [on, setOn] = useState(false);
-  const [held, setHeld] = useState(false);
-
-  function hold() {
-    setHeld(true);
+  function patch(next: Partial<Synth>) {
+    setSynth((current) => ({ ...current, ...next }));
   }
 
-  function release() {
-    setHeld(false);
+  function randomize() {
+    setSynth((current) => ({
+      ...current,
+      voices: 1 + Math.floor(Math.random() * 16),
+      cutoff: Math.floor(Math.random() * 101),
+      wave: WAVES[Math.floor(Math.random() * WAVES.length)] ?? "saw",
+      filter: FILTERS[Math.floor(Math.random() * FILTERS.length)] ?? "lowpass",
+      tint: TINTS[Math.floor(Math.random() * TINTS.length)] ?? "#83a598",
+      mute: false,
+    }));
   }
 
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={on}
-      onClick={() => setOn((value) => !value)}
-      onPointerDown={hold}
-      onPointerUp={release}
-      onPointerCancel={release}
-      onPointerLeave={release}
-      onKeyDown={(event: ReactKeyboardEvent) => {
-        if (event.key === " ") hold();
-      }}
-      onKeyUp={(event: ReactKeyboardEvent) => {
-        if (event.key === " ") release();
-      }}
-      {...stylex.props(
-        styles.chip,
-        interactive.base,
-        interactive.focusRing,
-        on ? styles.selected : null,
-        held ? styles.active : null,
-      )}
-    >
-      {on ? "on" : "off"}
-    </button>
+    <Stack gap={3}>
+      <SectionHeading index="01" title="fake app" />
+      <ExperimentShell
+        placement="docked"
+        panel={
+          <ControlPanel title="mini synth">
+            <ControlSection title="voice">
+              <TextInput
+                label="name"
+                value={synth.name}
+                onValueChange={(name) => patch({ name })}
+                placeholder="patch-01"
+              />
+              <NumberField
+                label="voices"
+                min={1}
+                max={16}
+                value={synth.voices}
+                onValueChange={(voices) => patch({ voices })}
+              />
+              <Select
+                label="wave"
+                options={WAVES}
+                value={synth.wave}
+                onValueChange={(wave) => patch({ wave })}
+              />
+              <RadioGroup
+                label="filter"
+                options={FILTERS}
+                value={synth.filter}
+                onValueChange={(filter) => patch({ filter })}
+              />
+            </ControlSection>
+
+            <ControlSection title="tone">
+              <Slider
+                label="cutoff"
+                min={0}
+                max={100}
+                value={synth.cutoff}
+                onValueChange={(cutoff) => patch({ cutoff })}
+              />
+              <Segmented<Quality>
+                label="quality"
+                options={QUALITIES}
+                value={synth.quality}
+                onValueChange={(quality) => patch({ quality })}
+              />
+              <ColorField
+                label="tint"
+                value={synth.tint}
+                onValueChange={(tint) => patch({ tint })}
+              />
+              <Checkbox
+                label="glide"
+                checked={synth.glide}
+                onCheckedChange={(glide) => patch({ glide })}
+              />
+              <Toggle
+                label="mute"
+                checked={synth.mute}
+                onCheckedChange={(mute) => patch({ mute })}
+              />
+            </ControlSection>
+
+            <ControlSection title="notes">
+              <TextArea
+                label="scribble"
+                rows={2}
+                value={synth.notes}
+                onValueChange={(notes) => patch({ notes })}
+                placeholder="how does it sound?"
+              />
+              <ControlField label="actions">
+                <Stack direction="horizontal" gap={2} wrap>
+                  <Button variant="secondary" onClick={randomize}>
+                    randomize
+                  </Button>
+                  <Button variant="muted" onClick={() => setSynth(DEFAULT_SYNTH)}>
+                    reset
+                  </Button>
+                </Stack>
+              </ControlField>
+              <Readout
+                label="out"
+                value={`${synth.wave} · ${synth.voices}v · ${synth.mute ? "muted" : "live"}`}
+              />
+            </ControlSection>
+          </ControlPanel>
+        }
+      >
+        <Stage label="synth stage">
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 24,
+              background: `radial-gradient(120% 120% at 25% 20%, ${synth.tint}59, transparent 60%), linear-gradient(135deg, #14141b, #23232e)`,
+              opacity: synth.mute ? 0.45 : 1,
+              transition: "opacity 200ms",
+            }}
+          >
+            <Readout
+              label={synth.name}
+              value={`${synth.wave} · ${synth.filter} · ${synth.cutoff}`}
+            />
+          </div>
+        </Stage>
+      </ExperimentShell>
+    </Stack>
   );
 }
 
-type Mode = "solid" | "outline" | "aureole";
-
-const MODES = [
-  { value: "solid", label: "Solid" },
-  { value: "outline", label: "Outline" },
-  { value: "aureole", label: "Aureole" },
-] as const satisfies ReadonlyArray<{ value: Mode; label: string }>;
-
-function InstrumentDemo() {
-  const [color, setColor] = useState("#83a598");
-  const [mode, setMode] = useState<Mode>("outline");
-  const [glow, setGlow] = useState(true);
-  const [scale, setScale] = useState(1);
-
+function Controls() {
   return (
-    <div {...stylex.props(styles.instrument)}>
-      <div {...stylex.props(styles.controls)}>
-        <ColorField label="orb color" value={color} onValueChange={setColor} />
-        <Segmented<Mode> label="mode" options={MODES} value={mode} onValueChange={setMode} />
-        <Toggle label="glow" checked={glow} onCheckedChange={setGlow} />
-        <Slider
-          label="scale"
-          min={0.5}
-          max={1.8}
-          step={0.01}
-          value={scale}
-          onValueChange={setScale}
-        />
-      </div>
+    <Stack gap={3}>
+      <SectionHeading index="02" title="controls" />
 
-      <div {...stylex.props(styles.canvas)}>
-        <span {...stylex.props(styles.canvasCaption)}>live · instrument</span>
-        <div
-          aria-hidden
-          {...stylex.props(
-            styles.orbBase,
-            mode === "outline" ? styles.orbOutline : null,
-            mode === "aureole" ? styles.orbAureole : null,
-            styles.orbFill(color),
-            styles.orbScale(scale),
-            glow ? effects.glow : null,
-          )}
-        />
-        <span {...stylex.props(fieldText.value)}>
-          {color.toUpperCase()} · {mode.toUpperCase()} · {scale.toFixed(2)} × · GLOW{" "}
-          {glow ? "ON" : "OFF"}
-        </span>
-      </div>
-    </div>
+      <Card>
+        <ControlSection title="Button">
+          <Stack direction="horizontal" gap={2} wrap>
+            {BUTTON_VARIANTS.map((variant) => (
+              <Button key={variant} variant={variant}>
+                {variant}
+              </Button>
+            ))}
+          </Stack>
+          <Stack direction="horizontal" gap={2} wrap>
+            <Button>default</Button>
+            <Button loading>loading</Button>
+            <Button disabled>disabled</Button>
+          </Stack>
+        </ControlSection>
+      </Card>
+
+      <Card>
+        <ControlSection title="Slider">
+          <Stack gap={3}>
+            {BUTTON_VARIANTS.map((variant) => (
+              <Slider
+                key={variant}
+                label={variant}
+                variant={variant}
+                min={0}
+                max={100}
+                defaultValue={62}
+              />
+            ))}
+            <Slider label="disabled" min={0} max={100} defaultValue={40} disabled />
+          </Stack>
+        </ControlSection>
+      </Card>
+
+      <Card>
+        <ControlSection title="Toggle">
+          <Stack direction="horizontal" gap={3} wrap>
+            {BUTTON_VARIANTS.map((variant) => (
+              <Toggle key={variant} label={variant} variant={variant} defaultChecked />
+            ))}
+          </Stack>
+          <Toggle label="off" />
+          <Toggle label="disabled" disabled defaultChecked />
+        </ControlSection>
+      </Card>
+
+      <Card>
+        <ControlSection title="Checkbox">
+          <Stack direction="horizontal" gap={3} wrap>
+            {BUTTON_VARIANTS.map((variant) => (
+              <Checkbox key={variant} label={variant} variant={variant} defaultChecked />
+            ))}
+          </Stack>
+          <Checkbox label="off" />
+          <Checkbox label="disabled" disabled defaultChecked />
+        </ControlSection>
+      </Card>
+
+      <Card>
+        <ControlSection title="Segmented">
+          <Stack gap={3}>
+            {BUTTON_VARIANTS.map((variant) => (
+              <Segmented
+                key={variant}
+                label={variant}
+                variant={variant}
+                options={["one", "two"]}
+                defaultValue="two"
+              />
+            ))}
+            <Segmented label="disabled" options={["one", "two"]} defaultValue="one" disabled />
+          </Stack>
+        </ControlSection>
+      </Card>
+
+      <Card>
+        <ControlSection title="Select">
+          <Stack gap={3}>
+            {BUTTON_VARIANTS.map((variant) => (
+              <Select
+                key={variant}
+                label={variant}
+                variant={variant}
+                options={["one", "two"]}
+                defaultValue="two"
+              />
+            ))}
+            <Select label="disabled" options={["one", "two"]} defaultValue="one" disabled />
+          </Stack>
+        </ControlSection>
+      </Card>
+
+      <Card>
+        <ControlSection title="RadioGroup">
+          <Stack gap={3}>
+            {BUTTON_VARIANTS.map((variant) => (
+              <RadioGroup
+                key={variant}
+                label={variant}
+                variant={variant}
+                options={["one", "two"]}
+                defaultValue="two"
+              />
+            ))}
+            <RadioGroup label="disabled" options={["one", "two"]} defaultValue="one" disabled />
+          </Stack>
+        </ControlSection>
+      </Card>
+
+      <Card>
+        <ControlSection title="TextInput">
+          <Stack gap={3}>
+            {BUTTON_VARIANTS.map((variant) => (
+              <TextInput key={variant} label={variant} variant={variant} defaultValue={variant} />
+            ))}
+            <TextInput label="disabled" defaultValue="frozen" disabled />
+          </Stack>
+        </ControlSection>
+      </Card>
+
+      <Card>
+        <ControlSection title="NumberField">
+          <Stack gap={3}>
+            {BUTTON_VARIANTS.map((variant) => (
+              <NumberField
+                key={variant}
+                label={variant}
+                variant={variant}
+                min={0}
+                max={100}
+                defaultValue={62}
+              />
+            ))}
+            <NumberField label="disabled" min={0} max={100} defaultValue={40} disabled />
+          </Stack>
+        </ControlSection>
+      </Card>
+
+      <Card>
+        <ControlSection title="TextArea">
+          <Stack gap={3}>
+            {BUTTON_VARIANTS.map((variant) => (
+              <TextArea
+                key={variant}
+                label={variant}
+                variant={variant}
+                rows={2}
+                defaultValue={variant}
+              />
+            ))}
+            <TextArea label="disabled" defaultValue="frozen" disabled />
+          </Stack>
+        </ControlSection>
+      </Card>
+
+      <Card>
+        <ControlSection title="ColorField">
+          <ColorField label="warm tint" defaultValue="#b8bb26" />
+          <ColorField label="disabled" disabled defaultValue="#d3869b" />
+        </ControlSection>
+      </Card>
+    </Stack>
   );
 }
 
-type StatePanelProps = {
-  title: string;
-  children: ReactNode;
-};
-
-function StatePanel({ title, children }: StatePanelProps) {
+function Foundations() {
   return (
-    <div {...stylex.props(styles.statePanel)}>
-      <span {...stylex.props(fieldText.label)}>{title}</span>
-      <div {...stylex.props(styles.stateBody)}>{children}</div>
-    </div>
-  );
-}
+    <Stack gap={3}>
+      <SectionHeading index="03" title="foundations" />
 
-type ShellDemoProps = {
-  place?: "floating" | "docked";
-};
-function ShellDemo({ place = "floating" }: ShellDemoProps) {
-  const [hue, setHue] = useState(160);
-  const [glow, setGlow] = useState(true);
-  const [mode, setMode] = useState<Mode>("outline");
+      <Card>
+        <ControlSection title="surfaces">
+          <Stack direction="horizontal" gap={3} wrap>
+            <Swatch swatch="background" meta="app ground" />
+            <Swatch swatch="card" meta="raised" />
+            <Swatch swatch="popover" meta="floating" />
+          </Stack>
+        </ControlSection>
+      </Card>
 
-  return (
-    <ExperimentShell
-      placement={place}
-      panel={
-        <ControlPanel title="orb">
-          <ControlSection title="light">
-            <ControlField label="hue">
-              <Slider min={0} max={360} step={1} value={hue} onValueChange={setHue} />
-            </ControlField>
-            <ControlField label="glow">
-              <Toggle checked={glow} onCheckedChange={setGlow} />
-            </ControlField>
-          </ControlSection>
-          <ControlSection title="shape">
-            <ControlField label="mode">
-              <Segmented<Mode> options={MODES} value={mode} onValueChange={setMode} />
-            </ControlField>
-          </ControlSection>
-        </ControlPanel>
-      }
-    >
-      <Stage label="demo stage">
-        <div {...stylex.props(styles.demoFill, styles.demoPlaceholder(hue))}>
-          <span {...stylex.props(styles.canvasCaption)}>
-            {mode} · {Math.round(hue)}° · glow {glow ? "on" : "off"}
-          </span>
-        </div>
-      </Stage>
-    </ExperimentShell>
+      <Card>
+        <ControlSection title="families">
+          <Stack direction="horizontal" gap={3} wrap>
+            <Swatch swatch="primary" meta="primaryForeground" />
+            <Swatch swatch="secondary" meta="secondaryForeground" />
+            <Swatch swatch="accent" meta="accentForeground" />
+            <Swatch swatch="warning" meta="warningForeground" />
+            <Swatch swatch="success" meta="successForeground" />
+            <Swatch swatch="destructive" meta="destructiveForeground" />
+            <Swatch swatch="muted" meta="mutedForeground" />
+          </Stack>
+        </ControlSection>
+      </Card>
+
+      <Card>
+        <ControlSection title="type">
+          <Text>Body copy stays compact and readable. No oversized headings.</Text>
+          <Text tone="muted">Muted carries secondary information without competing.</Text>
+        </ControlSection>
+      </Card>
+    </Stack>
   );
 }
 
 function App() {
   return (
-    <div {...stylex.props(styles.page)}>
-      <main {...stylex.props(styles.container)}>
-        <header {...stylex.props(styles.header)}>
-          <div {...stylex.props(styles.headerRow)}>
-            <h1 {...stylex.props(styles.title)}>
-              repo/<span {...stylex.props(styles.titleAccent)}>ui</span>
-            </h1>
-            <div {...stylex.props(styles.metaRow)}>
-              <MetaChip label="dark" />
-              <MetaChip label="compact" />
-              <MetaChip label="tactile" />
-              <MetaChip label="luminous" />
-            </div>
-          </div>
-          <p {...stylex.props(styles.intro)}>
-            Visual inventory of the <code {...stylex.props(styles.code)}>@repo/ui</code> design
-            language — semantic tokens, shared interaction primitives, and the four core widgets.
-          </p>
-        </header>
-
-        <Section index="01" title="theme foundation">
-          <Block title="surfaces">
-            <div {...stylex.props(styles.row)}>
-              <SurfaceTile name="background" style={styles.surfaceBg} />
-              <SurfaceTile name="card" style={styles.surfaceCard} shadow={effects.raised} />
-              <SurfaceTile name="popover" style={styles.surfacePopover} shadow={effects.floating} />
-            </div>
-          </Block>
-
-          <Block title="text levels">
-            <div {...stylex.props(styles.row)}>
-              <TextFace name="foreground" sample="Fg" style={styles.textOnBg} />
-              <TextFace name="muted" sample="Mute" style={styles.textOnMuted} />
-              <TextFace name="mutedForeground" sample="Mute" style={styles.textMutedOnBg} />
-            </div>
-          </Block>
-
-          <Block title="color families">
-            <div {...stylex.props(styles.grid)}>
-              {FAMILIES.map(([name, meta, familyStyle]) => (
-                <FamilyTile key={name} name={name} meta={meta} style={familyStyle} />
-              ))}
-            </div>
-          </Block>
-
-          <Block title="spacing scale">
-            <div {...stylex.props(styles.spacingList)}>
-              {SPACING_ENTRIES.map(([key, px]) => (
-                <div key={key} {...stylex.props(styles.spacingRow)}>
-                  <span {...stylex.props(styles.spacingKey)}>{key}</span>
-                  <span aria-hidden {...stylex.props(styles.spacingBar(px))} />
-                  <span {...stylex.props(styles.spacingValue)}>{px}</span>
-                </div>
-              ))}
-            </div>
-          </Block>
-
-          <Block title="radius scale">
-            <div {...stylex.props(styles.radiusList)}>
-              {RADIUS_ENTRIES.map(([name, px]) => (
-                <div key={name} {...stylex.props(styles.radiusTile)}>
-                  <span aria-hidden {...stylex.props(styles.radiusChip(px))} />
-                  <span {...stylex.props(styles.radiusName)}>{name}</span>
-                  <span {...stylex.props(styles.radiusValue)}>{name === "full" ? "∞" : px}</span>
-                </div>
-              ))}
-            </div>
-          </Block>
-
-          <Block title="border · effects">
-            <div {...stylex.props(styles.borderRow)}>
-              <div {...stylex.props(styles.borderSample, styles.borderOnBg)}>border · bg</div>
-              <div {...stylex.props(styles.borderSample, styles.borderOnCard)}>border · card</div>
-              <div {...stylex.props(styles.borderSample, styles.borderOnPopover)}>
-                border · popover
-              </div>
-              <div {...stylex.props(styles.inputField)}>input</div>
-              <div {...stylex.props(styles.ringChip)}>
-                <span aria-hidden {...stylex.props(styles.ringDot, effects.glowSubtle)} />
-                ring
-              </div>
-            </div>
-            <div {...stylex.props(styles.row)}>
-              <EffectTile name="raised" note="soft depth" shadow={effects.raised} />
-              <EffectTile
-                name="floating"
-                note="detached layer"
-                style={styles.effectTilePopover}
-                shadow={effects.floating}
-              />
-              <GlowTile name="glow · subtle" note="hint of light" glow={effects.glowSubtle} />
-              <GlowTile name="glow" note="active energy" glow={effects.glow} />
-              <GlowTile name="glow · strong" note="selection" glow={effects.glowStrong} />
-            </div>
-          </Block>
-
-          <Block title="blur · depth over texture">
-            <BlurDemo />
-          </Block>
-
-          <Block title="motion durations">
-            <MotionDemo />
-          </Block>
-        </Section>
-
-        <Section index="02" title="shared primitives">
-          <Block title="interactive · focusRing · selected">
-            <ChipGroup />
-          </Block>
-
-          <Block title="active (press & hold)">
-            <div {...stylex.props(styles.row)}>
-              <HoldToggle />
-              <span {...stylex.props(fieldText.label)}>
-                pointer-down lights the border · click toggles selected
-              </span>
-            </div>
-          </Block>
-
-          <Block title="disabled">
-            <div {...stylex.props(styles.chipRow)}>
-              <button
-                type="button"
-                disabled
-                {...stylex.props(
-                  styles.chip,
-                  interactive.base,
-                  interactive.focusRing,
-                  interactive.disabled,
-                )}
-              >
-                unavailable
-              </button>
-              <Toggle label="hold" disabled defaultChecked />
-              <Slider label="gain" min={0} max={100} defaultValue={40} disabled />
-            </div>
-          </Block>
-
-          <Block title="label · value">
-            <div {...stylex.props(styles.readout)}>
-              <span {...stylex.props(fieldText.label)}>samplerate</span>
-              <span {...stylex.props(fieldText.value)}>48 kHz</span>
-            </div>
-          </Block>
-        </Section>
-
-        <Section index="03" title="widgets">
-          <Block title="live instrument">
-            <InstrumentDemo />
-          </Block>
-
-          <Block title="Button — variants">
-            <div {...stylex.props(styles.chipRow)}>
-              {BUTTON_VARIANTS.map((variant) => (
-                <Button key={variant} variant={variant}>
-                  {variant}
-                </Button>
-              ))}
-            </div>
-          </Block>
-
-          <Block title="Button — states">
-            <div {...stylex.props(styles.chipRow)}>
-              <Button>default</Button>
-              <Button loading>loading</Button>
-              <Button disabled>disabled</Button>
-            </div>
-          </Block>
-
-          <Block title="Toggle — variants (on)">
-            <div {...stylex.props(styles.chipRow)}>
-              {BUTTON_VARIANTS.map((variant) => (
-                <Toggle key={variant} label={variant} variant={variant} defaultChecked />
-              ))}
-            </div>
-          </Block>
-
-          <Block title="Toggle — variants (off)">
-            <div {...stylex.props(styles.chipRow)}>
-              {BUTTON_VARIANTS.map((variant) => (
-                <Toggle key={variant} label={variant} variant={variant} />
-              ))}
-            </div>
-          </Block>
-
-          <Block title="Segmented — variants">
-            <div {...stylex.props(styles.chipRow)}>
-              {BUTTON_VARIANTS.map((variant) => (
-                <Segmented
-                  key={variant}
-                  label={variant}
-                  variant={variant}
-                  options={["one", "two"]}
-                  defaultValue="two"
-                />
-              ))}
-            </div>
-          </Block>
-
-          <Block title="Slider — variants">
-            <div {...stylex.props(styles.controls)}>
-              {BUTTON_VARIANTS.map((variant) => (
-                <Slider
-                  key={variant}
-                  label={variant}
-                  variant={variant}
-                  min={0}
-                  max={100}
-                  defaultValue={62}
-                />
-              ))}
-            </div>
-          </Block>
-
-          <Block title="default & disabled states">
-            <div {...stylex.props(styles.statesGrid)}>
-              <StatePanel title="Slider — default">
-                <Slider label="gain" min={0} max={100} defaultValue={62} />
-              </StatePanel>
-              <StatePanel title="Slider — disabled">
-                <Slider label="gain" min={0} max={100} defaultValue={40} disabled />
-              </StatePanel>
-              <StatePanel title="Toggle — default">
-                <Toggle label="hold" defaultChecked />
-                <Toggle label="mute" />
-              </StatePanel>
-              <StatePanel title="Toggle — disabled">
-                <Toggle label="hold" disabled defaultChecked />
-              </StatePanel>
-              <StatePanel title="ColorField — default">
-                <ColorField label="warm tint" defaultValue="#b8bb26" />
-              </StatePanel>
-              <StatePanel title="ColorField — disabled">
-                <ColorField label="warm tint" disabled defaultValue="#d3869b" />
-              </StatePanel>
-              <StatePanel title="Segmented — default">
-                <Segmented
-                  label="blend"
-                  options={["multiply", "screen", "overlay"]}
-                  defaultValue="overlay"
-                />
-              </StatePanel>
-              <StatePanel title="Segmented — disabled">
-                <Segmented
-                  label="blend"
-                  options={["multiply", "screen", "overlay"]}
-                  defaultValue="screen"
-                  disabled
-                />
-              </StatePanel>
-            </div>
-          </Block>
-        </Section>
-
-        <Section index="04" title="experiment shell">
-          <Block title="stage + control panel floating (ajoute un ControlField par contrôle)">
-            <ShellDemo place="floating" />
-          </Block>
-          <Block title="stage + control panel docked (ajoute un ControlField par contrôle)">
-            <ShellDemo place="docked" />
-          </Block>
-        </Section>
-
-        <footer {...stylex.props(styles.footer)}>
-          <span {...stylex.props(styles.motionHint)}>built on @repo/ui</span>
-          <span {...stylex.props(styles.motionHint)}>semantic tokens only · no raw values</span>
-        </footer>
-      </main>
-    </div>
+    <Page>
+      <Hero />
+      <FakeSynth />
+      <Controls />
+      <Foundations />
+      <Stack direction="horizontal" gap={4} wrap>
+        <Text tone="muted">built on @repo/ui</Text>
+        <Text tone="muted">components only · no raw values</Text>
+      </Stack>
+    </Page>
   );
 }
 
