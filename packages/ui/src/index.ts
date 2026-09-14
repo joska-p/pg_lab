@@ -9,3 +9,8 @@ export { Toggle } from "./components/Toggle";
 export { Button } from "./components/Button";
 export { ColorField } from "./components/ColorField";
 export { Segmented } from "./components/Segmented";
+export { ExperimentShell } from "./components/ExperimentShell";
+export { Stage } from "./components/Stage";
+export { ControlPanel } from "./components/ControlPanel";
+export { ControlSection } from "./components/ControlSection";
+export { ControlField } from "./components/ControlField";

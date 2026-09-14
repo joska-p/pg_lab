@@ -3,6 +3,7 @@ import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { Slider, Toggle, Button, ColorField, Segmented } from "@repo/ui";
+import { ControlField, ControlPanel, ControlSection, ExperimentShell, Stage } from "@repo/ui";
 import { colors } from "@repo/ui/theme/tokens.stylex";
 import { borderWidth, motion, radius, space, typography } from "@repo/ui/theme/consts.stylex";
 import { effects } from "@repo/ui/behaviors/effects.stylex";
@@ -634,6 +635,23 @@ const styles = stylex.create({
     color: colors.mutedForeground,
   },
 
+  demoFill: {
+    flex: 1,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 280,
+  },
+
+  demoPlaceholder: (hue: number) => ({
+    flex: 1,
+    alignSelf: "stretch",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundImage: `linear-gradient(135deg, oklch(0.7 0.15 ${hue} / 70%), oklch(0.55 0.18 ${(hue + 60) % 360} / 70%))`,
+  }),
+
   orbBase: {
     width: 72,
     height: 72,
@@ -1035,6 +1053,46 @@ function StatePanel({ title, children }: StatePanelProps) {
   );
 }
 
+type ShellDemoProps = {
+  place?: "floating" | "docked";
+};
+function ShellDemo({ place = "floating" }: ShellDemoProps) {
+  const [hue, setHue] = useState(160);
+  const [glow, setGlow] = useState(true);
+  const [mode, setMode] = useState<Mode>("outline");
+
+  return (
+    <ExperimentShell
+      placement={place}
+      panel={
+        <ControlPanel title="orb">
+          <ControlSection title="light">
+            <ControlField label="hue">
+              <Slider min={0} max={360} step={1} value={hue} onValueChange={setHue} />
+            </ControlField>
+            <ControlField label="glow">
+              <Toggle checked={glow} onCheckedChange={setGlow} />
+            </ControlField>
+          </ControlSection>
+          <ControlSection title="shape">
+            <ControlField label="mode">
+              <Segmented<Mode> options={MODES} value={mode} onValueChange={setMode} />
+            </ControlField>
+          </ControlSection>
+        </ControlPanel>
+      }
+    >
+      <Stage label="demo stage">
+        <div {...stylex.props(styles.demoFill, styles.demoPlaceholder(hue))}>
+          <span {...stylex.props(styles.canvasCaption)}>
+            {mode} · {Math.round(hue)}° · glow {glow ? "on" : "off"}
+          </span>
+        </div>
+      </Stage>
+    </ExperimentShell>
+  );
+}
+
 function App() {
   return (
     <div {...stylex.props(styles.page)}>
@@ -1288,6 +1346,15 @@ function App() {
                 />
               </StatePanel>
             </div>
+          </Block>
+        </Section>
+
+        <Section index="04" title="experiment shell">
+          <Block title="stage + control panel floating (ajoute un ControlField par contrôle)">
+            <ShellDemo place="floating" />
+          </Block>
+          <Block title="stage + control panel docked (ajoute un ControlField par contrôle)">
+            <ShellDemo place="docked" />
           </Block>
         </Section>
 
