@@ -4,7 +4,7 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactive } from "../behaviors/interactive.stylex";
 import { fieldText } from "../behaviors/text.stylex";
 import { colors } from "../theme/tokens.stylex";
-import { radius, space } from "../theme/consts.stylex";
+import { borderWidth, radius, space } from "../theme/consts.stylex";
 
 type ColorFieldProps = {
   label?: string;
@@ -35,7 +35,7 @@ const styles = stylex.create({
     margin: 0,
     padding: 2,
     borderRadius: radius.sm,
-    borderWidth: "1px",
+    borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
     backgroundColor: colors.background,

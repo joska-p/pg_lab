@@ -3,8 +3,9 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactive } from "../behaviors/interactive.stylex";
 import { fieldText } from "../behaviors/text.stylex";
+import { colorIntents } from "../behaviors/intents.stylex";
 import { colors } from "../theme/tokens.stylex";
-import { radius, space } from "../theme/consts.stylex";
+import { borderWidth, radius, space } from "../theme/consts.stylex";
 
 type SegmentOption<T extends string> = {
   value: T;
@@ -13,7 +14,7 @@ type SegmentOption<T extends string> = {
 
 type SegmentedProps<T extends string> = {
   label?: string;
-  variant?: keyof typeof chosenVariants;
+  variant?: keyof typeof colorIntents;
   options: readonly T[] | readonly SegmentOption<T>[];
   value?: T;
   defaultValue?: T;
@@ -43,44 +44,17 @@ const styles = stylex.create({
   option: {
     padding: `1px ${space["3"]}`,
     borderRadius: radius.sm,
-    borderWidth: "1px",
+    borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: "transparent",
     backgroundColor: "transparent",
     color: colors.mutedForeground,
   },
-});
 
-const chosenVariants = stylex.create({
-  primary: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primary,
-    color: colors.primaryForeground,
-  },
-  secondary: {
-    borderColor: colors.secondary,
-    backgroundColor: colors.secondary,
-    color: colors.secondaryForeground,
-  },
-  accent: {
-    borderColor: colors.accent,
-    backgroundColor: colors.accent,
-    color: colors.accentForeground,
-  },
-  warning: {
-    borderColor: colors.warning,
-    backgroundColor: colors.warning,
-    color: colors.warningForeground,
-  },
-  destructive: {
-    borderColor: colors.destructive,
-    backgroundColor: colors.destructive,
-    color: colors.destructiveForeground,
-  },
-  // Muted carries no fill color of its own: like Toggle's OFF state, the
-  // signal goes through the border + brighter text instead of a fill that
-  // would blend into the muted group background.
-  muted: {
+  // S8: the muted chip never fills — a fill would blend into the muted group
+  // well. Signal goes through a `mutedForeground` border + brighter text only,
+  // overriding the canonical muted intent.
+  chosenMuted: {
     borderColor: colors.mutedForeground,
     backgroundColor: "transparent",
     color: colors.foreground,
@@ -154,7 +128,8 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
               disabled={disabled}
               {...stylex.props(
                 styles.option,
-                chosen ? chosenVariants[variant] : null,
+                chosen ? colorIntents[variant] : null,
+                variant === "muted" && chosen ? styles.chosenMuted : null,
                 interactive.base,
                 interactive.focusRing,
                 disabled ? interactive.disabled : null,

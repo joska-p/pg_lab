@@ -3,8 +3,9 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactive } from "../behaviors/interactive.stylex";
 import { fieldText } from "../behaviors/text.stylex";
+import { fieldFocus } from "../behaviors/intents.stylex";
 import { colors } from "../theme/tokens.stylex";
-import { radius, space } from "../theme/consts.stylex";
+import { borderWidth, radius, space } from "../theme/consts.stylex";
 
 type SelectOption<T extends string> = {
   value: T;
@@ -13,7 +14,7 @@ type SelectOption<T extends string> = {
 
 type SelectProps<T extends string> = {
   label?: string;
-  variant?: keyof typeof focusVariants;
+  variant?: keyof typeof fieldFocus;
   options: readonly T[] | readonly SelectOption<T>[];
   value?: T;
   defaultValue?: T;
@@ -49,7 +50,7 @@ const styles = stylex.create({
     paddingLeft: space["3"],
     paddingRight: space["8"],
     borderRadius: radius.sm,
-    borderWidth: "1px",
+    borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     backgroundColor: colors.input,
     color: colors.foreground,
@@ -66,51 +67,6 @@ const styles = stylex.create({
     height: 12,
     color: colors.mutedForeground,
     pointerEvents: "none",
-  },
-});
-
-const focusVariants = stylex.create({
-  primary: {
-    borderColor: { default: colors.border, ":focus": colors.primary },
-    boxShadow: {
-      default: null,
-      ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.primary}`,
-    },
-  },
-  secondary: {
-    borderColor: { default: colors.border, ":focus": colors.secondary },
-    boxShadow: {
-      default: null,
-      ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.secondary}`,
-    },
-  },
-  accent: {
-    borderColor: { default: colors.border, ":focus": colors.accent },
-    boxShadow: {
-      default: null,
-      ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.accent}`,
-    },
-  },
-  warning: {
-    borderColor: { default: colors.border, ":focus": colors.warning },
-    boxShadow: {
-      default: null,
-      ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.warning}`,
-    },
-  },
-  destructive: {
-    borderColor: { default: colors.border, ":focus": colors.destructive },
-    boxShadow: {
-      default: null,
-      ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.destructive}`,
-    },
-  },
-  muted: {
-    borderColor: { default: colors.border, ":focus": colors.mutedForeground },
-    boxShadow: {
-      default: null,
-      ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.mutedForeground}`,
-    },
   },
 });
 
@@ -161,7 +117,7 @@ export function Select<T extends string>(props: SelectProps<T>) {
           {...stylex.props(
             styles.select,
             fieldText.value,
-            focusVariants[variant],
+            fieldFocus[variant],
             disabled ? interactive.disabled : null,
             style,
           )}

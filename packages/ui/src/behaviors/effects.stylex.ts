@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { shadows } from "../theme/shadows.stylex";
+import { shadowColor, shadows } from "../theme/shadows.stylex";
 import { colors } from "../theme/tokens.stylex";
 
 export const effects = stylex.create({
@@ -13,6 +13,14 @@ export const effects = stylex.create({
 
   glowStrong: {
     filter: "drop-shadow(0 0 12px currentColor)",
+  },
+
+  // Small opaque box-shadow halo tinted by the element's `shadowColor`.
+  // On/off widgets apply a `colorIntents[variant]` map first (which sets
+  // `[shadowColor.color]` to the family), so the ring follows the family:
+  // an effect tinted via the shadow variable — not a raw per-family map.
+  glowRing: {
+    boxShadow: `0 0 6px ${shadowColor.color}`,
   },
 
   raised: {

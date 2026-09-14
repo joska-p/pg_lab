@@ -3,12 +3,14 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactive } from "../behaviors/interactive.stylex";
 import { fieldText } from "../behaviors/text.stylex";
+import { effects } from "../behaviors/effects.stylex";
+import { colorIntents, intentHovers } from "../behaviors/intents.stylex";
 import { colors } from "../theme/tokens.stylex";
-import { radius, space } from "../theme/consts.stylex";
+import { borderWidth, radius, space } from "../theme/consts.stylex";
 
 type CheckboxProps = {
   label?: string;
-  variant?: keyof typeof boxOnVariants;
+  variant?: keyof typeof colorIntents;
   checked?: boolean;
   defaultChecked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
@@ -36,7 +38,7 @@ const styles = stylex.create({
     width: BOX_SIZE,
     height: BOX_SIZE,
     borderRadius: radius.sm,
-    borderWidth: "1px",
+    borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
     backgroundColor: {
@@ -49,62 +51,14 @@ const styles = stylex.create({
     width: 12,
     height: 12,
   },
-});
 
-const boxOnVariants = stylex.create({
-  primary: {
-    backgroundColor: {
-      default: colors.primary,
-      ":hover": colors.primaryHover,
-    },
-    borderColor: colors.primary,
-    color: colors.primaryForeground,
-    boxShadow: `0 0 6px ${colors.primary}`,
-  },
-  secondary: {
-    backgroundColor: {
-      default: colors.secondary,
-      ":hover": colors.secondaryHover,
-    },
-    borderColor: colors.secondary,
-    color: colors.secondaryForeground,
-    boxShadow: `0 0 6px ${colors.secondary}`,
-  },
-  accent: {
-    backgroundColor: {
-      default: colors.accent,
-      ":hover": colors.accentHover,
-    },
-    borderColor: colors.accent,
-    color: colors.accentForeground,
-    boxShadow: `0 0 6px ${colors.accent}`,
-  },
-  warning: {
-    backgroundColor: {
-      default: colors.warning,
-      ":hover": colors.warningHover,
-    },
-    borderColor: colors.warning,
-    color: colors.warningForeground,
-    boxShadow: `0 0 6px ${colors.warning}`,
-  },
-  destructive: {
-    backgroundColor: {
-      default: colors.destructive,
-      ":hover": colors.destructiveHover,
-    },
-    borderColor: colors.destructive,
-    color: colors.destructiveForeground,
-    boxShadow: `0 0 6px ${colors.destructive}`,
-  },
-  muted: {
-    backgroundColor: {
-      default: colors.muted,
-      ":hover": colors.mutedHover,
-    },
+  // S8: the checked muted box keeps its muted fill but signals through a
+  // `mutedForeground` border and plain foreground, matching how the Segmented
+  // muted chip reads — unlike the canonical `colorIntents` whose muted border
+  // and foreground are `muted` / `mutedForeground`.
+  boxOnMuted: {
     borderColor: colors.mutedForeground,
     color: colors.foreground,
-    boxShadow: `0 0 6px ${colors.muted}`,
   },
 });
 
@@ -149,7 +103,10 @@ export function Checkbox(props: CheckboxProps) {
         disabled={disabled}
         {...stylex.props(
           styles.box,
-          isOn ? boxOnVariants[variant] : null,
+          isOn ? colorIntents[variant] : null,
+          isOn ? intentHovers[variant] : null,
+          isOn ? effects.glowRing : null,
+          variant === "muted" && isOn ? styles.boxOnMuted : null,
           interactive.base,
           interactive.focusRing,
           disabled ? interactive.disabled : null,

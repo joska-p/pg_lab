@@ -27,6 +27,7 @@ import {
   ShellWrapper,
 } from "@repo/ui";
 import { effects } from "@repo/ui/behaviors/effects.stylex";
+import { colorIntents } from "@repo/ui/behaviors/intents.stylex";
 import { borderWidth, motion, radius, space, typography } from "@repo/ui/theme/consts.stylex";
 import { shadowColor } from "@repo/ui/theme/shadows.stylex";
 import { colors } from "@repo/ui/theme/tokens.stylex";
@@ -117,20 +118,6 @@ const tileStyles = stylex.create({
     backgroundColor: colors.card,
     color: colors.cardForeground,
   },
-  primaryBg: {
-    backgroundColor: colors.primary,
-    color: colors.primaryForeground,
-    borderColor: colors.primary,
-  },
-  secondaryBg: {
-    backgroundColor: colors.secondary,
-    color: colors.secondaryForeground,
-    borderColor: colors.secondary,
-  },
-  mutedBg: {
-    backgroundColor: colors.muted,
-    color: colors.mutedForeground,
-  },
   backdrop: {
     backgroundImage: `linear-gradient(135deg, color-mix(in oklab, ${colors.secondary} 35%, transparent), color-mix(in oklab, ${colors.accent} 35%, transparent)), linear-gradient(135deg, ${colors.background}, ${colors.card})`,
   },
@@ -139,12 +126,13 @@ const tileStyles = stylex.create({
   },
 });
 
-const tileTints = stylex.create({
-  primary: { [shadowColor.color]: colors.primary },
-  secondary: { [shadowColor.color]: colors.secondary },
+// Tints for ELEVATION tiles on neutral surfaces only: `card` and `accent` are
+// not color intents (the six-family `colorIntents` map covers primary…
+// muted), so these two shadow tints stay local. Intent-driven tiles (raised,
+// sunken, pressable) come straight from `colorIntents` below.
+const surfaceTints = stylex.create({
   accent: { [shadowColor.color]: colors.accent },
   card: { [shadowColor.color]: colors.card },
-  muted: { [shadowColor.color]: colors.muted },
 });
 
 function Tile({
@@ -379,33 +367,22 @@ function Foundations() {
         <ControlSection title="elevation">
           <Stack direction="horizontal" gap="8" wrap>
             <Tile bg={tileStyles.cardBg} effect={effects.flat} label="flat · border only" />
-            <Tile
-              bg={tileStyles.primaryBg}
-              tint={tileTints.primary}
-              effect={effects.raised}
-              label="raised · tinted"
-            />
-            <Tile
-              bg={tileStyles.mutedBg}
-              tint={tileTints.muted}
-              effect={effects.sunken}
-              label="sunken · inset"
-            />
+            <Tile bg={colorIntents.primary} effect={effects.raised} label="raised · tinted" />
+            <Tile bg={colorIntents.muted} effect={effects.sunken} label="sunken · inset" />
             <Tile
               bg={tileStyles.cardBg}
-              tint={tileTints.accent}
+              tint={surfaceTints.accent}
               effect={effects.floating}
               label="floating"
             />
             <Tile
               bg={tileStyles.backdrop}
-              tint={tileTints.card}
+              tint={surfaceTints.card}
               effect={[effects.glass, effects.floating]}
               label="glass · over backdrop"
             />
             <Tile
-              bg={tileStyles.secondaryBg}
-              tint={tileTints.secondary}
+              bg={colorIntents.secondary}
               effect={effects.pressable}
               label="press me · rest / hover / active"
             />

@@ -3,12 +3,14 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactive } from "../behaviors/interactive.stylex";
 import { fieldText } from "../behaviors/text.stylex";
+import { effects } from "../behaviors/effects.stylex";
+import { colorIntents, intentBorders, intentHovers } from "../behaviors/intents.stylex";
 import { colors } from "../theme/tokens.stylex";
-import { motion, radius, space } from "../theme/consts.stylex";
+import { borderWidth, motion, radius, space } from "../theme/consts.stylex";
 
 type ToggleProps = {
   label?: string;
-  variant?: keyof typeof trackOnVariants;
+  variant?: keyof typeof colorIntents;
   checked?: boolean;
   defaultChecked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
@@ -37,13 +39,20 @@ const styles = stylex.create({
     width: TRACK_WIDTH,
     height: TRACK_HEIGHT,
     borderRadius: radius.full,
-    borderWidth: "1px",
+    borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
     backgroundColor: {
       default: colors.muted,
       ":hover": colors.mutedHover,
     },
+  },
+
+  // S8: the OFF border stays the neutral `muted` (a quiet recess), where the
+  // shared `intentBorders` muted signals through `mutedForeground` for the
+  // Slider/Radio marks. Composed only for the muted family.
+  trackOffMuted: {
+    borderColor: colors.muted,
   },
 
   knob: {
@@ -62,84 +71,6 @@ const styles = stylex.create({
   knobOn: {
     transform: `translateX(${KNOB_TRAVEL}px)`,
     backgroundColor: "currentColor",
-  },
-});
-
-const trackOffVariants = stylex.create({
-  primary: {
-    borderColor: colors.primary,
-  },
-  secondary: {
-    borderColor: colors.secondary,
-  },
-  accent: {
-    borderColor: colors.accent,
-  },
-  warning: {
-    borderColor: colors.warning,
-  },
-  destructive: {
-    borderColor: colors.destructive,
-  },
-  muted: {
-    borderColor: colors.muted,
-  },
-});
-
-const trackOnVariants = stylex.create({
-  primary: {
-    backgroundColor: {
-      default: colors.primary,
-      ":hover": colors.primaryHover,
-    },
-    borderColor: colors.primary,
-    color: colors.primaryForeground,
-    boxShadow: `0 0 6px ${colors.primary}`,
-  },
-  secondary: {
-    backgroundColor: {
-      default: colors.secondary,
-      ":hover": colors.secondaryHover,
-    },
-    borderColor: colors.secondary,
-    color: colors.secondaryForeground,
-    boxShadow: `0 0 6px ${colors.secondary}`,
-  },
-  accent: {
-    backgroundColor: {
-      default: colors.accent,
-      ":hover": colors.accentHover,
-    },
-    borderColor: colors.accent,
-    color: colors.accentForeground,
-    boxShadow: `0 0 6px ${colors.accent}`,
-  },
-  warning: {
-    backgroundColor: {
-      default: colors.warning,
-      ":hover": colors.warningHover,
-    },
-    borderColor: colors.warning,
-    color: colors.warningForeground,
-    boxShadow: `0 0 6px ${colors.warning}`,
-  },
-  destructive: {
-    backgroundColor: {
-      default: colors.destructive,
-      ":hover": colors.destructiveHover,
-    },
-    borderColor: colors.destructive,
-    color: colors.destructiveForeground,
-    boxShadow: `0 0 6px ${colors.destructive}`,
-  },
-  muted: {
-    backgroundColor: {
-      default: colors.muted,
-      ":hover": colors.mutedHover,
-    },
-    borderColor: colors.muted,
-    color: colors.mutedForeground,
-    boxShadow: `0 0 6px ${colors.muted}`,
   },
 });
 
@@ -184,8 +115,11 @@ export function Toggle(props: ToggleProps) {
         disabled={disabled}
         {...stylex.props(
           styles.track,
-          trackOffVariants[variant],
-          isOn ? trackOnVariants[variant] : null,
+          intentBorders[variant],
+          variant === "muted" ? styles.trackOffMuted : null,
+          isOn ? colorIntents[variant] : null,
+          isOn ? intentHovers[variant] : null,
+          isOn ? effects.glowRing : null,
           interactive.base,
           interactive.focusRing,
           disabled ? interactive.disabled : null,

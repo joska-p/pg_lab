@@ -3,12 +3,13 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactive } from "../behaviors/interactive.stylex";
 import { fieldText } from "../behaviors/text.stylex";
+import { fieldFocus } from "../behaviors/intents.stylex";
 import { colors } from "../theme/tokens.stylex";
-import { radius, space } from "../theme/consts.stylex";
+import { borderWidth, radius, space } from "../theme/consts.stylex";
 
 type TextAreaProps = {
   label?: string;
-  variant?: keyof typeof focusVariants;
+  variant?: keyof typeof fieldFocus;
   rows?: number;
   value?: string;
   defaultValue?: string;
@@ -35,57 +36,12 @@ const styles = stylex.create({
     paddingBlock: space["2"],
     paddingInline: space["3"],
     borderRadius: radius.sm,
-    borderWidth: "1px",
+    borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     backgroundColor: colors.input,
     color: colors.foreground,
     outline: "none",
     resize: "vertical",
-  },
-});
-
-const focusVariants = stylex.create({
-  primary: {
-    borderColor: { default: colors.border, ":focus": colors.primary },
-    boxShadow: {
-      default: null,
-      ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.primary}`,
-    },
-  },
-  secondary: {
-    borderColor: { default: colors.border, ":focus": colors.secondary },
-    boxShadow: {
-      default: null,
-      ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.secondary}`,
-    },
-  },
-  accent: {
-    borderColor: { default: colors.border, ":focus": colors.accent },
-    boxShadow: {
-      default: null,
-      ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.accent}`,
-    },
-  },
-  warning: {
-    borderColor: { default: colors.border, ":focus": colors.warning },
-    boxShadow: {
-      default: null,
-      ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.warning}`,
-    },
-  },
-  destructive: {
-    borderColor: { default: colors.border, ":focus": colors.destructive },
-    boxShadow: {
-      default: null,
-      ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.destructive}`,
-    },
-  },
-  muted: {
-    borderColor: { default: colors.border, ":focus": colors.mutedForeground },
-    boxShadow: {
-      default: null,
-      ":focus": `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.mutedForeground}`,
-    },
   },
 });
 
@@ -133,7 +89,7 @@ export function TextArea(props: TextAreaProps) {
         {...stylex.props(
           styles.input,
           fieldText.value,
-          focusVariants[variant],
+          fieldFocus[variant],
           disabled ? interactive.disabled : null,
           style,
         )}

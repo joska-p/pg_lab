@@ -4,6 +4,13 @@ export { shadowColor, shadows } from "./theme/shadows.stylex";
 export { effects } from "./behaviors/effects.stylex";
 export { interactive } from "./behaviors/interactive.stylex";
 export { fieldText } from "./behaviors/text.stylex";
+export {
+  colorIntents,
+  fieldFocus,
+  intentBorders,
+  intentFills,
+  intentHovers,
+} from "./behaviors/intents.stylex";
 export { Slider } from "./components/Slider";
 export { Toggle } from "./components/Toggle";
 export { Button } from "./components/Button";

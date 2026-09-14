@@ -3,8 +3,9 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactive } from "../behaviors/interactive.stylex";
 import { fieldText } from "../behaviors/text.stylex";
+import { intentBorders, intentFills } from "../behaviors/intents.stylex";
 import { colors } from "../theme/tokens.stylex";
-import { radius, space } from "../theme/consts.stylex";
+import { borderWidth, radius, space } from "../theme/consts.stylex";
 
 type RadioOption<T extends string> = {
   value: T;
@@ -13,7 +14,7 @@ type RadioOption<T extends string> = {
 
 type RadioGroupProps<T extends string> = {
   label?: string;
-  variant?: keyof typeof dotVariants;
+  variant?: keyof typeof intentFills;
   options: readonly T[] | readonly RadioOption<T>[];
   value?: T;
   defaultValue?: T;
@@ -60,7 +61,7 @@ const styles = stylex.create({
     width: CIRCLE_SIZE,
     height: CIRCLE_SIZE,
     borderRadius: radius.full,
-    borderWidth: "1px",
+    borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
     backgroundColor: colors.muted,
@@ -71,24 +72,6 @@ const styles = stylex.create({
     height: DOT_SIZE,
     borderRadius: radius.full,
   },
-});
-
-const circleOnVariants = stylex.create({
-  primary: { borderColor: colors.primary },
-  secondary: { borderColor: colors.secondary },
-  accent: { borderColor: colors.accent },
-  warning: { borderColor: colors.warning },
-  destructive: { borderColor: colors.destructive },
-  muted: { borderColor: colors.mutedForeground },
-});
-
-const dotVariants = stylex.create({
-  primary: { backgroundColor: colors.primary },
-  secondary: { backgroundColor: colors.secondary },
-  accent: { backgroundColor: colors.accent },
-  warning: { backgroundColor: colors.warning },
-  destructive: { backgroundColor: colors.destructive },
-  muted: { backgroundColor: colors.mutedForeground },
 });
 
 export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
@@ -165,8 +148,8 @@ export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
                 interactive.focusRing,
               )}
             >
-              <span {...stylex.props(styles.circle, chosen ? circleOnVariants[variant] : null)}>
-                {chosen ? <span {...stylex.props(styles.dot, dotVariants[variant])} /> : null}
+              <span {...stylex.props(styles.circle, chosen ? intentBorders[variant] : null)}>
+                {chosen ? <span {...stylex.props(styles.dot, intentFills[variant])} /> : null}
               </span>
               {option.label ?? option.value}
             </button>

@@ -1,11 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactive } from "../behaviors/interactive.stylex";
+import { colorIntents, intentHovers } from "../behaviors/intents.stylex";
 import { motion } from "../theme/consts.stylex";
 import { effects } from "../behaviors/effects.stylex";
-import { radius, space, typography } from "../theme/consts.stylex";
-import { colors } from "../theme/tokens.stylex";
-import { shadowColor } from "../theme/shadows.stylex";
+import { borderWidth, radius, space, typography } from "../theme/consts.stylex";
 
 const spin = stylex.keyframes({
   from: { transform: "rotate(0deg)" },
@@ -22,7 +21,7 @@ const styles = stylex.create({
     paddingBlock: space["2"],
     paddingInline: space["4"],
     borderRadius: radius.sm,
-    borderWidth: 1,
+    borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     fontFamily: typography.fontFamilySans,
     fontSize: typography.fontSizeSm,
@@ -53,70 +52,8 @@ const styles = stylex.create({
   },
 });
 
-const colorVariants = stylex.create({
-  primary: {
-    [shadowColor.color]: colors.primary,
-    backgroundColor: {
-      default: colors.primary,
-      ":hover": colors.primaryHover,
-    },
-    borderColor: colors.primary,
-    color: colors.primaryForeground,
-  },
-
-  secondary: {
-    [shadowColor.color]: colors.secondary,
-    backgroundColor: {
-      default: colors.secondary,
-      ":hover": colors.secondaryHover,
-    },
-    borderColor: colors.secondary,
-    color: colors.secondaryForeground,
-  },
-
-  accent: {
-    [shadowColor.color]: colors.accent,
-    backgroundColor: {
-      default: colors.accent,
-      ":hover": colors.accentHover,
-    },
-    borderColor: colors.accent,
-    color: colors.accentForeground,
-  },
-
-  warning: {
-    [shadowColor.color]: colors.warning,
-    backgroundColor: {
-      default: colors.warning,
-      ":hover": colors.warningHover,
-    },
-    borderColor: colors.warning,
-    color: colors.warningForeground,
-  },
-
-  destructive: {
-    [shadowColor.color]: colors.destructive,
-    backgroundColor: {
-      default: colors.destructive,
-      ":hover": colors.destructiveHover,
-    },
-    borderColor: colors.destructive,
-    color: colors.destructiveForeground,
-  },
-
-  muted: {
-    [shadowColor.color]: colors.muted,
-    backgroundColor: {
-      default: colors.muted,
-      ":hover": colors.mutedHover,
-    },
-    borderColor: colors.muted,
-    color: colors.mutedForeground,
-  },
-});
-
 type ButtonProps = {
-  variant?: keyof typeof colorVariants;
+  variant?: keyof typeof colorIntents;
   loading?: boolean;
   disabled?: boolean;
   style?: StyleXStyles;
@@ -139,7 +76,8 @@ export function Button({
       aria-busy={loading}
       {...stylex.props(
         styles.base,
-        colorVariants[variant],
+        colorIntents[variant],
+        intentHovers[variant],
         interactive.base,
         interactive.focusRing,
         effects.pressable,

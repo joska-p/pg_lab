@@ -3,13 +3,14 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactive } from "../behaviors/interactive.stylex";
 import { fieldText } from "../behaviors/text.stylex";
+import { intentBorders, intentFills } from "../behaviors/intents.stylex";
 import { colors } from "../theme/tokens.stylex";
 import { shadows, shadowColor } from "../theme/shadows.stylex";
-import { radius, space } from "../theme/consts.stylex";
+import { borderWidth, radius, space } from "../theme/consts.stylex";
 
 type SliderProps = {
   label?: string;
-  variant?: keyof typeof fillVariants;
+  variant?: keyof typeof intentFills;
   min: number;
   max: number;
   step?: number;
@@ -87,7 +88,7 @@ const styles = stylex.create({
     height: THUMB_SIZE,
     borderRadius: radius.full,
     backgroundColor: colors.background,
-    borderWidth: "1px",
+    borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
     // Automatic tint (Phase B, S3): shadow follows the thumb's own fill.
@@ -111,49 +112,8 @@ const styles = stylex.create({
   },
 });
 
-const fillVariants = stylex.create({
-  primary: {
-    backgroundColor: colors.primary,
-  },
-  secondary: {
-    backgroundColor: colors.secondary,
-  },
-  accent: {
-    backgroundColor: colors.accent,
-  },
-  warning: {
-    backgroundColor: colors.warning,
-  },
-  destructive: {
-    backgroundColor: colors.destructive,
-  },
-  // Muted has no saturated fill: like Toggle's knob, the signal uses the
-  // foreground token so progress stays readable on the muted track.
-  muted: {
-    backgroundColor: colors.mutedForeground,
-  },
-});
-
-const thumbVariants = stylex.create({
-  primary: {
-    borderColor: colors.primary,
-  },
-  secondary: {
-    borderColor: colors.secondary,
-  },
-  accent: {
-    borderColor: colors.accent,
-  },
-  warning: {
-    borderColor: colors.warning,
-  },
-  destructive: {
-    borderColor: colors.destructive,
-  },
-  muted: {
-    borderColor: colors.mutedForeground,
-  },
-});
+// Fill and thumb slices come from the shared intents (muted = mutedForeground,
+// S8: the signal sits on the muted track, is not a saturated fill).
 
 export function Slider(props: SliderProps) {
   const {
@@ -194,8 +154,8 @@ export function Slider(props: SliderProps) {
 
       <div {...stylex.props(styles.container, disabled ? interactive.disabled : null, style)}>
         <div {...stylex.props(styles.track)} />
-        <div {...stylex.props(styles.fill(progress), fillVariants[variant])} />
-        <div {...stylex.props(styles.thumb(progress), thumbVariants[variant])} />
+        <div {...stylex.props(styles.fill(progress), intentFills[variant])} />
+        <div {...stylex.props(styles.thumb(progress), intentBorders[variant])} />
 
         <input
           id={controlId}

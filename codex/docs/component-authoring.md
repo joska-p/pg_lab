@@ -243,10 +243,11 @@ stylex.props(
 
 ## 5. Reuse variants across components
 
-Yes — this is a real use case, and it is already latent in the toolkit. The six
-color "intents" (`primary` … `muted`: root color + border + foreground +
-`shadowColor`) are the same shape that will legitimately reappear as a
-selection state in `Segmented`, chips, cards, or toasts.
+Yes — this is a real use case, and it is centralized in the toolkit. The six
+color "intents" (`primary … muted`: root color + border + foreground +
+`shadowColor`) and the text-entry focus map are shared, token-built variant
+maps in `behaviors/intents.stylex.ts`, exported from `index.ts` and covered by
+the `./behaviors/*` wildcard like `interactive` / `fieldText`.
 
 Start local, extract deliberately:
 
@@ -255,25 +256,71 @@ Start local, extract deliberately:
   problem", "prefer a small local solution") applies.
 - **Extract a shared map only when both hold:**
   1. a second real consumer appears with byte-identical needs, and
-  2. the shared map carries no component-specific interaction state.
+  2. the shared map carries no component-specific selected/active/disabled
+     interaction state.
 
-  Then export it from a shared module (`primitives/intents.stylex.ts`) exactly
-  like `interactive` / `fieldText`, and import it in the consumers:
+### The shared maps
+
+All are stateless — no `:hover`, `:active`, or selected fill:
+
+| map             | carries                                                                                   | consumers                                        |
+| --------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| `colorIntents`  | `[shadowColor.color]` + `backgroundColor` + `borderColor` + foreground (the full surface) | Button, Toggle-on, Checkbox-on, Segmented chosen |
+| `intentHovers`  | `background-color` `:hover` per family (the `<family>Hover` tokens)                       | Button, Toggle-on, Checkbox-on                   |
+| `intentFills`   | `backgroundColor` only; `muted` = `mutedForeground`                                       | Slider fill, Radio dot                           |
+| `intentBorders` | `borderColor` only; `muted` = `mutedForeground`                                           | Toggle-off, Slider thumb, Radio circle           |
+| `fieldFocus`    | field border + ring on `:focus` per family                                                | TextInput, NumberField, TextArea, Select         |
+
+### Composition recipe
+
+Base intent first, interaction states after, `style` last:
 
 ```ts
-export const colorIntents = stylex.create({
-  primary: { [shadowColor.color]: colors.primary, backgroundColor: colors.primary, ... },
-  ...
-});
+import { colorIntents, intentHovers } from "../behaviors/intents.stylex";
+
+const styles = stylex.create({ base: { /* layout only */ } });
+
+export function Button({ variant = "primary", style }: Props) {
+  return (
+    <button
+      {...stylex.props(
+        styles.base,
+        colorIntents[variant],
+        intentHovers[variant],
+        interactive.base,
+        interactive.focusRing,
+        effects.pressable,
+        style,
+      )}
+    />
+  );
+}
 ```
 
-- **Do not share stateful variants.** Hover, press, and disabled differ per
-  component (a Button hovers, a selected Segmented chip does not). Share the
-  base intent map; compose each component's own interaction states locally on
-  top of it.
-- Re-evaluate when the second consumer appears — e.g. the day `Segmented`'s
-  `chosen` or the demo's local `selected` map can be replaced by a shared
-  intent without changing behavior.
+- **Do not share selected/active/disabled.** They differ per component (a
+  Button hovers, a selected Segmented chip does not) and their merged value
+  depends on application order. `intentHovers` is the one deliberate shared
+  `:hover`: three consumers need the byte-identical hover background, and
+  `:hover` has no "last applied wins" ordering problem — documented as shared.
+- **`effects.glowRing`** (`0 0 6px` on `shadowColor`) is the tinted halo for
+  on/off marks — an effect, not a per-family map. Apply a `colorIntents[variant]`
+  map first (it sets the tint var), then the effect.
+- **`muted` divergences (S8) are documented, not unified.** Canonical
+  `colorIntents.muted` = fill `muted` / border `muted` / foreground
+  `mutedForeground`. The slices `intentFills`/`intentBorders` signal through
+  `mutedForeground` (the mark sits on a `muted` track/well). Widgets that
+  diverge override locally with a comment: Toggle-off keeps a neutral `muted`
+  border; Segmented chosen is transparent + `mutedForeground` border; Checkbox
+  on-state uses `mutedForeground` border + `foreground`.
+- `Swatch` is a token display, not an intent consumer: it shows every surface
+  and family swatch and stays local.
+
+### Rules of thumb
+
+- Local `stylex.create` stays the default for per-widget geometry, layout, and
+  one-off states (selected fill, press scale) — component-authoring.md §3.
+- Raw values are tokenized in components: `borderWidth.hairline` for borders,
+  `space`/`radius`/`motion` elsewhere; only the theme layer holds raw values.
 
 ---
 
@@ -283,8 +330,8 @@ Rings are visible for keyboard, silent for mouse — per context (D2 audit):
 
 - Pressables (buttons, toggles, chips, radio options): `interactive.focusRing`
   (`:focus-visible`).
-- Text-entry fields: local `focusVariants` on `:focus` (a mouse click into a
-  text field must show the ring).
+- Text-entry fields: the shared `fieldFocus` map on `:focus` (a mouse click
+  into a text field must show the ring).
 - Hidden-input composites: the Slider pattern — ring on the visible container
   via `stylex.when.descendant(":focus-visible")`, since the opaque input
   can't show its own shadow.
