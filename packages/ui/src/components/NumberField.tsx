@@ -26,7 +26,7 @@ const styles = stylex.create({
     flexDirection: "column",
     gap: space["1"],
     flex: 1,
-    minWidth: 0,
+    minWidth: "fit-content",
   },
 
   input: {

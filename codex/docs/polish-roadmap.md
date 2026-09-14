@@ -63,22 +63,95 @@ Revalider avant de polir :
 4. Convention de nommage des props (`variant` unifié, S6) + conventions de layout (`gap` string vs nombre, S7).
 5. `codex/docs/` à jour après chaque décision (SSOT : `component-authoring.md`, `ui-setup.md`, README du package).
 
+**Validé 2026-09-14 :**
+
+- A.1 : composition `Page > Stack > Card > ControlSection > widget` officialisée, `Page` inclus.
+- A.2 : périmètre « tout garder » — `Page` / `Text` / `Swatch` / `SectionHeading` / `Readout` / `Badge` restent dans `@repo/ui`, pas de split vitrine vs toolkit.
+- A.3 : 6 intents confirmés + retrait `success` (voir Décisions actées).
+- A.4a (S6) : `variant` partout — `Badge.tone`, `Text.tone`, `Swatch.swatch` → `variant` (breaking en phase B).
+- A.4b (S7) : `Stack` en strings adossées aux tokens `space` (`gap="3"`, `direction="vertical"`).
+
 ### Phase B — Structure (refactor sans changement visuel)
 
-- Ombres (S1, S2, S3) selon le modèle acté : une seule source de couleur, règle
-  teinte-auto (l'élément teinte avec son fond), élévations `flat | raised | sunken`
-  en behaviors, doc `component-authoring.md` §3 mise à jour.
-- S9 (offset dérivé), S10 (rôle `ControlField`), S7 (typage `gap`).
-- Exigence : `vp check` vert + build démo identique visuellement avant/après (comparer `stylex.css` et captures).
+**Exécuté 2026-09-14 (avec teinte généralisée, changement visuel assumé sur
+les ombres) :**
+
+- Ombres (S1, S2, S3) selon le modèle acté : `colors.shadow` mort supprimé,
+  `shadowColor` source unique, teinte auto appliquée partout (`Button`,
+  panneau `ExperimentShell` en `card`, thumb `Slider` en `background`),
+  élévations `flat | raised | sunken` en behaviors, doc
+  `component-authoring.md` §3 mise à jour.
+- S9 (offset dérivé de `PANEL_WIDTH` + `PANEL_GAP` miroir de `space["3"]`),
+  S10 (rôle `ControlField` documenté), S7 (`gap` strings + démo migrée),
+  S6 (`variant` partout, rename pur + démo migrée).
+- Exigence : `vp check` vert + build démo (`vp -C apps/dev build`).
+  Régression visuelle limitée aux ombres teintées (panel, thumb).
 
 ### Phase C — Tokens (cohérence sémantique)
 
-- Retrait `success` acté : token, `successForeground`, `Swatch`, metas, références.
-- S5 (`ring` : référencer `primary` ou justifier), S8 (sémantique `muted` unifiée ou assumée).
-- Revoir `input` vs `muted` (deux gris proches : `light2`/`dark2` vs `light3`/`dark2`) — fusionner ou différencier franchement.
-- Vérifier chaque famille : `<family>` + `<family>Foreground` + `<family>Hover` présents et justifiés.
+**Exécuté 2026-09-14 :**
+
+- Retrait `success` : token, `successForeground`, entrée `Swatch`, ligne démo.
+- S5 : `ring` garde ses valeurs, couplage à `primary` justifié par commentaire
+  (le focus porte l'identité primary ; mettre à jour ensemble).
+- S8 : différences `muted` assumées + documentées (`component-authoring.md`
+  § Colors) — aucun changement code.
+- `input` vs `muted` : rôles distincts conservés (puits éditables bordés vs
+  surfaces neutres), convergence dark documentée.
+- Audit familles : base + `Foreground` + `Hover` partout (`muted` via
+  `mutedForeground`/`mutedHover`).
+- Exigence : `vp check` vert + build démo (`vp -C apps/dev build`).
 
 ### Phase D — Polish visuel (élévation)
+
+**D1 exécuté 2026-09-14 (surfaces) :**
+
+- Bordures adoucies : token `border` en `color-mix` translucide (55 %).
+- Texture : `effects.grain` (bruit monochrome 4 %, data-URI) sur `Page` + `Stage`.
+- Glass : `effects.glass` (`card` 72 % + blur 12px) sur panneau flottant
+  `ExperimentShell` (le blur seul sur fond opaque était invisible) ; surfaces
+  en flux restent opaques.
+- Profondeur : alphas/étendues `rest`/`raised`/`floating` creusés avec retenue.
+- `vp check` vert + build démo OK (grain + blur 12px vérifiés dans `stylex.css`).
+
+Axes restants :
+
+**D2 exécuté 2026-09-14 (focus + SVG) :**
+
+- Audit focus : déjà correct par contexte, documenté (`component-authoring.md`
+  §6) — `:focus-visible` pressables, `:focus` champs texte, pattern
+  `when.descendant` Slider pour inputs invisibles. Zéro changement code.
+- Finition SVG commune : chevron `Select` 1.6 → 1.8, coche `Checkbox`
+  2.0 → 1.8 (grille 12px, ronds, `currentColor`) ; dot `RadioGroup` en CSS,
+  inchangé.
+
+**D3 exécuté 2026-09-14 (densité + motion) :**
+
+- Densité : échelle déjà cohérente (`ControlField` 8 / `ControlSection` 12 /
+  `ControlPanel` 16) ; `minHeight` 44px au niveau rangée `ControlField`,
+  pastilles compactes assumées (44px négociable, responsive-first).
+  Zéro changement.
+- Motion : `Toggle` branché sur les tokens (`durationFast`/`easingOut` au
+  lieu des valeurs hardcodées) ; `interactive.base` couvre déjà le reste.
+  Transition du dégradé démo statuée : reste inline (contenu canvas, pas UI).
+
+**D4 à faire (reprise) : passe light + audit contraste (S11) :**
+
+- Contexte : toggle `light / dark / system` en place (hero démo),
+  `devenv.nix` fournit `uv` (recharger le shell).
+- Lancer l'audit WCAG des 6 familles × 2 modes depuis les oklch via
+  `uv run --no-project python` (script en attente), ajuster si < 4.5,
+  `vp check` + build démo, puis clore le polish.
+
+**Thème manuel exécuté 2026-09-14, simplifié vers la recette doc (pré-requis D4) :**
+
+- D'abord `darkTheme` (`createTheme`), puis migration vers `light-dark()` +
+  `color-scheme` comme recommandé par la doc StyleX : zéro classe à jongler,
+  `prefers-color-scheme` absent du CSS, mode `system` (`light dark`) qui suit
+  l'OS en direct sans JS.
+- Toggle `light / dark / system` dans le hero de `apps/dev`.
+- `shadowColor` exporté de l'index ; leçons compilateur notées dans
+  `ui-setup.md` et `component-authoring.md`.
 
 Seulement après A–C. Axes suggérés :
 

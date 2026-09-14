@@ -28,7 +28,7 @@ const styles = stylex.create({
   },
 });
 
-const swatchVariants = stylex.create({
+const variants = stylex.create({
   background: { backgroundColor: colors.background },
   card: { backgroundColor: colors.card },
   popover: { backgroundColor: colors.popover },
@@ -36,23 +36,22 @@ const swatchVariants = stylex.create({
   secondary: { backgroundColor: colors.secondary },
   accent: { backgroundColor: colors.accent },
   warning: { backgroundColor: colors.warning },
-  success: { backgroundColor: colors.success },
   destructive: { backgroundColor: colors.destructive },
   muted: { backgroundColor: colors.muted },
 });
 
 type SwatchProps = {
-  swatch: keyof typeof swatchVariants;
+  variant: keyof typeof variants;
   name?: string;
   meta?: string;
   style?: StyleXStyles;
 };
 
-export function Swatch({ swatch, name, meta, style }: SwatchProps) {
+export function Swatch({ variant, name, meta, style }: SwatchProps) {
   return (
     <div {...stylex.props(styles.base, style)}>
-      <div aria-hidden {...stylex.props(styles.box, swatchVariants[swatch])} />
-      <span {...stylex.props(fieldText.label)}>{name ?? swatch}</span>
+      <div aria-hidden {...stylex.props(styles.box, variants[variant])} />
+      <span {...stylex.props(fieldText.label)}>{name ?? variant}</span>
       {meta ? <span {...stylex.props(styles.meta)}>{meta}</span> : null}
     </div>
   );

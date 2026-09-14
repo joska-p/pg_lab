@@ -20,7 +20,7 @@ const styles = stylex.create({
   },
 });
 
-const toneVariants = stylex.create({
+const variants = stylex.create({
   neutral: {},
   primary: {
     color: colors.primary,
@@ -49,11 +49,11 @@ const toneVariants = stylex.create({
 });
 
 type BadgeProps = {
-  tone?: keyof typeof toneVariants;
+  variant?: keyof typeof variants;
   style?: StyleXStyles;
   children?: React.ReactNode;
 };
 
-export function Badge({ tone = "neutral", style, children }: BadgeProps) {
-  return <span {...stylex.props(styles.base, toneVariants[tone], style)}>{children}</span>;
+export function Badge({ variant = "neutral", style, children }: BadgeProps) {
+  return <span {...stylex.props(styles.base, variants[variant], style)}>{children}</span>;
 }

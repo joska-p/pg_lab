@@ -68,6 +68,12 @@ Every app needs, as in `apps/dev`:
   (`packages/ui/src`).
 - Consume a single entry style: either `@repo/ui` or the `@repo/ui/theme/*`
   subpaths, never a mix of `dist` and `src` for the same package.
+- Local `stylex.create` in an app must import theme/behavior values from
+  their defining files (`@repo/ui/theme/tokens.stylex`,
+  `@repo/ui/theme/shadows.stylex`, `@repo/ui/behaviors/effects.stylex`),
+  never from the `@repo/ui` barrel: the StyleX compiler cannot resolve
+  `defineVars` through a re-export (build error `Could not resolve the path
+to the imported file`). Components themselves stay on the barrel.
 
 ## 4. Scaffolding a new app
 

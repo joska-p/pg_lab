@@ -26,6 +26,13 @@ existing widgets (`Toggle`, `Slider`, `Segmented`, `ColorField`, `Button`):
   (covered by the `"./components/*"` wildcard for
   `src/components/<Name>.tsx`).
 - Showcase it in `apps/dev/src/App.tsx`.
+- Variant props are named `variant` everywhere (Phase A: `Badge.tone`,
+  `Text.tone`, `Swatch.swatch` migrate to `variant`).
+- Layout primitives use string tokens: `Stack` takes
+  `direction="vertical" | "horizontal"` and `gap="0" | "1" | ...`
+  backed by `space` (Phase A: no mixed string/number API).
+- `ControlField` is for custom content titles only (plain span): widgets
+  carry their own associated `<label>`, never duplicate it (Phase B, S10).
 - Run `vp check` after each change.
 
 ### Boilerplate skeleton
@@ -76,7 +83,9 @@ Before writing any style, ask where the value belongs.
   component-specific.
 - Primitive files stay few and shared: today only `interactive`
   (`base`/`focusRing`/`disabled`) in `behaviors/interactive.stylex.ts` and
-  `fieldText` (`label`/`value`) in `behaviors/text.stylex.ts`. Add a new
+  `fieldText` (`label`/`value`) in `behaviors/text.stylex.ts`. `effects`
+  (`flat`/`raised`/`sunken`/`pressable`/`floating`, `glow*`, `blur*`,
+  `grain`, `glass`) is the shared elevation-and-atmosphere module. Add a new
   primitive only when a second real consumer exists.
 - Per the StyleX principle of co-location, prefer a small local solution until
   the sharing is real. Do not abstract in advance.
@@ -89,6 +98,14 @@ Semantic color tokens live in `theme/tokens.stylex.ts` (`colors = stylex.defineV
 shadows in `theme/shadows.stylex.ts`.
 
 ### Colors
+
+Theming is class-free: `tokens.stylex.ts` uses `light-dark()` (StyleX
+light-dark recipe — first value light, second dark). Apps select the scheme
+with the `color-scheme` property (`light`, `dark`, or `light dark` for
+system, which follows the OS live with no JS — see `useTheme` in
+`apps/dev`). Never reintroduce `prefers-color-scheme` conditions or a theme
+class in tokens. Import theme values in apps from their defining
+`theme/*.stylex` files, not the barrel (see `ui-setup.md`).
 
 Each functional family follows a `<family>` + `<family>Foreground` pattern, with a
 `<family>Hover` when the family needs a hover shade:
@@ -105,10 +122,32 @@ primaryHover: palette.neutralBlue,
 `mutedHover` has no neutral equivalent, so it uses the explicit two-mode form
 (`light4` on light, `dark3` on dark).
 
+Family audit (Phase C): `primary`, `secondary`, `accent`, `warning`,
+`destructive` each carry base + `Foreground` + `Hover`; `muted` carries
+base + `mutedForeground` + `mutedHover`. `success` was removed (it duplicated
+`secondary` with no hover and no widget consumer).
+
+`muted` expression differs per widget by contrast necessity (Phase C, S8 —
+assumed differences, documented here, not unified):
+
+- `Slider`: track `muted`, progress fill `mutedForeground` (readable signal).
+- `Segmented`: group well `muted`, chosen chip transparent + `mutedForeground`
+  border (a fill would blend into the well).
+- `Toggle`: track `muted` off and on, state carried by knob + glow.
+- `Button`/`Badge`/`Checkbox`/`RadioGroup`: `muted` as neutral fill or outline.
+
+`input` vs `muted` (Phase C): distinct roles, kept separate. `input` is for
+editable wells (text fields, selects — always bordered recesses); `muted` is
+for non-editable neutral surfaces (tracks, group wells, muted fills). Their
+values converge in dark mode (`dark2`); disambiguation comes from border +
+context, not from the fill value.
+
 ### Shadows
 
-`theme/shadows.stylex.ts` exposes a single `shadowColor` variable that all shadow
-tokens derive from via `color-mix`. An element opts in by setting the variable
+`theme/shadows.stylex.ts` is the single source of truth for shadow color
+(Phase B, S1/S2: the dead `colors.shadow` token was removed). It exposes
+one `shadowColor` variable that all shadow tokens derive from via
+`color-mix`. An element opts in by setting the variable
 with its root color:
 
 ```ts
@@ -127,6 +166,21 @@ const colorVariants = stylex.create({
 - The shadow follows the **root** color, not the hover color: a primary button
   keeps a blue-tinted shadow even while the background shifts to the neutral
   hover shade.
+- Elevation lives in `behaviors/effects.stylex.ts` (Phase B model): `flat`
+  (no cast shadow, border only), `raised` (tinted diffuse cast shadow),
+  `sunken` (inset, embedded) plus the `pressable` (`rest`/`hover`/`active`)
+  and `floating` composites. Every consumer of an elevation sets
+  `shadowColor` to its own background (teinte auto — Phase B, S3: `Button`
+  per variant, `ExperimentShell` panel with `card`, `Slider` thumb with
+  `background`).
+- The glow (`glow`/`glowSubtle`/`glowStrong`) stays orthogonal: state accent
+  (selection, activity, handles), never elevation.
+- `grain` is a near-invisible monochrome noise overlay for tactile texture
+  (`Page`, `Stage`); `glass` (translucent `card` + 12px blur) is for floating
+  UI over a backdrop only — in-flow surfaces stay opaque so text contrast
+  never depends on what's behind them.
+- Borders stay quiet by default: the `border` token is a translucent mix,
+  never a hard rectangle (see README Borders).
 
 When you add a new theme module, it is covered by the `"./theme/*"` wildcard
 in `packages/ui/package.json` `exports` — no registration needed.
@@ -136,7 +190,8 @@ in `packages/ui/package.json` `exports` — no registration needed.
 ## 4. Create variants
 
 A variant is a plain map in `stylex.create`, keyed by name, applied with a
-lookup (`colorVariants[variant]`). See the full pattern in
+lookup (`colorVariants[variant]`). The prop carrying the variant is named
+`variant` (Phase A, S6). See the full pattern in
 `codex/docs/stylex-variants.txt` and the canonical implementation in
 `Button.tsx`.
 
@@ -222,7 +277,25 @@ export const colorIntents = stylex.create({
 
 ---
 
-## 6. Verification checklist
+## 6. Focus rings and SVG finish
+
+Rings are visible for keyboard, silent for mouse — per context (D2 audit):
+
+- Pressables (buttons, toggles, chips, radio options): `interactive.focusRing`
+  (`:focus-visible`).
+- Text-entry fields: local `focusVariants` on `:focus` (a mouse click into a
+  text field must show the ring).
+- Hidden-input composites: the Slider pattern — ring on the visible container
+  via `stylex.when.descendant(":focus-visible")`, since the opaque input
+  can't show its own shadow.
+
+SVG marks share one finish (D2): 12px viewBox, 1.8 stroke, round caps and
+joins, `currentColor` (Select chevron, Checkbox check). RadioGroup needs no
+SVG — its dot is a CSS circle.
+
+---
+
+## 7. Verification checklist
 
 ```text
 vp check                     # after every step

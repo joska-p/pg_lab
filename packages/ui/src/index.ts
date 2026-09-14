@@ -1,6 +1,6 @@
 export { colors } from "./theme/tokens.stylex";
 export { borderWidth, motion, zIndex, radius, space, typography } from "./theme/consts.stylex";
-export { shadows } from "./theme/shadows.stylex";
+export { shadowColor, shadows } from "./theme/shadows.stylex";
 export { effects } from "./behaviors/effects.stylex";
 export { interactive } from "./behaviors/interactive.stylex";
 export { fieldText } from "./behaviors/text.stylex";
@@ -28,3 +28,4 @@ export { Readout } from "./components/Readout";
 export { Page } from "./components/Page";
 export { Text } from "./components/Text";
 export { Swatch } from "./components/Swatch";
+export { ShellWrapper } from "./components/ShellWrapper";

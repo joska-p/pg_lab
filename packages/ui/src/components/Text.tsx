@@ -12,7 +12,7 @@ const styles = stylex.create({
   },
 });
 
-const toneVariants = stylex.create({
+const variants = stylex.create({
   default: {
     color: colors.foreground,
   },
@@ -22,11 +22,11 @@ const toneVariants = stylex.create({
 });
 
 type TextProps = {
-  tone?: keyof typeof toneVariants;
+  variant?: keyof typeof variants;
   style?: StyleXStyles;
   children?: React.ReactNode;
 };
 
-export function Text({ tone = "default", style, children }: TextProps) {
-  return <p {...stylex.props(styles.base, toneVariants[tone], style)}>{children}</p>;
+export function Text({ variant = "default", style, children }: TextProps) {
+  return <p {...stylex.props(styles.base, variants[variant], style)}>{children}</p>;
 }

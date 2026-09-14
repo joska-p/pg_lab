@@ -4,7 +4,7 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactive } from "../behaviors/interactive.stylex";
 import { fieldText } from "../behaviors/text.stylex";
 import { colors } from "../theme/tokens.stylex";
-import { radius, space } from "../theme/consts.stylex";
+import { motion, radius, space } from "../theme/consts.stylex";
 
 type ToggleProps = {
   label?: string;
@@ -54,8 +54,8 @@ const styles = stylex.create({
     height: KNOB_SIZE,
     borderRadius: radius.full,
     backgroundColor: colors.background,
-    transitionDuration: "120ms",
-    transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
+    transitionDuration: motion.durationFast,
+    transitionTimingFunction: motion.easingOut,
     transitionProperty: "transform, background-color",
   },
 

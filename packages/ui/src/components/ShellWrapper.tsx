@@ -6,32 +6,24 @@ import { space, typography } from "../theme/consts.stylex";
 
 const styles = stylex.create({
   base: {
-    minHeight: "100vh",
+    width: "100vw",
+    height: "100vh",
     backgroundColor: colors.background,
     color: colors.foreground,
     fontFamily: typography.fontFamilySans,
-  },
-
-  container: {
-    maxWidth: 1024,
-    marginInline: "auto",
-    paddingInline: space["6"],
-    paddingBlock: space["8"],
-    display: "flex",
-    flexDirection: "column",
-    gap: space["8"],
+    padding: 0,
+    boxSizing: "border-box",
+    "@media (min-width: 1024px)": {
+      padding: space["4"],
+    },
   },
 });
 
-type PageProps = {
+type ShellWrapperProps = {
   style?: StyleXStyles;
   children?: React.ReactNode;
 };
 
-export function Page({ style, children }: PageProps) {
-  return (
-    <div {...stylex.props(styles.base, effects.grain, style)}>
-      <main {...stylex.props(styles.container)}>{children}</main>
-    </div>
-  );
+export function ShellWrapper({ style, children }: ShellWrapperProps) {
+  return <div {...stylex.props(styles.base, effects.grain, style)}>{children}</div>;
 }

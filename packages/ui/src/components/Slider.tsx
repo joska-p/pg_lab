@@ -4,6 +4,7 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactive } from "../behaviors/interactive.stylex";
 import { fieldText } from "../behaviors/text.stylex";
 import { colors } from "../theme/tokens.stylex";
+import { shadows, shadowColor } from "../theme/shadows.stylex";
 import { radius, space } from "../theme/consts.stylex";
 
 type SliderProps = {
@@ -89,7 +90,9 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: colors.border,
-    boxShadow: "0 1px 2px oklch(0% 0 0 / 30%)",
+    // Automatic tint (Phase B, S3): shadow follows the thumb's own fill.
+    [shadowColor.color]: colors.background,
+    boxShadow: shadows.rest,
   }),
 
   input: {

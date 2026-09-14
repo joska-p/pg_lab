@@ -1,138 +1,77 @@
 import * as stylex from "@stylexjs/stylex";
 import { gruvboxPalette as palette } from "./gruvbox-palette.stylex";
 
-const DARK = "@media (prefers-color-scheme: dark)";
-
+// Dual-mode tokens via light-dark() (StyleX light-dark recipe): first value
+// is light, second is dark. The used scheme comes from the `color-scheme`
+// property — apps set `light`, `dark`, or `light dark` (system, follows the
+// OS live with no JS). Hover shades use one neutral value valid in both.
 export const colors = stylex.defineVars({
-  background: {
-    default: palette.light1,
-    [DARK]: palette.dark0,
-  },
+  background: `light-dark(${palette.light1}, ${palette.dark0})`,
 
-  foreground: {
-    default: palette.dark0,
-    [DARK]: palette.light1,
-  },
+  foreground: `light-dark(${palette.dark0}, ${palette.light1})`,
 
-  card: {
-    default: palette.light0,
-    [DARK]: palette.dark1,
-  },
+  card: `light-dark(${palette.light0}, ${palette.dark1})`,
 
-  cardForeground: {
-    default: palette.dark0,
-    [DARK]: palette.light1,
-  },
+  cardForeground: `light-dark(${palette.dark0}, ${palette.light1})`,
 
-  popover: {
-    default: palette.light0,
-    [DARK]: palette.dark1,
-  },
+  popover: `light-dark(${palette.light0}, ${palette.dark1})`,
 
-  popoverForeground: {
-    default: palette.dark0,
-    [DARK]: palette.light1,
-  },
+  popoverForeground: `light-dark(${palette.dark0}, ${palette.light1})`,
 
-  primary: {
-    default: palette.brightBlue,
-    [DARK]: palette.fadedBlue,
-  },
+  primary: `light-dark(${palette.brightBlue}, ${palette.fadedBlue})`,
 
-  primaryForeground: {
-    default: palette.dark0,
-    [DARK]: palette.light1,
-  },
+  primaryForeground: `light-dark(${palette.dark0}, ${palette.light1})`,
 
+  // The neutral shade works as hover in both modes:
+  // its lightness sits between bright (light mode bg) and faded (dark mode bg).
   primaryHover: palette.neutralBlue,
 
-  secondary: {
-    default: palette.brightGreen,
-    [DARK]: palette.fadedGreen,
-  },
+  secondary: `light-dark(${palette.brightGreen}, ${palette.fadedGreen})`,
 
-  secondaryForeground: {
-    default: palette.dark0,
-    [DARK]: palette.light1,
-  },
+  secondaryForeground: `light-dark(${palette.dark0}, ${palette.light1})`,
 
   secondaryHover: palette.neutralGreen,
 
-  muted: {
-    default: palette.light3,
-    [DARK]: palette.dark2,
-  },
+  // Neutral family (S8): the base covers non-editable surfaces (tracks,
+  // group wells, muted fills); the signal goes through mutedForeground.
+  // Per-widget expression differs by contrast necessity — documented in
+  // component-authoring.md § Colors.
+  muted: `light-dark(${palette.light3}, ${palette.dark2})`,
 
-  mutedForeground: {
-    default: palette.dark3,
-    [DARK]: palette.light4,
-  },
+  mutedForeground: `light-dark(${palette.dark3}, ${palette.light4})`,
 
-  mutedHover: {
-    default: palette.light4,
-    [DARK]: palette.dark3,
-  },
+  // No neutral equivalent, so each mode names its value explicitly.
+  mutedHover: `light-dark(${palette.light4}, ${palette.dark3})`,
 
-  accent: {
-    default: palette.brightPurple,
-    [DARK]: palette.fadedPurple,
-  },
+  accent: `light-dark(${palette.brightPurple}, ${palette.fadedPurple})`,
 
-  accentForeground: {
-    default: palette.dark0,
-    [DARK]: palette.light1,
-  },
+  accentForeground: `light-dark(${palette.dark0}, ${palette.light1})`,
 
   accentHover: palette.neutralPurple,
 
-  destructive: {
-    default: palette.brightRed,
-    [DARK]: palette.fadedRed,
-  },
+  destructive: `light-dark(${palette.brightRed}, ${palette.fadedRed})`,
 
-  destructiveForeground: {
-    default: palette.dark0,
-    [DARK]: palette.light1,
-  },
+  destructiveForeground: `light-dark(${palette.dark0}, ${palette.light1})`,
 
   destructiveHover: palette.neutralRed,
 
-  success: {
-    default: palette.brightGreen,
-    [DARK]: palette.fadedGreen,
-  },
+  warning: `light-dark(${palette.brightYellow}, ${palette.fadedYellow})`,
 
-  successForeground: {
-    default: palette.dark0,
-    [DARK]: palette.light1,
-  },
-
-  warning: {
-    default: palette.brightYellow,
-    [DARK]: palette.fadedYellow,
-  },
-
-  warningForeground: {
-    default: palette.dark0,
-    [DARK]: palette.light1,
-  },
+  warningForeground: `light-dark(${palette.dark0Hard}, ${palette.light1})`,
 
   warningHover: palette.neutralYellow,
 
-  border: {
-    default: palette.light3,
-    [DARK]: palette.dark3,
-  },
+  // Quiet by default (D1): a translucent mix so borders recede instead of
+  // drawing hard rectangles. Hover/focus states brighten locally per
+  // component (see README Borders: barely visible → visible → luminous).
+  border: `light-dark(color-mix(in srgb, ${palette.light3} 55%, transparent), color-mix(in srgb, ${palette.dark3} 55%, transparent))`,
 
-  input: {
-    default: palette.light2,
-    [DARK]: palette.dark2,
-  },
+  // Editable wells (text fields, selects, multiline inputs). A distinct
+  // role from muted surfaces even where values converge in dark mode:
+  // wells are always bordered recesses, muted tracks/groups are not.
+  input: `light-dark(${palette.light2}, ${palette.dark2})`,
 
-  ring: {
-    default: palette.brightBlue,
-    [DARK]: palette.fadedBlue,
-  },
-
-  shadow: "oklch(0% 0 0)",
+  // Focus ring (S5): intentionally mirrors primary — keyboard focus carries
+  // primary identity. If the primary hue ever changes, update both together.
+  ring: `light-dark(${palette.brightBlue}, ${palette.fadedBlue})`,
 });

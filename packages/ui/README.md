@@ -27,6 +27,16 @@ Touch interaction is a first-class requirement. Controls must not depend on hove
 
 Create components only when they solve a real recurring problem.
 
+Official composition (Phase A): `Page > Stack > Card > ControlSection > widget`.
+
+Scope (Phase A, « tout garder »): layout, instrument and showcase
+components all live in `@repo/ui` — including `Page`, `Text`,
+`SectionHeading`, `Swatch`, `Readout` and `Badge`. No vitrine vs toolkit
+split for now.
+
+Variant props are named `variant` everywhere; `Stack` uses string tokens
+(`direction="vertical"`, `gap="3"` backed by `space`).
+
 Prefer:
 
 ```text
@@ -79,7 +89,6 @@ Use semantic CSS variables rather than hardcoded colors.
 --color-muted --color-muted-foreground
 --color-accent --color-accent-foreground
 --color-destructive --color-destructive-foreground
---color-success --color-success-foreground
 --color-warning --color-warning-foreground
 
 --color-border
@@ -89,7 +98,7 @@ Use semantic CSS variables rather than hardcoded colors.
 
 Every functional color has an accompanying `<color>-foreground` pair.
 
-The raw palette lives in `gruvbox-palette.stylex.ts` (Gruvbox, in oklch) — components depend only on semantic tokens, never raw values. Both light and dark variants are driven by `prefers-color-scheme`: `bright*` accents on dark, `faded*` on light. Avoid pure black; use the multiple dark layers (dark0→dark4) for depth.
+The raw palette lives in `gruvbox-palette.stylex.ts` (Gruvbox, in oklch) — components depend only on semantic tokens, never raw values. Tokens are dual-mode via `light-dark()` (`bright*` accents resolve on dark, `faded*` on light); apps pick the scheme with the `color-scheme` property (`light`, `dark`, or `light dark` for system — see the theme switch in `apps/dev`). Avoid pure black; use the multiple dark layers (dark0→dark4) for depth.
 
 Active / focus states use `ring` + primitives; disabled state is expressed via opacity, not a dedicated token.
 

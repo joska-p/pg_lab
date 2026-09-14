@@ -158,11 +158,14 @@ export function Checkbox(props: CheckboxProps) {
       >
         {isOn ? (
           <svg viewBox="0 0 12 12" aria-hidden {...stylex.props(styles.check)}>
+            {/* Common SVG finish (D2): 12px grid, 1.8 stroke, round caps —
+                shared with the Select chevron. RadioGroup needs no SVG:
+                its dot is a CSS circle. */}
             <path
               d="M2 6.4 4.8 9 10 3.2"
               fill="none"
               stroke="currentColor"
-              strokeWidth={2}
+              strokeWidth={1.8}
               strokeLinecap="round"
               strokeLinejoin="round"
             />

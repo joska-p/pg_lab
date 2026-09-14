@@ -30,7 +30,7 @@ const styles = stylex.create({
     flexDirection: "column",
     gap: space["1"],
     flex: 1,
-    minWidth: 0,
+    minWidth: "fit-content",
   },
 
   wrap: {
@@ -182,7 +182,7 @@ export function Select<T extends string>(props: SelectProps<T>) {
             d="M2.5 4.5 6 8l3.5-3.5"
             fill="none"
             stroke="currentColor"
-            strokeWidth={1.6}
+            strokeWidth={1.8}
             strokeLinecap="round"
             strokeLinejoin="round"
           />

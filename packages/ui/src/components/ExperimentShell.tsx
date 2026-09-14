@@ -3,11 +3,16 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { effects } from "../behaviors/effects.stylex";
 import { colors } from "../theme/tokens.stylex";
+import { shadowColor } from "../theme/shadows.stylex";
 import { borderWidth, radius, space, zIndex } from "../theme/consts.stylex";
 import { Button } from "./Button";
 
 const PANEL_WIDTH = 280;
 const PANEL_MAX_MOBILE = 300;
+// Mirrors space["3"] (12px) from theme/consts: clearance between the panel
+// edge and its toggle, and the panel inset from the shell edge.
+const PANEL_GAP = 12;
+const TOGGLE_CLEARANCE = PANEL_GAP * 2;
 
 const styles = stylex.create({
   base: {
@@ -20,7 +25,10 @@ const styles = stylex.create({
     },
     gap: space["3"],
     width: "100%",
-    minHeight: 420,
+    height: "100%",
+    padding: 0,
+    boxSizing: "border-box",
+    overflow: "hidden",
   },
 
   stageSlot: {
@@ -28,11 +36,15 @@ const styles = stylex.create({
     display: "flex",
     minWidth: 0,
     minHeight: 0,
+    overflowY: "auto",
   },
 
   panel: {
     display: "flex",
     flexDirection: "column",
+    // Automatic tint (Phase B, S3): the panel floats above the stage, so it
+    // tints its own elevation shadow with its background.
+    [shadowColor.color]: colors.card,
     width: PANEL_WIDTH,
     flexShrink: 0,
     minHeight: 0,
@@ -85,10 +97,10 @@ const styles = stylex.create({
   },
 
   // Floating + visible: le panneau occupe le coin haut-droite, donc le
-  // toggle se décale à sa gauche (12 + 280 + 12). Sur mobile le panneau
+  // toggle se décale à sa gauche (panel + clearance). Sur mobile le panneau
   // devient une feuille basse : le toggle reste en haut-droite.
   toggleClearOfFloatingPanel: {
-    right: `calc(${PANEL_WIDTH}px + 24px)`,
+    right: `calc(${PANEL_WIDTH}px + ${TOGGLE_CLEARANCE}px)`,
     "@media (max-width: 720px)": {
       right: space["3"],
     },
@@ -142,7 +154,7 @@ export function ExperimentShell(props: ExperimentShellProps) {
             styles.panel,
             effects.raised,
             placement === "floating" ? styles.panelFloating : null,
-            placement === "floating" ? effects.blurMd : null,
+            placement === "floating" ? effects.glass : null,
             visible ? null : styles.hidden,
           )}
         >
