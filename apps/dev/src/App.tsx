@@ -169,13 +169,34 @@ function Tile({
   );
 }
 
+const CARD_VARIANTS = ["glass", "surface", "raised", "sunken"] as const;
+
+function CardShowcase() {
+  return (
+    <Stack gap="8">
+      <SectionHeading index="01" title="cards" />
+
+      <Stack direction="horizontal" gap="8" wrap>
+        {CARD_VARIANTS.map((variant) => (
+          <Card key={variant} variant={variant} style={layoutStyles.half}>
+            <ControlSection title={variant}>
+              <Segmented label="level" options={["1", "2", "3"]} defaultValue="2" />
+              <Readout label="gain" value="+6 dB" />
+            </ControlSection>
+          </Card>
+        ))}
+      </Stack>
+    </Stack>
+  );
+}
+
 function Controls() {
   return (
     <Stack gap="8">
       <SectionHeading index="02" title="controls" />
 
       <Stack direction="horizontal" gap="8" wrap>
-        <Card style={layoutStyles.half}>
+        <Card variant="glass" style={layoutStyles.half}>
           <ControlSection title="Button">
             <Stack direction="horizontal" gap="8" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -189,7 +210,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card style={layoutStyles.half}>
+        <Card variant="glass" style={layoutStyles.half}>
           <ControlSection title="Slider">
             <Stack gap="8">
               {BUTTON_VARIANTS.map((variant) => (
@@ -207,7 +228,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card style={layoutStyles.half}>
+        <Card variant="glass" style={layoutStyles.half}>
           <ControlSection title="Toggle">
             <Stack direction="horizontal" gap="8" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -219,7 +240,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card style={layoutStyles.half}>
+        <Card variant="glass" style={layoutStyles.half}>
           <ControlSection title="Checkbox">
             <Stack direction="horizontal" gap="8" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -231,7 +252,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card style={layoutStyles.half}>
+        <Card variant="glass" style={layoutStyles.half}>
           <ControlSection title="Segmented">
             <Stack gap="8" direction="horizontal" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -248,7 +269,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card style={layoutStyles.half}>
+        <Card variant="glass" style={layoutStyles.half}>
           <ControlSection title="Select">
             <Stack gap="8" direction="horizontal" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -265,7 +286,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card style={layoutStyles.half}>
+        <Card variant="glass" style={layoutStyles.half}>
           <ControlSection title="RadioGroup">
             <Stack gap="8" direction="horizontal" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -282,7 +303,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card style={layoutStyles.half}>
+        <Card variant="glass" style={layoutStyles.half}>
           <ControlSection title="TextInput">
             <Stack gap="8" direction="horizontal" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -293,7 +314,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card style={layoutStyles.half}>
+        <Card variant="glass" style={layoutStyles.half}>
           <ControlSection title="NumberField">
             <Stack gap="8" direction="horizontal" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -311,7 +332,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card style={layoutStyles.half}>
+        <Card variant="glass" style={layoutStyles.half}>
           <ControlSection title="TextArea">
             <Stack gap="8" direction="horizontal" wrap justify="between">
               {BUTTON_VARIANTS.map((variant) => (
@@ -328,7 +349,7 @@ function Controls() {
           </ControlSection>
         </Card>
 
-        <Card style={layoutStyles.half}>
+        <Card variant="glass" style={layoutStyles.half}>
           <ControlSection title="ColorField">
             <ColorField label="warm tint" defaultValue="#b8bb26" />
             <ColorField label="disabled" disabled defaultValue="#d3869b" />
@@ -344,7 +365,7 @@ function Foundations() {
     <Stack gap="8">
       <SectionHeading index="03" title="foundations" />
 
-      <Card>
+      <Card variant="glass">
         <ControlSection title="surfaces">
           <Stack direction="horizontal" gap="8" wrap>
             <Swatch variant="background" meta="app ground" />
@@ -354,7 +375,7 @@ function Foundations() {
         </ControlSection>
       </Card>
 
-      <Card>
+      <Card variant="glass">
         <ControlSection title="elevation">
           <Stack direction="horizontal" gap="8" wrap>
             <Tile bg={tileStyles.cardBg} effect={effects.flat} label="flat · border only" />
@@ -395,7 +416,7 @@ function Foundations() {
         </ControlSection>
       </Card>
 
-      <Card>
+      <Card variant="glass">
         <ControlSection title="families">
           <Stack direction="horizontal" gap="8" wrap>
             <Swatch variant="primary" meta="primaryForeground" />
@@ -408,7 +429,7 @@ function Foundations() {
         </ControlSection>
       </Card>
 
-      <Card>
+      <Card variant="glass">
         <ControlSection title="type">
           <Text>Body copy stays compact and readable. No oversized headings.</Text>
           <Text variant="muted">Muted carries secondary information without competing.</Text>
@@ -566,6 +587,8 @@ function App() {
                 value={`${synth.wave} · ${synth.filter} · ${synth.cutoff}`}
               />
             </div>
+
+            <CardShowcase />
 
             <Controls />
             <Foundations />
