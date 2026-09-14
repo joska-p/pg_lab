@@ -4,8 +4,8 @@ How to add a component to `@repo/ui`, and how to decide between a local style, a
 primitive, and a theme token.
 
 The patterns below are the current state of the toolkit. Read them with
-`codex/docs/conventions/coding-conventions.md` and the StyleX docs in
-`codex/temp/` (`stylexVariants.txt`, `stylexMind.txt`).
+`codex/docs/coding-conventions.md` and the StyleX docs in
+`codex/docs/` (`stylex-variants.txt`, `stylex-mindset.txt`).
 
 ---
 
