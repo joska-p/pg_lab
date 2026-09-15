@@ -145,104 +145,35 @@ If an existing abstraction has no clear semantic role, prefer removing it over r
 
 **Goal:** Remove the accidental complexity around `Surface`, clarify layout responsibilities, and preserve the existing visual presentation.
 
-## 3.1 Deconstruct `Surface.tsx`
+### 3.1 Deconstruct and Retire `Surface.tsx` [x]
 
-First inspect:
+- [x] Inspected all consumers of `Surface`, `Card`, `MaterialScene`, and layout primitives.
+- [x] Confirmed `Surface` was an overloaded chameleon component with runtime JS style objects, `as StyleXStyles` casts, and renderer branch switching.
+- [x] Retired `Surface.tsx` from `@repo/ui` and removed its exports and unused layout metrics (`surfaceMinHeight`, `surfaceFlex`).
+- [x] Maintained `Card` for containment and `MaterialScene` for the under/over light+glass presentation.
 
-- all `Surface` consumers;
-- what each prop is actually used for;
-- `Card`;
-- `MaterialScene`;
-- the elevation showcase;
-- synth/canvas usage;
-- related layout primitives.
+### 3.2 Clean `Stage`, `ShellWrapper`, `Card`, and `Text` [x]
 
-Do **not** assume that `Surface` must survive as a component.
+- [x] Inspected `Stage.tsx`, `ShellWrapper.tsx`, `ExperimentShell.tsx`, `Card.tsx`, and `Text.tsx`.
+- [x] Migrated all background/surface/text styles to use canonical semantic tokens (`colors.*`) directly rather than legacy `colorVariants`.
+- [x] Preserved full visual design: layered radial gradients, SVG fractal noise, background blend modes, and dark/light color-scheme fidelity.
 
-The goal is to determine its legitimate semantic role.
+### 3.3 Update `apps/dev` Showcases [x]
 
-In particular remove:
+- [x] Refactored elevation showcase and synth canvas in `apps/dev/src/App.tsx` using local static StyleX styles and semantic tokens.
+- [x] Updated Study 05 in `apps/dev/src/lab/laboratory.tsx` to remove `Surface` dependency.
 
-- runtime JS style-object creation;
-- `as StyleXStyles` casts;
-- dynamic style generation for static variants;
-- rendering branches where a prop changes the entire renderer.
+### 3.4 Verification [x]
 
-If `Surface` has no clear remaining semantic role, **retire it**.
+- [x] Ran `vp check` at repository root (0 format, lint, or type errors across workspace).
+- [x] Built `@repo/ui` (`vp -C packages/ui pack`) and `apps/dev` (`vp -C apps/dev build`) to ensure clean StyleX extraction and atomic CSS bundling.
+- [x] Ran contrast audit (`uv run --no-project python scripts/audit_contrast.py`).
 
-Do not replace it with another generic `Surface`-like abstraction merely to preserve the old API.
+**Session 3 Notes:**
 
-Prefer the smallest set of existing concepts that actually describe the use cases, such as:
-
-- `Card` for standard containment;
-- `MaterialScene` (or a clearly named equivalent) for the material/3D scene;
-- local composition in `apps/dev` for showcase-specific presentation.
-
-If a simplified `Surface` genuinely has a useful semantic role after inspecting consumers, keep only that role.
-
-## 3.2 Clean `Stage` and `ShellWrapper`
-
-Inspect whether these components are reusable toolkit primitives or application-specific presentation shells.
-
-Preserve their existing visual appearance.
-
-Do not remove:
-
-- layered gradients;
-- noise;
-- artistic backgrounds;
-- visual effects
-
-merely because they are not generic.
-
-Instead determine whether those effects belong:
-
-- inside the reusable primitive,
-- in an app-level wrapper,
-- or in the application composition.
-
-The goal is to separate **visual design from architectural ownership**, not to remove the visual design.
-
-Replace legacy color-system dependencies only when the replacement is clearly established.
-
-## 3.3 Update `apps/dev` Showcases
-
-Update:
-
-- `apps/dev/src/App.tsx`
-- `apps/dev/src/lab/laboratory.tsx`
-- other affected consumers
-
-to use the cleaned component APIs.
-
-Keep showcase-specific composition in the application where appropriate.
-
-Do not introduce new toolkit components solely to make the showcase code shorter.
-
-## 3.4 Verification
-
-Run:
-
-```text
-vp check
-```
-
-Then visually inspect `apps/dev`.
-
-Verify:
-
-- dark mode;
-- light mode;
-- background gradients;
-- noise layers;
-- elevation visuals;
-- material/scene visuals;
-- synth canvas;
-- interaction states.
-
-The refactor must preserve the intended visual experience.
-
-Record notes before finishing.
+- `Surface.tsx` has been retired. Showcase-specific grids and canvases compose local StyleX styles, while `Card` and `MaterialScene` provide clean, dedicated toolkit primitives.
+- `Stage`, `ShellWrapper`, `Card`, and `Text` now consume `colors` tokens directly instead of `colorVariants`, while retaining full visual styling and layered effects.
+- No runtime style object creation or `as StyleXStyles` casts remain in `@repo/ui`.
 
 ---
 

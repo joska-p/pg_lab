@@ -11,11 +11,7 @@ export const layout = stylex.defineConsts({
   // Minimum heights for control rows / canvas surfaces.
   controlFieldMinHeight: "44px",
   stageMinHeight: "240px",
-  surfaceMinHeight: "120px",
-  surfaceTallMinHeight: "300px",
-
-  // Surface tile flex shorthand.
-  surfaceFlex: "1 1 160px",
+  sceneMinHeight: "300px",
 
   // Swatch demo tile.
   swatchMinWidth: "160px",

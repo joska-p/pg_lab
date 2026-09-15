@@ -18,7 +18,6 @@ import {
   Slider,
   Stack,
   Stage,
-  Surface,
   Swatch,
   Text,
   TextArea,
@@ -26,6 +25,19 @@ import {
   Toggle,
   ShellWrapper,
 } from "@repo/ui";
+import { colors } from "@repo/ui/tokens/colors.stylex";
+import { shadowColor } from "@repo/ui/tokens/shadows.stylex";
+import { elevation } from "@repo/ui/effects/elevation.stylex";
+import { glass } from "@repo/ui/effects/glass.stylex";
+import { glow } from "@repo/ui/effects/glow.stylex";
+import { interactiveBase } from "@repo/ui/foundations/interaction.stylex";
+import { focusRing } from "@repo/ui/intents/focus.stylex";
+import { pressable } from "@repo/ui/intents/pressable.stylex";
+import { radius } from "@repo/ui/consts/radius.stylex";
+import { borderWidth } from "@repo/ui/consts/borderWidth.stylex";
+import { typography } from "@repo/ui/consts/typography.stylex";
+import { motion } from "@repo/ui/consts/motion.stylex";
+import { interaction } from "@repo/ui/consts/interaction.stylex";
 import { space } from "@repo/ui/consts/spacing.stylex";
 import { zIndex } from "@repo/ui/consts/zIndex.stylex";
 import { Laboratory } from "./lab/laboratory";
@@ -99,6 +111,91 @@ const viewSwitcherStyles = stylex.create({
     top: space["3"],
     left: space["3"],
     zIndex: zIndex.overlay,
+  },
+});
+
+const elevationTileStyles = stylex.create({
+  base: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
+    gap: space["2"],
+    flex: "1 1 160px",
+    minHeight: "120px",
+    padding: space["4"],
+    borderRadius: radius.md,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    boxSizing: "border-box",
+    backgroundColor: colors.card,
+    color: colors.cardForeground,
+    [shadowColor.color]: colors.card,
+  },
+  primary: {
+    [shadowColor.color]: colors.primary,
+    backgroundColor: colors.primary,
+    color: colors.primaryForeground,
+  },
+  secondary: {
+    [shadowColor.color]: colors.secondary,
+    backgroundColor: colors.secondary,
+    color: colors.secondaryForeground,
+  },
+  muted: {
+    [shadowColor.color]: colors.muted,
+    backgroundColor: colors.muted,
+    color: colors.mutedForeground,
+  },
+  backdrop: {
+    [shadowColor.color]: colors.card,
+    backgroundColor: colors.background,
+    backgroundImage: `linear-gradient(135deg, color-mix(in oklab, ${colors.muted} 35%, transparent), color-mix(in oklab, ${colors.accent} 35%, transparent)), linear-gradient(135deg, ${colors.background}, ${colors.card})`,
+    color: colors.cardForeground,
+  },
+  labelRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: space["2"],
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    color: colors.mutedForeground,
+  },
+  dot: {
+    flexShrink: 0,
+    width: "7px",
+    height: "7px",
+    borderRadius: radius.full,
+    backgroundColor: colors.accent,
+    color: colors.accent,
+  },
+});
+
+const synthCanvasStyles = stylex.create({
+  base: {
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "300px",
+    padding: space["8"],
+    borderRadius: radius.lg,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    boxSizing: "border-box",
+    backgroundColor: colors.background,
+    transitionProperty: "opacity",
+    transitionDuration: motion.durationNormal,
+    transitionTimingFunction: motion.easingOut,
+  },
+  canvas: (color: string) => ({
+    [shadowColor.color]: color,
+    backgroundImage: `radial-gradient(120% 120% at 25% 20%, ${color}59, transparent 60%), linear-gradient(135deg, ${colors.background}, ${colors.card})`,
+    color: colors.cardForeground,
+  }),
+  muted: {
+    opacity: interaction.disabledOpacity,
   },
 });
 
@@ -311,18 +408,55 @@ function Foundations() {
       <Card variant="surface">
         <ControlSection title="elevation">
           <Stack direction="horizontal" gap="8" wrap>
-            <Surface elevation="flat" tint="card" label="flat · border only" />
-            <Surface elevation="raised" tint="primary" label="raised · tinted" />
-            <Surface elevation="sunken" tint="muted" label="sunken · inset" />
-            <Surface elevation="floating" tint="card" label="floating" />
-            <Surface elevation="glass" tint="backdrop" label="glass · over backdrop" />
-            <Surface
-              elevation="flat"
-              tint="secondary"
-              interactive
-              label="press me · rest / hover / active"
-            />
-            <Surface elevation="flat" tint="card" glow label="glow = state, not elevation" />
+            <div {...stylex.props(elevationTileStyles.base, elevation.flat)}>
+              <span {...stylex.props(elevationTileStyles.labelRow)}>flat · border only</span>
+            </div>
+            <div
+              {...stylex.props(
+                elevationTileStyles.base,
+                elevationTileStyles.primary,
+                elevation.raised,
+              )}
+            >
+              <span {...stylex.props(elevationTileStyles.labelRow)}>raised · tinted</span>
+            </div>
+            <div
+              {...stylex.props(
+                elevationTileStyles.base,
+                elevationTileStyles.muted,
+                elevation.sunken,
+              )}
+            >
+              <span {...stylex.props(elevationTileStyles.labelRow)}>sunken · inset</span>
+            </div>
+            <div {...stylex.props(elevationTileStyles.base, elevation.floating)}>
+              <span {...stylex.props(elevationTileStyles.labelRow)}>floating</span>
+            </div>
+            <div
+              {...stylex.props(elevationTileStyles.base, elevationTileStyles.backdrop, glass.glass)}
+            >
+              <span {...stylex.props(elevationTileStyles.labelRow)}>glass · over backdrop</span>
+            </div>
+            <button
+              type="button"
+              {...stylex.props(
+                elevationTileStyles.base,
+                elevationTileStyles.secondary,
+                interactiveBase.base,
+                focusRing.base,
+                pressable.base,
+              )}
+            >
+              <span {...stylex.props(elevationTileStyles.labelRow)}>
+                press me · rest / hover / active
+              </span>
+            </button>
+            <div {...stylex.props(elevationTileStyles.base, elevation.flat)}>
+              <span {...stylex.props(elevationTileStyles.labelRow)}>
+                <span aria-hidden {...stylex.props(elevationTileStyles.dot, glow.glowSubtle)} />
+                glow = state, not elevation
+              </span>
+            </div>
           </Stack>
         </ControlSection>
       </Card>
@@ -498,14 +632,20 @@ function App() {
                 </Text>
               </Stack>
 
-              {/* Synth canvas: a Surface colored by the live synth state. */}
+              {/* Synth canvas: colored by the live synth state. */}
 
-              <Surface color={synth.tint} size="tall" align="center" muted={synth.mute}>
+              <div
+                {...stylex.props(
+                  synthCanvasStyles.base,
+                  synthCanvasStyles.canvas(synth.tint),
+                  synth.mute ? synthCanvasStyles.muted : null,
+                )}
+              >
                 <Readout
                   label={synth.name}
                   value={`${synth.wave} · ${synth.filter} · ${synth.cutoff}`}
                 />
-              </Surface>
+              </div>
 
               <CardShowcase />
 

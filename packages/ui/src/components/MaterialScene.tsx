@@ -1,5 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import type { StyleXStyles } from "@stylexjs/stylex";
 import { colors } from "../tokens/colors.stylex";
+import { families } from "../tokens/families.stylex";
 import { shadowColor } from "../tokens/shadows.stylex";
 import { glass } from "../effects/glass.stylex";
 import { fx } from "../consts/effects.stylex";
@@ -11,7 +13,7 @@ import { space } from "../consts/spacing.stylex";
 const sceneStyles = stylex.create({
   base: {
     position: "relative",
-    minHeight: layout.surfaceTallMinHeight,
+    minHeight: layout.sceneMinHeight,
     borderRadius: radius.lg,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
@@ -61,28 +63,31 @@ const sceneStyles = stylex.create({
 });
 
 export type MaterialSceneProps = {
-  colors: {
-    amber: string;
-    aqua: string;
-    violet: string;
+  colors?: {
+    amber?: string;
+    aqua?: string;
+    violet?: string;
   };
+  style?: StyleXStyles;
   children?: React.ReactNode;
 };
 
-export function MaterialScene({ colors: sceneColors, children }: MaterialSceneProps) {
+export function MaterialScene({ colors: sceneColors, style, children }: MaterialSceneProps) {
+  const amber = sceneColors?.amber ?? families.amber.base;
+  const aqua = sceneColors?.aqua ?? families.aqua.base;
+  const violet = sceneColors?.violet ?? families["neon-violet"].base;
+
   return (
-    <div {...stylex.props(sceneStyles.base)}>
+    <div {...stylex.props(sceneStyles.base, style)}>
       <div {...stylex.props(sceneStyles.ground)} />
       <div {...stylex.props(sceneStyles.bleed)}>
-        <span {...stylex.props(sceneStyles.ball(sceneColors.amber, "6%", "10%", "72%"))} />
-        <span {...stylex.props(sceneStyles.ball(sceneColors.aqua, "52%", "44%", "58%"))} />
-        <span {...stylex.props(sceneStyles.ball(sceneColors.violet, "28%", "52%", "34%"))} />
+        <span {...stylex.props(sceneStyles.ball(amber, "6%", "10%", "72%"))} />
+        <span {...stylex.props(sceneStyles.ball(aqua, "52%", "44%", "58%"))} />
+        <span {...stylex.props(sceneStyles.ball(violet, "28%", "52%", "34%"))} />
       </div>
-      <div {...stylex.props(sceneStyles.wash(sceneColors.amber))} />
+      <div {...stylex.props(sceneStyles.wash(amber))} />
 
-      {/* wellStrip - maybe I should make this optional or remove it if I just want the material? */}
-
-      <div {...stylex.props(glass.glass, sceneStyles.glassPane(sceneColors.aqua))}>{children}</div>
+      <div {...stylex.props(glass.glass, sceneStyles.glassPane(aqua))}>{children}</div>
     </div>
   );
 }

@@ -300,7 +300,7 @@ const readoutRowStyles = stylex.create({
 const sceneStyles = stylex.create({
   base: {
     position: "relative",
-    minHeight: layout.surfaceTallMinHeight,
+    minHeight: layout.sceneMinHeight,
     borderRadius: radius.lg,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",

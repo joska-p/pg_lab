@@ -8,11 +8,14 @@ import {
   Segmented,
   Slider,
   Stack,
-  Surface,
   TextInput,
   families,
 } from "@repo/ui";
+import { colors } from "@repo/ui/tokens/colors.stylex";
 import { colorVariants } from "@repo/ui/tokens/colorVariants.stylex";
+import { elevation } from "@repo/ui/effects/elevation.stylex";
+import { radius } from "@repo/ui/consts/radius.stylex";
+import { borderWidth } from "@repo/ui/consts/borderWidth.stylex";
 import { typography } from "@repo/ui/consts/typography.stylex";
 import { space } from "@repo/ui/consts/spacing.stylex";
 import { Chip, Key, LabField, Led, MaterialScene } from "./experimental";
@@ -160,6 +163,37 @@ type LaboratoryProps = {
   onThemeChange: (theme: ThemeMode) => void;
   style?: StyleXStyles;
 };
+
+const legacyTileStyles = stylex.create({
+  base: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
+    flex: "1 1 120px",
+    minHeight: "100px",
+    padding: space["3"],
+    borderRadius: radius.md,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    boxSizing: "border-box",
+    backgroundColor: colors.card,
+    color: colors.cardForeground,
+  },
+  raisedPrimary: {
+    backgroundColor: colors.primary,
+    color: colors.primaryForeground,
+  },
+  rawHex: {
+    backgroundColor: "#fe8019",
+    color: colors.foreground,
+  },
+  label: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    color: colors.mutedForeground,
+  },
+});
 
 export function Laboratory({ theme, onThemeChange, style }: LaboratoryProps) {
   return (
@@ -310,9 +344,21 @@ export function Laboratory({ theme, onThemeChange, style }: LaboratoryProps) {
           current={
             <Card variant="surface">
               <Stack direction="horizontal" gap="8" wrap>
-                <Surface elevation="flat" tint="card" label="flat · box" />
-                <Surface elevation="raised" tint="primary" label="fill = variant" />
-                <Surface color="#fe8019" label="raw hex" />
+                <div {...stylex.props(legacyTileStyles.base, elevation.flat)}>
+                  <span {...stylex.props(legacyTileStyles.label)}>flat · box</span>
+                </div>
+                <div
+                  {...stylex.props(
+                    legacyTileStyles.base,
+                    legacyTileStyles.raisedPrimary,
+                    elevation.raised,
+                  )}
+                >
+                  <span {...stylex.props(legacyTileStyles.label)}>fill = variant</span>
+                </div>
+                <div {...stylex.props(legacyTileStyles.base, legacyTileStyles.rawHex)}>
+                  <span {...stylex.props(legacyTileStyles.label)}>raw hex</span>
+                </div>
               </Stack>
             </Card>
           }

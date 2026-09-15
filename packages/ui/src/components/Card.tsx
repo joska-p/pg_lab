@@ -4,7 +4,6 @@ import { elevation } from "../effects/elevation.stylex";
 import { glass } from "../effects/glass.stylex";
 import { shadowColor } from "../tokens/shadows.stylex";
 import { colors } from "../tokens/colors.stylex";
-import { colorVariants } from "../tokens/colorVariants.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
@@ -38,9 +37,9 @@ const variants = stylex.create({
   },
 
   sunken: {
-    [shadowColor.color]: colorVariants.mutedBg,
-    backgroundColor: colorVariants.mutedBg,
-    color: colorVariants.mutedFg,
+    [shadowColor.color]: colors.muted,
+    backgroundColor: colors.muted,
+    color: colors.mutedForeground,
   },
 });
 

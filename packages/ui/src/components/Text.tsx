@@ -1,7 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { colors } from "../tokens/colors.stylex";
-import { colorVariants } from "../tokens/colorVariants.stylex";
 import { layout } from "../consts/layout.stylex";
 import { typography } from "../consts/typography.stylex";
 
@@ -19,7 +18,7 @@ const variants = stylex.create({
     color: colors.foreground,
   },
   muted: {
-    color: colorVariants.mutedFg,
+    color: colors.mutedForeground,
   },
 });
 
