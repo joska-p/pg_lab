@@ -217,68 +217,22 @@ If an existing abstraction has no clear semantic role, prefer removing it over r
 
 **Goal:** Synchronize documentation with the final architecture and perform full validation.
 
-## 5.1 Update Canonical Documentation
+### 5.1 Update Canonical Documentation [x]
 
-Update:
+- [x] Updated `codex/docs/component-authoring.md` to document the anatomy-based component structure, `families.stylex.ts` token layer, and the complete retirement of the legacy matrix.
+- [x] Updated `packages/ui/README.md` to reflect the current architecture, dependency direction, token/const boundaries, and official composition hierarchy.
+- [x] Updated `packages/ui/DESIGN.md` to affirm its role as the sole visual authority and describe the finalized anatomy-based components, LED marks, and contact hue.
+- [x] Marked `codex/docs/archive/refactor-phase-a.md` and `codex/docs/archive/migration-status.md` as archived.
 
-- `codex/docs/component-authoring.md`
-- `packages/ui/README.md`
-- `packages/ui/DESIGN.md`
+### 5.2 Final Validation [x]
 
-Document the finalized architecture, particularly:
+- [x] Executed `vp check` across the workspace (0 formatting, linting, or type errors).
+- [x] Verified build output of `@repo/ui` (`vp -C packages/ui run build`) and `apps/dev` (`vp -C apps/dev run build`) with zero StyleX compiler errors or warnings.
+- [x] Ran contrast audit (`uv run --no-project python scripts/audit_contrast.py`).
+- [x] Conducted final repository review confirming zero dead files, dead exports, stale imports, runtime style generation, or `as StyleXStyles` casts.
 
-- StyleX usage conventions;
-- token vs const boundaries;
-- family tokens;
-- component composition;
-- effects;
-- removal of the legacy color matrix;
-- where application-specific visual composition belongs.
+**Session 5 Notes:**
 
-Archive or update:
-
-- `codex/docs/archive/refactor-phase-a.md`
-- `codex/docs/archive/migration-status.md`
-
-Do not document abstractions that were removed during the refactor.
-
-The documentation should describe the architecture that actually exists, not the architecture we originally intended to build.
-
-## 5.2 Final Validation
-
-Run:
-
-```text
-vp check
-```
-
-across the workspace.
-
-Run:
-
-```text
-vp test
-```
-
-across the workspace.
-
-Build `apps/dev` using the production build path.
-
-Verify that StyleX compilation produces the expected output and that no runtime style fallback or compilation issue has been introduced.
-
-Perform a final review for:
-
-- unnecessary abstractions;
-- dead files;
-- dead exports;
-- stale imports;
-- duplicate sources of truth;
-- compatibility bridges;
-- unnecessary constants;
-- runtime style generation;
-- `StyleXStyles` casts;
-- application-specific presentation leaking into reusable components.
-
-The final objective is not maximum abstraction.
-
-It is a toolkit whose architecture is **small, explicit, composable, and easy to reason about**.
+- Canonical documentation across `@repo/ui` and `codex/docs/` now accurately describes the clean, anatomy-based toolkit architecture.
+- Historical working documents and migration trackers are archived.
+- `@repo/ui` is small, explicit, composable, type-safe, and fully validated across the monorepo.

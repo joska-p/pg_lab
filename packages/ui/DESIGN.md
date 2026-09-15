@@ -79,11 +79,10 @@ spacing:
 
 # Design System: The Terminal Atelier
 
-This file is the **visual contract**. It records where the system is heading — the
-vocabulary validated in the `apps/dev` _visual laboratory_ — so the refactor that
-follows writes code against the contract rather than against the current matrix.
-Values that flick light/dark here stay in the frontmatter and in `tokens/` /
-`consts/`; the prose below is decision, not implementation.
+This file is the **visual contract** and sole visual authority. It records the design
+system vocabulary validated in the `apps/dev` _visual laboratory_ and implemented across
+`@repo/ui`. Values that flick light/dark stay in the frontmatter and in `tokens/` / `consts/`;
+the prose below is decision, not implementation.
 
 ## Overview
 
@@ -227,7 +226,7 @@ signals active/selected/live; it never simulates height.
 
 ### Shadow Vocabulary
 
-Exact values live in `consts/…`/`tokens/shadows.stylex.ts`, all derived from
+Exact values live in `tokens/shadows.stylex.ts`, all derived from
 `--shadow-color` via `color-mix`: **rest** (pressables), **hover** (lift),
 **raised** (docked panels), **active** (inset press), **sunken** (embedded
 wells), **floating** (glass). The ladder is alpha-ordered
@@ -261,11 +260,10 @@ shoebox."
 Componentize by **anatomy**, not by role. Each widget is built from a matte
 face + the marks/fills/light the contract provides, styled locally; only
 genuinely recurring behavior is shared (focus halo, press, disabled, glass,
-glow, shadow). The six-role semantic matrix — per-family fills + per-family
-focus rings + per-widget `muted` exceptions (trackMuted, chosenMuted,
-boxOnMuted) — **is being retired**; its evidence is the dead slots (`BgActive`),
-the mirror slots (`Border` = `Bg`, `Ring` = family), and those exceptions
-themselves.
+glow, shadow). The legacy six-role semantic matrix — per-family fills + per-family
+focus rings + per-widget `muted` exceptions — **has been dismantled and retired**.
+Widgets consume **families** (`base` / `strong`), semantic tokens (`colors.*`),
+and the **single contact hue** (`colors.ring`).
 
 ### Keys (Button)
 
@@ -307,10 +305,10 @@ themselves.
 - **Toggle:** the Pilot Light archetype — off = neutral well, **on = fill + a
   6px same-hue glow**.
 
-### Scenes (Surface / material)
+### Scenes (MaterialScene / Canvas)
 
 - **Wells** stay matte; **color becomes light** (radial Gruvbox fields behind a
-  scene). A **glass pane** floating above it carries the under-light into its
+  scene in `MaterialScene`). A **glass pane** floating above it carries the under-light into its
   material (under/over). LED label rows stay.
 
 ## Do's and Don'ts

@@ -17,6 +17,7 @@ export { fx } from "./consts/effects.stylex";
 export { layout } from "./consts/layout.stylex";
 
 // Foundations (state-free base styles from tokens/consts).
+export { field } from "./foundations/field.stylex";
 export { fieldText } from "./foundations/text.stylex";
 export { interactiveBase } from "./foundations/interaction.stylex";
 
@@ -26,6 +27,7 @@ export { elevation } from "./effects/elevation.stylex";
 export { glass } from "./effects/glass.stylex";
 
 // Intents (interaction-state styles).
+export { active } from "./intents/active.stylex";
 export { pressable } from "./intents/pressable.stylex";
 export { focusRing } from "./intents/focus.stylex";
 export { disabledStyle } from "./intents/disabled.stylex";

@@ -1,6 +1,6 @@
 # @repo/ui
 
-A small, composable, StyleX-powered UI toolkit for creative mini-apps. Canvas-first:
+A small, composable, StyleX-powered UI toolkit for creative mini-apps ("The Terminal Atelier"). Canvas-first:
 scaffolding stays visually secondary to the work surface.
 
 Canonical docs (the code is the deep truth; these record what the code cannot say):
@@ -11,24 +11,43 @@ Canonical docs (the code is the deep truth; these record what the code cannot sa
 - **[`codex/docs/ui-setup.md`](../../codex/docs/ui-setup.md)** — how the library is distributed to apps and how to scaffold one (source imports, `.stylex` subpath rule).
 - **[`codex/docs/coding-conventions.md`](../../codex/docs/coding-conventions.md)** — repo-wide conventions (ownership, state, lifecycle).
 
-**Direction evidence:** `apps/dev`'s _visual laboratory_ view renders the current
-system next to the contract's experimental vocabulary (families, matte keys,
-LED marks, contact hue, light/glass under-over) — app-local, no API changes.
+## Architecture & Layers
+
+The toolkit enforces a strict one-way dependency flow:
+
+```text
+Components / Apps
+       ↓
+Foundations & Effects & Intents
+       ↓
+     Tokens
+       ↓
+     Consts
+```
+
+- **Tokens (`tokens/*.stylex.ts`):** Theme-dependent values defined via `stylex.defineVars` with `light-dark()` pairs (`colors`, `families`, `shadows`).
+- **Consts (`consts/*.stylex.ts`):** Immutable, non-themeable constants defined via `stylex.defineConsts` (`gruvbox-palette`, `spacing`, `radius`, `typography`, `motion`, `borderWidth`, `breakpoints`, `zIndex`, `interaction`, `effects`, `layout`).
+- **Foundations (`foundations/*.stylex.ts`):** State-free base styles (`field`, `interaction`, `text`).
+- **Effects (`effects/*.stylex.ts`):** Orthogonal visual styles (`elevation`, `glass`, `glow`).
+- **Intents (`intents/*.stylex.ts`):** Interaction and state styles (`focusRing`, `disabledStyle`, `pressable`).
+- **Components (`components/*.tsx`):** Instrument widgets, layout primitives, and display elements.
 
 ## Composition
 
-Official hierarchy: `Page > Stack > Card > ControlSection > widget`.
+Official shell & canvas hierarchy:
 
-- Variant props are named `variant` everywhere; `Stack` takes string tokens
-  (`direction="vertical"`, `gap="3"` backed by `space`).
-- Small components + composition + simple APIs; prefer a local solution until a
-  real second consumer appears. Extend the palette only through derived tokens
-  in the theme layer, never raw values in components.
-- Scope (Phase A): layout, instrument and showcase components all live here —
-  including `Page`, `Text`, `SectionHeading`, `Swatch`, `Readout`, `Badge`.
-  No vitrine vs toolkit split.
+```text
+ShellWrapper
+└─ ExperimentShell
+   ├─ Stage (canvas) — flex: 1, the visual star
+   └─ ControlPanel — docked or floating (glass)
+      └─ ControlSection → widget
+```
 
-## StyleX
+- **Containment & Flow:** `Card` (surface, glass, raised, sunken) and `Stack` (`direction`, `gap`, `justify`).
+- **Instrument Controls:** `Button`, `Slider`, `Toggle`, `Checkbox`, `RadioGroup`, `Segmented`, `Select`, `TextInput`, `NumberField`, `TextArea`, `ColorField`.
+- **Display & Identity:** `Led`, `Badge`, `Readout`, `SectionHeading`, `Text`, `Swatch`, `MaterialScene`.
 
-Setup contract lives in `ui-setup.md` (source distribution, shared `stylexPreset`,
-per-app compilation). Official docs: <https://stylexjs.com>.
+## StyleX Setup
+
+Setup contract lives in `ui-setup.md` (source distribution, shared `stylexPreset`, per-app compilation with `unplugin-stylex`). Official docs: <https://stylexjs.com>.

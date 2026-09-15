@@ -1,9 +1,9 @@
-# Refactor Phase A — working document (temporary)
+# Refactor Phase A — working document (Archived)
 
-> TEMPORARY. Handoff doc for a dedicated refactor session. NOT canonical docs
-> (those live in `packages/ui/DESIGN.md`, `PRODUCT.md`, `README.md` and
-> `codex/docs/`). When Phase A lands, prune this file section by section.
-> Language: code, docs and specs in English; discussions in French.
+> **ARCHIVED.** Historical handoff document for Refactor Phase A. All refactor
+> phases and sessions (1 through 5) have completed. Canonical documentation lives in
+> `packages/ui/DESIGN.md`, `packages/ui/README.md`, `codex/docs/component-authoring.md`,
+> and `codex/docs/work/refactor-plan.md`.
 
 ## 1. Context (4 lines)
 

@@ -139,11 +139,11 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
 
   return (
     <div {...stylex.props(styles.row)}>
-      {label ? (
+      {label && (
         <label id={groupId} {...stylex.props(fieldText.label)}>
           {label}
         </label>
-      ) : null}
+      )}
 
       <div
         ref={groupRef}

@@ -1,6 +1,7 @@
-# Migration Status: The Terminal Atelier
+# Migration Status: The Terminal Atelier (Archived)
 
-Ce document suit la migration des composants `packages/ui` vers le nouveau design system (Phase B-D).
+> **Status:** All phases completed and verified. This document is archived.
+> Canonical architecture and documentation live in `packages/ui/DESIGN.md`, `packages/ui/README.md`, and `codex/docs/component-authoring.md`.
 
 ## Status Key
 
@@ -12,26 +13,19 @@ Ce document suit la migration des composants `packages/ui` vers le nouveau desig
 
 ### Phase B: Components & State
 
-- [x] **Slider** (Phase A1-A3)
-- [x] **RadioGroup** (Migration technique)
-- [ ] **Button (Key)**: Migrate to matte face + LED + contact ring.
-- [ ] **Toggle**: Migrate to Pilot Light archetype.
+- [x] **Slider** (Phase A1-A3): Migrated to `families` and contact ring.
+- [x] **RadioGroup**: Migrated to static StyleX variants and `familiesConsts`.
+- [x] **Button (Key)**: Migrated to matte face + LED + contact ring + family hover infusion.
+- [x] **Toggle**: Migrated to Pilot Light archetype.
 
 ### Phase C: Input & Badge
 
-- [ ] **Badge (Chip)**: Migrate to outline pill, remove role-based coloring.
-- [ ] **TextInput / NumberField / TextArea**: Migrate to well + contact ring + data tag.
-- [ ] **Select**: Migrate to well + contact ring.
+- [x] **Badge (Chip)**: Migrated to outline pill with optional LED, role-based coloring removed.
+- [x] **TextInput / NumberField / TextArea**: Migrated to well (`field.well`) + contact ring + label row LED.
+- [x] **Select**: Migrated to well + contact ring + label row LED.
 
 ### Phase D: Scenes & Cleanup
 
-- [ ] **Surface (MaterialScene)**: Migrate to light field + glass pane.
-- [ ] **Retire Matrix**: Remove legacy files (`colorVariants.stylex.ts`, `colorIntents`, etc.).
-- [ ] **Finalize Docs**: Prune `refactor-phase-a.md`.
-
-## Notes
-
-- Ne jamais référencer `gruvbox-palette.stylex.ts` directement.
-- Utiliser les tokens sémantiques de `tokens/colors.stylex.ts`.
-- Utiliser le pattern de `Button.tsx` (factory de style) pour les variations.
-- Garder `apps/dev/src/lab/` comme référence visuelle (Oracle).
+- [x] **Surface & MaterialScene**: Deconstructed `Surface`, migrated to `Card` and `MaterialScene`.
+- [x] **Retire Matrix**: Removed legacy files (`colorVariants.stylex.ts`, `foundations/surface.stylex.ts`, `intents/hover.stylex.ts`).
+- [x] **Finalize Docs**: Synchronized canonical docs and archived working notes.

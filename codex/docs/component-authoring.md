@@ -6,11 +6,9 @@ style, shared behavior, or theme token.
 Read this with `packages/ui/DESIGN.md` (the visual contract) and
 `codex/docs/coding-conventions.md`. StyleX reference: <https://stylexjs.com>.
 
-> **Direction:** the six-role semantic matrix (per-family fills + per-family
-> focus rings + per-widget `muted` exceptions) is **being retired**.
-> `DESIGN.md` and the `apps/dev` _visual laboratory_ validate the replacement:
-> build by **anatomy**, consume **families** (`base` / `strong`), use **one
-> contact hue** for response, keep styles local until a second real consumer.
+> **Architecture:** The legacy six-role semantic matrix has been dismantled and retired.
+> Components are built by **anatomy**, consume **families** (`base` / `strong`), use **one
+> contact hue** (`colors.ring`) for response, and keep styles local until a second real consumer.
 
 ---
 
@@ -109,12 +107,12 @@ export function Component({ disabled, style }: ComponentProps) {
 
 ## 3. Decide: local, shared behavior, or token
 
-| Question                                                                                                   | Where it lives                                                                    |
-| ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| A semantic color / surface / shadow value, or the single **contact** hue?                                  | **Token** — `tokens/colors.stylex.ts`, `tokens/shadows.stylex.ts`.                |
-| A fixed, non-themable geometry / type / motion constant?                                                   | **Const** — `consts/*.stylex.ts` (`space`, `radius`, `typography`, `controls`…).  |
-| A behavior genuinely shared by 2+ components (focus halo, press, disabled, label/value type, glass, glow)? | **Primitive** — `foundations/` or `effects/`, extracted only on the 2nd consumer. |
-| The visual intent of one widget (a mark, a pressed fill, an anatomy tint)?                                 | **Local** `stylex.create` — the default for new work.                             |
+| Question                                                                                                   | Where it lives                                                                                  |
+| ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| A semantic color / surface / shadow value, or the single **contact** hue?                                  | **Token** — `tokens/colors.stylex.ts`, `tokens/families.stylex.ts`, `tokens/shadows.stylex.ts`. |
+| A fixed, non-themable geometry / type / motion constant?                                                   | **Const** — `consts/*.stylex.ts` (`space`, `radius`, `typography`, `motion`, `layout`…).        |
+| A behavior genuinely shared by 2+ components (focus halo, press, disabled, label/value type, glass, glow)? | **Primitive** — `foundations/`, `effects/`, or `intents/`, extracted only on the 2nd consumer.  |
+| The visual intent of one widget (a mark, a pressed fill, an anatomy tint)?                                 | **Local** `stylex.create` — the default for new work.                                           |
 
 ### Rules of thumb
 
@@ -124,8 +122,8 @@ export function Component({ disabled, style }: ComponentProps) {
   final form depends on application order ("last applied wins"), it stays local.
 - Start local, extract deliberately: a shared map needs a second byte-identical
   consumer **and** no component-specific ordering constraint. Primitive files
-  stay few: `foundations/interaction.stylex.ts`, `foundations/text.stylex.ts`,
-  `effects/` (`glow`, `elevation`, `glass`).
+  stay few: `foundations/` (`field`, `interaction`, `text`), `effects/`
+  (`glow`, `elevation`, `glass`), `intents/` (`focus`, `disabled`, `pressable`).
 - Before adding a `variant` prop, ask the contract question: is this a _family
   meaning_ (→ consume `base`/`strong` locally) or an _anatomy state_ (→ keep
   local)? Only then decide if a shared map is earned.
@@ -160,22 +158,20 @@ CSS-valid numerics). Never reference raw numbers in component styles.
 
 ---
 
-## 5. Shared maps: the provisional layer
+## 5. Shared behaviors and static variants
 
-The current shared variant maps (`foundations/surface.stylex.ts`:
-`colorIntents`, `intentFills`, `intentBorders`; `intents/hover.stylex.ts`:
-`intentHovers`; `intents/focus.stylex.ts`: `fieldFocus`) are the **amber-light
-of the old matrix**. The refactor dismantles them into:
+The architecture relies on focused, single-purpose shared layers:
 
-- **families** (`base` / `strong`) consumed locally by each anatomy;
-- **variables contact** (one ring, one default fill);
-- **per-anatomy local styles** for fills, marks, and muted handling.
+- **Families (`tokens/families.stylex.ts`):** `base` / `strong` tokens consumed
+  directly at the anatomy site (e.g., Led dots, Slider fills, Button hover infusions).
+- **Foundations (`foundations/*.stylex.ts`):** State-free structural patterns
+  (`field.col`, `field.well`, `fieldText.label`, `fieldText.value`, `interactiveBase.base`).
+- **Effects (`effects/*.stylex.ts`):** Orthogonal visual treatments (`glow.glowRing`,
+  `glass.glass`, `elevation.raised`, `elevation.sunken`).
+- **Intents (`intents/*.stylex.ts`):** Interaction states (`focusRing.base`,
+  `disabledStyle.base`, `pressable.base`).
 
-Do not extend them. If a widget needs a family tint, compose it locally
-(stylex factory taking the color — the Slider `fill(progress)` pattern), and
-flag the concept if it recurs so it can be promoted later.
-
-### Rules that survive
+### Rules that apply
 
 - Variant/state maps stay plain `stylex.create` lookups. Apply in a stable
   order: `styles.base` → anatomy tints → shared behavior → conditions
@@ -184,12 +180,8 @@ flag the concept if it recurs so it can be promoted later.
 - `glow.glowRing` (`0 0 6px`, 55%-mixed on `shadowColor`) is the tinted halo for
   on/off marks — set `[shadowColor.color]` from the family, then apply the
   effect.
-- The `muted` divergences (track, chosen chip, checkbox-on) were **documented
-  exceptions, not a system**: in the new model the neutral family needs no
-  per-widget overrides.
 - `defineConsts` values inline as raw strings; a bare number emits invalid CSS
-  (`width:12` is dropped). JS that needs a plain number parses the const
-  (`KNOB_TRAVEL` in `Toggle.tsx`).
+  (`width:12` is dropped).
 
 ---
 
