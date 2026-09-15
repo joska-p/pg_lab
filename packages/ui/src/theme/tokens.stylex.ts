@@ -90,7 +90,9 @@ export const colors = stylex.defineVars({
   // dark3 line read as a bright outline on the dark card ground.
   // Mixed in oklab (D4) — a transparent blend is endpoint-identical in any
   // space, but oklab matches the palette's color model.
-  border: `light-dark(color-mix(in oklab, ${palette.light3} 55%, transparent), color-mix(in oklab, ${palette.dark2} 50%, transparent))`,
+  // Calibrated (D-critique P0): raised to ~75%/70% so borders read as
+  // deliberate depth cues (~1.4–1.6:1 vs card/page) not invisible seams.
+  border: `light-dark(color-mix(in oklab, ${palette.light3} 75%, transparent), color-mix(in oklab, ${palette.dark2} 70%, transparent))`,
 
   // Editable wells (text fields, selects, multiline inputs). A distinct
   // role from muted surfaces even where values converge in dark mode:

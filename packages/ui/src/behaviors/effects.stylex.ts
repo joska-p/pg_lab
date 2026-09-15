@@ -67,12 +67,12 @@ export const effects = stylex.create({
   // panel no longer emits a light under-glow that only works on a cream stage,
   // and stacking with `floating` is now a harmless no-op instead of a
   // last-wins shadow override.
-
+  // P1/P3 fix: remove custom borderColor (let base border win), halve shadow
+  // so glass depth comes from blur not cast.
   glass: {
     backgroundColor: `color-mix(in oklab, ${colors.background} 45%, transparent)`,
     backdropFilter: "blur(24px) saturate(180%)",
-    borderColor: `color-mix(in oklab, ${colors.foreground} 12%, transparent)`,
-    boxShadow: shadows.floating,
+    boxShadow: `0 8px 28px color-mix(in oklab, ${shadowColor.color} 22%, transparent), 0 2px 8px color-mix(in oklab, ${shadowColor.color} 15%, transparent)`,
   },
 
   blurSm: {

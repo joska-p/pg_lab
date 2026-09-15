@@ -22,11 +22,14 @@ export const shadowColor = stylex.defineVars({
 // bright line on every well in both modes. The cublic is a faint glint (~12%
 // ambient) plus a soft bottom shade — enough for a well to read recessed
 // without a per-control highlight band.
+// Calibrated (D-critique P0): re-spaced to 18/30/36/45 so each rung reads
+// distinctly on dark surfaces. Rest is subtle; raised lifts; hover deepens;
+// floating separates. Sunken inset highlight stays at 88%.
 export const shadows = stylex.defineConsts({
-  rest: `0 1px 2px color-mix(in oklab, ${shadowColor.color} 20%, transparent), 0 1px 1px color-mix(in oklab, ${shadowColor.color} 12%, transparent)`,
-  hover: `0 2px 8px color-mix(in oklab, ${shadowColor.color} 26%, transparent)`,
-  active: `inset 0 1px 1px color-mix(in oklab, ${shadowColor.color} 20%, transparent)`,
-  raised: `0 4px 12px color-mix(in oklab, ${shadowColor.color} 24%, transparent)`,
-  floating: `0 8px 28px color-mix(in oklab, ${shadowColor.color} 30%, transparent), 0 2px 8px color-mix(in oklab, ${shadowColor.color} 22%, transparent)`,
-  sunken: `inset 0 1px 0 color-mix(in oklab, ${shadowColor.color} 88%, light-dark(white, oklch(0.55 0.023 62.567))), inset 0 2px 5px color-mix(in oklab, ${shadowColor.color} 16%, transparent)`,
+  rest: `0 1px 2px color-mix(in oklab, ${shadowColor.color} 18%, transparent), 0 1px 1px color-mix(in oklab, ${shadowColor.color} 10%, transparent)`,
+  hover: `0 2px 8px color-mix(in oklab, ${shadowColor.color} 36%, transparent)`,
+  active: `inset 0 1px 1px color-mix(in oklab, ${shadowColor.color} 18%, transparent)`,
+  raised: `0 4px 12px color-mix(in oklab, ${shadowColor.color} 30%, transparent)`,
+  floating: `0 8px 28px color-mix(in oklab, ${shadowColor.color} 45%, transparent), 0 2px 8px color-mix(in oklab, ${shadowColor.color} 30%, transparent)`,
+  sunken: `inset 0 1px 0 color-mix(in oklab, ${shadowColor.color} 88%, light-dark(white, oklch(0.55 0.023 62.567))), inset 0 1px 3px color-mix(in oklab, ${shadowColor.color} 16%, transparent)`,
 });
