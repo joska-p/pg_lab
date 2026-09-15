@@ -1,11 +1,13 @@
 import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { interactive } from "../behaviors/interactive.stylex";
-import { fieldText } from "../behaviors/text.stylex";
-import { fieldFocus } from "../behaviors/intents.stylex";
-import { colors } from "../theme/tokens.stylex";
-import { borderWidth, radius, space } from "../theme/consts.stylex";
+import { fieldText } from "../foundations/text.stylex";
+import { fieldFocus } from "../intents/focus.stylex";
+import { disabledStyle } from "../intents/disabled.stylex";
+import { colors } from "../tokens/colors.stylex";
+import { borderWidth } from "../consts/borderWidth.stylex";
+import { radius } from "../consts/radius.stylex";
+import { space } from "../consts/spacing.stylex";
 
 type NumberFieldProps = {
   label?: string;
@@ -102,7 +104,7 @@ export function NumberField(props: NumberFieldProps) {
           styles.input,
           fieldText.value,
           fieldFocus[variant],
-          disabled ? interactive.disabled : null,
+          disabled ? disabledStyle.base : null,
           style,
         )}
       />

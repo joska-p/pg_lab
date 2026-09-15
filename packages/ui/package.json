@@ -15,13 +15,25 @@
       "import": "./src/index.ts"
     },
     "./package.json": "./package.json",
-    "./theme/*": {
-      "types": "./src/theme/*.ts",
-      "import": "./src/theme/*.ts"
+    "./tokens/*": {
+      "types": "./src/tokens/*.ts",
+      "import": "./src/tokens/*.ts"
     },
-    "./behaviors/*": {
-      "types": "./src/behaviors/*.ts",
-      "import": "./src/behaviors/*.ts"
+    "./consts/*": {
+      "types": "./src/consts/*.ts",
+      "import": "./src/consts/*.ts"
+    },
+    "./foundations/*": {
+      "types": "./src/foundations/*.ts",
+      "import": "./src/foundations/*.ts"
+    },
+    "./effects/*": {
+      "types": "./src/effects/*.ts",
+      "import": "./src/effects/*.ts"
+    },
+    "./intents/*": {
+      "types": "./src/intents/*.ts",
+      "import": "./src/intents/*.ts"
     },
     "./components/*": {
       "types": "./src/components/*.tsx",

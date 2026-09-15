@@ -1,7 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
-import { colors } from "../theme/tokens.stylex";
-import { typography } from "../theme/consts.stylex";
+import { colors } from "../tokens/colors.stylex";
+import { typography } from "../consts/typography.stylex";
 
+// Base field typography (state-free): the label and instrument value shared
+// by every widget row. No interaction or state logic here.
 export const fieldText = stylex.create({
   label: {
     fontFamily: typography.fontFamilySans,

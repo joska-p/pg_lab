@@ -19,8 +19,8 @@ bundle, no rebuild-the-lib-before-dev ordering.
 
 ## 2. Library side (`packages/ui`)
 
-- `package.json` `exports` point at `./src` (`.`, `./theme/*`, `./behaviors/*`,
-  `./components/*`, `./stylex-preset`). Never at `dist` for JS: `dist` output
+- `package.json` `exports` point at `./src` (`.`, `./tokens/*`, `./consts/*`,
+  `./foundations/*`, `./effects/*`, `./intents/*`, `./components/*`, `./stylex-preset`). Never at `dist` for JS: `dist` output
   from `vp pack` is uncompiled w.r.t. StyleX and nothing imports it at runtime.
 - `@stylexjs/stylex` is a `peerDependency`, never inlined or bundled. Inlining
   it duplicates the runtime (and its compile-time stubs) once per app.
@@ -69,8 +69,8 @@ Every app needs, as in `apps/dev`:
 - Consume a single entry style: either `@repo/ui` or the `@repo/ui/theme/*`
   subpaths, never a mix of `dist` and `src` for the same package.
 - Local `stylex.create` in an app must import theme/behavior values from
-  their defining files (`@repo/ui/theme/tokens.stylex`,
-  `@repo/ui/theme/shadows.stylex`, `@repo/ui/behaviors/effects.stylex`),
+  their defining files (`@repo/ui/tokens/colors.stylex`,
+  `@repo/ui/tokens/shadows.stylex`, `@repo/ui/effects/glass.stylex`),
   never from the `@repo/ui` barrel: the StyleX compiler cannot resolve
   `defineVars` through a re-export (build error `Could not resolve the path
 to the imported file`). Components themselves stay on the barrel.

@@ -1,11 +1,17 @@
 import { useId, useRef, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { interactive } from "../behaviors/interactive.stylex";
-import { fieldText } from "../behaviors/text.stylex";
-import { colorIntents } from "../behaviors/intents.stylex";
-import { colors } from "../theme/tokens.stylex";
-import { borderWidth, radius, space } from "../theme/consts.stylex";
+import { interactiveBase } from "../foundations/interaction.stylex";
+import { fieldText } from "../foundations/text.stylex";
+import { colorIntents } from "../foundations/surface.stylex";
+import { focusRing } from "../intents/focus.stylex";
+import { disabledStyle } from "../intents/disabled.stylex";
+import { colors } from "../tokens/colors.stylex";
+import { colorVariants } from "../tokens/colorVariants.stylex";
+import { controls } from "../consts/controls.stylex";
+import { borderWidth } from "../consts/borderWidth.stylex";
+import { radius } from "../consts/radius.stylex";
+import { space } from "../consts/spacing.stylex";
 
 type SegmentOption<T extends string> = {
   value: T;
@@ -41,24 +47,24 @@ const styles = stylex.create({
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
-    backgroundColor: colors.muted,
+    backgroundColor: colorVariants.mutedBg,
   },
 
   option: {
-    padding: `1px ${space["3"]}`,
+    padding: `${controls.segmentedPaddingBlock} ${space["3"]}`,
     borderRadius: radius.sm,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: "transparent",
     backgroundColor: "transparent",
-    color: colors.mutedForeground,
+    color: colorVariants.mutedFg,
   },
 
   // S8: the muted chip never fills — a fill would blend into the muted group
-  // well. Signal goes through a `mutedForeground` border + brighter text only,
+  // well. Signal goes through a `muted.fg` border + brighter text only,
   // overriding the canonical muted intent.
   chosenMuted: {
-    borderColor: colors.mutedForeground,
+    borderColor: colorVariants.mutedFg,
     backgroundColor: "transparent",
     color: colors.foreground,
   },
@@ -117,7 +123,7 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
         aria-labelledby={label ? groupId : undefined}
         aria-label={label ? undefined : "selection"}
         onKeyDown={handleKeyDown}
-        {...stylex.props(styles.group, disabled ? interactive.disabled : null, style)}
+        {...stylex.props(styles.group, disabled ? disabledStyle.base : null, style)}
       >
         {items.map((option) => {
           const chosen = option.value === current;
@@ -133,9 +139,9 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
                 styles.option,
                 chosen ? colorIntents[variant] : null,
                 variant === "muted" && chosen ? styles.chosenMuted : null,
-                interactive.base,
-                interactive.focusRing,
-                disabled ? interactive.disabled : null,
+                interactiveBase.base,
+                focusRing.base,
+                disabled ? disabledStyle.base : null,
               )}
             >
               {option.label ?? option.value}

@@ -1,11 +1,17 @@
 import { useId, useRef, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { interactive } from "../behaviors/interactive.stylex";
-import { fieldText } from "../behaviors/text.stylex";
-import { intentBorders, intentFills } from "../behaviors/intents.stylex";
-import { colors } from "../theme/tokens.stylex";
-import { borderWidth, radius, space } from "../theme/consts.stylex";
+import { interactiveBase } from "../foundations/interaction.stylex";
+import { fieldText } from "../foundations/text.stylex";
+import { intentBorders, intentFills } from "../foundations/surface.stylex";
+import { focusRing } from "../intents/focus.stylex";
+import { disabledStyle } from "../intents/disabled.stylex";
+import { colors } from "../tokens/colors.stylex";
+import { colorVariants } from "../tokens/colorVariants.stylex";
+import { controls } from "../consts/controls.stylex";
+import { borderWidth } from "../consts/borderWidth.stylex";
+import { radius } from "../consts/radius.stylex";
+import { space } from "../consts/spacing.stylex";
 
 type RadioOption<T extends string> = {
   value: T;
@@ -23,9 +29,6 @@ type RadioGroupProps<T extends string> = {
   id?: string;
   style?: StyleXStyles;
 };
-
-const CIRCLE_SIZE = 16;
-const DOT_SIZE = 8;
 
 const styles = stylex.create({
   row: {
@@ -45,7 +48,7 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     gap: space["2"],
-    minHeight: 28,
+    minHeight: controls.radioOptionMinHeight,
     padding: 0,
     borderWidth: 0,
     backgroundColor: "transparent",
@@ -58,18 +61,18 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: CIRCLE_SIZE,
-    height: CIRCLE_SIZE,
+    width: controls.radioCircleSize,
+    height: controls.radioCircleSize,
     borderRadius: radius.full,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
-    backgroundColor: colors.muted,
+    backgroundColor: colorVariants.mutedBg,
   },
 
   dot: {
-    width: DOT_SIZE,
-    height: DOT_SIZE,
+    width: controls.radioDotSize,
+    height: controls.radioDotSize,
     borderRadius: radius.full,
   },
 });
@@ -129,7 +132,7 @@ export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
         aria-labelledby={label ? groupId : undefined}
         aria-label={label ? undefined : "choice"}
         onKeyDown={handleKeyDown}
-        {...stylex.props(styles.options, disabled ? interactive.disabled : null, style)}
+        {...stylex.props(styles.options, disabled ? disabledStyle.base : null, style)}
       >
         {items.map((option) => {
           const chosen = option.value === current;
@@ -144,8 +147,8 @@ export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
               {...stylex.props(
                 styles.option,
                 fieldText.value,
-                interactive.base,
-                interactive.focusRing,
+                interactiveBase.base,
+                focusRing.base,
               )}
             >
               <span {...stylex.props(styles.circle, chosen ? intentBorders[variant] : null)}>

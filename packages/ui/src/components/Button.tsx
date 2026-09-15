@@ -1,10 +1,18 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { interactive } from "../behaviors/interactive.stylex";
-import { colorIntents, intentHovers } from "../behaviors/intents.stylex";
-import { motion } from "../theme/consts.stylex";
-import { effects } from "../behaviors/effects.stylex";
-import { borderWidth, radius, space, typography } from "../theme/consts.stylex";
+import { interactiveBase } from "../foundations/interaction.stylex";
+import { colorIntents } from "../foundations/surface.stylex";
+import { intentHovers } from "../intents/hover.stylex";
+import { pressable } from "../intents/pressable.stylex";
+import { focusRing } from "../intents/focus.stylex";
+import { disabledStyle } from "../intents/disabled.stylex";
+import { motion } from "../consts/motion.stylex";
+import { interaction } from "../consts/interaction.stylex";
+import { controls } from "../consts/controls.stylex";
+import { borderWidth } from "../consts/borderWidth.stylex";
+import { radius } from "../consts/radius.stylex";
+import { space } from "../consts/spacing.stylex";
+import { typography } from "../consts/typography.stylex";
 
 const spin = stylex.keyframes({
   from: { transform: "rotate(0deg)" },
@@ -29,26 +37,26 @@ const styles = stylex.create({
     lineHeight: typography.lineHeightTight,
     transform: {
       default: null,
-      ":active": "scale(0.98)",
+      ":active": `scale(${interaction.pressScale})`,
     },
   },
 
   loading: {
-    cursor: "progress",
+    cursor: interaction.cursorProgress,
   },
 
   spinner: {
-    width: 12,
-    height: 12,
-    borderWidth: 2,
+    width: controls.spinnerSize,
+    height: controls.spinnerSize,
+    borderWidth: controls.spinnerBorderWidth,
     borderStyle: "solid",
     borderColor: "currentColor",
     borderTopColor: "transparent",
     borderRadius: radius.full,
     animationName: spin,
     animationDuration: motion.durationSlow,
-    animationTimingFunction: "linear",
-    animationIterationCount: "infinite",
+    animationTimingFunction: motion.easingLinear,
+    animationIterationCount: motion.iterationInfinite,
   },
 });
 
@@ -78,10 +86,10 @@ export function Button({
         styles.base,
         colorIntents[variant],
         intentHovers[variant],
-        interactive.base,
-        interactive.focusRing,
-        effects.pressable,
-        isDisabled ? interactive.disabled : null,
+        interactiveBase.base,
+        focusRing.base,
+        pressable.base,
+        isDisabled ? disabledStyle.base : null,
         loading ? styles.loading : null,
         style,
       )}

@@ -1,7 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@repo/ui";
-import { colors } from "@repo/ui/theme/tokens.stylex";
-import { radius, space, typography } from "@repo/ui/theme/consts.stylex";
+import { colors } from "@repo/ui/tokens/colors.stylex";
+import { radius } from "@repo/ui/consts/radius.stylex";
+import { space } from "@repo/ui/consts/spacing.stylex";
+import { typography } from "@repo/ui/consts/typography.stylex";
 
 // Smoke test for the ui contract: one local style map, shared tokens,
 // one library component. If this page renders styled, the wiring works

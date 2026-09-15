@@ -1,50 +1,58 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { colors } from "../theme/tokens.stylex";
-import { borderWidth, radius, space, typography } from "../theme/consts.stylex";
+import { colorVariants } from "../tokens/colorVariants.stylex";
+import { colors } from "../tokens/colors.stylex";
+import { controls } from "../consts/controls.stylex";
+import { borderWidth } from "../consts/borderWidth.stylex";
+import { radius } from "../consts/radius.stylex";
+import { space } from "../consts/spacing.stylex";
+import { typography } from "../consts/typography.stylex";
 
 const styles = stylex.create({
   base: {
     display: "inline-flex",
     alignItems: "center",
-    paddingBlock: 2,
+    paddingBlock: controls.badgePaddingBlock,
     paddingInline: space["2"],
     borderRadius: radius.full,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     fontFamily: typography.fontFamilyMono,
     fontSize: typography.fontSizeXs,
-    color: colors.mutedForeground,
+    color: colorVariants.mutedFg,
     borderColor: colors.border,
     backgroundColor: "transparent",
   },
 });
 
+// Outline chips: transparent fill, tint carried by the variant `border` slot
+// (the hue) for both stroke and text. The muted family signals through its
+// `fg` (Muted Ink).
 const variants = stylex.create({
   neutral: {},
   primary: {
-    color: colors.primary,
-    borderColor: colors.primary,
+    color: colorVariants.primaryBorder,
+    borderColor: colorVariants.primaryBorder,
   },
   secondary: {
-    color: colors.secondary,
-    borderColor: colors.secondary,
+    color: colorVariants.secondaryBorder,
+    borderColor: colorVariants.secondaryBorder,
   },
   accent: {
-    color: colors.accent,
-    borderColor: colors.accent,
+    color: colorVariants.accentBorder,
+    borderColor: colorVariants.accentBorder,
   },
   warning: {
-    color: colors.warning,
-    borderColor: colors.warning,
+    color: colorVariants.warningBorder,
+    borderColor: colorVariants.warningBorder,
   },
   destructive: {
-    color: colors.destructive,
-    borderColor: colors.destructive,
+    color: colorVariants.destructiveBorder,
+    borderColor: colorVariants.destructiveBorder,
   },
   muted: {
-    color: colors.mutedForeground,
-    borderColor: colors.mutedForeground,
+    color: colorVariants.mutedFg,
+    borderColor: colorVariants.mutedFg,
   },
 });
 

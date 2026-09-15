@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { fieldText } from "../behaviors/text.stylex";
-import { space, typography } from "../theme/consts.stylex";
+import { fieldText } from "../foundations/text.stylex";
+import { space } from "../consts/spacing.stylex";
+import { typography } from "../consts/typography.stylex";
 
 const styles = stylex.create({
   base: {
@@ -16,7 +17,7 @@ const styles = stylex.create({
     fontSize: typography.fontSizeSm,
     fontWeight: typography.fontWeightSemibold,
     letterSpacing: typography.letterSpacingWide,
-    textTransform: "uppercase",
+    textTransform: typography.textCaseUppercase,
   },
 });
 

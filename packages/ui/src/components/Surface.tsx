@@ -1,11 +1,23 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { effects } from "../behaviors/effects.stylex";
-import { interactive } from "../behaviors/interactive.stylex";
-import { colorIntents } from "../behaviors/intents.stylex";
-import { shadowColor } from "../theme/shadows.stylex";
-import { colors } from "../theme/tokens.stylex";
-import { borderWidth, motion, radius, space, typography } from "../theme/consts.stylex";
+import { elevation } from "../effects/elevation.stylex";
+import { glass } from "../effects/glass.stylex";
+import { glow as glowEffect } from "../effects/glow.stylex";
+import { pressable as pressableIntent } from "../intents/pressable.stylex";
+import { interactiveBase } from "../foundations/interaction.stylex";
+import { focusRing } from "../intents/focus.stylex";
+import { colorIntents } from "../foundations/surface.stylex";
+import { shadowColor } from "../tokens/shadows.stylex";
+import { colors } from "../tokens/colors.stylex";
+import { colorVariants } from "../tokens/colorVariants.stylex";
+import { interaction } from "../consts/interaction.stylex";
+import { controls } from "../consts/controls.stylex";
+import { layout } from "../consts/layout.stylex";
+import { borderWidth } from "../consts/borderWidth.stylex";
+import { motion } from "../consts/motion.stylex";
+import { radius } from "../consts/radius.stylex";
+import { space } from "../consts/spacing.stylex";
+import { typography } from "../consts/typography.stylex";
 
 type Elevation = "flat" | "raised" | "sunken" | "floating" | "glass";
 type Tint = "card" | "backdrop" | keyof typeof colorIntents;
@@ -21,8 +33,8 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     gap: space["2"],
-    flex: "1 1 160px",
-    minHeight: 120,
+    flex: layout.surfaceFlex,
+    minHeight: layout.surfaceMinHeight,
     padding: space["8"],
     borderRadius: radius.md,
     borderWidth: borderWidth.hairline,
@@ -53,19 +65,19 @@ const styles = stylex.create({
 
   dot: {
     flexShrink: 0,
-    width: 7,
-    height: 7,
+    width: controls.ledSize,
+    height: controls.ledSize,
     borderRadius: radius.full,
-    backgroundColor: colors.accent,
-    color: colors.accent,
+    backgroundColor: colorVariants.accentBg,
+    color: colorVariants.accentBg,
   },
 
   tall: {
-    minHeight: 300,
+    minHeight: layout.surfaceTallMinHeight,
   },
 
   muted: {
-    opacity: 0.45,
+    opacity: interaction.disabledOpacity,
   },
 });
 
@@ -79,7 +91,7 @@ const tints = stylex.create({
   backdrop: {
     [shadowColor.color]: colors.card,
     backgroundColor: colors.background,
-    backgroundImage: `linear-gradient(135deg, color-mix(in oklab, ${colors.secondary} 35%, transparent), color-mix(in oklab, ${colors.accent} 35%, transparent)), linear-gradient(135deg, ${colors.background}, ${colors.card})`,
+    backgroundImage: `linear-gradient(135deg, color-mix(in oklab, ${colorVariants.secondaryBg} 35%, transparent), color-mix(in oklab, ${colorVariants.accentBg} 35%, transparent)), linear-gradient(135deg, ${colors.background}, ${colors.card})`,
     color: colors.cardForeground,
   },
 
@@ -92,11 +104,11 @@ const tints = stylex.create({
 });
 
 const elevations: Record<Elevation, StyleXStyles> = {
-  flat: effects.flat,
-  raised: effects.raised,
-  sunken: effects.sunken,
-  floating: effects.floating,
-  glass: effects.glass,
+  flat: elevation.flat,
+  raised: elevation.raised,
+  sunken: elevation.sunken,
+  floating: elevation.floating,
+  glass: glass.glass,
 };
 
 type SurfaceProps = {
@@ -135,7 +147,7 @@ export function Surface({
           ? tints.backdrop
           : colorIntents[tint];
 
-  const shadowEffect = pressable ? effects.pressable : elevations[elevation];
+  const shadowEffect = pressable ? pressableIntent.base : elevations[elevation];
   const Comp = pressable ? "button" : "div";
 
   return (
@@ -145,8 +157,8 @@ export function Surface({
         styles.base,
         size === "tall" ? styles.tall : null,
         surfaceStyle,
-        pressable ? interactive.base : null,
-        pressable ? interactive.focusRing : null,
+        pressable ? interactiveBase.base : null,
+        pressable ? focusRing.base : null,
         shadowEffect,
         muted ? styles.muted : null,
         style,
@@ -155,7 +167,7 @@ export function Surface({
       <div {...stylex.props(styles.content(align))}>{children}</div>
       {label ? (
         <span {...stylex.props(styles.labelRow)}>
-          {glow ? <span aria-hidden {...stylex.props(styles.dot, effects.glowSubtle)} /> : null}
+          {glow ? <span aria-hidden {...stylex.props(styles.dot, glowEffect.glowSubtle)} /> : null}
           {label}
         </span>
       ) : null}

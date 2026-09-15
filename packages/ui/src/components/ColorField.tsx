@@ -1,10 +1,15 @@
 import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { interactive } from "../behaviors/interactive.stylex";
-import { fieldText } from "../behaviors/text.stylex";
-import { colors } from "../theme/tokens.stylex";
-import { borderWidth, radius, space } from "../theme/consts.stylex";
+import { interactiveBase } from "../foundations/interaction.stylex";
+import { fieldText } from "../foundations/text.stylex";
+import { focusRing } from "../intents/focus.stylex";
+import { disabledStyle } from "../intents/disabled.stylex";
+import { colors } from "../tokens/colors.stylex";
+import { controls } from "../consts/controls.stylex";
+import { borderWidth } from "../consts/borderWidth.stylex";
+import { radius } from "../consts/radius.stylex";
+import { space } from "../consts/spacing.stylex";
 
 type ColorFieldProps = {
   label?: string;
@@ -16,9 +21,11 @@ type ColorFieldProps = {
   style?: StyleXStyles;
 };
 
+const DEFAULT_HEX = "#000000";
+
 function asHex(value: string) {
   if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value)) return value;
-  return "#000000";
+  return DEFAULT_HEX;
 }
 
 const styles = stylex.create({
@@ -30,10 +37,10 @@ const styles = stylex.create({
 
   input: {
     flexShrink: 0,
-    width: 36,
-    height: 26,
+    width: controls.colorSwatchWidth,
+    height: controls.colorSwatchHeight,
     margin: 0,
-    padding: 2,
+    padding: controls.colorSwatchPadding,
     borderRadius: radius.sm,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
@@ -50,7 +57,7 @@ export function ColorField(props: ColorFieldProps) {
   const {
     label,
     value,
-    defaultValue = "#000000",
+    defaultValue = DEFAULT_HEX,
     onValueChange,
     disabled,
     id: idProp,
@@ -85,9 +92,9 @@ export function ColorField(props: ColorFieldProps) {
         disabled={disabled}
         {...stylex.props(
           styles.input,
-          interactive.base,
-          interactive.focusRing,
-          disabled ? interactive.disabled : null,
+          interactiveBase.base,
+          focusRing.base,
+          disabled ? disabledStyle.base : null,
           style,
         )}
       />

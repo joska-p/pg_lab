@@ -1,14 +1,15 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { fieldText } from "../behaviors/text.stylex";
-import { space } from "../theme/consts.stylex";
+import { fieldText } from "../foundations/text.stylex";
+import { layout } from "../consts/layout.stylex";
+import { space } from "../consts/spacing.stylex";
 
 const styles = stylex.create({
   base: {
     display: "flex",
     flexDirection: "column",
     gap: space["2"],
-    minHeight: 44,
+    minHeight: layout.controlFieldMinHeight,
     justifyContent: "center",
   },
 });

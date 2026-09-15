@@ -1,12 +1,19 @@
 import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { interactive } from "../behaviors/interactive.stylex";
-import { fieldText } from "../behaviors/text.stylex";
-import { effects } from "../behaviors/effects.stylex";
-import { colorIntents, intentHovers } from "../behaviors/intents.stylex";
-import { colors } from "../theme/tokens.stylex";
-import { borderWidth, radius, space } from "../theme/consts.stylex";
+import { interactiveBase } from "../foundations/interaction.stylex";
+import { fieldText } from "../foundations/text.stylex";
+import { glow } from "../effects/glow.stylex";
+import { colorIntents } from "../foundations/surface.stylex";
+import { intentHovers } from "../intents/hover.stylex";
+import { focusRing } from "../intents/focus.stylex";
+import { disabledStyle } from "../intents/disabled.stylex";
+import { colors } from "../tokens/colors.stylex";
+import { colorVariants } from "../tokens/colorVariants.stylex";
+import { controls } from "../consts/controls.stylex";
+import { borderWidth } from "../consts/borderWidth.stylex";
+import { radius } from "../consts/radius.stylex";
+import { space } from "../consts/spacing.stylex";
 
 type CheckboxProps = {
   label?: string;
@@ -18,8 +25,6 @@ type CheckboxProps = {
   id?: string;
   style?: StyleXStyles;
 };
-
-const BOX_SIZE = 18;
 
 const styles = stylex.create({
   row: {
@@ -35,29 +40,29 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: BOX_SIZE,
-    height: BOX_SIZE,
+    width: controls.checkboxSize,
+    height: controls.checkboxSize,
     borderRadius: radius.sm,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
     backgroundColor: {
-      default: colors.muted,
-      ":hover": colors.mutedHover,
+      default: colorVariants.mutedBg,
+      ":hover": colorVariants.mutedBgHover,
     },
   },
 
   check: {
-    width: 12,
-    height: 12,
+    width: controls.checkboxGlyph,
+    height: controls.checkboxGlyph,
   },
 
   // S8: the checked muted box keeps its muted fill but signals through a
-  // `mutedForeground` border and plain foreground, matching how the Segmented
+  // `muted.fg` border and plain foreground, matching how the Segmented
   // muted chip reads — unlike the canonical `colorIntents` whose muted border
-  // and foreground are `muted` / `mutedForeground`.
+  // and foreground are `muted` / `fg`.
   boxOnMuted: {
-    borderColor: colors.mutedForeground,
+    borderColor: colorVariants.mutedFg,
     color: colors.foreground,
   },
 });
@@ -105,11 +110,11 @@ export function Checkbox(props: CheckboxProps) {
           styles.box,
           isOn ? colorIntents[variant] : null,
           isOn ? intentHovers[variant] : null,
-          isOn ? effects.glowRing : null,
+          isOn ? glow.glowRing : null,
           variant === "muted" && isOn ? styles.boxOnMuted : null,
-          interactive.base,
-          interactive.focusRing,
-          disabled ? interactive.disabled : null,
+          interactiveBase.base,
+          focusRing.base,
+          disabled ? disabledStyle.base : null,
           style,
         )}
       >
@@ -122,7 +127,7 @@ export function Checkbox(props: CheckboxProps) {
               d="M2 6.4 4.8 9 10 3.2"
               fill="none"
               stroke="currentColor"
-              strokeWidth={1.8}
+              strokeWidth={controls.checkboxStroke}
               strokeLinecap="round"
               strokeLinejoin="round"
             />

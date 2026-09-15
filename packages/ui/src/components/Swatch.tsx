@@ -1,8 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { fieldText } from "../behaviors/text.stylex";
-import { colors } from "../theme/tokens.stylex";
-import { borderWidth, radius, space, typography } from "../theme/consts.stylex";
+import { fieldText } from "../foundations/text.stylex";
+import { colors } from "../tokens/colors.stylex";
+import { colorVariants } from "../tokens/colorVariants.stylex";
+import { layout } from "../consts/layout.stylex";
+import { borderWidth } from "../consts/borderWidth.stylex";
+import { radius } from "../consts/radius.stylex";
+import { space } from "../consts/spacing.stylex";
+import { typography } from "../consts/typography.stylex";
 
 const styles = stylex.create({
   base: {
@@ -10,11 +15,11 @@ const styles = stylex.create({
     flexDirection: "column",
     gap: space["1"],
     flex: 1,
-    minWidth: 160,
+    minWidth: layout.swatchMinWidth,
   },
 
   box: {
-    height: 64,
+    height: layout.swatchHeight,
     borderRadius: radius.md,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
@@ -28,16 +33,18 @@ const styles = stylex.create({
   },
 });
 
+// Surface swatches keep the pure `colors` tokens; variant chips consume the
+// variant `bg` slot so the palette is expressed exactly once.
 const variants = stylex.create({
   background: { backgroundColor: colors.background },
   card: { backgroundColor: colors.card },
   popover: { backgroundColor: colors.popover },
-  primary: { backgroundColor: colors.primary },
-  secondary: { backgroundColor: colors.secondary },
-  accent: { backgroundColor: colors.accent },
-  warning: { backgroundColor: colors.warning },
-  destructive: { backgroundColor: colors.destructive },
-  muted: { backgroundColor: colors.muted },
+  primary: { backgroundColor: colorVariants.primaryBg },
+  secondary: { backgroundColor: colorVariants.secondaryBg },
+  accent: { backgroundColor: colorVariants.accentBg },
+  warning: { backgroundColor: colorVariants.warningBg },
+  destructive: { backgroundColor: colorVariants.destructiveBg },
+  muted: { backgroundColor: colorVariants.mutedBg },
 });
 
 type SwatchProps = {

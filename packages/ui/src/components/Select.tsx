@@ -1,11 +1,15 @@
 import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { interactive } from "../behaviors/interactive.stylex";
-import { fieldText } from "../behaviors/text.stylex";
-import { fieldFocus } from "../behaviors/intents.stylex";
-import { colors } from "../theme/tokens.stylex";
-import { borderWidth, radius, space } from "../theme/consts.stylex";
+import { fieldText } from "../foundations/text.stylex";
+import { fieldFocus } from "../intents/focus.stylex";
+import { disabledStyle } from "../intents/disabled.stylex";
+import { colors } from "../tokens/colors.stylex";
+import { interaction } from "../consts/interaction.stylex";
+import { controls } from "../consts/controls.stylex";
+import { borderWidth } from "../consts/borderWidth.stylex";
+import { radius } from "../consts/radius.stylex";
+import { space } from "../consts/spacing.stylex";
 
 type SelectOption<T extends string> = {
   value: T;
@@ -55,7 +59,7 @@ const styles = stylex.create({
     backgroundColor: colors.input,
     color: colors.foreground,
     outline: "none",
-    cursor: "pointer",
+    cursor: interaction.cursorPointer,
   },
 
   chevron: {
@@ -63,8 +67,8 @@ const styles = stylex.create({
     right: space["3"],
     top: "50%",
     transform: "translateY(-50%)",
-    width: 12,
-    height: 12,
+    width: controls.chevronSize,
+    height: controls.chevronSize,
     color: colors.mutedForeground,
     pointerEvents: "none",
   },
@@ -118,7 +122,7 @@ export function Select<T extends string>(props: SelectProps<T>) {
             styles.select,
             fieldText.value,
             fieldFocus[variant],
-            disabled ? interactive.disabled : null,
+            disabled ? disabledStyle.base : null,
             style,
           )}
         >
@@ -138,7 +142,7 @@ export function Select<T extends string>(props: SelectProps<T>) {
             d="M2.5 4.5 6 8l3.5-3.5"
             fill="none"
             stroke="currentColor"
-            strokeWidth={1.8}
+            strokeWidth={controls.chevronStroke}
             strokeLinecap="round"
             strokeLinejoin="round"
           />

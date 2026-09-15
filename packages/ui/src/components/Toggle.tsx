@@ -1,16 +1,23 @@
 import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { interactive } from "../behaviors/interactive.stylex";
-import { fieldText } from "../behaviors/text.stylex";
-import { effects } from "../behaviors/effects.stylex";
-import { colorIntents, intentBorders, intentHovers } from "../behaviors/intents.stylex";
-import { colors } from "../theme/tokens.stylex";
-import { borderWidth, motion, radius, space } from "../theme/consts.stylex";
+import { interactiveBase } from "../foundations/interaction.stylex";
+import { fieldText } from "../foundations/text.stylex";
+import { glow } from "../effects/glow.stylex";
+import { intentBorders, intentFills } from "../foundations/surface.stylex";
+import { focusRing } from "../intents/focus.stylex";
+import { disabledStyle } from "../intents/disabled.stylex";
+import { colors } from "../tokens/colors.stylex";
+import { colorVariants } from "../tokens/colorVariants.stylex";
+import { controls } from "../consts/controls.stylex";
+import { borderWidth } from "../consts/borderWidth.stylex";
+import { motion } from "../consts/motion.stylex";
+import { radius } from "../consts/radius.stylex";
+import { space } from "../consts/spacing.stylex";
 
 type ToggleProps = {
   label?: string;
-  variant?: keyof typeof colorIntents;
+  variant?: keyof typeof intentFills;
   checked?: boolean;
   defaultChecked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
@@ -18,12 +25,6 @@ type ToggleProps = {
   id?: string;
   style?: StyleXStyles;
 };
-
-const TRACK_WIDTH = 34;
-const TRACK_HEIGHT = 20;
-const INSET = 2;
-const KNOB_SIZE = 14;
-const KNOB_TRAVEL = TRACK_WIDTH - KNOB_SIZE - INSET * 2;
 
 const styles = stylex.create({
   row: {
@@ -36,31 +37,31 @@ const styles = stylex.create({
   track: {
     position: "relative",
     flexShrink: 0,
-    width: TRACK_WIDTH,
-    height: TRACK_HEIGHT,
+    width: controls.toggleWidth,
+    height: controls.toggleHeight,
     borderRadius: radius.full,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
     backgroundColor: {
-      default: colors.muted,
-      ":hover": colors.mutedHover,
+      default: colorVariants.mutedBg,
+      ":hover": colorVariants.mutedBgHover,
     },
   },
 
-  // S8: the OFF border stays the neutral `muted` (a quiet recess), where the
-  // shared `intentBorders` muted signals through `mutedForeground` for the
+  // S8: the muted family keeps the neutral `muted` border (a quiet recess),
+  // where the shared `intentBorders` muted signals through `muted.fg` for the
   // Slider/Radio marks. Composed only for the muted family.
-  trackOffMuted: {
-    borderColor: colors.muted,
+  trackMuted: {
+    borderColor: colorVariants.mutedBorder,
   },
 
   knob: {
     position: "absolute",
-    top: INSET,
-    left: INSET,
-    width: KNOB_SIZE,
-    height: KNOB_SIZE,
+    top: controls.toggleInset,
+    left: controls.toggleInset,
+    width: controls.toggleKnobSize,
+    height: controls.toggleKnobSize,
     borderRadius: radius.full,
     backgroundColor: colors.background,
     transitionDuration: motion.durationFast,
@@ -69,8 +70,7 @@ const styles = stylex.create({
   },
 
   knobOn: {
-    transform: `translateX(${KNOB_TRAVEL}px)`,
-    backgroundColor: "currentColor",
+    transform: `translateX(${controls.toggleKnobTravel}px)`,
   },
 });
 
@@ -116,17 +116,21 @@ export function Toggle(props: ToggleProps) {
         {...stylex.props(
           styles.track,
           intentBorders[variant],
-          variant === "muted" ? styles.trackOffMuted : null,
-          isOn ? colorIntents[variant] : null,
-          isOn ? intentHovers[variant] : null,
-          isOn ? effects.glowRing : null,
-          interactive.base,
-          interactive.focusRing,
-          disabled ? interactive.disabled : null,
+          variant === "muted" ? styles.trackMuted : null,
+          isOn ? glow.glowRing : null,
+          interactiveBase.base,
+          focusRing.base,
+          disabled ? disabledStyle.base : null,
           style,
         )}
       >
-        <span {...stylex.props(styles.knob, isOn ? styles.knobOn : null)} />
+        <span
+          {...stylex.props(
+            styles.knob,
+            isOn ? styles.knobOn : null,
+            isOn ? intentFills[variant] : null,
+          )}
+        />
       </button>
     </div>
   );

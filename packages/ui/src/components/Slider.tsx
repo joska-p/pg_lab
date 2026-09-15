@@ -1,12 +1,17 @@
 import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { interactive } from "../behaviors/interactive.stylex";
-import { fieldText } from "../behaviors/text.stylex";
-import { intentBorders, intentFills } from "../behaviors/intents.stylex";
-import { colors } from "../theme/tokens.stylex";
-import { shadows, shadowColor } from "../theme/shadows.stylex";
-import { borderWidth, radius, space } from "../theme/consts.stylex";
+import { fieldText } from "../foundations/text.stylex";
+import { intentBorders, intentFills } from "../foundations/surface.stylex";
+import { disabledStyle } from "../intents/disabled.stylex";
+import { colors } from "../tokens/colors.stylex";
+import { colorVariants } from "../tokens/colorVariants.stylex";
+import { shadows, shadowColor } from "../tokens/shadows.stylex";
+import { interaction } from "../consts/interaction.stylex";
+import { controls } from "../consts/controls.stylex";
+import { borderWidth } from "../consts/borderWidth.stylex";
+import { radius } from "../consts/radius.stylex";
+import { space } from "../consts/spacing.stylex";
 
 type SliderProps = {
   label?: string;
@@ -21,9 +26,6 @@ type SliderProps = {
   id?: string;
   style?: StyleXStyles;
 };
-
-const TRACK_HEIGHT = 4;
-const THUMB_SIZE = 14;
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -47,7 +49,7 @@ const styles = stylex.create({
   container: {
     position: "relative",
     flex: 1,
-    height: THUMB_SIZE,
+    height: controls.sliderThumbSize,
     // The ring lives on the container (the input is opacity: 0, so its own
     // shadow would be invisible) but only shows for keyboard focus: mouse
     // clicks focus the input without matching :focus-visible.
@@ -64,12 +66,12 @@ const styles = stylex.create({
     right: 0,
     top: "50%",
     transform: "translateY(-50%)",
-    height: TRACK_HEIGHT,
+    height: controls.sliderTrackHeight,
     borderRadius: radius.full,
-    backgroundColor: colors.muted,
+    backgroundColor: colorVariants.mutedBg,
     // Recessed groove (self-tinted by the muted fill): the unfilled rail reads
     // as hollow, the progress fill as raised on top of it.
-    [shadowColor.color]: colors.muted,
+    [shadowColor.color]: colorVariants.mutedBg,
     boxShadow: shadows.sunken,
   },
 
@@ -79,7 +81,7 @@ const styles = stylex.create({
     top: "50%",
     transform: "translateY(-50%)",
     width: progress,
-    height: TRACK_HEIGHT,
+    height: controls.sliderTrackHeight,
     borderRadius: radius.full,
   }),
 
@@ -88,8 +90,8 @@ const styles = stylex.create({
     left: progress,
     top: "50%",
     transform: "translate(-50%, -50%)",
-    width: THUMB_SIZE,
-    height: THUMB_SIZE,
+    width: controls.sliderThumbSize,
+    height: controls.sliderThumbSize,
     borderRadius: radius.full,
     backgroundColor: colors.background,
     borderWidth: borderWidth.hairline,
@@ -109,7 +111,7 @@ const styles = stylex.create({
     height: "100%",
     margin: 0,
     opacity: 0,
-    cursor: "pointer",
+    cursor: interaction.cursorPointer,
   },
 
   value: {
@@ -118,7 +120,7 @@ const styles = stylex.create({
   },
 });
 
-// Fill and thumb slices come from the shared intents (muted = mutedForeground,
+// Fill and thumb slices come from the shared surfaces (muted = muted.fg,
 // S8: the signal sits on the muted track, is not a saturated fill).
 
 export function Slider(props: SliderProps) {
@@ -158,7 +160,7 @@ export function Slider(props: SliderProps) {
         </label>
       ) : null}
 
-      <div {...stylex.props(styles.container, disabled ? interactive.disabled : null, style)}>
+      <div {...stylex.props(styles.container, disabled ? disabledStyle.base : null, style)}>
         <div {...stylex.props(styles.track)} />
         <div {...stylex.props(styles.fill(progress), intentFills[variant])} />
         <div {...stylex.props(styles.thumb(progress), intentBorders[variant])} />

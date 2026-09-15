@@ -1,16 +1,18 @@
 import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { effects } from "../behaviors/effects.stylex";
-import { colors } from "../theme/tokens.stylex";
-import { shadowColor } from "../theme/shadows.stylex";
-import { borderWidth, radius, space, zIndex } from "../theme/consts.stylex";
+import { elevation } from "../effects/elevation.stylex";
+import { glass } from "../effects/glass.stylex";
+import { colors } from "../tokens/colors.stylex";
+import { shadowColor } from "../tokens/shadows.stylex";
+import { layout } from "../consts/layout.stylex";
+import { borderWidth } from "../consts/borderWidth.stylex";
+import { radius } from "../consts/radius.stylex";
+import { space } from "../consts/spacing.stylex";
+import { zIndex } from "../consts/zIndex.stylex";
 import { Button } from "./Button";
 
-const PANEL_WIDTH = 280;
-const PANEL_MAX_MOBILE = 300;
-const PANEL_GAP = 12;
-const TOGGLE_CLEARANCE = PANEL_GAP * 2;
+const TOGGLE_CLEARANCE = Number.parseFloat(layout.panelGap) * 2;
 
 const styles = stylex.create({
   base: {
@@ -42,7 +44,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     [shadowColor.color]: colors.card,
-    width: PANEL_WIDTH,
+    width: layout.panelWidth,
     flexShrink: 0,
     minHeight: 0,
     maxHeight: "100%",
@@ -55,11 +57,11 @@ const styles = stylex.create({
     color: colors.cardForeground,
     "@media (max-width: 720px)": {
       width: "auto",
-      maxHeight: PANEL_MAX_MOBILE,
+      maxHeight: layout.panelMaxMobileHeight,
     },
     "@media (orientation: portrait)": {
       width: "auto",
-      maxHeight: PANEL_MAX_MOBILE,
+      maxHeight: layout.panelMaxMobileHeight,
     },
   },
 
@@ -69,7 +71,7 @@ const styles = stylex.create({
     right: space["3"],
     bottom: space["3"],
     zIndex: zIndex.panel,
-    width: PANEL_WIDTH,
+    width: layout.panelWidth,
     maxHeight: "none",
     "@media (max-width: 720px)": {
       left: space["3"],
@@ -77,7 +79,7 @@ const styles = stylex.create({
       top: "auto",
       bottom: space["3"],
       width: "auto",
-      maxHeight: PANEL_MAX_MOBILE,
+      maxHeight: layout.panelMaxMobileHeight,
     },
   },
 
@@ -93,7 +95,7 @@ const styles = stylex.create({
   },
 
   toggleClearOfFloatingPanel: {
-    right: `calc(${PANEL_WIDTH}px + ${TOGGLE_CLEARANCE}px)`,
+    right: `calc(${layout.panelWidth} + ${TOGGLE_CLEARANCE}px)`,
     "@media (max-width: 720px)": {
       right: space["3"],
     },
@@ -150,7 +152,7 @@ export function ExperimentShell(props: ExperimentShellProps) {
             // makes text contrast depend on what sits behind). Docked keeps a
             // solid ground + a raised cast so the panel still lifts off the
             // stage without compositing a 24px blur in normal flow.
-            placement === "floating" ? effects.glass : effects.raised,
+            placement === "floating" ? glass.glass : elevation.raised,
             visible ? null : styles.hidden,
           )}
         >

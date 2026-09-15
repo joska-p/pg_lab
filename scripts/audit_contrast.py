@@ -1,6 +1,6 @@
 """WCAG contrast audit for `@repo/ui` theme tokens.
 
-Mirrors `packages/ui/src/theme/tokens.stylex.ts` (palette + derivations via
+Mirrors `packages/ui/src/tokens/colors.stylex.ts` (palette + derivations via
 `color-mix(in oklab, ...)` and `light-dark(...)`). Palette values are the
 canonical gruvbox oklch — never edit those here unless the palette changes.
 
@@ -18,7 +18,7 @@ borders). The script only tells the truth — it does not fail the build.
 
 import math
 
-# Canonical gruvbox palette (oklch L C h) — matches gruvbox-palette.stylex.ts.
+# Canonical gruvbox palette (oklch L C h) — matches consts/gruvbox-palette.stylex.ts.
 PALETTE = {
     "dark0Hard": (0.241, 0.005, 219.672),
     "dark0": (0.277, 0.0, 0.0),

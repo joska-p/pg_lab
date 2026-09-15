@@ -1,12 +1,14 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { colors } from "../theme/tokens.stylex";
-import { typography } from "../theme/consts.stylex";
+import { colors } from "../tokens/colors.stylex";
+import { colorVariants } from "../tokens/colorVariants.stylex";
+import { layout } from "../consts/layout.stylex";
+import { typography } from "../consts/typography.stylex";
 
 const styles = stylex.create({
   base: {
     margin: 0,
-    maxWidth: "62ch",
+    maxWidth: layout.textMaxWidth,
     fontSize: typography.fontSizeSm,
     lineHeight: typography.lineHeightNormal,
   },
@@ -17,7 +19,7 @@ const variants = stylex.create({
     color: colors.foreground,
   },
   muted: {
-    color: colors.mutedForeground,
+    color: colorVariants.mutedFg,
   },
 });
 

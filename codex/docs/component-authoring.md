@@ -41,8 +41,8 @@ existing widgets (`Toggle`, `Slider`, `Segmented`, `ColorField`, `Button`):
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 
-import { interactive } from "../behaviors/interactive.stylex";
-import { colors, radius, space, typography } from "../theme/tokens.stylex";
+import { interactiveBase } from "../foundations/interaction.stylex";
+import { colors, radius, space, typography } from "../tokens/colors.stylex";
 
 const styles = stylex.create({
   base: { ... },
@@ -55,8 +55,8 @@ type ComponentProps = {
 
 export function Component({ disabled, style }: ComponentProps) {
   return (
-    <button {...stylex.props(styles.base, interactive.base, interactive.focusRing,
-      disabled ? interactive.disabled : null, style)} />
+    <button {...stylex.props(styles.base, interactiveBase.base, focusRing.base,
+      disabled ? disabledStyle.base : null, style)} />
   );
 }
 ```
@@ -67,23 +67,23 @@ export function Component({ disabled, style }: ComponentProps) {
 
 Before writing any style, ask where the value belongs.
 
-| Question                                                                                                                                                       | Answer                                                                              |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Does this value represent a semantic concept that flips for light/dark, or an interaction feedback driven by an element's identity (shadow tint, hover shade)? | A **token** in `theme/tokens.stylex.ts` or `theme/shadows.stylex.ts`.               |
-| Does 2+ components genuinely share the same **behavioral** style (cursor + transitions, focus ring, disabled opacity, label/value typography)?                 | A **primitive** in `behaviors/interactive.stylex.ts` or `behaviors/text.stylex.ts`. |
-| Is this the **visual intent** of this one component (the fill of a selected chip, a pressed state, a variant of a button)?                                     | A **local** `stylex.create` map in the component file.                              |
+| Question                                                                                                                                                       | Answer                                                                                  |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Does this value represent a semantic concept that flips for light/dark, or an interaction feedback driven by an element's identity (shadow tint, hover shade)? | A **token** in `tokens/colors.stylex.ts` or `tokens/shadows.stylex.ts`.                 |
+| Does 2+ components genuinely share the same **behavioral** style (cursor + transitions, focus ring, disabled opacity, label/value typography)?                 | A **primitive** in `foundations/interaction.stylex.ts` or `foundations/text.stylex.ts`. |
+| Is this the **visual intent** of this one component (the fill of a selected chip, a pressed state, a variant of a button)?                                     | A **local** `stylex.create` map in the component file.                                  |
 
 ### Rules of thumb
 
 - Raw palette values (`oklch(...)`) never appear in components. Only the theme
-  layer (`theme/gruvbox-palette.stylex.ts`) holds raw values.
+  layer (`consts/gruvbox-palette.stylex.ts`) holds raw values.
 - Do **not** create primitives for a per-component look. `selected` and `active`
   used to be primitives; they were moved back into local component maps because
   their final value depends on ordering ("last applied wins") which is
   component-specific.
-- Primitive files stay few and shared: today only `interactive`
-  (`base`/`focusRing`/`disabled`) in `behaviors/interactive.stylex.ts` and
-  `fieldText` (`label`/`value`) in `behaviors/text.stylex.ts`. `effects`
+- Primitive files stay few and shared: today only `interactiveBase`
+  (`base`) in `foundations/interaction.stylex.ts` and
+  `fieldText` (`label`/`value`) in `foundations/text.stylex.ts`. `effects`
   (`flat`/`raised`/`sunken`/`pressable`/`floating`, `glow*`, `blur*`,
   `grain`, `glass`) is the shared elevation-and-atmosphere module. Add a new
   primitive only when a second real consumer exists.
@@ -94,18 +94,18 @@ Before writing any style, ask where the value belongs.
 
 ## 3. Add tokens
 
-Semantic color tokens live in `theme/tokens.stylex.ts` (`colors = stylex.defineVars`),
-shadows in `theme/shadows.stylex.ts`.
+Semantic color tokens live in `tokens/colors.stylex.ts` (`colors = stylex.defineVars`),
+shadows in `tokens/shadows.stylex.ts`.
 
 ### Colors
 
-Theming is class-free: `tokens.stylex.ts` uses `light-dark()` (StyleX
+Theming is class-free: `colors.stylex.ts` uses `light-dark()` (StyleX
 light-dark recipe — first value light, second dark). Apps select the scheme
 with the `color-scheme` property (`light`, `dark`, or `light dark` for
 system, which follows the OS live with no JS — see `useTheme` in
 `apps/dev`). Never reintroduce `prefers-color-scheme` conditions or a theme
 class in tokens. Import theme values in apps from their defining
-`theme/*.stylex` files, not the barrel (see `ui-setup.md`).
+`tokens/*.stylex` files, not the barrel (see `ui-setup.md`).
 
 Each functional family follows a `<family>` + `<family>Foreground` pattern, with a
 `<family>Hover` when the family needs a hover shade:
@@ -168,14 +168,14 @@ Current state (D4):
 
 ### Shadows
 
-`theme/shadows.stylex.ts` is the single source of truth for shadow color
+`tokens/shadows.stylex.ts` is the single source of truth for shadow color
 (Phase B, S1/S2: the dead `colors.shadow` token was removed). It exposes
 one `shadowColor` variable that all shadow tokens derive from via
 `color-mix`. An element opts in by setting the variable
 with its root color:
 
 ```ts
-import { shadowColor } from "../theme/shadows.stylex";
+import { shadowColor } from "../tokens/shadows.stylex";
 
 const colorVariants = stylex.create({
   primary: {
@@ -190,7 +190,7 @@ const colorVariants = stylex.create({
 - The shadow follows the **root** color, not the hover color: a primary button
   keeps a blue-tinted shadow even while the background shifts to the neutral
   hover shade.
-- Elevation lives in `behaviors/effects.stylex.ts` (Phase B model): `flat`
+- Elevation lives in `effects/elevation.stylex.ts` (Phase B model): `flat`
   (no cast shadow, border only), `raised` (tinted diffuse cast shadow),
   `sunken` (two-layer inset: a top-light line + a soft bottom shade — a recess
   needs a lighter inner top edge, so the tint never collapses into the
@@ -213,7 +213,7 @@ const colorVariants = stylex.create({
 - Borders stay quiet by default: the `border` token is a translucent mix,
   never a hard rectangle (see DESIGN.md, restrained borders).
 
-When you add a new theme module, it is covered by the `"./theme/*"` wildcard
+When you add a new theme module, it is covered by the `"./tokens/*"` wildcard
 in `packages/ui/package.json` `exports` — no registration needed.
 
 ---
@@ -293,20 +293,20 @@ Start local, extract deliberately:
 
 All are stateless — no `:hover`, `:active`, or selected fill:
 
-| map             | carries                                                                                                   | consumers                                        |
-| --------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| `colorIntents`  | `[shadowColor.color]` + `backgroundColor` + `borderColor` + foreground (the full surface)                 | Button, Toggle-on, Checkbox-on, Segmented chosen |
-| `intentHovers`  | `background-color` `:hover` per family (the `<family>Hover` tokens)                                       | Button, Toggle-on, Checkbox-on                   |
-| `intentFills`   | `backgroundColor` only; `muted` = `mutedForeground`                                                       | Slider fill, Radio dot                           |
-| `intentBorders` | `borderColor` + `[shadowColor.color]` (border AND cast harmonize per family); `muted` = `mutedForeground` | Toggle-off, Slider thumb, Radio circle           |
-| `fieldFocus`    | field border + `[shadowColor.color]` (well tint) + ring on `:focus` per family                            | TextInput, NumberField, TextArea, Select         |
+| map             | carries                                                                                           | consumers                                        |
+| --------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| `colorIntents`  | `[shadowColor.color]` + `backgroundColor` + `borderColor` + foreground (the full surface)         | Button, Toggle-on, Checkbox-on, Segmented chosen |
+| `intentHovers`  | `background-color` `:hover` per family (the `<family>BgHover` tokens)                             | Button, Toggle-on, Checkbox-on                   |
+| `intentFills`   | `backgroundColor` only; `muted` = `mutedFg`                                                       | Slider fill, Radio dot                           |
+| `intentBorders` | `borderColor` + `[shadowColor.color]` (border AND cast harmonize per family); `muted` = `mutedFg` | Toggle-off, Slider thumb, Radio circle           |
+| `fieldFocus`    | field border + `[shadowColor.color]` (well tint) + ring on `:focus` per family                    | TextInput, NumberField, TextArea, Select         |
 
 ### Composition recipe
 
 Base intent first, interaction states after, `style` last:
 
 ```ts
-import { colorIntents, intentHovers } from "../behaviors/intents.stylex";
+import { colorIntents, intentHovers } from "../foundations/surface.stylex";
 
 const styles = stylex.create({ base: { /* layout only */ } });
 
@@ -317,9 +317,9 @@ export function Button({ variant = "primary", style }: Props) {
         styles.base,
         colorIntents[variant],
         intentHovers[variant],
-        interactive.base,
-        interactive.focusRing,
-        effects.pressable,
+        interactiveBase.base,
+        focusRing.base,
+        pressable.base,
         style,
       )}
     />
@@ -332,16 +332,16 @@ export function Button({ variant = "primary", style }: Props) {
   depends on application order. `intentHovers` is the one deliberate shared
   `:hover`: three consumers need the byte-identical hover background, and
   `:hover` has no "last applied wins" ordering problem — documented as shared.
-- **`effects.glowRing`** (`0 0 6px`, 55 %-mixed, on `shadowColor`) is the
+- **`glow.glowRing`** (`0 0 6px`, 55 %-mixed, on `shadowColor`) is the
   tinted halo for on/off marks — an effect, not a per-family map. Apply a
   `colorIntents[variant]` map first (it sets the tint var), then the effect.
 - **`muted` divergences (S8) are documented, not unified.** Canonical
-  `colorIntents.muted` = fill `muted` / border `muted` / foreground
-  `mutedForeground`. The slices `intentFills`/`intentBorders` signal through
-  `mutedForeground` (the mark sits on a `muted` track/well). Widgets that
-  diverge override locally with a comment: Toggle-off keeps a neutral `muted`
-  border; Segmented chosen is transparent + `mutedForeground` border; Checkbox
-  on-state uses `mutedForeground` border + `foreground`.
+  `colorIntents.muted` = fill `mutedBg` / border `mutedBorder` / foreground
+  `mutedFg`. The slices `intentFills`/`intentBorders` signal through
+  `mutedFg` (the mark sits on a `mutedBg` track/well). Widgets that
+  diverge override locally with a comment: Toggle-off keeps a neutral `mutedBorder`
+  border; Segmented chosen is transparent + `mutedFg` border; Checkbox
+  on-state uses `mutedFg` border + `foreground`.
 - `Swatch` is a token display, not an intent consumer: it shows every surface
   and family swatch and stays local.
 
@@ -350,7 +350,14 @@ export function Button({ variant = "primary", style }: Props) {
 - Local `stylex.create` stays the default for per-widget geometry, layout, and
   one-off states (selected fill, press scale) — component-authoring.md §3.
 - Raw values are tokenized in components: `borderWidth.hairline` for borders,
-  `space`/`radius`/`motion` elsewhere; only the theme layer holds raw values.
+  `space`/`radius`/`motion` elsewhere; only the token/const layers hold raw values.
+- `defineConsts` values carry their CSS unit. The compiler inlines the raw
+  string, so a bare number would emit invalid CSS (`width:12` is dropped).
+  Lengths are `px` (widget geometry, effects) or `rem` (text sizes) per
+  context; `em`/`ch` for text-relative measure. Unitless is reserved for
+  CSS-valid numerics (`0`, opacity, line-height, font-weight, z-index).
+  JS code that needs a plain number parses the const (see `KNOB_TRAVEL` in
+  `Toggle.tsx`).
 
 ---
 
@@ -358,8 +365,8 @@ export function Button({ variant = "primary", style }: Props) {
 
 Rings are visible for keyboard, silent for mouse — per context (D2 audit):
 
-- Pressables (buttons, toggles, chips, radio options): `interactive.focusRing`
-  (`:focus-visible`). For pressable composites (`effects.pressable`), the ring
+- Pressables (buttons, toggles, chips, radio options): `focusRing.base`
+  (`:focus-visible`). For pressable composites (`pressable.base`), the ring
   is composed INTO the shadow list on `:focus-visible` (rest cast + 2px/3px
   ring) so keyboard focus keeps its lift instead of replacing it.
 - Text-entry fields: the shared `fieldFocus` map on `:focus` (a mouse click

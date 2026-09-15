@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { gruvboxPalette as palette } from "./gruvbox-palette.stylex";
+import { gruvboxPalette as palette } from "../consts/gruvbox-palette.stylex";
 
 // Dual-mode tokens via light-dark() (StyleX light-dark recipe): first value
 // is light, second is dark. The used scheme comes from the `color-scheme`
@@ -10,6 +10,10 @@ import { gruvboxPalette as palette } from "./gruvbox-palette.stylex";
 // 4.5:1, the token is DERIVED by mixing the palette value in OKLab (D4):
 // toward black/white for text, toward `background` for elevated dark
 // surfaces. Hue stays gruvbox; only lightness moves.
+//
+// The six variant families (primary, secondary, accent, warning, destructive,
+// muted) are defined here as base values and regrouped into semantic slots in
+// `./colorVariants.stylex` (bg / bgHover / bgActive / fg / border / ring).
 export const colors = stylex.defineVars({
   background: `light-dark(${palette.light1}, ${palette.dark0})`,
 
@@ -48,7 +52,7 @@ export const colors = stylex.defineVars({
   secondaryHover: palette.neutralGreen,
 
   // Neutral family (S8): the base covers non-editable surfaces (tracks,
-  // group wells, muted fills); the signal goes through mutedForeground.
+  // group wells, muted fills); the signal goes through `mutedForeground`.
   // Per-widget expression differs by contrast necessity — documented in
   // component-authoring.md § Colors.
   muted: `light-dark(${palette.light3}, color-mix(in oklab, ${palette.dark2} 60%, ${palette.dark0}))`,

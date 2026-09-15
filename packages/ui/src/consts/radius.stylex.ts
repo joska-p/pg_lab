@@ -1,0 +1,10 @@
+import * as stylex from "@stylexjs/stylex";
+
+export const radius = stylex.defineConsts({
+  none: "0px",
+  sm: "4px",
+  md: "6px",
+  lg: "8px",
+  xl: "12px",
+  full: "9999px",
+});

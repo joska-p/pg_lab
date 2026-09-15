@@ -1,16 +1,39 @@
-export { colors } from "./theme/tokens.stylex";
-export { borderWidth, motion, zIndex, radius, space, typography } from "./theme/consts.stylex";
-export { shadowColor, shadows } from "./theme/shadows.stylex";
-export { effects } from "./behaviors/effects.stylex";
-export { interactive } from "./behaviors/interactive.stylex";
-export { fieldText } from "./behaviors/text.stylex";
-export {
-  colorIntents,
-  fieldFocus,
-  intentBorders,
-  intentFills,
-  intentHovers,
-} from "./behaviors/intents.stylex";
+// Tokens (themeable design values).
+export { colors } from "./tokens/colors.stylex";
+export { colorVariants } from "./tokens/colorVariants.stylex";
+export { shadowColor, shadows } from "./tokens/shadows.stylex";
+
+// Consts (fixed, non-themeable values).
+export { gruvboxPalette } from "./consts/gruvbox-palette.stylex";
+export { space } from "./consts/spacing.stylex";
+export { radius } from "./consts/radius.stylex";
+export { motion } from "./consts/motion.stylex";
+export { typography } from "./consts/typography.stylex";
+export { zIndex } from "./consts/zIndex.stylex";
+export { borderWidth } from "./consts/borderWidth.stylex";
+export { breakpoints, media } from "./consts/breakpoints.stylex";
+export { interaction } from "./consts/interaction.stylex";
+export { fx } from "./consts/effects.stylex";
+export { controls } from "./consts/controls.stylex";
+export { layout } from "./consts/layout.stylex";
+
+// Foundations (state-free base styles from tokens/consts).
+export { fieldText } from "./foundations/text.stylex";
+export { interactiveBase } from "./foundations/interaction.stylex";
+export { colorIntents, intentFills, intentBorders } from "./foundations/surface.stylex";
+
+// Effects (generic visual styles).
+export { glow } from "./effects/glow.stylex";
+export { elevation } from "./effects/elevation.stylex";
+export { glass } from "./effects/glass.stylex";
+
+// Intents (interaction-state styles).
+export { pressable } from "./intents/pressable.stylex";
+export { focusRing, fieldFocus } from "./intents/focus.stylex";
+export { disabledStyle } from "./intents/disabled.stylex";
+export { intentHovers } from "./intents/hover.stylex";
+
+// Components.
 export { Slider } from "./components/Slider";
 export { Toggle } from "./components/Toggle";
 export { Button } from "./components/Button";

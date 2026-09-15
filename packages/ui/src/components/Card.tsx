@@ -1,9 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { effects } from "../behaviors/effects.stylex";
-import { shadowColor } from "../theme/shadows.stylex";
-import { colors } from "../theme/tokens.stylex";
-import { borderWidth, radius, space } from "../theme/consts.stylex";
+import { elevation } from "../effects/elevation.stylex";
+import { glass } from "../effects/glass.stylex";
+import { shadowColor } from "../tokens/shadows.stylex";
+import { colors } from "../tokens/colors.stylex";
+import { colorVariants } from "../tokens/colorVariants.stylex";
+import { borderWidth } from "../consts/borderWidth.stylex";
+import { radius } from "../consts/radius.stylex";
+import { space } from "../consts/spacing.stylex";
 
 const styles = stylex.create({
   base: {
@@ -34,17 +38,17 @@ const variants = stylex.create({
   },
 
   sunken: {
-    [shadowColor.color]: colors.muted,
-    backgroundColor: colors.muted,
-    color: colors.mutedForeground,
+    [shadowColor.color]: colorVariants.mutedBg,
+    backgroundColor: colorVariants.mutedBg,
+    color: colorVariants.mutedFg,
   },
 });
 
 const variantEffects = {
   surface: null,
-  glass: effects.glass,
-  raised: effects.raised,
-  sunken: effects.sunken,
+  glass: glass.glass,
+  raised: elevation.raised,
+  sunken: elevation.sunken,
 } satisfies Record<keyof typeof variants, StyleXStyles | null>;
 
 type CardProps = {
