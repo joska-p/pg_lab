@@ -2,7 +2,6 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { fieldText } from "../foundations/text.stylex";
 import { colors } from "../tokens/colors.stylex";
-import { colorVariants } from "../tokens/colorVariants.stylex";
 import { layout } from "../consts/layout.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
 import { radius } from "../consts/radius.stylex";
@@ -33,18 +32,17 @@ const styles = stylex.create({
   },
 });
 
-// Surface swatches keep the pure `colors` tokens; variant chips consume the
-// variant `bg` slot so the palette is expressed exactly once.
+// Surface swatches keep the pure `colors` tokens.
 const variants = stylex.create({
   background: { backgroundColor: colors.background },
   card: { backgroundColor: colors.card },
   popover: { backgroundColor: colors.popover },
-  primary: { backgroundColor: colorVariants.primaryBg },
-  secondary: { backgroundColor: colorVariants.secondaryBg },
-  accent: { backgroundColor: colorVariants.accentBg },
-  warning: { backgroundColor: colorVariants.warningBg },
-  destructive: { backgroundColor: colorVariants.destructiveBg },
-  muted: { backgroundColor: colorVariants.mutedBg },
+  primary: { backgroundColor: colors.primary },
+  secondary: { backgroundColor: colors.secondary },
+  accent: { backgroundColor: colors.accent },
+  warning: { backgroundColor: colors.warning },
+  destructive: { backgroundColor: colors.destructive },
+  muted: { backgroundColor: colors.muted },
 });
 
 type SwatchProps = {

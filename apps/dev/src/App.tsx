@@ -40,15 +40,6 @@ const BUTTON_FAMILIES = [
   "orange",
 ] as const;
 
-const BUTTON_VARIANTS = [
-  "primary",
-  "secondary",
-  "accent",
-  "warning",
-  "destructive",
-  "muted",
-] as const;
-
 const WAVES = ["sine", "saw", "square", "triangle"] as const;
 type Wave = (typeof WAVES)[number];
 
@@ -122,7 +113,7 @@ function CardShowcase() {
         {CARD_VARIANTS.map((variant) => (
           <Card key={variant} variant={variant} style={layoutStyles.half}>
             <ControlSection title={variant}>
-              <Segmented label="level" options={["1", "2", "3"]} defaultValue="2" />
+              <Segmented label="level" options={["1", "2", "3"]} defaultValue="2" family="amber" />
               <Readout label="gain" value="+6 dB" />
             </ControlSection>
           </Card>
@@ -173,8 +164,8 @@ function Controls() {
         <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="Toggle">
             <Stack direction="horizontal" gap="8" wrap justify="between">
-              {BUTTON_VARIANTS.map((variant) => (
-                <Toggle key={variant} label={variant} variant={variant} defaultChecked />
+              {BUTTON_FAMILIES.map((family) => (
+                <Toggle key={family} label={family} family={family} defaultChecked />
               ))}
               <Toggle label="off" />
               <Toggle label="disabled" disabled defaultChecked />
@@ -185,8 +176,8 @@ function Controls() {
         <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="Checkbox">
             <Stack direction="horizontal" gap="8" wrap justify="between">
-              {BUTTON_VARIANTS.map((variant) => (
-                <Checkbox key={variant} label={variant} variant={variant} defaultChecked />
+              {BUTTON_FAMILIES.map((family) => (
+                <Checkbox key={family} label={family} family={family} defaultChecked />
               ))}
               <Checkbox label="off" />
               <Checkbox label="disabled" disabled defaultChecked />
@@ -197,11 +188,11 @@ function Controls() {
         <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="Segmented">
             <Stack gap="8" direction="horizontal" wrap justify="between">
-              {BUTTON_VARIANTS.map((variant) => (
+              {BUTTON_FAMILIES.map((family) => (
                 <Segmented
-                  key={variant}
-                  label={variant}
-                  variant={variant}
+                  key={family}
+                  label={family}
+                  family={family}
                   options={["one", "two"]}
                   defaultValue="two"
                 />
@@ -231,11 +222,11 @@ function Controls() {
         <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="RadioGroup">
             <Stack gap="8" direction="horizontal" wrap justify="between">
-              {BUTTON_VARIANTS.map((variant) => (
+              {BUTTON_FAMILIES.map((family) => (
                 <RadioGroup
-                  key={variant}
-                  label={variant}
-                  variant={variant}
+                  key={family}
+                  label={family}
+                  family={family}
                   options={["one", "two"]}
                   defaultValue="two"
                 />

@@ -1,14 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { controls } from "../consts/controls.stylex";
 import { radius } from "../consts/radius.stylex";
 import { fx } from "../consts/effects.stylex";
 
 const ledStyles = stylex.create({
   base: {
     flexShrink: 0,
-    width: controls.ledSize,
-    height: controls.ledSize,
+    width: "7px",
+    height: "7px",
     borderRadius: radius.full,
     backgroundColor: "currentColor",
   },

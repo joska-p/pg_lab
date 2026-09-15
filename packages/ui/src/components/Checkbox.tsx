@@ -4,20 +4,18 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactiveBase } from "../foundations/interaction.stylex";
 import { fieldText } from "../foundations/text.stylex";
 import { glow } from "../effects/glow.stylex";
-import { colorIntents } from "../foundations/surface.stylex";
-import { intentHovers } from "../intents/hover.stylex";
 import { focusRing } from "../intents/focus.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
+import { active as activeIntent } from "../intents/active.stylex";
 import { colors } from "../tokens/colors.stylex";
-import { colorVariants } from "../tokens/colorVariants.stylex";
-import { controls } from "../consts/controls.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
+import { families, type FamilyName } from "../tokens/families.stylex";
 
 type CheckboxProps = {
   label?: string;
-  variant?: keyof typeof colorIntents;
+  family?: FamilyName;
   checked?: boolean;
   defaultChecked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
@@ -40,37 +38,25 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: controls.checkboxSize,
-    height: controls.checkboxSize,
+    width: "18px",
+    height: "18px",
     borderRadius: radius.sm,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
-    backgroundColor: {
-      default: colorVariants.mutedBg,
-      ":hover": colorVariants.mutedBgHover,
-    },
+    backgroundColor: colors.muted,
   },
 
   check: {
-    width: controls.checkboxGlyph,
-    height: controls.checkboxGlyph,
-  },
-
-  // S8: the checked muted box keeps its muted fill but signals through a
-  // `muted.fg` border and plain foreground, matching how the Segmented
-  // muted chip reads — unlike the canonical `colorIntents` whose muted border
-  // and foreground are `muted` / `fg`.
-  boxOnMuted: {
-    borderColor: colorVariants.mutedFg,
-    color: colors.foreground,
+    width: "12px",
+    height: "12px",
   },
 });
 
 export function Checkbox(props: CheckboxProps) {
   const {
     label,
-    variant = "primary",
+    family,
     checked,
     defaultChecked = false,
     onCheckedChange,
@@ -84,6 +70,7 @@ export function Checkbox(props: CheckboxProps) {
   const [internal, setInternal] = useState(defaultChecked);
   const isControlled = checked !== undefined;
   const isOn = isControlled ? checked : internal;
+  const fam = family ? families[family] : null;
 
   function handleClick() {
     const next = !isOn;
@@ -108,10 +95,8 @@ export function Checkbox(props: CheckboxProps) {
         disabled={disabled}
         {...stylex.props(
           styles.box,
-          isOn ? colorIntents[variant] : null,
-          isOn ? intentHovers[variant] : null,
+          isOn && fam ? activeIntent.fill(fam.base) : null,
           isOn ? glow.glowRing : null,
-          variant === "muted" && isOn ? styles.boxOnMuted : null,
           interactiveBase.base,
           focusRing.base,
           disabled ? disabledStyle.base : null,
@@ -120,14 +105,11 @@ export function Checkbox(props: CheckboxProps) {
       >
         {isOn ? (
           <svg viewBox="0 0 12 12" aria-hidden {...stylex.props(styles.check)}>
-            {/* Common SVG finish (D2): 12px grid, 1.8 stroke, round caps —
-                shared with the Select chevron. RadioGroup needs no SVG:
-                its dot is a CSS circle. */}
             <path
               d="M2 6.4 4.8 9 10 3.2"
               fill="none"
               stroke="currentColor"
-              strokeWidth={controls.checkboxStroke}
+              strokeWidth="1.8"
               strokeLinecap="round"
               strokeLinejoin="round"
             />

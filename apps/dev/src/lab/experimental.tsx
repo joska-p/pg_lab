@@ -13,7 +13,6 @@ import { radius } from "@repo/ui/consts/radius.stylex";
 import { borderWidth } from "@repo/ui/consts/borderWidth.stylex";
 import { motion } from "@repo/ui/consts/motion.stylex";
 import { interaction } from "@repo/ui/consts/interaction.stylex";
-import { controls } from "@repo/ui/consts/controls.stylex";
 import { fx } from "@repo/ui/consts/effects.stylex";
 import { layout } from "@repo/ui/consts/layout.stylex";
 import { FAMILIES, type LabFamilyName } from "./families";
@@ -27,8 +26,8 @@ import { FAMILIES, type LabFamilyName } from "./families";
 const ledStyles = stylex.create({
   base: {
     flexShrink: 0,
-    width: controls.ledSize,
-    height: controls.ledSize,
+    width: "7px",
+    height: "7px",
     borderRadius: radius.full,
     backgroundColor: "currentColor",
   },
@@ -150,7 +149,7 @@ const chipStyles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: space["1"],
-    paddingBlock: controls.badgePaddingBlock,
+    paddingBlock: "2px",
     paddingInline: space["2"],
     borderRadius: radius.full,
     borderWidth: borderWidth.hairline,

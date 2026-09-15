@@ -6,18 +6,18 @@ import { glow as glowEffect } from "../effects/glow.stylex";
 import { pressable as pressableIntent } from "../intents/pressable.stylex";
 import { interactiveBase } from "../foundations/interaction.stylex";
 import { focusRing } from "../intents/focus.stylex";
+import { families, type FamilyName } from "../tokens/families.stylex";
 import { colorIntents } from "../foundations/surface.stylex";
 import { shadowColor } from "../tokens/shadows.stylex";
 import { colors } from "../tokens/colors.stylex";
-import { colorVariants } from "../tokens/colorVariants.stylex";
 import { interaction } from "../consts/interaction.stylex";
-import { controls } from "../consts/controls.stylex";
 import { layout } from "../consts/layout.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
 import { motion } from "../consts/motion.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
 import { typography } from "../consts/typography.stylex";
+import { MaterialScene } from "./MaterialScene";
 
 type Elevation = "flat" | "raised" | "sunken" | "floating" | "glass";
 type Tint = "card" | "backdrop" | keyof typeof colorIntents;
@@ -65,11 +65,11 @@ const styles = stylex.create({
 
   dot: {
     flexShrink: 0,
-    width: controls.ledSize,
-    height: controls.ledSize,
+    width: "7px",
+    height: "7px",
     borderRadius: radius.full,
-    backgroundColor: colorVariants.accentBg,
-    color: colorVariants.accentBg,
+    backgroundColor: colors.accent,
+    color: colors.accent,
   },
 
   tall: {
@@ -91,7 +91,7 @@ const tints = stylex.create({
   backdrop: {
     [shadowColor.color]: colors.card,
     backgroundColor: colors.background,
-    backgroundImage: `linear-gradient(135deg, color-mix(in oklab, ${colorVariants.secondaryBg} 35%, transparent), color-mix(in oklab, ${colorVariants.accentBg} 35%, transparent)), linear-gradient(135deg, ${colors.background}, ${colors.card})`,
+    backgroundImage: `linear-gradient(135deg, color-mix(in oklab, ${colors.muted} 35%, transparent), color-mix(in oklab, ${colors.accent} 35%, transparent)), linear-gradient(135deg, ${colors.background}, ${colors.card})`,
     color: colors.cardForeground,
   },
 
@@ -125,6 +125,30 @@ type SurfaceProps = {
   children?: React.ReactNode;
 };
 
+// Helper to derive surface styles from a family or neutral tint.
+const getSurfaceTint = (tint: Tint, color?: string): StyleXStyles => {
+  if (color) {
+    return tints.canvas(color);
+  }
+
+  if (tint === "card") return tints.card;
+  if (tint === "backdrop") return tints.backdrop;
+
+  // Migration point: Use families or base colors instead of colorIntents
+  const family = families[tint as FamilyName];
+  if (family) {
+    const style = {
+      [shadowColor.color]: family.base,
+      backgroundColor: family.base,
+      borderColor: `color-mix(in oklab, ${family.strong} 60%, transparent)`,
+      color: family.ink ? family.ink.fg : colors.foreground,
+    } as StyleXStyles;
+    return style;
+  }
+
+  return colorIntents[tint];
+};
+
 export function Surface({
   elevation = "flat",
   tint = "card",
@@ -138,17 +162,24 @@ export function Surface({
   style,
   children,
 }: SurfaceProps) {
-  const surfaceStyle =
-    color !== undefined
-      ? tints.canvas(color)
-      : tint === "card"
-        ? tints.card
-        : tint === "backdrop"
-          ? tints.backdrop
-          : colorIntents[tint];
+  const surfaceStyle = getSurfaceTint(tint, color);
 
   const shadowEffect = pressable ? pressableIntent.base : elevations[elevation];
   const Comp = pressable ? "button" : "div";
+
+  if (elevation === "glass") {
+    return (
+      <MaterialScene
+        colors={{
+          amber: color || colors.accent,
+          aqua: color || colors.accent,
+          violet: color || colors.accent,
+        }}
+      >
+        <div {...stylex.props(styles.content(align))}>{children}</div>
+      </MaterialScene>
+    );
+  }
 
   return (
     <Comp

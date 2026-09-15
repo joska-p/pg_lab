@@ -6,7 +6,6 @@ import { fieldText } from "../foundations/text.stylex";
 import { focusRing } from "../intents/focus.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
 import { colors } from "../tokens/colors.stylex";
-import { controls } from "../consts/controls.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
@@ -37,10 +36,10 @@ const styles = stylex.create({
 
   input: {
     flexShrink: 0,
-    width: controls.colorSwatchWidth,
-    height: controls.colorSwatchHeight,
+    width: "36px",
+    height: "26px",
     margin: 0,
-    padding: controls.colorSwatchPadding,
+    padding: "2px",
     borderRadius: radius.sm,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",

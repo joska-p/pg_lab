@@ -3,15 +3,14 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactiveBase } from "../foundations/interaction.stylex";
 import { fieldText } from "../foundations/text.stylex";
-import { intentBorders, intentFills } from "../foundations/surface.stylex";
 import { focusRing } from "../intents/focus.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
+import { active as activeIntent } from "../intents/active.stylex";
 import { colors } from "../tokens/colors.stylex";
-import { colorVariants } from "../tokens/colorVariants.stylex";
-import { controls } from "../consts/controls.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
+import { families, type FamilyName } from "../tokens/families.stylex";
 
 type RadioOption<T extends string> = {
   value: T;
@@ -20,7 +19,7 @@ type RadioOption<T extends string> = {
 
 type RadioGroupProps<T extends string> = {
   label?: string;
-  variant?: keyof typeof intentFills;
+  family?: FamilyName;
   options: readonly T[] | readonly RadioOption<T>[];
   value?: T;
   defaultValue?: T;
@@ -48,7 +47,7 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     gap: space["2"],
-    minHeight: controls.radioOptionMinHeight,
+    minHeight: "28px",
     padding: 0,
     borderWidth: 0,
     backgroundColor: "transparent",
@@ -61,26 +60,27 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: controls.radioCircleSize,
-    height: controls.radioCircleSize,
+    width: "16px",
+    height: "16px",
     borderRadius: radius.full,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
-    backgroundColor: colorVariants.mutedBg,
+    backgroundColor: colors.muted,
   },
 
   dot: {
-    width: controls.radioDotSize,
-    height: controls.radioDotSize,
+    width: "8px",
+    height: "8px",
     borderRadius: radius.full,
+    backgroundColor: colors.foreground,
   },
 });
 
 export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
   const {
     label,
-    variant = "primary",
+    family,
     options,
     value,
     defaultValue,
@@ -97,6 +97,7 @@ export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
   const items = options.map((option) => (typeof option === "string" ? { value: option } : option));
   const current = isControlled ? value : (internal ?? items[0].value);
   const listRef = useRef<HTMLDivElement>(null);
+  const fam = family ? families[family] : null;
 
   function commit(next: T) {
     if (!isControlled) setInternal(next);
@@ -151,9 +152,14 @@ export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
                 focusRing.base,
               )}
             >
-              <span {...stylex.props(styles.circle, chosen ? intentBorders[variant] : null)}>
-                {chosen ? <span {...stylex.props(styles.dot, intentFills[variant])} /> : null}
+              <span
+                {...stylex.props(styles.circle, chosen && fam ? activeIntent.fill(fam.base) : null)}
+              >
+                {chosen ? (
+                  <span {...stylex.props(styles.dot, fam ? activeIntent.knob : null)} />
+                ) : null}
               </span>
+
               {option.label ?? option.value}
             </button>
           );

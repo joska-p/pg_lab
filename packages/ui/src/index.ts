@@ -1,11 +1,11 @@
 // Tokens (themeable design values).
 export { colors } from "./tokens/colors.stylex";
 export { colorVariants } from "./tokens/colorVariants.stylex";
+export { families, type FamilyName, type Family } from "./tokens/families.stylex";
 export { shadowColor, shadows } from "./tokens/shadows.stylex";
 
 // Consts (fixed, non-themeable values).
 export { gruvboxPalette } from "./consts/gruvbox-palette.stylex";
-export { families, type FamilyName, type Family } from "./consts/families.stylex";
 export { space } from "./consts/spacing.stylex";
 export { radius } from "./consts/radius.stylex";
 export { motion } from "./consts/motion.stylex";
@@ -15,7 +15,6 @@ export { borderWidth } from "./consts/borderWidth.stylex";
 export { breakpoints, media } from "./consts/breakpoints.stylex";
 export { interaction } from "./consts/interaction.stylex";
 export { fx } from "./consts/effects.stylex";
-export { controls } from "./consts/controls.stylex";
 export { layout } from "./consts/layout.stylex";
 
 // Foundations (state-free base styles from tokens/consts).
@@ -33,9 +32,9 @@ export { pressable } from "./intents/pressable.stylex";
 export { focusRing } from "./intents/focus.stylex";
 export { disabledStyle } from "./intents/disabled.stylex";
 export { intentHovers } from "./intents/hover.stylex";
-export { Led } from "./intents/led.stylex";
 
 // Components.
+export { Led, type LedProps } from "./components/Led";
 export { Slider } from "./components/Slider";
 export { Toggle } from "./components/Toggle";
 export { Button } from "./components/Button";
@@ -61,3 +60,4 @@ export { Readout } from "./components/Readout";
 export { Text } from "./components/Text";
 export { Swatch } from "./components/Swatch";
 export { ShellWrapper } from "./components/ShellWrapper";
+export { MaterialScene } from "./components/MaterialScene";

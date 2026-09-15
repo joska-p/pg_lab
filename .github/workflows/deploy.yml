@@ -1,0 +1,60 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # Installe Vite+, gère Node.js, pnpm et le cache global des packages en une étape
+      - name: Setup Vite+ Environment
+        uses: voidzero-dev/setup-vp@v1.19.0
+        with:
+          node-version: "24"
+          cache: true
+
+      # Installe toutes les dépendances du monorepo (y compris les liens inter-packages)
+      - name: Install dependencies
+        run: vp install
+
+      # Analyse tout le monorepo (Type-check, Lint, Format) à la vitesse de Rust
+      - name: Code Quality Checks
+        run: vp check
+
+      # Compile l'application 'dev' ET toutes ses dépendances locales (packages)
+      # dans l'ordre topologique inverse, grâce au moteur Vite Task intégré.
+      - name: Build React App and internal dependencies
+        run: vp run build --filter=dev
+
+      # Téléverse le dossier de sortie généré par le build de l'application
+      # (Puisqu'on lance la commande depuis la racine, le chemin relatif est conservé)
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ./apps/dev/dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

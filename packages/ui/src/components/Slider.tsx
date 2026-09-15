@@ -5,9 +5,8 @@ import { fieldText } from "../foundations/text.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
 import { colors } from "../tokens/colors.stylex";
 import { shadows, shadowColor } from "../tokens/shadows.stylex";
-import { families, type FamilyName } from "../consts/families.stylex";
+import { families, type FamilyName } from "../tokens/families.stylex";
 import { interaction } from "../consts/interaction.stylex";
-import { controls } from "../consts/controls.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
@@ -48,7 +47,7 @@ const styles = stylex.create({
   container: {
     position: "relative",
     flex: 1,
-    height: controls.sliderThumbSize,
+    height: "14px",
     // The ring lives on the container (the input is opacity: 0, so its own
     // shadow would be invisible) but only shows for keyboard focus: mouse
     // clicks focus the input without matching :focus-visible.
@@ -65,7 +64,7 @@ const styles = stylex.create({
     right: 0,
     top: "50%",
     transform: "translateY(-50%)",
-    height: controls.sliderTrackHeight,
+    height: "4px",
     borderRadius: radius.full,
     backgroundColor: colors.muted,
     // Recessed groove (self-tinted by the muted fill): the unfilled rail reads
@@ -80,7 +79,7 @@ const styles = stylex.create({
     top: "50%",
     transform: "translateY(-50%)",
     width: progress,
-    height: controls.sliderTrackHeight,
+    height: "4px",
     borderRadius: radius.full,
     backgroundColor: color,
   }),
@@ -90,8 +89,8 @@ const styles = stylex.create({
     left: progress,
     top: "50%",
     transform: "translate(-50%, -50%)",
-    width: controls.sliderThumbSize,
-    height: controls.sliderThumbSize,
+    width: "14px",
+    height: "14px",
     borderRadius: radius.full,
     backgroundColor: colors.background,
     borderWidth: borderWidth.hairline,

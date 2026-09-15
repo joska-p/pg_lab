@@ -4,20 +4,19 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactiveBase } from "../foundations/interaction.stylex";
 import { fieldText } from "../foundations/text.stylex";
 import { glow } from "../effects/glow.stylex";
-import { intentBorders, intentFills } from "../foundations/surface.stylex";
 import { focusRing } from "../intents/focus.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
+import { active as activeIntent } from "../intents/active.stylex";
 import { colors } from "../tokens/colors.stylex";
-import { colorVariants } from "../tokens/colorVariants.stylex";
-import { controls } from "../consts/controls.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
 import { motion } from "../consts/motion.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
+import { families, type FamilyName } from "../tokens/families.stylex";
 
 type ToggleProps = {
   label?: string;
-  variant?: keyof typeof intentFills;
+  family?: FamilyName;
   checked?: boolean;
   defaultChecked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
@@ -37,31 +36,21 @@ const styles = stylex.create({
   track: {
     position: "relative",
     flexShrink: 0,
-    width: controls.toggleWidth,
-    height: controls.toggleHeight,
+    width: "34px",
+    height: "20px",
     borderRadius: radius.full,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
-    backgroundColor: {
-      default: colorVariants.mutedBg,
-      ":hover": colorVariants.mutedBgHover,
-    },
-  },
-
-  // S8: the muted family keeps the neutral `muted` border (a quiet recess),
-  // where the shared `intentBorders` muted signals through `muted.fg` for the
-  // Slider/Radio marks. Composed only for the muted family.
-  trackMuted: {
-    borderColor: colorVariants.mutedBorder,
+    backgroundColor: colors.muted,
   },
 
   knob: {
     position: "absolute",
-    top: controls.toggleInset,
-    left: controls.toggleInset,
-    width: controls.toggleKnobSize,
-    height: controls.toggleKnobSize,
+    top: "2px",
+    left: "2px",
+    width: "14px",
+    height: "14px",
     borderRadius: radius.full,
     backgroundColor: colors.background,
     transitionDuration: motion.durationFast,
@@ -70,14 +59,14 @@ const styles = stylex.create({
   },
 
   knobOn: {
-    transform: `translateX(${controls.toggleKnobTravel}px)`,
+    transform: "translateX(16px)",
   },
 });
 
 export function Toggle(props: ToggleProps) {
   const {
     label,
-    variant = "primary",
+    family,
     checked,
     defaultChecked = false,
     onCheckedChange,
@@ -91,6 +80,7 @@ export function Toggle(props: ToggleProps) {
   const [internal, setInternal] = useState(defaultChecked);
   const isControlled = checked !== undefined;
   const isOn = isControlled ? checked : internal;
+  const fam = family ? families[family] : null;
 
   function handleClick() {
     const next = !isOn;
@@ -115,8 +105,7 @@ export function Toggle(props: ToggleProps) {
         disabled={disabled}
         {...stylex.props(
           styles.track,
-          intentBorders[variant],
-          variant === "muted" ? styles.trackMuted : null,
+          isOn && fam ? activeIntent.fill(fam.base) : null,
           isOn ? glow.glowRing : null,
           interactiveBase.base,
           focusRing.base,
@@ -128,7 +117,7 @@ export function Toggle(props: ToggleProps) {
           {...stylex.props(
             styles.knob,
             isOn ? styles.knobOn : null,
-            isOn ? intentFills[variant] : null,
+            isOn ? activeIntent.knob : null,
           )}
         />
       </button>

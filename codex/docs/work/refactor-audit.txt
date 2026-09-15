@@ -1,0 +1,133 @@
+Refactor Audit: Architecture & StyleX Review
+Status: Significantly drifting
+The design contract (DESIGN.md, PRODUCT.md) and core aesthetic vision (Gruvbox-warm, canvas-first, instrument controls, single contact hue) are clear and well-conceived. However, the code implementation has drifted significantly away from both StyleX idioms and clean architectural boundaries.
+1. Executive Summary
+1. Treating StyleX as Runtime CSS-in-JS: Patterns such as runtime object creation cast as StyleXStyles (in Surface.tsx) and the widespread use of dynamic style functions for static variants bypass StyleX's compile-time static analysis and atomic CSS extraction.
+2. The Surface Chameleon Anti-Pattern: Surface currently combines an interactive button, an elevation showcase tile, a synth canvas view, and a multi-layer 3D/glass scene (MaterialScene) into a single 11-prop component with branching rendering logic.
+3. Prototype Leakage into Component APIs: Prototyping artifacts from the visual lab (such as TextInput, NumberField, Select, and TextArea unconditionally rendering <Badge>{family}</Badge> tags) were copied directly into production component APIs.
+4. Dogmatic Tokenization & Hyper-Indirection: Moving private geometry values (e.g. toggleKnobTravel: 34 - 14 - 2 * 2, spinnerSize, colorSwatchWidth) into a global consts/controls.stylex.ts creates unnecessary indirection without providing any real reuse.
+5. Architectural Confusion between consts and tokens: consts/families.stylex.ts calls stylex.defineVars (CSS variables) inside a constants file, then wraps them into a plain JavaScript dictionary that is interpolated at runtime via color-mix.
+6. Misplaced React Components in Style Layers: Led is a full JSX component placed inside src/intents/led.stylex.tsx instead of src/components/Led.tsx.
+7. Incomplete Migration & Split SOT: The toolkit sits between the legacy 6-role variant matrix (colorVariants, colorIntents, intentHovers, intentBorders) and the new families model, leading to duplicated sources of truth and hybrid bridges.
+2. StyleX Audit
+#	Current Pattern	Why it is suspicious	Actually Valid?	Native StyleX Mental Model	Severity
+1	const style = { [shadowColor.color]: family.base, ... } as StyleXStyles in Surface.tsx	Creates a raw JavaScript object at runtime and forces it into stylex.props() with a type cast.	Invalid & Unsafe	StyleX is a compile-time CSS extractor. All style rules must be defined in static stylex.create() blocks. Dynamic styles must use CSS variables or static variant lookups.	Critical
+2	styles.content: (align: "end" | "center") => ({ ... }) in Surface.tsx	Uses a dynamic style function for a discrete 2-value enum.	Valid StyleX syntax, but anti-pattern	Dynamic style functions in StyleX are compiled into inline CSS variables. Discrete variants should be static maps: stylex.create({ end: { ... }, center: { ... } }).	Medium
+3	export const familiesConsts = stylex.defineVars(...) in src/consts/families.stylex.ts	defineVars creates CSS variables (the job of tokens/), yet this file lives in consts/ and is re-exported as fixed vocabulary.	Valid syntax, wrong layer	consts/ should use stylex.defineConsts for compile-time static values. If values need CSS custom properties (e.g. with light-dark()), they belong in tokens/.	High
+4	styles.hover: (strong: string) => ({ ... }) in Button.tsx, Badge.tsx, Segmented.tsx	Passing variable references into dynamic functions on every render to generate color-mix strings.	Valid syntax, defeats static optimization	Set a CSS variable on the element container (e.g. [markColor.color]: fam.strong) or use a static lookup keyed by family name.	Medium
+5	[shadowColor.color]: colors.card in shadows.stylex.ts & components	Dynamically overriding a defineVars token locally inside a stylex.create block.	Valid & Idiomatic	This is the official StyleX mechanism for CSS variable scoping and token overriding. Fits the "shadow paints itself" rule cleanly.	Intentional / OK
+6	[stylex.when.descendant(":focus-visible")] in Slider.tsx	Styling a parent container when a hidden child <input> receives keyboard focus.	Valid & Idiomatic	Modern, idiomatic StyleX syntax replacing fragile CSS hacks for composite controls.	Intentional / OK
+3. Surface Audit
+Current Responsibilities
+Surface is currently attempting to act as:
+1. An elevation showcase tile (rendering an indicator dot and a bottom label row with align="end").
+2. An interactive key/button (interactive={true} switches the element to <button> with focus rings and pressable intents).
+3. A synth work surface (used in App.tsx with color={synth.tint} and muted={synth.mute}).
+4. A composite 3D scene (if (elevation === "glass") return <MaterialScene ... />).
+Specific Issues & Leaks
+- Rendering Switch Anti-Pattern: When elevation === "glass", Surface returns <MaterialScene>, ignoring props like interactive, size, label, muted, and glow.
+- Incoherent Props:
+- glow: Does nothing unless label is also passed, because the glow dot is nested inside the labelRow JSX branch.
+- align: Exists only because the showcase demo wanted labels at the bottom.
+- size: Supports "tile" | "tall", where "tile" is not defined in styles and "tall" simply sets a minimum height.
+- color vs tint: color overrides tint arbitrarily and triggers the runtime style cast.
+- Root Cause: Surface was created to serve the "elevation" showcase grid in apps/dev/src/App.tsx and was then retrofitted with ad-hoc props for the synth canvas.
+Simplification Strategy
+- Retire Surface as a monolithic component.
+- Keep Card for standard elevated panels and containers.
+- Keep MaterialScene (or rename to Scene) as an explicit, dedicated component for the Under/Over material presentation.
+- Move one-off showcase tile wrappers into apps/dev showcase code.
+4. Architecture Audit
+1. The Token vs Const Boundary
+- consts/: Intended for immutable constants (defineConsts). However, families.stylex.ts uses defineVars with light-dark() and exports an intermediary JS mapping object.
+- tokens/: Well structured (colors.stylex.ts, shadows.stylex.ts), but still carries colorVariants.stylex.ts (the 6-role matrix), creating ambiguity over which color system to consume.
+2. Hyper-Extraction in consts/controls.stylex.ts & layout.stylex.ts
+- More than 25 private component dimensions (e.g. toggleKnobTravel, checkboxStroke, radioCircleSize, spinnerSize) were extracted into consts/controls.stylex.ts.
+- Diagnostic: Dogmatic adherence to "no literals in components" has introduced unnecessary indirection. Dimensions that belong strictly to the internal anatomy of a single widget should remain co-located within that widget file.
+3. Foundations vs Intents vs Effects
+- Foundations (field, text, interaction): Legitimate, lightweight shared styles.
+- Intents (focus, disabled, pressable): Clean and composable.
+- Effects (elevation, glass, glow): Clear and effective.
+- Anomalies:
+- src/intents/led.stylex.tsx: A full React JSX component located inside an intent style directory.
+- foundations/surface.stylex.ts & intents/hover.stylex.ts: Lingering legacy matrix maps that should be retired.
+5. API Audit
+1. TextInput, NumberField, TextArea, Select:
+- Issue: Passing family="amber" causes the component to render <Badge family="amber">amber</Badge> in the label row.
+- Diagnostic: Direct copy-paste leakage from apps/dev/src/lab/experimental.tsx (LabField). An input field should accept a label and an optional data tag/LED, but never hardcode the family name inside an automatic badge.
+2. Stage:
+- Issue: Contains hardcoded decorative background gradients referencing colorVariants.primaryBg, accentBg, and warningBg.
+- Diagnostic: A Stage should be a clean, neutral work surface/canvas container, not a fixed triple-gradient presentation shell.
+3. ShellWrapper:
+- Issue: Bundles a full-screen background with embedded noise SVG and 5 gradients.
+- Diagnostic: This is an app-level layout wrapper specific to the demo app, not a reusable primitive.
+4. Button:
+- Issue: Carries a lead prop that modifies font weight and inline padding.
+- Diagnostic: Minor stylistic prop that could be handled via composition or standard size variants.
+6. Dependency & Layering Diagram
+Current State (Drifted & Intertwined)
+               ┌───────────────────────────────┐
+               │    Components & Showcases     │
+               │   (Button, Surface, Input)    │
+               └───────┬──────────────┬────────┘
+                       │              │
+        ┌──────────────▼──────┐   ┌───▼─────────────────────┐
+        │  families (defineVars│   │ Legacy Matrix           │
+        │   inside consts/)   │   │ (colorVariants, intents)│
+        └──────────────┬──────┘   └───┬─────────────────────┘
+                       │              │
+        ┌──────────────▼──────────────▼────────┐
+        │        Tokens & Foundations          │
+        │    (colors, shadows, field, text)    │
+        └──────────────────────┬───────────────┘
+                               │
+        ┌──────────────────────▼───────────────┐
+        │      Consts (gruvbox-palette,        │
+        │       over-extracted controls)       │
+        └──────────────────────────────────────┘
+Target Clean Layering
+┌──────────────────────────────────────────────────────────┐
+│                      Components                          │
+│   (Button, Toggle, Slider, Field, Card, Scene, Stack)    │
+└────────────┬─────────────────────────────┬───────────────┘
+             │                             │
+┌────────────▼──────────────┐ ┌────────────▼───────────────┐
+│        Foundations        │ │          Effects           │
+│  (field, text, focusRing, │ │  (elevation, glass, glow,  │
+│      pressable, disabled) │ │         shadows)           │
+└────────────┬──────────────┘ └────────────┬───────────────┘
+             │                             │
+┌────────────▼─────────────────────────────▼───────────────┐
+│                     Design Tokens                        │
+│         (colors.stylex, families.stylex [tokens])        │
+└────────────────────────────┬─────────────────────────────┘
+                             │
+┌────────────────────────────▼─────────────────────────────┐
+│                     Static Consts                        │
+│   (gruvboxPalette, space, radius, typography, motion)    │
+└──────────────────────────────────────────────────────────┘
+7. What is Actually Good (Keep)
+1. Gruvbox Palette & OKLab Derivations: consts/gruvbox-palette.stylex.ts and the contrast calculations in tokens/colors.stylex.ts are mathematically sound, clean, and provide excellent visual character.
+2. Dual-Mode Theming via light-dark(): CSS-variable-based scheme switching without class toggling is modern and well executed.
+3. Shadow-Paints-Itself Pattern: The [shadowColor.color] mechanism in tokens/shadows.stylex.ts and effects/elevation.stylex.ts is elegant and idiomatically StyleX.
+4. Instrument Anatomy Primitives: Slider.tsx, Toggle.tsx, Checkbox.tsx, RadioGroup.tsx, and Segmented.tsx have excellent tactile feel and solid keyboard accessibility handling.
+5. Universal Contact Focus Ring: focusRing in intents/focus.stylex.ts (0 0 0 2px ground, 0 0 0 3px contact ring) provides a clean, unified interaction response.
+6. Per-App StyleX Compilation: The build pipeline (stylexPreset, source distribution, unplugin-stylex) functions correctly and emits clean atomic CSS.
+8. Recommended Next Steps
+1. Move Led to Components: Move src/intents/led.stylex.tsx to src/components/Led.tsx and clean up its export path.
+2. Clean Prototype Leakage in Input Components: Remove the automatic <Badge>{family}</Badge> rendering from TextInput, NumberField, TextArea, and Select.
+3. Deconstruct & Retire Surface:
+- Remove the runtime object creation (as StyleXStyles) and dynamic branches from Surface.tsx.
+- Keep Card for standard containment and MaterialScene for the Under/Over material view.
+- Refactor apps/dev/src/App.tsx elevation showcase to use standard cards/boxes instead of a bloated Surface primitive.
+4. Relocate and Formalize families:
+- Move families from consts/ to tokens/ (or properly define it via static defineConsts if tokens are not needed).
+5. Dismantle Legacy 6-Role Matrix:
+- Remove colorVariants.stylex.ts, foundations/surface.stylex.ts (colorIntents, intentFills, intentBorders), and intents/hover.stylex.ts.
+- Ensure all components consume families or colors directly.
+6. Co-locate Internal Component Metrics:
+- Inline single-use dimensions from controls.stylex.ts back into their respective component files.
+9. Questions / Uncertainties
+1. families: Tokens vs Consts: Should families be formal theme tokens with CSS variables (allowing runtime theme overrides) or compile-time static constants? (Given that they use light-dark(), placing them in tokens/ as defineVars is the most coherent StyleX model).
+2. Role of Stage and ShellWrapper: Are Stage's decorative gradients and ShellWrapper's full-screen noise intended to be core toolkit primitives, or should they be simplified into neutral layout wrappers with the artistic effects residing in application code?
+3. Data Tags on Inputs: Should input controls support an optional custom tag/badge prop (e.g. tag?: ReactNode), or should parameter tagging always be composed externally via ControlField?

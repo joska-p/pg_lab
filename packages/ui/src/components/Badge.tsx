@@ -1,21 +1,19 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { colors } from "../tokens/colors.stylex";
-import { colorVariants } from "../tokens/colorVariants.stylex";
-import { controls } from "../consts/controls.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
 import { typography } from "../consts/typography.stylex";
-import { families, type FamilyName } from "../consts/families.stylex";
-import { Led } from "../intents/led.stylex";
+import { families, type FamilyName } from "../tokens/families.stylex";
+import { Led } from "./Led";
 
 const styles = stylex.create({
   base: {
     display: "inline-flex",
     alignItems: "center",
     gap: space["1"],
-    paddingBlock: controls.badgePaddingBlock,
+    paddingBlock: "2px",
     paddingInline: space["2"],
     borderRadius: radius.full,
     borderWidth: borderWidth.hairline,
@@ -28,7 +26,7 @@ const styles = stylex.create({
     borderColor: `color-mix(in oklab, ${strong} 60%, transparent)`,
   }),
   neutral: {
-    color: colorVariants.mutedFg,
+    color: colors.mutedForeground,
     borderColor: colors.border,
   },
 });

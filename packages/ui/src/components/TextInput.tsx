@@ -4,9 +4,9 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import { fieldText } from "../foundations/text.stylex";
 import { field } from "../foundations/field.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
-import { Led } from "../intents/led.stylex";
+import { Led } from "./Led";
 import { Badge } from "./Badge";
-import { families, type FamilyName } from "../consts/families.stylex";
+import { families, type FamilyName } from "../tokens/families.stylex";
 
 type TextInputProps = {
   label?: string;

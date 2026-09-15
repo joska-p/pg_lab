@@ -6,15 +6,14 @@ import { focusRing } from "../intents/focus.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
 import { motion } from "../consts/motion.stylex";
 import { interaction } from "../consts/interaction.stylex";
-import { controls } from "../consts/controls.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
 import { typography } from "../consts/typography.stylex";
 import { colors } from "../tokens/colors.stylex";
 import { shadowColor, shadows } from "../tokens/shadows.stylex";
-import { families, type FamilyName } from "../consts/families.stylex";
-import { Led } from "../intents/led.stylex";
+import { families, type FamilyName } from "../tokens/families.stylex";
+import { Led } from "./Led";
 
 const spin = stylex.keyframes({
   from: { transform: "rotate(0deg)" },
@@ -74,9 +73,9 @@ const styles = stylex.create({
   },
 
   spinner: {
-    width: controls.spinnerSize,
-    height: controls.spinnerSize,
-    borderWidth: controls.spinnerBorderWidth,
+    width: "12px",
+    height: "12px",
+    borderWidth: "2px",
     borderStyle: "solid",
     borderColor: "currentColor",
     borderTopColor: "transparent",

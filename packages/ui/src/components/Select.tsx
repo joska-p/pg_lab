@@ -4,13 +4,12 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import { fieldText } from "../foundations/text.stylex";
 import { field } from "../foundations/field.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
-import { Led } from "../intents/led.stylex";
+import { Led } from "./Led";
 import { Badge } from "./Badge";
-import { families, type FamilyName } from "../consts/families.stylex";
+import { families, type FamilyName } from "../tokens/families.stylex";
 import { colors } from "../tokens/colors.stylex";
 import { interaction } from "../consts/interaction.stylex";
 import { space } from "../consts/spacing.stylex";
-import { controls } from "../consts/controls.stylex";
 
 type SelectOption<T extends string> = {
   value: T;
@@ -58,8 +57,8 @@ const styles = stylex.create({
     right: space["3"],
     top: "50%",
     transform: "translateY(-50%)",
-    width: controls.chevronSize,
-    height: controls.chevronSize,
+    width: "12px",
+    height: "12px",
     color: colors.mutedForeground,
     pointerEvents: "none",
   },
@@ -140,7 +139,7 @@ export function Select<T extends string>(props: SelectProps<T>) {
             d="M2.5 4.5 6 8l3.5-3.5"
             fill="none"
             stroke="currentColor"
-            strokeWidth={controls.chevronStroke}
+            strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
           />

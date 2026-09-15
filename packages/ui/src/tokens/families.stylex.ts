@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { gruvboxPalette as palette } from "./gruvbox-palette.stylex";
+import { gruvboxPalette as palette } from "../consts/gruvbox-palette.stylex";
 
 export type FamilyName =
   | "aurora"
@@ -44,8 +44,7 @@ export const familiesConsts = stylex.defineVars({
 } as const);
 
 // 2. On reconstitue la structure imbriquée pratique (Family) à partir
-//    des consts plates. Ceci est un simple objet JS, plus du StyleX,
-//    donc l'imbrication ne pose aucun problème ici.
+//    des consts plates.
 export const families: Record<FamilyName, Family> = {
   aurora: { base: familiesConsts.auroraBase, strong: familiesConsts.auroraStrong },
   solder: { base: familiesConsts.solderBase, strong: familiesConsts.solderStrong },
