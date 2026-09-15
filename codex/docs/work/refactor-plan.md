@@ -115,63 +115,29 @@ If an existing abstraction has no clear semantic role, prefer removing it over r
 
 **Goal:** Remove prototype leakage from form controls and clarify their actual APIs.
 
-## 2.1 Clean Input Components
+### 2.1 Clean Input Components [x]
 
-Inspect:
+- [x] Inspected `TextInput.tsx`, `NumberField.tsx`, `TextArea.tsx`, and `Select.tsx`.
+- [x] Removed automatic prototype badge decorations (`<Badge>{family}</Badge>`) and unused `Badge` imports.
+- [x] Preserved `family` prop for data identity via the `Led` indicator in the label row without injecting hardcoded family text.
 
-- `TextInput.tsx`
-- `NumberField.tsx`
-- `TextArea.tsx`
-- `Select.tsx`
+### 2.2 Clean RadioGroup & Segmented [x]
 
-Remove automatic prototype/demo decorations such as:
+- [x] Inspected `RadioGroup.tsx` and `Segmented.tsx`.
+- [x] Migrated from runtime dynamic style functions (`activeIntent.fill(fam.base)`, `styles.chosen(fam.base)`) to statically declared StyleX variants (`circleChosenVariants`, `chosenVariants`) powered by `familiesConsts`.
+- [x] Preserved full keyboard navigation (arrows) and ARIA radiogroup / radio semantics.
 
-```tsx
-<Badge>{family}</Badge>
-```
+### 2.3 Verification [x]
 
-or equivalent hardcoded family labels.
+- [x] Ran `vp check` at repository root (0 format, lint, or type errors).
+- [x] Built `@repo/ui` (`vp -C packages/ui pack`) and `apps/dev` (`vp -C apps/dev build`) with zero StyleX compiler issues and verified atomic CSS emission.
+- [x] Verified contrast audit (`uv run --no-project python scripts/audit_contrast.py`).
 
-The toolkit component should not assume that the family name should be rendered as visible text.
+**Session 2 Notes:**
 
-Before preserving or changing the `family` prop, inspect its actual consumers and determine what semantic role it has.
-
-If `family` represents a legitimate visual identity for the control, preserve that behavior.
-
-If the identity/tagging is actually an application-level concern, prefer external composition rather than introducing another internal presentation prop.
-
-Do not automatically introduce a new `tag` API unless current usage demonstrates that it is needed.
-
-## 2.2 Clean RadioGroup & Segmented
-
-Inspect:
-
-- `RadioGroup.tsx`
-- `Segmented.tsx`
-
-Ensure they consume the finalized family/token model.
-
-Remove runtime dynamic styling where a static StyleX variant or CSS-variable-based approach is more appropriate.
-
-Do not introduce generic abstractions solely to share implementation details.
-
-## 2.3 Verification
-
-Run:
-
-```text
-vp check
-```
-
-Verify the relevant `apps/dev` showcase and laboratory views.
-
-Confirm that:
-
-- inputs render without automatic prototype badges;
-- existing visual identity remains intact;
-- keyboard/accessibility behavior is preserved.
-
-Record notes before finishing.
+- Prototype leakage `<Badge>{family}</Badge>` was removed from all four input primitives (`TextInput`, `NumberField`, `TextArea`, `Select`).
+- `RadioGroup` and `Segmented` now declare static compile-time StyleX variants for all 7 palette families rather than calling runtime dynamic style functions.
+- Visual identity, keyboard accessibility, and component APIs remain fully intact.
 
 ---
 

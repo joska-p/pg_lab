@@ -29,24 +29,13 @@ jobs:
         uses: actions/checkout@v6
 
       # Installe Vite+, gère Node.js, pnpm et le cache global des packages en une étape
-      - name: Setup Vite+ Environment
-        uses: voidzero-dev/setup-vp@v1.19.0
+      - uses: voidzero-dev/setup-vp@<setup-vp-version>
         with:
           node-version: "24"
           cache: true
-
-      # Installe toutes les dépendances du monorepo (y compris les liens inter-packages)
-      - name: Install dependencies
-        run: vp install
-
-      # Analyse tout le monorepo (Type-check, Lint, Format) à la vitesse de Rust
-      - name: Code Quality Checks
-        run: vp check
-
-      # Compile l'application 'dev' ET toutes ses dépendances locales (packages)
-      # dans l'ordre topologique inverse, grâce au moteur Vite Task intégré.
-      - name: Build React App and internal dependencies
-        run: vp run build --filter=dev
+      - run: vp install
+      - run: vp check
+      - run: vp run website#build
 
       # Téléverse le dossier de sortie généré par le build de l'application
       # (Puisqu'on lance la commande depuis la racine, le chemin relatif est conservé)

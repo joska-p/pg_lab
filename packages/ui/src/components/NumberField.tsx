@@ -5,7 +5,6 @@ import { fieldText } from "../foundations/text.stylex";
 import { field } from "../foundations/field.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
 import { Led } from "./Led";
-import { Badge } from "./Badge";
 import { families, type FamilyName } from "../tokens/families.stylex";
 
 type NumberFieldProps = {
@@ -62,10 +61,9 @@ export function NumberField(props: NumberFieldProps) {
 
   return (
     <div {...stylex.props(field.col, style)}>
-      {label || family ? (
+      {label || fam ? (
         <div {...stylex.props(field.labelRow)}>
           {fam ? <Led color={fam.base} live={live} /> : null}
-          {family ? <Badge family={family}>{family}</Badge> : null}
           {label ? (
             <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
               {label}

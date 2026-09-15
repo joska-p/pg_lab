@@ -5,12 +5,11 @@ import { interactiveBase } from "../foundations/interaction.stylex";
 import { fieldText } from "../foundations/text.stylex";
 import { focusRing } from "../intents/focus.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
-import { active as activeIntent } from "../intents/active.stylex";
 import { colors } from "../tokens/colors.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
-import { families, type FamilyName } from "../tokens/families.stylex";
+import { familiesConsts, type FamilyName } from "../tokens/families.stylex";
 
 type RadioOption<T extends string> = {
   value: T;
@@ -75,6 +74,41 @@ const styles = stylex.create({
     borderRadius: radius.full,
     backgroundColor: colors.foreground,
   },
+
+  dotFamily: {
+    backgroundColor: colors.background,
+  },
+});
+
+const circleChosenVariants = stylex.create({
+  aurora: {
+    backgroundColor: familiesConsts.auroraBase,
+    borderColor: familiesConsts.auroraBase,
+  },
+  solder: {
+    backgroundColor: familiesConsts.solderBase,
+    borderColor: familiesConsts.solderBase,
+  },
+  "neon-violet": {
+    backgroundColor: familiesConsts.neonVioletBase,
+    borderColor: familiesConsts.neonVioletBase,
+  },
+  amber: {
+    backgroundColor: familiesConsts.amberBase,
+    borderColor: familiesConsts.amberBase,
+  },
+  error: {
+    backgroundColor: familiesConsts.errorBase,
+    borderColor: familiesConsts.errorBase,
+  },
+  aqua: {
+    backgroundColor: familiesConsts.aquaBase,
+    borderColor: familiesConsts.aquaBase,
+  },
+  orange: {
+    backgroundColor: familiesConsts.orangeBase,
+    borderColor: familiesConsts.orangeBase,
+  },
 });
 
 export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
@@ -97,7 +131,6 @@ export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
   const items = options.map((option) => (typeof option === "string" ? { value: option } : option));
   const current = isControlled ? value : (internal ?? items[0].value);
   const listRef = useRef<HTMLDivElement>(null);
-  const fam = family ? families[family] : null;
 
   function commit(next: T) {
     if (!isControlled) setInternal(next);
@@ -153,10 +186,13 @@ export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
               )}
             >
               <span
-                {...stylex.props(styles.circle, chosen && fam ? activeIntent.fill(fam.base) : null)}
+                {...stylex.props(
+                  styles.circle,
+                  chosen && family ? circleChosenVariants[family] : null,
+                )}
               >
                 {chosen ? (
-                  <span {...stylex.props(styles.dot, fam ? activeIntent.knob : null)} />
+                  <span {...stylex.props(styles.dot, family ? styles.dotFamily : null)} />
                 ) : null}
               </span>
 

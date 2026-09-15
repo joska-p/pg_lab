@@ -9,7 +9,7 @@ import { colors } from "../tokens/colors.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
-import { families, type FamilyName } from "../tokens/families.stylex";
+import { familiesConsts, type FamilyName } from "../tokens/families.stylex";
 
 type SegmentOption<T extends string> = {
   value: T;
@@ -59,12 +59,39 @@ const styles = stylex.create({
     color: colors.mutedForeground,
   },
 
-  chosen: (color: string) => ({
-    backgroundColor: color,
-    color: colors.background,
-  }),
   chosenNeutral: {
     backgroundColor: colors.mutedForeground,
+    color: colors.background,
+  },
+});
+
+const chosenVariants = stylex.create({
+  aurora: {
+    backgroundColor: familiesConsts.auroraBase,
+    color: colors.background,
+  },
+  solder: {
+    backgroundColor: familiesConsts.solderBase,
+    color: colors.background,
+  },
+  "neon-violet": {
+    backgroundColor: familiesConsts.neonVioletBase,
+    color: colors.background,
+  },
+  amber: {
+    backgroundColor: familiesConsts.amberBase,
+    color: colors.background,
+  },
+  error: {
+    backgroundColor: familiesConsts.errorBase,
+    color: colors.background,
+  },
+  aqua: {
+    backgroundColor: familiesConsts.aquaBase,
+    color: colors.background,
+  },
+  orange: {
+    backgroundColor: familiesConsts.orangeBase,
     color: colors.background,
   },
 });
@@ -89,7 +116,6 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
   const items = options.map((option) => (typeof option === "string" ? { value: option } : option));
   const current = isControlled ? value : (internal ?? items[0].value);
   const groupRef = useRef<HTMLDivElement>(null);
-  const fam = family ? families[family] : null;
 
   function commit(next: T) {
     if (!isControlled) setInternal(next);
@@ -100,8 +126,10 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
     const index = items.findIndex((option) => option.value === current);
     const last = items.length - 1;
     let nextIndex = index;
-    if (event.key === "ArrowRight") nextIndex = index >= last ? 0 : index + 1;
-    else if (event.key === "ArrowLeft") nextIndex = index <= 0 ? last : index - 1;
+    if (event.key === "ArrowRight" || event.key === "ArrowDown")
+      nextIndex = index >= last ? 0 : index + 1;
+    else if (event.key === "ArrowLeft" || event.key === "ArrowUp")
+      nextIndex = index <= 0 ? last : index - 1;
     else return;
 
     event.preventDefault();
@@ -137,8 +165,7 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
               disabled={disabled}
               {...stylex.props(
                 styles.option,
-                chosen && fam ? styles.chosen(fam.base) : null,
-                chosen && !fam ? styles.chosenNeutral : null,
+                chosen ? (family ? chosenVariants[family] : styles.chosenNeutral) : null,
                 interactiveBase.base,
                 focusRing.base,
                 disabled ? disabledStyle.base : null,
