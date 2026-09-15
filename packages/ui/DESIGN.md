@@ -75,114 +75,111 @@ spacing:
   "10": "40px"
   "12": "48px"
   "16": "64px"
-components:
-  button-primary:
-    backgroundColor: "{colors.aurora}"
-    textColor: "{colors.ground-fg}"
-    rounded: "{rounded.sm}"
-    padding: "8px 16px"
-  button-primary-hover:
-    backgroundColor: "{colors.aurora-strong}"
-    textColor: "{colors.ground-fg}"
-    rounded: "{rounded.sm}"
-    padding: "8px 16px"
-  button-secondary:
-    backgroundColor: "{colors.solder}"
-    textColor: "{colors.ground-fg}"
-    rounded: "{rounded.sm}"
-    padding: "8px 16px"
-  button-muted:
-    backgroundColor: "{colors.muted-well}"
-    textColor: "{colors.muted-fg}"
-    rounded: "{rounded.sm}"
-    padding: "8px 16px"
-  card:
-    backgroundColor: "{colors.panel-surface}"
-    textColor: "{colors.panel-fg}"
-    rounded: "{rounded.md}"
-    padding: "16px"
-  input-default:
-    backgroundColor: "{colors.input-well}"
-    textColor: "{colors.ground-fg}"
-    rounded: "{rounded.sm}"
-    padding: "8px 12px"
-  toggle:
-    backgroundColor: "{colors.muted-well}"
-    textColor: "{colors.ground-fg}"
-    rounded: "{rounded.full}"
-    width: "34px"
-    height: "20px"
-  badge:
-    textColor: "{colors.muted-fg}"
-    rounded: "{rounded.full}"
-    padding: "2px 8px"
 ---
 
 # Design System: The Terminal Atelier
+
+This file is the **visual contract**. It records where the system is heading — the
+vocabulary validated in the `apps/dev` _visual laboratory_ — so the refactor that
+follows writes code against the contract rather than against the current matrix.
+Values that flick light/dark here stay in the frontmatter and in `tokens/` /
+`consts/`; the prose below is decision, not implementation.
 
 ## Overview
 
 **Creative North Star: "The Terminal Atelier"**
 
-The Terminal Atelier treats every interface as a workbench for making — a matte, warm-technical surface lit like a dim room where the thing being made is the only thing that should draw the eye. The ground is never black, never glossy, never corporate: it is Gruvbox-warm dark layered in quiet wells, and the UI that frames the canvas is a precise instrument rather than a dressed-up dashboard.
+A dim, Gruvbox-warm room where the thing being made is the only thing that draws
+the eye. The ground is never black, never glossy, never corporate. Chrome is a
+precise instrument — matte, dense, tactile — that recedes at rest and answers
+when touched. A glowing thing is a living thing; a colored thing means something.
 
-Everything recedes by default and answers when touched. Borders are barely-there hairlines; controls sit flat and calm until a state calls for them. Luminance is a currency spent deliberately: an active slider fill, a glowing toggle, an LED dot before a heading, the aura of a focused ring. Where the interface floats above the work — a floating control panel, a menu, a handle — it turns into glass, translucent and lightly blurred, so the canvas stays present through the chrome.
+Color is **light and data, not decoration**. It exists in four regimes, and none
+of them is "component variant color":
 
-The character is **Terminal-hued**: the Gruvbox accents are named like bench hardware — Aurora Quartz, Solder Green, Neon Violet, Amber LED, Error Red — and used only as instrumentation, never as decoration. Type is compact and technical: tight sans UI type, uppercase tracked labels, and monospace readouts wherever a number or a value matters. Density is high but serene; the canvas is always the stage, the panel always its servant.
+- **light field** — colored Gruvbox light bleeding behind surfaces;
+- **material** — translucency + backdrop blur turn that under-light into the
+  surface above it (the Gruvbox + glass combination, kept);
+- **data / identity** — a hue names an object or a parameter (`cutoff` = violet,
+  `resonance` = orange), or a mark (`running`, `record`, `plot`);
+- **state** — glow is the Pilot Light, spent rarely and deliberately.
+
+Faces stay neutral; saturation never becomes the resting price of a control.
 
 **Key Characteristics:**
 
 - Matte, layered dark ground — never pure black, warmed by Gruvbox.
-- Canvas-first: surrounding UI occupies as little attention as possible.
-- Instrument-grade controls: tactile, confident, immediate feedback.
-- Luminous accents as state language — glow means active, selected, or live.
-- Glass + light backdrop blur reserved for floating UI above the canvas.
-- Hairline borders, restrained radius, tonal surfaces instead of heavy shadows.
-- Compact technical typography with monospace readouts.
-- Responsive and touch-first: no interaction depends on hover.
+- Canvas-first: scaffolding occupies minimal attention.
+- Instrument-grade controls: tactile, immediate, no hover dependency.
+- Color = data and light: families mark identity, fills measure meaning.
+- Glass + light under floating UI only; the surface below feeds the material above.
+- Hairline borders, restrained radius, tonal surfaces instead of heavy shadow.
+- Compact technical type, monospace readouts, uppercase tracked labels.
+- Fewer visible boxes: one cage at a time, not a stack of rounded rectangles.
 
-## Color
+## Colors
 
-A dual-mode Gruvbox system: every semantic token is a `light-dark()` pair and the app picks the live scheme via `color-scheme`. Components depend only on semantic tokens; the raw palette (`gruvbox-palette.stylex.ts`) is verbatim Gruvbox and is never referenced directly by components. Exact values live in `theme/tokens.stylex.ts` and in the frontmatter above.
+Gruvbox is the **vocabulary**, not a source of semantic variants. The palette's
+own structure — hue × tonal ladder (`faded` / `neutral` / `bright`) on a warm
+dark ground — is the language. For interfaces two tensions are enough:
 
-Hardware naming:
+- **base** — the light source: LED marks, fills that mean something, light
+  fields, glass tint (`bright*` in light, `faded*` in dark).
+- **strong** — the readable line/mark: chip stroke + text, thumb seed, hover
+  infusion (the `neutral*` value, valid in both modes).
 
-- **Aurora Quartz** — primary (default action, focus identity, slider fill, toggle-on, selected segments).
-- **Solder Green** — secondary (alt actions, second-choice chrome).
-- **Neon Violet** — accent (signature/highlight moments: SectionHeading LED, accent controls, glow text). The most deliberately "instrument-decoration" of the hues.
-- **Amber LED** — warning/caution; its foreground **Amber Ink** is almost black in light mode for contrast on yellow.
-- **Error Red** — destructive states only.
-- **Matte Ground** — app ground (Stage, canvas backdrop). Never pure black.
-- **Panel Surface** — card/popover/floating fills, one step off the ground.
-- **Muted Well** — non-editable recesses (tracks, rails, toggle-off); **Muted Ink** is its text/signal.
-- **Input Well** — editable recesses (fields, selects), always bordered, distinct from muted.
+Each family (aurora/solder/neon-violet/amber/error/aqua/orange) is a hue with
+those two tensions. It adds an **ink** (its own text-on-tint pair) only where a
+widget genuinely paints text on its tint — amber has one today. Contrast is
+handled by exception, not promised per family (see `component-authoring.md` §
+Tokens → Contrast).
 
-Contrast (D4): where a pair falls under WCAG 4.5:1, the token is _derived_ via `color-mix(in oklab, …)` toward black/white (text) or toward `background` (dark elevated surfaces) — the palette itself is never edited. Audit: `uv run --no-project python scripts/audit_contrast.py`. Shortfalls (dark colored button text, decorative borders, dark track fill) are deliberate and listed in `component-authoring.md` § Colors.
+### Roles
+
+- **Neutral ground + wells** — the default face: matte, warm, hairline-bordered.
+- **Family hues** — data, identity, light. The same hue names a parameter, an
+  action's mark, or a canvas tone — never "the accent button".
+- **Contact hue** — a single interactive hue for _response_: focus ring, default
+  fill. Today that is `ring-halo` (aurora/blue); **amber is the candidate under
+  test** in the laboratory. This is the one "semantic" color the system keeps.
+- **Ink** — only where text actually sits on tinted ground (amber today),
+  derived toward black/white to meet contrast.
 
 ### Named Rules
 
-**The Pilot Light Rule.** Glow — actual luminosity — is a state language for active, selected, and live elements only. Idle elements stay matte; a glowing thing is a living thing.
+**The Warm Ground Rule.** Never pure black. Depth comes from layered Gruvbox
+darks (`dark0`→`dark4`), not from subtracting light to zero.
 
-**The Warm Ground Rule.** Never pure black. Depth comes from the layered Gruvbox darks (dark0→dark4), not from subtracting light to zero.
+**The One-Token Rule.** Components consume semantic tokens only. The raw palette
+(`consts/gruvbox-palette.stylex.ts`) is the single source of truth and is never
+referenced directly by components.
 
-**The One-Token Rule.** Components consume semantic tokens only. The raw Gruvbox palette is the single source of truth and is never referenced by components directly.
+**The Matte Face Rule.** A key's face is neutral; a field's well is neutral; a
+surface's ground is neutral. Color lives on marks (LED), on fills that mean
+something, on light, and on state — never on a whole face as a resting fill.
+
+**The One Contact Rule.** One hue answers interaction (focus halo, default
+identity). Fields no longer light their ring in every family hue.
+
+**The Color-as-Data Rule.** Before coloring a widget, ask what the hue _names_.
+If nothing, it stays neutral or takes the contact hue.
 
 ## Typography
 
-**Character:** compact, dense, technical — the voice of a bench instrument, not a magazine. Sans does the UI work; monospace takes over whenever a value is an instrument reading. Hierarchy roles and sizes live in the frontmatter and `theme/consts.stylex.ts`.
-
-- **Headline** — SectionHeading titles (largest size in the system; no display headlines exist).
-- **Title** — panel titles inside floating/docked control panels.
-- **Section label** (mono) — ControlSection and tile labels.
-- **Field label** — labels above inputs and alongside controls.
-- **Body** — paragraph text, compact and readable.
-- **Readout** (mono) — values in Readouts, input values, slider output.
+**Headline / Title / Field label:** system sans, 600/500, tight.
+**Section label / Readout:** monospace — every reading is mono.
+**Character:** compact, dense, technical — the voice of a bench instrument. Sans
+does the UI work; monospace takes over whenever a value is a reading. Hierarchy
+roles and exact values live in the frontmatter and `consts/typography.stylex.ts`.
 
 ### Named Rules
 
-**The Upper-Label Rule.** Titles and section labels are uppercase with wide tracking; body and field labels stay sentence-case. Type distinguishes hierarchy through case + tracking, so it can stay small.
+**The Upper-Label Rule.** Titles and section labels are uppercase with wide
+tracking; body and field labels stay sentence-case. Type separates hierarchy by
+case + tracking, so it stays small.
 
-**The Mono Readout Rule.** Any displayed number, identifier, or parameter value — slider output, readout values, input text, badges — renders in monospace. If it reads like a reading, it's mono.
+**The Mono Readout Rule.** Any displayed number, identifier, or parameter value —
+slider output, readouts, input text, badge labels — renders in monospace.
 
 ## Layout
 
@@ -196,101 +193,152 @@ ShellWrapper
       └─ ControlSection → widget
 ```
 
-Cards group widgets in the stage; inside a panel, `ControlSection`s stack with a 12px gap and widget rows use the `space` scale (base 4px: 1=4, 2=8, 3=12, 4=16, 8=32, 12=48). `Stack` directions and gaps are string tokens.
+**The Box Budget.** Every visible box pays attention. Borders are barely-there
+hairlines (translucent); one cage (well, panel, or card) encloses a group at a
+time; the rest of the hierarchy is carried by type and tonal surfaces. Wells and
+recesses replace stacked rectangles.
 
-Responsive behavior is structural, not a separate design:
-
-- **Landscape** → panel docks vertically beside the canvas (fixed 280px, collapsible).
-- **Portrait / ≤720px** → layout flows to a column; panel docks horizontally under (or floats) the canvas.
-- The panel is always secondary, always collapsible, and easy to hide.
+Spacing follows the 4px `space` scale; `Stack` directions and gaps are string
+tokens. Responsive behavior is structural: landscape docks the panel beside the
+canvas, portrait/≤720px stacks it under.
 
 ## Elevation & Depth
 
-**Glass-first, lifted.** The system is matte by default but leans into translucent lift wherever UI floats above the canvas. Depth has four rungs and one orthogonal state channel:
+The system is matte by default and **tonally layered**, not shadow-stacked.
+Depth has four rungs and one orthogonal state channel:
 
-1. **Flat** — no shadow, hairline border only. The resting state for in-flow surfaces (cards, wells).
-2. **Raised** — a small tinted cast shadow. The shadow _paints itself_ in the element's own color, so a green button casts green and a card casts card.
-3. **Sunken** — inset hairline shadow for embedded, recessed wells (input fields, tracks, muted group rails).
-4. **Floating** — **glass**: translucency + `backdrop-filter: blur(24px) saturate(180%)` with a soft floating cast. Reserved for UI that sits over the canvas: floating panels, overlays, toolbars. A lighter blur scale (3/8/16px) plus `blurFab` supports it.
+1. **Flat** — hairline only at rest.
+2. **Raised** — a small tinted cast; the shadow _paints itself_ in the carrier's
+   own color (`shadowColor`), so a green key casts green-lit shadow and a card
+   casts card.
+3. **Sunken** — inset hairline shadow for embedded wells and rails (fields,
+   tracks, groups).
+4. **Floating** — **glass**: translucency + `backdrop-filter: blur(24px)
+saturate(180%)` over a light backdrop, with a self-tinted cast.
 
-Glow (drop-shadow on `currentColor`) is **orthogonal to elevation**: it communicates active/selected/live state; it never simulates height. In-flow surfaces stay opaque so text contrast never depends on what's behind them — only floating layers hold glass.
+**Under/over.** The signature depth move of this system: a colored **light
+field** beneath a well; a translucent **glass** pane above it turns that
+under-light into its own material. The surface below feeds the material above —
+the depth is in the interaction, not in a hard shadow. Demonstrated in the
+laboratory's _material_ study.
+
+Glow (`drop-shadow` on `currentColor`) is **orthogonal to elevation**: it
+signals active/selected/live; it never simulates height.
 
 ### Shadow Vocabulary
 
-Exact values in `theme/shadows.stylex.ts` (all `color-mix`-derived from `--shadow-color`):
-
-- **rest** — resting pressable controls.
-- **hover** — raised hover.
-- **raised** — docked panels, floating-card elevation.
-- **active** (inset) — pressed-in state.
-- **sunken** (inset) — embedded wells, slider tracks, toggle-off.
-- **floating** — glass and floating UI.
+Exact values live in `consts/…`/`tokens/shadows.stylex.ts`, all derived from
+`--shadow-color` via `color-mix`: **rest** (pressables), **hover** (lift),
+**raised** (docked panels), **active** (inset press), **sunken** (embedded
+wells), **floating** (glass). The ladder is alpha-ordered
+(`rest < raised < hover < floating`).
 
 ### Named Rules
 
-**The Shadow-Paints-Itself Rule.** Every shadow derives from `--shadow-color`; an element sets its shadow color to its own background (`[shadowColor.color]`), so shadows are always tinted by their carrier and never a flat black.
+**The Shadow-Paints-Itself Rule.** Every shadow derives from `shadowColor`; an
+element sets it to its own background, so shadows are tinted by their carrier,
+never flat black.
 
-**The Glass-on-Floating-Only Rule.** Blur and translucency exist only on UI that floats above other content. Anything in normal document flow stays opaque — blur is for floating, not for everything.
+**The Glass-on-Floating-Only Rule.** Blur and translucency exist only where UI
+floats above other content. In-flow surfaces stay opaque so text contrast never
+depends on what sits behind them.
 
 ## Shapes
 
-Radius is a small, quiet scale (`0 / 4 / 6 / 8 / 12 / full`) in `theme/consts.stylex.ts`. Panels and cards sit at 4–8px; wells at 4px; the only perfect circles belong to intentional interactive shapes — slider thumbs, toggle tracks, badges, LED dots. Borders are hairline (1px) and translucent. The silhouette discipline: _not everything is a card_. Plans/rows/labels are typography first, boxes second; avoid stacking rounded rectangles into a "ui kit shoebox."
+Radius is a small quiet scale (`0 / 4 / 6 / 8 / 12 / full`) in
+`consts/radius.stylex.ts`. Keys and wells sit at 4px; panels at 6–8px. The only
+perfect circles are intentional interactive shapes — slider thumbs, toggles,
+LEDs, outline chips. Borders are hairline (1px) and translucent.
+
+**The Not-Everything-Is-a-Card Rule.** The silhouettes are **keys** (matte
+rectangles), **wells** (embedded recesses), **rails** (instrument tracks), and
+**chips** (outline pills). A card is the exception, chosen deliberately — not
+the default container. Avoid stacking rounded rectangles into a "ui kit
+shoebox."
 
 ## Components
 
-### Buttons
+Componentize by **anatomy**, not by role. Each widget is built from a matte
+face + the marks/fills/light the contract provides, styled locally; only
+genuinely recurring behavior is shared (focus halo, press, disabled, glass,
+glow, shadow). The six-role semantic matrix — per-family fills + per-family
+focus rings + per-widget `muted` exceptions (trackMuted, chosenMuted,
+boxOnMuted) — **is being retired**; its evidence is the dead slots (`BgActive`),
+the mirror slots (`Border` = `Bg`, `Ring` = family), and those exceptions
+themselves.
 
-- **Shape:** 4px radius, hairline solid border matching the fill color, compact padding, medium 14px sans.
-- **Primary:** Aurora Quartz fill + border, warm ground text. Hover → Aurora Quartz Strong. Active → pressed tinted shadow + `scale(0.98)`.
-- **Secondary / Accent / Warning / Destructive:** same anatomy, each in its family hue; muted = Muted Well fill, Muted Ink text (no saturated fill).
-- **Loading:** 12px `currentColor` spinner plus `aria-busy`; disabled = 45% opacity, `not-allowed`.
-- **Focus:** the universal halo — `0 0 0 2px` ground behind `0 0 0 3px` family ring; keyboard only.
+### Keys (Button)
 
-### Cards & Containers
+- **Shape:** 4px radius, hairline translucent border, compact sans padding
+  (`8px`/`12–16px`).
+- **Face:** neutral matte (`panel-surface`), `foreground` text, **no resting
+  saturated fill**.
+- **Identity:** the family lives on a **LED mark** (7px) at the leading edge —
+  running = green, record = red, plot = aqua. Hover infuses a faint family
+  tint into the face; press sunks + glows (Pilot Light).
+- **Focus:** the universal halo — `0 0 0 2px` ground behind `0 0 0 3px` contact
+  ring, keyboard only. Loading = `currentColor` spinner plus `aria-busy`;
+  disabled = 45% opacity.
 
-- **Corner Style:** 6px. **Background:** Panel Surface. **Border:** hairline. **Padding:** 16px, 12px internal gap. Flat at rest — shadow only when explicitly raised/floated.
-- **Stage:** the canvas surface — 8px radius, hairline border, `background` ground, min-height 240px, scrollable.
+### Fields (Input)
 
-### Inputs / Fields
+- **Shape:** 4px radius, hairline border, sunken well (`input-well`).
+- **Focus:** **one** contact ring replaces the per-family ring spread; the well
+  stays neutral.
+- **Identity:** if a field reads a real parameter, its data tag + LED live
+  **outside** the box (label row), never on the border.
+- Label sentence-case, typed value monospace, disabled = 45% opacity.
 
-Treated as **sunken wells**: Input Well fill, hairline border, 4px radius. On focus the border and halo switch to the variant's hue (default Aurora) while the fill stays. Field labels sit above; typed value renders in monospace. Disabled = 45% opacity.
+### Chips (Badge)
 
-### Slider / Toggle / Segmented
+- **Style:** the outline pill stays — transparent fill, hairline border, mono xs,
+  full radius, tight padding.
+- **Meaning:** hue = what the thing _is_ (aqua, orange, violet), not a status
+  role. Optional 7px LED dot, glowing only when live.
+- Neutral chip = Muted Ink outline (the default).
 
-- **Slider:** 4px thumb, full-radius track in Muted Well; fill in the variant hue; thumb is the ground color with a variant-hue border and a self-tinted rest shadow; the keyboard focus ring lives on the container (the native input is invisible); a monospace right-aligned output reads the value.
-- **Toggle:** full-radius track, small knob on 2px inset. Off = Muted Well track + variant border; **On = filled with the variant hue and a 6px same-hue glow** — the archetype of the Pilot Light Rule.
-- **Segmented:** a Muted Well rail; the chosen segment fills with the variant (muted chosen = variant border + brighter text over transparent, never a fill on a fill).
+### Rails (Slider / Toggle / Group)
 
-### Badges
+- **Slider:** recessed self-tinted track, neutral thumb seeded with the family
+  `strong` line, monospace readout; keyboard ring on the container. **Anatomy
+  kept as-is** (the instrument archetype of the system).
+- **Fill meaning:** the family names the parameter (`cutoff` = violet,
+  `resonance` = orange); identity-less parameters take the **contact** hue.
+- **Toggle:** the Pilot Light archetype — off = neutral well, **on = fill + a
+  6px same-hue glow**.
 
-Monospace outline pills — transparent fill, hairline border, full radius, tight padding. Neutral = Muted Ink; variants tint border + text only (no fill beyond neutral).
+### Scenes (Surface / material)
 
-### Readout
-
-An instrument display: hairline-bordered pill (4px radius, Panel Surface) pairing a field label with a monospace value — the canonical "label : value" reading.
-
-### Signature Component: SectionHeading
-
-The system's identity piece — a glowing accent LED dot (7px, full radius, Neon Violet, soft drop-shadow), an optional mono index, and an uppercase wide-tracked 18px title. It opens a section of the atelier like a status light coming on.
+- **Wells** stay matte; **color becomes light** (radial Gruvbox fields behind a
+  scene). A **glass pane** floating above it carries the under-light into its
+  material (under/over). LED label rows stay.
 
 ## Do's and Don'ts
 
 ### Do:
 
-- **Do** keep the canvas the visual priority — scaffolding occupies minimal attention and never competes with the work.
-- **Do** spend glow on active, selected, or live state only (Pilot Light Rule).
-- **Do** use glass (translucent + blur) for floating UI and keep in-flow surfaces opaque.
-- **Do** use monospace for readings and values (Mono Readout Rule); uppercase + wide tracking for titles (Upper-Label Rule).
-- **Do** let shadows be tinted by the element that casts them (`[shadowColor.color] = own background`).
-- **Do** show keyboard focus with the 2px-ground + 3px-ring halo, whatever the color.
+- **Do** keep the canvas the visual priority.
+- **Do** treat color as light, material, data, or state — then stop.
+- **Do** keep faces matte; spend saturation on marks, fills-that-mean, and glow
+  (Pilot Light).
+- **Do** use **one** contact hue for focus and default identity.
+- **Do** use glass + blur for UI that floats over content, and let the surface
+  below feed the material above.
+- **Do** let shadows be tinted by the element that casts them.
+- **Do** use monospace for readings, uppercase + wide tracking for titles.
+- **Do** count boxes: fewer cages, hairline borders, wells before cards.
 - **Do** build every control so touch works with no hover dependency.
 
 ### Don't:
 
-- **Don't** feel like a SaaS dashboard — no gloss, no corporate blues-per-suite, no heavy decorations.
-- **Don't** use pure black; warm near-black Gruvbox layers are the ground (Warm Ground Rule).
-- **Don't** blur in-flow content — backdrop blur is only for floating UI (Glass-on-Floating-Only Rule).
-- **Don't** lean on big shadows; surfaces are flat by default and shadow is a response to state.
+- **Don't** make the UI feel like a SaaS dashboard — no gloss, no corporate
+  per-suite blues, no stacked rounded rectangles.
+- **Don't** use pure black; warm near-black Gruvbox layers are the ground.
+- **Don't** put a saturated fill on a whole control face as its resting look.
+- **Don't** color a focus ring per family — one contact ring for all.
+- **Don't** blur in-flow content.
+- **Don't** lean on big shadows; depth is tone and under/over.
 - **Don't** reach for display-size headlines; the compact hierarchy is the system.
-- **Don't** animate decoratively or perpetually — motion is fast (120–320ms) and purposeful.
-- **Don't** hardcode raw palette values in app code; semantic tokens are the only interface to color.
+- **Don't** animate decoratively or perpetually; motion is 120–320ms, purposeful.
+- **Don't** hardcode raw palette values in app code; tokens/consts are the only
+  interface to color.

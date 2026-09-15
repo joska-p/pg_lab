@@ -26,6 +26,9 @@ import {
   Toggle,
   ShellWrapper,
 } from "@repo/ui";
+import { space } from "@repo/ui/consts/spacing.stylex";
+import { zIndex } from "@repo/ui/consts/zIndex.stylex";
+import { Laboratory } from "./lab/laboratory";
 
 const BUTTON_VARIANTS = [
   "primary",
@@ -80,6 +83,21 @@ const layoutStyles = stylex.create({
   half: {
     flex: "1 1 320px",
     minWidth: 0,
+  },
+});
+
+const shellStyles = stylex.create({
+  relative: {
+    position: "relative",
+  },
+});
+
+const viewSwitcherStyles = stylex.create({
+  base: {
+    position: "absolute",
+    top: space["3"],
+    left: space["3"],
+    zIndex: zIndex.overlay,
   },
 });
 
@@ -345,6 +363,7 @@ function App() {
   const [theme, setTheme] = useTheme();
   const [synth, setSynth] = useState<Synth>(DEFAULT_SYNTH);
   const [panelPlacement, setPanelPlacement] = useState<"docked" | "floating">("floating");
+  const [view, setView] = useState<"showcase" | "lab">("lab");
 
   function patchSynth(next: Partial<Synth>) {
     setSynth((current) => ({ ...current, ...next }));
@@ -363,134 +382,146 @@ function App() {
   }
 
   return (
-    <ShellWrapper>
-      <ExperimentShell
-        placement={panelPlacement}
-        panel={
-          <ControlPanel title="Workspace">
-            <ControlSection title="Theme">
-              <Segmented<"light" | "dark" | "system">
-                options={["light", "dark", "system"]}
-                value={theme}
-                onValueChange={setTheme}
-              />
-            </ControlSection>
+    <ShellWrapper style={shellStyles.relative}>
+      <div {...stylex.props(viewSwitcherStyles.base)}>
+        <Segmented<"showcase" | "lab">
+          options={["showcase", "lab"]}
+          value={view}
+          onValueChange={setView}
+        />
+      </div>
 
-            <ControlSection title="Panel Settings">
-              <Segmented<"docked" | "floating">
-                options={["docked", "floating"]}
-                value={panelPlacement}
-                onValueChange={setPanelPlacement}
-              />
-            </ControlSection>
+      {view === "lab" ? (
+        <Laboratory theme={theme} onThemeChange={setTheme} />
+      ) : (
+        <ExperimentShell
+          placement={panelPlacement}
+          panel={
+            <ControlPanel title="Workspace">
+              <ControlSection title="Theme">
+                <Segmented<"light" | "dark" | "system">
+                  options={["light", "dark", "system"]}
+                  value={theme}
+                  onValueChange={setTheme}
+                />
+              </ControlSection>
 
-            <ControlSection title="Mini Synth">
-              <TextInput
-                label="name"
-                value={synth.name}
-                onValueChange={(name) => patchSynth({ name })}
-              />
-              <NumberField
-                label="voices"
-                min={1}
-                max={16}
-                value={synth.voices}
-                onValueChange={(voices) => patchSynth({ voices })}
-              />
-              <Select
-                label="wave"
-                options={WAVES}
-                value={synth.wave}
-                onValueChange={(wave) => patchSynth({ wave })}
-              />
-              <RadioGroup
-                label="filter"
-                options={FILTERS}
-                value={synth.filter}
-                onValueChange={(filter) => patchSynth({ filter })}
-              />
-              <Slider
-                label="cutoff"
-                min={0}
-                max={100}
-                value={synth.cutoff}
-                onValueChange={(cutoff) => patchSynth({ cutoff })}
-              />
-              <Segmented<Quality>
-                label="quality"
-                options={QUALITIES}
-                value={synth.quality}
-                onValueChange={(quality) => patchSynth({ quality })}
-              />
-              <ColorField
-                label="tint"
-                value={synth.tint}
-                onValueChange={(tint) => patchSynth({ tint })}
-              />
-              <Checkbox
-                label="glide"
-                checked={synth.glide}
-                onCheckedChange={(glide) => patchSynth({ glide })}
-              />
-              <Toggle
-                label="mute"
-                checked={synth.mute}
-                onCheckedChange={(mute) => patchSynth({ mute })}
-              />
-              <TextArea
-                label="scribble"
-                rows={2}
-                value={synth.notes}
-                onValueChange={(notes) => patchSynth({ notes })}
-              />
-              <ControlField label="actions">
-                <Stack direction="horizontal" gap="8" wrap>
-                  <Button variant="secondary" onClick={randomizeSynth}>
-                    randomize
-                  </Button>
-                  <Button variant="muted" onClick={() => setSynth(DEFAULT_SYNTH)}>
-                    reset
-                  </Button>
-                </Stack>
-              </ControlField>
-              <Readout
-                label="out"
-                value={`${synth.wave} · ${synth.voices}v · ${synth.mute ? "muted" : "live"}`}
-              />
-            </ControlSection>
-          </ControlPanel>
-        }
-      >
-        <Stage label="Workspace Stage">
-          <Stack gap="8">
+              <ControlSection title="Panel Settings">
+                <Segmented<"docked" | "floating">
+                  options={["docked", "floating"]}
+                  value={panelPlacement}
+                  onValueChange={setPanelPlacement}
+                />
+              </ControlSection>
+
+              <ControlSection title="Mini Synth">
+                <TextInput
+                  label="name"
+                  value={synth.name}
+                  onValueChange={(name) => patchSynth({ name })}
+                />
+                <NumberField
+                  label="voices"
+                  min={1}
+                  max={16}
+                  value={synth.voices}
+                  onValueChange={(voices) => patchSynth({ voices })}
+                />
+                <Select
+                  label="wave"
+                  options={WAVES}
+                  value={synth.wave}
+                  onValueChange={(wave) => patchSynth({ wave })}
+                />
+                <RadioGroup
+                  label="filter"
+                  options={FILTERS}
+                  value={synth.filter}
+                  onValueChange={(filter) => patchSynth({ filter })}
+                />
+                <Slider
+                  label="cutoff"
+                  min={0}
+                  max={100}
+                  value={synth.cutoff}
+                  onValueChange={(cutoff) => patchSynth({ cutoff })}
+                />
+                <Segmented<Quality>
+                  label="quality"
+                  options={QUALITIES}
+                  value={synth.quality}
+                  onValueChange={(quality) => patchSynth({ quality })}
+                />
+                <ColorField
+                  label="tint"
+                  value={synth.tint}
+                  onValueChange={(tint) => patchSynth({ tint })}
+                />
+                <Checkbox
+                  label="glide"
+                  checked={synth.glide}
+                  onCheckedChange={(glide) => patchSynth({ glide })}
+                />
+                <Toggle
+                  label="mute"
+                  checked={synth.mute}
+                  onCheckedChange={(mute) => patchSynth({ mute })}
+                />
+                <TextArea
+                  label="scribble"
+                  rows={2}
+                  value={synth.notes}
+                  onValueChange={(notes) => patchSynth({ notes })}
+                />
+                <ControlField label="actions">
+                  <Stack direction="horizontal" gap="8" wrap>
+                    <Button variant="secondary" onClick={randomizeSynth}>
+                      randomize
+                    </Button>
+                    <Button variant="muted" onClick={() => setSynth(DEFAULT_SYNTH)}>
+                      reset
+                    </Button>
+                  </Stack>
+                </ControlField>
+                <Readout
+                  label="out"
+                  value={`${synth.wave} · ${synth.voices}v · ${synth.mute ? "muted" : "live"}`}
+                />
+              </ControlSection>
+            </ControlPanel>
+          }
+        >
+          <Stage label="Workspace Stage">
             <Stack gap="8">
-              <SectionHeading index="00" title="repo/ui" />
-              <Text variant="muted">
-                A small toolkit for creative mini-apps. Canvas first, panel second — and this page
-                imports nothing but components.
-              </Text>
+              <Stack gap="8">
+                <SectionHeading index="00" title="repo/ui" />
+                <Text variant="muted">
+                  A small toolkit for creative mini-apps. Canvas first, panel second — and this page
+                  imports nothing but components.
+                </Text>
+              </Stack>
+
+              {/* Synth canvas: a Surface colored by the live synth state. */}
+
+              <Surface color={synth.tint} size="tall" align="center" muted={synth.mute}>
+                <Readout
+                  label={synth.name}
+                  value={`${synth.wave} · ${synth.filter} · ${synth.cutoff}`}
+                />
+              </Surface>
+
+              <CardShowcase />
+
+              <Controls />
+              <Foundations />
+              <Stack direction="horizontal" gap="8" wrap>
+                <Text variant="muted">built on @repo/ui</Text>
+                <Text variant="muted">components only · no raw values</Text>
+              </Stack>
             </Stack>
-
-            {/* Synth canvas: a Surface colored by the live synth state. */}
-
-            <Surface color={synth.tint} size="tall" align="center" muted={synth.mute}>
-              <Readout
-                label={synth.name}
-                value={`${synth.wave} · ${synth.filter} · ${synth.cutoff}`}
-              />
-            </Surface>
-
-            <CardShowcase />
-
-            <Controls />
-            <Foundations />
-            <Stack direction="horizontal" gap="8" wrap>
-              <Text variant="muted">built on @repo/ui</Text>
-              <Text variant="muted">components only · no raw values</Text>
-            </Stack>
-          </Stack>
-        </Stage>
-      </ExperimentShell>
+          </Stage>
+        </ExperimentShell>
+      )}
     </ShellWrapper>
   );
 }

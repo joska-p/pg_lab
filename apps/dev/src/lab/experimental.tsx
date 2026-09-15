@@ -1,0 +1,533 @@
+import { useId, useState } from "react";
+import * as stylex from "@stylexjs/stylex";
+import type { StyleXStyles } from "@stylexjs/stylex";
+import { focusRing } from "@repo/ui/intents/focus.stylex";
+import { fieldText } from "@repo/ui/foundations/text.stylex";
+import { colors } from "@repo/ui/tokens/colors.stylex";
+import { colorVariants } from "@repo/ui/tokens/colorVariants.stylex";
+import { shadowColor, shadows } from "@repo/ui/tokens/shadows.stylex";
+import { glass } from "@repo/ui/effects/glass.stylex";
+import { typography } from "@repo/ui/consts/typography.stylex";
+import { space } from "@repo/ui/consts/spacing.stylex";
+import { radius } from "@repo/ui/consts/radius.stylex";
+import { borderWidth } from "@repo/ui/consts/borderWidth.stylex";
+import { motion } from "@repo/ui/consts/motion.stylex";
+import { interaction } from "@repo/ui/consts/interaction.stylex";
+import { controls } from "@repo/ui/consts/controls.stylex";
+import { fx } from "@repo/ui/consts/effects.stylex";
+import { layout } from "@repo/ui/consts/layout.stylex";
+import { FAMILIES, type LabFamilyName } from "./families";
+
+// Lab probe: a local, deliberately non-tokenized vocabulary for the
+// experimental half of the laboratory. These helpers exist ONLY to test
+// whether the concepts keep recurring (matte key + LED mark, well + contact
+// ring, family chips, instrument rails, light field + glass). None of this
+// is an API — it dies if the direction does.
+
+const ledStyles = stylex.create({
+  base: {
+    flexShrink: 0,
+    width: controls.ledSize,
+    height: controls.ledSize,
+    borderRadius: radius.full,
+    backgroundColor: "currentColor",
+  },
+  live: {
+    filter: `drop-shadow(0 0 ${fx.glowSubtleBlur} currentColor)`,
+  },
+  off: {
+    opacity: 0.45,
+  },
+  fill: (color: string) => ({ color }),
+});
+
+type LedProps = {
+  color: string;
+  live?: boolean;
+  off?: boolean;
+  style?: StyleXStyles;
+};
+
+export function Led({ color, live = false, off = false, style }: LedProps) {
+  return (
+    <span
+      aria-hidden
+      {...stylex.props(
+        ledStyles.base,
+        ledStyles.fill(color),
+        live ? ledStyles.live : null,
+        off ? ledStyles.off : null,
+        style,
+      )}
+    />
+  );
+}
+
+const keyStyles = stylex.create({
+  base: {
+    appearance: "none",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: space["2"],
+    paddingBlock: space["2"],
+    paddingInline: space["3"],
+    borderRadius: radius.sm,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    backgroundColor: colors.card,
+    color: colors.foreground,
+    [shadowColor.color]: colors.card,
+    fontFamily: typography.fontFamilySans,
+    fontSize: typography.fontSizeSm,
+    fontWeight: typography.fontWeightMedium,
+    lineHeight: typography.lineHeightTight,
+    cursor: interaction.cursorPointer,
+    transitionProperty: "background-color, border-color, box-shadow, transform",
+    transitionDuration: motion.durationFast,
+    transitionTimingFunction: motion.easingOut,
+    transform: {
+      default: null,
+      ":active": `scale(${interaction.pressScale})`,
+    },
+    ":hover": {
+      boxShadow: shadows.hover,
+    },
+    ":active": {
+      boxShadow: shadows.active,
+    },
+  },
+  hover: (strong: string) => ({
+    ":hover": {
+      backgroundColor: `color-mix(in oklab, ${colors.card} 86%, ${strong})`,
+      borderColor: `color-mix(in oklab, ${strong} 55%, ${colors.border})`,
+    },
+  }),
+  live: (base: string) => ({
+    backgroundColor: `color-mix(in oklab, ${base} 12%, ${colors.card})`,
+    borderColor: `color-mix(in oklab, ${base} 50%, ${colors.border})`,
+  }),
+  lead: {
+    paddingInline: space["4"],
+    fontWeight: typography.fontWeightSemibold,
+  },
+});
+
+type KeyProps = {
+  label: string;
+  family?: LabFamilyName;
+  live?: boolean;
+  lead?: boolean;
+  style?: StyleXStyles;
+};
+
+// The matte key: a neutral face that carries no fill. Color lives on the LED
+// (identity) and on the face only as a faint infusion while hovered or live
+// (the family "light" tipping in, never a saturated blob).
+export function Key({ label, family, live = false, lead = false, style }: KeyProps) {
+  const fam = family ? FAMILIES[family] : null;
+
+  return (
+    <button
+      type="button"
+      {...stylex.props(
+        keyStyles.base,
+        fam ? keyStyles.hover(fam.strong) : null,
+        fam && live ? keyStyles.live(fam.base) : null,
+        lead ? keyStyles.lead : null,
+        focusRing.base,
+        style,
+      )}
+    >
+      {fam ? <Led color={fam.base} live={live} /> : null}
+      {label}
+    </button>
+  );
+}
+
+const chipStyles = stylex.create({
+  base: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: space["1"],
+    paddingBlock: controls.badgePaddingBlock,
+    paddingInline: space["2"],
+    borderRadius: radius.full,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+  },
+  family: (strong: string) => ({
+    color: strong,
+    borderColor: `color-mix(in oklab, ${strong} 60%, transparent)`,
+  }),
+  neutral: {
+    color: colorVariants.mutedFg,
+    borderColor: colors.border,
+  },
+});
+
+type ChipProps = {
+  label: string;
+  family?: LabFamilyName;
+  live?: boolean;
+  style?: StyleXStyles;
+};
+
+// The family chip: the Badge anatomy kept whole (outline pill, mono), but the
+// variant is now a "hue = meaning" family carried by stroke + text, with an
+// optional LED. This is the expressive parenthesis the rest of the system
+// should follow.
+export function Chip({ label, family, live = false, style }: ChipProps) {
+  const fam = family ? FAMILIES[family] : null;
+
+  return (
+    <span
+      {...stylex.props(
+        chipStyles.base,
+        fam ? chipStyles.family(fam.strong) : chipStyles.neutral,
+        style,
+      )}
+    >
+      {fam ? <Led color={fam.base} live={live} /> : null}
+      {label}
+    </span>
+  );
+}
+
+const fieldStyles = stylex.create({
+  col: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space["1"],
+    flex: 1,
+    minWidth: "fit-content",
+  },
+  labelRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: space["2"],
+  },
+  well: {
+    width: "100%",
+    minWidth: 0,
+    margin: 0,
+    paddingBlock: space["2"],
+    paddingInline: space["3"],
+    borderRadius: radius.sm,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    backgroundColor: colors.input,
+    color: colors.foreground,
+    [shadowColor.color]: colors.input,
+    boxShadow: shadows.sunken,
+    outline: "none",
+    ":focus": {
+      borderColor: `color-mix(in oklab, ${colors.ring} 55%, ${colors.border})`,
+      boxShadow: `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.ring}`,
+    },
+  },
+});
+
+type LabFieldProps = {
+  label?: string;
+  family?: LabFamilyName;
+  live?: boolean;
+  placeholder?: string;
+  defaultValue?: string;
+  style?: StyleXStyles;
+};
+
+// A field is a crevasse: one sunken well, one contact ring on focus, no
+// family tint on the box. If a field reads a real parameter, its data
+// identity sits OUTSIDE the well as a tag + LED — never on the border.
+export function LabField({
+  label,
+  family,
+  live = false,
+  placeholder = "———",
+  defaultValue,
+  style,
+}: LabFieldProps) {
+  const id = useId();
+  const fam = family ? FAMILIES[family] : null;
+
+  return (
+    <div {...stylex.props(fieldStyles.col, style)}>
+      {label || family ? (
+        <div {...stylex.props(fieldStyles.labelRow)}>
+          {fam ? <Led color={fam.base} live={live} /> : null}
+          {family ? <Chip label={family} family={family} /> : null}
+          {label ? (
+            <label htmlFor={id} {...stylex.props(fieldText.label)}>
+              {label}
+            </label>
+          ) : null}
+        </div>
+      ) : null}
+      <input
+        id={id}
+        type="text"
+        placeholder={placeholder}
+        defaultValue={defaultValue}
+        {...stylex.props(fieldStyles.well, fieldText.value)}
+      />
+    </div>
+  );
+}
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+const sliderStyles = stylex.create({
+  row: {
+    display: "flex",
+    alignItems: "center",
+    gap: space["3"],
+  },
+  container: {
+    position: "relative",
+    flex: 1,
+    height: controls.sliderThumbSize,
+    boxShadow: {
+      default: null,
+      [stylex.when.descendant(":focus-visible")]:
+        `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.ring}`,
+    },
+  },
+  track: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: "50%",
+    transform: "translateY(-50%)",
+    height: controls.sliderTrackHeight,
+    borderRadius: radius.full,
+    backgroundColor: colors.muted,
+    [shadowColor.color]: colorVariants.mutedBg,
+    boxShadow: shadows.sunken,
+  },
+  fill: (progress: string, color: string) => ({
+    position: "absolute",
+    left: 0,
+    top: "50%",
+    transform: "translateY(-50%)",
+    width: progress,
+    height: controls.sliderTrackHeight,
+    borderRadius: radius.full,
+    backgroundColor: color,
+  }),
+  thumb: (progress: string, mark: string) => ({
+    position: "absolute",
+    left: progress,
+    top: "50%",
+    transform: "translate(-50%, -50%)",
+    width: controls.sliderThumbSize,
+    height: controls.sliderThumbSize,
+    borderRadius: radius.full,
+    backgroundColor: colors.background,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: mark,
+    [shadowColor.color]: mark,
+    boxShadow: shadows.rest,
+  }),
+  input: {
+    position: "absolute",
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    margin: 0,
+    opacity: 0,
+    cursor: interaction.cursorPointer,
+  },
+  readout: {
+    minWidth: space["10"],
+    textAlign: "right",
+  },
+});
+
+type LabSliderProps = {
+  label: string;
+  family?: LabFamilyName | "contact";
+  min?: number;
+  max?: number;
+  step?: number;
+  defaultValue?: number;
+  style?: StyleXStyles;
+};
+
+// The instrument rail, kept whole: recessed self-tinted track, neutral thumb
+// with a family mark, mono readout, ring on the container. The only change is
+// that the fill hue means a parameter, not a role — contact hue when the
+// parameter has no identity of its own.
+export function LabSlider({
+  label,
+  family = "contact",
+  min = 0,
+  max = 100,
+  step = 1,
+  defaultValue = 62,
+  style,
+}: LabSliderProps) {
+  const id = useId();
+  const [internal, setInternal] = useState(defaultValue);
+  const value = clamp(internal, min, max);
+  const progress = `${((value - min) / (max - min)) * 100}%`;
+  const fill = family === "contact" ? colors.ring : FAMILIES[family].base;
+  const mark = family === "contact" ? colors.ring : FAMILIES[family].strong;
+
+  return (
+    <div {...stylex.props(sliderStyles.row, style)}>
+      {label ? (
+        <label htmlFor={id} {...stylex.props(fieldText.label)}>
+          {label}
+        </label>
+      ) : null}
+
+      <div {...stylex.props(sliderStyles.container)}>
+        <div {...stylex.props(sliderStyles.track)} />
+        <div {...stylex.props(sliderStyles.fill(progress, fill))} />
+        <div {...stylex.props(sliderStyles.thumb(progress, mark))} />
+        <input
+          id={id}
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(event) => setInternal(Number(event.currentTarget.value))}
+          aria-label={label}
+          {...stylex.props(sliderStyles.input)}
+        />
+      </div>
+
+      <output htmlFor={id} {...stylex.props(sliderStyles.readout, fieldText.value)}>
+        {value}
+      </output>
+    </div>
+  );
+}
+
+const readoutRowStyles = stylex.create({
+  row: {
+    display: "flex",
+    alignItems: "baseline",
+    gap: space["2"],
+  },
+  label: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    letterSpacing: typography.letterSpacingWide,
+    textTransform: typography.textCaseUppercase,
+    color: colors.mutedForeground,
+  },
+  value: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeSm,
+    color: colors.foreground,
+  },
+});
+
+const sceneStyles = stylex.create({
+  base: {
+    position: "relative",
+    minHeight: layout.surfaceTallMinHeight,
+    borderRadius: radius.lg,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    overflow: "hidden",
+  },
+  ground: {
+    position: "absolute",
+    inset: 0,
+    backgroundColor: colors.card,
+  },
+  bleed: {
+    position: "absolute",
+    inset: "-32px",
+  },
+  ball: (color: string, left: string, top: string, size: string) => ({
+    position: "absolute",
+    left,
+    top,
+    width: size,
+    height: size,
+    borderRadius: radius.full,
+    backgroundImage: `radial-gradient(circle at 50% 50%, ${color}, transparent 72%)`,
+    filter: `blur(${fx.blurLg})`,
+  }),
+  wash: (color: string) => ({
+    position: "absolute",
+    inset: 0,
+    backgroundImage: `linear-gradient(145deg, color-mix(in oklab, ${color} 12%, transparent), transparent 58%)`,
+  }),
+  wellStrip: {
+    position: "absolute",
+    top: space["3"],
+    left: space["3"],
+    display: "flex",
+    alignItems: "center",
+    gap: space["2"],
+    paddingBlock: space["1"],
+    paddingInline: space["3"],
+    borderRadius: radius.sm,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    backgroundColor: colors.card,
+    [shadowColor.color]: colors.card,
+    boxShadow: shadows.raised,
+  },
+  glassPane: (color: string) => ({
+    position: "absolute",
+    bottom: space["3"],
+    right: space["3"],
+    display: "flex",
+    alignItems: "center",
+    gap: space["2"],
+    paddingBlock: space["3"],
+    paddingInline: space["4"],
+    borderRadius: radius.md,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: `color-mix(in oklab, ${color} 45%, transparent)`,
+    [shadowColor.color]: color,
+    backgroundColor: `color-mix(in oklab, ${color} 16%, ${colors.background} 40%)`,
+  }),
+});
+
+// The under/over scene: a matte well ground, colored Gruvbox light fields
+// bleeding beneath, an opaque control strip, and a glass pane floating above
+// the light so the blur turns the light beneath into the material above.
+export function MaterialScene() {
+  const amber = FAMILIES.amber.base;
+  const aqua = FAMILIES.aqua.base;
+  const violet = FAMILIES.violet.base;
+
+  return (
+    <div {...stylex.props(sceneStyles.base)}>
+      <div {...stylex.props(sceneStyles.ground)} />
+      <div {...stylex.props(sceneStyles.bleed)}>
+        <span {...stylex.props(sceneStyles.ball(amber, "6%", "10%", "72%"))} />
+        <span {...stylex.props(sceneStyles.ball(aqua, "52%", "44%", "58%"))} />
+        <span {...stylex.props(sceneStyles.ball(violet, "28%", "52%", "34%"))} />
+      </div>
+      <div {...stylex.props(sceneStyles.wash(amber))} />
+
+      <div {...stylex.props(sceneStyles.wellStrip)}>
+        <Led color={amber} live />
+        <span {...stylex.props(readoutRowStyles.label)}>level</span>
+        <span {...stylex.props(readoutRowStyles.value)}>+6.2 dB</span>
+      </div>
+
+      <div {...stylex.props(glass.glass, sceneStyles.glassPane(aqua))}>
+        <Led color={aqua} live />
+        <span {...stylex.props(readoutRowStyles.label)}>monitor</span>
+        <span {...stylex.props(readoutRowStyles.value)}>0.620</span>
+      </div>
+    </div>
+  );
+}

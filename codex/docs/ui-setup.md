@@ -3,8 +3,8 @@
 How `@repo/ui` (StyleX design tokens + components) is distributed to apps in
 this monorepo, and how to scaffold a new app that honors the contract.
 
-Related: `component-authoring.md` (adding components), `coding-conventions.md`.
-StyleX reference: <https://stylexjs.com>.
+Related: `component-authoring.md` (adding components, visual contract),
+`coding-conventions.md`. StyleX reference: <https://stylexjs.com>.
 
 ---
 
@@ -31,8 +31,8 @@ bundle, no rebuild-the-lib-before-dev ordering.
   map (this has bitten us: with `exports: true`, pack replaced the map with
   `./dist/index.mjs` and every subpath import broke).
 - `tsconfig.json` uses `moduleResolution: bundler`, matching the apps.
-- Imports are **extensionless** (`../theme/tokens.stylex`, never
-  `../theme/tokens.stylex.ts`). The `.ts`-suffixed form only worked by accident
+- Imports are **extensionless** (`../tokens/colors.stylex`, never
+  `../tokens/colors.stylex.ts`). The `.ts`-suffixed form only worked by accident
   via `allowImportingTsExtensions` and diverges between `bundler` and
   `nodenext` resolution.
 - `stylex-preset.ts` is the single source of truth for compiler options
@@ -68,12 +68,19 @@ Every app needs, as in `apps/dev`:
   (`packages/ui/src`).
 - Consume a single entry style: either `@repo/ui` or the `@repo/ui/theme/*`
   subpaths, never a mix of `dist` and `src` for the same package.
-- Local `stylex.create` in an app must import theme/behavior values from
-  their defining files (`@repo/ui/tokens/colors.stylex`,
-  `@repo/ui/tokens/shadows.stylex`, `@repo/ui/effects/glass.stylex`),
+- Local `stylex.create` in an app must import theme/const/behavior values from
+  their defining files — `@repo/ui/tokens/<name>.stylex`,
+  `@repo/ui/consts/<name>.stylex`, `@repo/ui/effects/<name>.stylex`,
+  `@repo/ui/foundations/<name>.stylex`, `@repo/ui/intents/<name>.stylex` —
   never from the `@repo/ui` barrel: the StyleX compiler cannot resolve
   `defineVars` through a re-export (build error `Could not resolve the path
-to the imported file`). Components themselves stay on the barrel.
+to the imported file`). Components themselves stay on the barrel. The
+  `.stylex` suffix is required in the app import: the `exports` wildcard maps
+  `@repo/ui/<group>/<name>.stylex` onto `src/<group>/<name>.stylex.ts`, which is
+  the part the compiler matches on. A value referenced _inside_ `stylex.create`
+  must therefore come from one of those files; local template constants and
+  non-`.stylex` maps cannot be referenced there — pass the color in as a style
+  factory argument instead (the Slider `fill(progress)` pattern).
 
 ## 4. Scaffolding a new app
 
@@ -107,13 +114,14 @@ vp check                   # fmt + lint + types green
 
 ## 6. Troubleshooting
 
-| Symptom                                                   | Likely cause                                                                                                                                               | Fix                                                                                       |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `Unexpected 'stylex.defineConsts' call at runtime` in dev | `@repo/ui` pre-bundled without the plugin                                                                                                                  | `optimizeDeps.exclude: ["@repo/ui"]`                                                      |
-| Same error, exclude already set                           | `useCSSLayers` passed at top level (`stylexPlugin({ useCSSLayers })`) instead of nested (`stylexPlugin({ stylex: { useCSSLayers } })`), or preset not used | Spread `stylexPreset`                                                                     |
-| `TS2307: Cannot find module '@repo/ui/theme/…'`           | `vp pack` rewrote `exports` to `dist`                                                                                                                      | `pack.exports: false` in the lib config, restore source-pointing `exports`                |
-| Styles missing in production build only                   | `runtimeInjection` defaults to off outside dev; `stylex.css` asset not linked                                                                              | Emit + link `stylex.css` (the plugin's `transformIndexHtml` handles the default filename) |
-| Two copies of React/StyleX at runtime                     | Missing `resolve.dedupe`                                                                                                                                   | Add the `dedupe` list from section 3                                                      |
+| Symptom                                                                      | Likely cause                                                                                                                                               | Fix                                                                                             |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `Unexpected 'stylex.defineConsts' call at runtime` in dev                    | `@repo/ui` pre-bundled without the plugin                                                                                                                  | `optimizeDeps.exclude: ["@repo/ui"]`                                                            |
+| Same error, exclude already set                                              | `useCSSLayers` passed at top level (`stylexPlugin({ useCSSLayers })`) instead of nested (`stylexPlugin({ stylex: { useCSSLayers } })`), or preset not used | Spread `stylexPreset`                                                                           |
+| `TS2307: Cannot find module '@repo/ui/theme/…'`                              | `vp pack` rewrote `exports` to `dist`                                                                                                                      | `pack.exports: false` in the lib config, restore source-pointing `exports`                      |
+| `Could not resolve the path to the imported file` in a local `stylex.create` | Value imported from the barrel, or a local `.ts` map referenced inside `create`                                                                            | Import from `@repo/ui/<group>/<name>.stylex`; pass dynamic colors as style-factory params (§ 3) |
+| Styles missing in production build only                                      | `runtimeInjection` defaults to off outside dev; `stylex.css` asset not linked                                                                              | Emit + link `stylex.css` (the plugin's `transformIndexHtml` handles the default filename)       |
+| Two copies of React/StyleX at runtime                                        | Missing `resolve.dedupe`                                                                                                                                   | Add the `dedupe` list from section 3                                                            |
 
 ## 7. Future static site (Astro)
 

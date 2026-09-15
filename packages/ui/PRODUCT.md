@@ -21,7 +21,8 @@ A lightweight, StyleX-powered toolkit whose interfaces feel like a creative inst
 ## Operating Context
 
 - Monorepo driven by Vite+; apps consume `@repo/ui` workspace source and compile it per-app with `unplugin-stylex` using the library-owned `stylexPreset`.
-- `apps/dev` is the reference implementation and test bed where components are exercised in a real surface.
+- `apps/dev` is the reference implementation and test bed where components are exercised in a real surface. It also hosts a **visual laboratory** view that tests the visual contract before any token/API change: current vs experimental, entirely app-local.
+- The direction being prepared by that laboratory: Gruvbox as a vocabulary (families `base`/`strong`), matte faces + LED marks, a single contact hue, wells before cards, and light-field/glass under/over material. The over-generalized six-role variant matrix is the identified layer to shrink — the refactor runs after the language is settled.
 - Responsive behavior is built in, not a separate mobile design: portrait stacks the control panel under the canvas, landscape docks it beside. Touch is a first-class requirement; no interaction depends on hover.
 - Setup, distribution and authoring contracts live in `codex/docs/` (`ui-setup.md`, `component-authoring.md`, `coding-conventions.md`).
 
@@ -44,8 +45,8 @@ A lightweight, StyleX-powered toolkit whose interfaces feel like a creative inst
 ## Evidence on Hand
 
 - Component sources: `packages/ui/src` (theme/behaviors/components).
-- Reference/test app: `apps/dev` (its own PRODUCT.md covers the dev-app surface separately).
-- Setup contract: `codex/docs/ui-setup.md`; authoring rules in `codex/docs/component-authoring.md` and `codex/docs/coding-conventions.md`.
+- Reference/test app: `apps/dev` (its own PRODUCT.md covers the dev-app surface separately); the _visual laboratory_ view holds the current-vs-experimental direction evidence.
+- Setup contract: `codex/docs/ui-setup.md`; authoring rules in `codex/docs/component-authoring.md` and `codex/docs/coding-conventions.md`. Visual contract: `DESIGN.md`.
 - No public testimonials, case studies, press, or third-party usage exists; nothing here may fabricate them.
 
 ## Product Principles
