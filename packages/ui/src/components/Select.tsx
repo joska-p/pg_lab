@@ -2,14 +2,15 @@ import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { fieldText } from "../foundations/text.stylex";
-import { fieldFocus } from "../intents/focus.stylex";
+import { field } from "../foundations/field.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
+import { Led } from "../intents/led.stylex";
+import { Badge } from "./Badge";
+import { families, type FamilyName } from "../consts/families.stylex";
 import { colors } from "../tokens/colors.stylex";
 import { interaction } from "../consts/interaction.stylex";
-import { controls } from "../consts/controls.stylex";
-import { borderWidth } from "../consts/borderWidth.stylex";
-import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
+import { controls } from "../consts/controls.stylex";
 
 type SelectOption<T extends string> = {
   value: T;
@@ -18,7 +19,8 @@ type SelectOption<T extends string> = {
 
 type SelectProps<T extends string> = {
   label?: string;
-  variant?: keyof typeof fieldFocus;
+  family?: FamilyName;
+  live?: boolean;
   options: readonly T[] | readonly SelectOption<T>[];
   value?: T;
   defaultValue?: T;
@@ -30,14 +32,6 @@ type SelectProps<T extends string> = {
 };
 
 const styles = stylex.create({
-  field: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space["1"],
-    flex: 1,
-    minWidth: "fit-content",
-  },
-
   wrap: {
     position: "relative",
     display: "flex",
@@ -53,9 +47,6 @@ const styles = stylex.create({
     paddingBlock: space["2"],
     paddingLeft: space["3"],
     paddingRight: space["8"],
-    borderRadius: radius.sm,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
     backgroundColor: colors.input,
     color: colors.foreground,
     outline: "none",
@@ -77,7 +68,8 @@ const styles = stylex.create({
 export function Select<T extends string>(props: SelectProps<T>) {
   const {
     label,
-    variant = "primary",
+    family,
+    live = false,
     options,
     value,
     defaultValue,
@@ -95,6 +87,7 @@ export function Select<T extends string>(props: SelectProps<T>) {
   );
   const isControlled = value !== undefined;
   const current = isControlled ? value : internal;
+  const fam = family ? families[family] : null;
 
   function handleChange(event: React.ChangeEvent<HTMLSelectElement>) {
     const next = event.currentTarget.value as T;
@@ -105,11 +98,17 @@ export function Select<T extends string>(props: SelectProps<T>) {
   const items = options.map((option) => (typeof option === "string" ? { value: option } : option));
 
   return (
-    <div {...stylex.props(styles.field)}>
-      {label ? (
-        <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
-          {label}
-        </label>
+    <div {...stylex.props(field.col, style)}>
+      {label || family ? (
+        <div {...stylex.props(field.labelRow)}>
+          {fam ? <Led color={fam.base} live={live} /> : null}
+          {family ? <Badge family={family}>{family}</Badge> : null}
+          {label ? (
+            <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
+              {label}
+            </label>
+          ) : null}
+        </div>
       ) : null}
 
       <div {...stylex.props(styles.wrap)}>
@@ -119,11 +118,10 @@ export function Select<T extends string>(props: SelectProps<T>) {
           onChange={handleChange}
           disabled={disabled}
           {...stylex.props(
+            field.well,
             styles.select,
             fieldText.value,
-            fieldFocus[variant],
             disabled ? disabledStyle.base : null,
-            style,
           )}
         >
           {placeholder ? (

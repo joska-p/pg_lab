@@ -166,12 +166,7 @@ export function ExperimentShell(props: ExperimentShellProps) {
             placement === "floating" && visible ? styles.toggleClearOfFloatingPanel : null,
           )}
         >
-          <Button
-            variant="secondary"
-            aria-expanded={visible}
-            aria-controls={panelId}
-            onClick={handleToggle}
-          >
+          <Button aria-expanded={visible} aria-controls={panelId} onClick={handleToggle}>
             {visible ? `hide ${toggleLabel}` : `show ${toggleLabel}`}
           </Button>
         </div>

@@ -2,11 +2,10 @@ import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { fieldText } from "../foundations/text.stylex";
-import { intentBorders, intentFills } from "../foundations/surface.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
 import { colors } from "../tokens/colors.stylex";
-import { colorVariants } from "../tokens/colorVariants.stylex";
 import { shadows, shadowColor } from "../tokens/shadows.stylex";
+import { families, type FamilyName } from "../consts/families.stylex";
 import { interaction } from "../consts/interaction.stylex";
 import { controls } from "../consts/controls.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
@@ -15,7 +14,7 @@ import { space } from "../consts/spacing.stylex";
 
 type SliderProps = {
   label?: string;
-  variant?: keyof typeof intentFills;
+  family?: FamilyName;
   min: number;
   max: number;
   step?: number;
@@ -68,14 +67,14 @@ const styles = stylex.create({
     transform: "translateY(-50%)",
     height: controls.sliderTrackHeight,
     borderRadius: radius.full,
-    backgroundColor: colorVariants.mutedBg,
+    backgroundColor: colors.muted,
     // Recessed groove (self-tinted by the muted fill): the unfilled rail reads
     // as hollow, the progress fill as raised on top of it.
-    [shadowColor.color]: colorVariants.mutedBg,
+    [shadowColor.color]: colors.muted,
     boxShadow: shadows.sunken,
   },
 
-  fill: (progress: string) => ({
+  fill: (progress: string, color: string) => ({
     position: "absolute",
     left: 0,
     top: "50%",
@@ -83,9 +82,10 @@ const styles = stylex.create({
     width: progress,
     height: controls.sliderTrackHeight,
     borderRadius: radius.full,
+    backgroundColor: color,
   }),
 
-  thumb: (progress: string) => ({
+  thumb: (progress: string, mark: string) => ({
     position: "absolute",
     left: progress,
     top: "50%",
@@ -96,11 +96,10 @@ const styles = stylex.create({
     backgroundColor: colors.background,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
-    borderColor: colors.border,
-    // Harmonic variant language: `intentBorders[variant]` seeds the shadow
-    // tint, so the knob's resting cast follows its family (border + shadow
-    // agree), per the "shadow paints itself" rule — the knob filler stays the
-    // neutral `background` while its ring and halo carry the color.
+    borderColor: mark,
+    // Shadow-paints-itself: the thumb's rest cast carries the family hue
+    // (border + shadow agree), per the "shadow paints itself" rule.
+    [shadowColor.color]: mark,
     boxShadow: shadows.rest,
   }),
 
@@ -120,13 +119,14 @@ const styles = stylex.create({
   },
 });
 
-// Fill and thumb slices come from the shared surfaces (muted = muted.fg,
-// S8: the signal sits on the muted track, is not a saturated fill).
+// Fill and thumb slices come from families: the fill carries `base` (the light
+// source), the thumb is seeded with `strong` (the readable mark). The track
+// stays a neutral recessed well.
 
 export function Slider(props: SliderProps) {
   const {
     label,
-    variant = "primary",
+    family = "aurora",
     min,
     max,
     step = 1,
@@ -145,6 +145,7 @@ export function Slider(props: SliderProps) {
   const current = clamp(isControlled ? value : internal, min, max);
   const precision = decimals(step);
   const progress = `${((current - min) / (max - min)) * 100}%`;
+  const fam = families[family];
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const next = clamp(Number(event.currentTarget.value), min, max);
@@ -162,8 +163,8 @@ export function Slider(props: SliderProps) {
 
       <div {...stylex.props(styles.container, disabled ? disabledStyle.base : null, style)}>
         <div {...stylex.props(styles.track)} />
-        <div {...stylex.props(styles.fill(progress), intentFills[variant])} />
-        <div {...stylex.props(styles.thumb(progress), intentBorders[variant])} />
+        <div {...stylex.props(styles.fill(progress, fam.base))} />
+        <div {...stylex.props(styles.thumb(progress, fam.strong))} />
 
         <input
           id={controlId}

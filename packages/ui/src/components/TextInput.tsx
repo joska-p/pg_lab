@@ -2,16 +2,16 @@ import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { fieldText } from "../foundations/text.stylex";
-import { fieldFocus } from "../intents/focus.stylex";
+import { field } from "../foundations/field.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
-import { colors } from "../tokens/colors.stylex";
-import { borderWidth } from "../consts/borderWidth.stylex";
-import { radius } from "../consts/radius.stylex";
-import { space } from "../consts/spacing.stylex";
+import { Led } from "../intents/led.stylex";
+import { Badge } from "./Badge";
+import { families, type FamilyName } from "../consts/families.stylex";
 
 type TextInputProps = {
   label?: string;
-  variant?: keyof typeof fieldFocus;
+  family?: FamilyName;
+  live?: boolean;
   value?: string;
   defaultValue?: string;
   placeholder?: string;
@@ -21,34 +21,11 @@ type TextInputProps = {
   style?: StyleXStyles;
 };
 
-const styles = stylex.create({
-  field: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space["1"],
-    flex: 1,
-    minWidth: "fit-content",
-  },
-
-  input: {
-    width: "100%",
-    minWidth: 0,
-    margin: 0,
-    paddingBlock: space["2"],
-    paddingInline: space["3"],
-    borderRadius: radius.sm,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    backgroundColor: colors.input,
-    color: colors.foreground,
-    outline: "none",
-  },
-});
-
 export function TextInput(props: TextInputProps) {
   const {
     label,
-    variant = "primary",
+    family,
+    live = false,
     value,
     defaultValue = "",
     placeholder,
@@ -63,6 +40,7 @@ export function TextInput(props: TextInputProps) {
   const [internal, setInternal] = useState(defaultValue);
   const isControlled = value !== undefined;
   const current = isControlled ? value : internal;
+  const fam = family ? families[family] : null;
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const next = event.currentTarget.value;
@@ -71,11 +49,17 @@ export function TextInput(props: TextInputProps) {
   }
 
   return (
-    <div {...stylex.props(styles.field)}>
-      {label ? (
-        <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
-          {label}
-        </label>
+    <div {...stylex.props(field.col, style)}>
+      {label || family ? (
+        <div {...stylex.props(field.labelRow)}>
+          {fam ? <Led color={fam.base} live={live} /> : null}
+          {family ? <Badge family={family}>{family}</Badge> : null}
+          {label ? (
+            <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
+              {label}
+            </label>
+          ) : null}
+        </div>
       ) : null}
 
       <input
@@ -85,13 +69,7 @@ export function TextInput(props: TextInputProps) {
         placeholder={placeholder}
         onChange={handleChange}
         disabled={disabled}
-        {...stylex.props(
-          styles.input,
-          fieldText.value,
-          fieldFocus[variant],
-          disabled ? disabledStyle.base : null,
-          style,
-        )}
+        {...stylex.props(field.well, fieldText.value, disabled ? disabledStyle.base : null)}
       />
     </div>
   );

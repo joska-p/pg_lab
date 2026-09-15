@@ -10,12 +10,12 @@ import {
   Stack,
   Surface,
   TextInput,
+  families,
 } from "@repo/ui";
 import { colorVariants } from "@repo/ui/tokens/colorVariants.stylex";
 import { typography } from "@repo/ui/consts/typography.stylex";
 import { space } from "@repo/ui/consts/spacing.stylex";
-import { FAMILIES, type LabFamilyName } from "./families";
-import { Chip, Key, LabField, LabSlider, Led, MaterialScene } from "./experimental";
+import { Chip, Key, LabField, Led, MaterialScene } from "./experimental";
 
 type ThemeMode = "light" | "dark" | "system";
 
@@ -115,7 +115,7 @@ const styles = stylex.create({
 type StudyProps = {
   index: string;
   name: string;
-  accent: LabFamilyName;
+  accent: keyof typeof families;
   aim: string;
   children: React.ReactNode;
 };
@@ -124,7 +124,7 @@ function Study({ index, name, accent, aim, children }: StudyProps) {
   return (
     <section>
       <div {...stylex.props(styles.studyHead)}>
-        <Led color={FAMILIES[accent].base} />
+        <Led color={families[accent].base} />
         <span {...stylex.props(styles.index)}>{index}</span>
         <h2 {...stylex.props(styles.studyTitle)}>{name}</h2>
         <span {...stylex.props(styles.aim)}>— {aim}</span>
@@ -165,7 +165,7 @@ export function Laboratory({ theme, onThemeChange, style }: LaboratoryProps) {
   return (
     <div {...stylex.props(styles.root, style)}>
       <div {...stylex.props(styles.header)}>
-        <Led color={FAMILIES.amber.base} live />
+        <Led color={families.amber.base} live />
         <h1 {...stylex.props(styles.title)}>visual laboratory</h1>
         <span {...stylex.props(styles.subtitle)}>
           current architecture vs experimental vocabulary · same tokens, app-local styles only
@@ -179,15 +179,17 @@ export function Laboratory({ theme, onThemeChange, style }: LaboratoryProps) {
         </div>
       </div>
 
-      <Study index="01" name="action" accent="green" aim="a capacity, not a fill">
+      <Study index="01" name="action" accent="solder" aim="a capacity, not a fill">
         <Pair
           current={
             <Card variant="surface">
               <ControlField label="transport">
                 <Stack direction="horizontal" gap="8" wrap>
-                  <Button variant="secondary">run</Button>
-                  <Button variant="destructive">record</Button>
-                  <Button variant="accent">plot</Button>
+                  <Button family="solder" live lead>
+                    run
+                  </Button>
+                  <Button family="error">record</Button>
+                  <Button family="aqua">plot</Button>
                 </Stack>
               </ControlField>
             </Card>
@@ -208,13 +210,18 @@ export function Laboratory({ theme, onThemeChange, style }: LaboratoryProps) {
         />
       </Study>
 
-      <Study index="02" name="field" accent="violet" aim="a well answers with one contact ring">
+      <Study
+        index="02"
+        name="field"
+        accent="neon-violet"
+        aim="a well answers with one contact ring"
+      >
         <Pair
           current={
             <Card variant="surface">
               <Stack gap="6">
-                <TextInput label="patch" variant="primary" defaultValue="bass-01" />
-                <TextInput label="cutoff" variant="accent" defaultValue="62" />
+                <TextInput label="patch" defaultValue="bass-01" />
+                <TextInput label="cutoff" family="neon-violet" defaultValue="62" />
               </Stack>
             </Card>
           }
@@ -237,9 +244,9 @@ export function Laboratory({ theme, onThemeChange, style }: LaboratoryProps) {
           current={
             <Card variant="surface">
               <Stack direction="horizontal" gap="8" wrap>
-                <Badge variant="secondary">run</Badge>
-                <Badge variant="accent">plot</Badge>
-                <Badge variant="warning">hold</Badge>
+                <Badge family="solder">run</Badge>
+                <Badge family="aqua">plot</Badge>
+                <Badge family="amber">hold</Badge>
                 <Badge>neutral</Badge>
               </Stack>
             </Card>
@@ -266,23 +273,29 @@ export function Laboratory({ theme, onThemeChange, style }: LaboratoryProps) {
           current={
             <Card variant="surface">
               <Stack gap="6">
-                <Slider label="cutoff" variant="primary" min={40} max={16000} defaultValue={6200} />
-                <Slider label="resonance" variant="accent" min={0} max={100} defaultValue={62} />
+                <Slider
+                  label="cutoff"
+                  family="neon-violet"
+                  min={40}
+                  max={16000}
+                  defaultValue={6200}
+                />
+                <Slider label="resonance" family="orange" min={0} max={100} defaultValue={62} />
               </Stack>
             </Card>
           }
           experimental={
             <>
               <Stack gap="6">
-                <LabSlider
+                <Slider
                   label="cutoff"
-                  family="violet"
+                  family="neon-violet"
                   min={40}
                   max={16000}
                   defaultValue={6200}
                 />
-                <LabSlider label="resonance" family="orange" min={0} max={100} defaultValue={62} />
-                <LabSlider label="drive" family="amber" min={0} max={100} defaultValue={24} />
+                <Slider label="resonance" family="orange" min={0} max={100} defaultValue={62} />
+                <Slider label="drive" family="amber" min={0} max={100} defaultValue={24} />
               </Stack>
               <p {...stylex.props(styles.note)}>
                 anatomy untouched — only the fill{"'"}s meaning changed (house hue = no identity)

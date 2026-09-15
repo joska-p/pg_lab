@@ -30,6 +30,16 @@ import { space } from "@repo/ui/consts/spacing.stylex";
 import { zIndex } from "@repo/ui/consts/zIndex.stylex";
 import { Laboratory } from "./lab/laboratory";
 
+const BUTTON_FAMILIES = [
+  "aurora",
+  "solder",
+  "neon-violet",
+  "amber",
+  "error",
+  "aqua",
+  "orange",
+] as const;
+
 const BUTTON_VARIANTS = [
   "primary",
   "secondary",
@@ -131,9 +141,9 @@ function Controls() {
         <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="Button">
             <Stack direction="horizontal" gap="8" wrap justify="between">
-              {BUTTON_VARIANTS.map((variant) => (
-                <Button key={variant} variant={variant}>
-                  {variant}
+              {BUTTON_FAMILIES.map((family) => (
+                <Button key={family} family={family}>
+                  {family}
                 </Button>
               ))}
               <Button loading>loading</Button>
@@ -145,11 +155,11 @@ function Controls() {
         <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="Slider">
             <Stack gap="8">
-              {BUTTON_VARIANTS.map((variant) => (
+              {BUTTON_FAMILIES.map((family) => (
                 <Slider
-                  key={variant}
-                  label={variant}
-                  variant={variant}
+                  key={family}
+                  label={family}
+                  family={family}
                   min={0}
                   max={100}
                   defaultValue={62}
@@ -204,11 +214,11 @@ function Controls() {
         <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="Select">
             <Stack gap="8" direction="horizontal" wrap justify="between">
-              {BUTTON_VARIANTS.map((variant) => (
+              {BUTTON_FAMILIES.map((family) => (
                 <Select
-                  key={variant}
-                  label={variant}
-                  variant={variant}
+                  key={family}
+                  label={family}
+                  family={family}
                   options={["one", "two"]}
                   defaultValue="two"
                 />
@@ -238,8 +248,8 @@ function Controls() {
         <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="TextInput">
             <Stack gap="8" direction="horizontal" wrap justify="between">
-              {BUTTON_VARIANTS.map((variant) => (
-                <TextInput key={variant} label={variant} variant={variant} defaultValue={variant} />
+              {BUTTON_FAMILIES.map((family) => (
+                <TextInput key={family} label={family} family={family} defaultValue={family} />
               ))}
               <TextInput label="disabled" defaultValue="frozen" disabled />
             </Stack>
@@ -249,11 +259,11 @@ function Controls() {
         <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="NumberField">
             <Stack gap="8" direction="horizontal" wrap justify="between">
-              {BUTTON_VARIANTS.map((variant) => (
+              {BUTTON_FAMILIES.map((family) => (
                 <NumberField
-                  key={variant}
-                  label={variant}
-                  variant={variant}
+                  key={family}
+                  label={family}
+                  family={family}
                   min={0}
                   max={100}
                   defaultValue={62}
@@ -267,13 +277,13 @@ function Controls() {
         <Card variant="surface" style={layoutStyles.half}>
           <ControlSection title="TextArea">
             <Stack gap="8" direction="horizontal" wrap justify="between">
-              {BUTTON_VARIANTS.map((variant) => (
+              {BUTTON_FAMILIES.map((family) => (
                 <TextArea
-                  key={variant}
-                  label={variant}
-                  variant={variant}
+                  key={family}
+                  label={family}
+                  family={family}
                   rows={2}
-                  defaultValue={variant}
+                  defaultValue={family}
                 />
               ))}
               <TextArea label="disabled" defaultValue="frozen" disabled />
@@ -475,12 +485,8 @@ function App() {
                 />
                 <ControlField label="actions">
                   <Stack direction="horizontal" gap="8" wrap>
-                    <Button variant="secondary" onClick={randomizeSynth}>
-                      randomize
-                    </Button>
-                    <Button variant="muted" onClick={() => setSynth(DEFAULT_SYNTH)}>
-                      reset
-                    </Button>
+                    <Button onClick={randomizeSynth}>randomize</Button>
+                    <Button onClick={() => setSynth(DEFAULT_SYNTH)}>reset</Button>
                   </Stack>
                 </ControlField>
                 <Readout
