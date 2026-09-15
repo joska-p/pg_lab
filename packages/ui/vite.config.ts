@@ -6,6 +6,7 @@ import { defineConfig } from "vite-plus";
 // at ./src so every app compiles the same source with the shared preset.
 export default defineConfig({
   pack: {
+    deps: { resolveDepSubpath: true },
     dts: {
       generator: "tsgo",
     },

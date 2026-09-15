@@ -29,13 +29,13 @@ jobs:
         uses: actions/checkout@v6
 
       # Installe Vite+, gère Node.js, pnpm et le cache global des packages en une étape
-      - uses: voidzero-dev/setup-vp@<setup-vp-version>
+      - uses: voidzero-dev/setup-vp@v1.20.0
         with:
           node-version: "24"
           cache: true
       - run: vp install
       - run: vp check
-      - run: vp run website#build
+      - run: vp run dev#build
 
       # Téléverse le dossier de sortie généré par le build de l'application
       # (Puisqu'on lance la commande depuis la racine, le chemin relatif est conservé)
