@@ -12,7 +12,6 @@ import {
   families,
 } from "@repo/ui";
 import { colors } from "@repo/ui/tokens/colors.stylex";
-import { colorVariants } from "@repo/ui/tokens/colorVariants.stylex";
 import { elevation } from "@repo/ui/effects/elevation.stylex";
 import { radius } from "@repo/ui/consts/radius.stylex";
 import { borderWidth } from "@repo/ui/consts/borderWidth.stylex";
@@ -52,7 +51,7 @@ const styles = stylex.create({
     margin: 0,
     fontFamily: typography.fontFamilyMono,
     fontSize: typography.fontSizeXs,
-    color: colorVariants.mutedFg,
+    color: colors.mutedForeground,
   },
   themeControl: {
     marginLeft: "auto",
@@ -67,7 +66,7 @@ const styles = stylex.create({
   index: {
     fontFamily: typography.fontFamilyMono,
     fontSize: typography.fontSizeXs,
-    color: colorVariants.mutedFg,
+    color: colors.mutedForeground,
   },
   studyTitle: {
     margin: 0,
@@ -81,7 +80,7 @@ const styles = stylex.create({
     margin: 0,
     fontFamily: typography.fontFamilyMono,
     fontSize: typography.fontSizeXs,
-    color: colorVariants.mutedFg,
+    color: colors.mutedForeground,
   },
 
   row: {
@@ -105,13 +104,13 @@ const styles = stylex.create({
     fontSize: typography.fontSizeXs,
     letterSpacing: typography.letterSpacingWide,
     textTransform: typography.textCaseUppercase,
-    color: colorVariants.mutedFg,
+    color: colors.mutedForeground,
   },
   note: {
     margin: 0,
     fontFamily: typography.fontFamilyMono,
     fontSize: typography.fontSizeXs,
-    color: colorVariants.mutedFg,
+    color: colors.mutedForeground,
   },
 });
 

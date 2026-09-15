@@ -1,6 +1,5 @@
 // Tokens (themeable design values).
 export { colors } from "./tokens/colors.stylex";
-export { colorVariants } from "./tokens/colorVariants.stylex";
 export { families, type FamilyName, type Family } from "./tokens/families.stylex";
 export { shadowColor, shadows } from "./tokens/shadows.stylex";
 
@@ -20,7 +19,6 @@ export { layout } from "./consts/layout.stylex";
 // Foundations (state-free base styles from tokens/consts).
 export { fieldText } from "./foundations/text.stylex";
 export { interactiveBase } from "./foundations/interaction.stylex";
-export { colorIntents, intentFills, intentBorders } from "./foundations/surface.stylex";
 
 // Effects (generic visual styles).
 export { glow } from "./effects/glow.stylex";
@@ -31,7 +29,6 @@ export { glass } from "./effects/glass.stylex";
 export { pressable } from "./intents/pressable.stylex";
 export { focusRing } from "./intents/focus.stylex";
 export { disabledStyle } from "./intents/disabled.stylex";
-export { intentHovers } from "./intents/hover.stylex";
 
 // Components.
 export { Led, type LedProps } from "./components/Led";

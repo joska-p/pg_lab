@@ -11,9 +11,9 @@ import { gruvboxPalette as palette } from "../consts/gruvbox-palette.stylex";
 // toward black/white for text, toward `background` for elevated dark
 // surfaces. Hue stays gruvbox; only lightness moves.
 //
-// The six variant families (primary, secondary, accent, warning, destructive,
-// muted) are defined here as base values and regrouped into semantic slots in
-// `./colorVariants.stylex` (bg / bgHover / bgActive / fg / border / ring).
+// Semantic tokens for surfaces, text, borders, and interactive contact.
+// Palette family hues (aurora, solder, neon-violet, amber, etc.) are defined
+// in `./families.stylex`.
 export const colors = stylex.defineVars({
   background: `light-dark(${palette.light1}, ${palette.dark0})`,
 

@@ -20,9 +20,8 @@ export const glow = stylex.create({
   },
 
   // Small opaque box-shadow halo tinted by the element's `shadowColor`.
-  // On/off widgets apply a `colorIntents[variant]` map first (which sets
-  // `[shadowColor.color]` to the family), so the ring follows the family:
-  // an effect tinted via the shadow variable — not a raw per-family map.
+  // On/off widgets set `[shadowColor.color]` from the family, so the ring follows
+  // the family: an effect tinted via the shadow variable — not a raw per-family map.
   glowRing: {
     boxShadow: `0 0 ${fx.glowRing} color-mix(in oklab, ${shadowColor.color} ${fx.glowRingCast}, transparent)`,
   },

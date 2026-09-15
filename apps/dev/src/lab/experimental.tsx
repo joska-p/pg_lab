@@ -4,7 +4,6 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import { focusRing } from "@repo/ui/intents/focus.stylex";
 import { fieldText } from "@repo/ui/foundations/text.stylex";
 import { colors } from "@repo/ui/tokens/colors.stylex";
-import { colorVariants } from "@repo/ui/tokens/colorVariants.stylex";
 import { shadowColor, shadows } from "@repo/ui/tokens/shadows.stylex";
 import { glass } from "@repo/ui/effects/glass.stylex";
 import { typography } from "@repo/ui/consts/typography.stylex";
@@ -162,7 +161,7 @@ const chipStyles = stylex.create({
     borderColor: `color-mix(in oklab, ${strong} 60%, transparent)`,
   }),
   neutral: {
-    color: colorVariants.mutedFg,
+    color: colors.mutedForeground,
     borderColor: colors.border,
   },
 });

@@ -181,83 +181,35 @@ If an existing abstraction has no clear semantic role, prefer removing it over r
 
 **Goal:** Remove the legacy color/intent matrix after all consumers have been migrated.
 
-## 4.1 Inventory Before Deletion
+### 4.1 Inventory and Migrate Consumers [x]
 
-Before deleting anything, search the entire repository for consumers of:
+- [x] Inspected the entire repository for references to `colorVariants.stylex.ts`, `foundations/surface.stylex.ts`, `intents/hover.stylex.ts`, `colorIntents`, `intentFills`, `intentBorders`, and `intentHovers`.
+- [x] Migrated remaining consumers in `apps/dev/src/lab/experimental.tsx` and `apps/dev/src/lab/laboratory.tsx` from `colorVariants.mutedFg` to `colors.mutedForeground`.
+- [x] Cleaned up legacy matrix references and comments in `packages/ui/src/tokens/colors.stylex.ts` and `packages/ui/src/effects/glow.stylex.ts`.
 
-- `colorVariants.stylex.ts`
-- `foundations/surface.stylex.ts`
-- `colorIntents`
-- `intentFills`
-- `intentBorders`
-- `intents/hover.stylex.ts`
-- `intentHovers`
+### 4.2 Retire Legacy Matrix Files and Update Exports [x]
 
-Do not delete a legacy file while it still has unresolved consumers.
+- [x] Deleted `packages/ui/src/tokens/colorVariants.stylex.ts`.
+- [x] Deleted `packages/ui/src/foundations/surface.stylex.ts`.
+- [x] Deleted `packages/ui/src/intents/hover.stylex.ts`.
+- [x] Updated `packages/ui/src/index.ts` to remove `colorVariants`, `colorIntents`, `intentFills`, `intentBorders`, and `intentHovers` exports.
 
-## 4.2 Migrate Remaining Consumers
+### 4.3 Verify Architecture Layering [x]
 
-Migrate each consumer to the finalized model:
+- [x] Verified clear one-way dependency flow: `Components / Apps -> Foundations & Effects & Intents -> Tokens -> Consts`.
+- [x] Confirmed zero lingering compatibility shims, runtime style objects, or dead matrix references.
 
-- `tokens/colors.stylex.ts`
-- `tokens/families.stylex.ts`
-- or another already-established semantic token when appropriate.
+### 4.4 Verification [x]
 
-Do not create a new compatibility layer merely to avoid changing consumers.
+- [x] Ran `vp check` at repository root (0 formatting, linting, or type errors across workspace).
+- [x] Built `@repo/ui` (`vp -C packages/ui pack`) and `apps/dev` (`vp -C apps/dev build`) with zero compiler warnings and verified atomic CSS emission.
+- [x] Ran contrast audit (`uv run --no-project python scripts/audit_contrast.py`).
 
-Once all consumers have been migrated, remove:
+**Session 4 Notes:**
 
-- `packages/ui/src/tokens/colorVariants.stylex.ts`
-- `packages/ui/src/foundations/surface.stylex.ts`
-- `packages/ui/src/intents/hover.stylex.ts`
-
-Update:
-
-`packages/ui/src/index.ts`
-
-and any package exports.
-
-## 4.3 Verify the Layering
-
-After migration, verify that the resulting dependency direction is approximately:
-
-```text
-Components
-    │
-    ├── Foundations
-    │
-    └── Effects
-          │
-          ▼
-       Tokens
-          │
-          ▼
-       Consts
-```
-
-Do not force every file into this diagram if doing so creates unnecessary indirection. The purpose is to keep the conceptual dependency direction understandable.
-
-## 4.4 Verification
-
-Run:
-
-```text
-vp check
-```
-
-Then:
-
-```text
-uv run --no-project python scripts/audit_contrast.py
-```
-
-Ensure:
-
-- no legacy imports remain;
-- no compatibility bridge remains accidentally;
-- contrast requirements pass.
-
-Record notes before finishing.
+- The legacy 6-role matrix (`colorVariants.stylex.ts`, `foundations/surface.stylex.ts`, and `intents/hover.stylex.ts`) has been completely dismantled and removed.
+- All former consumers use canonical semantic tokens (`colors.*`) and static family tokens (`families.*`) directly.
+- Package entry points and barrel exports in `packages/ui/src/index.ts` are streamlined with zero legacy matrix artifacts remaining.
 
 ---
 
