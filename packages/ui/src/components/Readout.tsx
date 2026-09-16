@@ -31,7 +31,9 @@ export function Readout({ label, value, style }: ReadoutProps) {
   return (
     <div {...stylex.props(styles.base, style)}>
       <span {...stylex.props(fieldText.label)}>{label}</span>
-      <span {...stylex.props(fieldText.value)}>{value}</span>
+      <span aria-live="polite" {...stylex.props(fieldText.value)}>
+        {value}
+      </span>
     </div>
   );
 }

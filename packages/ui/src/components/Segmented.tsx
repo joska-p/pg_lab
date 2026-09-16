@@ -130,6 +130,8 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
       nextIndex = index >= last ? 0 : index + 1;
     else if (event.key === "ArrowLeft" || event.key === "ArrowUp")
       nextIndex = index <= 0 ? last : index - 1;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = last;
     else return;
 
     event.preventDefault();
@@ -161,6 +163,7 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
               type="button"
               role="radio"
               aria-checked={chosen}
+              tabIndex={chosen ? 0 : -1}
               onClick={() => commit(option.value)}
               disabled={disabled}
               {...stylex.props(

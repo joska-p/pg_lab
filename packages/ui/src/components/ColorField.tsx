@@ -98,7 +98,9 @@ export function ColorField(props: ColorFieldProps) {
         )}
       />
 
-      <span {...stylex.props(styles.value, fieldText.value)}>{current.toUpperCase()}</span>
+      <span aria-live="polite" {...stylex.props(styles.value, fieldText.value)}>
+        {current.toUpperCase()}
+      </span>
     </div>
   );
 }

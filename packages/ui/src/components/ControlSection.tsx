@@ -1,3 +1,4 @@
+import { useId } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { fieldText } from "../foundations/text.stylex";
@@ -26,9 +27,12 @@ type ControlSectionProps = {
 };
 
 export function ControlSection({ title, style, children }: ControlSectionProps) {
+  const titleId = useId();
   return (
-    <section {...stylex.props(styles.base, style)}>
-      <span {...stylex.props(fieldText.label, styles.title)}>{title}</span>
+    <section aria-labelledby={titleId} {...stylex.props(styles.base, style)}>
+      <span id={titleId} {...stylex.props(fieldText.label, styles.title)}>
+        {title}
+      </span>
       {children}
     </section>
   );

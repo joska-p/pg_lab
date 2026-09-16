@@ -53,7 +53,10 @@ const styles = stylex.create({
     height: "14px",
     borderRadius: radius.full,
     backgroundColor: colors.background,
-    transitionDuration: motion.durationFast,
+    transitionDuration: {
+      default: motion.durationFast,
+      "@media (prefers-reduced-motion: reduce)": "1ms",
+    },
     transitionTimingFunction: motion.easingOut,
     transitionProperty: "transform, background-color",
   },

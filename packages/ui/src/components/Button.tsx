@@ -42,7 +42,10 @@ const styles = stylex.create({
     lineHeight: typography.lineHeightTight,
     cursor: interaction.cursorPointer,
     transitionProperty: "background-color, border-color, box-shadow, transform",
-    transitionDuration: motion.durationFast,
+    transitionDuration: {
+      default: motion.durationFast,
+      "@media (prefers-reduced-motion: reduce)": "1ms",
+    },
     transitionTimingFunction: motion.easingOut,
     ":hover": {
       boxShadow: shadows.hover,
@@ -80,7 +83,10 @@ const styles = stylex.create({
     animationName: spin,
     animationDuration: motion.durationSlow,
     animationTimingFunction: motion.easingLinear,
-    animationIterationCount: motion.iterationInfinite,
+    animationIterationCount: {
+      default: motion.iterationInfinite,
+      "@media (prefers-reduced-motion: reduce)": "1",
+    },
   },
 
   lead: {

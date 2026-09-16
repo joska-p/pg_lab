@@ -8,7 +8,10 @@ import { interaction } from "../consts/interaction.stylex";
 export const interactiveBase = stylex.create({
   base: {
     cursor: interaction.cursorPointer,
-    transitionDuration: motion.durationFast,
+    transitionDuration: {
+      default: motion.durationFast,
+      "@media (prefers-reduced-motion: reduce)": "1ms",
+    },
     transitionTimingFunction: motion.easingOut,
     transitionProperty: "background-color, border-color, color, box-shadow, opacity, transform",
   },
