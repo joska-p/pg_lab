@@ -39,7 +39,7 @@ export default defineConfig({
     react(),
   ]),
   resolve: {
-    dedupe: ["@stylexjs/stylex", "react", "react-dom"],
+    dedupe: ["react", "react-dom"],
   },
   optimizeDeps: {
     exclude: ["@repo/ui"],
