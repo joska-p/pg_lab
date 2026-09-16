@@ -9,7 +9,6 @@
     "dist"
   ],
   "type": "module",
-  "sideEffects": false,
   "exports": {
     "./tokens/*": {
       "types": "./src/tokens/*.ts",
