@@ -5,9 +5,8 @@
   "type": "module",
   "scripts": {
     "ready": "vp check && vp run -r test && vp run -r build",
-    "dev": "vp run website#dev --host",
-    "build": "vp run website#build",
-    "new-app": "node tools/new-app.mjs",
+    "dev": "vp run dev#dev --host",
+    "build": "vp run dev#build",
     "prepare": "vp config"
   },
   "devDependencies": {
