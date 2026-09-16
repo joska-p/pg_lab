@@ -1,7 +1,11 @@
 import { useEffect } from "react";
-import { ShellWrapper } from "@repo/ui";
+import { ShellWrapper } from "@repo/ui/components/ShellWrapper";
 import { useTheme, setTheme } from "./stores/appStore";
-import { ControlPanel, ExperimentShell, Stage, ControlSection, Segmented } from "@repo/ui";
+import { ControlPanel } from "@repo/ui/components/ControlPanel";
+import { ExperimentShell } from "@repo/ui/components/ExperimentShell";
+import { Stage } from "@repo/ui/components/Stage";
+import { ControlSection } from "@repo/ui/components/ControlSection";
+import { Segmented } from "@repo/ui/components/Segmented";
 
 function App() {
   const theme = useTheme();

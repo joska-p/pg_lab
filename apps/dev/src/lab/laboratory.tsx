@@ -1,18 +1,16 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import {
-  Badge,
-  Button,
-  Card,
-  ControlField,
-  Segmented,
-  Slider,
-  Stack,
-  TextInput,
-  families,
-  ExperimentShell,
-  Stage,
-} from "@repo/ui";
+import { Badge } from "@repo/ui/components/Badge";
+import { Button } from "@repo/ui/components/Button";
+import { Card } from "@repo/ui/components/Card";
+import { ControlField } from "@repo/ui/components/ControlField";
+import { Segmented } from "@repo/ui/components/Segmented";
+import { Slider } from "@repo/ui/components/Slider";
+import { Stack } from "@repo/ui/components/Stack";
+import { TextInput } from "@repo/ui/components/TextInput";
+import { families } from "@repo/ui/tokens/families.stylex";
+import { ExperimentShell } from "@repo/ui/components/ExperimentShell";
+import { Stage } from "@repo/ui/components/Stage";
 import { colors } from "@repo/ui/tokens/colors.stylex";
 import { elevation } from "@repo/ui/effects/elevation.stylex";
 import { radius } from "@repo/ui/consts/radius.stylex";

@@ -9,12 +9,8 @@
     "dist"
   ],
   "type": "module",
+  "sideEffects": false,
   "exports": {
-    ".": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts"
-    },
-    "./package.json": "./package.json",
     "./tokens/*": {
       "types": "./src/tokens/*.ts",
       "import": "./src/tokens/*.ts"

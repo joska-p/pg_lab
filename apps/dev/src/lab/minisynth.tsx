@@ -1,29 +1,27 @@
 import { useState } from "react";
 import * as stylex from "@stylexjs/stylex";
-import {
-  Button,
-  Card,
-  Checkbox,
-  ColorField,
-  ControlField,
-  ControlPanel,
-  ControlSection,
-  ExperimentShell,
-  NumberField,
-  RadioGroup,
-  Readout,
-  SectionHeading,
-  Select,
-  Segmented,
-  Slider,
-  Stack,
-  Stage,
-  Swatch,
-  Text,
-  TextArea,
-  TextInput,
-  Toggle,
-} from "@repo/ui";
+import { Button } from "@repo/ui/components/Button";
+import { Card } from "@repo/ui/components/Card";
+import { ControlField } from "@repo/ui/components/ControlField";
+import { Segmented } from "@repo/ui/components/Segmented";
+import { Slider } from "@repo/ui/components/Slider";
+import { Stack } from "@repo/ui/components/Stack";
+import { TextInput } from "@repo/ui/components/TextInput";
+import { ExperimentShell } from "@repo/ui/components/ExperimentShell";
+import { Stage } from "@repo/ui/components/Stage";
+import { Checkbox } from "@repo/ui/components/Checkbox";
+import { ColorField } from "@repo/ui/components/ColorField";
+import { ControlPanel } from "@repo/ui/components/ControlPanel";
+import { ControlSection } from "@repo/ui/components/ControlSection";
+import { NumberField } from "@repo/ui/components/NumberField";
+import { RadioGroup } from "@repo/ui/components/RadioGroup";
+import { Readout } from "@repo/ui/components/Readout";
+import { SectionHeading } from "@repo/ui/components/SectionHeading";
+import { Select } from "@repo/ui/components/Select";
+import { Swatch } from "@repo/ui/components/Swatch";
+import { Text } from "@repo/ui/components/Text";
+import { TextArea } from "@repo/ui/components/TextArea";
+import { Toggle } from "@repo/ui/components/Toggle";
 import { colors } from "@repo/ui/tokens/colors.stylex";
 import { shadowColor } from "@repo/ui/tokens/shadows.stylex";
 import { elevation } from "@repo/ui/effects/elevation.stylex";

@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
-import {
-  Button,
-  Led,
-  ShellWrapper,
-  Stack,
-  Text,
-  ExperimentShell,
-  Stage,
-  ControlPanel,
-  ControlSection,
-} from "@repo/ui";
+import { Button } from "@repo/ui/components/Button";
+import { Led } from "@repo/ui/components/Led";
+import { ShellWrapper } from "@repo/ui/components/ShellWrapper";
+import { Stack } from "@repo/ui/components/Stack";
+import { Text } from "@repo/ui/components/Text";
+import { ExperimentShell } from "@repo/ui/components/ExperimentShell";
+import { Stage } from "@repo/ui/components/Stage";
+import { ControlPanel } from "@repo/ui/components/ControlPanel";
+import { ControlSection } from "@repo/ui/components/ControlSection";
 import { colors } from "@repo/ui/tokens/colors.stylex";
 import { focusRing } from "@repo/ui/intents/focus.stylex";
 import { pressable } from "@repo/ui/intents/pressable.stylex";
@@ -22,7 +20,7 @@ import { motion } from "@repo/ui/consts/motion.stylex";
 import { interaction } from "@repo/ui/consts/interaction.stylex";
 import { space } from "@repo/ui/consts/spacing.stylex";
 import { zIndex } from "@repo/ui/consts/zIndex.stylex";
-import { families } from "@repo/ui";
+import { families } from "@repo/ui/tokens/families.stylex";
 import { Laboratory } from "./lab/laboratory";
 import { MiniSynth } from "./lab/minisynth";
 
