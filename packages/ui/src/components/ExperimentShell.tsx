@@ -1,7 +1,6 @@
 import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { elevation } from "../effects/elevation.stylex";
 import { glass } from "../effects/glass.stylex";
 import { colors } from "../tokens/colors.stylex";
 import { shadowColor } from "../tokens/shadows.stylex";
@@ -11,8 +10,6 @@ import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
 import { zIndex } from "../consts/zIndex.stylex";
 import { Button } from "./Button";
-
-const TOGGLE_CLEARANCE = Number.parseFloat(layout.panelGap) * 2;
 
 const styles = stylex.create({
   base: {
@@ -95,7 +92,7 @@ const styles = stylex.create({
   },
 
   toggleClearOfFloatingPanel: {
-    right: `calc(${layout.panelWidth} + ${TOGGLE_CLEARANCE}px)`,
+    right: `calc(${layout.panelWidth} + calc(${layout.panelGap} * 2))`,
     "@media (max-width: 720px)": {
       right: space["3"],
     },
@@ -133,6 +130,17 @@ export function ExperimentShell(props: ExperimentShellProps) {
   const isControlled = panelVisible !== undefined;
   const visible = isControlled ? panelVisible : internal;
 
+  const isFloating = placement === "floating";
+
+  const panelStyle = [
+    styles.panel,
+    isFloating && styles.panelFloating,
+    glass.glass,
+    !visible && styles.hidden,
+  ];
+
+  const toggleStyle = [styles.toggle, isFloating && visible && styles.toggleClearOfFloatingPanel];
+
   function handleToggle() {
     const next = !visible;
     if (!isControlled) setInternal(next);
@@ -143,29 +151,12 @@ export function ExperimentShell(props: ExperimentShellProps) {
     <div {...stylex.props(styles.base, style)}>
       <div {...stylex.props(styles.stageSlot)}>{children}</div>
       {panel ? (
-        <div
-          id={panelId}
-          {...stylex.props(
-            styles.panel,
-            placement === "floating" ? styles.panelFloating : null,
-            // Glass is reserved for floating UI over a backdrop (translucency
-            // makes text contrast depend on what sits behind). Docked keeps a
-            // solid ground + a raised cast so the panel still lifts off the
-            // stage without compositing a 24px blur in normal flow.
-            placement === "floating" ? glass.glass : elevation.raised,
-            visible ? null : styles.hidden,
-          )}
-        >
+        <div id={panelId} {...stylex.props(...panelStyle)}>
           {panel}
         </div>
       ) : null}
       {panel ? (
-        <div
-          {...stylex.props(
-            styles.toggle,
-            placement === "floating" && visible ? styles.toggleClearOfFloatingPanel : null,
-          )}
-        >
+        <div {...stylex.props(...toggleStyle)}>
           <Button aria-expanded={visible} aria-controls={panelId} onClick={handleToggle}>
             {visible ? `hide ${toggleLabel}` : `show ${toggleLabel}`}
           </Button>

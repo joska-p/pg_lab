@@ -10,6 +10,8 @@ import {
   Stack,
   TextInput,
   families,
+  ExperimentShell,
+  Stage,
 } from "@repo/ui";
 import { colors } from "@repo/ui/tokens/colors.stylex";
 import { elevation } from "@repo/ui/effects/elevation.stylex";
@@ -22,17 +24,6 @@ import { Chip, Key, LabField, Led, MaterialScene } from "./experimental";
 type ThemeMode = "light" | "dark" | "system";
 
 const styles = stylex.create({
-  root: {
-    height: "100%",
-    minHeight: "100%",
-    display: "flex",
-    flexDirection: "column",
-    gap: space["6"],
-    padding: space["6"],
-    boxSizing: "border-box",
-    overflowY: "auto",
-  },
-
   header: {
     display: "flex",
     alignItems: "center",
@@ -124,7 +115,7 @@ type StudyProps = {
 
 function Study({ index, name, accent, aim, children }: StudyProps) {
   return (
-    <section>
+    <div>
       <div {...stylex.props(styles.studyHead)}>
         <Led color={families[accent].base} />
         <span {...stylex.props(styles.index)}>{index}</span>
@@ -132,7 +123,7 @@ function Study({ index, name, accent, aim, children }: StudyProps) {
         <span {...stylex.props(styles.aim)}>— {aim}</span>
       </div>
       {children}
-    </section>
+    </div>
   );
 }
 
@@ -194,183 +185,193 @@ const legacyTileStyles = stylex.create({
   },
 });
 
-export function Laboratory({ theme, onThemeChange, style }: LaboratoryProps) {
+export function Laboratory({ theme, onThemeChange }: LaboratoryProps) {
   return (
-    <div {...stylex.props(styles.root, style)}>
-      <div {...stylex.props(styles.header)}>
-        <Led color={families.amber.base} live />
-        <h1 {...stylex.props(styles.title)}>visual laboratory</h1>
-        <span {...stylex.props(styles.subtitle)}>
-          current architecture vs experimental vocabulary · same tokens, app-local styles only
-        </span>
-        <div {...stylex.props(styles.themeControl)}>
-          <Segmented<ThemeMode>
-            options={["light", "dark", "system"]}
-            value={theme}
-            onValueChange={onThemeChange}
-          />
-        </div>
-      </div>
+    <ExperimentShell>
+      <Stage>
+        <Stack gap="6">
+          <div {...stylex.props(styles.header)}>
+            <Led color={families.amber.base} live />
+            <h1 {...stylex.props(styles.title)}>visual laboratory</h1>
+            <span {...stylex.props(styles.subtitle)}>
+              current architecture vs experimental vocabulary · same tokens, app-local styles only
+            </span>
+            <div {...stylex.props(styles.themeControl)}>
+              <Segmented<ThemeMode>
+                options={["light", "dark", "system"]}
+                value={theme}
+                onValueChange={onThemeChange}
+              />
+            </div>
+          </div>
 
-      <Study index="01" name="action" accent="solder" aim="a capacity, not a fill">
-        <Pair
-          current={
-            <Card variant="surface">
-              <ControlField label="transport">
-                <Stack direction="horizontal" gap="8" wrap>
-                  <Button family="solder" live lead>
-                    run
-                  </Button>
-                  <Button family="error">record</Button>
-                  <Button family="aqua">plot</Button>
-                </Stack>
-              </ControlField>
-            </Card>
-          }
-          experimental={
-            <>
-              <Stack direction="horizontal" gap="8" wrap>
-                <Key label="run" family="green" live lead />
-                <Key label="record" family="red" />
-                <Key label="plot" family="aqua" />
-                <Key label="save" />
-              </Stack>
-              <p {...stylex.props(styles.note)}>
-                matte key all the way — the LED names the action, the face stays neutral
-              </p>
-            </>
-          }
-        />
-      </Study>
+          <Study index="01" name="action" accent="solder" aim="a capacity, not a fill">
+            <Pair
+              current={
+                <Card variant="surface">
+                  <ControlField label="transport">
+                    <Stack direction="horizontal" gap="8" wrap>
+                      <Button family="solder" live lead>
+                        run
+                      </Button>
+                      <Button family="error">record</Button>
+                      <Button family="aqua">plot</Button>
+                    </Stack>
+                  </ControlField>
+                </Card>
+              }
+              experimental={
+                <>
+                  <Stack direction="horizontal" gap="8" wrap>
+                    <Key label="run" family="green" live lead />
+                    <Key label="record" family="red" />
+                    <Key label="plot" family="aqua" />
+                    <Key label="save" />
+                  </Stack>
+                  <p {...stylex.props(styles.note)}>
+                    matte key all the way — the LED names the action, the face stays neutral
+                  </p>
+                </>
+              }
+            />
+          </Study>
 
-      <Study
-        index="02"
-        name="field"
-        accent="neon-violet"
-        aim="a well answers with one contact ring"
-      >
-        <Pair
-          current={
-            <Card variant="surface">
-              <Stack gap="6">
-                <TextInput label="patch" defaultValue="bass-01" />
-                <TextInput label="cutoff" family="neon-violet" defaultValue="62" />
-              </Stack>
-            </Card>
-          }
-          experimental={
-            <>
-              <Stack gap="6">
-                <LabField label="patch name" family="green" live defaultValue="bass-01" />
-                <LabField label="routing" defaultValue="bus-2" />
-              </Stack>
-              <p {...stylex.props(styles.note)}>
-                one well, one ring — the data tag lives outside the box
-              </p>
-            </>
-          }
-        />
-      </Study>
+          <Study
+            index="02"
+            name="field"
+            accent="neon-violet"
+            aim="a well answers with one contact ring"
+          >
+            <Pair
+              current={
+                <Card variant="surface">
+                  <Stack gap="6">
+                    <TextInput label="patch" defaultValue="bass-01" />
+                    <TextInput label="cutoff" family="neon-violet" defaultValue="62" />
+                  </Stack>
+                </Card>
+              }
+              experimental={
+                <>
+                  <Stack gap="6">
+                    <LabField label="patch name" family="green" live defaultValue="bass-01" />
+                    <LabField label="routing" defaultValue="bus-2" />
+                  </Stack>
+                  <p {...stylex.props(styles.note)}>
+                    one well, one ring — the data tag lives outside the box
+                  </p>
+                </>
+              }
+            />
+          </Study>
 
-      <Study index="03" name="tag" accent="orange" aim="hue = meaning, not status">
-        <Pair
-          current={
-            <Card variant="surface">
-              <Stack direction="horizontal" gap="8" wrap>
-                <Badge family="solder">run</Badge>
-                <Badge family="aqua">plot</Badge>
-                <Badge family="amber">hold</Badge>
-                <Badge>neutral</Badge>
-              </Stack>
-            </Card>
-          }
-          experimental={
-            <>
-              <Stack direction="horizontal" gap="8" wrap>
-                <Chip label="aqua" family="aqua" />
-                <Chip label="orange" family="orange" />
-                <Chip label="violet" family="violet" />
-                <Chip label="live · 48k" family="green" live />
-                <Chip label="neutral" />
-              </Stack>
-              <p {...stylex.props(styles.note)}>
-                the badge as it stands — hue says what this thing is, the LED says it{"'"}s on
-              </p>
-            </>
-          }
-        />
-      </Study>
+          <Study index="03" name="tag" accent="orange" aim="hue = meaning, not status">
+            <Pair
+              current={
+                <Card variant="surface">
+                  <Stack direction="horizontal" gap="8" wrap>
+                    <Badge family="solder">run</Badge>
+                    <Badge family="aqua">plot</Badge>
+                    <Badge family="amber">hold</Badge>
+                    <Badge>neutral</Badge>
+                  </Stack>
+                </Card>
+              }
+              experimental={
+                <>
+                  <Stack direction="horizontal" gap="8" wrap>
+                    <Chip label="aqua" family="aqua" />
+                    <Chip label="orange" family="orange" />
+                    <Chip label="violet" family="violet" />
+                    <Chip label="live · 48k" family="green" live />
+                    <Chip label="neutral" />
+                  </Stack>
+                  <p {...stylex.props(styles.note)}>
+                    the badge as it stands — hue says what this thing is, the LED says it{"'"}s on
+                  </p>
+                </>
+              }
+            />
+          </Study>
 
-      <Study index="04" name="parameter" accent="aqua" aim="the rail reads a parameter, not a role">
-        <Pair
-          current={
-            <Card variant="surface">
-              <Stack gap="6">
-                <Slider
-                  label="cutoff"
-                  family="neon-violet"
-                  min={40}
-                  max={16000}
-                  defaultValue={6200}
-                />
-                <Slider label="resonance" family="orange" min={0} max={100} defaultValue={62} />
-              </Stack>
-            </Card>
-          }
-          experimental={
-            <>
-              <Stack gap="6">
-                <Slider
-                  label="cutoff"
-                  family="neon-violet"
-                  min={40}
-                  max={16000}
-                  defaultValue={6200}
-                />
-                <Slider label="resonance" family="orange" min={0} max={100} defaultValue={62} />
-                <Slider label="drive" family="amber" min={0} max={100} defaultValue={24} />
-              </Stack>
-              <p {...stylex.props(styles.note)}>
-                anatomy untouched — only the fill{"'"}s meaning changed (house hue = no identity)
-              </p>
-            </>
-          }
-        />
-      </Study>
+          <Study
+            index="04"
+            name="parameter"
+            accent="aqua"
+            aim="the rail reads a parameter, not a role"
+          >
+            <Pair
+              current={
+                <Card variant="surface">
+                  <Stack gap="6">
+                    <Slider
+                      label="cutoff"
+                      family="neon-violet"
+                      min={40}
+                      max={16000}
+                      defaultValue={6200}
+                    />
+                    <Slider label="resonance" family="orange" min={0} max={100} defaultValue={62} />
+                  </Stack>
+                </Card>
+              }
+              experimental={
+                <>
+                  <Stack gap="6">
+                    <Slider
+                      label="cutoff"
+                      family="neon-violet"
+                      min={40}
+                      max={16000}
+                      defaultValue={6200}
+                    />
+                    <Slider label="resonance" family="orange" min={0} max={100} defaultValue={62} />
+                    <Slider label="drive" family="amber" min={0} max={100} defaultValue={24} />
+                  </Stack>
+                  <p {...stylex.props(styles.note)}>
+                    anatomy untouched — only the fill{"'"}s meaning changed (house hue = no
+                    identity)
+                  </p>
+                </>
+              }
+            />
+          </Study>
 
-      <Study index="05" name="material" accent="amber" aim="light under, glass above">
-        <Pair
-          current={
-            <Card variant="surface">
-              <Stack direction="horizontal" gap="8" wrap>
-                <div {...stylex.props(legacyTileStyles.base, elevation.flat)}>
-                  <span {...stylex.props(legacyTileStyles.label)}>flat · box</span>
-                </div>
-                <div
-                  {...stylex.props(
-                    legacyTileStyles.base,
-                    legacyTileStyles.raisedPrimary,
-                    elevation.raised,
-                  )}
-                >
-                  <span {...stylex.props(legacyTileStyles.label)}>fill = variant</span>
-                </div>
-                <div {...stylex.props(legacyTileStyles.base, legacyTileStyles.rawHex)}>
-                  <span {...stylex.props(legacyTileStyles.label)}>raw hex</span>
-                </div>
-              </Stack>
-            </Card>
-          }
-          experimental={
-            <>
-              <MaterialScene />
-              <p {...stylex.props(styles.note)}>
-                the well stays matte, the color becomes light, the glass carries it upward
-              </p>
-            </>
-          }
-        />
-      </Study>
-    </div>
+          <Study index="05" name="material" accent="amber" aim="light under, glass above">
+            <Pair
+              current={
+                <Card variant="surface">
+                  <Stack direction="horizontal" gap="8" wrap>
+                    <div {...stylex.props(legacyTileStyles.base, elevation.flat)}>
+                      <span {...stylex.props(legacyTileStyles.label)}>flat · box</span>
+                    </div>
+                    <div
+                      {...stylex.props(
+                        legacyTileStyles.base,
+                        legacyTileStyles.raisedPrimary,
+                        elevation.raised,
+                      )}
+                    >
+                      <span {...stylex.props(legacyTileStyles.label)}>fill = variant</span>
+                    </div>
+                    <div {...stylex.props(legacyTileStyles.base, legacyTileStyles.rawHex)}>
+                      <span {...stylex.props(legacyTileStyles.label)}>raw hex</span>
+                    </div>
+                  </Stack>
+                </Card>
+              }
+              experimental={
+                <>
+                  <MaterialScene />
+                  <p {...stylex.props(styles.note)}>
+                    the well stays matte, the color becomes light, the glass carries it upward
+                  </p>
+                </>
+              }
+            />
+          </Study>
+        </Stack>
+      </Stage>
+    </ExperimentShell>
   );
 }
