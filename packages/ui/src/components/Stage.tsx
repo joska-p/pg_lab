@@ -16,10 +16,7 @@ const styles = stylex.create({
     flexDirection: "column",
     overflowY: "auto",
     padding: space["6"],
-    borderRadius: {
-      default: radius.md,
-      "@media (max-width: 720px)": radius.none,
-    },
+    borderRadius: { default: radius.none, "@media (min-width: 1024px)": radius.md },
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,

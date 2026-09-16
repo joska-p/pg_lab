@@ -46,10 +46,7 @@ const styles = stylex.create({
     minHeight: 0,
     maxHeight: "100%",
     overflowY: "auto",
-    borderRadius: {
-      default: radius.md,
-      "@media (max-width: 720px)": radius.none,
-    },
+    borderRadius: { default: radius.none, "@media (min-width: 1024px)": radius.md },
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
@@ -75,10 +72,10 @@ const styles = stylex.create({
     zIndex: zIndex.panel,
     width: layout.panelWidth,
     maxHeight: "none",
+    borderRadius: radius.md,
 
     "@media (max-width: 720px)": {
       left: space["3"],
-      right: space["3"],
       top: "auto",
       bottom: space["3"],
       width: "auto",
