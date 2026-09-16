@@ -46,16 +46,21 @@ const styles = stylex.create({
     minHeight: 0,
     maxHeight: "100%",
     overflowY: "auto",
-    borderRadius: radius.md,
+    borderRadius: {
+      default: radius.md,
+      "@media (max-width: 720px)": radius.none,
+    },
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
     backgroundColor: colors.card,
     color: colors.cardForeground,
+
     "@media (max-width: 720px)": {
       width: "auto",
       maxHeight: layout.panelMaxMobileHeight,
     },
+
     "@media (orientation: portrait)": {
       width: "auto",
       maxHeight: layout.panelMaxMobileHeight,
@@ -70,6 +75,7 @@ const styles = stylex.create({
     zIndex: zIndex.panel,
     width: layout.panelWidth,
     maxHeight: "none",
+
     "@media (max-width: 720px)": {
       left: space["3"],
       right: space["3"],
@@ -93,9 +99,11 @@ const styles = stylex.create({
 
   toggleClearOfFloatingPanel: {
     right: `calc(${layout.panelWidth} + calc(${layout.panelGap} * 2))`,
+
     "@media (max-width: 720px)": {
       right: space["3"],
     },
+
     "@media (orientation: portrait)": {
       right: space["3"],
     },
@@ -103,65 +111,56 @@ const styles = stylex.create({
 });
 
 type ExperimentShellProps = {
+  children: React.ReactNode;
   panel?: React.ReactNode;
-  placement?: "docked" | "floating";
-  panelVisible?: boolean;
-  defaultVisible?: boolean;
-  onTogglePanel?: (visible: boolean) => void;
-  toggleLabel?: string;
+  panelPlacement?: "docked" | "floating";
   style?: StyleXStyles;
-  children?: React.ReactNode;
 };
 
-export function ExperimentShell(props: ExperimentShellProps) {
-  const {
-    panel,
-    placement = "docked",
-    panelVisible,
-    defaultVisible = true,
-    onTogglePanel,
-    toggleLabel = "panel",
-    style,
-    children,
-  } = props;
-
+export function ExperimentShell({
+  children,
+  panel,
+  panelPlacement = "docked",
+  style,
+}: ExperimentShellProps) {
   const panelId = useId();
-  const [internal, setInternal] = useState(defaultVisible);
-  const isControlled = panelVisible !== undefined;
-  const visible = isControlled ? panelVisible : internal;
+  const [panelVisible, setPanelVisible] = useState(true);
 
-  const isFloating = placement === "floating";
+  const isFloating = panelPlacement === "floating";
 
   const panelStyle = [
     styles.panel,
     isFloating && styles.panelFloating,
     glass.glass,
-    !visible && styles.hidden,
+    !panelVisible && styles.hidden,
   ];
 
-  const toggleStyle = [styles.toggle, isFloating && visible && styles.toggleClearOfFloatingPanel];
-
-  function handleToggle() {
-    const next = !visible;
-    if (!isControlled) setInternal(next);
-    onTogglePanel?.(next);
-  }
+  const toggleStyle = [
+    styles.toggle,
+    isFloating && panelVisible && styles.toggleClearOfFloatingPanel,
+  ];
 
   return (
     <div {...stylex.props(styles.base, style)}>
       <div {...stylex.props(styles.stageSlot)}>{children}</div>
-      {panel ? (
-        <div id={panelId} {...stylex.props(...panelStyle)}>
-          {panel}
-        </div>
-      ) : null}
-      {panel ? (
-        <div {...stylex.props(...toggleStyle)}>
-          <Button aria-expanded={visible} aria-controls={panelId} onClick={handleToggle}>
-            {visible ? `hide ${toggleLabel}` : `show ${toggleLabel}`}
-          </Button>
-        </div>
-      ) : null}
+
+      {panel && (
+        <>
+          <div id={panelId} {...stylex.props(...panelStyle)}>
+            {panel}
+          </div>
+
+          <div {...stylex.props(...toggleStyle)}>
+            <Button
+              aria-expanded={panelVisible}
+              aria-controls={panelId}
+              onClick={() => setPanelVisible((visible) => !visible)}
+            >
+              {panelVisible ? "hide panel" : "show panel"}
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -44,15 +44,12 @@ const styles = stylex.create({
     transitionProperty: "background-color, border-color, box-shadow, transform",
     transitionDuration: motion.durationFast,
     transitionTimingFunction: motion.easingOut,
-    transform: {
-      default: null,
-      ":active": `scale(${interaction.pressScale})`,
-    },
     ":hover": {
       boxShadow: shadows.hover,
     },
     ":active": {
       boxShadow: shadows.active,
+      transform: `scale(${interaction.pressScale})`,
     },
   },
 

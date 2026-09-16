@@ -493,7 +493,7 @@ export function MiniSynth({ theme, onThemeChange }: MiniSynthProps) {
 
   return (
     <ExperimentShell
-      placement={panelPlacement}
+      panelPlacement={panelPlacement}
       panel={
         <ControlPanel title="Workspace">
           <ControlSection title="Theme">

@@ -161,13 +161,11 @@ function Launcher({ onViewChange }: { onViewChange: (view: "synth" | "lab") => v
       }
     >
       <Stage>
-        <div {...stylex.props(launcherStyles.header)}>
-          <Stack direction="horizontal" gap="3">
-            <Led color={amber} live />
-            <h1 {...stylex.props(launcherStyles.title)}>pg_lab</h1>
-          </Stack>
-          <Text variant="muted">Creative Coding Playground & Design Experiments</Text>
-        </div>
+        <Stack direction="horizontal" gap="3" {...stylex.props(launcherStyles.header)}>
+          <Led color={amber} live />
+          <h1 {...stylex.props(launcherStyles.title)}>pg_lab</h1>
+        </Stack>
+        <Text variant="muted">Creative Coding Playground & Design Experiments</Text>
       </Stage>
     </ExperimentShell>
   );
