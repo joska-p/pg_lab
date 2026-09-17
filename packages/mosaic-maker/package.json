@@ -1,11 +1,11 @@
 {
-  "name": "@repo/specimen",
+  "name": "@repo/mosaic-maker",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vp dev",
-    "build": "tsc && vp build",
+    "build": "tsc -b && vp build",
     "preview": "vp preview"
   },
   "dependencies": {

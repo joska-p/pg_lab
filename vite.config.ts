@@ -4,6 +4,15 @@ import { defineConfig } from "vite-plus";
 const ignorePatterns = ["dist/**", "**/vendor/*.js", ".agents/skills/impeccable"];
 
 export default defineConfig({
+  create: {
+    templates: [
+      {
+        name: "new-mini-app",
+        description: "Scaffold a new mini-app from the specimen template.",
+        template: "./tools/new-mini-app",
+      },
+    ],
+  },
   plugins: [stylexPlugin()],
   staged: {
     "*": "vp check --fix",

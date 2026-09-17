@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { ShellWrapper } from "@repo/ui/components/ShellWrapper";
-import { useTheme, setTheme } from "./stores/appStore";
+import { useTheme, setTheme } from "./stores/appStore.tsx";
 import { ControlPanel } from "@repo/ui/components/ControlPanel";
 import { ExperimentShell } from "@repo/ui/components/ExperimentShell";
 import { Stage } from "@repo/ui/components/Stage";
