@@ -96,7 +96,8 @@ when touched. A glowing thing is a living thing; a colored thing means something
 Color is **light and data, not decoration**. It exists in four regimes, and none
 of them is "component variant color":
 
-- **light field** — colored Gruvbox light bleeding behind surfaces;
+- **light field** — localized colored Gruvbox light bleeding behind surfaces (MaterialScene
+  and similar under/over compositions; **not** full-page chrome);
 - **material** — translucency + backdrop blur turn that under-light into the
   surface above it (the Gruvbox + glass combination, kept);
 - **data / identity** — a hue names an object or a parameter (`cutoff` = violet,

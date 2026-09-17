@@ -21,18 +21,18 @@ Start every edit by reading `reference/craft-floor.md` (UI quality floor) per th
 
 ## Current State
 
-| #   | Task                                                                                                                                    | Severity | Files                                                                                                         | Status         |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------- | -------------- |
-| S1  | Amber-on-cream contrast (Segmented + RadioGroup)                                                                                        | P0       | components/Segmented.tsx, components/RadioGroup.tsx                                                           | done           |
-| S2  | Glow merge bug (Toggle, Checkbox) + Button dead focusRing                                                                               | P1       | components/Toggle.tsx, Checkbox.tsx, Button.tsx                                                               | done           |
-| S3  | ~~Glass only when floating (docked panel opaque)~~ **cancelled** — panel always has a visual backdrop; glass is unconditional by design | P1       | components/ExperimentShell.tsx, MaterialScene.tsx                                                             | cancelled      |
-| S4  | Retire role-matrix residue (primary, SectionHeading, Swatch)                                                                            | P1/P2    | tokens/colors.stylex.ts, components/SectionHeading.tsx, Swatch.tsx                                            | done           |
-| S5  | Pressable parity + touch targets ≥44px                                                                                                  | P2       | Toggle, Checkbox, Segmented, RadioGroup, Slider, Button, foundations/touch.stylex.ts, consts/layout.stylex.ts | done           |
-| S6  | ShellWrapper/Stage ambient washes — **decision task**                                                                                   | P1       | components/ShellWrapper.tsx, Stage.tsx                                                                        | pending (NEXT) |
-| S7  | P3 batch: geometry, Led typing, ColorField row, error state, heading hierarchy                                                          | P3       | multiple (see S7)                                                                                             | pending        |
-| S8  | `polish` + re-run `critique` + DESIGN.md sync                                                                                           | —        | interfaces                                                                                                    | pending        |
+| #   | Task                                                                                                                                    | Severity | Files                                                                                                         | Status    |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------- | --------- |
+| S1  | Amber-on-cream contrast (Segmented + RadioGroup)                                                                                        | P0       | components/Segmented.tsx, components/RadioGroup.tsx                                                           | done      |
+| S2  | Glow merge bug (Toggle, Checkbox) + Button dead focusRing                                                                               | P1       | components/Toggle.tsx, Checkbox.tsx, Button.tsx                                                               | done      |
+| S3  | ~~Glass only when floating (docked panel opaque)~~ **cancelled** — panel always has a visual backdrop; glass is unconditional by design | P1       | components/ExperimentShell.tsx, MaterialScene.tsx                                                             | cancelled |
+| S4  | Retire role-matrix residue (primary, SectionHeading, Swatch)                                                                            | P1/P2    | tokens/colors.stylex.ts, components/SectionHeading.tsx, Swatch.tsx                                            | done      |
+| S5  | Pressable parity + touch targets ≥44px                                                                                                  | P2       | Toggle, Checkbox, Segmented, RadioGroup, Slider, Button, foundations/touch.stylex.ts, consts/layout.stylex.ts | done      |
+| S6  | ShellWrapper/Stage ambient washes — **decision task**                                                                                   | P1       | components/ShellWrapper.tsx, Stage.tsx                                                                        | done      |
+| S7  | P3 batch: geometry, Led typing, ColorField row, error state, heading hierarchy                                                          | P3       | multiple (see S7)                                                                                             | pending   |
+| S8  | `polish` + re-run `critique` + DESIGN.md sync                                                                                           | —        | interfaces                                                                                                    | pending   |
 
-**NEXT: S5.** When a session is in progress, the executing task is marked `in-progress` and the next pending task becomes `NEXT`.
+**NEXT: S7.** When a session is in progress, the executing task is marked `in-progress` and the next pending task becomes `NEXT`.
 
 ## Handoff Protocol (mandatory)
 
@@ -230,6 +230,7 @@ Sub-tasks (each independently verifyable; do them in order):
 | 2026-09-17 | S5      | **Touch-target floor deliberately relaxed (user decision).** The mini-apps consuming `@repo/ui` are desktop-first, not realistically mobile; the strict ≥44px target is eased. Press feedback (the actual P2-E gap) is the hard requirement; the 44px floor applies only where invisible and free: Toggle/Checkbox carry a transparent 44×44 hit span; Slider's container is the 44px band (the invisible input needs it). Button/Segmented/RadioGroup keep their compact visible footprints with no target inflation.                                                                                                                                    | S5                                               |
 | 2026-09-17 | S5      | **`glowWithPress` replaces `glowRing`/`glowRingWithFocus`** (which became dead code). ON Toggle/Checkbox now emit ONE `box-shadow` list per state (halo + rest / hover / active, and halo + ring on focus) — the S2 compose idiom extended to the press ladder. The widgets set `[shadowColor.color]` to the family `base`, so halo and lift are family-tinted (Shadow-Paints-Itself on a live key). Verified in compiled `stylex.css`.                                                                                                                                                                                                                   | S2/S5                                            |
 | 2026-09-17 | S5      | **No pseudo-elements for hit areas (StyleX guidance).** The touch floor rides a REAL absolutely-positioned `<span aria-hidden>` centered on the control, so `:hover`/`:active`/`:focus-visible` still fire on the visual box; `touch.hit` in `foundations/touch.stylex.ts`.                                                                                                                                                                                                                                                                                                                                                                               | S5                                               |
+| 2026-09-17 | S6      | **Light fields are localized to material scenes, not full-page chrome.** ShellWrapper washes reduced from 45–55% `oklch` saturates to 10–12% `oklch` tints (aurora bottom-left, solder top-right); conic gradient removed. Stage washes removed entirely (plain `background→card` linear gradient). Noise texture kept on both. Canvas is now visually neutral — color lives in MaterialScene and data marks. The `MaterialScene` in the laboratory correctly demonstrates the under/over light-field concept; the shell should not repeat it at viewport scale.                                                                                          | S6/DESIGN.md                                     |
 
 ## Handoff Archive
 
@@ -328,3 +329,38 @@ Sub-tasks (each independently verifyable; do them in order):
 - Design tension observed but left: RadioGroup+SldrSlender pressable rest cast is `shadowColor`-default (`oklch(0% 0 0)`) — transparent options' lift reads as a neutral fade, chosen segmented pills lift with a black-tinted cast. If S7 polishes, tint segmented chosen/`chosenNeutral` via `[shadowColor.color]` to the family/`mutedForeground` for Shadow-Paints-Itself parity.
 - Slider arrow-scale hopping (Alex) deliberately skipped: native range already arrow/Home/End; scale-hopping would need custom dragging logic that risks the rail anatomy — left for S7/S8 if ever wanted.
 - `disabledStyle.base` untouched; disabled ON Toggle/Checkbox keeps halo at 45% (unchanged from S2).
+
+### S6 (2026-09-17) — ShellWrapper/Stage ambient washes
+
+**Change:** `components/ShellWrapper.tsx`, `components/Stage.tsx`.
+
+- **Stage.tsx:** removed all three radial gradients (`primary` 24%, `accent` 18%, `warning` 20%) and the `isolation: "isolate"` declaration. `backgroundImage` is now a plain `linear-gradient(150deg, background, card)` — neutral canvas, no color. `backgroundColor: colors.background` unchanged.
+- **ShellWrapper.tsx:** removed the third radial gradient (`primary` 55%), the conic gradient (`secondary` 20%), and the two remaining `oklch` washes (`accent` 45%, `secondary` 50%). Replaced with two subtle washes sourced directly on families: `auroraBase` at 12% in the bottom-left corner, `solderBase` at 10% in the top-right — both via `color-mix(in oklab, ...)`. Noise texture and the `foreground→background` linear gradient kept. `backgroundBlendMode` updated from 5 layers to 4. New import: `familiesConsts` from `../tokens/families.stylex`.
+
+**Wash values before/after:**
+
+| Layer         | Before                  | After                  |
+| ------------- | ----------------------- | ---------------------- |
+| SW accent     | 45% oklch (neon-violet) | —                      |
+| SW secondary  | 50% oklch (solder)      | —                      |
+| SW primary    | 55% oklch (aurora)      | —                      |
+| SW conic      | 20% oklch (solder)      | —                      |
+| SW aurora     | —                       | 12% oklch (auroraBase) |
+| SW solder     | —                       | 10% oklch (solderBase) |
+| Stage primary | 24% srgb                | —                      |
+| Stage accent  | 18% srgb                | —                      |
+| Stage warning | 20% srgb                | —                      |
+
+**Verification:** `vp check` passes (format/lint/type, 65 files). `vp -C apps/dev build` succeeds. Compiled CSS shows the reduced wash `color-mix` values — SW now emits two small `radial-gradient` layers plus noise and linear foundation; Stage emits only the linear gradient.
+
+**Live check pending user** in `apps/dev`:
+
+- Launcher (menu): neutral canvas, subtle warm gradient under the noise, no colored backdrop.
+- Mini-synth Stage: neutral background, content-only canvas.
+- Laboratory: same neutral canvas, light fields now only appear inside the localized MaterialScene study.
+
+**Notes / for next sessions:**
+
+- **Role aliases (`primary`, `secondary`, `accent`, `warning`) not removed.** S4 planned to delete these once S6 re-sourced the washes; however, `minisynth.tsx` (elevation tiles at lines 116–150), `laboratory.tsx` (legacy tile at line 172), and `App.tsx` (menu hover feedback at lines 81–82) still consume them. These are app-level consumers, not `@repo/ui` library consumers. The aliases stay in `colors.stylex.ts` until S7/S8 cleans up the app code.
+- **DESIGN.md updated:** light field regime now explicitly scoped to "localized MaterialScene and similar under/over compositions; not full-page chrome."
+- Canvas is now visually quiet — the only color on a fresh page is the noise texture and the very subtle SW gradient. MaterialScene in the laboratory is the one place light fields are visible. This matches the "dim room" brief and gives the Pilot Light glow (state) and data marks (identity) room to be the only chromatic signals.

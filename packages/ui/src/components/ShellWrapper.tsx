@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { colors } from "../tokens/colors.stylex";
+import { familiesConsts } from "../tokens/families.stylex";
 import { space } from "../consts/spacing.stylex";
 import { typography } from "../consts/typography.stylex";
 
@@ -13,13 +14,11 @@ const styles = stylex.create({
     backgroundColor: colors.background,
     backgroundImage: `
       ${NOISE},
-      radial-gradient(70% 60% at 8% 90%, color-mix(in oklab, ${colors.accent} 45%, transparent), transparent 70%),
-      radial-gradient(55% 45% at 85% 8%, color-mix(in oklab, ${colors.secondary} 50%, transparent), transparent 70%),
-      radial-gradient(65% 55% at 20% 30%, color-mix(in oklab, ${colors.primary} 55%, transparent), transparent 72%),
-      conic-gradient(from 200deg at 65% 55%, transparent 0deg, color-mix(in oklab, ${colors.secondary} 20%, transparent) 90deg, transparent 180deg),
+      radial-gradient(70% 60% at 8% 90%, color-mix(in oklab, ${familiesConsts.auroraBase} 12%, transparent), transparent 70%),
+      radial-gradient(55% 45% at 85% 8%, color-mix(in oklab, ${familiesConsts.solderBase} 10%, transparent), transparent 70%),
       linear-gradient(160deg, ${colors.foreground}, ${colors.background} 65%)
     `,
-    backgroundBlendMode: "overlay, normal, normal, normal, normal, normal",
+    backgroundBlendMode: "overlay, normal, normal, normal",
     color: colors.foreground,
     fontFamily: typography.fontFamilySans,
     padding: space["0"],
