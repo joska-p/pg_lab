@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { fx } from "../consts/effects.stylex";
-import { shadowColor } from "../tokens/shadows.stylex";
+import { shadowColor, shadows } from "../tokens/shadows.stylex";
 import { colors } from "../tokens/colors.stylex";
 
 // Glow family — luminosity as state language (Pilot Light Rule). Applies a
@@ -20,17 +20,18 @@ export const glow = stylex.create({
     filter: `drop-shadow(0 0 ${fx.glowStrongBlur} currentColor)`,
   },
 
-  // Small opaque box-shadow halo tinted by the element's `shadowColor`.
-  // On/off widgets set `[shadowColor.color]` from the family, so the ring follows
-  // the family: an effect tinted via the shadow variable — not a raw per-family map.
-  glowRing: {
-    boxShadow: `0 0 ${fx.glowRing} color-mix(in oklab, ${shadowColor.color} ${fx.glowRingCast}, transparent)`,
-  },
-
-  glowRingWithFocus: {
+  // Composed Pilot Light key for on/off widgets (S5): halo + the press
+  // elevation ladder + focus ring folded into ONE box-shadow value per state,
+  // the S2 idiom — StyleX dedupes box-shadow by registration order, so an
+  // effect that coexists with press must be a single list. The widget sets
+  // `[shadowColor.color]` to the family base, so halo and cast agree with the
+  // fill (Shadow-Paints-Itself on a live key).
+  glowWithPress: {
     boxShadow: {
-      default: `0 0 ${fx.glowRing} color-mix(in oklab, ${shadowColor.color} ${fx.glowRingCast}, transparent)`,
-      ":focus-visible": `0 0 ${fx.glowRing} color-mix(in oklab, ${shadowColor.color} ${fx.glowRingCast}, transparent), 0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.ring}`,
+      default: `0 0 ${fx.glowRing} color-mix(in oklab, ${shadowColor.color} ${fx.glowRingCast}, transparent), ${shadows.rest}`,
+      ":hover": `0 0 ${fx.glowRing} color-mix(in oklab, ${shadowColor.color} ${fx.glowRingCast}, transparent), ${shadows.hover}`,
+      ":active": `0 0 ${fx.glowRing} color-mix(in oklab, ${shadowColor.color} ${fx.glowRingCast}, transparent), ${shadows.active}`,
+      ":focus-visible": `0 0 ${fx.glowRing} color-mix(in oklab, ${shadowColor.color} ${fx.glowRingCast}, transparent), ${shadows.rest}, 0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.ring}`,
     },
   },
 });

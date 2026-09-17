@@ -2,13 +2,16 @@ import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactiveBase } from "../foundations/interaction.stylex";
+import { touch } from "../foundations/touch.stylex";
 import { fieldText } from "../foundations/text.stylex";
 import { glow } from "../effects/glow.stylex";
-import { focusRing } from "../intents/focus.stylex";
+import { pressable } from "../intents/pressable.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
 import { active as activeIntent } from "../intents/active.stylex";
 import { colors } from "../tokens/colors.stylex";
+import { shadowColor } from "../tokens/shadows.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
+import { layout } from "../consts/layout.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
 import { families, type FamilyName } from "../tokens/families.stylex";
@@ -38,8 +41,8 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: "18px",
-    height: "18px",
+    width: layout.checkboxSize,
+    height: layout.checkboxSize,
     borderRadius: radius.sm,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
@@ -48,9 +51,13 @@ const styles = stylex.create({
   },
 
   check: {
-    width: "12px",
-    height: "12px",
+    width: layout.checkboxMarkSize,
+    height: layout.checkboxMarkSize,
   },
+
+  tint: (color: string) => ({
+    [shadowColor.color]: color,
+  }),
 });
 
 export function Checkbox(props: CheckboxProps) {
@@ -96,13 +103,15 @@ export function Checkbox(props: CheckboxProps) {
         {...stylex.props(
           styles.box,
           isOn && fam ? activeIntent.fill(fam.base) : null,
-          isOn ? glow.glowRingWithFocus : null,
+          isOn && fam ? styles.tint(fam.base) : null,
+          isOn ? glow.glowWithPress : null,
           interactiveBase.base,
-          !isOn ? focusRing.base : null,
+          !isOn ? pressable.base : null,
           disabled ? disabledStyle.base : null,
           style,
         )}
       >
+        <span aria-hidden {...stylex.props(touch.hit)} />
         {isOn ? (
           <svg viewBox="0 0 12 12" aria-hidden {...stylex.props(styles.check)}>
             <path

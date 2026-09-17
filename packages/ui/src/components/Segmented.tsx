@@ -3,10 +3,11 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactiveBase } from "../foundations/interaction.stylex";
 import { fieldText } from "../foundations/text.stylex";
-import { focusRing } from "../intents/focus.stylex";
+import { pressable } from "../intents/pressable.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
 import { colors } from "../tokens/colors.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
+import { layout } from "../consts/layout.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
 import { familiesConsts, type FamilyName } from "../tokens/families.stylex";
@@ -49,7 +50,7 @@ const styles = stylex.create({
   },
 
   option: {
-    paddingBlock: "1px",
+    paddingBlock: layout.segmentPadBlock,
     paddingInline: space["3"],
     borderRadius: radius.sm,
     borderWidth: borderWidth.hairline,
@@ -170,7 +171,7 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
                 styles.option,
                 chosen ? (family ? chosenVariants[family] : styles.chosenNeutral) : null,
                 interactiveBase.base,
-                focusRing.base,
+                pressable.base,
                 disabled ? disabledStyle.base : null,
               )}
             >

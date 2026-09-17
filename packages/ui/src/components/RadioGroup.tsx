@@ -3,10 +3,11 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactiveBase } from "../foundations/interaction.stylex";
 import { fieldText } from "../foundations/text.stylex";
-import { focusRing } from "../intents/focus.stylex";
+import { pressable } from "../intents/pressable.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
 import { colors } from "../tokens/colors.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
+import { layout } from "../consts/layout.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
 import { familiesConsts, type FamilyName } from "../tokens/families.stylex";
@@ -46,7 +47,7 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     gap: space["2"],
-    minHeight: "28px",
+    minHeight: layout.radioOptionMinHeight,
     padding: 0,
     borderWidth: 0,
     backgroundColor: "transparent",
@@ -59,8 +60,8 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: "16px",
-    height: "16px",
+    width: layout.radioCircleSize,
+    height: layout.radioCircleSize,
     borderRadius: radius.full,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
@@ -69,8 +70,8 @@ const styles = stylex.create({
   },
 
   dot: {
-    width: "8px",
-    height: "8px",
+    width: layout.radioDotSize,
+    height: layout.radioDotSize,
     borderRadius: radius.full,
     backgroundColor: colors.foreground,
   },
@@ -181,7 +182,7 @@ export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
                 styles.option,
                 fieldText.value,
                 interactiveBase.base,
-                focusRing.base,
+                pressable.base,
               )}
             >
               <span

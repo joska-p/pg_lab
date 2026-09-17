@@ -8,6 +8,7 @@ import { shadows, shadowColor } from "../tokens/shadows.stylex";
 import { families, type FamilyName } from "../tokens/families.stylex";
 import { interaction } from "../consts/interaction.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
+import { layout } from "../consts/layout.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
 
@@ -47,10 +48,11 @@ const styles = stylex.create({
   container: {
     position: "relative",
     flex: 1,
-    height: "14px",
-    // The ring lives on the container (the input is opacity: 0, so its own
-    // shadow would be invisible) but only shows for keyboard focus: mouse
-    // clicks focus the input without matching :focus-visible.
+    // The container IS the touch band: the rail/thumb center on it and the
+    // invisible range input stretches across the full 44px. The ring lives on
+    // this band (pill-rounded) and still shows only for keyboard focus.
+    minHeight: layout.controlTouchTarget,
+    borderRadius: radius.full,
     boxShadow: {
       default: null,
       [stylex.when.descendant(":focus-visible")]:
@@ -64,7 +66,7 @@ const styles = stylex.create({
     right: 0,
     top: "50%",
     transform: "translateY(-50%)",
-    height: "4px",
+    height: layout.sliderRailHeight,
     borderRadius: radius.full,
     backgroundColor: colors.muted,
     // Recessed groove (self-tinted by the muted fill): the unfilled rail reads
@@ -79,7 +81,7 @@ const styles = stylex.create({
     top: "50%",
     transform: "translateY(-50%)",
     width: progress,
-    height: "4px",
+    height: layout.sliderRailHeight,
     borderRadius: radius.full,
     backgroundColor: color,
   }),
@@ -89,8 +91,8 @@ const styles = stylex.create({
     left: progress,
     top: "50%",
     transform: "translate(-50%, -50%)",
-    width: "14px",
-    height: "14px",
+    width: layout.sliderThumbSize,
+    height: layout.sliderThumbSize,
     borderRadius: radius.full,
     backgroundColor: colors.background,
     borderWidth: borderWidth.hairline,

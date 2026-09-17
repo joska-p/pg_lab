@@ -2,13 +2,16 @@ import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactiveBase } from "../foundations/interaction.stylex";
+import { touch } from "../foundations/touch.stylex";
 import { fieldText } from "../foundations/text.stylex";
 import { glow } from "../effects/glow.stylex";
-import { focusRing } from "../intents/focus.stylex";
+import { pressable } from "../intents/pressable.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
 import { active as activeIntent } from "../intents/active.stylex";
 import { colors } from "../tokens/colors.stylex";
+import { shadowColor } from "../tokens/shadows.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
+import { layout } from "../consts/layout.stylex";
 import { motion } from "../consts/motion.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
@@ -36,8 +39,8 @@ const styles = stylex.create({
   track: {
     position: "relative",
     flexShrink: 0,
-    width: "34px",
-    height: "20px",
+    width: layout.toggleTrackWidth,
+    height: layout.toggleTrackHeight,
     borderRadius: radius.full,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
@@ -45,12 +48,18 @@ const styles = stylex.create({
     backgroundColor: colors.muted,
   },
 
+  // The on-state fill tints the halo + cast through `shadowColor`, so the
+  // Pilot Light follows the family (Shadow-Paints-Itself on a live key).
+  tint: (color: string) => ({
+    [shadowColor.color]: color,
+  }),
+
   knob: {
     position: "absolute",
     top: "2px",
     left: "2px",
-    width: "14px",
-    height: "14px",
+    width: layout.toggleKnobSize,
+    height: layout.toggleKnobSize,
     borderRadius: radius.full,
     backgroundColor: colors.background,
     transitionDuration: {
@@ -62,7 +71,7 @@ const styles = stylex.create({
   },
 
   knobOn: {
-    transform: "translateX(16px)",
+    transform: `translateX(${layout.toggleKnobTravel})`,
   },
 });
 
@@ -109,13 +118,15 @@ export function Toggle(props: ToggleProps) {
         {...stylex.props(
           styles.track,
           isOn && fam ? activeIntent.fill(fam.base) : null,
-          isOn ? glow.glowRingWithFocus : null,
+          isOn && fam ? styles.tint(fam.base) : null,
+          isOn ? glow.glowWithPress : null,
           interactiveBase.base,
-          !isOn ? focusRing.base : null,
+          !isOn ? pressable.base : null,
           disabled ? disabledStyle.base : null,
           style,
         )}
       >
+        <span aria-hidden {...stylex.props(touch.hit)} />
         <span
           {...stylex.props(
             styles.knob,

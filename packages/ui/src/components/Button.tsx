@@ -25,7 +25,6 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: space["2"],
     paddingBlock: space["2"],
     paddingInline: space["4"],
     borderRadius: radius.sm,
