@@ -23,6 +23,7 @@ colors:
   input-well: "light-dark(oklch(0.825 0.051 85.1), oklch(0.324 0.004 51.9))"
   border-hair: "light-dark(color-mix(in oklab, oklch(0.756 0.041 82.3) 55%, transparent), color-mix(in oklab, oklch(0.482 0.018 61.0) 55%, transparent))"
   ring-halo: "light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806))"
+  shadow-color: "oklch(0% 0 0)"
 typography:
   headline:
     fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"

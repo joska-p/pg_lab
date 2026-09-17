@@ -78,6 +78,10 @@ export function Checkbox(props: CheckboxProps) {
   const isControlled = checked !== undefined;
   const isOn = isControlled ? checked : internal;
   const fam = family ? families[family] : null;
+  // Identity-less on state answers with the contact hue (DESIGN: Rails —
+  // parameters without an identity take the contact hue). The halo + lift
+  // follow via shadowColor (Shadow-Paints-Itself on a live key).
+  const onFill = fam ? fam.base : colors.ring;
 
   function handleClick() {
     const next = !isOn;
@@ -102,8 +106,8 @@ export function Checkbox(props: CheckboxProps) {
         disabled={disabled}
         {...stylex.props(
           styles.box,
-          isOn && fam ? activeIntent.fill(fam.base) : null,
-          isOn && fam ? styles.tint(fam.base) : null,
+          isOn ? activeIntent.fill(onFill) : null,
+          isOn ? styles.tint(onFill) : null,
           isOn ? glow.glowWithPress : null,
           interactiveBase.base,
           !isOn ? pressable.base : null,

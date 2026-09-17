@@ -1,6 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
 import { gruvboxPalette as palette } from "../consts/gruvbox-palette.stylex";
-import { familiesConsts } from "./families.stylex";
 
 // Dual-mode tokens via light-dark() (StyleX light-dark recipe): first value
 // is light, second is dark. The used scheme comes from the `color-scheme`
@@ -18,11 +17,10 @@ import { familiesConsts } from "./families.stylex";
 //
 // The legacy six-role variant matrix (primary/secondary/accent/destructive/
 // warning + their foreground/hover pairs) is retired. `destructive` and all
-// *Foreground/*Hover keys were removed in S4; text-on-family-fill uses
-// `foreground` (S1 uniform rule). The four residual roles below are ALIASES
-// onto their family hue — single source of truth is `./families.stylex` —
-// kept only until S6 re-sources the Stage/ShellWrapper ambient washes; then
-// remove alongside.
+// *Foreground/*Hover keys were removed in S4; the four role aliases were
+// removed in S8 once every consumer (Stage/ShellWrapper washes and apps/dev)
+// was re-sourced onto `./families.stylex`. Text-on-family-fill uses
+// `foreground` (S1 uniform rule). Single source of truth: `./families.stylex`.
 
 // Text on a family fill (S1 uniform rule): dark in light mode, bright in
 // dark. Shared by `foreground`, card/popover foreground, and the retired
@@ -82,16 +80,7 @@ export const colors = stylex.defineVars({
   // Dark deepened toward background (D4) so input text lands ~3.8:1.
   input: `light-dark(${palette.light2}, color-mix(in oklab, ${palette.dark2} 35%, ${palette.dark0}))`,
 
-  // Focus ring (S5): intentionally mirrors primary — keyboard focus carries
-  // primary identity. If the primary hue ever changes, update both together.
+  // Focus ring (S5): intentionally mirrors the contact hue — keyboard focus
+  // carries contact identity. Same hue as `families.aurora.base` by design.
   ring: `light-dark(${palette.brightBlue}, ${palette.fadedBlue})`,
-
-  // ── Legacy role aliases (retired matrix, S4) ────────────────────────────
-  // Consumers that still reference the old role names resolve to the family
-  // hue. Values are single-sourced in `./families.stylex`; these shims are
-  // removed when S6 re-sources Stage/ShellWrapper washes.
-  primary: familiesConsts.auroraBase,
-  secondary: familiesConsts.solderBase,
-  accent: familiesConsts.neonVioletBase,
-  warning: familiesConsts.amberBase,
 });

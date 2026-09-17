@@ -24,6 +24,7 @@ import { TextArea } from "@repo/ui/components/TextArea";
 import { Toggle } from "@repo/ui/components/Toggle";
 import { colors } from "@repo/ui/tokens/colors.stylex";
 import { shadowColor } from "@repo/ui/tokens/shadows.stylex";
+import { familiesConsts } from "@repo/ui/tokens/families.stylex";
 import { elevation } from "@repo/ui/effects/elevation.stylex";
 import { glass } from "@repo/ui/effects/glass.stylex";
 import { glow } from "@repo/ui/effects/glow.stylex";
@@ -112,14 +113,14 @@ const elevationTileStyles = stylex.create({
     color: colors.cardForeground,
     [shadowColor.color]: colors.card,
   },
-  primary: {
-    [shadowColor.color]: colors.primary,
-    backgroundColor: colors.primary,
+  aurora: {
+    [shadowColor.color]: familiesConsts.auroraBase,
+    backgroundColor: familiesConsts.auroraBase,
     color: colors.foreground,
   },
-  secondary: {
-    [shadowColor.color]: colors.secondary,
-    backgroundColor: colors.secondary,
+  solder: {
+    [shadowColor.color]: familiesConsts.solderBase,
+    backgroundColor: familiesConsts.solderBase,
     color: colors.foreground,
   },
   muted: {
@@ -130,7 +131,7 @@ const elevationTileStyles = stylex.create({
   backdrop: {
     [shadowColor.color]: colors.card,
     backgroundColor: colors.background,
-    backgroundImage: `linear-gradient(135deg, color-mix(in oklab, ${colors.muted} 35%, transparent), color-mix(in oklab, ${colors.accent} 35%, transparent)), linear-gradient(135deg, ${colors.background}, ${colors.card})`,
+    backgroundImage: `linear-gradient(135deg, color-mix(in oklab, ${colors.muted} 35%, transparent), color-mix(in oklab, ${familiesConsts.neonVioletBase} 35%, transparent)), linear-gradient(135deg, ${colors.background}, ${colors.card})`,
     color: colors.cardForeground,
   },
   labelRow: {
@@ -146,8 +147,8 @@ const elevationTileStyles = stylex.create({
     width: "7px",
     height: "7px",
     borderRadius: radius.full,
-    backgroundColor: colors.accent,
-    color: colors.accent,
+    backgroundColor: familiesConsts.neonVioletBase,
+    color: familiesConsts.neonVioletBase,
   },
 });
 
@@ -401,7 +402,7 @@ function Foundations() {
             <div
               {...stylex.props(
                 elevationTileStyles.base,
-                elevationTileStyles.primary,
+                elevationTileStyles.aurora,
                 elevation.raised,
               )}
             >
@@ -428,7 +429,7 @@ function Foundations() {
               type="button"
               {...stylex.props(
                 elevationTileStyles.base,
-                elevationTileStyles.secondary,
+                elevationTileStyles.solder,
                 interactiveBase.base,
                 focusRing.base,
                 pressable.base,

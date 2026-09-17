@@ -10,6 +10,7 @@ import { Stage } from "@repo/ui/components/Stage";
 import { ControlPanel } from "@repo/ui/components/ControlPanel";
 import { ControlSection } from "@repo/ui/components/ControlSection";
 import { colors } from "@repo/ui/tokens/colors.stylex";
+import { familiesConsts } from "@repo/ui/tokens/families.stylex";
 import { focusRing } from "@repo/ui/intents/focus.stylex";
 import { pressable } from "@repo/ui/intents/pressable.stylex";
 import { interactiveBase } from "@repo/ui/foundations/interaction.stylex";
@@ -77,8 +78,8 @@ const launcherStyles = stylex.create({
       ":active": `scale(${interaction.pressScale})`,
     },
     ":hover": {
-      backgroundColor: `color-mix(in oklab, ${colors.card} 86%, ${colors.accent})`,
-      borderColor: `color-mix(in oklab, ${colors.accent} 55%, ${colors.border})`,
+      backgroundColor: `color-mix(in oklab, ${colors.card} 86%, ${familiesConsts.neonVioletBase})`,
+      borderColor: `color-mix(in oklab, ${familiesConsts.neonVioletBase} 55%, ${colors.border})`,
     },
   },
   index: {

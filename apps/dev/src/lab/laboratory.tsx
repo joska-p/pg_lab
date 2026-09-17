@@ -169,7 +169,7 @@ const legacyTileStyles = stylex.create({
     color: colors.cardForeground,
   },
   raisedPrimary: {
-    backgroundColor: colors.primary,
+    backgroundColor: families.aurora.base,
     color: colors.foreground,
   },
   rawHex: {

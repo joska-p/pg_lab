@@ -10,7 +10,7 @@ import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
 import { typography } from "../consts/typography.stylex";
 import { colors } from "../tokens/colors.stylex";
-import { shadowColor, shadows } from "../tokens/shadows.stylex";
+import { shadowColor } from "../tokens/shadows.stylex";
 import { families, type FamilyName } from "../tokens/families.stylex";
 import { layout } from "../consts/layout.stylex";
 import { Led } from "./Led";
@@ -46,11 +46,7 @@ const styles = stylex.create({
       "@media (prefers-reduced-motion: reduce)": "1ms",
     },
     transitionTimingFunction: motion.easingOut,
-    ":hover": {
-      boxShadow: shadows.hover,
-    },
     ":active": {
-      boxShadow: shadows.active,
       transform: `scale(${interaction.pressScale})`,
     },
   },

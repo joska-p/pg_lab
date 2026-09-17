@@ -6,6 +6,7 @@ import { fieldText } from "../foundations/text.stylex";
 import { pressable } from "../intents/pressable.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
 import { colors } from "../tokens/colors.stylex";
+import { shadowColor } from "../tokens/shadows.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
 import { layout } from "../consts/layout.stylex";
 import { radius } from "../consts/radius.stylex";
@@ -58,11 +59,16 @@ const styles = stylex.create({
     borderColor: "transparent",
     backgroundColor: "transparent",
     color: colors.mutedForeground,
+    // Shadow-Paints-Itself: the option's resting lift takes its colour from
+    // the strip it sits on (a muted carrier), so the hover/active cast is a
+    // warm fade rather than a cold near-black blotch.
+    [shadowColor.color]: colors.muted,
   },
 
   chosenNeutral: {
     backgroundColor: colors.mutedForeground,
     color: colors.background,
+    [shadowColor.color]: colors.mutedForeground,
   },
 });
 
@@ -70,30 +76,37 @@ const chosenVariants = stylex.create({
   aurora: {
     backgroundColor: familiesConsts.auroraBase,
     color: colors.foreground,
+    [shadowColor.color]: familiesConsts.auroraBase,
   },
   solder: {
     backgroundColor: familiesConsts.solderBase,
     color: colors.foreground,
+    [shadowColor.color]: familiesConsts.solderBase,
   },
   "neon-violet": {
     backgroundColor: familiesConsts.neonVioletBase,
     color: colors.foreground,
+    [shadowColor.color]: familiesConsts.neonVioletBase,
   },
   amber: {
     backgroundColor: familiesConsts.amberBase,
     color: colors.foreground,
+    [shadowColor.color]: familiesConsts.amberBase,
   },
   error: {
     backgroundColor: familiesConsts.errorBase,
     color: colors.foreground,
+    [shadowColor.color]: familiesConsts.errorBase,
   },
   aqua: {
     backgroundColor: familiesConsts.aquaBase,
     color: colors.foreground,
+    [shadowColor.color]: familiesConsts.aquaBase,
   },
   orange: {
     backgroundColor: familiesConsts.orangeBase,
     color: colors.foreground,
+    [shadowColor.color]: familiesConsts.orangeBase,
   },
 });
 
