@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { gruvboxPalette as palette } from "../consts/gruvbox-palette.stylex";
+import { gruvboxPalette as palette } from "./palette.stylex";
 
 export type FamilyName =
   | "aurora"
@@ -16,8 +16,7 @@ export type Family = {
   ink?: { fg: string; bg: string };
 };
 
-// 1. StyleX exige des consts "plates" (string | number uniquement).
-//    On aplatit donc chaque famille en plusieurs clés.
+// Flat variables for StyleX compiler
 export const familiesConsts = stylex.defineVars({
   auroraBase: `light-dark(${palette.brightBlue}, ${palette.fadedBlue})`,
   auroraStrong: palette.neutralBlue,
@@ -43,8 +42,7 @@ export const familiesConsts = stylex.defineVars({
   orangeStrong: palette.neutralOrange,
 } as const);
 
-// 2. On reconstitue la structure imbriquée pratique (Family) à partir
-//    des consts plates.
+// Nested structure for component ergonomics
 export const families: Record<FamilyName, Family> = {
   aurora: { base: familiesConsts.auroraBase, strong: familiesConsts.auroraStrong },
   solder: { base: familiesConsts.solderBase, strong: familiesConsts.solderStrong },

@@ -1,11 +1,11 @@
 import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { fieldText } from "../foundations/text.stylex";
-import { field } from "../foundations/field.stylex";
-import { disabledStyle } from "../intents/disabled.stylex";
-import { Led } from "./Led";
 import { families, type FamilyName } from "../tokens/families.stylex";
+import { field } from "../recipes/fields.stylex";
+import { disabled as disabledRecipe } from "../recipes/interaction.stylex";
+import { fieldText } from "../recipes/typography.stylex";
+import { Led } from "./Led";
 
 type TextInputProps = {
   label?: string;
@@ -78,7 +78,7 @@ export function TextInput(props: TextInputProps) {
           field.well,
           fieldText.value,
           invalid ? field.wellInvalid : null,
-          disabled ? disabledStyle.base : null,
+          disabled ? disabledRecipe.base : null,
         )}
       />
 

@@ -2,13 +2,9 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { colors } from "../tokens/colors.stylex";
 import { families } from "../tokens/families.stylex";
+import { borderWidth, layout, radius, space } from "../tokens/layout.stylex";
 import { shadowColor } from "../tokens/shadows.stylex";
-import { glass } from "../effects/glass.stylex";
-import { fx } from "../consts/effects.stylex";
-import { layout } from "../consts/layout.stylex";
-import { radius } from "../consts/radius.stylex";
-import { borderWidth } from "../consts/borderWidth.stylex";
-import { space } from "../consts/spacing.stylex";
+import { fx, glass } from "../recipes/effects.stylex";
 
 const sceneStyles = stylex.create({
   base: {

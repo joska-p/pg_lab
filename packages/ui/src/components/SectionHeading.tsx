@@ -1,13 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { glow } from "../effects/glow.stylex";
 import { colors } from "../tokens/colors.stylex";
 import { families } from "../tokens/families.stylex";
-import { radius } from "../consts/radius.stylex";
-import { layout } from "../consts/layout.stylex";
-import { space } from "../consts/spacing.stylex";
-import { typography } from "../consts/typography.stylex";
-import { heading } from "../foundations/heading.stylex";
+import { layout, radius, space } from "../tokens/layout.stylex";
+import { typography } from "../tokens/typography.stylex";
+import { glow } from "../recipes/effects.stylex";
+import { heading } from "../recipes/typography.stylex";
 
 const styles = stylex.create({
   base: {

@@ -1,18 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { interactiveBase } from "../foundations/interaction.stylex";
-import { pressable } from "../intents/pressable.stylex";
-import { disabledStyle } from "../intents/disabled.stylex";
-import { motion } from "../consts/motion.stylex";
-import { interaction } from "../consts/interaction.stylex";
-import { borderWidth } from "../consts/borderWidth.stylex";
-import { radius } from "../consts/radius.stylex";
-import { space } from "../consts/spacing.stylex";
-import { typography } from "../consts/typography.stylex";
 import { colors } from "../tokens/colors.stylex";
-import { shadowColor } from "../tokens/shadows.stylex";
 import { families, type FamilyName } from "../tokens/families.stylex";
-import { layout } from "../consts/layout.stylex";
+import { borderWidth, interaction, layout, radius, space } from "../tokens/layout.stylex";
+import { motion } from "../tokens/motion.stylex";
+import { shadowColor } from "../tokens/shadows.stylex";
+import { typography } from "../tokens/typography.stylex";
+import { disabled, interactive, pressable } from "../recipes/interaction.stylex";
 import { Led } from "./Led";
 
 const spin = stylex.keyframes({
@@ -40,13 +34,6 @@ const styles = stylex.create({
     fontSize: typography.fontSizeSm,
     fontWeight: typography.fontWeightMedium,
     lineHeight: typography.lineHeightTight,
-    cursor: interaction.cursorPointer,
-    transitionProperty: "background-color, border-color, box-shadow, transform",
-    transitionDuration: {
-      default: motion.durationFast,
-      "@media (prefers-reduced-motion: reduce)": "1ms",
-    },
-    transitionTimingFunction: motion.easingOut,
     ":active": {
       transform: `scale(${interaction.pressScale})`,
     },
@@ -105,12 +92,12 @@ export function Button({
   live = false,
   lead = false,
   loading = false,
-  disabled,
+  disabled: disabledProp,
   style,
   children,
   ...props
 }: ButtonProps) {
-  const isDisabled = disabled || loading;
+  const isDisabled = disabledProp || loading;
   const fam = family ? families[family] : null;
 
   return (
@@ -121,12 +108,12 @@ export function Button({
       aria-busy={loading}
       {...stylex.props(
         styles.base,
+        interactive.base,
+        pressable.base,
         fam ? styles.hover(fam.strong) : null,
         fam && live ? styles.live(fam.base) : null,
         lead ? styles.lead : null,
-        interactiveBase.base,
-        pressable.base,
-        isDisabled ? disabledStyle.base : null,
+        isDisabled ? disabled.base : null,
         loading ? styles.loading : null,
         style,
       )}

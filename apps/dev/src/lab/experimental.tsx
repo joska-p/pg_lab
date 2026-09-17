@@ -1,19 +1,14 @@
 import { useId } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { focusRing } from "@repo/ui/intents/focus.stylex";
-import { fieldText } from "@repo/ui/foundations/text.stylex";
 import { colors } from "@repo/ui/tokens/colors.stylex";
 import { shadowColor, shadows } from "@repo/ui/tokens/shadows.stylex";
-import { glass } from "@repo/ui/effects/glass.stylex";
-import { typography } from "@repo/ui/consts/typography.stylex";
-import { space } from "@repo/ui/consts/spacing.stylex";
-import { radius } from "@repo/ui/consts/radius.stylex";
-import { borderWidth } from "@repo/ui/consts/borderWidth.stylex";
-import { motion } from "@repo/ui/consts/motion.stylex";
-import { interaction } from "@repo/ui/consts/interaction.stylex";
-import { fx } from "@repo/ui/consts/effects.stylex";
-import { layout } from "@repo/ui/consts/layout.stylex";
+import { borderWidth, interaction, layout, radius, space } from "@repo/ui/tokens/layout.stylex";
+import { motion } from "@repo/ui/tokens/motion.stylex";
+import { typography } from "@repo/ui/tokens/typography.stylex";
+import { fx, glass } from "@repo/ui/recipes/effects.stylex";
+import { focusRing } from "@repo/ui/recipes/interaction.stylex";
+import { fieldText } from "@repo/ui/recipes/typography.stylex";
 import { FAMILIES, type LabFamilyName } from "./families";
 
 // Lab probe: a local, deliberately non-tokenized vocabulary for the

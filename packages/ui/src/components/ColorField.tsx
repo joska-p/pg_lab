@@ -1,17 +1,12 @@
 import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { interactiveBase } from "../foundations/interaction.stylex";
-import { fieldText } from "../foundations/text.stylex";
-import { field } from "../foundations/field.stylex";
-import { focusRing } from "../intents/focus.stylex";
-import { disabledStyle } from "../intents/disabled.stylex";
 import { colors } from "../tokens/colors.stylex";
 import { families, type FamilyName } from "../tokens/families.stylex";
-import { borderWidth } from "../consts/borderWidth.stylex";
-import { layout } from "../consts/layout.stylex";
-import { radius } from "../consts/radius.stylex";
-import { space } from "../consts/spacing.stylex";
+import { borderWidth, layout, radius, space } from "../tokens/layout.stylex";
+import { field } from "../recipes/fields.stylex";
+import { disabled as disabledRecipe, focusRing, interactive } from "../recipes/interaction.stylex";
+import { fieldText } from "../recipes/typography.stylex";
 import { Led } from "./Led";
 
 type ColorFieldProps = {
@@ -113,10 +108,10 @@ export function ColorField(props: ColorFieldProps) {
           aria-describedby={errorMessage ? messageId : undefined}
           {...stylex.props(
             styles.input,
-            interactiveBase.base,
+            interactive.base,
             focusRing.base,
             invalid ? field.wellInvalid : null,
-            disabled ? disabledStyle.base : null,
+            disabled ? disabledRecipe.base : null,
           )}
         />
 

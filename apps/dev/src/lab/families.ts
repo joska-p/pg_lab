@@ -1,4 +1,4 @@
-import { gruvboxPalette as palette } from "@repo/ui/consts/gruvbox-palette.stylex";
+import { gruvboxPalette as palette } from "@repo/ui/tokens/palette.stylex";
 
 // Lab probe: the Gruvbox tonal structure projected as "families" (a hue +
 // two tensions), NOT as shadcn-style role variants. The experiment asks

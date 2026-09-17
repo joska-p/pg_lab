@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { colors } from "../tokens/colors.stylex";
-import { layout } from "../consts/layout.stylex";
-import { typography } from "../consts/typography.stylex";
+import { layout } from "../tokens/layout.stylex";
+import { typography } from "../tokens/typography.stylex";
 
 const styles = stylex.create({
   base: {

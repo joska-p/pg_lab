@@ -1,15 +1,13 @@
 import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { fieldText } from "../foundations/text.stylex";
-import { field } from "../foundations/field.stylex";
-import { disabledStyle } from "../intents/disabled.stylex";
-import { Led } from "./Led";
-import { families, type FamilyName } from "../tokens/families.stylex";
 import { colors } from "../tokens/colors.stylex";
-import { interaction } from "../consts/interaction.stylex";
-import { layout } from "../consts/layout.stylex";
-import { space } from "../consts/spacing.stylex";
+import { families, type FamilyName } from "../tokens/families.stylex";
+import { interaction, layout, space } from "../tokens/layout.stylex";
+import { field } from "../recipes/fields.stylex";
+import { disabled as disabledRecipe } from "../recipes/interaction.stylex";
+import { fieldText } from "../recipes/typography.stylex";
+import { Led } from "./Led";
 
 type SelectOption<T extends string> = {
   value: T;
@@ -65,6 +63,11 @@ const styles = stylex.create({
     pointerEvents: "none",
   },
 });
+
+function items0<T extends string>(options: readonly T[] | readonly SelectOption<T>[]): T {
+  const first = options[0];
+  return typeof first === "string" ? first : first.value;
+}
 
 export function Select<T extends string>(props: SelectProps<T>) {
   const {
@@ -127,7 +130,7 @@ export function Select<T extends string>(props: SelectProps<T>) {
             styles.select,
             fieldText.value,
             invalid ? field.wellInvalid : null,
-            disabled ? disabledStyle.base : null,
+            disabled ? disabledRecipe.base : null,
           )}
         >
           {placeholder ? (
@@ -160,9 +163,4 @@ export function Select<T extends string>(props: SelectProps<T>) {
       ) : null}
     </div>
   );
-}
-
-function items0<T extends string>(options: readonly T[] | readonly SelectOption<T>[]): T {
-  const first = options[0];
-  return typeof first === "string" ? first : first.value;
 }

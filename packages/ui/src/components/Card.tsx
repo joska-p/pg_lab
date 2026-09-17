@@ -1,12 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { elevation } from "../effects/elevation.stylex";
-import { glass } from "../effects/glass.stylex";
-import { shadowColor } from "../tokens/shadows.stylex";
 import { colors } from "../tokens/colors.stylex";
-import { borderWidth } from "../consts/borderWidth.stylex";
-import { radius } from "../consts/radius.stylex";
-import { space } from "../consts/spacing.stylex";
+import { borderWidth, radius, space } from "../tokens/layout.stylex";
+import { shadowColor } from "../tokens/shadows.stylex";
+import { elevation, glass } from "../recipes/effects.stylex";
 
 const styles = stylex.create({
   base: {
@@ -27,15 +24,12 @@ const variants = stylex.create({
   surface: {
     [shadowColor.color]: colors.card,
   },
-
   glass: {
     [shadowColor.color]: colors.card,
   },
-
   raised: {
     [shadowColor.color]: colors.card,
   },
-
   sunken: {
     [shadowColor.color]: colors.muted,
     backgroundColor: colors.muted,

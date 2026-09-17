@@ -4,7 +4,6 @@ export const typography = stylex.defineConsts({
   fontFamilySans: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   fontFamilyMono: '"SFMono-Regular", Consolas, "Liberation Mono", monospace',
 
-  // Text sizes are rem so they scale with the root font-size (accessibility).
   fontSizeXs: "0.75rem",
   fontSizeSm: "0.875rem",
   fontSizeMd: "1rem",
@@ -26,6 +25,5 @@ export const typography = stylex.defineConsts({
   letterSpacingNormal: "0",
   letterSpacingWide: "0.02em",
 
-  // Upper-Label Rule: titles/section labels are uppercase with wide tracking.
   textCaseUppercase: "uppercase",
 });

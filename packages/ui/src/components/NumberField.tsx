@@ -1,11 +1,11 @@
 import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { fieldText } from "../foundations/text.stylex";
-import { field } from "../foundations/field.stylex";
-import { disabledStyle } from "../intents/disabled.stylex";
-import { Led } from "./Led";
 import { families, type FamilyName } from "../tokens/families.stylex";
+import { field } from "../recipes/fields.stylex";
+import { disabled as disabledRecipe } from "../recipes/interaction.stylex";
+import { fieldText } from "../recipes/typography.stylex";
+import { Led } from "./Led";
 
 type NumberFieldProps = {
   label?: string;
@@ -47,8 +47,6 @@ export function NumberField(props: NumberFieldProps) {
   const messageId = useId();
   const [internal, setInternal] = useState(defaultValue);
   const [draft, setDraft] = useState<string | null>(null);
-  // Clamp feedback (Heuristic #9): a typed out-of-range value is never
-  // accepted silently — the well goes invalid and a message names the bound.
   const [clampNotice, setClampNotice] = useState<string | null>(null);
   const isControlled = value !== undefined;
   const current = isControlled ? value : internal;
@@ -106,7 +104,7 @@ export function NumberField(props: NumberFieldProps) {
           field.well,
           fieldText.value,
           invalid || isClamped ? field.wellInvalid : null,
-          disabled ? disabledStyle.base : null,
+          disabled ? disabledRecipe.base : null,
         )}
       />
 

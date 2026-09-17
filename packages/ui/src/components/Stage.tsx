@@ -1,10 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { colors } from "../tokens/colors.stylex";
-import { layout } from "../consts/layout.stylex";
-import { borderWidth } from "../consts/borderWidth.stylex";
-import { radius } from "../consts/radius.stylex";
-import { space } from "../consts/spacing.stylex";
+import { borderWidth, layout, radius, space } from "../tokens/layout.stylex";
 
 const styles = stylex.create({
   base: {

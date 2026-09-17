@@ -25,18 +25,11 @@ import { Toggle } from "@repo/ui/components/Toggle";
 import { colors } from "@repo/ui/tokens/colors.stylex";
 import { shadowColor } from "@repo/ui/tokens/shadows.stylex";
 import { familiesConsts } from "@repo/ui/tokens/families.stylex";
-import { elevation } from "@repo/ui/effects/elevation.stylex";
-import { glass } from "@repo/ui/effects/glass.stylex";
-import { glow } from "@repo/ui/effects/glow.stylex";
-import { interactiveBase } from "@repo/ui/foundations/interaction.stylex";
-import { focusRing } from "@repo/ui/intents/focus.stylex";
-import { pressable } from "@repo/ui/intents/pressable.stylex";
-import { radius } from "@repo/ui/consts/radius.stylex";
-import { borderWidth } from "@repo/ui/consts/borderWidth.stylex";
-import { typography } from "@repo/ui/consts/typography.stylex";
-import { motion } from "@repo/ui/consts/motion.stylex";
-import { interaction } from "@repo/ui/consts/interaction.stylex";
-import { space } from "@repo/ui/consts/spacing.stylex";
+import { borderWidth, interaction, radius, space } from "@repo/ui/tokens/layout.stylex";
+import { motion } from "@repo/ui/tokens/motion.stylex";
+import { typography } from "@repo/ui/tokens/typography.stylex";
+import { elevation, glass, glow } from "@repo/ui/recipes/effects.stylex";
+import { focusRing, interactiveBase, pressable } from "@repo/ui/recipes/interaction.stylex";
 
 const BUTTON_FAMILIES = [
   "aurora",

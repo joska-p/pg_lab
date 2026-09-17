@@ -82,7 +82,7 @@ spacing:
 
 This file is the **visual contract** and sole visual authority. It records the design
 system vocabulary validated in the `apps/dev` _visual laboratory_ and implemented across
-`@repo/ui`. Values that flick light/dark stay in the frontmatter and in `tokens/` / `consts/`;
+`@repo/ui`. Values that flick light/dark stay in the frontmatter and in `tokens/`;
 the prose below is decision, not implementation.
 
 ## Overview
@@ -152,7 +152,7 @@ Tokens → Contrast).
 darks (`dark0`→`dark4`), not from subtracting light to zero.
 
 **The One-Token Rule.** Components consume semantic tokens only. The raw palette
-(`consts/gruvbox-palette.stylex.ts`) is the single source of truth and is never
+(`tokens/palette.stylex.ts`) is the single source of truth and is never
 referenced directly by components.
 
 **The Matte Face Rule.** A key's face is neutral; a field's well is neutral; a
@@ -171,9 +171,9 @@ If nothing, it stays neutral or takes the contact hue.
 **Section label / Readout:** monospace — every reading is mono.
 **Character:** compact, dense, technical — the voice of a bench instrument. Sans
 does the UI work; monospace takes over whenever a value is a reading. Hierarchy
-roles and exact values live in the frontmatter and `consts/typography.stylex.ts`.
+roles and exact values live in the frontmatter and `tokens/typography.stylex.ts`.
 
-**The Heading Ladder** (`foundations/heading.stylex.ts`) — one stepped family,
+**The Heading Ladder** (`recipes/typography.stylex.ts`) — one stepped family,
 not three competing recipes. Every heading is uppercase + wide tracking
 (Upper-Label Rule); the level is carried by size, weight, face and tone so it
 reads at a glance:
@@ -263,7 +263,7 @@ inside panels stay opaque so text contrast remains protected.
 ## Shapes
 
 Radius is a small quiet scale (`0 / 4 / 6 / 8 / 12 / full`) in
-`consts/radius.stylex.ts`. Keys and wells sit at 4px; panels at 6–8px. The only
+`tokens/layout.stylex.ts`. Keys and wells sit at 4px; panels at 6–8px. The only
 perfect circles are intentional interactive shapes — slider thumbs, toggles,
 LEDs, outline chips. Borders are hairline (1px) and translucent.
 
@@ -363,5 +363,27 @@ and the **single contact hue** (`colors.ring`).
 - **Don't** lean on big shadows; depth is tone and under/over.
 - **Don't** reach for display-size headlines; the compact hierarchy is the system.
 - **Don't** animate decoratively or perpetually; motion is 120–320ms, purposeful.
-- **Don't** hardcode raw palette values in app code; tokens/consts are the only
+- **Don't** hardcode raw palette values in app code; `tokens/*` is the only
   interface to color.
+
+## Architecture & Layering Pipeline
+
+`@repo/ui` organizes its styles in two clear tiers below `components/`:
+
+- **`tokens/`** — single source of truth for values (colors, palette, families, shadows, layout, typography, motion).
+- **`recipes/`** — reusable StyleX style fragments (interaction, effects, fields, typography).
+
+### The Composition Contract
+
+StyleX dedupes styles by property registration order. To keep composition predictable, every widget applies styles in this strict 6-layer sequence:
+
+```text
+stylex.props(
+  styles.base,                          // Layer 1: Component geometry & layout
+  interaction.interactive,              // Layer 2: Shared interaction transitions & touch
+  interaction.pressable,                // Layer 3: Tactile reaction & elevation (or effects.elevation)
+  family && styles.hover(family.strong),// Layer 4: Accent & dynamic infusion (live glow, tint)
+  disabled && interaction.disabled,     // Layer 5: Terminal states (disabled, loading)
+  props.style                           // Layer 6: External consumer overrides
+)
+```

@@ -1,14 +1,10 @@
 import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { glass } from "../effects/glass.stylex";
 import { colors } from "../tokens/colors.stylex";
+import { borderWidth, layout, radius, space, zIndex } from "../tokens/layout.stylex";
 import { shadowColor } from "../tokens/shadows.stylex";
-import { layout } from "../consts/layout.stylex";
-import { borderWidth } from "../consts/borderWidth.stylex";
-import { radius } from "../consts/radius.stylex";
-import { space } from "../consts/spacing.stylex";
-import { zIndex } from "../consts/zIndex.stylex";
+import { glass } from "../recipes/effects.stylex";
 import { Button } from "./Button";
 
 const styles = stylex.create({

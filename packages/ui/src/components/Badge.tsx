@@ -1,12 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { colors } from "../tokens/colors.stylex";
-import { borderWidth } from "../consts/borderWidth.stylex";
-import { radius } from "../consts/radius.stylex";
-import { space } from "../consts/spacing.stylex";
-import { typography } from "../consts/typography.stylex";
 import { families, type FamilyName } from "../tokens/families.stylex";
-import { layout } from "../consts/layout.stylex";
+import { borderWidth, layout, radius, space } from "../tokens/layout.stylex";
+import { typography } from "../tokens/typography.stylex";
 import { Led } from "./Led";
 
 const styles = stylex.create({

@@ -12,11 +12,9 @@ import { families } from "@repo/ui/tokens/families.stylex";
 import { ExperimentShell } from "@repo/ui/components/ExperimentShell";
 import { Stage } from "@repo/ui/components/Stage";
 import { colors } from "@repo/ui/tokens/colors.stylex";
-import { elevation } from "@repo/ui/effects/elevation.stylex";
-import { radius } from "@repo/ui/consts/radius.stylex";
-import { borderWidth } from "@repo/ui/consts/borderWidth.stylex";
-import { typography } from "@repo/ui/consts/typography.stylex";
-import { space } from "@repo/ui/consts/spacing.stylex";
+import { borderWidth, radius, space } from "@repo/ui/tokens/layout.stylex";
+import { typography } from "@repo/ui/tokens/typography.stylex";
+import { elevation } from "@repo/ui/recipes/effects.stylex";
 import { Chip, Key, LabField, Led, MaterialScene } from "./experimental";
 
 type ThemeMode = "light" | "dark" | "system";

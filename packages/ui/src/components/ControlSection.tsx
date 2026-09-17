@@ -1,8 +1,8 @@
 import { useId } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { space } from "../consts/spacing.stylex";
-import { heading } from "../foundations/heading.stylex";
+import { space } from "../tokens/layout.stylex";
+import { heading } from "../recipes/typography.stylex";
 
 const styles = stylex.create({
   base: {

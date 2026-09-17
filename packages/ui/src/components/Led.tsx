@@ -1,9 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { radius } from "../consts/radius.stylex";
-import { fx } from "../consts/effects.stylex";
-import { layout } from "../consts/layout.stylex";
 import { families, type FamilyName } from "../tokens/families.stylex";
+import { layout, radius } from "../tokens/layout.stylex";
+import { fx } from "../recipes/effects.stylex";
 
 const ledStyles = stylex.create({
   base: {
@@ -23,7 +22,6 @@ const ledStyles = stylex.create({
 });
 
 export type LedProps = {
-  /** Hue the mark carries. A single source: never a raw palette string. */
   color: FamilyName;
   live?: boolean;
   off?: boolean;

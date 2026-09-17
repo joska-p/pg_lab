@@ -2,9 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { colors } from "../tokens/colors.stylex";
 import { families } from "../tokens/families.stylex";
 import { shadowColor, shadows } from "../tokens/shadows.stylex";
-import { borderWidth } from "../consts/borderWidth.stylex";
-import { radius } from "../consts/radius.stylex";
-import { space } from "../consts/spacing.stylex";
+import { borderWidth, radius, space } from "../tokens/layout.stylex";
 
 export const field = stylex.create({
   col: {
@@ -39,10 +37,6 @@ export const field = stylex.create({
       boxShadow: `0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.ring}`,
     },
   },
-
-  // The sanctioned invalid face (Heuristic #9): the error family owns the
-  // border, the recess stays, keyboard focus still answers with the ring so
-  // focus is never conflated with error.
   wellInvalid: {
     borderColor: families.error.base,
     ":focus": {

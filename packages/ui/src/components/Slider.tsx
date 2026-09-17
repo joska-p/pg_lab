@@ -1,16 +1,12 @@
 import { useId, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { fieldText } from "../foundations/text.stylex";
-import { disabledStyle } from "../intents/disabled.stylex";
 import { colors } from "../tokens/colors.stylex";
-import { shadows, shadowColor } from "../tokens/shadows.stylex";
 import { families, type FamilyName } from "../tokens/families.stylex";
-import { interaction } from "../consts/interaction.stylex";
-import { borderWidth } from "../consts/borderWidth.stylex";
-import { layout } from "../consts/layout.stylex";
-import { radius } from "../consts/radius.stylex";
-import { space } from "../consts/spacing.stylex";
+import { borderWidth, interaction, layout, radius, space } from "../tokens/layout.stylex";
+import { shadowColor, shadows } from "../tokens/shadows.stylex";
+import { disabled as disabledRecipe } from "../recipes/interaction.stylex";
+import { fieldText } from "../recipes/typography.stylex";
 
 type SliderProps = {
   label?: string;
@@ -48,9 +44,6 @@ const styles = stylex.create({
   container: {
     position: "relative",
     flex: 1,
-    // The container IS the touch band: the rail/thumb center on it and the
-    // invisible range input stretches across the full 44px. The ring lives on
-    // this band (pill-rounded) and still shows only for keyboard focus.
     minHeight: layout.controlTouchTarget,
     borderRadius: radius.full,
     boxShadow: {
@@ -69,8 +62,6 @@ const styles = stylex.create({
     height: layout.sliderRailHeight,
     borderRadius: radius.full,
     backgroundColor: colors.muted,
-    // Recessed groove (self-tinted by the muted fill): the unfilled rail reads
-    // as hollow, the progress fill as raised on top of it.
     [shadowColor.color]: colors.muted,
     boxShadow: shadows.sunken,
   },
@@ -98,8 +89,6 @@ const styles = stylex.create({
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: mark,
-    // Shadow-paints-itself: the thumb's rest cast carries the family hue
-    // (border + shadow agree), per the "shadow paints itself" rule.
     [shadowColor.color]: mark,
     boxShadow: shadows.rest,
   }),
@@ -119,10 +108,6 @@ const styles = stylex.create({
     textAlign: "right",
   },
 });
-
-// Fill and thumb slices come from families: the fill carries `base` (the light
-// source), the thumb is seeded with `strong` (the readable mark). The track
-// stays a neutral recessed well.
 
 export function Slider(props: SliderProps) {
   const {
@@ -162,7 +147,7 @@ export function Slider(props: SliderProps) {
         </label>
       ) : null}
 
-      <div {...stylex.props(styles.container, disabled ? disabledStyle.base : null, style)}>
+      <div {...stylex.props(styles.container, disabled ? disabledRecipe.base : null, style)}>
         <div {...stylex.props(styles.track)} />
         <div {...stylex.props(styles.fill(progress, fam.base))} />
         <div {...stylex.props(styles.thumb(progress, fam.strong))} />

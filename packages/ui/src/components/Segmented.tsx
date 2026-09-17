@@ -1,17 +1,12 @@
 import { useId, useRef, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { interactiveBase } from "../foundations/interaction.stylex";
-import { fieldText } from "../foundations/text.stylex";
-import { pressable } from "../intents/pressable.stylex";
-import { disabledStyle } from "../intents/disabled.stylex";
 import { colors } from "../tokens/colors.stylex";
-import { shadowColor } from "../tokens/shadows.stylex";
-import { borderWidth } from "../consts/borderWidth.stylex";
-import { layout } from "../consts/layout.stylex";
-import { radius } from "../consts/radius.stylex";
-import { space } from "../consts/spacing.stylex";
 import { familiesConsts, type FamilyName } from "../tokens/families.stylex";
+import { borderWidth, layout, radius, space } from "../tokens/layout.stylex";
+import { shadowColor } from "../tokens/shadows.stylex";
+import { disabled as disabledRecipe, interactive, pressable } from "../recipes/interaction.stylex";
+import { fieldText } from "../recipes/typography.stylex";
 
 type SegmentOption<T extends string> = {
   value: T;
@@ -59,9 +54,6 @@ const styles = stylex.create({
     borderColor: "transparent",
     backgroundColor: "transparent",
     color: colors.mutedForeground,
-    // Shadow-Paints-Itself: the option's resting lift takes its colour from
-    // the strip it sits on (a muted carrier), so the hover/active cast is a
-    // warm fade rather than a cold near-black blotch.
     [shadowColor.color]: colors.muted,
   },
 
@@ -167,7 +159,7 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
         aria-labelledby={label ? groupId : undefined}
         aria-label={label ? undefined : "selection"}
         onKeyDown={handleKeyDown}
-        {...stylex.props(styles.group, disabled ? disabledStyle.base : null, style)}
+        {...stylex.props(styles.group, disabled ? disabledRecipe.base : null, style)}
       >
         {items.map((option) => {
           const chosen = option.value === current;
@@ -182,10 +174,10 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
               disabled={disabled}
               {...stylex.props(
                 styles.option,
-                chosen ? (family ? chosenVariants[family] : styles.chosenNeutral) : null,
-                interactiveBase.base,
+                interactive.base,
                 pressable.base,
-                disabled ? disabledStyle.base : null,
+                chosen ? (family ? chosenVariants[family] : styles.chosenNeutral) : null,
+                disabled ? disabledRecipe.base : null,
               )}
             >
               {option.label ?? option.value}

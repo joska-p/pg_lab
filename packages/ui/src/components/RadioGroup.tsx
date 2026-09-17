@@ -1,17 +1,12 @@
 import { useId, useRef, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { interactiveBase } from "../foundations/interaction.stylex";
-import { fieldText } from "../foundations/text.stylex";
-import { pressable } from "../intents/pressable.stylex";
-import { disabledStyle } from "../intents/disabled.stylex";
 import { colors } from "../tokens/colors.stylex";
-import { shadowColor } from "../tokens/shadows.stylex";
-import { borderWidth } from "../consts/borderWidth.stylex";
-import { layout } from "../consts/layout.stylex";
-import { radius } from "../consts/radius.stylex";
-import { space } from "../consts/spacing.stylex";
 import { familiesConsts, type FamilyName } from "../tokens/families.stylex";
+import { borderWidth, layout, radius, space } from "../tokens/layout.stylex";
+import { shadowColor } from "../tokens/shadows.stylex";
+import { disabled as disabledRecipe, interactive, pressable } from "../recipes/interaction.stylex";
+import { fieldText } from "../recipes/typography.stylex";
 
 type RadioOption<T extends string> = {
   value: T;
@@ -54,8 +49,6 @@ const styles = stylex.create({
     backgroundColor: "transparent",
     color: colors.foreground,
     textAlign: "start",
-    // Shadow-Paints-Itself: the transparent row lifts with the card it sits
-    // on, so the press cast reads as a warm fade, not a cold near-black one.
     [shadowColor.color]: colors.card,
   },
 
@@ -169,7 +162,7 @@ export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
         aria-labelledby={label ? groupId : undefined}
         aria-label={label ? undefined : "choice"}
         onKeyDown={handleKeyDown}
-        {...stylex.props(styles.options, disabled ? disabledStyle.base : null, style)}
+        {...stylex.props(styles.options, disabled ? disabledRecipe.base : null, style)}
       >
         {items.map((option) => {
           const chosen = option.value === current;
@@ -185,9 +178,9 @@ export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
               {...stylex.props(
                 styles.option,
                 fieldText.value,
-                interactiveBase.base,
+                interactive.base,
                 pressable.base,
-                disabled ? disabledStyle.base : null,
+                disabled ? disabledRecipe.base : null,
               )}
             >
               <span

@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { space } from "../consts/spacing.stylex";
+import { space } from "../tokens/layout.stylex";
 
 const styles = stylex.create({
   base: {

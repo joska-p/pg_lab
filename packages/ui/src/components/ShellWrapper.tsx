@@ -2,8 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { colors } from "../tokens/colors.stylex";
 import { familiesConsts } from "../tokens/families.stylex";
-import { space } from "../consts/spacing.stylex";
-import { typography } from "../consts/typography.stylex";
+import { space } from "../tokens/layout.stylex";
+import { typography } from "../tokens/typography.stylex";
 
 const NOISE = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E")`;
 

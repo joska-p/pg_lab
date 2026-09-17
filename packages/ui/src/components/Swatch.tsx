@@ -1,14 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
-import { fieldText } from "../foundations/text.stylex";
 import { colors } from "../tokens/colors.stylex";
-import type { FamilyName } from "../tokens/families.stylex";
-import { families } from "../tokens/families.stylex";
-import { layout } from "../consts/layout.stylex";
-import { borderWidth } from "../consts/borderWidth.stylex";
-import { radius } from "../consts/radius.stylex";
-import { space } from "../consts/spacing.stylex";
-import { typography } from "../consts/typography.stylex";
+import { families, type FamilyName } from "../tokens/families.stylex";
+import { borderWidth, layout, radius, space } from "../tokens/layout.stylex";
+import { typography } from "../tokens/typography.stylex";
+import { fieldText } from "../recipes/typography.stylex";
 
 const styles = stylex.create({
   base: {
@@ -36,7 +32,6 @@ const styles = stylex.create({
   fill: (color: string) => ({ backgroundColor: color }),
 });
 
-// Surface swatches keep the pure `colors` tokens.
 const surfaceVariants = stylex.create({
   background: { backgroundColor: colors.background },
   card: { backgroundColor: colors.card },
