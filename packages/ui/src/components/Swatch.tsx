@@ -2,6 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { fieldText } from "../foundations/text.stylex";
 import { colors } from "../tokens/colors.stylex";
+import type { FamilyName } from "../tokens/families.stylex";
+import { families } from "../tokens/families.stylex";
 import { layout } from "../consts/layout.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
 import { radius } from "../consts/radius.stylex";
@@ -30,32 +32,37 @@ const styles = stylex.create({
     fontSize: typography.fontSizeXs,
     color: colors.mutedForeground,
   },
+
+  fill: (color: string) => ({ backgroundColor: color }),
 });
 
 // Surface swatches keep the pure `colors` tokens.
-const variants = stylex.create({
+const surfaceVariants = stylex.create({
   background: { backgroundColor: colors.background },
   card: { backgroundColor: colors.card },
   popover: { backgroundColor: colors.popover },
-  primary: { backgroundColor: colors.primary },
-  secondary: { backgroundColor: colors.secondary },
-  accent: { backgroundColor: colors.accent },
-  warning: { backgroundColor: colors.warning },
-  destructive: { backgroundColor: colors.destructive },
   muted: { backgroundColor: colors.muted },
 });
 
+export type SwatchSurfaceVariant = keyof typeof surfaceVariants;
+
 type SwatchProps = {
-  variant: keyof typeof variants;
+  variant: SwatchSurfaceVariant | FamilyName;
+  tension?: "base" | "strong";
   name?: string;
   meta?: string;
   style?: StyleXStyles;
 };
 
-export function Swatch({ variant, name, meta, style }: SwatchProps) {
+export function Swatch({ variant, tension = "base", name, meta, style }: SwatchProps) {
+  const fill =
+    variant in surfaceVariants
+      ? surfaceVariants[variant as SwatchSurfaceVariant]
+      : styles.fill(families[variant as FamilyName][tension]);
+
   return (
     <div {...stylex.props(styles.base, style)}>
-      <div aria-hidden {...stylex.props(styles.box, variants[variant])} />
+      <div aria-hidden {...stylex.props(styles.box, fill)} />
       <span {...stylex.props(fieldText.label)}>{name ?? variant}</span>
       {meta ? <span {...stylex.props(styles.meta)}>{meta}</span> : null}
     </div>

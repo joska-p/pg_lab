@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { glow } from "../effects/glow.stylex";
 import { colors } from "../tokens/colors.stylex";
+import { families } from "../tokens/families.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
 import { typography } from "../consts/typography.stylex";
@@ -18,8 +19,8 @@ const styles = stylex.create({
     width: "7px",
     height: "7px",
     borderRadius: radius.full,
-    backgroundColor: colors.accent,
-    color: colors.accent,
+    backgroundColor: families["neon-violet"].base,
+    color: families["neon-violet"].base,
   },
 
   index: {

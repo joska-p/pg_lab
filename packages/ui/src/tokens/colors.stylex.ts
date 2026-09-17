@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { gruvboxPalette as palette } from "../consts/gruvbox-palette.stylex";
+import { familiesConsts } from "./families.stylex";
 
 // Dual-mode tokens via light-dark() (StyleX light-dark recipe): first value
 // is light, second is dark. The used scheme comes from the `color-scheme`
@@ -14,13 +15,27 @@ import { gruvboxPalette as palette } from "../consts/gruvbox-palette.stylex";
 // Semantic tokens for surfaces, text, borders, and interactive contact.
 // Palette family hues (aurora, solder, neon-violet, amber, etc.) are defined
 // in `./families.stylex`.
+//
+// The legacy six-role variant matrix (primary/secondary/accent/destructive/
+// warning + their foreground/hover pairs) is retired. `destructive` and all
+// *Foreground/*Hover keys were removed in S4; text-on-family-fill uses
+// `foreground` (S1 uniform rule). The four residual roles below are ALIASES
+// onto their family hue — single source of truth is `./families.stylex` —
+// kept only until S6 re-sources the Stage/ShellWrapper ambient washes; then
+// remove alongside.
+
+// Text on a family fill (S1 uniform rule): dark in light mode, bright in
+// dark. Shared by `foreground`, card/popover foreground, and the retired
+// role foregrounds.
+const onFillForeground = `light-dark(color-mix(in oklab, ${palette.dark0} 80%, black), ${palette.light0Hard})`;
+
 export const colors = stylex.defineVars({
   background: `light-dark(${palette.light1}, ${palette.dark0})`,
 
   // Reading text (D4): `dark0` on `light1` = 4.40:1, just under AA. A 20%
   // pull toward black lands the light pairs at ~4.7–5.9:1; dark uses
   // `light0Hard` (~4.8:1 on `background`). Palette untouched.
-  foreground: `light-dark(color-mix(in oklab, ${palette.dark0} 80%, black), ${palette.light0Hard})`,
+  foreground: onFillForeground,
 
   // Elevated dark surfaces (D4): deepened toward `background` so light text
   // climbs from ~3.3 to ~4.1:1 while the dark ladder (background → card →
@@ -28,28 +43,11 @@ export const colors = stylex.defineVars({
   // ladder onto `dark0` — structurally rejected, documented.
   card: `light-dark(${palette.light0}, color-mix(in oklab, ${palette.dark1} 55%, ${palette.dark0}))`,
 
-  cardForeground: `light-dark(color-mix(in oklab, ${palette.dark0} 80%, black), ${palette.light0Hard})`,
+  cardForeground: onFillForeground,
 
   popover: `light-dark(${palette.light0}, color-mix(in oklab, ${palette.dark1} 55%, ${palette.dark0}))`,
 
-  popoverForeground: `light-dark(color-mix(in oklab, ${palette.dark0} 80%, black), ${palette.light0Hard})`,
-
-  primary: `light-dark(${palette.brightBlue}, ${palette.fadedBlue})`,
-
-  // Non-warning families share one derived foreground (D4): light pulled
-  // toward black is ~4.2–4.8:1 on the bright bases; dark `light0Hard` is the
-  // best a `faded*` base can carry (~2–2.7:1, documented shortfall).
-  primaryForeground: `light-dark(color-mix(in oklab, ${palette.dark0} 80%, black), ${palette.light0Hard})`,
-
-  // The neutral shade works as hover in both modes:
-  // its lightness sits between bright (light mode bg) and faded (dark mode bg).
-  primaryHover: palette.neutralBlue,
-
-  secondary: `light-dark(${palette.brightGreen}, ${palette.fadedGreen})`,
-
-  secondaryForeground: `light-dark(color-mix(in oklab, ${palette.dark0} 80%, black), ${palette.light0Hard})`,
-
-  secondaryHover: palette.neutralGreen,
+  popoverForeground: onFillForeground,
 
   // Neutral family (S8): the base covers non-editable surfaces (tracks,
   // group wells, muted fills); the signal goes through `mutedForeground`.
@@ -65,26 +63,6 @@ export const colors = stylex.defineVars({
 
   // No neutral equivalent, so each mode names its value explicitly.
   mutedHover: `light-dark(${palette.light4}, ${palette.dark3})`,
-
-  accent: `light-dark(${palette.brightPurple}, ${palette.fadedPurple})`,
-
-  accentForeground: `light-dark(color-mix(in oklab, ${palette.dark0} 80%, black), ${palette.light0Hard})`,
-
-  accentHover: palette.neutralPurple,
-
-  destructive: `light-dark(${palette.brightRed}, ${palette.fadedRed})`,
-
-  destructiveForeground: `light-dark(color-mix(in oklab, ${palette.dark0} 80%, black), ${palette.light0Hard})`,
-
-  destructiveHover: palette.neutralRed,
-
-  warning: `light-dark(${palette.brightYellow}, ${palette.fadedYellow})`,
-
-  // Warning keeps its canonical foreground: dark0Hard on the bright yellow
-  // already passes in light (4.62:1). Its dark pair stays a shortfall.
-  warningForeground: `light-dark(${palette.dark0Hard}, ${palette.light1})`,
-
-  warningHover: palette.neutralYellow,
 
   // Quiet by default (D1): a translucent mix so borders recede instead of
   // drawing hard rectangles. Hover/focus states brighten locally per
@@ -107,4 +85,13 @@ export const colors = stylex.defineVars({
   // Focus ring (S5): intentionally mirrors primary — keyboard focus carries
   // primary identity. If the primary hue ever changes, update both together.
   ring: `light-dark(${palette.brightBlue}, ${palette.fadedBlue})`,
+
+  // ── Legacy role aliases (retired matrix, S4) ────────────────────────────
+  // Consumers that still reference the old role names resolve to the family
+  // hue. Values are single-sourced in `./families.stylex`; these shims are
+  // removed when S6 re-sources Stage/ShellWrapper washes.
+  primary: familiesConsts.auroraBase,
+  secondary: familiesConsts.solderBase,
+  accent: familiesConsts.neonVioletBase,
+  warning: familiesConsts.amberBase,
 });

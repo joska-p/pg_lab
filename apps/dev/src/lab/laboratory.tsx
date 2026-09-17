@@ -170,7 +170,7 @@ const legacyTileStyles = stylex.create({
   },
   raisedPrimary: {
     backgroundColor: colors.primary,
-    color: colors.primaryForeground,
+    color: colors.foreground,
   },
   rawHex: {
     backgroundColor: "#fe8019",

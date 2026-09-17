@@ -115,12 +115,12 @@ const elevationTileStyles = stylex.create({
   primary: {
     [shadowColor.color]: colors.primary,
     backgroundColor: colors.primary,
-    color: colors.primaryForeground,
+    color: colors.foreground,
   },
   secondary: {
     [shadowColor.color]: colors.secondary,
     backgroundColor: colors.secondary,
-    color: colors.secondaryForeground,
+    color: colors.foreground,
   },
   muted: {
     [shadowColor.color]: colors.muted,
@@ -444,12 +444,20 @@ function Foundations() {
       <Card variant="surface">
         <ControlSection title="families">
           <Stack direction="horizontal" gap="8" wrap>
-            <Swatch variant="primary" meta="primaryForeground" />
-            <Swatch variant="secondary" meta="secondaryForeground" />
-            <Swatch variant="accent" meta="accentForeground" />
-            <Swatch variant="warning" meta="warningForeground" />
-            <Swatch variant="destructive" meta="destructiveForeground" />
-            <Swatch variant="muted" meta="mutedForeground" />
+            <Swatch variant="aurora" meta="aurora base" />
+            <Swatch variant="aurora" tension="strong" meta="aurora strong" />
+            <Swatch variant="solder" meta="solder base" />
+            <Swatch variant="solder" tension="strong" meta="solder strong" />
+            <Swatch variant="neon-violet" meta="neon-violet base" />
+            <Swatch variant="neon-violet" tension="strong" meta="neon-violet strong" />
+            <Swatch variant="amber" meta="amber base" />
+            <Swatch variant="amber" tension="strong" meta="amber strong" />
+            <Swatch variant="error" meta="error base" />
+            <Swatch variant="error" tension="strong" meta="error strong" />
+            <Swatch variant="aqua" meta="aqua base" />
+            <Swatch variant="aqua" tension="strong" meta="aqua strong" />
+            <Swatch variant="orange" meta="orange base" />
+            <Swatch variant="orange" tension="strong" meta="orange strong" />
           </Stack>
         </ControlSection>
       </Card>
