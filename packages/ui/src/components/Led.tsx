@@ -2,12 +2,14 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { radius } from "../consts/radius.stylex";
 import { fx } from "../consts/effects.stylex";
+import { layout } from "../consts/layout.stylex";
+import { families, type FamilyName } from "../tokens/families.stylex";
 
 const ledStyles = stylex.create({
   base: {
     flexShrink: 0,
-    width: "7px",
-    height: "7px",
+    width: layout.ledAtomSize,
+    height: layout.ledAtomSize,
     borderRadius: radius.full,
     backgroundColor: "currentColor",
   },
@@ -17,11 +19,12 @@ const ledStyles = stylex.create({
   off: {
     opacity: 0.45,
   },
-  fill: (color: string) => ({ color }),
+  fill: (base: string) => ({ color: base }),
 });
 
 export type LedProps = {
-  color: string;
+  /** Hue the mark carries. A single source: never a raw palette string. */
+  color: FamilyName;
   live?: boolean;
   off?: boolean;
   style?: StyleXStyles;
@@ -33,7 +36,7 @@ export function Led({ color, live = false, off = false, style }: LedProps) {
       aria-hidden="true"
       {...stylex.props(
         ledStyles.base,
-        ledStyles.fill(color),
+        ledStyles.fill(families[color].base),
         live ? ledStyles.live : null,
         off ? ledStyles.off : null,
         style,

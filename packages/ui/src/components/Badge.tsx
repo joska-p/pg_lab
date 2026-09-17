@@ -6,6 +6,7 @@ import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
 import { typography } from "../consts/typography.stylex";
 import { families, type FamilyName } from "../tokens/families.stylex";
+import { layout } from "../consts/layout.stylex";
 import { Led } from "./Led";
 
 const styles = stylex.create({
@@ -13,7 +14,7 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: space["1"],
-    paddingBlock: "2px",
+    paddingBlock: layout.chipPadBlock,
     paddingInline: space["2"],
     borderRadius: radius.full,
     borderWidth: borderWidth.hairline,
@@ -43,7 +44,7 @@ export function Badge({ family, live = false, style, children }: BadgeProps) {
 
   return (
     <span {...stylex.props(styles.base, fam ? styles.family(fam.strong) : styles.neutral, style)}>
-      {fam ? <Led color={fam.base} live={live} /> : null}
+      {family ? <Led color={family} live={live} /> : null}
       {children}
     </span>
   );

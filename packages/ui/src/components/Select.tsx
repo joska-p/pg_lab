@@ -8,6 +8,7 @@ import { Led } from "./Led";
 import { families, type FamilyName } from "../tokens/families.stylex";
 import { colors } from "../tokens/colors.stylex";
 import { interaction } from "../consts/interaction.stylex";
+import { layout } from "../consts/layout.stylex";
 import { space } from "../consts/spacing.stylex";
 
 type SelectOption<T extends string> = {
@@ -19,6 +20,8 @@ type SelectProps<T extends string> = {
   label?: string;
   family?: FamilyName;
   live?: boolean;
+  invalid?: boolean;
+  errorMessage?: string;
   options: readonly T[] | readonly SelectOption<T>[];
   value?: T;
   defaultValue?: T;
@@ -56,8 +59,8 @@ const styles = stylex.create({
     right: space["3"],
     top: "50%",
     transform: "translateY(-50%)",
-    width: "12px",
-    height: "12px",
+    width: layout.chevronSize,
+    height: layout.chevronSize,
     color: colors.mutedForeground,
     pointerEvents: "none",
   },
@@ -68,6 +71,8 @@ export function Select<T extends string>(props: SelectProps<T>) {
     label,
     family,
     live = false,
+    invalid = false,
+    errorMessage,
     options,
     value,
     defaultValue,
@@ -80,6 +85,7 @@ export function Select<T extends string>(props: SelectProps<T>) {
 
   const id = useId();
   const controlId = idProp ?? id;
+  const messageId = useId();
   const [internal, setInternal] = useState(
     defaultValue ?? (placeholder ? undefined : items0(options)),
   );
@@ -99,7 +105,7 @@ export function Select<T extends string>(props: SelectProps<T>) {
     <div {...stylex.props(field.col, style)}>
       {label || fam ? (
         <div {...stylex.props(field.labelRow)}>
-          {fam ? <Led color={fam.base} live={live} /> : null}
+          {family ? <Led color={family} live={live} /> : null}
           {label ? (
             <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
               {label}
@@ -114,10 +120,13 @@ export function Select<T extends string>(props: SelectProps<T>) {
           value={current ?? ""}
           onChange={handleChange}
           disabled={disabled}
+          aria-invalid={invalid || undefined}
+          aria-describedby={errorMessage ? messageId : undefined}
           {...stylex.props(
             field.well,
             styles.select,
             fieldText.value,
+            invalid ? field.wellInvalid : null,
             disabled ? disabledStyle.base : null,
           )}
         >
@@ -143,6 +152,12 @@ export function Select<T extends string>(props: SelectProps<T>) {
           />
         </svg>
       </div>
+
+      {errorMessage ? (
+        <span id={messageId} role="alert" {...stylex.props(fieldText.message)}>
+          {errorMessage}
+        </span>
+      ) : null}
     </div>
   );
 }

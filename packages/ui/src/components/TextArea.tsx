@@ -11,6 +11,8 @@ type TextAreaProps = {
   label?: string;
   family?: FamilyName;
   live?: boolean;
+  invalid?: boolean;
+  errorMessage?: string;
   rows?: number;
   value?: string;
   defaultValue?: string;
@@ -32,6 +34,8 @@ export function TextArea(props: TextAreaProps) {
     label,
     family,
     live = false,
+    invalid = false,
+    errorMessage,
     rows = 3,
     value,
     defaultValue = "",
@@ -44,6 +48,7 @@ export function TextArea(props: TextAreaProps) {
 
   const id = useId();
   const controlId = idProp ?? id;
+  const messageId = useId();
   const [internal, setInternal] = useState(defaultValue);
   const isControlled = value !== undefined;
   const current = isControlled ? value : internal;
@@ -59,7 +64,7 @@ export function TextArea(props: TextAreaProps) {
     <div {...stylex.props(field.col, style)}>
       {label || fam ? (
         <div {...stylex.props(field.labelRow)}>
-          {fam ? <Led color={fam.base} live={live} /> : null}
+          {family ? <Led color={family} live={live} /> : null}
           {label ? (
             <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
               {label}
@@ -75,13 +80,22 @@ export function TextArea(props: TextAreaProps) {
         placeholder={placeholder}
         onChange={handleChange}
         disabled={disabled}
+        aria-invalid={invalid || undefined}
+        aria-describedby={errorMessage ? messageId : undefined}
         {...stylex.props(
           field.well,
           fieldText.value,
           styles.input,
+          invalid ? field.wellInvalid : null,
           disabled ? disabledStyle.base : null,
         )}
       />
+
+      {errorMessage ? (
+        <span id={messageId} role="alert" {...stylex.props(fieldText.message)}>
+          {errorMessage}
+        </span>
+      ) : null}
     </div>
   );
 }

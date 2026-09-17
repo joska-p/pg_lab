@@ -172,6 +172,20 @@ If nothing, it stays neutral or takes the contact hue.
 does the UI work; monospace takes over whenever a value is a reading. Hierarchy
 roles and exact values live in the frontmatter and `consts/typography.stylex.ts`.
 
+**The Heading Ladder** (`foundations/heading.stylex.ts`) — one stepped family,
+not three competing recipes. Every heading is uppercase + wide tracking
+(Upper-Label Rule); the level is carried by size, weight, face and tone so it
+reads at a glance:
+
+| Level | Component        | Face | Size | Weight | Tone             |
+| ----- | ---------------- | ---- | ---- | ------ | ---------------- |
+| L1    | `SectionHeading` | sans | 18px | 600    | foreground       |
+| L2    | `ControlPanel`   | sans | 14px | 500    | foreground       |
+| L3    | `ControlSection` | mono | 12px | 500    | muted foreground |
+
+L3 turns mono because a control-group label is a technical mod name (a
+reading); L1/L2 stay sans — they do UI work, not measurement.
+
 ### Named Rules
 
 **The Upper-Label Rule.** Titles and section labels are uppercase with wide
@@ -286,6 +300,13 @@ and the **single contact hue** (`colors.ring`).
   stays neutral.
 - **Identity:** if a field reads a real parameter, its data tag + LED live
   **outside** the box (label row), never on the border.
+- **Error:** the sanctioned invalid face — the **error family** owns the
+  border (fail/bad border, negotiated via `aria-invalid`) while recess and
+  keyboard focus stay untouched/ring, so error is never conflated with focus.
+  An inline mono message (`role="alert"`, `fieldText.message`) names the
+  problem and the recovery. NumberField does **not** clamp silently: a typed
+  out-of-range value paints the well invalid and reports the bound
+  (`value clamped to 100 (maximum)`) until the draft is back in range.
 - Label sentence-case, typed value monospace, disabled = 45% opacity.
 
 ### Chips (Badge)

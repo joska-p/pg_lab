@@ -11,6 +11,8 @@ type NumberFieldProps = {
   label?: string;
   family?: FamilyName;
   live?: boolean;
+  invalid?: boolean;
+  errorMessage?: string;
   min?: number;
   max?: number;
   step?: number;
@@ -27,6 +29,8 @@ export function NumberField(props: NumberFieldProps) {
     label,
     family,
     live = false,
+    invalid = false,
+    errorMessage,
     min = Number.NEGATIVE_INFINITY,
     max = Number.POSITIVE_INFINITY,
     step = 1,
@@ -40,14 +44,25 @@ export function NumberField(props: NumberFieldProps) {
 
   const id = useId();
   const controlId = idProp ?? id;
+  const messageId = useId();
   const [internal, setInternal] = useState(defaultValue);
   const [draft, setDraft] = useState<string | null>(null);
+  // Clamp feedback (Heuristic #9): a typed out-of-range value is never
+  // accepted silently — the well goes invalid and a message names the bound.
+  const [clampNotice, setClampNotice] = useState<string | null>(null);
   const isControlled = value !== undefined;
   const current = isControlled ? value : internal;
   const fam = family ? families[family] : null;
+  const isClamped = clampNotice !== null;
 
   function commit(next: number) {
     const clamped = Math.min(max, Math.max(min, next));
+    if (clamped !== next) {
+      const bound = next < min ? "minimum" : "maximum";
+      setClampNotice(`value clamped to ${clamped} (${bound})`);
+    } else {
+      setClampNotice(null);
+    }
     if (!isControlled) setInternal(clamped);
     onValueChange?.(clamped);
   }
@@ -63,7 +78,7 @@ export function NumberField(props: NumberFieldProps) {
     <div {...stylex.props(field.col, style)}>
       {label || fam ? (
         <div {...stylex.props(field.labelRow)}>
-          {fam ? <Led color={fam.base} live={live} /> : null}
+          {family ? <Led color={family} live={live} /> : null}
           {label ? (
             <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
               {label}
@@ -80,10 +95,26 @@ export function NumberField(props: NumberFieldProps) {
         step={step}
         value={draft ?? String(current)}
         onChange={handleChange}
-        onBlur={() => setDraft(null)}
+        onBlur={() => {
+          setDraft(null);
+          setClampNotice(null);
+        }}
         disabled={disabled}
-        {...stylex.props(field.well, fieldText.value, disabled ? disabledStyle.base : null)}
+        aria-invalid={invalid || isClamped || undefined}
+        aria-describedby={errorMessage || clampNotice ? messageId : undefined}
+        {...stylex.props(
+          field.well,
+          fieldText.value,
+          invalid || isClamped ? field.wellInvalid : null,
+          disabled ? disabledStyle.base : null,
+        )}
       />
+
+      {errorMessage || clampNotice ? (
+        <span id={messageId} role="alert" {...stylex.props(fieldText.message)}>
+          {errorMessage ?? clampNotice}
+        </span>
+      ) : null}
     </div>
   );
 }

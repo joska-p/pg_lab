@@ -12,6 +12,7 @@ import { typography } from "../consts/typography.stylex";
 import { colors } from "../tokens/colors.stylex";
 import { shadowColor, shadows } from "../tokens/shadows.stylex";
 import { families, type FamilyName } from "../tokens/families.stylex";
+import { layout } from "../consts/layout.stylex";
 import { Led } from "./Led";
 
 const spin = stylex.keyframes({
@@ -71,9 +72,9 @@ const styles = stylex.create({
   },
 
   spinner: {
-    width: "12px",
-    height: "12px",
-    borderWidth: "2px",
+    width: layout.spinnerSize,
+    height: layout.spinnerSize,
+    borderWidth: layout.spinnerRingWidth,
     borderStyle: "solid",
     borderColor: "currentColor",
     borderTopColor: "transparent",
@@ -135,8 +136,8 @@ export function Button({
     >
       {loading ? (
         <span aria-hidden {...stylex.props(styles.spinner)} />
-      ) : fam ? (
-        <Led color={fam.base} live={live} />
+      ) : family ? (
+        <Led color={family} live={live} />
       ) : null}
       {children}
     </button>

@@ -320,6 +320,12 @@ function Controls() {
                 <TextInput key={family} label={family} family={family} defaultValue={family} />
               ))}
               <TextInput label="disabled" defaultValue="frozen" disabled />
+              <TextInput
+                label="invalid"
+                invalid
+                errorMessage="missing value — enter a valid patch name"
+                defaultValue="bass-01"
+              />
             </Stack>
           </ControlSection>
         </Card>
@@ -338,6 +344,7 @@ function Controls() {
                 />
               ))}
               <NumberField label="disabled" min={0} max={100} defaultValue={40} disabled />
+              <NumberField label="clamp demo" min={0} max={100} defaultValue={62} />
             </Stack>
           </ControlSection>
         </Card>

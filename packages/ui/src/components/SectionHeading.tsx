@@ -4,8 +4,10 @@ import { glow } from "../effects/glow.stylex";
 import { colors } from "../tokens/colors.stylex";
 import { families } from "../tokens/families.stylex";
 import { radius } from "../consts/radius.stylex";
+import { layout } from "../consts/layout.stylex";
 import { space } from "../consts/spacing.stylex";
 import { typography } from "../consts/typography.stylex";
+import { heading } from "../foundations/heading.stylex";
 
 const styles = stylex.create({
   base: {
@@ -16,8 +18,8 @@ const styles = stylex.create({
 
   led: {
     display: "inline-block",
-    width: "7px",
-    height: "7px",
+    width: layout.ledAtomSize,
+    height: layout.ledAtomSize,
     borderRadius: radius.full,
     backgroundColor: families["neon-violet"].base,
     color: families["neon-violet"].base,
@@ -27,14 +29,6 @@ const styles = stylex.create({
     fontFamily: typography.fontFamilyMono,
     fontSize: typography.fontSizeXs,
     color: colors.mutedForeground,
-  },
-
-  title: {
-    margin: 0,
-    fontSize: typography.fontSizeLg,
-    fontWeight: typography.fontWeightSemibold,
-    letterSpacing: typography.letterSpacingWide,
-    textTransform: typography.textCaseUppercase,
   },
 });
 
@@ -49,7 +43,7 @@ export function SectionHeading({ index, title, style }: SectionHeadingProps) {
     <div {...stylex.props(styles.base, style)}>
       <span aria-hidden {...stylex.props(styles.led, glow.glowSubtle)} />
       {index ? <span {...stylex.props(styles.index)}>{index}</span> : null}
-      <h2 {...stylex.props(styles.title)}>{title}</h2>
+      <h2 {...stylex.props(heading.level1)}>{title}</h2>
     </div>
   );
 }

@@ -3,15 +3,23 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactiveBase } from "../foundations/interaction.stylex";
 import { fieldText } from "../foundations/text.stylex";
+import { field } from "../foundations/field.stylex";
 import { focusRing } from "../intents/focus.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
 import { colors } from "../tokens/colors.stylex";
+import { families, type FamilyName } from "../tokens/families.stylex";
 import { borderWidth } from "../consts/borderWidth.stylex";
+import { layout } from "../consts/layout.stylex";
 import { radius } from "../consts/radius.stylex";
 import { space } from "../consts/spacing.stylex";
+import { Led } from "./Led";
 
 type ColorFieldProps = {
   label?: string;
+  family?: FamilyName;
+  live?: boolean;
+  invalid?: boolean;
+  errorMessage?: string;
   value?: string;
   defaultValue?: string;
   onValueChange?: (value: string) => void;
@@ -36,10 +44,10 @@ const styles = stylex.create({
 
   input: {
     flexShrink: 0,
-    width: "36px",
-    height: "26px",
+    width: layout.colorSwatchWidth,
+    height: layout.colorSwatchHeight,
     margin: 0,
-    padding: "2px",
+    padding: layout.colorSwatchPad,
     borderRadius: radius.sm,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
@@ -55,6 +63,10 @@ const styles = stylex.create({
 export function ColorField(props: ColorFieldProps) {
   const {
     label,
+    family,
+    live = false,
+    invalid = false,
+    errorMessage,
     value,
     defaultValue = DEFAULT_HEX,
     onValueChange,
@@ -65,9 +77,11 @@ export function ColorField(props: ColorFieldProps) {
 
   const id = useId();
   const controlId = idProp ?? id;
+  const messageId = useId();
   const [internal, setInternal] = useState(defaultValue);
   const isControlled = value !== undefined;
   const current = asHex(isControlled ? value : internal);
+  const fam = family ? families[family] : null;
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const next = event.currentTarget.value;
@@ -76,31 +90,46 @@ export function ColorField(props: ColorFieldProps) {
   }
 
   return (
-    <div {...stylex.props(styles.row)}>
-      {label ? (
-        <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
-          {label}
-        </label>
+    <div {...stylex.props(field.col, style)}>
+      {label || fam ? (
+        <div {...stylex.props(field.labelRow)}>
+          {family ? <Led color={family} live={live} /> : null}
+          {label ? (
+            <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
+              {label}
+            </label>
+          ) : null}
+        </div>
       ) : null}
 
-      <input
-        id={controlId}
-        type="color"
-        value={current}
-        onChange={handleChange}
-        disabled={disabled}
-        {...stylex.props(
-          styles.input,
-          interactiveBase.base,
-          focusRing.base,
-          disabled ? disabledStyle.base : null,
-          style,
-        )}
-      />
+      <div {...stylex.props(styles.row)}>
+        <input
+          id={controlId}
+          type="color"
+          value={current}
+          onChange={handleChange}
+          disabled={disabled}
+          aria-invalid={invalid || undefined}
+          aria-describedby={errorMessage ? messageId : undefined}
+          {...stylex.props(
+            styles.input,
+            interactiveBase.base,
+            focusRing.base,
+            invalid ? field.wellInvalid : null,
+            disabled ? disabledStyle.base : null,
+          )}
+        />
 
-      <span aria-live="polite" {...stylex.props(styles.value, fieldText.value)}>
-        {current.toUpperCase()}
-      </span>
+        <span aria-live="polite" {...stylex.props(styles.value, fieldText.value)}>
+          {current.toUpperCase()}
+        </span>
+      </div>
+
+      {errorMessage ? (
+        <span id={messageId} role="alert" {...stylex.props(fieldText.message)}>
+          {errorMessage}
+        </span>
+      ) : null}
     </div>
   );
 }

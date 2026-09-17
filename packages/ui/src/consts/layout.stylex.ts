@@ -38,6 +38,23 @@ export const layout = stylex.defineConsts({
   // Segmented strip footprint.
   segmentPadBlock: "1px",
 
+  // Visual atoms (allowed to stay small by the touch policy: marks, not
+  // targets). LED = the identity dot shared by widgets, headings, badges.
+  ledAtomSize: "7px",
+
+  // Native color-picker well (ColorField) — the input box the browser paints.
+  colorSwatchWidth: "36px",
+  colorSwatchHeight: "26px",
+  colorSwatchPad: "2px",
+
+  // Icon atoms: select chevron, button spinner.
+  chevronSize: "12px",
+  spinnerSize: "12px",
+  spinnerRingWidth: "2px",
+
+  // Chip/badge inline pad (visual atom, not a spacing step).
+  chipPadBlock: "2px",
+
   // Slider rail anatomy. The container itself becomes the touch band; the 4px
   // rail and 14px thumb stay centered on it.
   sliderRailHeight: "4px",

@@ -11,6 +11,8 @@ type TextInputProps = {
   label?: string;
   family?: FamilyName;
   live?: boolean;
+  invalid?: boolean;
+  errorMessage?: string;
   value?: string;
   defaultValue?: string;
   placeholder?: string;
@@ -25,6 +27,8 @@ export function TextInput(props: TextInputProps) {
     label,
     family,
     live = false,
+    invalid = false,
+    errorMessage,
     value,
     defaultValue = "",
     placeholder,
@@ -36,6 +40,7 @@ export function TextInput(props: TextInputProps) {
 
   const id = useId();
   const controlId = idProp ?? id;
+  const messageId = useId();
   const [internal, setInternal] = useState(defaultValue);
   const isControlled = value !== undefined;
   const current = isControlled ? value : internal;
@@ -51,7 +56,7 @@ export function TextInput(props: TextInputProps) {
     <div {...stylex.props(field.col, style)}>
       {label || fam ? (
         <div {...stylex.props(field.labelRow)}>
-          {fam ? <Led color={fam.base} live={live} /> : null}
+          {family ? <Led color={family} live={live} /> : null}
           {label ? (
             <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
               {label}
@@ -67,8 +72,21 @@ export function TextInput(props: TextInputProps) {
         placeholder={placeholder}
         onChange={handleChange}
         disabled={disabled}
-        {...stylex.props(field.well, fieldText.value, disabled ? disabledStyle.base : null)}
+        aria-invalid={invalid || undefined}
+        aria-describedby={errorMessage ? messageId : undefined}
+        {...stylex.props(
+          field.well,
+          fieldText.value,
+          invalid ? field.wellInvalid : null,
+          disabled ? disabledStyle.base : null,
+        )}
       />
+
+      {errorMessage ? (
+        <span id={messageId} role="alert" {...stylex.props(fieldText.message)}>
+          {errorMessage}
+        </span>
+      ) : null}
     </div>
   );
 }

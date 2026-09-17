@@ -20,7 +20,6 @@ import { motion } from "@repo/ui/consts/motion.stylex";
 import { interaction } from "@repo/ui/consts/interaction.stylex";
 import { space } from "@repo/ui/consts/spacing.stylex";
 import { zIndex } from "@repo/ui/consts/zIndex.stylex";
-import { families } from "@repo/ui/tokens/families.stylex";
 import { Laboratory } from "./lab/laboratory";
 import { MiniSynth } from "./lab/minisynth";
 
@@ -113,8 +112,6 @@ function useTheme() {
 }
 
 function Launcher({ onViewChange }: { onViewChange: (view: "synth" | "lab") => void }) {
-  const amber = families.amber.base;
-
   return (
     <ExperimentShell
       panel={
@@ -160,7 +157,7 @@ function Launcher({ onViewChange }: { onViewChange: (view: "synth" | "lab") => v
     >
       <Stage>
         <Stack direction="horizontal" gap="3" {...stylex.props(launcherStyles.header)}>
-          <Led color={amber} live />
+          <Led color="amber" live />
           <h1 {...stylex.props(launcherStyles.title)}>pg_lab</h1>
         </Stack>
         <Text variant="muted">Creative Coding Playground & Design Experiments</Text>

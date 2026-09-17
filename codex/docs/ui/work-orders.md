@@ -29,10 +29,10 @@ Start every edit by reading `reference/craft-floor.md` (UI quality floor) per th
 | S4  | Retire role-matrix residue (primary, SectionHeading, Swatch)                                                                            | P1/P2    | tokens/colors.stylex.ts, components/SectionHeading.tsx, Swatch.tsx                                            | done      |
 | S5  | Pressable parity + touch targets ≥44px                                                                                                  | P2       | Toggle, Checkbox, Segmented, RadioGroup, Slider, Button, foundations/touch.stylex.ts, consts/layout.stylex.ts | done      |
 | S6  | ShellWrapper/Stage ambient washes — **decision task**                                                                                   | P1       | components/ShellWrapper.tsx, Stage.tsx                                                                        | done      |
-| S7  | P3 batch: geometry, Led typing, ColorField row, error state, heading hierarchy                                                          | P3       | multiple (see S7)                                                                                             | pending   |
+| S7  | P3 batch: geometry, Led typing, ColorField row, error state, heading hierarchy                                                          | P3       | multiple (see S7)                                                                                             | done      |
 | S8  | `polish` + re-run `critique` + DESIGN.md sync                                                                                           | —        | interfaces                                                                                                    | pending   |
 
-**NEXT: S7.** When a session is in progress, the executing task is marked `in-progress` and the next pending task becomes `NEXT`.
+**NEXT: S8.** When a session is in progress, the executing task is marked `in-progress` and the next pending task becomes `NEXT`.
 
 ## Handoff Protocol (mandatory)
 
@@ -231,6 +231,10 @@ Sub-tasks (each independently verifyable; do them in order):
 | 2026-09-17 | S5      | **`glowWithPress` replaces `glowRing`/`glowRingWithFocus`** (which became dead code). ON Toggle/Checkbox now emit ONE `box-shadow` list per state (halo + rest / hover / active, and halo + ring on focus) — the S2 compose idiom extended to the press ladder. The widgets set `[shadowColor.color]` to the family `base`, so halo and lift are family-tinted (Shadow-Paints-Itself on a live key). Verified in compiled `stylex.css`.                                                                                                                                                                                                                   | S2/S5                                            |
 | 2026-09-17 | S5      | **No pseudo-elements for hit areas (StyleX guidance).** The touch floor rides a REAL absolutely-positioned `<span aria-hidden>` centered on the control, so `:hover`/`:active`/`:focus-visible` still fire on the visual box; `touch.hit` in `foundations/touch.stylex.ts`.                                                                                                                                                                                                                                                                                                                                                                               | S5                                               |
 | 2026-09-17 | S6      | **Light fields are localized to material scenes, not full-page chrome.** ShellWrapper washes reduced from 45–55% `oklch` saturates to 10–12% `oklch` tints (aurora bottom-left, solder top-right); conic gradient removed. Stage washes removed entirely (plain `background→card` linear gradient). Noise texture kept on both. Canvas is now visually neutral — color lives in MaterialScene and data marks. The `MaterialScene` in the laboratory correctly demonstrates the under/over light-field concept; the shell should not repeat it at viewport scale.                                                                                          | S6/DESIGN.md                                     |
+| 2026-09-17 | S7      | **Error vocabulary (Heuristic #9 closed).** `invalid` + `errorMessage` on all five field primitives (TextInput, TextArea, Select, NumberField, ColorField): error family owns the well border, `aria-invalid` via the control, message in `fieldText.message` (mono xs, `role="alert"`, `aria-describedby`). Focus still answers with the contact ring — error and focus are never conflated. `field.wellInvalid` in `foundations/field.stylex.ts`.                                                                                                                                                                                                       | S7/DESIGN.md                                     |
+| 2026-09-17 | S7      | **NumberField never clamps silently.** A typed out-of-range value paints the well invalid (internal `clampNotice`) and reports the bound in plain language (`value clamped to 100 (maximum)`), cleared on blur or when back in range. Rationale: silent clamp was the #9 failure and the "no reset/undo" control gap (Heuristic #3).                                                                                                                                                                                                                                                                                                                      | S7/DESIGN.md                                     |
+| 2026-09-17 | S7      | **Heading recipes collapsed into one ladder** (`foundations/heading.stylex.ts`, `heading.level1/2/3`): L1 SectionHeading = sans 18px 600 fg · L2 ControlPanel = sans 14px 500 fg · L3 ControlSection = mono 12px 500 muted. All uppercase + wide (Upper-Label Rule). Structure was already numerically stepped; the win is a single authored foundation instead of three component-local recipes. L3 stays mono because a control-group label is a technical mod name (a reading).                                                                                                                                                                        | S7/DESIGN.md                                     |
+| 2026-09-17 | S7      | **`Led` `color` tightened to `FamilyName`** (breaking for raw-string callers, internal-only consumers updated). The mark takes `families[color].base` — a family name, never a palette/hex string, blocking S4-era `colors.accent`-style injections at the type level. App.tsx launcher LED is now `<Led color="amber" />`; experimental.tsx's lab-local Led (string) stays untouched.                                                                                                                                                                                                                                                                    | S7                                               |
 
 ## Handoff Archive
 
@@ -364,3 +368,41 @@ Sub-tasks (each independently verifyable; do them in order):
 - **Role aliases (`primary`, `secondary`, `accent`, `warning`) not removed.** S4 planned to delete these once S6 re-sourced the washes; however, `minisynth.tsx` (elevation tiles at lines 116–150), `laboratory.tsx` (legacy tile at line 172), and `App.tsx` (menu hover feedback at lines 81–82) still consume them. These are app-level consumers, not `@repo/ui` library consumers. The aliases stay in `colors.stylex.ts` until S7/S8 cleans up the app code.
 - **DESIGN.md updated:** light field regime now explicitly scoped to "localized MaterialScene and similar under/over compositions; not full-page chrome."
 - Canvas is now visually quiet — the only color on a fresh page is the noise texture and the very subtle SW gradient. MaterialScene in the laboratory is the one place light fields are visible. This matches the "dim room" brief and gives the Pilot Light glow (state) and data marks (identity) room to be the only chromatic signals.
+
+### S7 (2026-09-17) — P3 batch: error state, heading ladder, ColorField row, Led typing, pixels
+
+**Change:** `Led.tsx`, `Button.tsx`, `Badge.tsx`, `TextInput.tsx`, `TextArea.tsx`, `Select.tsx`, `NumberField.tsx`, `ColorField.tsx`, `SectionHeading.tsx`, `ControlPanel.tsx`, `ControlSection.tsx`, `foundations/field.stylex.ts`, `foundations/text.stylex.ts`, `foundations/heading.stylex.ts` (new), `consts/layout.stylex.ts`, `packages/ui/DESIGN.md`, `apps/dev/src/App.tsx`, `apps/dev/src/lab/minisynth.tsx`.
+
+**1. Error affordance (Heuristic #9, score 1 → closed).** `invalid?` + `errorMessage?` on TextInput, TextArea, Select, NumberField, ColorField.
+
+- `field.wellInvalid` in `foundations/field.stylex.ts`: `borderColor: families.error.base` (incl. `:focus`), recess sunken shadow untouched. Focus keeps the contact ring on the shadow — error owns the border, focus owns the ring, never conflated.
+- `fieldText.message` in `foundations/text.stylex.ts`: mono xs, `families.error.base`.
+- Each field: `aria-invalid={invalid || undefined}`, `aria-describedby` → message id, message rendered `role="alert"`. Copy names problem + recovery (`"missing value — enter a valid patch name"`).
+- **NumberField clamp feedback:** internal `clampNotice` state — a typed out-of-range draft paints the well invalid and reports `value clamped to 100 (maximum)`; cleared on blur or when back in range. Control error border/slot wiring: `invalid || isClamped`.
+
+**2. Heading ladder collapsed.** New `foundations/heading.stylex.ts` with `level1` (sans 18px 600 fg), `level2` (sans 14px 500 fg), `level3` (mono 12px 500 muted), all uppercase + wide. `SectionHeading` h2 → level1, `ControlPanel` h2 → level2 (drops the old `fieldText.label` merge), `ControlSection` span → level3. Visually the step is what previously rendered (the numbers were right); the fragmentation between three component-local style blocks is gone — one authored ladder, DESIGN.md gains the L1/L2/L3 table.
+
+**3. ColorField family/LED row.** Now `field.col` + `field.labelRow` anatomy exactly like the other fields: optional `family` + `live` render the LED + label above, control row (color input + mono hex readout, `aria-live`) below. Previously the label sat inline with the input.
+
+**4. `Led` typed.** `color: FamilyName` (was `string`); renders `families[color].base`. Consumers updated: Button, Badge, TextInput, TextArea, Select, NumberField, ColorField use `<Led color={family} …/>`; App.tsx launcher → `<Led color="amber" live />` (unused `families` import removed). The lab-local Led in `experimental.tsx` (string) is untouched — it is the probe vocabulary.
+
+**5. Pixels → consts.** Added to `consts/layout.stylex.ts`: `ledAtomSize 7`, `colorSwatchWidth/Height/Pad 36/26/2`, `chevronSize 12`, `spinnerSize 12`, `spinnerRingWidth 2`, `chipPadBlock 2`. Applied to Led + SectionHeading led, ColorField input, Select chevron, Button spinner, Badge chip. **Allowed to stay** (S5 acceptance): Toggle knob inset `2px` (slice positioning), Slider ring offsets `2/3px` (focus halo), `MaterialScene` `-32px` bleed (scene composition).
+
+**Verification:**
+
+- `vp check` passes (format/lint/type, 66 files), `vp -C apps/dev build` succeeds. Compiled `stylex.css` contains the error border (`light-dark(oklch(0.66 0.218 30.392), oklch(0.437 0.179 28.26))`), the new `26px/36px` swatch atoms and the 7px LED atoms.
+- No test files exist in the repo.
+
+**Live check pending user** in `apps/dev`:
+
+- Field in error styling + the `invalid` TextInput in the minisynth (label row → error border + message under the well; focus the field → error border stays but contact ring appears).
+- NumberField "clamp demo": type 250 (or -5) into the box → border goes error, message `value clamped to 100 (maximum)`; back to 62 → error clears. NumberField/TextInput/Select/etc. with `family` now show the LED via `<Led color={family}>` (identical appearnce to before).
+- Headings: SectionHeading (L1) vs ControlPanel title (L2) vs ControlSection (L3) — unchanged look, one ladder.
+- ColorField "warm tint": label row now above the swatch; give it `family` to see the LED.
+
+**Notes / for next sessions:**
+
+- **API additions are optional & backward-compatible** (`invalid`, `errorMessage` on the five fields; `family`/`live` gained by ColorField). Breaking change: `Led` `color` is now `FamilyName` — no raw palette/hex strings at type level. Any external consumer passing a CSS var breaks; the only such caller was App.tsx.
+- **Clamp notice vs consumer message:** NumberField renders `errorMessage ?? clampNotice` — if both set, the caller's message wins and the clamp notice is suppressed (documented in the Decision Log). A follow-up could compose them; left as-is for simplicity.
+- DESIGN.md now documents the Heading Ladder table, error vocabulary, and the ColorField LED row under "Fields".
+- Swatch's `tension` API (S4) untouched; `Led` typing had no effect on it.
