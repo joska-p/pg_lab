@@ -8,6 +8,7 @@ import { colors } from "../tokens/colors.stylex";
 // dropped the resting elevation exactly while keyboard-focused.
 export const pressable = stylex.create({
   base: {
+    outline: "none",
     boxShadow: {
       default: shadows.rest,
       ":hover": shadows.hover,

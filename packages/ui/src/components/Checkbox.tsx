@@ -96,9 +96,9 @@ export function Checkbox(props: CheckboxProps) {
         {...stylex.props(
           styles.box,
           isOn && fam ? activeIntent.fill(fam.base) : null,
-          isOn ? glow.glowRing : null,
+          isOn ? glow.glowRingWithFocus : null,
           interactiveBase.base,
-          focusRing.base,
+          !isOn ? focusRing.base : null,
           disabled ? disabledStyle.base : null,
           style,
         )}

@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { fx } from "../consts/effects.stylex";
 import { shadowColor } from "../tokens/shadows.stylex";
+import { colors } from "../tokens/colors.stylex";
 
 // Glow family — luminosity as state language (Pilot Light Rule). Applies a
 // translucent halo tinted by `currentColor` or by the element's `shadowColor`.
@@ -24,5 +25,12 @@ export const glow = stylex.create({
   // the family: an effect tinted via the shadow variable — not a raw per-family map.
   glowRing: {
     boxShadow: `0 0 ${fx.glowRing} color-mix(in oklab, ${shadowColor.color} ${fx.glowRingCast}, transparent)`,
+  },
+
+  glowRingWithFocus: {
+    boxShadow: {
+      default: `0 0 ${fx.glowRing} color-mix(in oklab, ${shadowColor.color} ${fx.glowRingCast}, transparent)`,
+      ":focus-visible": `0 0 ${fx.glowRing} color-mix(in oklab, ${shadowColor.color} ${fx.glowRingCast}, transparent), 0 0 0 2px ${colors.background}, 0 0 0 3px ${colors.ring}`,
+    },
   },
 });

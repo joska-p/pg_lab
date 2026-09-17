@@ -24,7 +24,7 @@ Start every edit by reading `reference/craft-floor.md` (UI quality floor) per th
 | #   | Task                                                                           | Severity | Files                                                              | Status  |
 | --- | ------------------------------------------------------------------------------ | -------- | ------------------------------------------------------------------ | ------- |
 | S1  | Amber-on-cream contrast (Segmented + RadioGroup)                               | P0       | components/Segmented.tsx, components/RadioGroup.tsx                | done    |
-| S2  | Glow merge bug (Toggle, Checkbox) + Button dead focusRing                      | P1       | components/Toggle.tsx, Checkbox.tsx, Button.tsx                    | pending |
+| S2  | Glow merge bug (Toggle, Checkbox) + Button dead focusRing                      | P1       | components/Toggle.tsx, Checkbox.tsx, Button.tsx                    | done    |
 | S3  | Glass only when floating (docked panel opaque)                                 | P1       | components/ExperimentShell.tsx, MaterialScene.tsx                  | pending |
 | S4  | Retire role-matrix residue (primary, SectionHeading, Swatch)                   | P1/P2    | tokens/colors.stylex.ts, components/SectionHeading.tsx, Swatch.tsx | pending |
 | S5  | Pressable parity + touch targets ≥44px                                         | P2       | Toggle, Checkbox, Segmented, RadioGroup, Slider, consts/           | pending |
@@ -32,7 +32,7 @@ Start every edit by reading `reference/craft-floor.md` (UI quality floor) per th
 | S7  | P3 batch: geometry, Led typing, ColorField row, error state, heading hierarchy | P3       | multiple (see S7)                                                  | pending |
 | S8  | `polish` + re-run `critique` + DESIGN.md sync                                  | —        | interfaces                                                         | pending |
 
-**NEXT: S2.** When a session is in progress, the executing task is marked `in-progress` and the next pending task becomes `NEXT`.
+**NEXT: S3.** When a session is in progress, the executing task is marked `in-progress` and the next pending task becomes `NEXT`.
 
 ## Handoff Protocol (mandatory)
 
@@ -218,12 +218,13 @@ Sub-tasks (each independently verifyable; do them in order):
 
 ## Decision Log
 
-| Date       | Session | Decision                                                                                                                                                                                                                             | Impact   |
-| ---------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
-| 2026-09-17 | (plan)  | Session chain uses one task per session, short sessions                                                                                                                                                                              | Workflow |
-| 2026-09-17 | (plan)  | ShellWrapper ambience deferred to S6 as a lab-backed decision task (default: reduce)                                                                                                                                                 | S6       |
-| 2026-09-17 | S1      | Chosen Segmented option: text = `colors.foreground` (dark in light, bright in dark) for ALL families; the fill carries the family hue. Do not special-case amber with the ink token. **Validated by user** in `apps/dev`             | S1/S4    |
-| 2026-09-17 | S1      | **Uniform mark/text-on-family-fill rule** (extends Segmented): any mark/text on a family fill = `colors.foreground` (dark in light, bright in dark), family lives only on the fill. Applied to RadioGroup dot. **Validated by user** | S1/S4    |
+| Date       | Session | Decision                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Impact   |
+| ---------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| 2026-09-17 | (plan)  | Session chain uses one task per session, short sessions                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Workflow |
+| 2026-09-17 | (plan)  | ShellWrapper ambience deferred to S6 as a lab-backed decision task (default: reduce)                                                                                                                                                                                                                                                                                                                                                                                                                                            | S6       |
+| 2026-09-17 | S1      | Chosen Segmented option: text = `colors.foreground` (dark in light, bright in dark) for ALL families; the fill carries the family hue. Do not special-case amber with the ink token. **Validated by user** in `apps/dev`                                                                                                                                                                                                                                                                                                        | S1/S4    |
+| 2026-09-17 | S1      | **Uniform mark/text-on-family-fill rule** (extends Segmented): any mark/text on a family fill = `colors.foreground` (dark in light, bright in dark), family lives only on the fill. Applied to RadioGroup dot. **Validated by user**                                                                                                                                                                                                                                                                                            | S1/S4    |
+| 2026-09-17 | S2      | **Compose-glow-with-focus** (Pilot Light fix): when a glowing widget is also keyboard-focused, `boxShadow` is a single list — glow halo + focus halo — never two competing `box-shadow` declarations. Implemented as a `glowRingWithFocus` variant with a `:focus-visible` slot. Toggle/Checkbox are mutually exclusive by state (`isOn ? glowRingWithFocus : focusRing.base`), so no argument-order coupling. Button keeps `pressable.base` only; `pressable` is now the primitives' focus owner and supplies `outline: none`. | S2/S5    |
 
 ## Handoff Archive
 
@@ -246,3 +247,25 @@ Sub-tasks (each independently verifyable; do them in order):
 
 - **King-attempts reverted:** an earlier pass changed `families.amber.inkFg` to a constant `dark0Hard` (both modes dark), added a RadioGroup `dotAmber`, and edited DESIGN.md. All reverted; the tree is token- and API-identical to before S1.
 - `colors.foreground` is now the sanctioned mark/text-on-family-fill token. When S4 retires the role matrix, `families.*.ink.fg` and `warningForeground` may be re-audited against this rule.
+
+### S2 (2026-09-17) — Glow merge bug (Pilot Light)
+
+**Change:** `components/Toggle.tsx`, `components/Checkbox.tsx`, `effects/glow.stylex.ts`, `components/Button.tsx`, `intents/pressable.stylex.ts`.
+
+- `effects/glow.stylex.ts`: added `glow.glowRingWithFocus` — a single `boxShadow` value that composes the glow halo (`0 0 6px shadowColor@55%`) with the universal focus halo (`0 0 0 2px background / 0 0 0 3px ring`) via a `:focus-visible` slot. This is exactly how `pressable` already composes the ring onto its lift: one `box-shadow` key per state, never two competing keys.
+- `Toggle.tsx` / `Checkbox.tsx`: ON → `glow.glowRingWithFocus`; OFF → `focusRing.base`. The states are mutually exclusive (`isOn ? glowRingWithFocus : focusRing.base`), so there is **no argument-order coupling** and no StyleX dedupe blind spot. ON+focus renders halo+ring; OFF+focus renders ring only; ON+rest renders halo only.
+- `Button.tsx`: removed `focusRing.base` (provably dead — `pressable.base` won the `box-shadow` key) and its import. Focus appearance unchanged: `pressable.base:focus-visible` already carries the same ring.
+- `intents/pressable.stylex.ts`: added `outline: "none"` (previously supplied by the removed `focusRing.base`). `pressable` is now the single focus/rest/elevation owner for primitives.
+
+**Verification:** `vp check` passes (format, lint, types, 64 files). No test files exist in the repo (`vp test`: no files found). **Live check pending user** in `apps/dev`:
+
+- ON family Toggle/Checkbox (minisynth.tsx:243-248, 254-259) should now show a 6px same-hue halo instead of a flat fill.
+- Keyboard-tab to an ON widget → glow + focus halo both visible; focus an OFF widget → ring only.
+- Button keyboard focus → the halo ring (via `pressable`) still shows; no default browser outline.
+
+**Notes / for next sessions:**
+
+- **Pattern to reuse:** the compose-in-one-`boxShadow` idiom (a `:focus-visible` slot inside the effect's own value) is the sanctioned way to make an effect run _alongside_ focus. Prefer it over footgun reordering. S5 can lean on `pressable.base` (which now also owns `outline: none`) without double outline concerns.
+- `glow.glowRing` (ring without focus) is now consumed by nothing; kept as a standalone building block at this stage — S7/S8 may re-audit if it stays unused.
+- Disabled ON toggle/checkbox keeps its glow at 45% opacity (`disabledStyle.base` only sets cursor+opacity; no box-shadow conflict). Confirms the disabled lab case (`minisynth.tsx:248`, `:260`) unchanged apart from now glowing.
+- No token/API changes; `colors.*`, `fx` consts untouched.

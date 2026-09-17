@@ -2,7 +2,6 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { interactiveBase } from "../foundations/interaction.stylex";
 import { pressable } from "../intents/pressable.stylex";
-import { focusRing } from "../intents/focus.stylex";
 import { disabledStyle } from "../intents/disabled.stylex";
 import { motion } from "../consts/motion.stylex";
 import { interaction } from "../consts/interaction.stylex";
@@ -129,7 +128,6 @@ export function Button({
         fam && live ? styles.live(fam.base) : null,
         lead ? styles.lead : null,
         interactiveBase.base,
-        focusRing.base,
         pressable.base,
         isDisabled ? disabledStyle.base : null,
         loading ? styles.loading : null,
