@@ -74,10 +74,6 @@ const styles = stylex.create({
     borderRadius: radius.full,
     backgroundColor: colors.foreground,
   },
-
-  dotFamily: {
-    backgroundColor: colors.background,
-  },
 });
 
 const circleChosenVariants = stylex.create({
@@ -194,9 +190,7 @@ export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
                   chosen && family ? circleChosenVariants[family] : null,
                 )}
               >
-                {chosen ? (
-                  <span {...stylex.props(styles.dot, family ? styles.dotFamily : null)} />
-                ) : null}
+                {chosen ? <span {...stylex.props(styles.dot)} /> : null}
               </span>
 
               {option.label ?? option.value}

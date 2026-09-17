@@ -68,31 +68,31 @@ const styles = stylex.create({
 const chosenVariants = stylex.create({
   aurora: {
     backgroundColor: familiesConsts.auroraBase,
-    color: colors.background,
+    color: colors.foreground,
   },
   solder: {
     backgroundColor: familiesConsts.solderBase,
-    color: colors.background,
+    color: colors.foreground,
   },
   "neon-violet": {
     backgroundColor: familiesConsts.neonVioletBase,
-    color: colors.background,
+    color: colors.foreground,
   },
   amber: {
     backgroundColor: familiesConsts.amberBase,
-    color: colors.background,
+    color: colors.foreground,
   },
   error: {
     backgroundColor: familiesConsts.errorBase,
-    color: colors.background,
+    color: colors.foreground,
   },
   aqua: {
     backgroundColor: familiesConsts.aquaBase,
-    color: colors.background,
+    color: colors.foreground,
   },
   orange: {
     backgroundColor: familiesConsts.orangeBase,
-    color: colors.background,
+    color: colors.foreground,
   },
 });
 

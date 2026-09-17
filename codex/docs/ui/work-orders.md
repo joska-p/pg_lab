@@ -14,6 +14,7 @@ Run: .agents/skills/impeccable/scripts/impeccable context --target packages/ui
 Execute the session marked "NEXT" in the Current State table.
 When done, update the Current State table, append a Handoff entry, and add any decision
 to the Decision Log. Do not touch other sessions.
+note: It's a work we do together. Don't waist your time wondering about a choice. i am running the dev server. I see the change live and can make quick decisions.
 ```
 
 Start every edit by reading `reference/craft-floor.md` (UI quality floor) per the Impeccable skill.
@@ -22,7 +23,7 @@ Start every edit by reading `reference/craft-floor.md` (UI quality floor) per th
 
 | #   | Task                                                                           | Severity | Files                                                              | Status  |
 | --- | ------------------------------------------------------------------------------ | -------- | ------------------------------------------------------------------ | ------- |
-| S1  | Amber-on-cream contrast (Segmented + RadioGroup)                               | P0       | components/Segmented.tsx, components/RadioGroup.tsx                | pending |
+| S1  | Amber-on-cream contrast (Segmented + RadioGroup)                               | P0       | components/Segmented.tsx, components/RadioGroup.tsx                | done    |
 | S2  | Glow merge bug (Toggle, Checkbox) + Button dead focusRing                      | P1       | components/Toggle.tsx, Checkbox.tsx, Button.tsx                    | pending |
 | S3  | Glass only when floating (docked panel opaque)                                 | P1       | components/ExperimentShell.tsx, MaterialScene.tsx                  | pending |
 | S4  | Retire role-matrix residue (primary, SectionHeading, Swatch)                   | P1/P2    | tokens/colors.stylex.ts, components/SectionHeading.tsx, Swatch.tsx | pending |
@@ -31,7 +32,7 @@ Start every edit by reading `reference/craft-floor.md` (UI quality floor) per th
 | S7  | P3 batch: geometry, Led typing, ColorField row, error state, heading hierarchy | P3       | multiple (see S7)                                                  | pending |
 | S8  | `polish` + re-run `critique` + DESIGN.md sync                                  | —        | interfaces                                                         | pending |
 
-**NEXT: S1.** When a session is in progress, the executing task is marked `in-progress` and the next pending task becomes `NEXT`.
+**NEXT: S2.** When a session is in progress, the executing task is marked `in-progress` and the next pending task becomes `NEXT`.
 
 ## Handoff Protocol (mandatory)
 
@@ -217,11 +218,31 @@ Sub-tasks (each independently verifyable; do them in order):
 
 ## Decision Log
 
-| Date       | Session | Decision                                                                             | Impact   |
-| ---------- | ------- | ------------------------------------------------------------------------------------ | -------- |
-| 2026-09-17 | (plan)  | Session chain uses one task per session, short sessions                              | Workflow |
-| 2026-09-17 | (plan)  | ShellWrapper ambience deferred to S6 as a lab-backed decision task (default: reduce) | S6       |
+| Date       | Session | Decision                                                                                                                                                                                                                             | Impact   |
+| ---------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
+| 2026-09-17 | (plan)  | Session chain uses one task per session, short sessions                                                                                                                                                                              | Workflow |
+| 2026-09-17 | (plan)  | ShellWrapper ambience deferred to S6 as a lab-backed decision task (default: reduce)                                                                                                                                                 | S6       |
+| 2026-09-17 | S1      | Chosen Segmented option: text = `colors.foreground` (dark in light, bright in dark) for ALL families; the fill carries the family hue. Do not special-case amber with the ink token. **Validated by user** in `apps/dev`             | S1/S4    |
+| 2026-09-17 | S1      | **Uniform mark/text-on-family-fill rule** (extends Segmented): any mark/text on a family fill = `colors.foreground` (dark in light, bright in dark), family lives only on the fill. Applied to RadioGroup dot. **Validated by user** | S1/S4    |
 
 ## Handoff Archive
 
 (Newest last. Written at the end of each session by the executing agent.)
+
+### S1 (2026-09-17) — Amber-on-cream selection text
+
+**Change:** `packages/ui/src/components/Segmented.tsx` and `components/RadioGroup.tsx`.
+
+- `Segmented.tsx`: all seven `chosenVariants` now set `color: colors.foreground` (light: `dark0`@80%→black, dark: `light0Hard`) instead of `colors.background`. `chosenNeutral` untouched (its dark-mode pill is a light surface, dark text stays correct).
+- `RadioGroup.tsx`: removed the `dotFamily` override (was `colors.background`). The chosen dot now always keeps its base `colors.foreground`, i.e. the same uniform rule. No token/API change.
+
+**Decision (Decision Log):** uniform rule — **any mark/text on a family fill uses `colors.foreground` (dark in light mode, bright in dark mode); the family lives only on the fill.** Amber does **not** use `families.amber.ink.fg`.
+
+**Contrast (Segmented amber):** light old = cream `light1` on `amberBase` (`brightYellow`) ≈ 1.1:1 (FAIL). Light new = near-black `colors.foreground` on `brightYellow` ≈ 9.7:1 measured (docs 4.62:1 for the parallel `dark0Hard` pair) ≥ 4.5 ✓. Dark new = `light0Hard` (bright) on `fadedYellow` — the documented ~2–2.7:1 shortfall for text on `faded*` fills, accepted by design (user preference).
+
+**Verification:** `vp check` format/lint/type passes. Rendered amber Segmented and RadioGroup dot both validated by user in `apps/dev` (`minisynth.tsx:193` amber Segmented, `minisynth.tsx:303` RadioGroup, `laboratory.tsx:198`).
+
+**Notes / for next sessions:**
+
+- **King-attempts reverted:** an earlier pass changed `families.amber.inkFg` to a constant `dark0Hard` (both modes dark), added a RadioGroup `dotAmber`, and edited DESIGN.md. All reverted; the tree is token- and API-identical to before S1.
+- `colors.foreground` is now the sanctioned mark/text-on-family-fill token. When S4 retires the role matrix, `families.*.ink.fg` and `warningForeground` may be re-audited against this rule.
