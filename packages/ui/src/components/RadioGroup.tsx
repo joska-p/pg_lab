@@ -187,6 +187,7 @@ export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
                 fieldText.value,
                 interactiveBase.base,
                 pressable.base,
+                disabled ? disabledStyle.base : null,
               )}
             >
               <span

@@ -32,6 +32,7 @@ export const heading = stylex.create({
   },
 
   level3: {
+    margin: 0,
     fontFamily: typography.fontFamilyMono,
     fontSize: typography.fontSizeXs,
     fontWeight: typography.fontWeightMedium,

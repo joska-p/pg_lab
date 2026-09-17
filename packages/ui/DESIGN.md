@@ -254,9 +254,11 @@ wells), **floating** (glass). The ladder is alpha-ordered
 element sets it to its own background, so shadows are tinted by their carrier,
 never flat black.
 
-**The Glass-on-Floating-Only Rule.** Blur and translucency exist only where UI
-floats above other content. In-flow surfaces stay opaque so text contrast never
-depends on what sits behind them.
+**The Glass-on-Floating-Only Rule.** Blur and translucency exist where UI
+floats above other content. In `ExperimentShell`, the control panel retains its
+glass material in both docked and floating modes because it visually sits above
+the ambient background and canvas ground of `ShellWrapper`. In-flow elements
+inside panels stay opaque so text contrast remains protected.
 
 ## Shapes
 

@@ -9,8 +9,9 @@ const NOISE = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
 
 const styles = stylex.create({
   base: {
-    width: "100vw",
-    height: "100vh",
+    width: "100%",
+    minHeight: "100dvh",
+    height: "100dvh",
     backgroundColor: colors.background,
     backgroundImage: `
       ${NOISE},

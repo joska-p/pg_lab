@@ -120,9 +120,9 @@ export function ColorField(props: ColorFieldProps) {
           )}
         />
 
-        <span aria-live="polite" {...stylex.props(styles.value, fieldText.value)}>
+        <output htmlFor={controlId} {...stylex.props(styles.value, fieldText.value)}>
           {current.toUpperCase()}
-        </span>
+        </output>
       </div>
 
       {errorMessage ? (

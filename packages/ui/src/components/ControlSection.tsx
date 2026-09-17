@@ -22,9 +22,9 @@ export function ControlSection({ title, style, children }: ControlSectionProps) 
   const titleId = useId();
   return (
     <section aria-labelledby={titleId} {...stylex.props(styles.base, style)}>
-      <span id={titleId} {...stylex.props(heading.level3)}>
+      <h3 id={titleId} {...stylex.props(heading.level3)}>
         {title}
-      </span>
+      </h3>
       {children}
     </section>
   );
