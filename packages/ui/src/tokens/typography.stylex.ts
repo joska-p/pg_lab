@@ -9,8 +9,8 @@ export const typography = stylex.defineConsts({
   fontSizeMd: "1rem",
   fontSizeLg: "1.125rem",
   fontSizeXl: "1.25rem",
-  fontSize2xl: "1.5rem",
-  fontSize3xl: "1.875rem",
+  fontSize2xl: "1.875rem",
+  fontSize3xl: "2.25rem",
 
   fontWeightRegular: 400,
   fontWeightMedium: 500,

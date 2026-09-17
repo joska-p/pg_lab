@@ -1,4 +1,7 @@
 import { useState } from "react";
+import * as stylex from "@stylexjs/stylex";
+import { colors } from "@repo/ui/tokens/colors.stylex";
+import { borderWidth, radius, space } from "@repo/ui/tokens/layout.stylex";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Card } from "@repo/ui/components/Card";
@@ -21,6 +24,24 @@ import { Text } from "@repo/ui/components/Text";
 import { TextArea } from "@repo/ui/components/TextArea";
 import { TextInput } from "@repo/ui/components/TextInput";
 import { Toggle } from "@repo/ui/components/Toggle";
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
+const leadStyles = stylex.create({
+  container: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: space["2"],
+    paddingBlock: space["1"],
+    paddingInline: space["2"],
+    borderRadius: radius.sm,
+    borderWidth: borderWidth.hairline,
+    borderStyle: "solid",
+    borderColor: colors.border,
+    backgroundColor: colors.input,
+    width: "fit-content",
+  },
+});
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -418,10 +439,10 @@ export function ShowcaseStage(_props: { synth?: undefined }) {
   return (
     <Stage label="@repo/ui · component inventory">
       <Stack gap="16">
-        <Stack gap="3">
+        <div {...stylex.props(leadStyles.container)}>
           <Led color="neon-violet" live />
           <Text variant="muted">Inventory of @repo/ui — components only, no raw values.</Text>
-        </Stack>
+        </div>
 
         <LiveDemo
           synth={synth}

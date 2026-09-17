@@ -49,6 +49,6 @@ export const fieldText = stylex.create({
   message: {
     fontFamily: typography.fontFamilyMono,
     fontSize: typography.fontSizeXs,
-    color: families.error.base,
+    color: families.orange.base,
   },
 });

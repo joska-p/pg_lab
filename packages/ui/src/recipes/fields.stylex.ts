@@ -38,9 +38,11 @@ export const field = stylex.create({
     },
   },
   wellInvalid: {
-    borderColor: families.error.base,
+    borderColor: families.orange.base,
+    backgroundColor: `color-mix(in oklab, ${families.orange.base} 8%, ${colors.input})`,
     ":focus": {
-      borderColor: families.error.base,
+      borderColor: families.orange.base,
+      boxShadow: `0 0 0 2px ${colors.background}, 0 0 0 3px ${families.orange.base}`,
     },
   },
 });

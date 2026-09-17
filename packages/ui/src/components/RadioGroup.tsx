@@ -4,8 +4,8 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import { colors } from "../tokens/colors.stylex";
 import { familiesConsts, type FamilyName } from "../tokens/families.stylex";
 import { borderWidth, layout, radius, space } from "../tokens/layout.stylex";
-import { shadowColor } from "../tokens/shadows.stylex";
-import { disabled as disabledRecipe, interactive, pressable } from "../recipes/interaction.stylex";
+import { shadows } from "../tokens/shadows.stylex";
+import { disabled as disabledRecipe, focusRing, interactive } from "../recipes/interaction.stylex";
 import { fieldText } from "../recipes/typography.stylex";
 
 type RadioOption<T extends string> = {
@@ -49,7 +49,6 @@ const styles = stylex.create({
     backgroundColor: "transparent",
     color: colors.foreground,
     textAlign: "start",
-    [shadowColor.color]: colors.card,
   },
 
   circle: {
@@ -64,6 +63,7 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: colors.border,
     backgroundColor: colors.muted,
+    boxShadow: shadows.sunken,
   },
 
   dot: {
@@ -179,7 +179,7 @@ export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
                 styles.option,
                 fieldText.value,
                 interactive.base,
-                pressable.base,
+                focusRing.base,
                 disabled ? disabledRecipe.base : null,
               )}
             >
