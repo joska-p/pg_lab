@@ -1,103 +1,27 @@
 import { useEffect, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
-import { Button } from "@repo/ui/components/Button";
 import { Led } from "@repo/ui/components/Led";
+import { Segmented } from "@repo/ui/components/Segmented";
 import { ShellWrapper } from "@repo/ui/components/ShellWrapper";
-import { Stack } from "@repo/ui/components/Stack";
-import { Text } from "@repo/ui/components/Text";
 import { ExperimentShell } from "@repo/ui/components/ExperimentShell";
-import { Stage } from "@repo/ui/components/Stage";
 import { ControlPanel } from "@repo/ui/components/ControlPanel";
 import { ControlSection } from "@repo/ui/components/ControlSection";
 import { colors } from "@repo/ui/tokens/colors.stylex";
-import { familiesConsts } from "@repo/ui/tokens/families.stylex";
-import { borderWidth, interaction, radius, space, zIndex } from "@repo/ui/tokens/layout.stylex";
-import { motion } from "@repo/ui/tokens/motion.stylex";
+import { space } from "@repo/ui/tokens/layout.stylex";
 import { typography } from "@repo/ui/tokens/typography.stylex";
-import { focusRing, interactiveBase, pressable } from "@repo/ui/recipes/interaction.stylex";
-import { Laboratory } from "./lab/laboratory";
-import { MiniSynth } from "./lab/minisynth";
+import { ShowcaseStage } from "./experiments/showcase/index";
+import { LabStage } from "./experiments/lab/laboratory";
 
-const backButtonStyles = stylex.create({
-  base: {
-    position: "absolute",
-    top: space["3"],
-    left: space["3"],
-    zIndex: zIndex.overlay,
-  },
-});
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-const launcherStyles = stylex.create({
-  header: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: space["2"],
-    textAlign: "center",
-  },
-  title: {
-    margin: 0,
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeLg,
-    fontWeight: typography.fontWeightBold,
-    letterSpacing: typography.letterSpacingWide,
-    textTransform: "uppercase",
-  },
-  grid: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space["4"],
-    width: "100%",
-    maxWidth: "480px",
-    marginTop: space["8"],
-  },
-  menuItem: {
-    appearance: "none",
-    background: colors.card,
-    borderWidth: borderWidth.hairline,
-    borderStyle: "solid",
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    padding: space["4"],
-    textAlign: "left",
-    cursor: "pointer",
-    display: "flex",
-    flexDirection: "column",
-    gap: space["1"],
-    transitionProperty: "background-color, border-color, box-shadow, transform",
-    transitionDuration: motion.durationFast,
-    transitionTimingFunction: motion.easingOut,
-    transform: {
-      default: null,
-      ":active": `scale(${interaction.pressScale})`,
-    },
-    ":hover": {
-      backgroundColor: `color-mix(in oklab, ${colors.card} 86%, ${familiesConsts.neonVioletBase})`,
-      borderColor: `color-mix(in oklab, ${familiesConsts.neonVioletBase} 55%, ${colors.border})`,
-    },
-  },
-  index: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeXs,
-    color: colors.mutedForeground,
-  },
-  itemTitle: {
-    fontFamily: typography.fontFamilyMono,
-    fontSize: typography.fontSizeMd,
-    fontWeight: typography.fontWeightSemibold,
-    color: colors.foreground,
-  },
-  itemDesc: {
-    fontSize: typography.fontSizeXs,
-    color: colors.mutedForeground,
-    lineHeight: typography.lineHeightNormal,
-  },
-});
+type View = "showcase" | "lab";
+type ThemeMode = "light" | "dark" | "system";
+type PanelPlacement = "docked" | "floating";
 
-type View = "menu" | "synth" | "lab";
+// ─── Theme hook ───────────────────────────────────────────────────────────────
 
 function useTheme() {
-  const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
+  const [theme, setTheme] = useState<ThemeMode>("system");
 
   useEffect(() => {
     document.documentElement.style.colorScheme = theme === "system" ? "light dark" : theme;
@@ -106,76 +30,68 @@ function useTheme() {
   return [theme, setTheme] as const;
 }
 
-function Launcher({ onViewChange }: { onViewChange: (view: "synth" | "lab") => void }) {
-  return (
-    <ExperimentShell
-      panel={
-        <ControlPanel title="Menu">
-          <ControlSection title="mini-synth">
-            <button
-              type="button"
-              onClick={() => onViewChange("synth")}
-              {...stylex.props(
-                launcherStyles.menuItem,
-                interactiveBase.base,
-                focusRing.base,
-                pressable.base,
-              )}
-            >
-              <span {...stylex.props(launcherStyles.index)}>01</span>
-              <span {...stylex.props(launcherStyles.itemTitle)}>mini synth & showcase</span>
-              <span {...stylex.props(launcherStyles.itemDesc)}>
-                Interactive synth workspace & comprehensive visual component library.
-              </span>
-            </button>
-          </ControlSection>
-          <ControlSection title="visual-laboratory">
-            <button
-              type="button"
-              onClick={() => onViewChange("lab")}
-              {...stylex.props(
-                launcherStyles.menuItem,
-                interactiveBase.base,
-                focusRing.base,
-                pressable.base,
-              )}
-            >
-              <span {...stylex.props(launcherStyles.index)}>02</span>
-              <span {...stylex.props(launcherStyles.itemTitle)}>visual laboratory</span>
-              <span {...stylex.props(launcherStyles.itemDesc)}>
-                Experimental UI vocabulary, design tokens research, and live canvas probes.
-              </span>
-            </button>
-          </ControlSection>
-        </ControlPanel>
-      }
-    >
-      <Stage>
-        <Stack direction="horizontal" gap="3" {...stylex.props(launcherStyles.header)}>
-          <Led color="amber" live />
-          <h1 {...stylex.props(launcherStyles.title)}>pg_lab</h1>
-        </Stack>
-        <Text variant="muted">Creative Coding Playground & Design Experiments</Text>
-      </Stage>
-    </ExperimentShell>
-  );
-}
+// ─── Panel nav ────────────────────────────────────────────────────────────────
+
+const navStyles = stylex.create({
+  header: {
+    display: "flex",
+    alignItems: "center",
+    gap: space["2"],
+  },
+  title: {
+    fontFamily: typography.fontFamilyMono,
+    fontSize: typography.fontSizeXs,
+    fontWeight: typography.fontWeightSemibold,
+    letterSpacing: typography.letterSpacingWide,
+    textTransform: "uppercase" as const,
+    color: colors.foreground,
+  },
+});
+
+// ─── App ──────────────────────────────────────────────────────────────────────
 
 function App() {
   const [theme, setTheme] = useTheme();
-  const [view, setView] = useState<View>("menu");
+  const [view, setView] = useState<View>("showcase");
+  const [panelPlacement, setPanelPlacement] = useState<PanelPlacement>("docked");
 
   return (
     <ShellWrapper>
-      {view !== "menu" && (
-        <div {...stylex.props(backButtonStyles.base)}>
-          <Button onClick={() => setView("menu")}>← menu</Button>
-        </div>
-      )}
+      <ExperimentShell
+        panelPlacement={panelPlacement}
+        panel={
+          <ControlPanel title="pg_lab">
+            {/* Identity header */}
+            <ControlSection title="navigation">
+              <div {...stylex.props(navStyles.header)}>
+                <Led color="neon-violet" live />
+                <span {...stylex.props(navStyles.title)}>pg_lab</span>
+              </div>
+              <Segmented<View> options={["showcase", "lab"]} value={view} onValueChange={setView} />
+            </ControlSection>
 
-      {view === "menu" && <Launcher onViewChange={setView} />}
-      {view === "synth" && <MiniSynth theme={theme} onThemeChange={setTheme} />}
-      {view === "lab" && <Laboratory theme={theme} onThemeChange={setTheme} />}
+            {/* Workspace controls */}
+            <ControlSection title="theme">
+              <Segmented<ThemeMode>
+                options={["light", "dark", "system"]}
+                value={theme}
+                onValueChange={setTheme}
+              />
+            </ControlSection>
+
+            <ControlSection title="panel">
+              <Segmented<PanelPlacement>
+                options={["docked", "floating"]}
+                value={panelPlacement}
+                onValueChange={setPanelPlacement}
+              />
+            </ControlSection>
+          </ControlPanel>
+        }
+      >
+        {view === "showcase" && <ShowcaseStage synth={undefined} />}
+        {view === "lab" && <LabStage />}
+      </ExperimentShell>
     </ShellWrapper>
   );
 }
