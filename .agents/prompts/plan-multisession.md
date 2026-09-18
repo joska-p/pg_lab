@@ -1,8 +1,4 @@
-Le plan ci-dessus est validé. Avant de lancer l'implémentation, crée un
-DOCUMENT DE TRAVAIL persistant (fichier .md) qui servira de mémoire de
-projet entre nos sessions. Je vais réutiliser ce fichier à chaque nouvelle
-session pour que tu saches exactement où reprendre, sans que tu aies besoin
-de refaire l'analyse ni de tout redemander.
+Le plan ci-dessus est validé. Crée un DOCUMENT DE TRAVAIL multisessions persistant (fichier .md) qui servira de mémoire de projet entre nos sessions. Je vais réutiliser ce fichier à chaque nouvelle session pour que tu saches exactement où reprendre, sans que tu aies besoin de refaire l'analyse ni de tout redemander.
 
 STRUCTURE ATTENDUE :
 
@@ -25,8 +21,7 @@ STRUCTURE ATTENDUE :
 6. **Journal de session**
    Une entrée par session : date, ce qui a été fait, ce qui a changé.
 
-RÈGLES DE COMPORTEMENT (valables pour cette session et toutes les
-suivantes sur ce document) :
+RÈGLES DE COMPORTEMENT (valables pour toutes les session sur ce document) :
 
 - Au début de chaque session, lis le document en entier avant d'agir.
   Ne refais jamais une tâche DONE.

@@ -19,7 +19,10 @@ const styles = stylex.create({
 const shapeStyles = stylex.create({
   base: {
     transitionProperty: "fill, opacity",
-    transitionDuration: "500ms",
+    transitionDuration: {
+      default: "500ms",
+      "@media (prefers-reduced-motion: reduce)": "0ms",
+    },
   },
 });
 
@@ -51,6 +54,8 @@ function Tile({ name, colors, rotation, style }: TileProps) {
   return (
     <svg
       viewBox="0 0 100 100"
+      aria-hidden="true"
+      focusable="false"
       {...stylex.props(styles.base, style)}
       style={{
         width: "var(--tile-size)",

@@ -47,7 +47,7 @@ export const media = stylex.defineConsts({
 });
 
 export const layout = stylex.defineConsts({
-  panelWidth: "280px",
+  panelWidth: "320px",
   panelMaxMobileHeight: "300px",
   panelGap: "12px",
 

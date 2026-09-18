@@ -3,7 +3,6 @@ import { colors } from "@repo/ui/tokens/colors.stylex";
 import { radius, space } from "@repo/ui/tokens/layout.stylex";
 import { typography } from "@repo/ui/tokens/typography.stylex";
 import { focusRing, interactive } from "@repo/ui/recipes/interaction.stylex";
-import { fieldText } from "@repo/ui/recipes/typography.stylex";
 import { initialPalette, initialTileSet } from "../../core/constants";
 import { toggleTileInSet } from "../../stores/mosaic/actions";
 import { useTileSet } from "../../stores/mosaic/selectors";
@@ -22,23 +21,12 @@ const TILE_GRID_STYLE = {
   "--tile-size": "32px",
 } as React.CSSProperties;
 
-const displayNames: Record<string, string> = {
-  CornerCircles: "Corner",
-  Diamond: "Diamond",
-  MiddleCircle: "Middle",
-  OppositeCircles: "Opposite",
-  Rainbow: "Rainbow",
-  Square: "Square",
-  Triangles: "Triangles",
-  Cube: "Cube",
-};
-
 const styles = stylex.create({
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(4, 1fr)",
     alignItems: "center",
-    justifyContent: "center",
+    justifyItems: "center",
     gap: space["4"],
     paddingInline: space["2"],
     paddingBlock: space["4"],
@@ -46,6 +34,7 @@ const styles = stylex.create({
 
   option: {
     display: "grid",
+    alignItems: "center",
     justifyItems: "center",
     gap: space["2"],
     appearance: "none",
@@ -64,23 +53,23 @@ const styles = stylex.create({
     boxShadow: `0 0 0 3px ${colors.ring}`,
   },
 
-  label: {
-    fontFamily: typography.fontFamilyMono,
+  hint: {
+    margin: 0,
     fontSize: typography.fontSizeXs,
-    display: "none",
-    "@media (min-width: 640px)": {
-      display: "inline",
-    },
+    color: `color-mix(in oklab, ${colors.mutedForeground} 60%, transparent)`,
+    textAlign: "center",
   },
 });
 
 function TileSetControls() {
   const tileSet = useTileSet();
+  const locked = tileSet.length === 1;
 
   return (
     <div {...stylex.props(styles.grid)} style={TILE_GRID_STYLE}>
       {initialTileSet.map((tileName) => {
         const selected = tileSet.includes(tileName);
+        const isLastSelected = selected && locked;
 
         return (
           <button
@@ -88,6 +77,8 @@ function TileSetControls() {
             type="button"
             aria-label={tileName}
             aria-pressed={selected}
+            disabled={isLastSelected}
+            title={isLastSelected ? tileName + "- Keep at least one tile type selected" : tileName}
             onClick={() => {
               toggleTileInSet(tileName);
             }}
@@ -99,7 +90,6 @@ function TileSetControls() {
             )}
           >
             <Tile name={tileName} colors={TILE_COLORS} rotation="--rotation-0" />
-            <span {...stylex.props(styles.label, fieldText.label)}>{displayNames[tileName]}</span>
           </button>
         );
       })}

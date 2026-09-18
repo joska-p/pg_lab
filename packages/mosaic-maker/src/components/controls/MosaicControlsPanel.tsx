@@ -91,13 +91,13 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: "currentColor",
     borderTopColor: "transparent",
-    animationName: spin,
+    animationName: {
+      default: spin,
+      "@media (prefers-reduced-motion: reduce)": "none",
+    },
     animationDuration: motion.durationSlow,
     animationTimingFunction: motion.easingLinear,
-    animationIterationCount: {
-      default: motion.iterationInfinite,
-      "@media (prefers-reduced-motion: reduce)": "1",
-    },
+    animationIterationCount: motion.iterationInfinite,
   },
 });
 
@@ -168,7 +168,7 @@ function MosaicControlsPanel() {
       </ControlSection>
 
       {isPalettesLoading && (
-        <div {...stylex.props(styles.loadingFooter)}>
+        <div role="status" {...stylex.props(styles.loadingFooter)}>
           <span aria-hidden {...stylex.props(styles.spinner)} />
           Loading palettes...
         </div>

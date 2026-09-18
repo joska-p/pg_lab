@@ -59,8 +59,8 @@ function PalettePicker({ style }: PalettePickerProps) {
   const currentPalettes = useCurrentPalettes();
 
   return (
-    <div role="radiogroup" aria-label="palettes" {...stylex.props(styles.group, style)}>
-      {currentPalettes.map((palette) => {
+    <div role="radiogroup" aria-label="Color palettes" {...stylex.props(styles.group, style)}>
+      {currentPalettes.map((palette, index) => {
         const selected = palette.id === currentPalette.id;
 
         return (
@@ -69,6 +69,7 @@ function PalettePicker({ style }: PalettePickerProps) {
             type="button"
             role="radio"
             aria-checked={selected}
+            aria-label={`Palette ${String(index + 1)} of ${String(currentPalettes.length)}`}
             title={palette.id}
             onClick={() => {
               applyPalette(palette);
