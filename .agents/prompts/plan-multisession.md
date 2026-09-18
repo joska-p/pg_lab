@@ -45,3 +45,5 @@ suivantes sur ce document) :
   ou de raisonnement brut.
 
 Crée le fichier à la racine du packages (ou à l'endroit que tu juges pertinent), nomme-le PLAN.md, puis confirme-moi soncontenu avant de commencer.
+
+L'objectif est de ne faire qu'une seule tache par session, et de pouvoir reprendre facilement la session suivante.

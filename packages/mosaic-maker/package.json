@@ -12,6 +12,7 @@
     "@repo/ui": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "zod": "catalog:",
     "zustand": "catalog:"
   },
   "devDependencies": {

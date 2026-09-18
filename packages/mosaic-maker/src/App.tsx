@@ -1,11 +1,14 @@
 import { useEffect } from "react";
-import { ShellWrapper } from "@repo/ui/components/ShellWrapper";
-import { useTheme, setTheme } from "./stores/appStore.tsx";
 import { ControlPanel } from "@repo/ui/components/ControlPanel";
-import { ExperimentShell } from "@repo/ui/components/ExperimentShell";
-import { Stage } from "@repo/ui/components/Stage";
 import { ControlSection } from "@repo/ui/components/ControlSection";
+import { ExperimentShell } from "@repo/ui/components/ExperimentShell";
 import { Segmented } from "@repo/ui/components/Segmented";
+import { ShellWrapper } from "@repo/ui/components/ShellWrapper";
+import { Stage } from "@repo/ui/components/Stage";
+
+import { MosaicControlsPanel } from "./components/controls/MosaicControlsPanel";
+import { MosaicDisplay } from "./components/MosaicDisplay";
+import { setTheme, useTheme } from "./stores/appStore";
 
 function App() {
   const theme = useTheme();
@@ -18,7 +21,7 @@ function App() {
     <ShellWrapper>
       <ExperimentShell
         panel={
-          <ControlPanel title="Experiment controls">
+          <ControlPanel title="Mosaic Maker">
             <ControlSection title="Theme">
               <Segmented<"light" | "dark" | "system">
                 options={["light", "dark", "system"]}
@@ -26,11 +29,12 @@ function App() {
                 onValueChange={setTheme}
               />
             </ControlSection>
+            <MosaicControlsPanel />
           </ControlPanel>
         }
       >
-        <Stage label="Workspace Stage">
-          <h1>Experiment stage</h1>
+        <Stage label="Mosaic">
+          <MosaicDisplay />
         </Stage>
       </ExperimentShell>
     </ShellWrapper>
