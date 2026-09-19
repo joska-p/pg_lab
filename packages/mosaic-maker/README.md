@@ -1,6 +1,6 @@
 # @repo/mosaic-maker
 
-Mini-app « Mosaic Maker » : génère des mosaïques procédurales de tuiles (SVG) pilotées par des variables CSS.
+> Mini-app « Mosaic Maker » : génère des mosaïques procédurales de tuiles (SVG) pilotées par des variables CSS.
 
 - Stack : Vite+ + React 19 + `@repo/ui` (StyleX) + zustand.
 - Logique pure dans `src/core`, `src/stores/mosaic`, `src/utils` (store non-UI, testable).

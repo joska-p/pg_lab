@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "ready": "vp check && vp run -r test && vp run -r build",
-    "dev": "vp run dev#dev --host",
-    "build": "vp run dev#build",
+    "dev": "vp run playground#dev --host",
+    "build": "vp run playground#build",
     "prepare": "vp config"
   },
   "devDependencies": {

@@ -36,7 +36,6 @@ const styles = stylex.create({
   strip: {
     display: "flex",
     flexDirection: "column",
-    gap: layout.colorSwatchPad,
     overflow: "hidden",
     borderRadius: radius.sm,
     borderWidth: borderWidth.hairline,
@@ -45,8 +44,8 @@ const styles = stylex.create({
   },
 
   box: (color: string) => ({
-    width: layout.colorSwatchWidth,
-    height: layout.colorSwatchHeight,
+    width: space["6"],
+    height: space["6"],
     backgroundColor: color,
   }),
 });

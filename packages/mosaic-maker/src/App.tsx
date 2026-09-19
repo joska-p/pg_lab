@@ -6,7 +6,7 @@ import { MosaicControlsPanel } from "./components/controls/MosaicControlsPanel";
 import { MosaicDisplay } from "./components/MosaicDisplay";
 import { ErrorBoundary } from "@repo/ui/components/ErrorBoundary";
 
-function App() {
+export function App() {
   return (
     <ShellWrapper>
       <ErrorBoundary>
@@ -25,5 +25,3 @@ function App() {
     </ShellWrapper>
   );
 }
-
-export default App;

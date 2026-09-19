@@ -68,7 +68,7 @@ const MODE_OPTIONS = Object.entries(EXPERIMENTS).map(([value, { label }]) => ({
   label,
 }));
 
-function App() {
+export function App() {
   const mode = useInputMode();
   const { Canvas, Controls, label } = EXPERIMENTS[mode];
 
@@ -104,5 +104,3 @@ function App() {
     </ShellWrapper>
   );
 }
-
-export default App;
