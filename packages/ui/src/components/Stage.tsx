@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { colors } from "../tokens/colors.stylex";
 import { borderWidth, layout, radius, space } from "../tokens/layout.stylex";
+import { glass } from "../recipes/effects.stylex";
 
 const styles = stylex.create({
   base: {
@@ -17,8 +18,8 @@ const styles = stylex.create({
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
-    backgroundColor: colors.background,
-    backgroundImage: `linear-gradient(150deg, ${colors.background}, ${colors.card})`,
+    // backgroundColor: colors.background,
+    // backgroundImage: `linear-gradient(150deg, ${colors.background}, ${colors.card})`,
   },
 });
 
@@ -30,7 +31,7 @@ type StageProps = {
 
 export function Stage({ label, style, children }: StageProps) {
   return (
-    <section aria-label={label ?? "stage"} {...stylex.props(styles.base, style)}>
+    <section aria-label={label ?? "stage"} {...stylex.props(styles.base, glass.glass, style)}>
       {children}
     </section>
   );

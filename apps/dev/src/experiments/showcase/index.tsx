@@ -179,7 +179,7 @@ function ControlsSection() {
   return (
     <Stack gap="8">
       <SectionHeading index="02" title="controls" />
-      <Stack direction="horizontal" gap="8" wrap>
+      <Stack direction="vertical" gap="8" wrap>
         <Card variant="surface">
           <ControlSection title="Button">
             <Stack direction="horizontal" gap="8" wrap justify="between">

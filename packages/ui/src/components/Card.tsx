@@ -3,7 +3,7 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import { colors } from "../tokens/colors.stylex";
 import { borderWidth, radius, space } from "../tokens/layout.stylex";
 import { shadowColor } from "../tokens/shadows.stylex";
-import { elevation, glass } from "../recipes/effects.stylex";
+import { elevation } from "../recipes/effects.stylex";
 
 const styles = stylex.create({
   base: {
@@ -24,9 +24,6 @@ const variants = stylex.create({
   surface: {
     [shadowColor.color]: colors.card,
   },
-  glass: {
-    [shadowColor.color]: colors.card,
-  },
   raised: {
     [shadowColor.color]: colors.card,
   },
@@ -39,7 +36,6 @@ const variants = stylex.create({
 
 const variantEffects = {
   surface: null,
-  glass: glass.glass,
   raised: elevation.raised,
   sunken: elevation.sunken,
 } satisfies Record<keyof typeof variants, StyleXStyles | null>;

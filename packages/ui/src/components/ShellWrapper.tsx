@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { colors } from "../tokens/colors.stylex";
-import { familiesConsts } from "../tokens/families.stylex";
+import { gruvboxPalette as palette } from "../tokens/palette.stylex";
 import { space } from "../tokens/layout.stylex";
 import { typography } from "../tokens/typography.stylex";
 
@@ -15,11 +15,20 @@ const styles = stylex.create({
     backgroundColor: colors.background,
     backgroundImage: `
       ${NOISE},
-      radial-gradient(70% 60% at 8% 90%, color-mix(in oklab, ${familiesConsts.auroraBase} 12%, transparent), transparent 70%),
-      radial-gradient(55% 45% at 85% 8%, color-mix(in oklab, ${familiesConsts.solderBase} 10%, transparent), transparent 70%),
-      linear-gradient(160deg, ${colors.foreground}, ${colors.background} 65%)
+      radial-gradient(45% 35% at 4% 6%, color-mix(in oklab, ${palette.brightRed} 30%, transparent), transparent 70%),
+      radial-gradient(40% 35% at 96% 8%, color-mix(in oklab, ${palette.brightOrange} 28%, transparent), transparent 70%),
+      radial-gradient(50% 40% at 88% 88%, color-mix(in oklab, ${palette.brightYellow} 26%, transparent), transparent 70%),
+      radial-gradient(45% 45% at 8% 92%, color-mix(in oklab, ${palette.brightGreen} 28%, transparent), transparent 70%),
+      radial-gradient(55% 40% at 50% 0%, color-mix(in oklab, ${palette.brightAqua} 24%, transparent), transparent 70%),
+      radial-gradient(50% 50% at 100% 55%, color-mix(in oklab, ${palette.brightBlue} 30%, transparent), transparent 70%),
+      radial-gradient(45% 40% at 0% 50%, color-mix(in oklab, ${palette.brightPurple} 28%, transparent), transparent 70%),
+      radial-gradient(35% 30% at 50% 55%, color-mix(in oklab, ${palette.neutralYellow} 20%, transparent), transparent 70%),
+      radial-gradient(40% 30% at 28% 22%, color-mix(in oklab, ${palette.neutralGreen} 18%, transparent), transparent 70%),
+      radial-gradient(35% 35% at 70% 38%, color-mix(in oklab, ${palette.fadedBlue} 22%, transparent), transparent 70%),
+      linear-gradient(160deg, color-mix(in oklab, ${palette.gray244} 20%, transparent), transparent 65%)
     `,
-    backgroundBlendMode: "overlay, normal, normal, normal",
+    backgroundBlendMode:
+      "overlay, normal, normal, normal, normal, normal, normal, normal, normal, normal, normal, normal",
     color: colors.foreground,
     fontFamily: typography.fontFamilySans,
     padding: space["0"],
