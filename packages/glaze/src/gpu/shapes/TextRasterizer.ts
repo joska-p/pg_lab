@@ -1,4 +1,5 @@
 import { colorArray } from "./color";
+import { createDocumentCanvas } from "../../core/environment";
 import { createCssColor } from "../../core/render";
 import type { Point2D } from "../../core/geometry";
 import type { TextRaster } from "./types";
@@ -51,10 +52,10 @@ export class TextRasterizer {
   readonly #cache = new Map<string, TextRaster>();
 
   constructor(gl: WebGL2RenderingContext) {
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
+    const canvas = createDocumentCanvas();
+    const context = canvas?.getContext("2d");
 
-    if (!context) throw new Error("Glaze: offscreen text canvas unavailable");
+    if (!canvas || !context) throw new Error("Glaze: offscreen text canvas unavailable");
 
     this.#gl = gl;
     this.#canvas = canvas;

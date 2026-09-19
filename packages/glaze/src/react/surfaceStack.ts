@@ -5,7 +5,7 @@ import { InputRouter } from "../core/gestures";
 import type { CameraControls } from "../core/cameraTypes";
 import { createZoomFactor } from "../core/cameraTypes";
 import type { Gesture } from "../core/gestureTypes";
-import { createDevicePixelRatio } from "../core/render";
+import { resolveDevicePixelRatio } from "../core/environment";
 import { createCpuSurface } from "../cpu/CpuSurface";
 import { createGpuSurface } from "../gpu/GpuSurface";
 import type { CpuSurfaceOptions, GpuSurfaceOptions } from "./types";
@@ -56,20 +56,20 @@ function resolveCameraLayer(
   camera: Camera | undefined,
   cameraControls: CameraControls | undefined,
   initialCamera: InitialCamera = {},
-): { camera: Camera; controls: CameraControls } {
+): { camera: Camera; cameraControls: CameraControls } {
   const resolvedCamera = camera ?? createCameraFromInitial(initialCamera);
-  const resolvedControls =
+  const resolvedCameraControls =
     cameraControls ??
     createCameraControls(resolvedCamera, initialCamera.minZoom, initialCamera.maxZoom);
 
-  return { camera: resolvedCamera, controls: resolvedControls };
+  return { camera: resolvedCamera, cameraControls: resolvedCameraControls };
 }
 
 /**
  * Wires the gesture layer to a freshly built surface. If subscription fails, the surface is
  * destroyed before the error propagates so WebGL contexts and DOM listeners never leak.
  */
-function createRouter<TSurface extends RoutableSurface>(
+function createInputRouter<TSurface extends RoutableSurface>(
   surface: TSurface,
   cameraControls: CameraControls,
   getGestures: () => Gesture<TSurface>[],
@@ -90,24 +90,26 @@ function createRouter<TSurface extends RoutableSurface>(
 /** Assembles a `CpuStack` for a canvas node; `dispose` tears down everything it created. */
 export function createCpuStack(
   canvas: HTMLCanvasElement,
-  { camera, cameraControls, initialCamera, dpr }: CpuSurfaceOptions,
+  { camera, cameraControls, initialCamera, dpr, frameLoopOptions }: CpuSurfaceOptions,
   getGestures: () => Gesture<CpuSurface>[],
 ): CpuStack & StackDisposable {
-  const { camera: resolvedCamera, controls: resolvedControls } = resolveCameraLayer(
+  const { camera: resolvedCamera, cameraControls: resolvedCameraControls } = resolveCameraLayer(
     camera,
     cameraControls,
     initialCamera,
   );
-  const resolvedDpr = dpr ?? createDevicePixelRatio(window.devicePixelRatio);
-  const surface = createCpuSurface(compact({ canvas, camera: resolvedCamera, dpr: resolvedDpr }));
-  const router = createRouter(surface, resolvedControls, getGestures);
+  const resolvedDpr = resolveDevicePixelRatio(dpr);
+  const surface = createCpuSurface(
+    compact({ canvas, camera: resolvedCamera, dpr: resolvedDpr, frameLoopOptions }),
+  );
+  const inputRouter = createInputRouter(surface, resolvedCameraControls, getGestures);
 
   return {
     surface,
-    controls: resolvedControls,
-    router,
+    cameraControls: resolvedCameraControls,
+    inputRouter,
     dispose() {
-      router?.dispose();
+      inputRouter?.dispose();
       surface.destroy();
     },
   };
@@ -116,27 +118,42 @@ export function createCpuStack(
 /** Assembles a `GpuStack` for a canvas node; `dispose` tears down everything it created. */
 export function createGpuStack(
   canvas: HTMLCanvasElement,
-  { camera, cameraControls, initialCamera, dpr, clock, clockOptions }: GpuSurfaceOptions,
+  {
+    camera,
+    cameraControls,
+    initialCamera,
+    dpr,
+    clock,
+    clockOptions,
+    frameLoopOptions,
+  }: GpuSurfaceOptions,
   getGestures: () => Gesture<GpuSurface>[],
 ): GpuStack & StackDisposable {
-  const { camera: resolvedCamera, controls: resolvedControls } = resolveCameraLayer(
+  const { camera: resolvedCamera, cameraControls: resolvedCameraControls } = resolveCameraLayer(
     camera,
     cameraControls,
     initialCamera,
   );
-  const resolvedDpr = dpr ?? createDevicePixelRatio(window.devicePixelRatio);
+  const resolvedDpr = resolveDevicePixelRatio(dpr);
   const surface = createGpuSurface(
-    compact({ canvas, camera: resolvedCamera, dpr: resolvedDpr, clock, clockOptions }),
+    compact({
+      canvas,
+      camera: resolvedCamera,
+      dpr: resolvedDpr,
+      clock,
+      clockOptions,
+      frameLoopOptions,
+    }),
   );
-  const router = createRouter(surface, resolvedControls, getGestures);
+  const inputRouter = createInputRouter(surface, resolvedCameraControls, getGestures);
 
   return {
     surface,
-    controls: resolvedControls,
-    router,
+    cameraControls: resolvedCameraControls,
+    inputRouter,
     clockStore: createClockStore(surface.clock),
     dispose() {
-      router?.dispose();
+      inputRouter?.dispose();
       surface.destroy();
     },
   };

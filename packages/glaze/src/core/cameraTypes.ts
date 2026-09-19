@@ -55,7 +55,7 @@ export interface CameraPatch {
 /**
  * Mutable edge adapter over the pure transforms: raw numbers come in, each call recomputes a full
  * camera and commits it through this single write point. `reset()` restores the camera state
- * captured at controls creation.
+ * captured at cameraControls creation.
  */
 export interface CameraControls {
   panTo(position: Point2D): void;

@@ -2,6 +2,7 @@ import type { Camera } from "../core/Camera";
 import type { Clock } from "../core/Clock";
 import type { CameraControls } from "../core/cameraTypes";
 import type { ClockOptions } from "../core/clockTypes";
+import type { FrameLoopOptions } from "../core/frameTypes";
 import type { InteractionEvent, PanOptions, ZoomOptions } from "../core/gestureTypes";
 import type { DevicePixelRatio } from "../core/render";
 import type { DurationSeconds, Seconds, TimeSpeed } from "../core/time";
@@ -79,6 +80,7 @@ export interface SurfaceOptionsBase {
   cameraControls?: CameraControls;
   initialCamera?: InitialCamera;
   dpr?: DevicePixelRatio;
+  frameLoopOptions?: FrameLoopOptions;
 }
 
 /** `initialCamera` only applies when no `camera` instance is provided. */

@@ -46,11 +46,11 @@ export class CpuSurface {
   height = 0;
   readonly dpr: DevicePixelRatio;
   readonly canvas: HTMLCanvasElement;
-  readonly context: CanvasRenderingContext2D;
   readonly camera: Camera;
   readonly input: InputStore;
 
   readonly #loop: FrameLoop;
+  readonly #context: CanvasRenderingContext2D;
   #cssWidth: CanvasDimension = createCanvasDimension(1);
   #cssHeight: CanvasDimension = createCanvasDimension(1);
 
@@ -60,12 +60,12 @@ export class CpuSurface {
     if (!context) throw new Error("Glaze: Canvas2D context unavailable");
 
     this.canvas = config.canvas;
-    this.context = context;
+    this.#context = context;
     this.camera = config.camera ?? defaultCamera();
     this.dpr = config.dpr ?? createDevicePixelRatio(1);
     this.input = createInputStore();
     this.input.attach(this.canvas);
-    this.#loop = new FrameLoop(this.#frameStep);
+    this.#loop = new FrameLoop(this.#frameStep, config.frameLoopOptions);
 
     // Size the canvas once up front so one-shot draws made outside the frame loop survive
     // (the loop's first resize would otherwise clear the buffer).
@@ -99,7 +99,7 @@ export class CpuSurface {
   }
 
   clear(color: CssColor): this {
-    const context = this.context;
+    const context = this.#context;
 
     context.save();
     context.setTransform(1, 0, 0, 1, 0, 0);
@@ -114,7 +114,7 @@ export class CpuSurface {
   applyCamera(): this {
     if (this.width === 0) return this;
 
-    const context = this.context;
+    const context = this.#context;
 
     // World → CSS transform (zoom + camera offset), then into device pixels (`dpr`): the
     // translation must be scaled too, or the scene drifts by `dpr` on hidpi displays.
@@ -132,7 +132,7 @@ export class CpuSurface {
 
   rectangle(rectangle: Rectangle, style?: DrawStyle): this {
     this.#begin(style?.fill, style?.stroke, style?.lineWidth);
-    this.context.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+    this.#context.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
     this.#paintShape(style?.fill, style?.stroke);
 
     return this;
@@ -140,7 +140,7 @@ export class CpuSurface {
 
   circle(circle: Circle, style?: DrawStyle): this {
     this.#begin(style?.fill, style?.stroke, style?.lineWidth);
-    this.context.arc(circle.center.x, circle.center.y, circle.radius, 0, Math.PI * 2);
+    this.#context.arc(circle.center.x, circle.center.y, circle.radius, 0, Math.PI * 2);
     this.#paintShape(style?.fill, style?.stroke);
 
     return this;
@@ -204,7 +204,7 @@ export class CpuSurface {
   }
 
   #begin(fill?: CssColor, stroke?: CssColor, lineWidth?: PositiveNumber): void {
-    const context = this.context;
+    const context = this.#context;
 
     context.beginPath();
 
@@ -222,9 +222,9 @@ export class CpuSurface {
     const doFill = options?.fill ?? fill !== undefined;
     const doStroke = options?.stroke ?? stroke !== undefined;
 
-    if (doFill && fill) this.context.fill();
+    if (doFill && fill) this.#context.fill();
 
-    if (doStroke && stroke) this.context.stroke();
+    if (doStroke && stroke) this.#context.stroke();
   }
 
   #strokeLine(
@@ -235,7 +235,7 @@ export class CpuSurface {
     stroke?: CssColor,
     lineWidth?: PositiveNumber,
   ): void {
-    const context = this.context;
+    const context = this.#context;
 
     context.beginPath();
     context.strokeStyle = stroke ?? "#000000";
@@ -254,7 +254,7 @@ export class CpuSurface {
     fontSize: FontSize | undefined,
     style?: TextStyle,
   ): void {
-    const context = this.context;
+    const context = this.#context;
     const size = String(fontSize ?? 16);
 
     context.font = `${size}px ${style?.fontFamily ?? DEFAULT_FONT_FAMILY}`;
@@ -284,7 +284,7 @@ export class CpuSurface {
     if (points.length < 2) return;
 
     this.#begin(fill, stroke, lineWidth);
-    const context = this.context;
+    const context = this.#context;
     const first = points[0];
 
     context.moveTo(first.x, first.y);

@@ -51,12 +51,12 @@ export class GpuSurface {
   height = 0;
   readonly dpr: DevicePixelRatio;
   readonly canvas: HTMLCanvasElement;
-  readonly gl: WebGL2RenderingContext;
   readonly camera: Camera;
   readonly input: InputStore;
   readonly clock: Clock;
 
   readonly #loop: FrameLoop;
+  readonly #gl: WebGL2RenderingContext;
   readonly #programs = new Set<Program>();
   readonly #buffers = new Set<StateBuffer>();
   readonly #batch: ShapeBatcher;
@@ -76,7 +76,7 @@ export class GpuSurface {
     if (!gl) throw new Error("Glaze: WebGL2 not supported");
 
     this.canvas = config.canvas;
-    this.gl = gl;
+    this.#gl = gl;
     this.camera = config.camera ?? defaultCamera();
     this.dpr = config.dpr ?? createDevicePixelRatio(1);
     this.clock = config.clock ?? createClock(config.clockOptions);
@@ -87,7 +87,7 @@ export class GpuSurface {
       camera: this.camera,
       getViewport: () => ({ width: this.#cssWidth, height: this.#cssHeight }),
     });
-    this.#loop = new FrameLoop(this.#frameStep);
+    this.#loop = new FrameLoop(this.#frameStep, config.frameLoopOptions);
 
     this.#configureState();
     this.#resize();
@@ -114,7 +114,7 @@ export class GpuSurface {
 
   /** Creates a program owned by this surface: destroyed with it, recompiled on context restore. */
   createProgram(fragmentSource: string, vertexSource?: string): Program {
-    const program = createProgram(this.gl, fragmentSource, vertexSource);
+    const program = createProgram(this.#gl, fragmentSource, vertexSource);
 
     this.#programs.add(program);
 
@@ -123,7 +123,7 @@ export class GpuSurface {
 
   /** Creates a StateBuffer owned by this surface: destroyed with it, recreated on context restore. */
   createStateBuffer(width: number, height: number): StateBuffer {
-    const buffer = createStateBuffer(this.gl, width, height);
+    const buffer = createStateBuffer(this.#gl, width, height);
 
     this.#buffers.add(buffer);
 
@@ -183,8 +183,8 @@ export class GpuSurface {
 
     const { r, g, b, a } = parseColor(color ?? createCssColor("#000000"));
 
-    this.gl.clearColor(r, g, b, a);
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+    this.#gl.clearColor(r, g, b, a);
+    this.#gl.clear(this.#gl.COLOR_BUFFER_BIT);
 
     return this;
   }
@@ -239,7 +239,7 @@ export class GpuSurface {
     if (this.#lost || text.length === 0) return;
 
     this.#flushBatch();
-    const rasterizer = (this.#textRasterizer ??= new TextRasterizer(this.gl));
+    const rasterizer = (this.#textRasterizer ??= new TextRasterizer(this.#gl));
     const size = style.fontSize ?? 16;
     const font = `${String(size)}px ${style.fontFamily ?? DEFAULT_FONT_FAMILY}`;
     const { texture, width, height } = rasterizer.get(text, font, size);
@@ -258,9 +258,9 @@ export class GpuSurface {
   }
 
   #configureState(): void {
-    this.gl.disable(this.gl.DEPTH_TEST);
-    this.gl.enable(this.gl.BLEND);
-    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+    this.#gl.disable(this.#gl.DEPTH_TEST);
+    this.#gl.enable(this.#gl.BLEND);
+    this.#gl.blendFunc(this.#gl.SRC_ALPHA, this.#gl.ONE_MINUS_SRC_ALPHA);
   }
 
   #resize(): void {
@@ -273,7 +273,7 @@ export class GpuSurface {
 
     if (this.canvas.height !== deviceHeight) this.canvas.height = deviceHeight;
 
-    this.gl.viewport(0, 0, deviceWidth, deviceHeight);
+    this.#gl.viewport(0, 0, deviceWidth, deviceHeight);
   }
 
   #flushBatch(): void {

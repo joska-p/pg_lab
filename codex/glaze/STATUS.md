@@ -34,7 +34,7 @@
 - [x] **Step 2 — defects:** A/B/F verified as real bugs and fixed, one test reintroduced
       per defect (A→`CpuSurface.test.ts`, B→`StateBuffer.test.ts`, F→`color.test.ts`);
       `vp test` 13/13 ✓, `vp check` ✓. D12–D13 recorded.
-- [ ] **Step 3 — structural reorg:** DONE 2026-09-19 — `core/types.ts` split into
+- [x] **Step 3 — structural reorg:** DONE 2026-09-19 — `core/types.ts` split into
       10 focused modules (`brands`/`time`/`render`/`geometry`/`cameraTypes`/
       `clockTypes`/`frameTypes`/`inputTypes`/`gestureTypes` + `shapes`/`surfaceTypes`),
       `Rectangle`/`ViewBounds` rename + object-only draw API (`rectangle`/`circle`/
@@ -43,12 +43,17 @@
       internals moved to `react/stackTypes.ts`; `core/types.ts` + `cpu/shapes/types.ts`
       deleted. `vp test` 21/21 ✓ (new `shapes.test.ts` + 5 `CpuSurface` object-API
       tests), `vp check` ✓. D14–D17 recorded.
-- [ ] **Step 4 — light sealing (hygiene only):** private/opaque `gl`/`context`;
-      inject `now/schedule/dpr/document` where trivial (SSR-friendly).
+- [x] **Step 4 — light sealing:** DONE 2026-09-19 — `core/environment.ts` shell
+      injector (`resolveDevicePixelRatio`/`defaultGetDevicePixelRatio`/
+      `createDocumentCanvas`, SSR-safe); `gl`→`#gl` (`GpuSurface`), `context`→
+      `#context` (`CpuSurface`); `frameLoopOptions` plumbed via `SurfaceBaseConfig`/
+      `SurfaceOptionsBase`→stacks→surfaces→`FrameLoop`; `TextRasterizer`/`color`
+      share the single document site; `router`→`inputRouter` (owner rename).
+      `vp test` 27/27 ✓ (new `environment.test.ts`, 6 tests), `vp check` ✓.
+      D18–D19 recorded, Q-SSR closed.
 - [ ] **Step 5 — exports:** add progressive per-file `exports` to `package.json`.
 
-**Next action:** Step 4 — light sealing (private/opaque `gl`/`context`; inject
-`now`/`schedule`/`dpr`/`document` where trivial).
+**Next action:** Step 5 — exports (progressive per-file `exports` to `package.json`).
 
 ## Read-when
 

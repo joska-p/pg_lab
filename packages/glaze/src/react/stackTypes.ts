@@ -22,15 +22,15 @@ export interface InitialCamera {
 /** One mounted CPU surface and everything wired to it; created and disposed together. */
 export interface CpuStack {
   readonly surface: CpuSurface;
-  readonly controls: CameraControls;
-  readonly router: InputRouter<CpuSurface>;
+  readonly cameraControls: CameraControls;
+  readonly inputRouter: InputRouter<CpuSurface>;
 }
 
 /** One mounted GPU surface and everything wired to it; created and disposed together. */
 export interface GpuStack {
   readonly surface: GpuSurface;
-  readonly controls: CameraControls;
-  readonly router: InputRouter<GpuSurface>;
+  readonly cameraControls: CameraControls;
+  readonly inputRouter: InputRouter<GpuSurface>;
   readonly clockStore: ClockStore;
 }
 

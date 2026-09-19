@@ -84,11 +84,36 @@ b }`, `text(content, position: Point2D, style?)`, `path(points, style?, options?
   `CpuSurfaceOptions`/`GpuSurfaceOptions`, canvas props. Rationale: AUDIT §3.5 —
   stack lifetime types no longer sit next to public props.
 
+## Recorded 2026-09-19 (Step 4 — light sealing)
+
+- **D18 — decided** — Sealing stays trivial/local: new `core/environment.ts` shell
+  injector only (`defaultGetDevicePixelRatio`/`resolveDevicePixelRatio` with
+  explicit-wins + fallback-to-1, `createDocumentCanvas` null-without-document);
+  `frameLoopOptions?: FrameLoopOptions` added to `SurfaceBaseConfig` +
+  `SurfaceOptionsBase` and forwarded through stacks (`compact`) into `FrameLoop`
+  (defaults preserve the rAF chain); `GpuSurface.gl` → `#gl`,
+  `CpuSurface.context` → `#context` (zero external uses verified by grep, internal
+  `ShapeBatcher.#gl` unchanged via constructor param); `TextRasterizer` keeps its
+  throw on null canvas, `color.parseViaCanvas` keeps its null→throw contract —
+  both share the single document site. Rationale: kills the schedule/dpr SSR
+  variance without touching loop dispatch or GL state; per-module test
+  `core/environment.test.ts` (6 tests) covers resolver + injection plumbing.
+- **D19 — decided (owner rename)** — `router` → `inputRouter` (`react/stackTypes.ts`
+  `CpuStack`/`GpuStack`, `surfaceStack.ts` `createRouter` → `createInputRouter`).
+  Rationale: names the concept (gesture/input routing), not the mechanism.
+- **D20 — decided (owner rename)** — `controls` → `cameraControls`
+  (`react/stackTypes.ts` `CpuStack`/`GpuStack`, `surfaceStack.ts`
+  `resolveCameraLayer` result + resolved locals). Rationale: consistent with the
+  `cameraControls` option/input vocabulary; no external consumers, stack-local.
+
 ## Open questions
 
-- **Q-SSR — open** — Remove `window`/`document`/`performance` hard deps now or later?
-  Provisional: deferred to Step 4 (light sealing), final call when touching
-  `FrameLoop.ts` / `TextRasterizer.ts` / `color.ts`.
+- **Q-SSR — closed 2026-09-19 (Step 4)** — `window`/`document` hard deps removed
+  from the creation path: `surfaceStack` no longer reads `window.devicePixelRatio`
+  directly, `TextRasterizer`/`color` share the guarded `createDocumentCanvas()`,
+  `FrameLoop` `now`/`schedule` injectable end-to-end. Remaining `window` reads live
+  only inside `defaultGetDevicePixelRatio` (guarded) and `InputStore.domEventSource`
+  (attach-time, requires DOM by construction) — accepted.
 - **Q-defects — closed for A/B/F (2026-09-19)** — A (hidpi), B (context-restore), F (HSL)
   confirmed as real bugs and fixed in Step 2 (see `SESSIONS.md`); C/D/E remain design
   decisions for Step 3/4.

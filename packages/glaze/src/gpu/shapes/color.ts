@@ -1,5 +1,6 @@
 import type { RGBA } from "./types";
 import type { Color } from "../../core/shapes";
+import { createDocumentCanvas } from "../../core/environment";
 
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
 
@@ -146,9 +147,11 @@ const NAMED_COLORS: Record<string, string> = {
 let canvasContext: CanvasRenderingContext2D | null = null;
 
 function parseViaCanvas(color: string): RGBA | null {
-  if (typeof document === "undefined") return null;
+  const canvas = createDocumentCanvas();
 
-  canvasContext ??= document.createElement("canvas").getContext("2d");
+  if (canvas === null) return null;
+
+  canvasContext ??= canvas.getContext("2d");
 
   if (canvasContext === null) return null;
 
