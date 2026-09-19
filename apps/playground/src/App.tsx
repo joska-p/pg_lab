@@ -80,7 +80,7 @@ function App() {
   }, [theme]);
 
   return (
-    <Suspense>
+    <Suspense fallback={<MenuPage />}>
       <Experiment />
     </Suspense>
   );
