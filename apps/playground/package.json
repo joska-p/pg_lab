@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vp dev",
+    "dev": "vp dev --host",
     "build": "tsc -b && vp build",
+    "lint": "vp lint",
     "preview": "vp preview"
   },
   "dependencies": {

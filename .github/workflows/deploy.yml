@@ -34,7 +34,7 @@ jobs:
           cache: true
       - run: vp install
       - run: vp check
-      - run: vp run dev#build
+      - run: vp run playground#build
 
       # Téléverse le dossier de sortie généré par le build de l'application
       # (Puisqu'on lance la commande depuis la racine, le chemin relatif est conservé)
