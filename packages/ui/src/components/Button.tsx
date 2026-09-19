@@ -7,7 +7,6 @@ import { motion } from "../tokens/motion.stylex";
 import { shadowColor } from "../tokens/shadows.stylex";
 import { typography } from "../tokens/typography.stylex";
 import { disabled, interactive, pressable } from "../recipes/interaction.stylex";
-import { Led } from "./Led";
 
 const spin = stylex.keyframes({
   from: { transform: "rotate(0deg)" },
@@ -39,16 +38,16 @@ const styles = stylex.create({
     },
   },
 
-  hover: (strong: string) => ({
+  hover: (base: string, strong: string) => ({
     ":hover": {
-      backgroundColor: `color-mix(in oklab, ${colors.card} 86%, ${strong})`,
-      borderColor: `color-mix(in oklab, ${strong} 55%, ${colors.border})`,
+      backgroundColor: `color-mix(in oklab, ${base} 42%, ${colors.card})`,
+      borderColor: `color-mix(in oklab, ${strong} 75%, ${colors.border})`,
     },
   }),
 
-  live: (base: string) => ({
-    backgroundColor: `color-mix(in oklab, ${base} 12%, ${colors.card})`,
-    borderColor: `color-mix(in oklab, ${base} 50%, ${colors.border})`,
+  family: (base: string, strong: string) => ({
+    backgroundColor: `color-mix(in oklab, ${base} 30%, ${colors.card})`,
+    borderColor: `color-mix(in oklab, ${strong} 60%, ${colors.border})`,
   }),
 
   loading: {
@@ -71,17 +70,10 @@ const styles = stylex.create({
       "@media (prefers-reduced-motion: reduce)": "1",
     },
   },
-
-  lead: {
-    paddingInline: space["4"],
-    fontWeight: typography.fontWeightSemibold,
-  },
 });
 
 type ButtonProps = {
   family?: FamilyName;
-  live?: boolean;
-  lead?: boolean;
   loading?: boolean;
   disabled?: boolean;
   style?: StyleXStyles;
@@ -89,8 +81,6 @@ type ButtonProps = {
 
 export function Button({
   family,
-  live = false,
-  lead = false,
   loading = false,
   disabled: disabledProp,
   style,
@@ -100,29 +90,26 @@ export function Button({
   const isDisabled = disabledProp || loading;
   const fam = family ? families[family] : null;
 
+  const buttonStyle = stylex.props(
+    styles.base,
+    interactive.base,
+    pressable.base,
+    fam ? styles.family(fam.base, fam.strong) : null,
+    fam ? styles.hover(fam.base, fam.strong) : null,
+    isDisabled ? disabled.base : null,
+    loading ? styles.loading : null,
+    style,
+  );
+
   return (
     <button
       {...props}
       type={props.type ?? "button"}
       disabled={isDisabled}
       aria-busy={loading}
-      {...stylex.props(
-        styles.base,
-        interactive.base,
-        pressable.base,
-        fam ? styles.hover(fam.strong) : null,
-        fam && live ? styles.live(fam.base) : null,
-        lead ? styles.lead : null,
-        isDisabled ? disabled.base : null,
-        loading ? styles.loading : null,
-        style,
-      )}
+      {...buttonStyle}
     >
-      {loading ? (
-        <span aria-hidden {...stylex.props(styles.spinner)} />
-      ) : family ? (
-        <Led color={family} live={live} />
-      ) : null}
+      {loading && <span aria-hidden {...stylex.props(styles.spinner)} />}
       {children}
     </button>
   );

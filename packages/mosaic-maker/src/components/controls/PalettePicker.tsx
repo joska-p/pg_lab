@@ -12,6 +12,7 @@ const styles = stylex.create({
   group: {
     display: "flex",
     flexDirection: "row",
+    justifyContent: "space-between",
     flexWrap: "wrap",
     gap: space["2"],
   },

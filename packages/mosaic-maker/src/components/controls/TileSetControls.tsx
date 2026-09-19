@@ -40,7 +40,7 @@ const styles = stylex.create({
     appearance: "none",
     padding: 0,
     borderWidth: 0,
-    borderRadius: radius.sm,
+    borderRadius: radius.none,
     backgroundColor: "transparent",
     color: colors.foreground,
   },
