@@ -13,13 +13,11 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     overflowY: "auto",
-    padding: space["6"],
+    padding: space["4"],
     borderRadius: { default: radius.none, "@media (min-width: 1024px)": radius.md },
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
     borderColor: colors.border,
-    // backgroundColor: colors.background,
-    // backgroundImage: `linear-gradient(150deg, ${colors.background}, ${colors.card})`,
   },
 });
 

@@ -1,3 +1,4 @@
+import { lazy, Suspense, type ComponentType } from "react";
 import { ControlPanel } from "@repo/ui/components/ControlPanel";
 import { ControlSection } from "@repo/ui/components/ControlSection";
 import { ErrorBoundary } from "@repo/ui/components/ErrorBoundary";
@@ -5,30 +6,71 @@ import { ExperimentShell } from "@repo/ui/components/ExperimentShell";
 import { Select } from "@repo/ui/components/Select";
 import { ShellWrapper } from "@repo/ui/components/ShellWrapper";
 import { Stage } from "@repo/ui/components/Stage";
-
-import { Atlas } from "./modules/atlas/Atlas";
-import { AtlasControls } from "./modules/atlas/controls/AtlasControls";
-import { FoldedSpace } from "./modules/folded-space/FoldedSpace";
-import { Manual } from "./modules/manual/Manual";
-import { ManualControls } from "./modules/manual/ManualControls";
-import { SeedCanvas } from "./modules/seed/SeedCanvas";
-import { SeedControls } from "./modules/seed/SeedControls";
-import { Spirale } from "./modules/spirale/Spirale";
-import { SpiraleControls } from "./modules/spirale/SpiraleControls";
 import { setInputMode, useInputMode } from "./stores/ui/store";
-
 import type { InputMode } from "./stores/ui/store";
 
-const MODE_OPTIONS = [
-  { value: "spirale", label: "Spirale" },
-  { value: "seed", label: "Seed" },
-  { value: "folded-space", label: "Folded space" },
-  { value: "atlas", label: "Atlas" },
-  { value: "manual", label: "Manual" },
-] as const;
+const EXPERIMENTS: Record<
+  InputMode,
+  {
+    label: string;
+    Canvas: ComponentType;
+    Controls?: ComponentType;
+  }
+> = {
+  spirale: {
+    label: "Spirale",
+    Canvas: lazy(() => import("./modules/spirale/Spirale").then((m) => ({ default: m.Spirale }))),
+    Controls: lazy(() =>
+      import("./modules/spirale/SpiraleControls").then((m) => ({
+        default: m.SpiraleControls,
+      })),
+    ),
+  },
+  seed: {
+    label: "Seed",
+    Canvas: lazy(() =>
+      import("./modules/seed/SeedCanvas").then((m) => ({ default: m.SeedCanvas })),
+    ),
+    Controls: lazy(() =>
+      import("./modules/seed/SeedControls").then((m) => ({ default: m.SeedControls })),
+    ),
+  },
+  "folded-space": {
+    label: "Folded space",
+    Canvas: lazy(() =>
+      import("./modules/folded-space/FoldedSpace").then((m) => ({
+        default: m.FoldedSpace,
+      })),
+    ),
+  },
+  atlas: {
+    label: "Atlas",
+    Canvas: lazy(() => import("./modules/atlas/Atlas").then((m) => ({ default: m.Atlas }))),
+    Controls: lazy(() =>
+      import("./modules/atlas/controls/AtlasControls").then((m) => ({
+        default: m.AtlasControls,
+      })),
+    ),
+  },
+  manual: {
+    label: "Manual",
+    Canvas: lazy(() => import("./modules/manual/Manual").then((m) => ({ default: m.Manual }))),
+    Controls: lazy(() =>
+      import("./modules/manual/ManualControls").then((m) => ({
+        default: m.ManualControls,
+      })),
+    ),
+  },
+};
+
+const MODE_OPTIONS = Object.entries(EXPERIMENTS).map(([value, { label }]) => ({
+  value: value as InputMode,
+  label,
+}));
 
 function App() {
   const mode = useInputMode();
+  const { Canvas, Controls, label } = EXPERIMENTS[mode];
 
   return (
     <ShellWrapper>
@@ -42,35 +84,20 @@ function App() {
                 onValueChange={setInputMode}
                 options={MODE_OPTIONS}
               />
-              {mode === "spirale" && (
-                <ControlSection title="spirale">
-                  <SpiraleControls />
-                </ControlSection>
-              )}
-              {mode === "seed" && (
-                <ControlSection title="seed">
-                  <SeedControls />
-                </ControlSection>
-              )}
-              {mode === "atlas" && (
-                <ControlSection title="atlas">
-                  <AtlasControls />
-                </ControlSection>
-              )}
-              {mode === "manual" && (
-                <ControlSection title="manual">
-                  <ManualControls />
+              {Controls && (
+                <ControlSection title={label}>
+                  <Suspense fallback={null}>
+                    <Controls />
+                  </Suspense>
                 </ControlSection>
               )}
             </ControlPanel>
           }
         >
           <Stage label="art-canvas">
-            {mode === "spirale" && <Spirale />}
-            {mode === "seed" && <SeedCanvas />}
-            {mode === "folded-space" && <FoldedSpace />}
-            {mode === "atlas" && <Atlas />}
-            {mode === "manual" && <Manual />}
+            <Suspense fallback={null}>
+              <Canvas />
+            </Suspense>
           </Stage>
         </ExperimentShell>
       </ErrorBoundary>
