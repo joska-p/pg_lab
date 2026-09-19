@@ -224,9 +224,6 @@ importers:
       react-dom:
         specifier: 'catalog:'
         version: 19.3.0(react@19.3.0)
-      zustand:
-        specifier: 'catalog:'
-        version: 5.0.15(@types/react@19.3.0)(react@19.3.0)
     devDependencies:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
