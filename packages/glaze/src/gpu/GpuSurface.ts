@@ -1,24 +1,28 @@
 import { defaultCamera, type Camera } from "../core/Camera";
 import { createClock, type Clock } from "../core/Clock";
 import { FrameLoop } from "../core/FrameLoop";
+import type { FrameStep } from "../core/frameTypes";
 import { createInputStore, type InputStore } from "../core/InputStore";
+import { toScreenPoint, type Point2D, type ScreenPoint, type WorldPoint } from "../core/geometry";
 import {
   createCssColor,
   createDevicePixelRatio,
-  createNonNegativeSeconds,
-  createSeconds,
-  toScreenPoint,
   type CssColor,
   type DevicePixelRatio,
-  type FontSize,
-  type FrameStep,
+} from "../core/render";
+import {
+  type Circle,
+  type DrawStyle,
+  type Rectangle,
+  type Segment,
+  type TextStyle,
+} from "../core/shapes";
+import {
+  createNonNegativeSeconds,
+  createSeconds,
   type NonNegativeSeconds,
-  type Point2D,
-  type PositiveNumber,
-  type ScreenPoint,
   type Seconds,
-  type WorldPoint,
-} from "../core/types";
+} from "../core/time";
 import { ShapeBatcher } from "./batch/ShapeBatcher";
 import { createProgram, type Program } from "./shader/Program";
 import { createStandardUniformValues } from "./shader/setUniforms";
@@ -31,13 +35,6 @@ import {
 } from "./shapes/TextRasterizer";
 import { createStateBuffer, type StateBuffer } from "./StateBuffer";
 import type { GpuSurfaceConfig } from "./types";
-import type { DrawStyle, Rect, TextStyle } from "../cpu/shapes/types";
-
-const buildStyle = (fill?: CssColor, stroke?: CssColor, lineWidth?: PositiveNumber): DrawStyle => ({
-  ...(fill !== undefined ? { fill } : {}),
-  ...(stroke !== undefined ? { stroke } : {}),
-  ...(lineWidth !== undefined ? { lineWidth } : {}),
-});
 
 /**
  * WebGL2 surface sharing `CpuSurface`'s chainable, world-space drawing model. Context loss/restore
@@ -154,119 +151,26 @@ export class GpuSurface {
     return this;
   }
 
-  rect(
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    fill?: CssColor,
-    stroke?: CssColor,
-    lineWidth?: PositiveNumber,
-  ): this;
-  rect(rect: Rect, style?: DrawStyle): this;
-  rect(
-    xOrRect: number | Rect,
-    yOrStyle?: number | DrawStyle,
-    w = 0,
-    h = 0,
-    fill?: CssColor,
-    stroke?: CssColor,
-    lineWidth?: PositiveNumber,
-  ): this {
-    if (typeof xOrRect === "number") {
-      this.#drawRect(
-        { x: xOrRect, y: yOrStyle as number, w, h },
-        buildStyle(fill, stroke, lineWidth),
-      );
-    } else {
-      this.#drawRect(xOrRect, yOrStyle as DrawStyle | undefined);
-    }
+  rectangle(rectangle: Rectangle, style?: DrawStyle): this {
+    this.#drawRectangle(rectangle, style);
 
     return this;
   }
 
-  circle(
-    x: number,
-    y: number,
-    radius: number,
-    fill?: CssColor,
-    stroke?: CssColor,
-    lineWidth?: PositiveNumber,
-  ): this;
-  circle(center: Point2D, radius: number, style?: DrawStyle): this;
-  circle(
-    xOrCenter: number | Point2D,
-    yOrRadius: number,
-    radiusOrStyle?: number | DrawStyle,
-    fill?: CssColor,
-    stroke?: CssColor,
-    lineWidth?: PositiveNumber,
-  ): this {
-    if (typeof xOrCenter === "number") {
-      this.#drawCircle(
-        { x: xOrCenter, y: yOrRadius },
-        radiusOrStyle as number,
-        buildStyle(fill, stroke, lineWidth),
-      );
-    } else {
-      this.#drawCircle(xOrCenter, yOrRadius, radiusOrStyle as DrawStyle | undefined);
-    }
+  circle(circle: Circle, style?: DrawStyle): this {
+    this.#drawCircle(circle, style);
 
     return this;
   }
 
-  line(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    stroke?: CssColor,
-    lineWidth?: PositiveNumber,
-  ): this;
-  line(a: Point2D, b: Point2D, style?: DrawStyle): this;
-  line(
-    x1OrA: number | Point2D,
-    y1OrB: number | Point2D,
-    x2OrStyle?: number | DrawStyle,
-    y2 = 0,
-    stroke?: CssColor,
-    lineWidth?: PositiveNumber,
-  ): this {
-    if (typeof x1OrA === "number") {
-      this.#drawLine(
-        { x: x1OrA, y: y1OrB as number },
-        { x: x2OrStyle as number, y: y2 },
-        buildStyle(undefined, stroke, lineWidth),
-      );
-    } else {
-      this.#drawLine(x1OrA, y1OrB as Point2D, x2OrStyle as DrawStyle | undefined);
-    }
+  line(segment: Segment, style?: DrawStyle): this {
+    this.#drawLine(segment, style);
 
     return this;
   }
 
-  text(text: string, x: number, y: number, fill?: CssColor, fontSize?: FontSize): this;
-  text(text: string, x: number, y: number, style: TextStyle): this;
-  text(text: string, position: Point2D, style: TextStyle): this;
-  text(
-    text: string,
-    xOrPosition: number | Point2D,
-    yOrStyle: number | TextStyle,
-    fillOrStyle?: CssColor | TextStyle,
-    fontSize?: FontSize,
-  ): this {
-    if (typeof xOrPosition === "number") {
-      if (typeof fillOrStyle === "object") {
-        this.#drawText(text, xOrPosition, yOrStyle as number, fillOrStyle);
-      } else {
-        this.#drawText(text, xOrPosition, yOrStyle as number, {
-          ...(fillOrStyle !== undefined ? { fill: fillOrStyle } : {}),
-          ...(fontSize !== undefined ? { fontSize } : {}),
-        });
-      }
-    } else {
-      this.#drawText(text, xOrPosition.x, xOrPosition.y, yOrStyle as TextStyle);
-    }
+  text(text: string, position: Point2D, style?: TextStyle): this {
+    this.#drawText(text, position.x, position.y, style ?? {});
 
     return this;
   }
@@ -313,22 +217,22 @@ export class GpuSurface {
     this.#textRasterizer = null;
   }
 
-  #drawCircle(center: Point2D, radius: number, style?: DrawStyle): void {
+  #drawCircle(circle: Circle, style?: DrawStyle): void {
     if (this.#lost) return;
 
-    this.#batch.drawCircle(center, radius, style ?? {});
+    this.#batch.drawCircle(circle, style ?? {});
   }
 
-  #drawRect(rect: Rect, style?: DrawStyle): void {
+  #drawRectangle(rectangle: Rectangle, style?: DrawStyle): void {
     if (this.#lost) return;
 
-    this.#batch.drawRect(rect, style ?? {});
+    this.#batch.drawRectangle(rectangle, style ?? {});
   }
 
-  #drawLine(a: Point2D, b: Point2D, style?: DrawStyle): void {
+  #drawLine(segment: Segment, style?: DrawStyle): void {
     if (this.#lost) return;
 
-    this.#batch.drawLine(a, b, style ?? {});
+    this.#batch.drawLine(segment, style ?? {});
   }
 
   #drawText(text: string, x: number, y: number, style: TextStyle): void {

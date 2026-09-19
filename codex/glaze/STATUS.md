@@ -34,15 +34,21 @@
 - [x] **Step 2 — defects:** A/B/F verified as real bugs and fixed, one test reintroduced
       per defect (A→`CpuSurface.test.ts`, B→`StateBuffer.test.ts`, F→`color.test.ts`);
       `vp test` 13/13 ✓, `vp check` ✓. D12–D13 recorded.
-- [ ] **Step 3 — structural reorg:** `core/shapes.ts` (+ `Rectangle`/`ViewBounds`
-      rename), split `core/types.ts`, dedupe surface configs, move React internals
-      next to `surfaceStack.ts`.
+- [ ] **Step 3 — structural reorg:** DONE 2026-09-19 — `core/types.ts` split into
+      10 focused modules (`brands`/`time`/`render`/`geometry`/`cameraTypes`/
+      `clockTypes`/`frameTypes`/`inputTypes`/`gestureTypes` + `shapes`/`surfaceTypes`),
+      `Rectangle`/`ViewBounds` rename + object-only draw API (`rectangle`/`circle`/
+      `line`/`text`/`path`, `Circle`/`Segment` + `*From` factories), surface configs
+      deduped (`SurfaceBaseConfig`/`GpuClockMixin`/`SurfaceOptionsBase`), React
+      internals moved to `react/stackTypes.ts`; `core/types.ts` + `cpu/shapes/types.ts`
+      deleted. `vp test` 21/21 ✓ (new `shapes.test.ts` + 5 `CpuSurface` object-API
+      tests), `vp check` ✓. D14–D17 recorded.
 - [ ] **Step 4 — light sealing (hygiene only):** private/opaque `gl`/`context`;
       inject `now/schedule/dpr/document` where trivial (SSR-friendly).
 - [ ] **Step 5 — exports:** add progressive per-file `exports` to `package.json`.
 
-**Next action:** Step 3 — structural reorg (`core/shapes.ts` + `Rectangle`/`ViewBounds`
-rename, split `core/types.ts`, dedupe surface configs, move React internals).
+**Next action:** Step 4 — light sealing (private/opaque `gl`/`context`; inject
+`now`/`schedule`/`dpr`/`document` where trivial).
 
 ## Read-when
 

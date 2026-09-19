@@ -1,22 +1,14 @@
 import type { Camera } from "../core/Camera";
 import type { Clock } from "../core/Clock";
-import type { InputRouter } from "../core/gestures";
-import type {
-  CameraControls,
-  ClockOptions,
-  DevicePixelRatio,
-  DurationSeconds,
-  InputStore,
-  InteractionEvent,
-  PanOptions,
-  Point2D,
-  Seconds,
-  TimeSpeed,
-  ZoomOptions,
-} from "../core/types";
+import type { CameraControls } from "../core/cameraTypes";
+import type { ClockOptions } from "../core/clockTypes";
+import type { InteractionEvent, PanOptions, ZoomOptions } from "../core/gestureTypes";
+import type { DevicePixelRatio } from "../core/render";
+import type { DurationSeconds, Seconds, TimeSpeed } from "../core/time";
 import type { CpuDraw, CpuSurface } from "../cpu/types";
 import type { UniformValue } from "../gpu/shader/types";
 import type { GpuDraw, GpuSurface } from "../gpu/types";
+import type { InitialCamera } from "./stackTypes";
 import type { CSSProperties } from "react";
 
 // ---------------------------------------------------------------------------
@@ -78,53 +70,23 @@ export interface CanvasInteractions<TSurface> {
 }
 
 // ---------------------------------------------------------------------------
-// Surface Stack & Lifetime types
+// Surface options (stack inputs + canvas props base)
 // ---------------------------------------------------------------------------
 
-/** Resource created alongside a surface node; `dispose` runs exactly once at detach. */
-export interface StackDisposable {
-  dispose(): void;
-}
-
-/** Declared spawn state of a camera created by the stack; `reset()` restores it. */
-export interface InitialCamera {
-  zoom?: number;
-  pan?: Point2D;
-  minZoom?: number;
-  maxZoom?: number;
-}
-
 /** `initialCamera` only applies when no `camera` instance is provided. */
-export interface CpuSurfaceOptions {
+export interface SurfaceOptionsBase {
   camera?: Camera;
   cameraControls?: CameraControls;
   initialCamera?: InitialCamera;
   dpr?: DevicePixelRatio;
 }
 
-export interface GpuSurfaceOptions extends CpuSurfaceOptions {
+/** `initialCamera` only applies when no `camera` instance is provided. */
+export interface CpuSurfaceOptions extends SurfaceOptionsBase {}
+
+export interface GpuSurfaceOptions extends SurfaceOptionsBase {
   clock?: Clock;
   clockOptions?: ClockOptions;
-}
-
-/** One mounted CPU surface and everything wired to it; created and disposed together. */
-export interface CpuStack {
-  readonly surface: CpuSurface;
-  readonly controls: CameraControls;
-  readonly router: InputRouter<CpuSurface>;
-}
-
-/** One mounted GPU surface and everything wired to it; created and disposed together. */
-export interface GpuStack {
-  readonly surface: GpuSurface;
-  readonly controls: CameraControls;
-  readonly router: InputRouter<GpuSurface>;
-  readonly clockStore: ClockStore;
-}
-
-export interface RoutableSurface {
-  readonly input: InputStore;
-  destroy(): void;
 }
 
 // ---------------------------------------------------------------------------

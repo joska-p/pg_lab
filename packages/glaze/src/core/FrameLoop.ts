@@ -1,12 +1,6 @@
-import { createMilliseconds, createNonNegativeSeconds, createSeconds, msToSeconds } from "./types";
-import type {
-  FrameLoopOptions,
-  FrameStep,
-  FrameSubscriber,
-  FrameToken,
-  Milliseconds,
-  Seconds,
-} from "./types";
+import type { FrameLoopOptions, FrameStep, FrameSubscriber, FrameToken } from "./frameTypes";
+import { createMilliseconds, createNonNegativeSeconds, createSeconds, msToSeconds } from "./time";
+import type { Milliseconds, Seconds } from "./time";
 
 const defaultNow = (): Milliseconds => createMilliseconds(performance.now());
 

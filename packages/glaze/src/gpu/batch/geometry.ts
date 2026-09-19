@@ -1,6 +1,6 @@
 import type { Mat3 } from "./types";
 import type { Camera } from "../../core/Camera";
-import type { Point2D } from "../../core/types";
+import type { Point2D } from "../../core/geometry";
 
 export function multiplyMat3(a: Mat3, b: Mat3): Mat3 {
   return [

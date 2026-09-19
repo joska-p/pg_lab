@@ -49,6 +49,41 @@
   CSS syntax), never as 0..255 channels. Rationale: fixes the ÷255 bug where
   `hsl(120, 100, 50)` rendered near-black instead of green.
 
+## Recorded 2026-09-19 (Step 3 — structural reorg)
+
+- **D14 — decided** — `core/types.ts` god-file split into focused modules, one domain each:
+  `brands` (Brand + asserts), `time` (Seconds/Milliseconds/Duration/TimeSpeed),
+  `render` (CssColor/PositiveNumber/FontSize/CanvasDimension/BufferDimension/
+  DevicePixelRatio/StateData), `geometry` (Point2D/Screen/World + NormalizedVec2/
+  LineSegment), `cameraTypes` (ZoomFactor/ZoomBounds/ZoomClamp/CameraPatch/
+  CameraControls), `clockTypes`, `frameTypes`, `inputTypes` (`Rect` → `ViewBounds`),
+  `gestureTypes` (WheelSpeed + gestures), plus `shapes` (D4/D5) and `surfaceTypes`
+  (D16). Old `core/types.ts` deleted; no re-export shim (no-barrel rule, D1).
+  Rationale: imports name the domain they use; split follows existing class
+  boundaries (Camera/Clock/FrameLoop/InputStore/gestures).
+- **D15 — decided** — Object-only draw API, concrete form: `rectangle(rectangle:
+Rectangle, style?)`, `circle(circle: Circle, style?)` with `Circle { center:
+Point2D; radius: number }`, `line(segment: Segment, style?)` with `Segment { a;
+b }`, `text(content, position: Point2D, style?)`, `path(points, style?, options?)`.
+  Factories `rectangleFrom`/`circleFrom`/`segmentFrom` in `core/shapes.ts` (D4).
+  Geometry params are plain `number` (PositiveNumber brand dropped at the draw
+  boundary — it was bypassable per defect C); style brands (`lineWidth`,
+  `fontSize`) kept. `ShapeBatcher` mirrors the vocabulary (`drawRectangle`,
+  `drawCircle(Circle)`, `drawLine(Segment)`). Rationale: single canonical form per
+  D4; plain geometry avoids brand friction with zero consumers to migrate.
+- **D16 — decided** — Surface configs deduped via shared bases: `SurfaceBaseConfig
+{ camera?, dpr? }` + `GpuClockMixin { clock?, clockOptions? }` in
+  `core/surfaceTypes.ts` (`CpuSurfaceConfig`/`GpuSurfaceConfig` extend them);
+  `SurfaceOptionsBase { camera?, cameraControls?, initialCamera?, dpr? }` in
+  `react/types.ts` (`CpuSurfaceOptions`/`GpuSurfaceOptions` extend it).
+  Rationale: one place for the shared camera/dpr/clock overlap flagged in
+  AUDIT §3.4; React stack extras stay in the React layer (D6 composition).
+- **D17 — decided** — React internals moved to `react/stackTypes.ts` next to
+  `surfaceStack.ts`: `StackDisposable`, `InitialCamera`, `CpuStack`, `GpuStack`,
+  `RoutableSurface`. `react/types.ts` keeps public surface: stores, interactions,
+  `CpuSurfaceOptions`/`GpuSurfaceOptions`, canvas props. Rationale: AUDIT §3.5 —
+  stack lifetime types no longer sit next to public props.
+
 ## Open questions
 
 - **Q-SSR — open** — Remove `window`/`document`/`performance` hard deps now or later?

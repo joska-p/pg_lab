@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { createCssColor } from "../../core/types";
+import { createCssColor } from "../../core/render";
 import { colorArray, parseColor } from "./color";
 
 describe("parseColor", () => {

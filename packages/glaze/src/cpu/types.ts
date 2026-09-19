@@ -1,12 +1,9 @@
 import type { CpuSurface } from "./CpuSurface";
-import type { Camera } from "../core/Camera";
-import type { DevicePixelRatio } from "../core/types";
+import type { SurfaceBaseConfig } from "../core/surfaceTypes";
 export type { CpuSurface } from "./CpuSurface";
 
-export interface CpuSurfaceConfig {
+export interface CpuSurfaceConfig extends SurfaceBaseConfig {
   canvas: HTMLCanvasElement;
-  camera?: Camera;
-  dpr?: DevicePixelRatio;
 }
 
 export type CpuDraw = (surface: CpuSurface) => void;

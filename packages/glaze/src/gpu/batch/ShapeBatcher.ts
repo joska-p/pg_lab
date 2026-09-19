@@ -10,11 +10,11 @@ import {
   rectStrokeVertices,
   sameMat3,
 } from "./geometry";
-import { createLineSegment, createNormalizedVec2, type Point2D } from "../../core/types";
+import { createLineSegment, createNormalizedVec2, type Point2D } from "../../core/geometry";
+import type { Circle, DrawStyle, Rectangle, Segment } from "../../core/shapes";
 import { colorArray } from "../shapes/color";
 import type { Mat3, ShapeBatcherOptions } from "./types";
 import type { Camera } from "../../core/Camera";
-import type { DrawStyle, Rect } from "../../cpu/shapes/types";
 
 const VERTEX_STRIDE = 6; // x, y, r, g, b, a
 const INITIAL_CAPACITY = 4096;
@@ -102,10 +102,11 @@ export class ShapeBatcher {
     this.#init();
   }
 
-  drawCircle(center: Point2D, radius: number, style: DrawStyle): void {
+  drawCircle(circle: Circle, style: DrawStyle): void {
     if (!this.#initialized) return;
 
     this.#setBatchProjection();
+    const { center, radius } = circle;
 
     if (style.fill !== undefined) {
       this.#pushCircleFill(center.x, center.y, radius, colorArray(style.fill));
@@ -122,21 +123,25 @@ export class ShapeBatcher {
     }
   }
 
-  drawRect(rect: Rect, style: DrawStyle): void {
+  drawRectangle(rectangle: Rectangle, style: DrawStyle): void {
     if (!this.#initialized) return;
 
     this.#setBatchProjection();
 
     if (style.fill !== undefined) {
-      this.#pushRectFill(rect, colorArray(style.fill));
+      this.#pushRectFill(rectangle, colorArray(style.fill));
     }
 
     if (style.stroke !== undefined) {
-      this.#pushRectStroke(rect, style.lineWidth ?? DEFAULT_LINE_WIDTH, colorArray(style.stroke));
+      this.#pushRectStroke(
+        rectangle,
+        style.lineWidth ?? DEFAULT_LINE_WIDTH,
+        colorArray(style.stroke),
+      );
     }
   }
 
-  drawLine(a: Point2D, b: Point2D, style: DrawStyle): void {
+  drawLine(segment: Segment, style: DrawStyle): void {
     if (!this.#initialized) return;
 
     const color = style.stroke ?? style.fill;
@@ -144,7 +149,7 @@ export class ShapeBatcher {
     if (color === undefined) return;
 
     this.#setBatchProjection();
-    this.#pushLine(a, b, style.lineWidth ?? DEFAULT_LINE_WIDTH, colorArray(color));
+    this.#pushLine(segment.a, segment.b, style.lineWidth ?? DEFAULT_LINE_WIDTH, colorArray(color));
   }
 
   flush(): void {
@@ -327,19 +332,19 @@ export class ShapeBatcher {
     }
   }
 
-  #pushRectFill(rect: Rect, color: readonly [number, number, number, number]): void {
+  #pushRectFill(rectangle: Rectangle, color: readonly [number, number, number, number]): void {
     this.#ensureCapacity(rectFillVertices());
     this.#pushQuad(
-      { x: rect.x, y: rect.y },
-      { x: rect.x + rect.w, y: rect.y },
-      { x: rect.x + rect.w, y: rect.y + rect.h },
-      { x: rect.x, y: rect.y + rect.h },
+      { x: rectangle.x, y: rectangle.y },
+      { x: rectangle.x + rectangle.width, y: rectangle.y },
+      { x: rectangle.x + rectangle.width, y: rectangle.y + rectangle.height },
+      { x: rectangle.x, y: rectangle.y + rectangle.height },
       color,
     );
   }
 
   #pushRectStroke(
-    rect: Rect,
+    rectangle: Rectangle,
     width: number,
     color: readonly [number, number, number, number],
   ): void {
@@ -347,31 +352,31 @@ export class ShapeBatcher {
 
     this.#ensureCapacity(rectStrokeVertices());
     this.#pushQuad(
-      { x: rect.x, y: rect.y - half },
-      { x: rect.x + rect.w, y: rect.y - half },
-      { x: rect.x + rect.w, y: rect.y + half },
-      { x: rect.x, y: rect.y + half },
+      { x: rectangle.x, y: rectangle.y - half },
+      { x: rectangle.x + rectangle.width, y: rectangle.y - half },
+      { x: rectangle.x + rectangle.width, y: rectangle.y + half },
+      { x: rectangle.x, y: rectangle.y + half },
       color,
     );
     this.#pushQuad(
-      { x: rect.x, y: rect.y + rect.h - half },
-      { x: rect.x + rect.w, y: rect.y + rect.h - half },
-      { x: rect.x + rect.w, y: rect.y + rect.h + half },
-      { x: rect.x, y: rect.y + rect.h + half },
+      { x: rectangle.x, y: rectangle.y + rectangle.height - half },
+      { x: rectangle.x + rectangle.width, y: rectangle.y + rectangle.height - half },
+      { x: rectangle.x + rectangle.width, y: rectangle.y + rectangle.height + half },
+      { x: rectangle.x, y: rectangle.y + rectangle.height + half },
       color,
     );
     this.#pushQuad(
-      { x: rect.x - half, y: rect.y },
-      { x: rect.x + half, y: rect.y },
-      { x: rect.x + half, y: rect.y + rect.h },
-      { x: rect.x - half, y: rect.y + rect.h },
+      { x: rectangle.x - half, y: rectangle.y },
+      { x: rectangle.x + half, y: rectangle.y },
+      { x: rectangle.x + half, y: rectangle.y + rectangle.height },
+      { x: rectangle.x - half, y: rectangle.y + rectangle.height },
       color,
     );
     this.#pushQuad(
-      { x: rect.x + rect.w - half, y: rect.y },
-      { x: rect.x + rect.w + half, y: rect.y },
-      { x: rect.x + rect.w + half, y: rect.y + rect.h },
-      { x: rect.x + rect.w - half, y: rect.y + rect.h },
+      { x: rectangle.x + rectangle.width - half, y: rectangle.y },
+      { x: rectangle.x + rectangle.width + half, y: rectangle.y },
+      { x: rectangle.x + rectangle.width + half, y: rectangle.y + rectangle.height },
+      { x: rectangle.x + rectangle.width - half, y: rectangle.y + rectangle.height },
       color,
     );
   }

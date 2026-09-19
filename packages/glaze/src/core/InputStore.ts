@@ -1,16 +1,16 @@
+import type { FrameToken } from "./frameTypes";
+import type { Point2D } from "./geometry";
 import type {
   AttachedHandle,
   EventSource,
-  FrameToken,
   InputHandlers,
   InputStoreOptions,
-  Point2D,
   PointerEventName,
   PointerHandlerName,
-  Rect,
   TargetBinding,
+  ViewBounds,
   WindowBinding,
-} from "./types";
+} from "./inputTypes";
 
 /** Approximate CSS pixels per line — used to normalise wheel deltaMode === 1. */
 const LINE_HEIGHT_PX = 16;
@@ -57,7 +57,7 @@ export class InputStore {
   readonly wheelPosition: Point2D = { x: 0, y: 0 };
   wheelDelta = 0;
   readonly #source: EventSource;
-  #bounds: () => Rect;
+  #bounds: () => ViewBounds;
   readonly #keys = new Set<string>();
   readonly #pressed = new Set<string>();
   readonly #subscribers = new Set<InputHandlers>();

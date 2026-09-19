@@ -1,12 +1,6 @@
-import { createNonNegativeSeconds, createSeconds, createTimeSpeed } from "./types";
-import type {
-  ClockOptions,
-  ClockState,
-  DurationSeconds,
-  NonNegativeSeconds,
-  Seconds,
-  TimeSpeed,
-} from "./types";
+import type { ClockOptions, ClockState } from "./clockTypes";
+import { createNonNegativeSeconds, createSeconds, createTimeSpeed } from "./time";
+import type { DurationSeconds, NonNegativeSeconds, Seconds, TimeSpeed } from "./time";
 
 const DEFAULT_TIME_SPEED = createTimeSpeed(1);
 const ZERO_SECONDS = createSeconds(0);
@@ -62,7 +56,7 @@ export function advanceOnce(
 
 /**
  * Playback state driven by explicit seconds deltas (`update(delta)`); owns no clock of its own.
- * Options carry branded values only — build them through the `create*` factories in `core/types`.
+ * Options carry branded values only — build them through the `create*` factories in `core/`.
  */
 export class Clock {
   #time: Seconds = ZERO_SECONDS;

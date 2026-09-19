@@ -2,15 +2,17 @@ import { copyCamera, createCamera, type Camera } from "./Camera";
 import {
   DEFAULT_ZOOM_BOUNDS,
   createZoomClamp,
-  toScreenDelta,
-  toScreenPoint,
   type CameraControls,
   type CameraPatch,
+  type ZoomClamp,
+} from "./cameraTypes";
+import {
+  toScreenDelta,
+  toScreenPoint,
   type Point2D,
   type ScreenDelta,
   type ScreenPoint,
-  type ZoomClamp,
-} from "./types";
+} from "./geometry";
 
 /** Moves the camera translation so the world origin lands on `position`. */
 export function panTo(camera: Camera, position: ScreenPoint): Camera {

@@ -2,23 +2,20 @@ import { createClockStore } from "./clockStore";
 import { createCamera, type Camera } from "../core/Camera";
 import { createCameraControls } from "../core/CameraControls";
 import { InputRouter } from "../core/gestures";
-import {
-  createDevicePixelRatio,
-  createZoomFactor,
-  type CameraControls,
-  type Gesture,
-} from "../core/types";
+import type { CameraControls } from "../core/cameraTypes";
+import { createZoomFactor } from "../core/cameraTypes";
+import type { Gesture } from "../core/gestureTypes";
+import { createDevicePixelRatio } from "../core/render";
 import { createCpuSurface } from "../cpu/CpuSurface";
 import { createGpuSurface } from "../gpu/GpuSurface";
+import type { CpuSurfaceOptions, GpuSurfaceOptions } from "./types";
 import type {
   CpuStack,
-  CpuSurfaceOptions,
   GpuStack,
-  GpuSurfaceOptions,
   InitialCamera,
   RoutableSurface,
   StackDisposable,
-} from "./types";
+} from "./stackTypes";
 import type { CpuSurface } from "../cpu/types";
 import type { GpuSurface } from "../gpu/types";
 

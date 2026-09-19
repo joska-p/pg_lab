@@ -1,15 +1,15 @@
+import type { Point2D } from "./geometry";
+import { toScreenPoint } from "./geometry";
 import {
   DEFAULT_WHEEL_SPEED,
   createWheelSpeed,
-  toScreenPoint,
   type Gesture,
   type InputRouterOptions,
   type InteractionEvent,
   type PanOptions,
-  type Point2D,
   type WheelSpeed,
   type ZoomOptions,
-} from "./types";
+} from "./gestureTypes";
 
 /** Pans on button drag; pure decision logic — activation is reported, capture happens upstream. */
 export class PanGesture<TSurface> {

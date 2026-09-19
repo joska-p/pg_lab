@@ -1,7 +1,8 @@
 import { colorArray } from "./color";
-import { createCssColor, type Point2D } from "../../core/types";
+import { createCssColor } from "../../core/render";
+import type { Point2D } from "../../core/geometry";
 import type { TextRaster } from "./types";
-import type { TextStyle } from "../../cpu/shapes/types";
+import type { TextStyle } from "../../core/shapes";
 import type { UniformValue } from "../shader/types";
 
 /** @internal */

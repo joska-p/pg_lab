@@ -1,15 +1,9 @@
 import type { GpuSurface } from "./GpuSurface";
-import type { Camera } from "../core/Camera";
-import type { Clock } from "../core/Clock";
-import type { ClockOptions, DevicePixelRatio } from "../core/types";
+import type { GpuClockMixin, SurfaceBaseConfig } from "../core/surfaceTypes";
 export type { GpuSurface } from "./GpuSurface";
 
-export interface GpuSurfaceConfig {
+export interface GpuSurfaceConfig extends SurfaceBaseConfig, GpuClockMixin {
   canvas: HTMLCanvasElement;
-  camera?: Camera;
-  clock?: Clock;
-  dpr?: DevicePixelRatio;
-  clockOptions?: ClockOptions;
 }
 
 export type GpuDraw = (surface: GpuSurface) => void;

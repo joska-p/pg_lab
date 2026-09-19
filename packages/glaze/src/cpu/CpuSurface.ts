@@ -1,25 +1,31 @@
 import { defaultCamera, type Camera } from "../core/Camera";
 import { FrameLoop } from "../core/FrameLoop";
+import type { FrameStep } from "../core/frameTypes";
 import { createInputStore, type InputStore } from "../core/InputStore";
+import { toScreenPoint, type Point2D, type ScreenPoint, type WorldPoint } from "../core/geometry";
 import {
   createCanvasDimension,
   createDevicePixelRatio,
-  createNonNegativeSeconds,
-  createSeconds,
-  toScreenPoint,
   type CanvasDimension,
   type CssColor,
   type DevicePixelRatio,
   type FontSize,
-  type FrameStep,
-  type NonNegativeSeconds,
-  type Point2D,
   type PositiveNumber,
-  type ScreenPoint,
+} from "../core/render";
+import {
+  type Circle,
+  type DrawStyle,
+  type PathOptions,
+  type Rectangle,
+  type Segment,
+  type TextStyle,
+} from "../core/shapes";
+import {
+  createNonNegativeSeconds,
+  createSeconds,
+  type NonNegativeSeconds,
   type Seconds,
-  type WorldPoint,
-} from "../core/types";
-import type { DrawStyle, PathOptions, Rect, TextStyle } from "./shapes/types";
+} from "../core/time";
 import type { CpuSurfaceConfig } from "./types";
 
 const DEFAULT_STROKE_WIDTH = 1;
@@ -124,178 +130,43 @@ export class CpuSurface {
     return this;
   }
 
-  rect(
-    x: number,
-    y: number,
-    w: PositiveNumber,
-    h: PositiveNumber,
-    fill?: CssColor,
-    stroke?: CssColor,
-    lineWidth?: PositiveNumber,
-  ): this;
-  rect(rect: Rect, style?: DrawStyle): this;
-  rect(
-    xOrRect: number | Rect,
-    yOrStyle?: number | DrawStyle,
-    w?: PositiveNumber,
-    h?: PositiveNumber,
-    fill?: CssColor,
-    stroke?: CssColor,
-    lineWidth?: PositiveNumber,
-  ): this {
-    if (typeof xOrRect === "number") {
-      this.#begin(fill, stroke, lineWidth);
-      this.context.rect(xOrRect, yOrStyle as number, w ?? 0, h ?? 0);
-      this.#paintShape(fill, stroke);
-    } else {
-      const style = yOrStyle as DrawStyle | undefined;
-
-      this.rect(
-        xOrRect.x,
-        xOrRect.y,
-        xOrRect.w as PositiveNumber,
-        xOrRect.h as PositiveNumber,
-        style?.fill,
-        style?.stroke,
-        style?.lineWidth,
-      );
-    }
+  rectangle(rectangle: Rectangle, style?: DrawStyle): this {
+    this.#begin(style?.fill, style?.stroke, style?.lineWidth);
+    this.context.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+    this.#paintShape(style?.fill, style?.stroke);
 
     return this;
   }
 
-  circle(
-    x: number,
-    y: number,
-    radius: PositiveNumber,
-    fill?: CssColor,
-    stroke?: CssColor,
-    lineWidth?: PositiveNumber,
-  ): this;
-  circle(center: Point2D, radius: PositiveNumber, style?: DrawStyle): this;
-  circle(
-    xOrCenter: number | Point2D,
-    yOrRadius: number,
-    radiusOrStyle?: PositiveNumber | DrawStyle,
-    fill?: CssColor,
-    stroke?: CssColor,
-    lineWidth?: PositiveNumber,
-  ): this {
-    if (typeof xOrCenter === "number") {
-      this.#begin(fill, stroke, lineWidth);
-      this.context.arc(xOrCenter, yOrRadius, radiusOrStyle as number, 0, Math.PI * 2);
-      this.#paintShape(fill, stroke);
-    } else {
-      const style = radiusOrStyle as DrawStyle | undefined;
-
-      this.circle(
-        xOrCenter.x,
-        xOrCenter.y,
-        yOrRadius as PositiveNumber,
-        style?.fill,
-        style?.stroke,
-        style?.lineWidth,
-      );
-    }
+  circle(circle: Circle, style?: DrawStyle): this {
+    this.#begin(style?.fill, style?.stroke, style?.lineWidth);
+    this.context.arc(circle.center.x, circle.center.y, circle.radius, 0, Math.PI * 2);
+    this.#paintShape(style?.fill, style?.stroke);
 
     return this;
   }
 
-  line(
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    stroke?: CssColor,
-    lineWidth?: PositiveNumber,
-  ): this;
-  line(a: Point2D, b: Point2D, style?: DrawStyle): this;
-  line(
-    x1OrA: number | Point2D,
-    y1OrB: number | Point2D,
-    x2OrStyle?: number | DrawStyle,
-    y2?: number,
-    stroke?: CssColor,
-    lineWidth?: PositiveNumber,
-  ): this {
-    if (typeof x1OrA === "number") {
-      this.#strokeLine(x1OrA, y1OrB as number, x2OrStyle as number, y2 ?? 0, stroke, lineWidth);
-    } else {
-      const b = y1OrB as Point2D;
-      const style = x2OrStyle as DrawStyle | undefined;
-
-      this.line(x1OrA.x, x1OrA.y, b.x, b.y, style?.stroke, style?.lineWidth);
-    }
+  line(segment: Segment, style?: DrawStyle): this {
+    this.#strokeLine(
+      segment.a.x,
+      segment.a.y,
+      segment.b.x,
+      segment.b.y,
+      style?.stroke,
+      style?.lineWidth,
+    );
 
     return this;
   }
 
-  text(text: string, x: number, y: number, fill?: CssColor, fontSize?: FontSize): this;
-  text(text: string, x: number, y: number, style: TextStyle): this;
-  text(text: string, position: Point2D, style: TextStyle): this;
-  text(
-    text: string,
-    xOrPosition: number | Point2D,
-    yOrStyle: number | TextStyle,
-    fillOrStyle?: CssColor | TextStyle,
-    fontSize?: FontSize,
-  ): this {
-    if (typeof xOrPosition === "number") {
-      const style = typeof fillOrStyle === "object" ? fillOrStyle : undefined;
-      const fill = typeof fillOrStyle === "string" ? fillOrStyle : style?.fill;
-
-      this.#drawText(
-        text,
-        xOrPosition,
-        yOrStyle as number,
-        fill,
-        style ? style.fontSize : fontSize,
-        style,
-      );
-    } else {
-      const style = yOrStyle as TextStyle;
-
-      this.#drawText(text, xOrPosition.x, xOrPosition.y, style.fill, style.fontSize, style);
-    }
+  text(text: string, position: Point2D, style?: TextStyle): this {
+    this.#drawText(text, position.x, position.y, style?.fill, style?.fontSize, style);
 
     return this;
   }
 
-  path(
-    points: readonly Point2D[],
-    fill?: CssColor,
-    stroke?: CssColor,
-    lineWidth?: PositiveNumber,
-    closed?: boolean,
-  ): this;
-  path(points: readonly Point2D[], style?: DrawStyle, options?: PathOptions): this;
-  path(
-    points: readonly Point2D[],
-    fillOrStyle?: CssColor | DrawStyle,
-    strokeOrOptions?: CssColor | PathOptions,
-    lineWidth?: PositiveNumber,
-    closed?: boolean,
-  ): this {
-    if (typeof fillOrStyle === "string") {
-      this.#drawPath(
-        points,
-        fillOrStyle,
-        strokeOrOptions as CssColor | undefined,
-        lineWidth,
-        closed,
-      );
-    } else {
-      const options = strokeOrOptions as PathOptions | undefined;
-
-      this.#drawPath(
-        points,
-        fillOrStyle?.fill,
-        fillOrStyle?.stroke,
-        fillOrStyle?.lineWidth,
-        options?.closed,
-        options,
-      );
-    }
+  path(points: readonly Point2D[], style?: DrawStyle, options?: PathOptions): this {
+    this.#drawPath(points, style?.fill, style?.stroke, style?.lineWidth, options?.closed, options);
 
     return this;
   }

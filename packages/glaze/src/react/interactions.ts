@@ -1,6 +1,6 @@
 import { PanGesture, ZoomGesture } from "../core/gestures";
+import type { Gesture, InteractionEvent } from "../core/gestureTypes";
 import type { CanvasInteractions, LiveInteractionEvent } from "./types";
-import type { Gesture, InteractionEvent } from "../core/types";
 
 function withSurface<TEvent, TSurface>(
   event: InteractionEvent<TEvent, TSurface>,
