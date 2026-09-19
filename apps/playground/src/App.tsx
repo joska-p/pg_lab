@@ -14,20 +14,20 @@ export const EXPERIMENTS: Record<
   PageName,
   {
     label: string;
-    Experiment: ComponentType;
+    Page: ComponentType;
   }
 > = {
   menu: {
     label: "Menu",
-    Experiment: MenuPage,
+    Page: MenuPage,
   },
   "art-canvas": {
     label: "Art Canvas",
-    Experiment: lazy(() => import("@repo/art-canvas/App").then((m) => ({ default: m.App }))),
+    Page: lazy(() => import("@repo/art-canvas/App").then((m) => ({ default: m.App }))),
   },
   "mosaic-maker": {
     label: "Mosaic Maker",
-    Experiment: lazy(() => import("@repo/mosaic-maker/App").then((m) => ({ default: m.App }))),
+    Page: lazy(() => import("@repo/mosaic-maker/App").then((m) => ({ default: m.App }))),
   },
 };
 
@@ -73,7 +73,7 @@ function MenuPage() {
 function App() {
   const theme = useTheme();
   const pageName = usePageName();
-  const { Experiment } = EXPERIMENTS[pageName];
+  const { Page } = EXPERIMENTS[pageName];
 
   useEffect(() => {
     document.documentElement.style.colorScheme = theme === "system" ? "light dark" : theme;
@@ -81,7 +81,7 @@ function App() {
 
   return (
     <Suspense fallback={<MenuPage />}>
-      <Experiment />
+      <Page />
     </Suspense>
   );
 }
