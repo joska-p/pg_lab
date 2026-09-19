@@ -3,10 +3,6 @@
   "version": "0.0.0",
   "description": "Personnal Graphic toolkit",
   "author": "Joska <joska-p@gmail.com>",
-  "files": [
-    "src",
-    "dist"
-  ],
   "type": "module",
   "exports": {
     "./core/Camera": {
