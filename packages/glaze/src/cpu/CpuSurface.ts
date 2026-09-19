@@ -110,9 +110,16 @@ export class CpuSurface {
 
     const context = this.context;
 
-    context.setTransform(1, 0, 0, 1, 0, 0);
-    context.transform(this.camera.zoom, 0, 0, this.camera.zoom, this.camera.x, this.camera.y);
-    context.scale(this.dpr, this.dpr);
+    // World → CSS transform (zoom + camera offset), then into device pixels (`dpr`): the
+    // translation must be scaled too, or the scene drifts by `dpr` on hidpi displays.
+    context.setTransform(
+      this.camera.zoom * this.dpr,
+      0,
+      0,
+      this.camera.zoom * this.dpr,
+      this.camera.x * this.dpr,
+      this.camera.y * this.dpr,
+    );
 
     return this;
   }

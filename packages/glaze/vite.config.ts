@@ -7,6 +7,9 @@ import { stylexPreset } from "@repo/ui/stylex-preset";
 
 // https://vite.dev/config/
 export default defineConfig({
+  test: {
+    include: ["src/**/*.test.ts"],
+  },
   lint: {
     plugins: ["react", "typescript", "oxc"],
     rules: {

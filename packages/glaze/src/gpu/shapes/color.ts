@@ -38,6 +38,16 @@ function parseChannel(token: string | undefined): number {
   return clamp01(parseFloat(t) / 255);
 }
 
+/**
+ * HSL `s`/`l` channels: `50%` → 0.5; a unitless `50` is treated as 50% (legacy CSS syntax).
+ * Never divides by 255 — unlike `parseChannel`, s/l are percentages, not 0..255 channels.
+ */
+function parsePercentageChannel(token: string | undefined): number {
+  if (token === undefined) return 0;
+
+  return clamp01(parseFloat(token) / 100);
+}
+
 function parseRgb(color: string): RGBA | null {
   const match = /^rgba?\(([^)]+)\)$/i.exec(color);
 
@@ -88,9 +98,10 @@ function parseHsl(color: string): RGBA | null {
 
   if (parts.length < 3) return null;
 
-  const hue = (parseFloat(parts[0] ?? "0") % 360) / 360;
-  const s = parseChannel(parts[1]);
-  const l = parseChannel(parts[2]);
+  // Hue is an angle: wrap any value into [0, 360) — `-60` and `720` behave like `300` and `0`.
+  const hue = (((parseFloat(parts[0] ?? "0") % 360) + 360) % 360) / 360;
+  const s = parsePercentageChannel(parts[1]);
+  const l = parsePercentageChannel(parts[2]);
   const alphaStr = parts[3] as string | undefined;
   const a =
     alphaStr !== undefined
@@ -150,7 +161,7 @@ function parseViaCanvas(color: string): RGBA | null {
   return parseRgb(normalized);
 }
 
-/** Parses any CSS color to normalized 0..1 RGBA; unrecognized strings resolve to magenta. */
+/** Parses any CSS color to normalized 0..1 RGBA; unrecognized strings throw. */
 export function parseColor(color: Color): RGBA {
   if (color.startsWith("#")) {
     const hex = parseHex(color);

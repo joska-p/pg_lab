@@ -124,7 +124,7 @@ export class GpuSurface {
     return program;
   }
 
-  /** Creates a StateBuffer owned by this surface: destroyed with it, resized on context restore. */
+  /** Creates a StateBuffer owned by this surface: destroyed with it, recreated on context restore. */
   createStateBuffer(width: number, height: number): StateBuffer {
     const buffer = createStateBuffer(this.gl, width, height);
 
@@ -392,7 +392,7 @@ export class GpuSurface {
 
     for (const program of this.#programs) program.reinitialize();
 
-    for (const buffer of this.#buffers) buffer.resize(buffer.width, buffer.height);
+    for (const buffer of this.#buffers) buffer.reinitialize();
   };
 
   #frameStep: FrameStep = (time, deltaTime, frameToken): void => {

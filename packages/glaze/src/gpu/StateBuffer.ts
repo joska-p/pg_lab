@@ -106,6 +106,16 @@ export class StateBufferTargets {
     this.#pingPong = 0;
   }
 
+  /**
+   * Recreates both render targets at the current dimensions — the context-restore path, where
+   * `resize(w, h)` with identical dims would early-return and leave the dead GL textures behind.
+   */
+  reinitialize(): void {
+    this.#destroyTargetPair();
+    this.#createTargetPair(this.#currentWidth, this.#currentHeight);
+    this.#pingPong = 0;
+  }
+
   destroy(): void {
     this.#destroyTargetPair();
   }
@@ -264,6 +274,11 @@ export class StateBuffer {
 
   resize(width: number, height: number): void {
     this.#targets.resize(width, height);
+  }
+
+  /** Recreates both render targets at the current dimensions — used on `webglcontextrestored`. */
+  reinitialize(): void {
+    this.#targets.reinitialize();
   }
 
   destroy(): void {

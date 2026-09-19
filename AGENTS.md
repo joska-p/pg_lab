@@ -17,4 +17,4 @@ Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.de
 - **Coding conventions**: codex/docs/coding-conventions.md.
 - **Navigation**: Fast code search via `rg` (ripgrep) and `fd`.
 - **Language**: French for discussions, English for code, docs, and specs.
-- **SSOT**: Ecosystem conventions and docs live in `./codex/docs/`. Propose updates when patterns evolve.
+- **SSOT**: Ecosystem conventions and docs live in `./codex/`. Propose updates when patterns evolve.
