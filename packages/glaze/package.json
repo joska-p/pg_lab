@@ -1,0 +1,33 @@
+{
+  "name": "@repo/glaze",
+  "version": "0.0.0",
+  "description": "Personnal Graphic toolkit",
+  "author": "Joska <joska-p@gmail.com>",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "type": "module",
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "check": "vp check"
+  },
+  "devDependencies": {
+    "@rolldown/plugin-babel": "catalog:",
+    "@stylexjs/stylex": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "typescript": "catalog:",
+    "unplugin-stylex": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "peerDependencies": {
+    "@repo/ui": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  }
+}

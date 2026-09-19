@@ -282,7 +282,7 @@ export default createTemplate({
         "index.html": indexHtml(name),
         "vite.config.ts": viteConfig,
         "tsconfig.json": tsconfig,
-        _gitignore: gitignore,
+        ".gitignore": gitignore,
         src: {
           "main.tsx": mainTsx,
           "App.tsx": appTsx(name),
