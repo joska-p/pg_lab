@@ -4,10 +4,6 @@
   "description": "This is a small personal UI toolkit for creative mini-apps.",
   "license": "MIT",
   "author": "Joska <joska-p@gmail.com>",
-  "files": [
-    "src",
-    "dist"
-  ],
   "type": "module",
   "exports": {
     "./tokens/*": {
