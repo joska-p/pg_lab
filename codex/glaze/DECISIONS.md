@@ -106,6 +106,14 @@ b }`, `text(content, position: Point2D, style?)`, `path(points, style?, options?
   `resolveCameraLayer` result + resolved locals). Rationale: consistent with the
   `cameraControls` option/input vocabulary; no external consumers, stack-local.
 
+## Recorded 2026-09-19 (Step 5 — exports)
+
+- **D21 — decided** — Explicit per-file `exports` in `package.json` (42 entries,
+  one per non-test source module, key without extension, `types`+`import` → same
+  source file, `.tsx` kept for `CpuCanvas`/`GpuCanvas`); no root `.` entry
+  (no-barrel, D1), no `*.test.ts` exposed. Rationale: owner chose explicit over
+  wildcards; exact coverage verified (42/42, no missing/extra).
+
 ## Open questions
 
 - **Q-SSR — closed 2026-09-19 (Step 4)** — `window`/`document` hard deps removed

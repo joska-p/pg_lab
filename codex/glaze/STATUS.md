@@ -51,9 +51,11 @@
       share the single document site; `router`→`inputRouter` (owner rename).
       `vp test` 27/27 ✓ (new `environment.test.ts`, 6 tests), `vp check` ✓.
       D18–D19 recorded, Q-SSR closed.
-- [ ] **Step 5 — exports:** add progressive per-file `exports` to `package.json`.
+- [x] **Step 5 — exports:** DONE 2026-09-19 — explicit per-file `exports` in
+      `package.json` (42 entries, `types`+`import` → source, no root entry,
+      no tests exposed). `vp test` 27/27 ✓, `vp check` ✓. D21 recorded.
 
-**Next action:** Step 5 — exports (progressive per-file `exports` to `package.json`).
+**Next action:** Reorg complete — no further steps (future work only on demand).
 
 ## Read-when
 

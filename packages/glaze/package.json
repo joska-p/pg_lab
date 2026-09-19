@@ -8,6 +8,176 @@
     "dist"
   ],
   "type": "module",
+  "exports": {
+    "./core/Camera": {
+      "types": "./src/core/Camera.ts",
+      "import": "./src/core/Camera.ts"
+    },
+    "./core/CameraControls": {
+      "types": "./src/core/CameraControls.ts",
+      "import": "./src/core/CameraControls.ts"
+    },
+    "./core/Clock": {
+      "types": "./src/core/Clock.ts",
+      "import": "./src/core/Clock.ts"
+    },
+    "./core/FrameLoop": {
+      "types": "./src/core/FrameLoop.ts",
+      "import": "./src/core/FrameLoop.ts"
+    },
+    "./core/InputStore": {
+      "types": "./src/core/InputStore.ts",
+      "import": "./src/core/InputStore.ts"
+    },
+    "./core/brands": {
+      "types": "./src/core/brands.ts",
+      "import": "./src/core/brands.ts"
+    },
+    "./core/cameraTypes": {
+      "types": "./src/core/cameraTypes.ts",
+      "import": "./src/core/cameraTypes.ts"
+    },
+    "./core/clockTypes": {
+      "types": "./src/core/clockTypes.ts",
+      "import": "./src/core/clockTypes.ts"
+    },
+    "./core/environment": {
+      "types": "./src/core/environment.ts",
+      "import": "./src/core/environment.ts"
+    },
+    "./core/frameTypes": {
+      "types": "./src/core/frameTypes.ts",
+      "import": "./src/core/frameTypes.ts"
+    },
+    "./core/geometry": {
+      "types": "./src/core/geometry.ts",
+      "import": "./src/core/geometry.ts"
+    },
+    "./core/gestureTypes": {
+      "types": "./src/core/gestureTypes.ts",
+      "import": "./src/core/gestureTypes.ts"
+    },
+    "./core/gestures": {
+      "types": "./src/core/gestures.ts",
+      "import": "./src/core/gestures.ts"
+    },
+    "./core/inputTypes": {
+      "types": "./src/core/inputTypes.ts",
+      "import": "./src/core/inputTypes.ts"
+    },
+    "./core/render": {
+      "types": "./src/core/render.ts",
+      "import": "./src/core/render.ts"
+    },
+    "./core/shapes": {
+      "types": "./src/core/shapes.ts",
+      "import": "./src/core/shapes.ts"
+    },
+    "./core/surfaceTypes": {
+      "types": "./src/core/surfaceTypes.ts",
+      "import": "./src/core/surfaceTypes.ts"
+    },
+    "./core/time": {
+      "types": "./src/core/time.ts",
+      "import": "./src/core/time.ts"
+    },
+    "./cpu/CpuSurface": {
+      "types": "./src/cpu/CpuSurface.ts",
+      "import": "./src/cpu/CpuSurface.ts"
+    },
+    "./cpu/types": {
+      "types": "./src/cpu/types.ts",
+      "import": "./src/cpu/types.ts"
+    },
+    "./gpu/GpuSurface": {
+      "types": "./src/gpu/GpuSurface.ts",
+      "import": "./src/gpu/GpuSurface.ts"
+    },
+    "./gpu/StateBuffer": {
+      "types": "./src/gpu/StateBuffer.ts",
+      "import": "./src/gpu/StateBuffer.ts"
+    },
+    "./gpu/batch/ShapeBatcher": {
+      "types": "./src/gpu/batch/ShapeBatcher.ts",
+      "import": "./src/gpu/batch/ShapeBatcher.ts"
+    },
+    "./gpu/batch/geometry": {
+      "types": "./src/gpu/batch/geometry.ts",
+      "import": "./src/gpu/batch/geometry.ts"
+    },
+    "./gpu/batch/types": {
+      "types": "./src/gpu/batch/types.ts",
+      "import": "./src/gpu/batch/types.ts"
+    },
+    "./gpu/shader/Program": {
+      "types": "./src/gpu/shader/Program.ts",
+      "import": "./src/gpu/shader/Program.ts"
+    },
+    "./gpu/shader/compileProgram": {
+      "types": "./src/gpu/shader/compileProgram.ts",
+      "import": "./src/gpu/shader/compileProgram.ts"
+    },
+    "./gpu/shader/setUniforms": {
+      "types": "./src/gpu/shader/setUniforms.ts",
+      "import": "./src/gpu/shader/setUniforms.ts"
+    },
+    "./gpu/shader/types": {
+      "types": "./src/gpu/shader/types.ts",
+      "import": "./src/gpu/shader/types.ts"
+    },
+    "./gpu/shapes/TextRasterizer": {
+      "types": "./src/gpu/shapes/TextRasterizer.ts",
+      "import": "./src/gpu/shapes/TextRasterizer.ts"
+    },
+    "./gpu/shapes/color": {
+      "types": "./src/gpu/shapes/color.ts",
+      "import": "./src/gpu/shapes/color.ts"
+    },
+    "./gpu/shapes/types": {
+      "types": "./src/gpu/shapes/types.ts",
+      "import": "./src/gpu/shapes/types.ts"
+    },
+    "./gpu/types": {
+      "types": "./src/gpu/types.ts",
+      "import": "./src/gpu/types.ts"
+    },
+    "./react/CpuCanvas": {
+      "types": "./src/react/CpuCanvas.tsx",
+      "import": "./src/react/CpuCanvas.tsx"
+    },
+    "./react/GpuCanvas": {
+      "types": "./src/react/GpuCanvas.tsx",
+      "import": "./src/react/GpuCanvas.tsx"
+    },
+    "./react/clockStore": {
+      "types": "./src/react/clockStore.ts",
+      "import": "./src/react/clockStore.ts"
+    },
+    "./react/interactions": {
+      "types": "./src/react/interactions.ts",
+      "import": "./src/react/interactions.ts"
+    },
+    "./react/observable": {
+      "types": "./src/react/observable.ts",
+      "import": "./src/react/observable.ts"
+    },
+    "./react/stackTypes": {
+      "types": "./src/react/stackTypes.ts",
+      "import": "./src/react/stackTypes.ts"
+    },
+    "./react/surfaceStack": {
+      "types": "./src/react/surfaceStack.ts",
+      "import": "./src/react/surfaceStack.ts"
+    },
+    "./react/types": {
+      "types": "./src/react/types.ts",
+      "import": "./src/react/types.ts"
+    },
+    "./react/useNodeResource": {
+      "types": "./src/react/useNodeResource.ts",
+      "import": "./src/react/useNodeResource.ts"
+    }
+  },
   "scripts": {
     "build": "vp pack",
     "dev": "vp pack --watch",
