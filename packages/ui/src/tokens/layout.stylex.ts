@@ -30,8 +30,8 @@ export const borderWidth = stylex.defineConsts({
 export const zIndex = stylex.defineConsts({
   base: 0,
   canvas: 1,
+  panel: 50,
   overlay: 100,
-  panel: 200,
   modal: 300,
 });
 

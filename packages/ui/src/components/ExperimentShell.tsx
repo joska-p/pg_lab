@@ -91,7 +91,8 @@ const styles = stylex.create({
   },
 
   toggleClearOfFloatingPanel: {
-    right: `calc(${layout.panelWidth} + calc(${layout.panelGap} * 2))`,
+    top: `calc(${space["3"]} + calc(${layout.panelGap}))`,
+    right: `calc(${space["3"]} + calc(${layout.panelGap}))`,
 
     "@media (max-width: 720px)": {
       right: space["3"],
