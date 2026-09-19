@@ -40,13 +40,13 @@
       `ErrorBoundary` added to `@repo/ui` (adapted from `_TMP/error-boundary.tsx`);
       `vp -C packages/ui check` → pass; skeleton `App.tsx` rewired (UI shell +
       ErrorBoundary, no module imports yet). D1–D7 recorded.
-- [ ] **Step 1 — baseline:** `vp -C packages/art-canvas check --fix` over the copied
-      tree (currently 53 files unformatted), then run `vp check` to collect the real
-      `@repo/tlc` → `@repo/ui` resolution list. Expected: only tlc imports + store-file
-      leftovers to migrate.
-- [ ] **Step 2 — infra:** format-only pass on `assembly/`, `shaders/`, `palettes/`,
-      `modules/*` canvas/material files (all tlc-free). Sanity type-check via
-      `folded-space` (no controls).
+- [x] **Step 1 — baseline:** `vp -C packages/art-canvas check --fix` → formatting
+      pass; `vp -C packages/art-canvas check` → 11 errors in 4 `*Controls.tsx`
+      files (7× `@repo/tlc` unresolved + 4× implicit `any` downstream). No other
+      tlc refs; stores still old idiom (Step 3).
+- [x] **Step 2 — infra:** verified tlc-free + type-clean (errors only in 4
+      `*Controls.tsx`); glaze API compatible (no break); `folded-space` clean.
+      Zero file changes (format done Step 1).
 - [ ] **Step 3 — controls + stores:** migrate `*Controls.tsx` module by module
       (spirale → seed → atlas → manual; folded-space has none) using `AUDIT.md` § 6/§ 7;
       convert every module store to the repo pattern; then wire the mode switcher +
@@ -55,8 +55,8 @@
       in `apps/dev`; remove `_TMP/art-canvas-to-migrate` once committed;
       `vp check` + `vp run -r build` + dev smoke-test; commit.
 
-**Next action:** Step 1 — format the copied tree, then capture the `@repo/tlc`
-resolution error list that drives Step 3.
+**Next action:** Step 3 — controls + stores (spirale → seed → atlas → manual)
+per `AUDIT.md` § 6/§ 7, then mode switcher + module mounting in `App.tsx`.
 
 ## Read-when
 
