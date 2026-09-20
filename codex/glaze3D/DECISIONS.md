@@ -22,3 +22,11 @@
   dmo `false`, event `change` requis pour `patDirty`. Source: `03-specs.md:354-364`.
 - 2026-09-20 (S0): entre `codex/glaze3D/STATUS.md` (entry), `PLAN.md`, `DECISIONS.md`,
   `SESSIONS.md` comme mmoire multisession (skill multisession, layout libre).
+- 2026-09-20 (S1): `Quat.multiply/slerp` non ajouts (S6 non dmarr, hypothse
+  angles sphriques directe). Source: `PLAN.md:31-35`, `03-specs.md:50-51,79-81`.
+- 2026-09-20 (S1): extras minimaux hors spec littrale: `Vec3.set/dot/cross/
+lengthSq`, `Quat.clone/normalize`, `Mat4.copy/multiplyMatrices` — requis pour
+  `setFromUnitVectors`/`compose`/`position.set` (S2) et futur orbit, pas
+  d'algbre gnrale. Source: `03-specs.md:17-63`.
+- 2026-09-20 (S1): imports sans extension `.ts` (TS5097,
+  `allowImportingTsExtensions` off, convention repo `glaze/src`).
