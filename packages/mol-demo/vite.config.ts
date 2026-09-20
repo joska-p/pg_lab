@@ -1,13 +1,12 @@
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { defineConfig } from "vite-plus";
 import { lazyPlugins } from "vite-plus";
+import stylexPlugin from "unplugin-stylex/vite";
 import babel from "@rolldown/plugin-babel";
+import { stylexPreset } from "@repo/ui/stylex-preset";
 
 // https://vite.dev/config/
 export default defineConfig({
-  test: {
-    include: ["src/**/*.test.ts"],
-  },
   lint: {
     plugins: ["react", "typescript", "oxc"],
     rules: {
@@ -32,13 +31,17 @@ export default defineConfig({
     ],
   },
   plugins: lazyPlugins(() => [
+    stylexPlugin(stylexPreset),
     babel({
       presets: [reactCompilerPreset()],
     }),
     react(),
   ]),
   resolve: {
-    dedupe: ["react", "react-dom"],
+    dedupe: ["@stylexjs/stylex", "react", "react-dom"],
+  },
+  optimizeDeps: {
+    exclude: ["@repo/ui"],
   },
   server: {
     fs: {

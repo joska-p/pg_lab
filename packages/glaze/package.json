@@ -192,7 +192,6 @@
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "@repo/ui": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:"
   }
