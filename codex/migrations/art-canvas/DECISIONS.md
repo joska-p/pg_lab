@@ -40,3 +40,9 @@
 ## Open questions
 
 - D8 (appStore removal), D9 (mode switcher), D10 (guilloche), D11 (showcase) — all open.
+
+## Resolved 2026-09-20 (Steps 3–4 verification)
+
+- **D8 — closed** — `src/stores/appStore.tsx` removed (dead skeleton `theme` store, unused after migration).
+- **D9 — decided** — Mode switcher = `Select<InputMode>` (source idiom) in `App.tsx`, options derived from the `EXPERIMENTS` record.
+- **D11 — closed** — `ErrorBoundary` showcased in `apps/dev` showcase § 05 “resilience” (default fallback + custom `fallback` demos with throw/reset).

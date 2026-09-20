@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { ReactNode } from "react";
 import * as stylex from "@stylexjs/stylex";
 import { colors } from "@repo/ui/tokens/colors.stylex";
 import { borderWidth, radius, space } from "@repo/ui/tokens/layout.stylex";
@@ -9,6 +10,7 @@ import { Checkbox } from "@repo/ui/components/Checkbox";
 import { ColorField } from "@repo/ui/components/ColorField";
 import { ControlField } from "@repo/ui/components/ControlField";
 import { ControlSection } from "@repo/ui/components/ControlSection";
+import { ErrorBoundary } from "@repo/ui/components/ErrorBoundary";
 import { Led } from "@repo/ui/components/Led";
 import { NumberField } from "@repo/ui/components/NumberField";
 import { RadioGroup } from "@repo/ui/components/RadioGroup";
@@ -414,6 +416,54 @@ function FoundationsSection() {
   );
 }
 
+// ─── Section 05 · Resilience ──────────────────────────────────────────────────
+
+function ThrowOnRender({ shouldThrow }: { shouldThrow: boolean }) {
+  if (shouldThrow) throw new Error("demo crash — the boundary caught it");
+  return <Readout label="status" value="stable · nothing thrown" />;
+}
+
+function CrashDemo({ title, fallback }: { title: string; fallback?: ReactNode }) {
+  const [crashed, setCrashed] = useState(false);
+  const [runId, setRunId] = useState(0);
+
+  return (
+    <Card variant="surface">
+      <ControlSection title={title}>
+        <ErrorBoundary key={runId} fallback={fallback} showStack={false}>
+          <ThrowOnRender shouldThrow={crashed} />
+        </ErrorBoundary>
+        <Stack direction="horizontal" gap="8" wrap>
+          <Button onClick={() => setCrashed(true)}>throw</Button>
+          <Button
+            onClick={() => {
+              setCrashed(false);
+              setRunId((id) => id + 1);
+            }}
+          >
+            reset
+          </Button>
+        </Stack>
+      </ControlSection>
+    </Card>
+  );
+}
+
+function ResilienceSection() {
+  return (
+    <Stack gap="8">
+      <SectionHeading index="05" title="resilience" />
+      <Stack direction="horizontal" gap="8" wrap>
+        <CrashDemo title="ErrorBoundary · default" />
+        <CrashDemo
+          title="ErrorBoundary · fallback"
+          fallback={<Readout label="out" value="custom fallback — patched" />}
+        />
+      </Stack>
+    </Stack>
+  );
+}
+
 // ─── ShowcaseStage ────────────────────────────────────────────────────────────
 // Exported: only the Stage content. ExperimentShell + panel live in App.tsx.
 
@@ -454,6 +504,7 @@ export function ShowcaseStage(_props: { synth?: undefined }) {
         <ControlsSection />
         <DisplaySection />
         <FoundationsSection />
+        <ResilienceSection />
       </Stack>
     </Stage>
   );

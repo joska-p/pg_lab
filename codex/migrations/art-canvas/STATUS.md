@@ -47,16 +47,24 @@
 - [x] **Step 2 — infra:** verified tlc-free + type-clean (errors only in 4
       `*Controls.tsx`); glaze API compatible (no break); `folded-space` clean.
       Zero file changes (format done Step 1).
-- [ ] **Step 3 — controls + stores:** migrate `*Controls.tsx` module by module
+- [x] **Step 3 — controls + stores:** migrated `*Controls.tsx` module by module
       (spirale → seed → atlas → manual; folded-space has none) using `AUDIT.md` § 6/§ 7;
-      convert every module store to the repo pattern; then wire the mode switcher +
-      module mounting in `App.tsx`.
-- [ ] **Step 4 — docs & finishing:** package `README.md`; showcase `ErrorBoundary`
-      in `apps/dev`; remove `_TMP/art-canvas-to-migrate` once committed;
-      `vp check` + `vp run -r build` + dev smoke-test; commit.
+      every module store converted to the repo pattern; mode switcher
+      (`Select<InputMode>`) + module mounting wired in `App.tsx`. Verified
+      2026-09-20: 0 `@repo/tlc` refs, `vp check` green, dead `stores/appStore.tsx`
+      removed, 77/77 files tracked (commits `a504df4`, `4c109a5`, `0df214e`).
+- [x] **Step 4 — docs & finishing:** package `README.md` already adapted from
+      `_TMP` (1-word diff, English); `ErrorBoundary` showcased in `apps/dev`
+      (showcase § 05 resilience: default + custom fallback);
+      `_TMP/art-canvas-to-migrate` removed (`_TMP` root kept); `vp check` green
+      (242 files); `packages/art-canvas` + `apps/dev` builds green; dev
+      smoke-test 200/200 (`/` + `/stylex.css`). Known-red, out of scope:
+      `vp run -r build` fails on `@repo/ui` (`vp pack`, no `src/index.ts`) +
+      `@repo/playground` (`tsc` OOM 137).
 
-**Next action:** Step 3 — controls + stores (spirale → seed → atlas → manual)
-per `AUDIT.md` § 6/§ 7, then mode switcher + module mounting in `App.tsx`.
+**Next action:** migration complete. Remaining open: D10 (guilloche, no code yet)
+
+- pre-existing `@repo/ui` / `@repo/playground` build failures (not this package).
 
 ## Read-when
 

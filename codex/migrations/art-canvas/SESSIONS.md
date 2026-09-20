@@ -11,3 +11,6 @@
 | 2026-09-19 | Step 2 — infra | `AUDIT.md` §4 re-check vs current `@repo/glaze` (GpuCanvas/ClockStore/standard uniforms/u_time/u_clockTime); `check` errors confined to 4 Controls files, infra zero-error; `folded-space` clean; `?raw` ok via `vite/client` | Step 2 ✓ (0 file changes); Step 3 next (controls+stores) |
 
 **Next session (from `STATUS.md`):** Step 3 — controls + stores (spirale → seed → atlas → manual) per `AUDIT.md` § 6/§ 7, then mode switcher + module mounting in `App.tsx`.
+
+| 2026-09-20 | Step 3 — verification | Prior commits (`a504df4`…) already migrated controls+stores+App; verified: 0 `@repo/tlc` refs, all stores on repo pattern (`create` + plain fns, typo fixed), `Select<InputMode>` switcher + lazy module mounting in `App.tsx`, dead `appStore.tsx` gone, `vp -C packages/art-canvas check` green | Step 3 ✓ (was done, now recorded); D8 closed, D9 decided (Select) |
+| 2026-09-20 | Step 4 — docs & finishing | README already adapted (1-word diff vs `_TMP`); `ErrorBoundary` showcased in `apps/dev` § 05 resilience; `_TMP/art-canvas-to-migrate` removed; `vp check` green (242 files); `art-canvas` + `dev` builds green; dev smoke 200/200 | Step 4 ✓; migration complete; D11 closed; left open: D10 (guilloche), pre-existing `ui`/`playground` build failures |
