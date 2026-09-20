@@ -17,3 +17,7 @@
   (10 fichiers) + `vp check` vert, next=S6 orbit controls.
 - 2026-09-20 (S6): orbit controls done — `controls/{orbit,index}.ts` + 7 tests
   (+2 maths), `vp test` 60/60 (11 fichiers) + `vp check` vert, next=S7 data layer.
+- 2026-09-20 (S7): data layer done — `mol-demo/src/lib/{parseMol,formFactors,
+atoms,molecules,index}.ts` + 6 SDF `public/molecules/` (9->56 atomes) +
+  `MoleculeList`/`moleculeStore`, `vp test` 34/34 (4 fichiers) + `vp check`
+  vert, next=S8 viewer 3D.

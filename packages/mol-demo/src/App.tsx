@@ -6,6 +6,7 @@ import { ExperimentShell } from "@repo/ui/components/ExperimentShell";
 import { Stage } from "@repo/ui/components/Stage";
 import { ControlSection } from "@repo/ui/components/ControlSection";
 import { Segmented } from "@repo/ui/components/Segmented";
+import { MoleculeList } from "./components/MoleculeList";
 
 export function App() {
   const theme = useTheme();
@@ -19,6 +20,7 @@ export function App() {
       <ExperimentShell
         panel={
           <ControlPanel title="mol-demo controls">
+            <MoleculeList />
             <ControlSection title="Theme">
               <Segmented<"light" | "dark" | "system">
                 options={["light", "dark", "system"]}

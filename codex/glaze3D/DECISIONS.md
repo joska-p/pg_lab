@@ -92,3 +92,19 @@ uNormalMatrix` + attributs position/normal, le reste est au caller.
   (inertie). Orientation sans `lookAt` (toujours hors scope): `Qy(yaw)×
 Qx(phi-π/2)`. `update()` appelle `camera.updateMatrixWorld()` →
   `matrixWorldInverse` fraîche pour lecteurs pattern (A6).
+- 2026-09-20 (S7): `parseMol` coupe au premier `$$$$` (équivalent au
+  read-by-counts sur entrée bien formée, robuste aux records suivants).
+  Source: `PLAN.md:91-102`, `mol-demo.js.txt:601-604`.
+- 2026-09-20 (S7): validation stricte au parse (coords NaN, symbole manquant,
+  bond hors bornes → throw message clair) + `ff()` throw explicite sur
+  élément inconnu — fail-fast côté data layer, A5 refuse proprement.
+- 2026-09-20 (S7): `MAX_ATOMS` pur (`MAX_ATOMS_MOBILE/DESKTOP` +
+  `maxAtoms(isMobile)`), pas de `matchMedia` dans `lib/` (testabilité);
+  `matchMedia` reste au bord (`moleculeStore`). Source: `mol-demo.js.txt:132`.
+- 2026-09-20 (S7): registre = 6 SDF extraits `PubChem_search_records.sdf`
+  (cid 702/936/1983/21550/52359/115374, 9→56 atomes, tous FF-couverts) vers
+  `mol-demo/public/molecules/`; UI = `MoleculeList` (primitifs `Segmented`+
+  `Readout` existants) + `moleculeStore` zustand, viewer reporté en S8.
+- 2026-09-20 (S7): tests assets via imports `?raw` (pas `node:fs` —
+  `mol-demo/tsconfig` types `vite/client` seuls) + `test.include
+src/**/*.test.ts` dans `mol-demo/vite.config.ts` (miroir `glaze3d`).
