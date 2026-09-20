@@ -30,3 +30,7 @@ lengthSq`, `Quat.clone/normalize`, `Mat4.copy/multiplyMatrices` — requis pour
   d'algbre gnrale. Source: `03-specs.md:17-63`.
 - 2026-09-20 (S1): imports sans extension `.ts` (TS5097,
   `allowImportingTsExtensions` off, convention repo `glaze/src`).
+- 2026-09-20 (S2): `Mesh.geometry/material` en `unknown` opaque (S4/S5 non
+  demarres, pas de faux types partages). Source: `03-specs.md:113-116`.
+- 2026-09-20 (S2): `updateMatrixWorld(force?)` propage toujours (pas de flag
+  `matrixAutoUpdate`, appel explicite via `render()`). Source: `03-specs.md:130-133`.
