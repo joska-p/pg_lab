@@ -79,3 +79,16 @@ sin(phi)sin(theta)`), main droite conservee. Source: `03-specs.md:9-13`.
   les vieilles géométries sont collectables), un programme Phong + un par
   `ShaderMaterial`; custom shader reçoit `uProjectionMatrix/uModelViewMatrix/
 uNormalMatrix` + attributs position/normal, le reste est au caller.
+- 2026-09-20 (S6): `Quat.multiply/setFromAxisAngle` ajoutés (orientation
+  caméra yaw×pitch, tranche le point ouvert `03-specs.md:79-81` côté
+  multiply); `slerp` toujours différé (aucun besoin en S6).
+- 2026-09-20 (S6): `enablePan` accepté mais no-op (cible fixe origine, rien
+  à paner); `enableZoom` implémenté minimal (wheel → rayon exp, clamp
+  [0.1,1000]); flags mutables post-construction pour compat démo
+  (`mol-demo.js.txt:717-722`). Source: `03-specs.md:370-372`.
+- 2026-09-20 (S6): autoRotate `2π/60/60×speed` par `update()` (convention
+  three.js, 60fps assumés), appliqué direct hors damping pour vitesse
+  constante; drag accumulé puis `×(1-dampingFactor)` avant application
+  (inertie). Orientation sans `lookAt` (toujours hors scope): `Qy(yaw)×
+Qx(phi-π/2)`. `update()` appelle `camera.updateMatrixWorld()` →
+  `matrixWorldInverse` fraîche pour lecteurs pattern (A6).

@@ -15,3 +15,5 @@
 - 2026-09-20 (S5): phong+renderer done — `material/phong.ts` + renderer Phong
   (1 ambient + 4 dir, custom shader hatch) + 16 tests, `vp test` 51/51
   (10 fichiers) + `vp check` vert, next=S6 orbit controls.
+- 2026-09-20 (S6): orbit controls done — `controls/{orbit,index}.ts` + 7 tests
+  (+2 maths), `vp test` 60/60 (11 fichiers) + `vp check` vert, next=S7 data layer.

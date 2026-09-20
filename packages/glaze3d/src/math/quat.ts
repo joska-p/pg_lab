@@ -25,6 +25,29 @@ export class Quat {
     return new Quat(this.x, this.y, this.z, this.w);
   }
 
+  setFromAxisAngle(axis: Vec3, angle: number): this {
+    const half = angle / 2;
+    const s = Math.sin(half);
+    const len = axis.length() || 1;
+    this.x = (axis.x / len) * s;
+    this.y = (axis.y / len) * s;
+    this.z = (axis.z / len) * s;
+    this.w = Math.cos(half);
+    return this;
+  }
+
+  multiply(q: Quat): this {
+    const ax = this.x;
+    const ay = this.y;
+    const az = this.z;
+    const aw = this.w;
+    this.x = ax * q.w + aw * q.x + ay * q.z - az * q.y;
+    this.y = ay * q.w + aw * q.y + az * q.x - ax * q.z;
+    this.z = az * q.w + aw * q.z + ax * q.y - ay * q.x;
+    this.w = aw * q.w - ax * q.x - ay * q.y - az * q.z;
+    return this;
+  }
+
   setFromUnitVectors(from: Vec3, to: Vec3): this {
     // Adapted from three.js Quaternion.setFromUnitVectors (unit inputs assumed).
     let r = from.dot(to) + 1;

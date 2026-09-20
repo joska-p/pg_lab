@@ -48,4 +48,22 @@ describe("Quat", () => {
     const small = new Quat(0, Math.sin(half), 0, Math.cos(half));
     expect(a.angleTo(small)).toBeCloseTo(0.002, 4);
   });
+
+  it("setFromAxisAngle rotates around Y by the given angle", () => {
+    const q = new Quat().setFromAxisAngle(new Vec3(0, 1, 0), Math.PI / 2);
+    const rotated = applyQuat(new Vec3(0, 0, -1), q);
+    expect(rotated.x).toBeCloseTo(-1, 5);
+    expect(rotated.y).toBeCloseTo(0, 5);
+    expect(rotated.z).toBeCloseTo(0, 5);
+  });
+
+  it("multiply composes yaw then pitch (orbit orientation)", () => {
+    const yaw = new Quat().setFromAxisAngle(new Vec3(0, 1, 0), Math.PI / 2);
+    const pitch = new Quat().setFromAxisAngle(new Vec3(1, 0, 0), 0);
+    const composed = yaw.multiply(pitch);
+    const rotated = applyQuat(new Vec3(0, 0, -1), composed);
+    expect(rotated.x).toBeCloseTo(-1, 5);
+    expect(rotated.y).toBeCloseTo(0, 5);
+    expect(rotated.z).toBeCloseTo(0, 5);
+  });
 });
