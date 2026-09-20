@@ -7,6 +7,7 @@ import { Stage } from "@repo/ui/components/Stage";
 import { ControlSection } from "@repo/ui/components/ControlSection";
 import { Segmented } from "@repo/ui/components/Segmented";
 import { MoleculeList } from "./components/MoleculeList";
+import { MolCanvas } from "./components/MolCanvas";
 
 export function App() {
   const theme = useTheme();
@@ -32,7 +33,9 @@ export function App() {
         }
       >
         <Stage label="mol-demo">
-          <h1>mol-demo</h1>
+          <div style={{ width: "100%", height: 420 }}>
+            <MolCanvas />
+          </div>
         </Stage>
       </ExperimentShell>
     </ShellWrapper>

@@ -1,4 +1,4 @@
-// mol-demo data layer (S7): parsing, form factors, palette, registry.
+// mol-demo data layer (S7) + viewer builder (S8).
 export { ATOM, ATOM_FALLBACK, atomDisplay } from "./atoms";
 export type { AtomDisplay } from "./atoms";
 export {
@@ -24,3 +24,15 @@ export {
 export type { MoleculeEntry, SwitchResult, ValidationResult } from "./molecules";
 export { parseMol } from "./parseMol";
 export type { Bond, Molecule, Vec3Tuple } from "./parseMol";
+export {
+  ATOM_SHININESS,
+  ATOM_SPHERE_HEIGHT_SEGS,
+  ATOM_SPHERE_SCALE,
+  ATOM_SPHERE_WIDTH_SEGS,
+  ATOM_SPECULAR,
+  BOND_COLOR,
+  BOND_RADIAL_SEGS,
+  BOND_RADIUS,
+  BOND_SHININESS,
+  buildMolMesh,
+} from "./buildMolMesh";

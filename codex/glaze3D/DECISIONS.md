@@ -108,3 +108,6 @@ Qx(phi-π/2)`. `update()` appelle `camera.updateMatrixWorld()` →
 - 2026-09-20 (S7): tests assets via imports `?raw` (pas `node:fs` —
   `mol-demo/tsconfig` types `vite/client` seuls) + `test.include
 src/**/*.test.ts` dans `mol-demo/vite.config.ts` (miroir `glaze3d`).
+- 2026-09-20 (S8): exports `glaze3d` (`./core/geometry/material/math/renderer/controls` vers `src/*/index.ts`, miroir `@repo/ui`) — sans eux `mol-demo` ne resout pas `@repo/glaze3d/*` (package sans exports).
+- 2026-09-20 (S8): `buildMolMesh(molGroup,mol)` pur (caller owns `Group`, `clear()` puis rebuild, geometries neuves par mesh collectables via `WeakMap` renderer, bonds longueur ~0 sautes). Specular bonds = defaut `0x111111` (demo ne le precise pas). Source: `PLAN.md:104-113`.
+- 2026-09-20 (S8): `MolCanvas` own scene/camera/lights/renderer/controls/RAF (StrictMode-safe: cleanup RAF+listeners+`controls.dispose()`), molecule via souscription store (`buildMolMesh` a chaque `current`), canvas 100% dans wrapper 420px (`getBoundingClientRect` nul avant layout -> early-return).

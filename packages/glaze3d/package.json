@@ -4,6 +4,32 @@
   "description": "Personnal Graphic toolkit",
   "author": "Joska <joska-p@gmail.com>",
   "type": "module",
+  "exports": {
+    "./core": {
+      "types": "./src/core/index.ts",
+      "import": "./src/core/index.ts"
+    },
+    "./geometry": {
+      "types": "./src/geometry/index.ts",
+      "import": "./src/geometry/index.ts"
+    },
+    "./material": {
+      "types": "./src/material/index.ts",
+      "import": "./src/material/index.ts"
+    },
+    "./math": {
+      "types": "./src/math/index.ts",
+      "import": "./src/math/index.ts"
+    },
+    "./renderer": {
+      "types": "./src/renderer/index.ts",
+      "import": "./src/renderer/index.ts"
+    },
+    "./controls": {
+      "types": "./src/controls/index.ts",
+      "import": "./src/controls/index.ts"
+    }
+  },
   "scripts": {
     "build": "vp pack",
     "dev": "vp pack --watch",

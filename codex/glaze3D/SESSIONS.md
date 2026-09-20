@@ -21,3 +21,6 @@
 atoms,molecules,index}.ts` + 6 SDF `public/molecules/` (9->56 atomes) +
   `MoleculeList`/`moleculeStore`, `vp test` 34/34 (4 fichiers) + `vp check`
   vert, next=S8 viewer 3D.
+- 2026-09-20 (S8): viewer 3D done — `lib/buildMolMesh.ts` + `MolCanvas.tsx`
+  (camera 40/(4,3,11) + 1+3 lights, RAF controls.update+render, resizeMol) +
+  exports `glaze3d`, `vp test` 37/37 (5 fichiers) + `vp check` vert, next=S9 pattern.
