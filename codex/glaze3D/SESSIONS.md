@@ -12,3 +12,6 @@
   `vp test` 38/38 (9 fichiers) + `vp check` vert, next=S5 phong+renderer.
 - 2026-09-20 (S4): geometries done — `geometry/{geometry,sphere,cylinder,index}.ts` + 3 tests,
   `vp test` 36/36 + `vp check` verts (0 erreurs), next=S5 phong (S6 parallelisable).
+- 2026-09-20 (S5): phong+renderer done — `material/phong.ts` + renderer Phong
+  (1 ambient + 4 dir, custom shader hatch) + 16 tests, `vp test` 51/51
+  (10 fichiers) + `vp check` vert, next=S6 orbit controls.

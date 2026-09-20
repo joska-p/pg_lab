@@ -1,6 +1,8 @@
 import { Mat4 } from "../math/mat4";
 import { Quat } from "../math/quat";
 import { Vec3 } from "../math/vec3";
+import type { Geometry } from "../geometry/geometry";
+import type { Material } from "../material/phong";
 
 export class Object3D {
   position: Vec3 = new Vec3();
@@ -65,25 +67,33 @@ export class Group extends Object3D {}
 // Geometry/material arrive with S4/S5; Mesh keeps opaque refs meanwhile so
 // S2 hierarchy tests do not depend on a shading API that does not exist yet.
 export class Mesh extends Object3D {
-  geometry: unknown;
-  material: unknown;
+  geometry: Geometry | null;
+  material: Material | null;
 
-  constructor(geometry?: unknown, material?: unknown) {
+  constructor(geometry?: Geometry | null, material?: Material | null) {
     super();
-    this.geometry = geometry;
-    this.material = material;
+    this.geometry = geometry ?? null;
+    this.material = material ?? null;
   }
 }
 
 export type LightColor = [number, number, number];
 
+function normalizeLightColor(input: number | LightColor): LightColor {
+  if (typeof input === "number") {
+    const hex = Math.floor(input);
+    return [((hex >> 16) & 255) / 255, ((hex >> 8) & 255) / 255, (hex & 255) / 255];
+  }
+  return [input[0], input[1], input[2]];
+}
+
 export class Light extends Object3D {
   color: LightColor;
   intensity: number;
 
-  constructor(color: LightColor = [1, 1, 1], intensity = 1) {
+  constructor(color: number | LightColor = [1, 1, 1], intensity = 1) {
     super();
-    this.color = color;
+    this.color = normalizeLightColor(color);
     this.intensity = intensity;
   }
 }

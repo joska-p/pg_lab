@@ -62,3 +62,20 @@ sin(phi)sin(theta)`), main droite conservee. Source: `03-specs.md:9-13`.
   Source: `03-specs.md:220-222`.
 - 2026-09-20 (S4): `Mesh.geometry/material` restent `unknown` (S5 resserre
   les deux ensemble, pas de faux types intermediaires).
+- 2026-09-20 (S5): `Mesh.geometry/material` resserres en
+  `Geometry|null`/`Material|null` (import type-only, pas de cycle runtime).
+  Source: `03-specs.md:113-116`.
+- 2026-09-20 (S5): `DirectionalLight` direction = `.position` normalisee
+  (cible = origine monde, defaut three.js), transformee en vue par rotation
+  seule (w=0) — headlamp attachee camera reste fixe a l'ecran. Tranche le
+  point ouvert `03-specs.md:142-144` cote position, pas orientation.
+- 2026-09-20 (S5): `Light`/`PhongMaterial` acceptent hex `0xRRGGBB` ou tuple
+  (normalise 0-1 direct, pas de conversion sRGB) pour coller a la demo
+  (`0x555555/0x888888`, `shininess` 100/70, `specular` 0x333333).
+- 2026-09-20 (S5): lumières surnuméraires: ambient sommées, directional
+  clampées aux 4 premières (ordre de traversée), slots vides = couleur 0 +
+  direction (0,1,0) pour éviter `normalize(0)` → NaN. Source: `03-specs.md:259-267`.
+- 2026-09-20 (S5): buffers GPU par `WeakMap<Geometry>` (switch molécule A4:
+  les vieilles géométries sont collectables), un programme Phong + un par
+  `ShaderMaterial`; custom shader reçoit `uProjectionMatrix/uModelViewMatrix/
+uNormalMatrix` + attributs position/normal, le reste est au caller.
