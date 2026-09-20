@@ -33,7 +33,7 @@ export function App() {
         }
       >
         <Stage label="mol-demo">
-          <div style={{ width: "100%", height: 420 }}>
+          <div style={{ width: "100%", height: "100%" }}>
             <MolCanvas />
           </div>
         </Stage>
