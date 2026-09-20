@@ -8,3 +8,7 @@
   `vp test` 24/24 + `vp check` verts, next=S3 renderer squelette.
 - 2026-09-20 (S3): renderer squelette done — `renderer/{renderer,index}.ts` + 3 tests,
   `vp test` 27/27 + `vp check` verts, triangle pixel (255,76,51) headless, next=S4 geometries.
+- 2026-09-20 (S4): geometries done — `geometry/{geometry,sphere,cylinder,index,check}.ts` + 3 tests,
+  `vp test` 38/38 (9 fichiers) + `vp check` vert, next=S5 phong+renderer.
+- 2026-09-20 (S4): geometries done — `geometry/{geometry,sphere,cylinder,index}.ts` + 3 tests,
+  `vp test` 36/36 + `vp check` verts (0 erreurs), next=S5 phong (S6 parallelisable).

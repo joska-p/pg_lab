@@ -40,3 +40,25 @@ lengthSq`, `Quat.clone/normalize`, `Mat4.copy/multiplyMatrices` — requis pour
 - 2026-09-20 (S3): clear defaut transparent `[0,0,0],0` (fond transparent A2/A6),
   `antialias` defaut false, triangle squelette en clip-space sans uniforms
   (camera ignoree mais matrices MAJ dans `render()`). Source: `03-specs.md:286-311`.
+- 2026-09-20 (S4): `toIndexArray(count,filled)` Uint16 defaut, Uint32 si
+  vertices >65536 (seuil spec exact: max index 65535 tient en Uint16).
+  Source: `03-specs.md:220-222`.
+- 2026-09-20 (S4): tris polaires degeneres conserves (boucle uniforme,
+  cout negligeable), segments clampes `Math.max` facon three.js (pas de
+  throw). Source: `03-specs.md:188-228`.
+- 2026-09-20 (S4): cylindre ferme (mur + 2 caps en fan, anneaux dupliques
+  pour normales plates), normales mur purement radiales (demo = rayons
+  egaux, pas de correction de pente). Source: `03-specs.md:188-213`.
+- 2026-09-20 (S4): `geometry/check.ts` hors livrable (helpers de test:
+  bornes, normales unitaires, orientation faces vers l'exterieur, tris
+  degeneres ignores). DoD: counts + normales + bornes + winding.
+- 2026-09-20 (S4): orientation sphere = three.js (`-cos(phi)sin(theta),cos(theta),
+sin(phi)sin(theta)`), main droite conservee. Source: `03-specs.md:9-13`.
+- 2026-09-20 (S4): cylindre ferme, anneaux caps dupliques (normales plates
+  +/-Y), winding outward verifie; tris polaires sphere degeneres acceptes
+  (zero-area, standard UV-sphere three.js, GPU-cules). Source: `03-specs.md:215-222`.
+- 2026-09-20 (S4): helper `createIndexArray(count,filled)` (Uint16 si
+  <=65536 verts, Uint32 au-dela), nom aligne sur `geometry.test.ts`.
+  Source: `03-specs.md:220-222`.
+- 2026-09-20 (S4): `Mesh.geometry/material` restent `unknown` (S5 resserre
+  les deux ensemble, pas de faux types intermediaires).
