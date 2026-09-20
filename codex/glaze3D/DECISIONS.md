@@ -34,3 +34,9 @@ lengthSq`, `Quat.clone/normalize`, `Mat4.copy/multiplyMatrices` — requis pour
   demarres, pas de faux types partages). Source: `03-specs.md:113-116`.
 - 2026-09-20 (S2): `updateMatrixWorld(force?)` propage toujours (pas de flag
   `matrixAutoUpdate`, appel explicite via `render()`). Source: `03-specs.md:130-133`.
+- 2026-09-20 (S3): `setSize` ne touche pas au style CSS (caller owns CSS via
+  `getBoundingClientRect`, cf. `resizeMol`), seul drawingbuffer+viewport.
+  Source: `PLAN.md:56-57`.
+- 2026-09-20 (S3): clear defaut transparent `[0,0,0],0` (fond transparent A2/A6),
+  `antialias` defaut false, triangle squelette en clip-space sans uniforms
+  (camera ignoree mais matrices MAJ dans `render()`). Source: `03-specs.md:286-311`.
