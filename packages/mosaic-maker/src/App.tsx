@@ -9,7 +9,7 @@ import { ErrorBoundary } from "@repo/ui/components/ErrorBoundary";
 export function App() {
   return (
     <ShellWrapper>
-      <ErrorBoundary>
+      <ErrorBoundary showStack={import.meta.env.DEV}>
         <ExperimentShell
           panel={
             <ControlPanel title="Mosaic Maker">

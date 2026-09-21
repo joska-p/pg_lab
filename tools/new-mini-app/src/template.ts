@@ -163,6 +163,7 @@ import { ExperimentShell } from "@repo/ui/components/ExperimentShell";
 import { Stage } from "@repo/ui/components/Stage";
 import { ControlSection } from "@repo/ui/components/ControlSection";
 import { Segmented } from "@repo/ui/components/Segmented";
+import { ErrorBoundary } from "@repo/ui/components/ErrorBoundary";
 
 export function App() {
   const theme = useTheme();
@@ -173,23 +174,25 @@ export function App() {
 
   return (
     <ShellWrapper>
-      <ExperimentShell
-        panel={
-          <ControlPanel title="${name} controls">
-            <ControlSection title="Theme">
-              <Segmented<"light" | "dark" | "system">
-                options={["light", "dark", "system"]}
-                value={theme}
-                onValueChange={setTheme}
-              />
-            </ControlSection>
-          </ControlPanel>
-        }
-      >
-        <Stage label="${name}">
-          <h1>${name}</h1>
-        </Stage>
-      </ExperimentShell>
+      <ErrorBoundary showStack={import.meta.env.DEV}>
+        <ExperimentShell
+          panel={
+            <ControlPanel title="${name} controls">
+              <ControlSection title="Theme">
+                <Segmented<"light" | "dark" | "system">
+                  options={["light", "dark", "system"]}
+                  value={theme}
+                  onValueChange={setTheme}
+                />
+              </ControlSection>
+            </ControlPanel>
+          }
+        >
+          <Stage label="${name}">
+            <h1>${name}</h1>
+          </Stage>
+        </ExperimentShell>
+      </ErrorBoundary>
     </ShellWrapper>
   );
 }
