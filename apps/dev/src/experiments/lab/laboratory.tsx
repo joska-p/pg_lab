@@ -2,7 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { Stack } from "@repo/ui/components/Stack";
 import { Stage } from "@repo/ui/components/Stage";
 import { colors } from "@repo/ui/tokens/colors.stylex";
-import { borderWidth, layout, radius, space } from "@repo/ui/tokens/layout.stylex";
+import { borderWidth, radius, space } from "@repo/ui/tokens/layout.stylex";
 import { typography } from "@repo/ui/tokens/typography.stylex";
 import { shadowColor, shadows } from "@repo/ui/tokens/shadows.stylex";
 import { fx, glass } from "@repo/ui/recipes/effects.stylex";
@@ -17,7 +17,7 @@ import { Key, Chip, LabField, MaterialScene, Led as LabLed } from "./experimenta
 const lightFieldStyles = stylex.create({
   scene: {
     position: "relative",
-    minHeight: layout.sceneMinHeight,
+    minHeight: "100%",
     borderRadius: radius.lg,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
@@ -50,7 +50,7 @@ const lightFieldStyles = stylex.create({
     flexDirection: "column",
     gap: space["3"],
     padding: space["4"],
-    minHeight: layout.sceneMinHeight,
+    minHeight: "100%",
     justifyContent: "space-between",
   },
 });

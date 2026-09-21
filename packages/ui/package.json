@@ -6,6 +6,7 @@
   "author": "Joska <joska-p@gmail.com>",
   "type": "module",
   "exports": {
+    "./styles": "./src/styles.css",
     "./tokens/*": {
       "types": "./src/tokens/*.ts",
       "import": "./src/tokens/*.ts"

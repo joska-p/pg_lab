@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { colors } from "../tokens/colors.stylex";
-import { borderWidth, layout, radius, space } from "../tokens/layout.stylex";
+import { borderWidth, radius, space } from "../tokens/layout.stylex";
 import { glass } from "../recipes/effects.stylex";
 
 const styles = stylex.create({
@@ -8,7 +8,7 @@ const styles = stylex.create({
     flex: 1,
     alignSelf: "stretch",
     minWidth: 0,
-    minHeight: layout.stageMinHeight,
+    minHeight: "100%",
     display: "flex",
     flexDirection: "column",
     overflowY: "auto",

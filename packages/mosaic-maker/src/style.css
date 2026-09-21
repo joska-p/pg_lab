@@ -1,11 +1,1 @@
-* {
-  box-sizing: border-box;
-}
-
-html {
-  color-scheme: dark;
-}
-
-body {
-  margin: 0;
-}
+@import "../node_modules/@repo/ui/src/styles.css";

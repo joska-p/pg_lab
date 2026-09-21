@@ -52,8 +52,6 @@ export const layout = stylex.defineConsts({
   panelGap: "12px",
 
   controlFieldMinHeight: "44px",
-  stageMinHeight: "240px",
-  sceneMinHeight: "300px",
 
   controlTouchTarget: "44px",
 

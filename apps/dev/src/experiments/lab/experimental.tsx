@@ -3,7 +3,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { colors } from "@repo/ui/tokens/colors.stylex";
 import { shadowColor, shadows } from "@repo/ui/tokens/shadows.stylex";
-import { borderWidth, interaction, layout, radius, space } from "@repo/ui/tokens/layout.stylex";
+import { borderWidth, interaction, radius, space } from "@repo/ui/tokens/layout.stylex";
 import { motion } from "@repo/ui/tokens/motion.stylex";
 import { typography } from "@repo/ui/tokens/typography.stylex";
 import { fx, glass } from "@repo/ui/recipes/effects.stylex";
@@ -294,7 +294,7 @@ const readoutRowStyles = stylex.create({
 const sceneStyles = stylex.create({
   base: {
     position: "relative",
-    minHeight: layout.sceneMinHeight,
+    minHeight: "100%",
     borderRadius: radius.lg,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",

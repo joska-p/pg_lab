@@ -2,14 +2,14 @@ import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import { colors } from "../tokens/colors.stylex";
 import { families } from "../tokens/families.stylex";
-import { borderWidth, layout, radius, space } from "../tokens/layout.stylex";
+import { borderWidth, radius, space } from "../tokens/layout.stylex";
 import { shadowColor } from "../tokens/shadows.stylex";
 import { fx, glass } from "../recipes/effects.stylex";
 
 const sceneStyles = stylex.create({
   base: {
     position: "relative",
-    minHeight: layout.sceneMinHeight,
+    minHeight: "100%",
     borderRadius: radius.lg,
     borderWidth: borderWidth.hairline,
     borderStyle: "solid",
