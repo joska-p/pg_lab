@@ -1,9 +1,9 @@
-import type { ShaderTemplate } from "../types";
+import type { ShaderTemplate } from '../types';
 
 const ClassicTemplate: ShaderTemplate = {
-  name: "classic",
-  weight: 1.0,
-  generate: ({ spaceBlock, shapeBlock, effectBlock, palette, uniqueInjectedCode }) => `
+    name: 'classic',
+    weight: 1.0,
+    generate: ({ spaceBlock, shapeBlock, effectBlock, palette, uniqueInjectedCode }) => `
     precision highp float;
 
     uniform float u_time;

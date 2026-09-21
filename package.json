@@ -1,28 +1,28 @@
 {
-  "name": "pg_lab",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "ready": "vp check && vp run -r test && vp run -r build",
-    "dev": "vp run playground#dev --host",
-    "build": "vp run playground#build",
-    "prepare": "vp config"
-  },
-  "devDependencies": {
-    "@stylexjs/stylex": "catalog:",
-    "unplugin-stylex": "catalog:",
-    "vite": "catalog:",
-    "vite-plus": "catalog:"
-  },
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "12.3.4",
-      "onFail": "download"
+    "name": "pg_lab",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "ready": "vp check && vp run -r test && vp run -r build",
+        "dev": "vp run playground#dev --host",
+        "build": "vp run playground#build",
+        "prepare": "vp config"
+    },
+    "devDependencies": {
+        "@stylexjs/stylex": "catalog:",
+        "unplugin-stylex": "catalog:",
+        "vite": "catalog:",
+        "vite-plus": "catalog:"
+    },
+    "devEngines": {
+        "packageManager": {
+            "name": "pnpm",
+            "version": "12.3.4",
+            "onFail": "download"
+        }
+    },
+    "engines": {
+        "node": ">=22.18.0"
     }
-  },
-  "engines": {
-    "node": ">=22.18.0"
-  }
 }

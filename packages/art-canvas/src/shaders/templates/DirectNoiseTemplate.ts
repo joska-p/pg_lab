@@ -1,10 +1,10 @@
-import type { ShaderTemplate } from "../types";
+import type { ShaderTemplate } from '../types';
 
 const DirectNoiseTemplate: ShaderTemplate = {
-  name: "direct-noise",
-  weight: 0.6,
-  deps: ["noise2d"],
-  generate: ({ spaceBlock, uniqueInjectedCode, palette, effectBlock }) => `
+    name: 'direct-noise',
+    weight: 0.6,
+    deps: ['noise2d'],
+    generate: ({ spaceBlock, uniqueInjectedCode, palette, effectBlock }) => `
     precision highp float;
 
     uniform float u_time;

@@ -1,50 +1,50 @@
-import { createTemplate } from "bingo";
-import { z } from "zod";
+import { createTemplate } from 'bingo';
+import { z } from 'zod';
 
-import pkgJson from "../package.json" with { type: "json" };
+import pkgJson from '../package.json' with { type: 'json' };
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 function packageJson(name: string): string {
-  return JSON.stringify(
-    {
-      name: `@repo/${name}`,
-      version: "0.0.0",
-      private: true,
-      type: "module",
-      scripts: {
-        dev: "vp dev",
-        build: "tsc -b && vp build",
-        preview: "vp preview",
-      },
-      dependencies: {
-        "@repo/ui": "workspace:*",
-        react: "catalog:",
-        "react-dom": "catalog:",
-        zustand: "catalog:",
-      },
-      devDependencies: {
-        "@rolldown/plugin-babel": "catalog:",
-        "@stylexjs/stylex": "catalog:",
-        "@types/node": "catalog:",
-        "@types/react": "catalog:",
-        "@types/react-dom": "catalog:",
-        "@vitejs/plugin-react": "catalog:",
-        typescript: "catalog:",
-        "unplugin-stylex": "catalog:",
-        vite: "catalog:",
-        "vite-plus": "catalog:",
-      },
-    },
-    null,
-    2,
-  );
+    return JSON.stringify(
+        {
+            name: `@repo/${name}`,
+            version: '0.0.0',
+            private: true,
+            type: 'module',
+            scripts: {
+                dev: 'vp dev',
+                build: 'tsc -b && vp build',
+                preview: 'vp preview',
+            },
+            dependencies: {
+                '@repo/ui': 'workspace:*',
+                react: 'catalog:',
+                'react-dom': 'catalog:',
+                zustand: 'catalog:',
+            },
+            devDependencies: {
+                '@rolldown/plugin-babel': 'catalog:',
+                '@stylexjs/stylex': 'catalog:',
+                '@types/node': 'catalog:',
+                '@types/react': 'catalog:',
+                '@types/react-dom': 'catalog:',
+                '@vitejs/plugin-react': 'catalog:',
+                typescript: 'catalog:',
+                'unplugin-stylex': 'catalog:',
+                vite: 'catalog:',
+                'vite-plus': 'catalog:',
+            },
+        },
+        null,
+        2,
+    );
 }
 
 function indexHtml(name: string): string {
-  return `<!doctype html>
+    return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -155,7 +155,7 @@ createRoot(document.getElementById("root")!).render(
 const styleCss = `@import "../node_modules/@repo/ui/src/styles.css"`;
 
 function appTsx(name: string): string {
-  return `import { useEffect } from "react";
+    return `import { useEffect } from "react";
 import { ShellWrapper } from "@repo/ui/components/ShellWrapper";
 import { useTheme, setTheme } from "./stores/appStore";
 import { ControlPanel } from "@repo/ui/components/ControlPanel";
@@ -251,39 +251,39 @@ dist-ssr
 // ---------------------------------------------------------------------------
 
 export default createTemplate({
-  about: {
-    name: pkgJson.name,
-    description: pkgJson.description,
-  },
+    about: {
+        name: pkgJson.name,
+        description: pkgJson.description,
+    },
 
-  options: {
-    name: z
-      .string()
-      .regex(/^[a-z][a-z0-9-]*$/, "Must be kebab-case (e.g. my-experiment)")
-      .describe("Mini-app name (kebab-case, becomes @repo/<name>)"),
-  },
+    options: {
+        name: z
+            .string()
+            .regex(/^[a-z][a-z0-9-]*$/, 'Must be kebab-case (e.g. my-experiment)')
+            .describe('Mini-app name (kebab-case, becomes @repo/<name>)'),
+    },
 
-  async produce({ options }) {
-    const { name } = options;
+    async produce({ options }) {
+        const { name } = options;
 
-    return {
-      files: {
-        "package.json": packageJson(name),
-        "index.html": indexHtml(name),
-        "vite.config.ts": viteConfig,
-        "tsconfig.json": tsconfig,
-        ".gitignore": gitignore,
-        src: {
-          "main.tsx": mainTsx,
-          "App.tsx": appTsx(name),
-          "style.css": styleCss,
-          stores: {
-            "appStore.tsx": appStoreTsx,
-          },
-        },
-        public: {},
-      },
-      suggestions: [`cd packages/${name}`, `vp dev`],
-    };
-  },
+        return {
+            files: {
+                'package.json': packageJson(name),
+                'index.html': indexHtml(name),
+                'vite.config.ts': viteConfig,
+                'tsconfig.json': tsconfig,
+                '.gitignore': gitignore,
+                src: {
+                    'main.tsx': mainTsx,
+                    'App.tsx': appTsx(name),
+                    'style.css': styleCss,
+                    stores: {
+                        'appStore.tsx': appStoreTsx,
+                    },
+                },
+                public: {},
+            },
+            suggestions: [`cd packages/${name}`, `vp dev`],
+        };
+    },
 });

@@ -1,18 +1,18 @@
-import type { Point2D } from "@repo/glaze/core/geometry";
+import type { Point2D } from '@repo/glaze/core/geometry';
 
 export interface GridRect {
-  /** World units per cell edge. */
-  scale: number;
-  /** World x of the rect's left edge. */
-  originX: number;
-  /** World y of the rect's top edge; world is Y-down like the DOM. */
-  originY: number;
+    /** World units per cell edge. */
+    scale: number;
+    /** World x of the rect's left edge. */
+    originX: number;
+    /** World y of the rect's top edge; world is Y-down like the DOM. */
+    originY: number;
 }
 
 export interface GridCell {
-  column: number;
-  row: number;
-  index: number;
+    column: number;
+    row: number;
+    index: number;
 }
 
 /**
@@ -23,39 +23,39 @@ export interface GridCell {
  * positions through this rect to stay cell-aligned at every zoom level.
  */
 export function computeGridRect(
-  canvasWidth: number,
-  canvasHeight: number,
-  cols: number,
-  rows: number,
+    canvasWidth: number,
+    canvasHeight: number,
+    cols: number,
+    rows: number,
 ): GridRect {
-  if (canvasWidth <= 0 || canvasHeight <= 0 || cols <= 0 || rows <= 0) {
-    return { scale: 1, originX: 0, originY: 0 };
-  }
+    if (canvasWidth <= 0 || canvasHeight <= 0 || cols <= 0 || rows <= 0) {
+        return { scale: 1, originX: 0, originY: 0 };
+    }
 
-  const scale = Math.min(canvasWidth / cols, canvasHeight / rows);
+    const scale = Math.min(canvasWidth / cols, canvasHeight / rows);
 
-  return {
-    scale,
-    originX: (canvasWidth - cols * scale) / 2,
-    originY: (canvasHeight - rows * scale) / 2,
-  };
+    return {
+        scale,
+        originX: (canvasWidth - cols * scale) / 2,
+        originY: (canvasHeight - rows * scale) / 2,
+    };
 }
 
 /** Maps a world point (`Camera.screenToWorld` space) to its grid cell, or null outside the grid. */
 export function getCellAtWorld(
-  rect: GridRect,
-  world: Point2D,
-  cols: number,
-  rows: number,
+    rect: GridRect,
+    world: Point2D,
+    cols: number,
+    rows: number,
 ): GridCell | null {
-  const column = Math.floor((world.x - rect.originX) / rect.scale);
-  const rowFromTop = Math.floor((world.y - rect.originY) / rect.scale);
+    const column = Math.floor((world.x - rect.originX) / rect.scale);
+    const rowFromTop = Math.floor((world.y - rect.originY) / rect.scale);
 
-  if (column < 0 || column >= cols || rowFromTop < 0 || rowFromTop >= rows) return null;
+    if (column < 0 || column >= cols || rowFromTop < 0 || rowFromTop >= rows) return null;
 
-  // The grid texture stores row 0 at the bottom (GL convention) while the
-  // world counts downward from the top edge; flip exactly once here.
-  const row = rows - 1 - rowFromTop;
+    // The grid texture stores row 0 at the bottom (GL convention) while the
+    // world counts downward from the top edge; flip exactly once here.
+    const row = rows - 1 - rowFromTop;
 
-  return { column, row, index: row * cols + column };
+    return { column, row, index: row * cols + column };
 }

@@ -1,48 +1,48 @@
-import react, { reactCompilerPreset } from "@vitejs/plugin-react";
-import { defineConfig } from "vite-plus";
-import { lazyPlugins } from "vite-plus";
-import babel from "@rolldown/plugin-babel";
+import babel from '@rolldown/plugin-babel';
+import react, { reactCompilerPreset } from '@vitejs/plugin-react';
+import { defineConfig } from 'vite-plus';
+import { lazyPlugins } from 'vite-plus';
 
 // https://vite.dev/config/
 export default defineConfig({
-  test: {
-    include: ["src/**/*.test.ts"],
-  },
-  lint: {
-    plugins: ["react", "typescript", "oxc"],
-    rules: {
-      "react/rules-of-hooks": "error",
-      "react/only-export-components": [
-        "warn",
-        {
-          allowConstantExport: true,
+    test: {
+        include: ['src/**/*.test.ts'],
+    },
+    lint: {
+        plugins: ['react', 'typescript', 'oxc'],
+        rules: {
+            'react/rules-of-hooks': 'error',
+            'react/only-export-components': [
+                'warn',
+                {
+                    allowConstantExport: true,
+                },
+            ],
+            'vite-plus/prefer-vite-plus-imports': 'error',
         },
-      ],
-      "vite-plus/prefer-vite-plus-imports": "error",
+        options: {
+            typeAware: true,
+            typeCheck: true,
+        },
+        jsPlugins: [
+            {
+                name: 'vite-plus',
+                specifier: 'vite-plus/oxlint-plugin',
+            },
+        ],
     },
-    options: {
-      typeAware: true,
-      typeCheck: true,
+    plugins: lazyPlugins(() => [
+        babel({
+            presets: [reactCompilerPreset()],
+        }),
+        react(),
+    ]),
+    resolve: {
+        dedupe: ['react', 'react-dom'],
     },
-    jsPlugins: [
-      {
-        name: "vite-plus",
-        specifier: "vite-plus/oxlint-plugin",
-      },
-    ],
-  },
-  plugins: lazyPlugins(() => [
-    babel({
-      presets: [reactCompilerPreset()],
-    }),
-    react(),
-  ]),
-  resolve: {
-    dedupe: ["react", "react-dom"],
-  },
-  server: {
-    fs: {
-      allow: ["../.."],
+    server: {
+        fs: {
+            allow: ['../..'],
+        },
     },
-  },
 });

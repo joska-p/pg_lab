@@ -1,9 +1,9 @@
-import type { ShaderTemplate } from "../types";
+import type { ShaderTemplate } from '../types';
 
 const SinglePassTemplate: ShaderTemplate = {
-  name: "single-pass",
-  weight: 0.8,
-  generate: ({ spaceBlock, shapeBlock, effectBlock, palette, uniqueInjectedCode }) => `
+    name: 'single-pass',
+    weight: 0.8,
+    generate: ({ spaceBlock, shapeBlock, effectBlock, palette, uniqueInjectedCode }) => `
     precision highp float;
 
     uniform float u_time;

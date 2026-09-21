@@ -1,4 +1,4 @@
-import { gruvboxPalette as palette } from "@repo/ui/tokens/palette.stylex";
+import { gruvboxPalette as palette } from '@repo/ui/tokens/palette.stylex';
 
 // Lab probe: the Gruvbox tonal structure projected as "families" (a hue +
 // two tensions), NOT as shadcn-style role variants. The experiment asks
@@ -11,35 +11,35 @@ import { gruvboxPalette as palette } from "@repo/ui/tokens/palette.stylex";
 // strong — the readable line/mark: chip stroke + text, thumb seed, hover
 //          infusion (a neutral value valid in both modes).
 export type LabFamily = {
-  base: string;
-  strong: string;
+    base: string;
+    strong: string;
 };
 
 export const FAMILIES = {
-  amber: {
-    base: `light-dark(${palette.brightYellow}, ${palette.fadedYellow})`,
-    strong: palette.neutralYellow,
-  },
-  violet: {
-    base: `light-dark(${palette.brightPurple}, ${palette.fadedPurple})`,
-    strong: palette.neutralPurple,
-  },
-  orange: {
-    base: `light-dark(${palette.brightOrange}, ${palette.fadedOrange})`,
-    strong: palette.neutralOrange,
-  },
-  aqua: {
-    base: `light-dark(${palette.brightAqua}, ${palette.fadedAqua})`,
-    strong: palette.neutralAqua,
-  },
-  red: {
-    base: `light-dark(${palette.brightRed}, ${palette.fadedRed})`,
-    strong: palette.neutralRed,
-  },
-  green: {
-    base: `light-dark(${palette.brightGreen}, ${palette.fadedGreen})`,
-    strong: palette.neutralGreen,
-  },
+    amber: {
+        base: `light-dark(${palette.brightYellow}, ${palette.fadedYellow})`,
+        strong: palette.neutralYellow,
+    },
+    violet: {
+        base: `light-dark(${palette.brightPurple}, ${palette.fadedPurple})`,
+        strong: palette.neutralPurple,
+    },
+    orange: {
+        base: `light-dark(${palette.brightOrange}, ${palette.fadedOrange})`,
+        strong: palette.neutralOrange,
+    },
+    aqua: {
+        base: `light-dark(${palette.brightAqua}, ${palette.fadedAqua})`,
+        strong: palette.neutralAqua,
+    },
+    red: {
+        base: `light-dark(${palette.brightRed}, ${palette.fadedRed})`,
+        strong: palette.neutralRed,
+    },
+    green: {
+        base: `light-dark(${palette.brightGreen}, ${palette.fadedGreen})`,
+        strong: palette.neutralGreen,
+    },
 } as const satisfies Record<string, LabFamily>;
 
 export type LabFamilyName = keyof typeof FAMILIES;

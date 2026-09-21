@@ -1,36 +1,36 @@
 {
-  "name": "@repo/mol-demo",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "exports": {
-    "./App": {
-      "types": "./src/App.tsx",
-      "import": "./src/App.tsx"
+    "name": "@repo/mol-demo",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./App": {
+            "types": "./src/App.tsx",
+            "import": "./src/App.tsx"
+        }
+    },
+    "scripts": {
+        "dev": "vp dev",
+        "build": "tsc -b && vp build",
+        "preview": "vp preview"
+    },
+    "dependencies": {
+        "@repo/glaze3d": "workspace:*",
+        "@repo/ui": "workspace:*",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "zustand": "catalog:"
+    },
+    "devDependencies": {
+        "@rolldown/plugin-babel": "catalog:",
+        "@stylexjs/stylex": "catalog:",
+        "@types/node": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "@vitejs/plugin-react": "catalog:",
+        "typescript": "catalog:",
+        "unplugin-stylex": "catalog:",
+        "vite": "catalog:",
+        "vite-plus": "catalog:"
     }
-  },
-  "scripts": {
-    "dev": "vp dev",
-    "build": "tsc -b && vp build",
-    "preview": "vp preview"
-  },
-  "dependencies": {
-    "@repo/glaze3d": "workspace:*",
-    "@repo/ui": "workspace:*",
-    "react": "catalog:",
-    "react-dom": "catalog:",
-    "zustand": "catalog:"
-  },
-  "devDependencies": {
-    "@rolldown/plugin-babel": "catalog:",
-    "@stylexjs/stylex": "catalog:",
-    "@types/node": "catalog:",
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react": "catalog:",
-    "typescript": "catalog:",
-    "unplugin-stylex": "catalog:",
-    "vite": "catalog:",
-    "vite-plus": "catalog:"
-  }
 }

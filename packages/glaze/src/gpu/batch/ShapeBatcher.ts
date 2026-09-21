@@ -1,20 +1,20 @@
+import type { Camera } from '../../core/Camera';
+import { createLineSegment, createNormalizedVec2, type Point2D } from '../../core/geometry';
+import type { Circle, DrawStyle, Rectangle, Segment } from '../../core/shapes';
+import { colorArray } from '../shapes/color';
 import {
-  circleFillVertices,
-  circleRing,
-  circleSegments,
-  circleStrokeVertices,
-  capSegments,
-  lineVertices,
-  projectionFor,
-  rectFillVertices,
-  rectStrokeVertices,
-  sameMat3,
-} from "./geometry";
-import { createLineSegment, createNormalizedVec2, type Point2D } from "../../core/geometry";
-import type { Circle, DrawStyle, Rectangle, Segment } from "../../core/shapes";
-import { colorArray } from "../shapes/color";
-import type { Mat3, ShapeBatcherOptions } from "./types";
-import type { Camera } from "../../core/Camera";
+    circleFillVertices,
+    circleRing,
+    circleSegments,
+    circleStrokeVertices,
+    capSegments,
+    lineVertices,
+    projectionFor,
+    rectFillVertices,
+    rectStrokeVertices,
+    sameMat3,
+} from './geometry';
+import type { Mat3, ShapeBatcherOptions } from './types';
 
 const VERTEX_STRIDE = 6; // x, y, r, g, b, a
 const INITIAL_CAPACITY = 4096;
@@ -38,44 +38,44 @@ out vec4 out_color;
 void main() { out_color = v_color; }`;
 
 function compileShader(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader {
-  const shader = gl.createShader(type);
+    const shader = gl.createShader(type);
 
-  if (!shader) throw new Error("Glaze: batcher shader creation failed");
+    if (!shader) throw new Error('Glaze: batcher shader creation failed');
 
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
 
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    const log = gl.getShaderInfoLog(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        const log = gl.getShaderInfoLog(shader);
 
-    gl.deleteShader(shader);
-    throw new Error(`Glaze: batcher shader compile failed: ${String(log)}`);
-  }
+        gl.deleteShader(shader);
+        throw new Error(`Glaze: batcher shader compile failed: ${String(log)}`);
+    }
 
-  return shader;
+    return shader;
 }
 
 function compileProgram(
-  gl: WebGL2RenderingContext,
-  vertexSource: string,
-  fragmentSource: string,
+    gl: WebGL2RenderingContext,
+    vertexSource: string,
+    fragmentSource: string,
 ): WebGLProgram {
-  const program = gl.createProgram();
+    const program = gl.createProgram();
 
-  if (!program) throw new Error("Glaze: batcher program creation failed");
+    if (!program) throw new Error('Glaze: batcher program creation failed');
 
-  gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER, vertexSource));
-  gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER, fragmentSource));
-  gl.linkProgram(program);
+    gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER, vertexSource));
+    gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER, fragmentSource));
+    gl.linkProgram(program);
 
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    const log = gl.getProgramInfoLog(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        const log = gl.getProgramInfoLog(program);
 
-    gl.deleteProgram(program);
-    throw new Error(`Glaze: batcher program link failed: ${String(log)}`);
-  }
+        gl.deleteProgram(program);
+        throw new Error(`Glaze: batcher program link failed: ${String(log)}`);
+    }
 
-  return program;
+    return program;
 }
 
 /**
@@ -83,378 +83,383 @@ function compileProgram(
  * pixelate2d approach ported to glaze.
  */
 export class ShapeBatcher {
-  readonly #gl: WebGL2RenderingContext;
-  readonly #camera: Camera;
-  readonly #getViewport: () => { width: number; height: number };
-  #program: WebGLProgram | null = null;
-  #vao: WebGLVertexArrayObject | null = null;
-  #buffer: WebGLBuffer | null = null;
-  #projectionLocation: WebGLUniformLocation | null = null;
-  #vertices = new Float32Array(INITIAL_CAPACITY);
-  #vertexCount = 0;
-  #batchProjection: Mat3 | null = null;
-  #initialized = false;
+    readonly #gl: WebGL2RenderingContext;
+    readonly #camera: Camera;
+    readonly #getViewport: () => { width: number; height: number };
+    #program: WebGLProgram | null = null;
+    #vao: WebGLVertexArrayObject | null = null;
+    #buffer: WebGLBuffer | null = null;
+    #projectionLocation: WebGLUniformLocation | null = null;
+    #vertices = new Float32Array(INITIAL_CAPACITY);
+    #vertexCount = 0;
+    #batchProjection: Mat3 | null = null;
+    #initialized = false;
 
-  constructor(options: ShapeBatcherOptions) {
-    this.#gl = options.gl;
-    this.#camera = options.camera;
-    this.#getViewport = options.getViewport;
-    this.#init();
-  }
-
-  drawCircle(circle: Circle, style: DrawStyle): void {
-    if (!this.#initialized) return;
-
-    this.#setBatchProjection();
-    const { center, radius } = circle;
-
-    if (style.fill !== undefined) {
-      this.#pushCircleFill(center.x, center.y, radius, colorArray(style.fill));
+    constructor(options: ShapeBatcherOptions) {
+        this.#gl = options.gl;
+        this.#camera = options.camera;
+        this.#getViewport = options.getViewport;
+        this.#init();
     }
 
-    if (style.stroke !== undefined) {
-      this.#pushCircleStroke(
-        center.x,
-        center.y,
-        radius,
-        style.lineWidth ?? DEFAULT_LINE_WIDTH,
-        colorArray(style.stroke),
-      );
-    }
-  }
+    drawCircle(circle: Circle, style: DrawStyle): void {
+        if (!this.#initialized) return;
 
-  drawRectangle(rectangle: Rectangle, style: DrawStyle): void {
-    if (!this.#initialized) return;
+        this.#setBatchProjection();
+        const { center, radius } = circle;
 
-    this.#setBatchProjection();
+        if (style.fill !== undefined) {
+            this.#pushCircleFill(center.x, center.y, radius, colorArray(style.fill));
+        }
 
-    if (style.fill !== undefined) {
-      this.#pushRectFill(rectangle, colorArray(style.fill));
-    }
-
-    if (style.stroke !== undefined) {
-      this.#pushRectStroke(
-        rectangle,
-        style.lineWidth ?? DEFAULT_LINE_WIDTH,
-        colorArray(style.stroke),
-      );
-    }
-  }
-
-  drawLine(segment: Segment, style: DrawStyle): void {
-    if (!this.#initialized) return;
-
-    const color = style.stroke ?? style.fill;
-
-    if (color === undefined) return;
-
-    this.#setBatchProjection();
-    this.#pushLine(segment.a, segment.b, style.lineWidth ?? DEFAULT_LINE_WIDTH, colorArray(color));
-  }
-
-  flush(): void {
-    if (this.#vertexCount === 0) {
-      this.#batchProjection = null;
-
-      return;
+        if (style.stroke !== undefined) {
+            this.#pushCircleStroke(
+                center.x,
+                center.y,
+                radius,
+                style.lineWidth ?? DEFAULT_LINE_WIDTH,
+                colorArray(style.stroke),
+            );
+        }
     }
 
-    if (
-      !this.#initialized ||
-      this.#program === null ||
-      this.#vao === null ||
-      this.#buffer === null ||
-      this.#projectionLocation === null
-    ) {
-      this.#vertexCount = 0;
-      this.#batchProjection = null;
+    drawRectangle(rectangle: Rectangle, style: DrawStyle): void {
+        if (!this.#initialized) return;
 
-      return;
+        this.#setBatchProjection();
+
+        if (style.fill !== undefined) {
+            this.#pushRectFill(rectangle, colorArray(style.fill));
+        }
+
+        if (style.stroke !== undefined) {
+            this.#pushRectStroke(
+                rectangle,
+                style.lineWidth ?? DEFAULT_LINE_WIDTH,
+                colorArray(style.stroke),
+            );
+        }
     }
 
-    const projection =
-      this.#batchProjection ??
-      (() => {
+    drawLine(segment: Segment, style: DrawStyle): void {
+        if (!this.#initialized) return;
+
+        const color = style.stroke ?? style.fill;
+
+        if (color === undefined) return;
+
+        this.#setBatchProjection();
+        this.#pushLine(
+            segment.a,
+            segment.b,
+            style.lineWidth ?? DEFAULT_LINE_WIDTH,
+            colorArray(color),
+        );
+    }
+
+    flush(): void {
+        if (this.#vertexCount === 0) {
+            this.#batchProjection = null;
+
+            return;
+        }
+
+        if (
+            !this.#initialized ||
+            this.#program === null ||
+            this.#vao === null ||
+            this.#buffer === null ||
+            this.#projectionLocation === null
+        ) {
+            this.#vertexCount = 0;
+            this.#batchProjection = null;
+
+            return;
+        }
+
+        const projection =
+            this.#batchProjection ??
+            (() => {
+                const { width, height } = this.#getViewport();
+
+                return projectionFor(this.#camera, width, height);
+            })();
+        const gl = this.#gl;
+
+        gl.useProgram(this.#program);
+        gl.bindVertexArray(this.#vao);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.#buffer);
+        gl.bufferData(
+            gl.ARRAY_BUFFER,
+            this.#vertices.subarray(0, this.#vertexCount * VERTEX_STRIDE),
+            gl.DYNAMIC_DRAW,
+        );
+        gl.uniformMatrix3fv(this.#projectionLocation, false, projection);
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        gl.drawArrays(gl.TRIANGLES, 0, this.#vertexCount);
+        this.#vertexCount = 0;
+        this.#batchProjection = null;
+    }
+
+    reinitialize(): void {
+        this.#destroyGlObjects();
+        this.#init();
+    }
+
+    destroy(): void {
+        this.#destroyGlObjects();
+    }
+
+    #destroyGlObjects(): void {
+        if (this.#program) this.#gl.deleteProgram(this.#program);
+
+        if (this.#buffer) this.#gl.deleteBuffer(this.#buffer);
+
+        if (this.#vao) this.#gl.deleteVertexArray(this.#vao);
+
+        this.#program = null;
+        this.#buffer = null;
+        this.#vao = null;
+        this.#projectionLocation = null;
+        this.#vertices = new Float32Array(INITIAL_CAPACITY);
+        this.#vertexCount = 0;
+        this.#batchProjection = null;
+        this.#initialized = false;
+    }
+
+    #init(): void {
+        const gl = this.#gl;
+
+        this.#program = compileProgram(gl, SHAPE_VERTEX_SRC, SHAPE_FRAGMENT_SRC);
+        this.#projectionLocation = gl.getUniformLocation(this.#program, 'u_projection');
+        this.#buffer = gl.createBuffer();
+        this.#vao = gl.createVertexArray();
+        gl.bindVertexArray(this.#vao);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.#buffer);
+        gl.enableVertexAttribArray(0);
+        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, VERTEX_STRIDE * 4, 0);
+        gl.enableVertexAttribArray(1);
+        gl.vertexAttribPointer(1, 4, gl.FLOAT, false, VERTEX_STRIDE * 4, 2 * 4);
+        gl.bindVertexArray(null);
+        this.#initialized = true;
+    }
+
+    #ensureCapacity(extra: number): void {
+        const needed = this.#vertexCount + extra;
+
+        if (needed <= this.#vertices.length) return;
+
+        let size = this.#vertices.length * 2;
+
+        while (size < needed) size *= 2;
+
+        const next = new Float32Array(size);
+
+        next.set(this.#vertices);
+        this.#vertices = next;
+    }
+
+    #pushVertex(x: number, y: number, color: readonly [number, number, number, number]): void {
+        const i = this.#vertexCount * VERTEX_STRIDE;
+
+        this.#vertices[i] = x;
+        this.#vertices[i + 1] = y;
+        this.#vertices[i + 2] = color[0];
+        this.#vertices[i + 3] = color[1];
+        this.#vertices[i + 4] = color[2];
+        this.#vertices[i + 5] = color[3];
+        this.#vertexCount++;
+    }
+
+    #pushTriangle(
+        p1: Point2D,
+        p2: Point2D,
+        p3: Point2D,
+        color: readonly [number, number, number, number],
+    ): void {
+        this.#pushVertex(p1.x, p1.y, color);
+        this.#pushVertex(p2.x, p2.y, color);
+        this.#pushVertex(p3.x, p3.y, color);
+    }
+
+    #pushQuad(
+        p1: Point2D,
+        p2: Point2D,
+        p3: Point2D,
+        p4: Point2D,
+        color: readonly [number, number, number, number],
+    ): void {
+        this.#pushTriangle(p1, p2, p3, color);
+        this.#pushTriangle(p3, p4, p1, color);
+    }
+
+    #pushCircleFill(
+        cx: number,
+        cy: number,
+        radius: number,
+        color: readonly [number, number, number, number],
+    ): void {
+        const segments = circleSegments(radius, this.#camera.zoom);
+        const ring = circleRing(cx, cy, radius, segments);
+
+        this.#ensureCapacity(circleFillVertices(radius, this.#camera.zoom));
+        const center = { x: cx, y: cy };
+
+        for (let i = 0; i < segments; i++) {
+            const a = ring[i];
+            const b = ring[(i + 1) % segments];
+
+            this.#pushTriangle(center, a, b, color);
+        }
+    }
+
+    #pushCircleStroke(
+        cx: number,
+        cy: number,
+        radius: number,
+        width: number,
+        color: readonly [number, number, number, number],
+    ): void {
+        const segments = circleSegments(radius, this.#camera.zoom);
+        const outer = circleRing(cx, cy, radius + width / 2, segments);
+        const inner = circleRing(cx, cy, Math.max(0, radius - width / 2), segments);
+
+        this.#ensureCapacity(circleStrokeVertices(radius, this.#camera.zoom));
+
+        for (let i = 0; i < segments; i++) {
+            const j = (i + 1) % segments;
+            const a = outer[i];
+            const b = outer[j];
+            const c = inner[j];
+            const d = inner[i];
+
+            this.#pushQuad(a, b, c, d, color);
+        }
+    }
+
+    #pushRectFill(rectangle: Rectangle, color: readonly [number, number, number, number]): void {
+        this.#ensureCapacity(rectFillVertices());
+        this.#pushQuad(
+            { x: rectangle.x, y: rectangle.y },
+            { x: rectangle.x + rectangle.width, y: rectangle.y },
+            { x: rectangle.x + rectangle.width, y: rectangle.y + rectangle.height },
+            { x: rectangle.x, y: rectangle.y + rectangle.height },
+            color,
+        );
+    }
+
+    #pushRectStroke(
+        rectangle: Rectangle,
+        width: number,
+        color: readonly [number, number, number, number],
+    ): void {
+        const half = width / 2;
+
+        this.#ensureCapacity(rectStrokeVertices());
+        this.#pushQuad(
+            { x: rectangle.x, y: rectangle.y - half },
+            { x: rectangle.x + rectangle.width, y: rectangle.y - half },
+            { x: rectangle.x + rectangle.width, y: rectangle.y + half },
+            { x: rectangle.x, y: rectangle.y + half },
+            color,
+        );
+        this.#pushQuad(
+            { x: rectangle.x, y: rectangle.y + rectangle.height - half },
+            { x: rectangle.x + rectangle.width, y: rectangle.y + rectangle.height - half },
+            { x: rectangle.x + rectangle.width, y: rectangle.y + rectangle.height + half },
+            { x: rectangle.x, y: rectangle.y + rectangle.height + half },
+            color,
+        );
+        this.#pushQuad(
+            { x: rectangle.x - half, y: rectangle.y },
+            { x: rectangle.x + half, y: rectangle.y },
+            { x: rectangle.x + half, y: rectangle.y + rectangle.height },
+            { x: rectangle.x - half, y: rectangle.y + rectangle.height },
+            color,
+        );
+        this.#pushQuad(
+            { x: rectangle.x + rectangle.width - half, y: rectangle.y },
+            { x: rectangle.x + rectangle.width + half, y: rectangle.y },
+            { x: rectangle.x + rectangle.width + half, y: rectangle.y + rectangle.height },
+            { x: rectangle.x + rectangle.width - half, y: rectangle.y + rectangle.height },
+            color,
+        );
+    }
+
+    #pushCap(
+        center: Point2D,
+        dirX: number,
+        dirY: number,
+        normX: number,
+        normY: number,
+        half: number,
+        segments: number,
+        color: readonly [number, number, number, number],
+    ): void {
+        this.#ensureCapacity(segments * 3);
+
+        for (let i = 0; i < segments; i++) {
+            const t0 = -Math.PI / 2 + (i / segments) * Math.PI;
+            const t1 = -Math.PI / 2 + ((i + 1) / segments) * Math.PI;
+
+            this.#pushTriangle(
+                center,
+                {
+                    x: center.x + half * (Math.cos(t0) * dirX + Math.sin(t0) * normX),
+                    y: center.y + half * (Math.cos(t0) * dirY + Math.sin(t0) * normY),
+                },
+                {
+                    x: center.x + half * (Math.cos(t1) * dirX + Math.sin(t1) * normX),
+                    y: center.y + half * (Math.cos(t1) * dirY + Math.sin(t1) * normY),
+                },
+                color,
+            );
+        }
+    }
+
+    #pushLine(
+        a: Point2D,
+        b: Point2D,
+        width: number,
+        color: readonly [number, number, number, number],
+    ): void {
+        const segment = createLineSegment(a, b);
+        const dx = segment.b.x - segment.a.x;
+        const dy = segment.b.y - segment.a.y;
+        const length = Math.hypot(dx, dy);
+
+        if (length === 0) return;
+
+        const rawUx = dx / length;
+        const rawUy = dy / length;
+        const uxVec = createNormalizedVec2(rawUx, rawUy);
+        const ux = uxVec.x;
+        const uy = uxVec.y;
+        const nxVec = createNormalizedVec2(-uy, ux);
+        const nx = nxVec.x;
+        const ny = nxVec.y;
+        const half = width / 2;
+        const segments = capSegments(width, this.#camera.zoom);
+
+        this.#ensureCapacity(lineVertices(width, this.#camera.zoom));
+        this.#pushQuad(
+            { x: segment.a.x + nx * half, y: segment.a.y + ny * half },
+            { x: segment.a.x - nx * half, y: segment.a.y - ny * half },
+            { x: segment.b.x - nx * half, y: segment.b.y - ny * half },
+            { x: segment.b.x + nx * half, y: segment.b.y + ny * half },
+            color,
+        );
+        this.#pushCap(segment.a, -ux, -uy, nx, ny, half, segments, color);
+        this.#pushCap(segment.b, ux, uy, nx, ny, half, segments, color);
+    }
+
+    #setBatchProjection(): void {
         const { width, height } = this.#getViewport();
+        const projection = projectionFor(this.#camera, width, height);
 
-        return projectionFor(this.#camera, width, height);
-      })();
-    const gl = this.#gl;
-
-    gl.useProgram(this.#program);
-    gl.bindVertexArray(this.#vao);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.#buffer);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      this.#vertices.subarray(0, this.#vertexCount * VERTEX_STRIDE),
-      gl.DYNAMIC_DRAW,
-    );
-    gl.uniformMatrix3fv(this.#projectionLocation, false, projection);
-    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-    gl.drawArrays(gl.TRIANGLES, 0, this.#vertexCount);
-    this.#vertexCount = 0;
-    this.#batchProjection = null;
-  }
-
-  reinitialize(): void {
-    this.#destroyGlObjects();
-    this.#init();
-  }
-
-  destroy(): void {
-    this.#destroyGlObjects();
-  }
-
-  #destroyGlObjects(): void {
-    if (this.#program) this.#gl.deleteProgram(this.#program);
-
-    if (this.#buffer) this.#gl.deleteBuffer(this.#buffer);
-
-    if (this.#vao) this.#gl.deleteVertexArray(this.#vao);
-
-    this.#program = null;
-    this.#buffer = null;
-    this.#vao = null;
-    this.#projectionLocation = null;
-    this.#vertices = new Float32Array(INITIAL_CAPACITY);
-    this.#vertexCount = 0;
-    this.#batchProjection = null;
-    this.#initialized = false;
-  }
-
-  #init(): void {
-    const gl = this.#gl;
-
-    this.#program = compileProgram(gl, SHAPE_VERTEX_SRC, SHAPE_FRAGMENT_SRC);
-    this.#projectionLocation = gl.getUniformLocation(this.#program, "u_projection");
-    this.#buffer = gl.createBuffer();
-    this.#vao = gl.createVertexArray();
-    gl.bindVertexArray(this.#vao);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.#buffer);
-    gl.enableVertexAttribArray(0);
-    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, VERTEX_STRIDE * 4, 0);
-    gl.enableVertexAttribArray(1);
-    gl.vertexAttribPointer(1, 4, gl.FLOAT, false, VERTEX_STRIDE * 4, 2 * 4);
-    gl.bindVertexArray(null);
-    this.#initialized = true;
-  }
-
-  #ensureCapacity(extra: number): void {
-    const needed = this.#vertexCount + extra;
-
-    if (needed <= this.#vertices.length) return;
-
-    let size = this.#vertices.length * 2;
-
-    while (size < needed) size *= 2;
-
-    const next = new Float32Array(size);
-
-    next.set(this.#vertices);
-    this.#vertices = next;
-  }
-
-  #pushVertex(x: number, y: number, color: readonly [number, number, number, number]): void {
-    const i = this.#vertexCount * VERTEX_STRIDE;
-
-    this.#vertices[i] = x;
-    this.#vertices[i + 1] = y;
-    this.#vertices[i + 2] = color[0];
-    this.#vertices[i + 3] = color[1];
-    this.#vertices[i + 4] = color[2];
-    this.#vertices[i + 5] = color[3];
-    this.#vertexCount++;
-  }
-
-  #pushTriangle(
-    p1: Point2D,
-    p2: Point2D,
-    p3: Point2D,
-    color: readonly [number, number, number, number],
-  ): void {
-    this.#pushVertex(p1.x, p1.y, color);
-    this.#pushVertex(p2.x, p2.y, color);
-    this.#pushVertex(p3.x, p3.y, color);
-  }
-
-  #pushQuad(
-    p1: Point2D,
-    p2: Point2D,
-    p3: Point2D,
-    p4: Point2D,
-    color: readonly [number, number, number, number],
-  ): void {
-    this.#pushTriangle(p1, p2, p3, color);
-    this.#pushTriangle(p3, p4, p1, color);
-  }
-
-  #pushCircleFill(
-    cx: number,
-    cy: number,
-    radius: number,
-    color: readonly [number, number, number, number],
-  ): void {
-    const segments = circleSegments(radius, this.#camera.zoom);
-    const ring = circleRing(cx, cy, radius, segments);
-
-    this.#ensureCapacity(circleFillVertices(radius, this.#camera.zoom));
-    const center = { x: cx, y: cy };
-
-    for (let i = 0; i < segments; i++) {
-      const a = ring[i];
-      const b = ring[(i + 1) % segments];
-
-      this.#pushTriangle(center, a, b, color);
+        if (this.#batchProjection === null || !sameMat3(this.#batchProjection, projection)) {
+            this.flush();
+            this.#batchProjection = projection;
+        }
     }
-  }
-
-  #pushCircleStroke(
-    cx: number,
-    cy: number,
-    radius: number,
-    width: number,
-    color: readonly [number, number, number, number],
-  ): void {
-    const segments = circleSegments(radius, this.#camera.zoom);
-    const outer = circleRing(cx, cy, radius + width / 2, segments);
-    const inner = circleRing(cx, cy, Math.max(0, radius - width / 2), segments);
-
-    this.#ensureCapacity(circleStrokeVertices(radius, this.#camera.zoom));
-
-    for (let i = 0; i < segments; i++) {
-      const j = (i + 1) % segments;
-      const a = outer[i];
-      const b = outer[j];
-      const c = inner[j];
-      const d = inner[i];
-
-      this.#pushQuad(a, b, c, d, color);
-    }
-  }
-
-  #pushRectFill(rectangle: Rectangle, color: readonly [number, number, number, number]): void {
-    this.#ensureCapacity(rectFillVertices());
-    this.#pushQuad(
-      { x: rectangle.x, y: rectangle.y },
-      { x: rectangle.x + rectangle.width, y: rectangle.y },
-      { x: rectangle.x + rectangle.width, y: rectangle.y + rectangle.height },
-      { x: rectangle.x, y: rectangle.y + rectangle.height },
-      color,
-    );
-  }
-
-  #pushRectStroke(
-    rectangle: Rectangle,
-    width: number,
-    color: readonly [number, number, number, number],
-  ): void {
-    const half = width / 2;
-
-    this.#ensureCapacity(rectStrokeVertices());
-    this.#pushQuad(
-      { x: rectangle.x, y: rectangle.y - half },
-      { x: rectangle.x + rectangle.width, y: rectangle.y - half },
-      { x: rectangle.x + rectangle.width, y: rectangle.y + half },
-      { x: rectangle.x, y: rectangle.y + half },
-      color,
-    );
-    this.#pushQuad(
-      { x: rectangle.x, y: rectangle.y + rectangle.height - half },
-      { x: rectangle.x + rectangle.width, y: rectangle.y + rectangle.height - half },
-      { x: rectangle.x + rectangle.width, y: rectangle.y + rectangle.height + half },
-      { x: rectangle.x, y: rectangle.y + rectangle.height + half },
-      color,
-    );
-    this.#pushQuad(
-      { x: rectangle.x - half, y: rectangle.y },
-      { x: rectangle.x + half, y: rectangle.y },
-      { x: rectangle.x + half, y: rectangle.y + rectangle.height },
-      { x: rectangle.x - half, y: rectangle.y + rectangle.height },
-      color,
-    );
-    this.#pushQuad(
-      { x: rectangle.x + rectangle.width - half, y: rectangle.y },
-      { x: rectangle.x + rectangle.width + half, y: rectangle.y },
-      { x: rectangle.x + rectangle.width + half, y: rectangle.y + rectangle.height },
-      { x: rectangle.x + rectangle.width - half, y: rectangle.y + rectangle.height },
-      color,
-    );
-  }
-
-  #pushCap(
-    center: Point2D,
-    dirX: number,
-    dirY: number,
-    normX: number,
-    normY: number,
-    half: number,
-    segments: number,
-    color: readonly [number, number, number, number],
-  ): void {
-    this.#ensureCapacity(segments * 3);
-
-    for (let i = 0; i < segments; i++) {
-      const t0 = -Math.PI / 2 + (i / segments) * Math.PI;
-      const t1 = -Math.PI / 2 + ((i + 1) / segments) * Math.PI;
-
-      this.#pushTriangle(
-        center,
-        {
-          x: center.x + half * (Math.cos(t0) * dirX + Math.sin(t0) * normX),
-          y: center.y + half * (Math.cos(t0) * dirY + Math.sin(t0) * normY),
-        },
-        {
-          x: center.x + half * (Math.cos(t1) * dirX + Math.sin(t1) * normX),
-          y: center.y + half * (Math.cos(t1) * dirY + Math.sin(t1) * normY),
-        },
-        color,
-      );
-    }
-  }
-
-  #pushLine(
-    a: Point2D,
-    b: Point2D,
-    width: number,
-    color: readonly [number, number, number, number],
-  ): void {
-    const segment = createLineSegment(a, b);
-    const dx = segment.b.x - segment.a.x;
-    const dy = segment.b.y - segment.a.y;
-    const length = Math.hypot(dx, dy);
-
-    if (length === 0) return;
-
-    const rawUx = dx / length;
-    const rawUy = dy / length;
-    const uxVec = createNormalizedVec2(rawUx, rawUy);
-    const ux = uxVec.x;
-    const uy = uxVec.y;
-    const nxVec = createNormalizedVec2(-uy, ux);
-    const nx = nxVec.x;
-    const ny = nxVec.y;
-    const half = width / 2;
-    const segments = capSegments(width, this.#camera.zoom);
-
-    this.#ensureCapacity(lineVertices(width, this.#camera.zoom));
-    this.#pushQuad(
-      { x: segment.a.x + nx * half, y: segment.a.y + ny * half },
-      { x: segment.a.x - nx * half, y: segment.a.y - ny * half },
-      { x: segment.b.x - nx * half, y: segment.b.y - ny * half },
-      { x: segment.b.x + nx * half, y: segment.b.y + ny * half },
-      color,
-    );
-    this.#pushCap(segment.a, -ux, -uy, nx, ny, half, segments, color);
-    this.#pushCap(segment.b, ux, uy, nx, ny, half, segments, color);
-  }
-
-  #setBatchProjection(): void {
-    const { width, height } = this.#getViewport();
-    const projection = projectionFor(this.#camera, width, height);
-
-    if (this.#batchProjection === null || !sameMat3(this.#batchProjection, projection)) {
-      this.flush();
-      this.#batchProjection = projection;
-    }
-  }
 }

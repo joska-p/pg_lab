@@ -1,5 +1,5 @@
-import { cosinePalette } from "../../shaders/modules/effects/cosinePalette";
-import { repeatSpace } from "../../shaders/modules/space/repeatSpace";
+import { cosinePalette } from '../../shaders/modules/effects/cosinePalette';
+import { repeatSpace } from '../../shaders/modules/space/repeatSpace';
 
 // GLSL 300 ES fragment shader — vertex shader is provided by QuadPipeline's
 // built-in fullscreen triangle (no vertex shader needed here).

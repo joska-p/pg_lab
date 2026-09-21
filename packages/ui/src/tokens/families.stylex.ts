@@ -1,58 +1,59 @@
-import * as stylex from "@stylexjs/stylex";
-import { gruvboxPalette as palette } from "./palette.stylex";
+import * as stylex from '@stylexjs/stylex';
+
+import { gruvboxPalette as palette } from './palette.stylex';
 
 export type FamilyName =
-  | "aurora"
-  | "solder"
-  | "neon-violet"
-  | "amber"
-  | "error"
-  | "aqua"
-  | "orange";
+    | 'aurora'
+    | 'solder'
+    | 'neon-violet'
+    | 'amber'
+    | 'error'
+    | 'aqua'
+    | 'orange';
 
 export type Family = {
-  base: string;
-  strong: string;
-  ink?: { fg: string; bg: string };
+    base: string;
+    strong: string;
+    ink?: { fg: string; bg: string };
 };
 
 // Flat variables for StyleX compiler
 export const familiesConsts = stylex.defineVars({
-  auroraBase: `light-dark(${palette.brightBlue}, ${palette.fadedBlue})`,
-  auroraStrong: palette.neutralBlue,
+    auroraBase: `light-dark(${palette.brightBlue}, ${palette.fadedBlue})`,
+    auroraStrong: palette.neutralBlue,
 
-  solderBase: `light-dark(${palette.brightGreen}, ${palette.fadedGreen})`,
-  solderStrong: palette.neutralGreen,
+    solderBase: `light-dark(${palette.brightGreen}, ${palette.fadedGreen})`,
+    solderStrong: palette.neutralGreen,
 
-  neonVioletBase: `light-dark(${palette.brightPurple}, ${palette.fadedPurple})`,
-  neonVioletStrong: palette.neutralPurple,
+    neonVioletBase: `light-dark(${palette.brightPurple}, ${palette.fadedPurple})`,
+    neonVioletStrong: palette.neutralPurple,
 
-  amberBase: `light-dark(${palette.brightYellow}, ${palette.fadedYellow})`,
-  amberStrong: palette.neutralYellow,
-  amberInkFg: `light-dark(${palette.dark0Hard}, ${palette.light1})`,
-  amberInkBg: `light-dark(${palette.brightYellow}, ${palette.fadedYellow})`,
+    amberBase: `light-dark(${palette.brightYellow}, ${palette.fadedYellow})`,
+    amberStrong: palette.neutralYellow,
+    amberInkFg: `light-dark(${palette.dark0Hard}, ${palette.light1})`,
+    amberInkBg: `light-dark(${palette.brightYellow}, ${palette.fadedYellow})`,
 
-  errorBase: `light-dark(${palette.brightRed}, ${palette.fadedRed})`,
-  errorStrong: palette.neutralRed,
+    errorBase: `light-dark(${palette.brightRed}, ${palette.fadedRed})`,
+    errorStrong: palette.neutralRed,
 
-  aquaBase: `light-dark(${palette.brightAqua}, ${palette.fadedAqua})`,
-  aquaStrong: palette.neutralAqua,
+    aquaBase: `light-dark(${palette.brightAqua}, ${palette.fadedAqua})`,
+    aquaStrong: palette.neutralAqua,
 
-  orangeBase: `light-dark(${palette.brightOrange}, ${palette.fadedOrange})`,
-  orangeStrong: palette.neutralOrange,
+    orangeBase: `light-dark(${palette.brightOrange}, ${palette.fadedOrange})`,
+    orangeStrong: palette.neutralOrange,
 } as const);
 
 // Nested structure for component ergonomics
 export const families: Record<FamilyName, Family> = {
-  aurora: { base: familiesConsts.auroraBase, strong: familiesConsts.auroraStrong },
-  solder: { base: familiesConsts.solderBase, strong: familiesConsts.solderStrong },
-  "neon-violet": { base: familiesConsts.neonVioletBase, strong: familiesConsts.neonVioletStrong },
-  amber: {
-    base: familiesConsts.amberBase,
-    strong: familiesConsts.amberStrong,
-    ink: { fg: familiesConsts.amberInkFg, bg: familiesConsts.amberInkBg },
-  },
-  error: { base: familiesConsts.errorBase, strong: familiesConsts.errorStrong },
-  aqua: { base: familiesConsts.aquaBase, strong: familiesConsts.aquaStrong },
-  orange: { base: familiesConsts.orangeBase, strong: familiesConsts.orangeStrong },
+    aurora: { base: familiesConsts.auroraBase, strong: familiesConsts.auroraStrong },
+    solder: { base: familiesConsts.solderBase, strong: familiesConsts.solderStrong },
+    'neon-violet': { base: familiesConsts.neonVioletBase, strong: familiesConsts.neonVioletStrong },
+    amber: {
+        base: familiesConsts.amberBase,
+        strong: familiesConsts.amberStrong,
+        ink: { fg: familiesConsts.amberInkFg, bg: familiesConsts.amberInkBg },
+    },
+    error: { base: familiesConsts.errorBase, strong: familiesConsts.errorStrong },
+    aqua: { base: familiesConsts.aquaBase, strong: familiesConsts.aquaStrong },
+    orange: { base: familiesConsts.orangeBase, strong: familiesConsts.orangeStrong },
 };

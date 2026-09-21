@@ -1,19 +1,19 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
-export type InputMode = "spirale" | "seed" | "folded-space" | "atlas" | "manual";
+export type InputMode = 'spirale' | 'seed' | 'folded-space' | 'atlas' | 'manual';
 
 interface UiStoreState {
-  inputMode: InputMode;
+    inputMode: InputMode;
 }
 
 const uiStore = create<UiStoreState>(() => ({
-  inputMode: "spirale",
+    inputMode: 'spirale',
 }));
 
 export function useInputMode() {
-  return uiStore((state) => state.inputMode);
+    return uiStore((state) => state.inputMode);
 }
 
 export function setInputMode(inputMode: InputMode) {
-  uiStore.setState({ inputMode });
+    uiStore.setState({ inputMode });
 }

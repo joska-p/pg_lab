@@ -1,14 +1,14 @@
-import { GpuCanvas } from "@repo/glaze/react/GpuCanvas";
+import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
 
-import { foldedSpaceFragment } from "./foldedSpace";
+import { foldedSpaceFragment } from './foldedSpace';
 
 function FoldedSpace() {
-  return (
-    <GpuCanvas
-      fragmentShader={foldedSpaceFragment}
-      canvasInteractions={{ pan: false, zoom: false }}
-    />
-  );
+    return (
+        <GpuCanvas
+            fragmentShader={foldedSpaceFragment}
+            canvasInteractions={{ pan: false, zoom: false }}
+        />
+    );
 }
 
 export { FoldedSpace };

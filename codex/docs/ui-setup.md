@@ -47,19 +47,19 @@ Every app needs, as in `apps/dev`:
   `@stylexjs/stylex` and `unplugin-stylex` in `devDependencies` — do not rely
   on hoisting).
 - `vite.config.ts`, in plugin order:
-  ```ts
-  import stylexPlugin from "unplugin-stylex/vite";
-  import { stylexPreset } from "@repo/ui/stylex-preset";
+    ```ts
+    import stylexPlugin from "unplugin-stylex/vite";
+    import { stylexPreset } from "@repo/ui/stylex-preset";
 
-  plugins: lazyPlugins(() => [
-    stylexPlugin(stylexPreset), // first: compiles StyleX before other transforms
-    babel({ presets: [reactCompilerPreset()] }),
-    react(),
-  ]),
-  resolve: { dedupe: ["@stylexjs/stylex", "react", "react-dom"] },
-  optimizeDeps: { exclude: ["@repo/ui"] },
-  server: { fs: { allow: ["../.."] } },
-  ```
+    plugins: lazyPlugins(() => [
+      stylexPlugin(stylexPreset), // first: compiles StyleX before other transforms
+      babel({ presets: [reactCompilerPreset()] }),
+      react(),
+    ]),
+    resolve: { dedupe: ["@stylexjs/stylex", "react", "react-dom"] },
+    optimizeDeps: { exclude: ["@repo/ui"] },
+    server: { fs: { allow: ["../.."] } },
+    ```
 - Why `optimizeDeps.exclude` + `server.fs.allow`? They are **canonical Vite
   monorepo settings for compiler-plugin libraries**, not hacks. Without the
   exclude, Vite pre-bundles `@repo/ui` with esbuild (no StyleX transform) and

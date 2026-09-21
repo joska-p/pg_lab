@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import type { StackDisposable } from "./stackTypes";
+import { useEffect, useRef, useState } from 'react';
+
+import type { StackDisposable } from './stackTypes';
 
 /**
  * Owns a resource for as long as a node is attached: created on attach, disposed on detach/unmount.
@@ -9,30 +10,30 @@ import type { StackDisposable } from "./stackTypes";
  * they re-run when it appears — no timing assumptions about refs being populated.
  */
 export function useNodeResource<N extends Element, R extends StackDisposable>(
-  create: (node: N) => R,
+    create: (node: N) => R,
 ) {
-  const [node, setNode] = useState<N | null>(null);
-  const [resource, setResource] = useState<R | null>(null);
+    const [node, setNode] = useState<N | null>(null);
+    const [resource, setResource] = useState<R | null>(null);
 
-  // Latest-create pattern: synced outside render so a new closure never rebuilds the resource.
-  const createRef = useRef(create);
+    // Latest-create pattern: synced outside render so a new closure never rebuilds the resource.
+    const createRef = useRef(create);
 
-  useEffect(() => {
-    createRef.current = create;
-  });
+    useEffect(() => {
+        createRef.current = create;
+    });
 
-  useEffect(() => {
-    if (!node) return;
+    useEffect(() => {
+        if (!node) return;
 
-    const created = createRef.current(node);
+        const created = createRef.current(node);
 
-    setResource(created);
+        setResource(created);
 
-    return () => {
-      created.dispose();
-      setResource(null);
-    };
-  }, [node]);
+        return () => {
+            created.dispose();
+            setResource(null);
+        };
+    }, [node]);
 
-  return { ref: setNode, resource };
+    return { ref: setNode, resource };
 }

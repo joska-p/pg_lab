@@ -1,25 +1,25 @@
 {
-  "name": "@repo/new-mini-app",
-  "version": "0.0.0",
-  "private": true,
-  "description": "Generator: scaffold a new mini-app from the specimen template.",
-  "keywords": [
-    "vite-plus-generator"
-  ],
-  "bin": "./bin/index.ts",
-  "type": "module",
-  "scripts": {
-    "dev": "node bin/index.ts"
-  },
-  "dependencies": {
-    "bingo": "^0.9.3",
-    "zod": "^3.25.76"
-  },
-  "devDependencies": {
-    "@types/node": "catalog:",
-    "typescript": "catalog:"
-  },
-  "engines": {
-    "node": ">=22.18.0"
-  }
+    "name": "@repo/new-mini-app",
+    "version": "0.0.0",
+    "private": true,
+    "description": "Generator: scaffold a new mini-app from the specimen template.",
+    "keywords": [
+        "vite-plus-generator"
+    ],
+    "bin": "./bin/index.ts",
+    "type": "module",
+    "scripts": {
+        "dev": "node bin/index.ts"
+    },
+    "dependencies": {
+        "bingo": "^0.9.3",
+        "zod": "^3.25.76"
+    },
+    "devDependencies": {
+        "@types/node": "catalog:",
+        "typescript": "catalog:"
+    },
+    "engines": {
+        "node": ">=22.18.0"
+    }
 }

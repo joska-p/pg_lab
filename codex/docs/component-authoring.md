@@ -69,37 +69,37 @@ Import theme values **from their defining `.stylex` files**, not the
 ### Boilerplate skeleton
 
 ```tsx
-import * as stylex from "@stylexjs/stylex";
-import type { StyleXStyles } from "@stylexjs/stylex";
+import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { focusRing } from "../intents/focus.stylex";
-import { disabledStyle } from "../intents/disabled.stylex";
-import { radius, space, typography } from "../consts/…";
+import { focusRing } from '../intents/focus.stylex';
+import { disabledStyle } from '../intents/disabled.stylex';
+import { radius, space, typography } from '../consts/…';
 
 const styles = stylex.create({
-  base: {
-    borderRadius: radius.sm,
-    paddingBlock: space["2"],
-    /* anatomy geometry, marks, family tints */
-  },
+    base: {
+        borderRadius: radius.sm,
+        paddingBlock: space['2'],
+        /* anatomy geometry, marks, family tints */
+    },
 });
 
 type ComponentProps = {
-  disabled?: boolean;
-  style?: StyleXStyles;
+    disabled?: boolean;
+    style?: StyleXStyles;
 };
 
 export function Component({ disabled, style }: ComponentProps) {
-  return (
-    <button
-      {...stylex.props(
-        styles.base,
-        focusRing.base /* universal keyboard halo — one contact ring */,
-        disabled ? disabledStyle.base : null,
-        style,
-      )}
-    />
-  );
+    return (
+        <button
+            {...stylex.props(
+                styles.base,
+                focusRing.base /* universal keyboard halo — one contact ring */,
+                disabled ? disabledStyle.base : null,
+                style,
+            )}
+        />
+    );
 }
 ```
 

@@ -1,2 +1,2 @@
-export { Renderer } from "./renderer";
-export type { ClearColor, RendererOptions } from "./renderer";
+export { Renderer } from './renderer';
+export type { ClearColor, RendererOptions } from './renderer';

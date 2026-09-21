@@ -1,13 +1,13 @@
-import { colorArray } from "./color";
-import { createDocumentCanvas } from "../../core/environment";
-import { createCssColor } from "../../core/render";
-import type { Point2D } from "../../core/geometry";
-import type { TextRaster } from "./types";
-import type { TextStyle } from "../../core/shapes";
-import type { UniformValue } from "../shader/types";
+import { createDocumentCanvas } from '../../core/environment';
+import type { Point2D } from '../../core/geometry';
+import { createCssColor } from '../../core/render';
+import type { TextStyle } from '../../core/shapes';
+import type { UniformValue } from '../shader/types';
+import { colorArray } from './color';
+import type { TextRaster } from './types';
 
 /** @internal */
-export const DEFAULT_FONT_FAMILY = "sans-serif";
+export const DEFAULT_FONT_FAMILY = 'sans-serif';
 
 const MAX_TEXT_CACHE = 128;
 const TEXT_SCALE = 2;
@@ -46,109 +46,117 @@ void main() {
 
 /** Rasterizes text to a texture via an offscreen canvas, at 2× size so edges stay crisp when scaled. */
 export class TextRasterizer {
-  readonly #gl: WebGL2RenderingContext;
-  readonly #canvas: HTMLCanvasElement;
-  readonly #context: CanvasRenderingContext2D;
-  readonly #cache = new Map<string, TextRaster>();
+    readonly #gl: WebGL2RenderingContext;
+    readonly #canvas: HTMLCanvasElement;
+    readonly #context: CanvasRenderingContext2D;
+    readonly #cache = new Map<string, TextRaster>();
 
-  constructor(gl: WebGL2RenderingContext) {
-    const canvas = createDocumentCanvas();
-    const context = canvas?.getContext("2d");
+    constructor(gl: WebGL2RenderingContext) {
+        const canvas = createDocumentCanvas();
+        const context = canvas?.getContext('2d');
 
-    if (!canvas || !context) throw new Error("Glaze: offscreen text canvas unavailable");
+        if (!canvas || !context) throw new Error('Glaze: offscreen text canvas unavailable');
 
-    this.#gl = gl;
-    this.#canvas = canvas;
-    this.#context = context;
-  }
-
-  get(text: string, font: string, size: number): TextRaster {
-    const key = `${text}|${font}`;
-    const cached = this.#cache.get(key);
-
-    if (cached) {
-      this.#cache.delete(key);
-      this.#cache.set(key, cached);
-
-      return cached;
+        this.#gl = gl;
+        this.#canvas = canvas;
+        this.#context = context;
     }
 
-    const context = this.#context;
+    get(text: string, font: string, size: number): TextRaster {
+        const key = `${text}|${font}`;
+        const cached = this.#cache.get(key);
 
-    context.font = font;
-    const width = Math.ceil(context.measureText(text).width);
-    const height = Math.ceil(size * 1.4);
+        if (cached) {
+            this.#cache.delete(key);
+            this.#cache.set(key, cached);
 
-    this.#canvas.width = Math.max(1, Math.round(width * TEXT_SCALE));
-    this.#canvas.height = Math.max(1, Math.round(height * TEXT_SCALE));
-    context.setTransform(TEXT_SCALE, 0, 0, TEXT_SCALE, 0, 0);
-    context.clearRect(0, 0, width, height);
-    context.font = font;
-    context.fillStyle = "#ffffff";
-    context.textAlign = "left";
-    context.textBaseline = "alphabetic";
-    context.fillText(text, 0, size);
+            return cached;
+        }
 
-    const texture = this.#gl.createTexture();
+        const context = this.#context;
 
-    if (!texture) throw new Error("Glaze: text texture allocation failed");
+        context.font = font;
+        const width = Math.ceil(context.measureText(text).width);
+        const height = Math.ceil(size * 1.4);
 
-    this.#gl.bindTexture(this.#gl.TEXTURE_2D, texture);
-    this.#gl.texImage2D(
-      this.#gl.TEXTURE_2D,
-      0,
-      this.#gl.RGBA,
-      this.#gl.RGBA,
-      this.#gl.UNSIGNED_BYTE,
-      this.#canvas,
-    );
-    this.#gl.texParameteri(this.#gl.TEXTURE_2D, this.#gl.TEXTURE_MIN_FILTER, this.#gl.LINEAR);
-    this.#gl.texParameteri(this.#gl.TEXTURE_2D, this.#gl.TEXTURE_MAG_FILTER, this.#gl.LINEAR);
-    this.#gl.texParameteri(this.#gl.TEXTURE_2D, this.#gl.TEXTURE_WRAP_S, this.#gl.CLAMP_TO_EDGE);
-    this.#gl.texParameteri(this.#gl.TEXTURE_2D, this.#gl.TEXTURE_WRAP_T, this.#gl.CLAMP_TO_EDGE);
+        this.#canvas.width = Math.max(1, Math.round(width * TEXT_SCALE));
+        this.#canvas.height = Math.max(1, Math.round(height * TEXT_SCALE));
+        context.setTransform(TEXT_SCALE, 0, 0, TEXT_SCALE, 0, 0);
+        context.clearRect(0, 0, width, height);
+        context.font = font;
+        context.fillStyle = '#ffffff';
+        context.textAlign = 'left';
+        context.textBaseline = 'alphabetic';
+        context.fillText(text, 0, size);
 
-    const entry: TextRaster = { texture, width, height };
+        const texture = this.#gl.createTexture();
 
-    this.#cache.set(key, entry);
+        if (!texture) throw new Error('Glaze: text texture allocation failed');
 
-    if (this.#cache.size > MAX_TEXT_CACHE) {
-      const oldest = this.#cache.keys().next().value;
+        this.#gl.bindTexture(this.#gl.TEXTURE_2D, texture);
+        this.#gl.texImage2D(
+            this.#gl.TEXTURE_2D,
+            0,
+            this.#gl.RGBA,
+            this.#gl.RGBA,
+            this.#gl.UNSIGNED_BYTE,
+            this.#canvas,
+        );
+        this.#gl.texParameteri(this.#gl.TEXTURE_2D, this.#gl.TEXTURE_MIN_FILTER, this.#gl.LINEAR);
+        this.#gl.texParameteri(this.#gl.TEXTURE_2D, this.#gl.TEXTURE_MAG_FILTER, this.#gl.LINEAR);
+        this.#gl.texParameteri(
+            this.#gl.TEXTURE_2D,
+            this.#gl.TEXTURE_WRAP_S,
+            this.#gl.CLAMP_TO_EDGE,
+        );
+        this.#gl.texParameteri(
+            this.#gl.TEXTURE_2D,
+            this.#gl.TEXTURE_WRAP_T,
+            this.#gl.CLAMP_TO_EDGE,
+        );
 
-      if (oldest !== undefined) {
-        const stale = this.#cache.get(oldest);
+        const entry: TextRaster = { texture, width, height };
 
-        if (stale) this.#gl.deleteTexture(stale.texture);
+        this.#cache.set(key, entry);
 
-        this.#cache.delete(oldest);
-      }
+        if (this.#cache.size > MAX_TEXT_CACHE) {
+            const oldest = this.#cache.keys().next().value;
+
+            if (oldest !== undefined) {
+                const stale = this.#cache.get(oldest);
+
+                if (stale) this.#gl.deleteTexture(stale.texture);
+
+                this.#cache.delete(oldest);
+            }
+        }
+
+        return entry;
     }
 
-    return entry;
-  }
+    clear(): void {
+        for (const entry of this.#cache.values()) this.#gl.deleteTexture(entry.texture);
 
-  clear(): void {
-    for (const entry of this.#cache.values()) this.#gl.deleteTexture(entry.texture);
+        this.#cache.clear();
+    }
 
-    this.#cache.clear();
-  }
-
-  destroy(): void {
-    this.clear();
-  }
+    destroy(): void {
+        this.clear();
+    }
 }
 
 export function textUniforms(
-  position: Point2D,
-  width: number,
-  height: number,
-  size: number,
-  texture: WebGLTexture,
-  style: TextStyle,
+    position: Point2D,
+    width: number,
+    height: number,
+    size: number,
+    texture: WebGLTexture,
+    style: TextStyle,
 ): Record<string, UniformValue> {
-  return {
-    u_position: [position.x, position.y - size],
-    u_size: [width, height],
-    u_texture: texture,
-    u_color: colorArray(style.fill ?? createCssColor("#ffffff")),
-  };
+    return {
+        u_position: [position.x, position.y - size],
+        u_size: [width, height],
+        u_texture: texture,
+        u_color: colorArray(style.fill ?? createCssColor('#ffffff')),
+    };
 }

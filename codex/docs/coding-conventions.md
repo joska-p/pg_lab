@@ -39,13 +39,13 @@ Do not force callers to materialize or transform data unnecessarily.
 
 ```ts
 function sum(values: Iterable<number>): number {
-  let total = 0;
+    let total = 0;
 
-  for (const value of values) {
-    total += value;
-  }
+    for (const value of values) {
+        total += value;
+    }
 
-  return total;
+    return total;
 }
 ```
 
@@ -55,9 +55,9 @@ Branded types can represent such guarantees when an API requires a value to have
 
 ```ts
 type NormalizedVector = {
-  x: number;
-  y: number;
-} & { __brand: "normalized" };
+    x: number;
+    y: number;
+} & { __brand: 'normalized' };
 ```
 
 A type-level guarantee is only as meaningful as the boundary that establishes it.
@@ -361,8 +361,8 @@ Store them as **stable references** when application-wide reachability is useful
 
 ```ts
 interface EngineSlice {
-  engine: Engine | null;
-  setEngine(engine: Engine): void;
+    engine: Engine | null;
+    setEngine(engine: Engine): void;
 }
 ```
 
@@ -479,11 +479,11 @@ They should call domain logic rather than becoming the domain logic.
 
 ```ts
 export function mountEngine(canvas: HTMLCanvasElement) {
-  const engine = createEngine(canvas);
+    const engine = createEngine(canvas);
 
-  engineStore.setState({ engine });
+    engineStore.setState({ engine });
 
-  engine.start();
+    engine.start();
 }
 ```
 
@@ -798,21 +798,21 @@ Use Vite-resolved assets co-located with the code instead:
 - Never keep a `baseUrl` / absolute-path fallback alongside it: one pattern only.
 
 ```ts
-const sdfUrlModules = import.meta.glob("../assets/molecules/*.sdf", {
-  query: "?url",
-  import: "default",
+const sdfUrlModules = import.meta.glob('../assets/molecules/*.sdf', {
+    query: '?url',
+    import: 'default',
 }) as Record<string, () => Promise<string>>;
 
 const sdfUrlByFile = new Map<string, () => Promise<string>>(
-  Object.entries(sdfUrlModules).map(([path, loader]) => [path.split("/").pop() ?? path, loader]),
+    Object.entries(sdfUrlModules).map(([path, loader]) => [path.split('/').pop() ?? path, loader]),
 );
 
 export async function loadMolecule(entry: MoleculeEntry): Promise<Molecule> {
-  const loader = sdfUrlByFile.get(entry.file);
-  if (!loader) throw new Error(`unknown asset ${entry.file}`);
-  const res = await fetch(await loader());
-  if (!res.ok) throw new Error(`could not load ${entry.file} (${res.status})`);
-  return parseAndValidate(await res.text(), entry.file);
+    const loader = sdfUrlByFile.get(entry.file);
+    if (!loader) throw new Error(`unknown asset ${entry.file}`);
+    const res = await fetch(await loader());
+    if (!res.ok) throw new Error(`could not load ${entry.file} (${res.status})`);
+    return parseAndValidate(await res.text(), entry.file);
 }
 ```
 

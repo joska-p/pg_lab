@@ -10,12 +10,12 @@ export const FULLSCREEN_TRIANGLE = /* glsl */ `
   }
 `.trim();
 
-import type { CompiledShaderProgram, UniformEntry } from "./types";
+import type { CompiledShaderProgram, UniformEntry } from './types';
 
 function withVersionDirective(source: string): string {
-  const stripped = source.replace(/^\uFEFF/, "").replace(/^\s*#version\s+\d+\s+\w+\s*/m, "");
+    const stripped = source.replace(/^\uFEFF/, '').replace(/^\s*#version\s+\d+\s+\w+\s*/m, '');
 
-  return `#version 300 es\n${stripped}`;
+    return `#version 300 es\n${stripped}`;
 }
 
 /**
@@ -23,86 +23,86 @@ function withVersionDirective(source: string): string {
  * failure.
  */
 export function compileProgram(
-  gl: WebGL2RenderingContext,
-  fragmentSource: string,
-  vertexSource: string = FULLSCREEN_TRIANGLE,
+    gl: WebGL2RenderingContext,
+    fragmentSource: string,
+    vertexSource: string = FULLSCREEN_TRIANGLE,
 ): CompiledShaderProgram {
-  const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
 
-  if (!vertexShader) throw new Error('Glaze: shader "vertex" creation failed');
+    if (!vertexShader) throw new Error('Glaze: shader "vertex" creation failed');
 
-  gl.shaderSource(vertexShader, withVersionDirective(vertexSource));
-  gl.compileShader(vertexShader);
+    gl.shaderSource(vertexShader, withVersionDirective(vertexSource));
+    gl.compileShader(vertexShader);
 
-  if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-    const log = gl.getShaderInfoLog(vertexShader);
+    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+        const log = gl.getShaderInfoLog(vertexShader);
 
-    gl.deleteShader(vertexShader);
-    throw new Error(`Glaze: shader "vertex" compile failed: ${String(log)}`);
-  }
-
-  const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-
-  if (!fragmentShader) {
-    gl.deleteShader(vertexShader);
-    throw new Error('Glaze: shader "fragment" creation failed');
-  }
-
-  gl.shaderSource(fragmentShader, withVersionDirective(fragmentSource));
-  gl.compileShader(fragmentShader);
-
-  if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-    const log = gl.getShaderInfoLog(fragmentShader);
-
-    gl.deleteShader(vertexShader);
-    gl.deleteShader(fragmentShader);
-    throw new Error(`Glaze: shader "fragment" compile failed: ${String(log)}`);
-  }
-
-  const program = gl.createProgram();
-
-  if (!program) {
-    gl.deleteShader(vertexShader);
-    gl.deleteShader(fragmentShader);
-    throw new Error('Glaze: shader "link" program creation failed');
-  }
-
-  gl.attachShader(program, vertexShader);
-  gl.attachShader(program, fragmentShader);
-  gl.linkProgram(program);
-
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    const log = gl.getProgramInfoLog(program);
-
-    gl.deleteProgram(program);
-    gl.deleteShader(vertexShader);
-    gl.deleteShader(fragmentShader);
-    throw new Error(`Glaze: shader "link" compile failed: ${String(log)}`);
-  }
-
-  gl.deleteShader(vertexShader);
-  gl.deleteShader(fragmentShader);
-
-  const uniforms = new Map<string, UniformEntry>();
-  const numUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS) as number;
-
-  for (let i = 0; i < numUniforms; i++) {
-    const info = gl.getActiveUniform(program, i);
-
-    if (info) {
-      const loc = gl.getUniformLocation(program, info.name);
-
-      if (loc) {
-        const baseName = info.name.replace(/\[0\]$/, "");
-
-        uniforms.set(baseName, {
-          location: loc,
-          type: info.type,
-          size: info.size,
-        });
-      }
+        gl.deleteShader(vertexShader);
+        throw new Error(`Glaze: shader "vertex" compile failed: ${String(log)}`);
     }
-  }
 
-  return { program, uniforms };
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+
+    if (!fragmentShader) {
+        gl.deleteShader(vertexShader);
+        throw new Error('Glaze: shader "fragment" creation failed');
+    }
+
+    gl.shaderSource(fragmentShader, withVersionDirective(fragmentSource));
+    gl.compileShader(fragmentShader);
+
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+        const log = gl.getShaderInfoLog(fragmentShader);
+
+        gl.deleteShader(vertexShader);
+        gl.deleteShader(fragmentShader);
+        throw new Error(`Glaze: shader "fragment" compile failed: ${String(log)}`);
+    }
+
+    const program = gl.createProgram();
+
+    if (!program) {
+        gl.deleteShader(vertexShader);
+        gl.deleteShader(fragmentShader);
+        throw new Error('Glaze: shader "link" program creation failed');
+    }
+
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        const log = gl.getProgramInfoLog(program);
+
+        gl.deleteProgram(program);
+        gl.deleteShader(vertexShader);
+        gl.deleteShader(fragmentShader);
+        throw new Error(`Glaze: shader "link" compile failed: ${String(log)}`);
+    }
+
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+
+    const uniforms = new Map<string, UniformEntry>();
+    const numUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS) as number;
+
+    for (let i = 0; i < numUniforms; i++) {
+        const info = gl.getActiveUniform(program, i);
+
+        if (info) {
+            const loc = gl.getUniformLocation(program, info.name);
+
+            if (loc) {
+                const baseName = info.name.replace(/\[0\]$/, '');
+
+                uniforms.set(baseName, {
+                    location: loc,
+                    type: info.type,
+                    size: info.size,
+                });
+            }
+        }
+    }
+
+    return { program, uniforms };
 }

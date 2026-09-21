@@ -1,48 +1,48 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
-    branches:
-      - main
+    push:
+        branches:
+            - main
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+    contents: read
+    pages: write
+    id-token: write
 
 # Allow only one concurrent deployment
 concurrency:
-  group: "pages"
-  cancel-in-progress: true
+    group: 'pages'
+    cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    deploy:
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
 
-      # Installe Vite+, gère Node.js, pnpm et le cache global des packages en une étape
-      - uses: voidzero-dev/setup-vp@v1.20.0
-        with:
-          node-version: "24"
-          cache: true
-      - run: vp install
-      - run: vp check
-      - run: vp run playground#build
+            # Installe Vite+, gère Node.js, pnpm et le cache global des packages en une étape
+            - uses: voidzero-dev/setup-vp@v1.20.0
+              with:
+                  node-version: '24'
+                  cache: true
+            - run: vp install
+            - run: vp check
+            - run: vp run playground#build
 
-      # Téléverse le dossier de sortie généré par le build de l'application
-      # (Puisqu'on lance la commande depuis la racine, le chemin relatif est conservé)
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: ./apps/playground/dist
+            # Téléverse le dossier de sortie généré par le build de l'application
+            # (Puisqu'on lance la commande depuis la racine, le chemin relatif est conservé)
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v5
+              with:
+                  path: ./apps/playground/dist
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v5
