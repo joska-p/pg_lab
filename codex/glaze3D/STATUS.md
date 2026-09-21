@@ -5,20 +5,22 @@ Goal: `glaze3d` (WebGL2 mini-framework, successeur three.js simple) + `mol-demo`
 Priorité au niveau technique en cas d'arbitrage (cf. `01-objectif.md`).
 SSOT: `codex/glaze3D/01-objectif.md`, `02-usecases.md`, `03-specs.md`, `mol-demo.js.txt`.
 
-State: S8 done — mol-demo viewer 3D (`lib/buildMolMesh.ts`: sphères
-`r*0.45` 32×20 + cylindres `0.065` 16 segs, midpoint+`setFromUnitVectors`,
-`clear()` au switch, bonds dégénérés sautés + `components/MolCanvas.tsx`:
-`PerspectiveCamera(40,1,0.01,200)` pos `(4,3,11)` + 1 ambient 0.5 + 3
-directional caméra, `Renderer` + `OrbitControls` (pan/zoom false, autoRotate
-0.75, damping 0.07) + RAF `controls.update+render` + `resizeMol`) + exports
-`glaze3d` (`./core/geometry/material/math/renderer/controls`, miroir
-`@repo/ui`) + 37 tests (`vp test` 37/37 5 fichiers, `vp check` vert
-`mol-demo`+`glaze3d`, build OK, 0 erreurs).
-Verified: build `mol-demo` OK (69 modules), switch rebuild sans fantômes
-(test clear), drag/damping/autoRotate via `OrbitControls` S6.
-Next: S9 — pattern diffraction + intégration caméra (`PatternCanvas`,
-`computeNorm32`, lecture `matrixWorldInverse.elements`).
-Detail: `PLAN.md` §S5. Decisions: `DECISIONS.md`. Log: `SESSIONS.md`.
+State: S9 done — pattern diffraction (`lib/pattern/{lut,norm,viewer,index}.ts`:
+`XRAY_LUT` γ0.72, `projectAtoms` via `matrixWorldInverse.elements`
+`me[0,4,8]/me[1,5,9]`, `computeNorm32Raw` 32×32 + EMA `createPatternNorm`
+
+- 10 tests, `components/PatternCanvas.tsx`: shaders `VS_SRC/fragSrc`
+  (MAX_ATOMS mobile/desktop), `makeShader/makeProgram`, `setAtomFFUniforms`,
+  throttle 33ms + early-out `angleTo<0.003`, fallback CPU + `resizePat`
+  600/900, `change` → `patDirty`, `MolCanvas` expose `viewerRef`, `App`
+  mol+pattern côte à côte) + exports pattern (`lib/index.ts`) +
+  `vp test` 47/47 (7 fichiers), `vp check` vert, build OK (72 modules).
+  Verified: `vp test` 47/47 10:03, `vp check` 0 erreurs 29 fichiers,
+  `vp run mol-demo#build` OK (72 modules). Headless: GPU non vérifiable
+  visuellement, CPU/GPU fidèles à `mol-demo.js.txt`.
+  Next: S10 — finalisation (drop `.mol/.sdf`, lifecycle, comparatif visuel,
+  `vp check && vp run -r test && vp run -r build`).
+  Detail: `PLAN.md` §S5. Decisions: `DECISIONS.md`. Log: `SESSIONS.md`.
 
 Ritual fin de session (obligatoire): MAJ State+Next ici, 1 ligne datée
 dans `SESSIONS.md`, append décisions dans `DECISIONS.md`, `vp check`.

@@ -1,0 +1,404 @@
+import { useEffect, useRef, useState } from "react";
+import { Quat } from "@repo/glaze3d/math";
+import { FF, Q_MAX, Q_MIN, ff, maxAtoms } from "../lib/formFactors";
+import { XRAY_LUT } from "../lib/pattern/lut";
+import {
+  PATTERN_ANGLE_EPS,
+  PATTERN_PAT_MS,
+  createPatternNorm,
+  projectAtoms,
+} from "../lib/pattern/norm";
+import type { ProjectedAtom } from "../lib/pattern/norm";
+import type { ViewerRef } from "../lib/pattern/viewer";
+import type { Molecule } from "../lib/parseMol";
+import { useMoleculeCurrent } from "../stores/moleculeStore";
+
+// Live oriented IAM scattering pattern (UC A6). Owns its own canvas +
+// raw WebGL2 shader; glaze3d stays unaware — the camera is only read here
+// via `camera.updateMatrixWorld()` + `matrixWorldInverse.elements`.
+
+const VS_SRC = `#version 300 es
+void main() {
+    const vec2 pos[4] = vec2[4](
+        vec2(-1,-1), vec2(1,-1), vec2(-1,1), vec2(1,1)
+    );
+    gl_Position = vec4(pos[gl_VertexID], 0.0, 1.0);
+}`;
+
+function fragSrc(maxAtomsCount: number): string {
+  return `#version 300 es
+precision highp float;
+#define MAX_ATOMS ${maxAtomsCount}
+#define PI 3.141592653589793
+
+uniform vec2  uResolution;
+uniform float uQmin;
+uniform float uQmax;
+uniform int   uNatoms;
+uniform vec2  uAtomPos[MAX_ATOMS];
+uniform vec4  uFFa[MAX_ATOMS];
+uniform vec4  uFFb[MAX_ATOMS];
+uniform float uFFc[MAX_ATOMS];
+uniform float uNorm;
+uniform sampler2D uLUT;
+
+out vec4 fragColor;
+
+void main() {
+    vec2  center = uResolution * 0.5;
+    float R      = min(center.x, center.y) * 0.97;
+    float sc     = uQmax / R;
+    // gl_FragCoord.y is 0 at screen-bottom; canvas py=0 is screen-top.
+    // CPU convention: qy = (cy - py)*sc, positive at canvas top.
+    // Equivalent here: qy = (fragCoord.y - center.y)*sc (both increase same direction).
+    float qx     = (gl_FragCoord.x - center.x) * sc;
+    float qy     = (gl_FragCoord.y - center.y) * sc;
+    float q      = length(vec2(qx, qy));
+
+    if (q < uQmin || q > uQmax) { fragColor = vec4(0.0); return; }
+
+    float s = q / (4.0 * PI);
+    s *= s;
+
+    float re = 0.0, im = 0.0;
+    for (int i = 0; i < MAX_ATOMS; i++) {
+        if (i >= uNatoms) break;
+        float f  = dot(uFFa[i], exp(-uFFb[i] * s)) + uFFc[i];
+        float ph = qx * uAtomPos[i].x + qy * uAtomPos[i].y;
+        re += f * cos(ph);
+        im += f * sin(ph);
+    }
+
+    float I_raw = re*re + im*im;
+    float fade  = min(1.0, (q - uQmin) / (uQmin * 2.0))
+                * min(1.0, (uQmax - q) / (uQmax * 0.06));
+    float v     = clamp(log(1.0 + I_raw) / uNorm, 0.0, 1.0);
+    vec3  col   = texture(uLUT, vec2(v, 0.5)).rgb;
+
+    fragColor = vec4(col, v * fade);
+}`;
+}
+
+function makeShader(gl: WebGL2RenderingContext, type: number, src: string): WebGLShader {
+  const sh = gl.createShader(type);
+  if (!sh) throw new Error("pattern: could not create shader");
+  gl.shaderSource(sh, src);
+  gl.compileShader(sh);
+  if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+    const log = gl.getShaderInfoLog(sh);
+    gl.deleteShader(sh);
+    throw new Error(`pattern shader: ${log}`);
+  }
+  return sh;
+}
+
+function makeProgram(gl: WebGL2RenderingContext, vsSrc: string, fsSrc: string): WebGLProgram {
+  const prog = gl.createProgram();
+  if (!prog) throw new Error("pattern: could not create program");
+  const vs = makeShader(gl, gl.VERTEX_SHADER, vsSrc);
+  const fs = makeShader(gl, gl.FRAGMENT_SHADER, fsSrc);
+  gl.attachShader(prog, vs);
+  gl.attachShader(prog, fs);
+  gl.linkProgram(prog);
+  gl.deleteShader(vs);
+  gl.deleteShader(fs);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    const log = gl.getProgramInfoLog(prog);
+    gl.deleteProgram(prog);
+    throw new Error(`pattern program: ${log}`);
+  }
+  return prog;
+}
+
+type UniformMap = Record<string, WebGLUniformLocation | null>;
+
+function setAtomFFUniforms(gl: WebGL2RenderingContext, uniforms: UniformMap, mol: Molecule): void {
+  gl.uniform1i(uniforms["uNatoms"], mol.atoms.length);
+  for (let i = 0; i < mol.atoms.length; i++) {
+    const c = FF[mol.atoms[i] as string];
+    if (!c) continue;
+    gl.uniform4f(uniforms[`uFFa${i}`], c[0] ?? 0, c[1] ?? 0, c[2] ?? 0, c[3] ?? 0);
+    gl.uniform4f(uniforms[`uFFb${i}`], c[4] ?? 0, c[5] ?? 0, c[6] ?? 0, c[7] ?? 0);
+    gl.uniform1f(uniforms[`uFFc${i}`], c[8] ?? 0);
+  }
+}
+
+function drawPatternCPU(
+  ctx: CanvasRenderingContext2D,
+  atoms: readonly ProjectedAtom[],
+  w: number,
+  h: number,
+  raw: Float32Array,
+  mask: Uint8Array,
+  fadeTbl: Float32Array,
+  sampBuf: Float32Array,
+): void {
+  const cx = w / 2;
+  const cy = h / 2;
+  const r = Math.min(cx, cy) * 0.97;
+  const sc = Q_MAX / r;
+
+  raw.fill(0);
+  mask.fill(0);
+  let maxV = 0;
+
+  for (let py = 0; py < h; py++) {
+    for (let px = 0; px < w; px++) {
+      const qx = (px - cx) * sc;
+      const qy = (cy - py) * sc;
+      const q = Math.sqrt(qx * qx + qy * qy);
+      if (q < Q_MIN || q > Q_MAX) continue;
+      let re = 0;
+      let im = 0;
+      for (const { el, vx, vy } of atoms) {
+        const f = ff(el, q);
+        const ph = qx * vx + qy * vy;
+        re += f * Math.cos(ph);
+        im += f * Math.sin(ph);
+      }
+      const v = Math.log(1 + re * re + im * im);
+      const idx = py * w + px;
+      raw[idx] = v;
+      mask[idx] = 1;
+      fadeTbl[idx] =
+        Math.min(1, (q - Q_MIN) / (Q_MIN * 2)) * Math.min(1, (Q_MAX - q) / (Q_MAX * 0.06));
+      if (v > maxV) maxV = v;
+    }
+  }
+  if (maxV === 0) return;
+
+  let sampLen = 0;
+  for (let i = 0; i < raw.length; i += 8) {
+    if ((raw[i] as number) > 0) sampBuf[sampLen++] = raw[i] as number;
+  }
+  const samp = sampBuf.subarray(0, sampLen);
+  samp.sort();
+  const norm = (samp[Math.floor(sampLen * 0.97)] as number) || maxV;
+
+  const imgData = ctx.createImageData(w, h);
+  const px4 = imgData.data;
+  for (let i = 0; i < w * h; i++) {
+    const base = i * 4;
+    if (!mask[i]) {
+      px4[base + 3] = 0;
+      continue;
+    }
+    const vi = Math.min(255, (((raw[i] as number) / norm) * 255) | 0);
+    const li = vi * 3;
+    px4[base] = XRAY_LUT[li] as number;
+    px4[base + 1] = XRAY_LUT[li + 1] as number;
+    px4[base + 2] = XRAY_LUT[li + 2] as number;
+    px4[base + 3] = (vi * (fadeTbl[i] as number)) | 0;
+  }
+  ctx.putImageData(imgData, 0, 0);
+}
+
+export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
+  const [cpuFallback, setCpuFallback] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const molecule = useMoleculeCurrent();
+  const molRef = useRef(molecule);
+  molRef.current = molecule;
+  const fallbackRef = useRef(cpuFallback);
+  fallbackRef.current = cpuFallback;
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas === null) return;
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    const maxCount = maxAtoms(isMobile);
+    const norm = createPatternNorm();
+    let disposed = false;
+    let rafId = 0;
+    let patDirty = true;
+    let lastTs = 0;
+    let lastMol: Molecule | null = null;
+    const prevQuat = new Quat();
+    let firstFrame = true;
+    let subscribedControls: { dispose?: () => void } | { remove?: () => void } | null = null;
+    let onChange: (() => void) | null = null;
+
+    const markDirty = () => {
+      patDirty = true;
+    };
+
+    const subscribeControls = () => {
+      const controls = viewerRef.current?.controls;
+      if (!controls || subscribedControls) return;
+      onChange = markDirty;
+      controls.addEventListener("change", onChange);
+      subscribedControls = {
+        dispose: () => {
+          if (onChange) controls.removeEventListener("change", onChange);
+        },
+      };
+    };
+
+    // CPU buffers (allocated on resize when in fallback mode).
+    let patCtx: CanvasRenderingContext2D | null = null;
+    let raw = new Float32Array(0);
+    let mask = new Uint8Array(0);
+    let fadeTbl = new Float32Array(0);
+    let sampBuf = new Float32Array(0);
+
+    // GPU state.
+    let gl: WebGL2RenderingContext | null = null;
+    let prog: WebGLProgram | null = null;
+    const uniforms: UniformMap = {};
+
+    const resizePat = () => {
+      const BUF = window.matchMedia("(max-width: 768px)").matches ? 600 : 900;
+      canvas.width = BUF;
+      canvas.height = BUF;
+      if (gl) {
+        gl.viewport(0, 0, BUF, BUF);
+      } else {
+        const n = BUF * BUF;
+        raw = new Float32Array(n);
+        mask = new Uint8Array(n);
+        fadeTbl = new Float32Array(n);
+        sampBuf = new Float32Array(Math.ceil(n / 8));
+      }
+      patDirty = true;
+    };
+
+    if (!fallbackRef.current) {
+      const maybeGl = canvas.getContext("webgl2", {
+        alpha: true,
+        premultipliedAlpha: false,
+      });
+      if (maybeGl === null) {
+        setCpuFallback(true);
+        return;
+      }
+      try {
+        gl = maybeGl;
+        prog = makeProgram(gl, VS_SRC, fragSrc(maxCount));
+        gl.useProgram(prog);
+        for (const n of ["uResolution", "uQmin", "uQmax", "uNatoms", "uNorm", "uLUT"]) {
+          uniforms[n] = gl.getUniformLocation(prog, n);
+        }
+        for (let i = 0; i < maxCount; i++) {
+          uniforms[`uAtomPos${i}`] = gl.getUniformLocation(prog, `uAtomPos[${i}]`);
+          uniforms[`uFFa${i}`] = gl.getUniformLocation(prog, `uFFa[${i}]`);
+          uniforms[`uFFb${i}`] = gl.getUniformLocation(prog, `uFFb[${i}]`);
+          uniforms[`uFFc${i}`] = gl.getUniformLocation(prog, `uFFc[${i}]`);
+        }
+        const lutTex = gl.createTexture();
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, lutTex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, XRAY_LUT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.uniform1i(uniforms["uLUT"], 0);
+        gl.uniform1f(uniforms["uQmin"], Q_MIN);
+        gl.uniform1f(uniforms["uQmax"], Q_MAX);
+      } catch (err) {
+        console.warn("pattern: WebGL2 init failed, using CPU fallback:", err);
+        gl = null;
+        prog = null;
+        setCpuFallback(true);
+        return;
+      }
+    } else {
+      patCtx = canvas.getContext("2d");
+      if (patCtx === null) return;
+    }
+
+    resizePat();
+    subscribeControls();
+    window.addEventListener("resize", resizePat);
+    const onVisible = () => {
+      if (!document.hidden) patDirty = true;
+    };
+    const onPageShow = () => {
+      patDirty = true;
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("pageshow", onPageShow);
+
+    const loop = () => {
+      if (disposed) return;
+      rafId = requestAnimationFrame(loop);
+      const mol = molRef.current;
+      if (mol === null) return;
+      const camera = viewerRef.current?.camera;
+      if (!camera) return;
+      subscribeControls();
+
+      if (mol !== lastMol) {
+        lastMol = mol;
+        norm.reset();
+        if (gl && prog) {
+          gl.useProgram(prog);
+          setAtomFFUniforms(gl, uniforms, mol);
+        }
+        patDirty = true;
+      }
+
+      const now = performance.now();
+      if (now - lastTs < PATTERN_PAT_MS) return;
+      if (!patDirty && !firstFrame && camera.quaternion.angleTo(prevQuat) < PATTERN_ANGLE_EPS) {
+        return;
+      }
+      prevQuat.copy(camera.quaternion);
+      patDirty = false;
+      lastTs = now;
+      firstFrame = false;
+
+      const w = canvas.width;
+      const h = canvas.height;
+      if (!w || !h) return;
+
+      camera.updateMatrixWorld();
+      const atoms = projectAtoms(mol, camera.matrixWorldInverse.elements);
+
+      if (gl && prog) {
+        const normV = norm.compute(atoms, w, h);
+        gl.useProgram(prog);
+        gl.viewport(0, 0, w, h);
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.uniform2f(uniforms["uResolution"], w, h);
+        gl.uniform1f(uniforms["uNorm"], normV);
+        for (let i = 0; i < atoms.length; i++) {
+          const a = atoms[i] as ProjectedAtom;
+          gl.uniform2f(uniforms[`uAtomPos${i}`], a.vx, a.vy);
+        }
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        return;
+      }
+
+      if (patCtx) {
+        drawPatternCPU(patCtx, atoms, w, h, raw, mask, fadeTbl, sampBuf);
+      }
+    };
+    rafId = requestAnimationFrame(loop);
+
+    return () => {
+      disposed = true;
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", resizePat);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("pageshow", onPageShow);
+      const controls = viewerRef.current?.controls;
+      if (controls && onChange) controls.removeEventListener("change", onChange);
+      subscribedControls = null;
+      if (gl) {
+        if (prog) gl.deleteProgram(prog);
+        gl.getExtension("WEBGL_lose_context")?.loseContext();
+      }
+    };
+  }, [cpuFallback, viewerRef]);
+
+  return (
+    <canvas
+      key={cpuFallback ? "cpu" : "gpu"}
+      ref={canvasRef}
+      style={{ width: "100%", height: "100%", display: "block" }}
+      aria-label="diffraction pattern"
+    />
+  );
+}

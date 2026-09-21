@@ -1,4 +1,4 @@
-// mol-demo data layer (S7) + viewer builder (S8).
+// mol-demo data layer (S7) + viewer builder (S8) + pattern (S9).
 export { ATOM, ATOM_FALLBACK, atomDisplay } from "./atoms";
 export type { AtomDisplay } from "./atoms";
 export {
@@ -36,3 +36,16 @@ export {
   BOND_SHININESS,
   buildMolMesh,
 } from "./buildMolMesh";
+export {
+  PATTERN_ANGLE_EPS,
+  PATTERN_GRID,
+  PATTERN_PAT_MS,
+  PATTERN_SMOOTHING,
+  XRAY_LUT,
+  XRAY_LUT_GAMMA,
+  computeNorm32Raw,
+  createPatternNorm,
+  projectAtoms,
+  smoothNormStep,
+} from "./pattern";
+export type { PatternNorm, ProjectedAtom, ViewerHandle, ViewerRef } from "./pattern";

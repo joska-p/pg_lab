@@ -3,12 +3,14 @@ import { AmbientLight, DirectionalLight, Group, PerspectiveCamera } from "@repo/
 import { OrbitControls } from "@repo/glaze3d/controls";
 import { Renderer } from "@repo/glaze3d/renderer";
 import { buildMolMesh } from "../lib/buildMolMesh";
+import type { ViewerRef } from "../lib/pattern/viewer";
 import { useMoleculeCurrent } from "../stores/moleculeStore";
 
 // 3D viewer (UC A2/A3/A4): owns the glaze3d scene — camera, lights,
 // molecule group, renderer, controls, RAF loop. The molecule itself comes
-// from moleculeStore; pattern integration (S9) reads the camera separately.
-export function MolCanvas() {
+// from moleculeStore; pattern integration (S9) reads the camera separately
+// through viewerRef (glaze3d itself never knows about the pattern).
+export function MolCanvas({ viewerRef }: { viewerRef?: ViewerRef }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const molGroupRef = useRef<Group | null>(null);
   const molecule = useMoleculeCurrent();
@@ -49,6 +51,7 @@ export function MolCanvas() {
       enableDamping: true,
       dampingFactor: 0.07,
     });
+    if (viewerRef) viewerRef.current = { camera, controls };
 
     const resizeMol = () => {
       const rect = canvas.getBoundingClientRect();
@@ -82,8 +85,9 @@ export function MolCanvas() {
       window.removeEventListener("resize", resizeMol);
       controls.dispose();
       molGroupRef.current = null;
+      if (viewerRef) viewerRef.current = null;
     };
-  }, []);
+  }, [viewerRef]);
 
   useEffect(() => {
     const molGroup = molGroupRef.current;

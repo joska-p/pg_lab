@@ -24,3 +24,7 @@ atoms,molecules,index}.ts` + 6 SDF `public/molecules/` (9->56 atomes) +
 - 2026-09-20 (S8): viewer 3D done — `lib/buildMolMesh.ts` + `MolCanvas.tsx`
   (camera 40/(4,3,11) + 1+3 lights, RAF controls.update+render, resizeMol) +
   exports `glaze3d`, `vp test` 37/37 (5 fichiers) + `vp check` vert, next=S9 pattern.
+- 2026-09-21 (S9): pattern diffraction done — `lib/pattern/{lut,norm,viewer}.ts`
+  - `PatternCanvas.tsx` (GPU shader + fallback CPU, throttle 33ms, early-out
+    0.003, `change`→`patDirty`, lecture `matrixWorldInverse.elements`), `vp test`
+    47/47 (7 fichiers) + `vp check` vert + build OK (72 modules), next=S10 finalisation.
