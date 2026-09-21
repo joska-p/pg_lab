@@ -12,3 +12,7 @@
   l'import type de `store.ts`); `actions.ts`, `coordinates.ts`,
   `useCellPainting.ts` restent en S2. Fichiers portés normalisés au
   style repo via `vp check --fix` (guillemets doubles, indent 2).
+- 2026-09-21 D6 (S2): fix `CanvasInteractions` void appliqué dès S2
+  (pas différé en S3) — requis pour un `vp check` vert; `onEnd`
+  accepte l'event et l'ignore (`_event`); `GpuSurface` garde son path
+  `gpu/GpuSurface` (inchangé, vérifié).
