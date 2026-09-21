@@ -10,10 +10,10 @@ import { gruvboxPalette as palette } from '@repo/ui/tokens/palette.stylex';
 //          (bright in light mode, faded in dark mode).
 // strong — the readable line/mark: chip stroke + text, thumb seed, hover
 //          infusion (a neutral value valid in both modes).
-export type LabFamily = {
+export interface LabFamily {
     base: string;
     strong: string;
-};
+}
 
 export const FAMILIES = {
     amber: {

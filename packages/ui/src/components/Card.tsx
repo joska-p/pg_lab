@@ -41,11 +41,11 @@ const variantEffects = {
     sunken: elevation.sunken,
 } satisfies Record<keyof typeof variants, StyleXStyles | null>;
 
-type CardProps = {
+interface CardProps {
     variant?: keyof typeof variants;
     style?: StyleXStyles;
     children?: React.ReactNode;
-};
+}
 
 export function Card({ variant = 'surface', style, children }: CardProps) {
     return (

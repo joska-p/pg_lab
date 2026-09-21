@@ -31,11 +31,11 @@ const styles = stylex.create({
     },
 });
 
-type SectionHeadingProps = {
+interface SectionHeadingProps {
     index?: string;
     title: string;
     style?: StyleXStyles;
-};
+}
 
 export function SectionHeading({ index, title, style }: SectionHeadingProps) {
     return (

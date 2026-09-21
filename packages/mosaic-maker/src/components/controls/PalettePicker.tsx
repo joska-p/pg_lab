@@ -51,9 +51,9 @@ const styles = stylex.create({
     }),
 });
 
-type PalettePickerProps = {
+interface PalettePickerProps {
     style?: StyleXStyles;
-};
+}
 
 function PalettePicker({ style }: PalettePickerProps) {
     const currentPalette = useCurrentPalette();

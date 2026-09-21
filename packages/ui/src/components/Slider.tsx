@@ -9,7 +9,7 @@ import { families, type FamilyName } from '../tokens/families.stylex';
 import { borderWidth, interaction, layout, radius, space } from '../tokens/layout.stylex';
 import { shadowColor, shadows } from '../tokens/shadows.stylex';
 
-type SliderProps = {
+interface SliderProps {
     label?: string;
     family?: FamilyName;
     min: number;
@@ -21,7 +21,7 @@ type SliderProps = {
     disabled?: boolean;
     id?: string;
     style?: StyleXStyles;
-};
+}
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 

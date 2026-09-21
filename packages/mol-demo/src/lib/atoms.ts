@@ -2,10 +2,10 @@
 // Only elements with a known color/radius are listed; anything else
 // (including elements that do have form factors) falls back to ATOM_FALLBACK.
 
-export type AtomDisplay = {
+export interface AtomDisplay {
     r: number;
     col: number;
-};
+}
 
 export const ATOM: Record<string, AtomDisplay> = {
     H: { r: 0.31, col: 0xffffff },

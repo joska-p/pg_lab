@@ -8,7 +8,7 @@ import { fieldText } from '../recipes/typography.stylex';
 import { families, type FamilyName } from '../tokens/families.stylex';
 import { Led } from './Led';
 
-type NumberFieldProps = {
+interface NumberFieldProps {
     label?: string;
     family?: FamilyName;
     live?: boolean;
@@ -23,7 +23,7 @@ type NumberFieldProps = {
     disabled?: boolean;
     id?: string;
     style?: StyleXStyles;
-};
+}
 
 export function NumberField(props: NumberFieldProps) {
     const {

@@ -35,12 +35,12 @@ const ledStyles = stylex.create({
     fill: (color: string) => ({ color }),
 });
 
-type LedProps = {
+interface LedProps {
     color: string;
     live?: boolean;
     off?: boolean;
     style?: StyleXStyles;
-};
+}
 
 export function Led({ color, live = false, off = false, style }: LedProps) {
     return (
@@ -107,13 +107,13 @@ const keyStyles = stylex.create({
     },
 });
 
-type KeyProps = {
+interface KeyProps {
     label: string;
     family?: LabFamilyName;
     live?: boolean;
     lead?: boolean;
     style?: StyleXStyles;
-};
+}
 
 // The matte key: a neutral face that carries no fill. Color lives on the LED
 // (identity) and on the face only as a faint infusion while hovered or live
@@ -162,12 +162,12 @@ const chipStyles = stylex.create({
     },
 });
 
-type ChipProps = {
+interface ChipProps {
     label: string;
     family?: LabFamilyName;
     live?: boolean;
     style?: StyleXStyles;
-};
+}
 
 // The family chip: the Badge anatomy kept whole (outline pill, mono), but the
 // variant is now a "hue = meaning" family carried by stroke + text, with an
@@ -225,14 +225,14 @@ const fieldStyles = stylex.create({
     },
 });
 
-type LabFieldProps = {
+interface LabFieldProps {
     label?: string;
     family?: LabFamilyName;
     live?: boolean;
     placeholder?: string;
     defaultValue?: string;
     style?: StyleXStyles;
-};
+}
 
 // A field is a crevasse: one sunken well, one contact ring on focus, no
 // family tint on the box. If a field reads a real parameter, its data

@@ -8,7 +8,7 @@ import { fieldText } from '../recipes/typography.stylex';
 import { families, type FamilyName } from '../tokens/families.stylex';
 import { Led } from './Led';
 
-type TextAreaProps = {
+interface TextAreaProps {
     label?: string;
     family?: FamilyName;
     live?: boolean;
@@ -22,7 +22,7 @@ type TextAreaProps = {
     disabled?: boolean;
     id?: string;
     style?: StyleXStyles;
-};
+}
 
 const styles = stylex.create({
     input: {

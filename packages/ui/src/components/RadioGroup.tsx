@@ -9,12 +9,12 @@ import { familiesConsts, type FamilyName } from '../tokens/families.stylex';
 import { borderWidth, layout, radius, space } from '../tokens/layout.stylex';
 import { shadows } from '../tokens/shadows.stylex';
 
-type RadioOption<T extends string> = {
+interface RadioOption<T extends string> {
     value: T;
     label?: string;
-};
+}
 
-type RadioGroupProps<T extends string> = {
+interface RadioGroupProps<T extends string> {
     label?: string;
     family?: FamilyName;
     options: readonly T[] | readonly RadioOption<T>[];
@@ -24,7 +24,7 @@ type RadioGroupProps<T extends string> = {
     disabled?: boolean;
     id?: string;
     style?: StyleXStyles;
-};
+}
 
 const styles = stylex.create({
     row: {

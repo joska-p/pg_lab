@@ -6,11 +6,11 @@
 import { Q_MAX, Q_MIN, ff } from '../formFactors';
 import type { Molecule } from '../parseMol';
 
-export type ProjectedAtom = {
+export interface ProjectedAtom {
     el: string;
     vx: number;
     vy: number;
-};
+}
 
 export const PATTERN_GRID = 32;
 export const PATTERN_SMOOTHING = 0.25;

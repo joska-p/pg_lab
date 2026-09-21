@@ -40,10 +40,10 @@ const styles = stylex.create({
     },
 });
 
-type ShellWrapperProps = {
+interface ShellWrapperProps {
     style?: StyleXStyles;
     children?: React.ReactNode;
-};
+}
 
 export function ShellWrapper({ style, children }: ShellWrapperProps) {
     return <div {...stylex.props(styles.base, style)}>{children}</div>;

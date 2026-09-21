@@ -192,13 +192,13 @@ const studyStyles = stylex.create({
     },
 });
 
-type StudyProps = {
+interface StudyProps {
     index: string;
     name: string;
     aim: string;
     accent: LabFamilyName;
     children: React.ReactNode;
-};
+}
 
 function Study({ index, name, aim, accent, children }: StudyProps) {
     return (

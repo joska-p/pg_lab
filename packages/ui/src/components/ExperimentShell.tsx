@@ -105,12 +105,12 @@ const styles = stylex.create({
     },
 });
 
-type ExperimentShellProps = {
+interface ExperimentShellProps {
     children: React.ReactNode;
     panel?: React.ReactNode;
     panelPlacement?: 'docked' | 'floating';
     style?: StyleXStyles;
-};
+}
 
 export function ExperimentShell({
     children,

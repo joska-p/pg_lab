@@ -22,12 +22,12 @@ const ledStyles = stylex.create({
     fill: (base: string) => ({ color: base }),
 });
 
-export type LedProps = {
+export interface LedProps {
     color: FamilyName;
     live?: boolean;
     off?: boolean;
     style?: StyleXStyles;
-};
+}
 
 export function Led({ color, live = false, off = false, style }: LedProps) {
     return (

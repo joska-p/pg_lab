@@ -16,7 +16,7 @@ import { families, type FamilyName } from '../tokens/families.stylex';
 import { borderWidth, layout, radius, space } from '../tokens/layout.stylex';
 import { shadowColor } from '../tokens/shadows.stylex';
 
-type CheckboxProps = {
+interface CheckboxProps {
     label?: string;
     family?: FamilyName;
     checked?: boolean;
@@ -25,7 +25,7 @@ type CheckboxProps = {
     disabled?: boolean;
     id?: string;
     style?: StyleXStyles;
-};
+}
 
 const styles = stylex.create({
     row: {

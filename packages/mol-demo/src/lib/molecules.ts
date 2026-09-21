@@ -7,11 +7,11 @@ import { FF, maxAtoms } from './formFactors';
 import { parseMol } from './parseMol';
 import type { Molecule } from './parseMol';
 
-export type MoleculeEntry = {
+export interface MoleculeEntry {
     file: string;
     atoms: number;
     name: string;
-};
+}
 
 // Subset extracted from PubChem_search_records.sdf (see codex/glaze3D),
 // 9 → 56 atoms, all within the desktop MAX_ATOMS budget.
@@ -43,11 +43,11 @@ export function validateMolecule(mol: Molecule, maxAtomCount: number): Validatio
     return { ok: true };
 }
 
-export type SwitchResult = {
+export interface SwitchResult {
     mol: Molecule;
     switched: boolean;
     reason?: string;
-};
+}
 
 // Pure core of switchMolecule: invalid candidates keep the current molecule.
 export function switchMolecule(

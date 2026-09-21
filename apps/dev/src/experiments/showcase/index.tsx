@@ -65,7 +65,7 @@ type Filter = (typeof FILTERS)[number];
 
 const TINTS = ['#83a598', '#d3869b', '#b8bb26', '#fe8019', '#8ec07c'] as const;
 
-type Synth = {
+interface Synth {
     name: string;
     voices: number;
     wave: Wave;
@@ -74,7 +74,7 @@ type Synth = {
     tint: string;
     glide: boolean;
     mute: boolean;
-};
+}
 
 const DEFAULT_SYNTH: Synth = {
     name: 'bass-01',
@@ -89,12 +89,12 @@ const DEFAULT_SYNTH: Synth = {
 
 // ─── Section 00 · Live Demo ───────────────────────────────────────────────────
 
-type LiveDemoProps = {
+interface LiveDemoProps {
     synth: Synth;
     onPatch: (next: Partial<Synth>) => void;
     onRandomize: () => void;
     onReset: () => void;
-};
+}
 
 function LiveDemo({ synth, onPatch, onRandomize, onReset }: LiveDemoProps) {
     return (

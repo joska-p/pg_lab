@@ -6,12 +6,12 @@ import type { Molecule } from '../lib/parseMol';
 
 type LoadStatus = 'idle' | 'loading' | 'ready' | 'error';
 
-type MoleculeStore = {
+interface MoleculeStore {
     file: string;
     current: Molecule | null;
     status: LoadStatus;
     error: string | null;
-};
+}
 
 const moleculeStore = create<MoleculeStore>(() => ({
     file: MOLECULES[0].file,

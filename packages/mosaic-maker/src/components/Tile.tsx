@@ -76,12 +76,12 @@ function Tile({ name, colors, rotation, style }: TileProps) {
     );
 }
 
-type TileProps = {
+interface TileProps {
     name: string;
     colors: [string, string, string, string, string];
     rotation: string;
     style?: StyleXStyles;
-};
+}
 
 Tile.displayName = 'Tile';
 

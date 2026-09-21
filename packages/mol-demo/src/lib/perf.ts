@@ -3,7 +3,7 @@
 // Plain module state (not Zustand): high-frequency values with no need for
 // per-frame reactivity; the HUD polls via setInterval.
 
-export type PerfSnapshot = {
+export interface PerfSnapshot {
     fps: number;
     loops: number;
     renderMs: number;
@@ -15,7 +15,7 @@ export type PerfSnapshot = {
     molBuffer: string;
     patBuffer: string;
     molecule: string;
-};
+}
 
 const PATTERN_STALE_MS = 750;
 

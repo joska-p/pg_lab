@@ -6,12 +6,12 @@
 export type Vec3Tuple = [number, number, number];
 export type Bond = [number, number];
 
-export type Molecule = {
+export interface Molecule {
     name: string;
     atoms: string[];
     pos: Vec3Tuple[];
     bonds: Bond[];
-};
+}
 
 function fail(message: string): never {
     throw new Error(`mol-demo: ${message}`);

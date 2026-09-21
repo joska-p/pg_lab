@@ -53,7 +53,7 @@ const styles = stylex.create({
     },
 });
 
-type ErrorBoundaryProps = {
+interface ErrorBoundaryProps {
     children: ReactNode;
     /**
      * Rendered verbatim when an error is caught. Without it, the built-in alert box (message +
@@ -64,12 +64,12 @@ type ErrorBoundaryProps = {
     /** Show the stack trace in the default fallback. Gate it to dev in the caller. */
     showStack?: boolean;
     style?: StyleXStyles;
-};
+}
 
-type ErrorBoundaryState = {
+interface ErrorBoundaryState {
     error: Error | null;
     stack: string | null;
-};
+}
 
 // Error boundaries require a class component to implement
 // getDerivedStateFromError / componentDidCatch; function components cannot.

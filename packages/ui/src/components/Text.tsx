@@ -23,11 +23,11 @@ const variants = stylex.create({
     },
 });
 
-type TextProps = {
+interface TextProps {
     variant?: keyof typeof variants;
     style?: StyleXStyles;
     children?: React.ReactNode;
-};
+}
 
 export function Text({ variant = 'default', style, children }: TextProps) {
     return <p {...stylex.props(styles.base, variants[variant], style)}>{children}</p>;

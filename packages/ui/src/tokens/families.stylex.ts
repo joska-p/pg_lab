@@ -11,11 +11,11 @@ export type FamilyName =
     | 'aqua'
     | 'orange';
 
-export type Family = {
+export interface Family {
     base: string;
     strong: string;
     ink?: { fg: string; bg: string };
-};
+}
 
 // Flat variables for StyleX compiler
 export const familiesConsts = stylex.defineVars({

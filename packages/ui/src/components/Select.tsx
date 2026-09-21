@@ -10,12 +10,12 @@ import { families, type FamilyName } from '../tokens/families.stylex';
 import { interaction, layout, space } from '../tokens/layout.stylex';
 import { Led } from './Led';
 
-type SelectOption<T extends string> = {
+interface SelectOption<T extends string> {
     value: T;
     label?: string;
-};
+}
 
-type SelectProps<T extends string> = {
+interface SelectProps<T extends string> {
     label?: string;
     family?: FamilyName;
     live?: boolean;
@@ -29,7 +29,7 @@ type SelectProps<T extends string> = {
     disabled?: boolean;
     id?: string;
     style?: StyleXStyles;
-};
+}
 
 const styles = stylex.create({
     wrap: {

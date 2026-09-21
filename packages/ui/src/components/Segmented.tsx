@@ -9,12 +9,12 @@ import { familiesConsts, type FamilyName } from '../tokens/families.stylex';
 import { borderWidth, layout, radius, space } from '../tokens/layout.stylex';
 import { shadowColor } from '../tokens/shadows.stylex';
 
-type SegmentOption<T extends string> = {
+interface SegmentOption<T extends string> {
     value: T;
     label?: string;
-};
+}
 
-type SegmentedProps<T extends string> = {
+interface SegmentedProps<T extends string> {
     label?: string;
     family?: FamilyName;
     options: readonly T[] | readonly SegmentOption<T>[];
@@ -24,7 +24,7 @@ type SegmentedProps<T extends string> = {
     disabled?: boolean;
     id?: string;
     style?: StyleXStyles;
-};
+}
 
 const styles = stylex.create({
     row: {

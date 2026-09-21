@@ -30,12 +30,12 @@ const styles = stylex.create({
     },
 });
 
-type BadgeProps = {
+interface BadgeProps {
     family?: FamilyName;
     live?: boolean;
     style?: StyleXStyles;
     children?: React.ReactNode;
-};
+}
 
 export function Badge({ family, live = false, style, children }: BadgeProps) {
     const fam = family ? families[family] : null;

@@ -14,11 +14,11 @@ const styles = stylex.create({
     },
 });
 
-type ControlFieldProps = {
+interface ControlFieldProps {
     label?: string;
     style?: StyleXStyles;
     children?: React.ReactNode;
-};
+}
 
 export function ControlField({ label, style, children }: ControlFieldProps) {
     return (

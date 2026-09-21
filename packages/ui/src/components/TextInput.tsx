@@ -8,7 +8,7 @@ import { fieldText } from '../recipes/typography.stylex';
 import { families, type FamilyName } from '../tokens/families.stylex';
 import { Led } from './Led';
 
-type TextInputProps = {
+interface TextInputProps {
     label?: string;
     family?: FamilyName;
     live?: boolean;
@@ -21,7 +21,7 @@ type TextInputProps = {
     disabled?: boolean;
     id?: string;
     style?: StyleXStyles;
-};
+}
 
 export function TextInput(props: TextInputProps) {
     const {

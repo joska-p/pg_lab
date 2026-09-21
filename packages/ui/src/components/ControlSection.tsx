@@ -13,11 +13,11 @@ const styles = stylex.create({
     },
 });
 
-type ControlSectionProps = {
+interface ControlSectionProps {
     title: string;
     style?: StyleXStyles;
     children?: React.ReactNode;
-};
+}
 
 export function ControlSection({ title, style, children }: ControlSectionProps) {
     const titleId = useId();

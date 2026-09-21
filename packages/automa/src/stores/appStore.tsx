@@ -2,9 +2,9 @@ import { create } from 'zustand';
 
 type theme = 'light' | 'dark' | 'system';
 
-type appStore = {
+interface appStore {
     theme: theme;
-};
+}
 
 const appStore = create<appStore>(() => ({
     theme: 'dark',

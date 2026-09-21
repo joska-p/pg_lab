@@ -10,7 +10,7 @@ import { families, type FamilyName } from '../tokens/families.stylex';
 import { borderWidth, layout, radius, space } from '../tokens/layout.stylex';
 import { Led } from './Led';
 
-type ColorFieldProps = {
+interface ColorFieldProps {
     label?: string;
     family?: FamilyName;
     live?: boolean;
@@ -22,7 +22,7 @@ type ColorFieldProps = {
     disabled?: boolean;
     id?: string;
     style?: StyleXStyles;
-};
+}
 
 const DEFAULT_HEX = '#000000';
 

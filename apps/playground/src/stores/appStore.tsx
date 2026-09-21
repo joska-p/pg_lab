@@ -3,10 +3,10 @@ import { create } from 'zustand';
 type theme = 'light' | 'dark' | 'system';
 export type PageName = 'menu' | 'art-canvas' | 'mosaic-maker' | 'mol-demo' | 'automa';
 
-type appStore = {
+interface appStore {
     theme: theme;
     pageName: PageName;
-};
+}
 
 const appStore = create<appStore>(() => ({
     theme: 'dark',

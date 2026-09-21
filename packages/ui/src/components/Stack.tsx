@@ -57,14 +57,14 @@ const gapVariants = stylex.create({
     '16': { gap: space['16'] },
 });
 
-type StackProps = {
+interface StackProps {
     direction?: keyof typeof directionVariants;
     gap?: keyof typeof gapVariants;
     wrap?: boolean;
     justify?: keyof typeof justifyVariants;
     style?: StyleXStyles;
     children?: React.ReactNode;
-};
+}
 
 export function Stack(props: StackProps) {
     const {

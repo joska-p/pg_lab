@@ -17,7 +17,7 @@ import { borderWidth, layout, radius, space } from '../tokens/layout.stylex';
 import { motion } from '../tokens/motion.stylex';
 import { shadowColor } from '../tokens/shadows.stylex';
 
-type ToggleProps = {
+interface ToggleProps {
     label?: string;
     family?: FamilyName;
     checked?: boolean;
@@ -26,7 +26,7 @@ type ToggleProps = {
     disabled?: boolean;
     id?: string;
     style?: StyleXStyles;
-};
+}
 
 const styles = stylex.create({
     row: {

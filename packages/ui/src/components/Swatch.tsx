@@ -42,13 +42,13 @@ const surfaceVariants = stylex.create({
 
 export type SwatchSurfaceVariant = keyof typeof surfaceVariants;
 
-type SwatchProps = {
+interface SwatchProps {
     variant: SwatchSurfaceVariant | FamilyName;
     tension?: 'base' | 'strong';
     name?: string;
     meta?: string;
     style?: StyleXStyles;
-};
+}
 
 export function Swatch({ variant, tension = 'base', name, meta, style }: SwatchProps) {
     const fill =

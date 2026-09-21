@@ -20,11 +20,11 @@ const styles = stylex.create({
     },
 });
 
-type ReadoutProps = {
+interface ReadoutProps {
     label: string;
     value?: React.ReactNode;
     style?: StyleXStyles;
-};
+}
 
 export function Readout({ label, value, style }: ReadoutProps) {
     return (

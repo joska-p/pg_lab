@@ -13,12 +13,12 @@ const styles = stylex.create({
     },
 });
 
-type ControlPanelProps = {
+interface ControlPanelProps {
     title?: string;
     label?: string;
     style?: StyleXStyles;
     children?: React.ReactNode;
-};
+}
 
 export function ControlPanel({ title, label, style, children }: ControlPanelProps) {
     return (

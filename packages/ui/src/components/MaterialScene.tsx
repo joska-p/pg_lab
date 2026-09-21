@@ -59,7 +59,7 @@ const sceneStyles = stylex.create({
     }),
 });
 
-export type MaterialSceneProps = {
+export interface MaterialSceneProps {
     colors?: {
         amber?: string;
         aqua?: string;
@@ -67,7 +67,7 @@ export type MaterialSceneProps = {
     };
     style?: StyleXStyles;
     children?: React.ReactNode;
-};
+}
 
 export function MaterialScene({ colors: sceneColors, style, children }: MaterialSceneProps) {
     const amber = sceneColors?.amber ?? families.amber.base;
