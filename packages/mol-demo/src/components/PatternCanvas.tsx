@@ -82,34 +82,34 @@ void main() {
 }
 
 function makeShader(gl: WebGL2RenderingContext, type: number, src: string): WebGLShader {
-    const sh = gl.createShader(type);
-    if (!sh) throw new Error('pattern: could not create shader');
-    gl.shaderSource(sh, src);
-    gl.compileShader(sh);
-    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-        const log = gl.getShaderInfoLog(sh);
-        gl.deleteShader(sh);
+    const shader = gl.createShader(type);
+    if (!shader) throw new Error('pattern: could not create shader');
+    gl.shaderSource(shader, src);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        const log = gl.getShaderInfoLog(shader);
+        gl.deleteShader(shader);
         throw new Error(`pattern shader: ${log}`);
     }
-    return sh;
+    return shader;
 }
 
 function makeProgram(gl: WebGL2RenderingContext, vsSrc: string, fsSrc: string): WebGLProgram {
-    const prog = gl.createProgram();
-    if (!prog) throw new Error('pattern: could not create program');
-    const vs = makeShader(gl, gl.VERTEX_SHADER, vsSrc);
-    const fs = makeShader(gl, gl.FRAGMENT_SHADER, fsSrc);
-    gl.attachShader(prog, vs);
-    gl.attachShader(prog, fs);
-    gl.linkProgram(prog);
-    gl.deleteShader(vs);
-    gl.deleteShader(fs);
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-        const log = gl.getProgramInfoLog(prog);
-        gl.deleteProgram(prog);
+    const program = gl.createProgram();
+    if (!program) throw new Error('pattern: could not create program');
+    const vertexShader = makeShader(gl, gl.VERTEX_SHADER, vsSrc);
+    const fragmentShader = makeShader(gl, gl.FRAGMENT_SHADER, fsSrc);
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        const log = gl.getProgramInfoLog(program);
+        gl.deleteProgram(program);
         throw new Error(`pattern program: ${log}`);
     }
-    return prog;
+    return program;
 }
 
 type UniformMap = Record<string, WebGLUniformLocation | null>;
