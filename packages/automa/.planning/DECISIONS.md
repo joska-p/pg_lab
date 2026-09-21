@@ -16,3 +16,8 @@
   (pas différé en S3) — requis pour un `vp check` vert; `onEnd`
   accepte l'event et l'ignore (`_event`); `GpuSurface` garde son path
   `gpu/GpuSurface` (inchangé, vérifié).
+- 2026-09-21 D7 (S3): `className="h-full w-full"` (tailwind) abandonné
+  — `GpuCanvas` force déjà 100 % + block; pas de tailwind dans la
+  cible. Callback `uniforms` annoté `Record<string, UniformValue>`
+  (nouveau glaze strict sur l'union avec `{}`). Montage `CellMesh`
+  dans `App` temporaire, layout Shell définitif en S4.

@@ -6,6 +6,7 @@ import { ExperimentShell } from "@repo/ui/components/ExperimentShell";
 import { Stage } from "@repo/ui/components/Stage";
 import { ControlSection } from "@repo/ui/components/ControlSection";
 import { Segmented } from "@repo/ui/components/Segmented";
+import { CellMesh } from "./components/canvas/CellMesh";
 
 function App() {
   const theme = useTheme();
@@ -30,7 +31,7 @@ function App() {
         }
       >
         <Stage label="automa">
-          <h1>automa</h1>
+          <CellMesh />
         </Stage>
       </ExperimentShell>
     </ShellWrapper>
