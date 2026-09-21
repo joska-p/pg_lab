@@ -1,8 +1,11 @@
 import { lazy, Suspense, type ComponentType } from "react";
 import { useEffect } from "react";
+import * as stylex from "@stylexjs/stylex";
 import { ShellWrapper } from "@repo/ui/components/ShellWrapper";
 import { useTheme, setTheme, usePageName, setPageName } from "./stores/appStore";
+import { Button } from "@repo/ui/components/Button";
 import { ControlPanel } from "@repo/ui/components/ControlPanel";
+import { space, zIndex } from "@repo/ui/tokens/layout.stylex";
 import { ExperimentShell } from "@repo/ui/components/ExperimentShell";
 import { Stage } from "@repo/ui/components/Stage";
 import { ControlSection } from "@repo/ui/components/ControlSection";
@@ -39,6 +42,25 @@ const PAGE_OPTIONS = Object.entries(EXPERIMENTS).map(([value, { label }]) => ({
   value: value as PageName,
   label,
 }));
+
+const styles = stylex.create({
+  returnWrap: {
+    position: "fixed",
+    bottom: space["3"],
+    right: space["3"],
+    zIndex: zIndex.overlay,
+  },
+});
+
+function LoadingFallback() {
+  return (
+    <ShellWrapper>
+      <Stage label="loading">
+        <p>Loading…</p>
+      </Stage>
+    </ShellWrapper>
+  );
+}
 
 function MenuPage() {
   const theme = useTheme();
@@ -84,9 +106,16 @@ function App() {
   }, [theme]);
 
   return (
-    <Suspense fallback={<MenuPage />}>
-      <Page />
-    </Suspense>
+    <>
+      {pageName !== "menu" && (
+        <div {...stylex.props(styles.returnWrap)}>
+          <Button onClick={() => setPageName("menu")}>← Menu</Button>
+        </div>
+      )}
+      <Suspense fallback={<LoadingFallback />}>
+        <Page />
+      </Suspense>
+    </>
   );
 }
 
