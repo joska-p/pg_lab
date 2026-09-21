@@ -410,7 +410,10 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
         }
       }
     };
+    // The handle object is stable (owned by App) so registration is
+    // order-independent: works whether Pattern mounts before or after Mol.
     if (viewerRef.current) viewerRef.current.requestPatternDraw = drawPattern;
+    else viewerRef.current = { camera: null, controls: null, requestPatternDraw: drawPattern };
 
     return () => {
       disposed = true;
@@ -439,7 +442,14 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
     <canvas
       key={cpuFallback ? "cpu" : "gpu"}
       ref={canvasRef}
-      style={{ width: "100%", height: "100%", position: "absolute", pointerEvents: "none" }}
+      style={{
+        width: "100%",
+        height: "100%",
+        position: "absolute",
+        pointerEvents: "none",
+        zIndex: "50",
+        inset: 0,
+      }}
       aria-label="diffraction pattern"
     />
   );

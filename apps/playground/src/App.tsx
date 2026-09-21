@@ -29,6 +29,10 @@ export const EXPERIMENTS: Record<
     label: "Mosaic Maker",
     Page: lazy(() => import("@repo/mosaic-maker/App").then((m) => ({ default: m.App }))),
   },
+  "mol-demo": {
+    label: "Mol Demo",
+    Page: lazy(() => import("@repo/mol-demo/App").then((m) => ({ default: m.App }))),
+  },
 };
 
 const PAGE_OPTIONS = Object.entries(EXPERIMENTS).map(([value, { label }]) => ({

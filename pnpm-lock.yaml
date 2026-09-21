@@ -218,6 +218,9 @@ importers:
       '@repo/art-canvas':
         specifier: workspace:*
         version: link:../../packages/art-canvas
+      '@repo/mol-demo':
+        specifier: workspace:*
+        version: link:../../packages/mol-demo
       '@repo/mosaic-maker':
         specifier: workspace:*
         version: link:../../packages/mosaic-maker

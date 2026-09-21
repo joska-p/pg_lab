@@ -60,7 +60,17 @@ export function MolCanvas({ viewerRef }: { viewerRef?: ViewerRef }) {
       enableDamping: true,
       dampingFactor: 0.07,
     });
-    if (viewerRef) viewerRef.current = { camera, controls, requestPatternDraw: null };
+    if (viewerRef) {
+      // Stable handle: mutate fields, never replace the object — PatternCanvas
+      // may have already registered requestPatternDraw (mount order:
+      // Pattern before Mol in the overlay). Replacing would drop it.
+      if (viewerRef.current) {
+        viewerRef.current.camera = camera;
+        viewerRef.current.controls = controls;
+      } else {
+        viewerRef.current = { camera, controls, requestPatternDraw: null };
+      }
+    }
 
     const resizeMol = () => {
       const rect = canvas.getBoundingClientRect();
@@ -122,7 +132,12 @@ export function MolCanvas({ viewerRef }: { viewerRef?: ViewerRef }) {
       window.removeEventListener("pageshow", onPageShow);
       controls.dispose();
       molGroupRef.current = null;
-      if (viewerRef) viewerRef.current = null;
+      // Clear our own fields only — the handle object is shared and stable
+      // (owned by App); nulling it would drop PatternCanvas's callback.
+      if (viewerRef?.current) {
+        viewerRef.current.camera = null;
+        viewerRef.current.controls = null;
+      }
     };
   }, [viewerRef]);
 
@@ -133,5 +148,5 @@ export function MolCanvas({ viewerRef }: { viewerRef?: ViewerRef }) {
     }
   }, [molecule]);
 
-  return <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />;
+  return <canvas ref={canvasRef} style={{ width: "100%", height: "100%", zIndex: "100" }} />;
 }

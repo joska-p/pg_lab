@@ -79,3 +79,10 @@
   (transparent clear, so the pattern shows through; `resizeMol` reads the
   stage rect so the camera aspect follows it), molecule-name label as an
   absolute overlay with text-shadow for readability. No `ui` change.
+- 2026-09-21 (P5-fix): shared-handle ownership — the `ViewerHandle` object
+  is owned by `App` and mutated (never replaced) by both canvases, so
+  `requestPatternDraw` registration is mount-order independent. Replacing
+  the object couples correctness to sibling order (P5's reorder silently
+  dropped the callback: blank pattern, HUD `pattern 0.00ms idle`,
+  `pat -`); mutating fields keeps each canvas's contribution across
+  StrictMode remounts.
