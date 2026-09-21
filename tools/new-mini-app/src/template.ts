@@ -152,18 +152,7 @@ createRoot(document.getElementById("root")!).render(
 );
 `;
 
-const styleCss = `* {
-  box-sizing: border-box;
-}
-
-html {
-  color-scheme: dark;
-}
-
-body {
-  margin: 0;
-}
-`;
+const styleCss = `@import "../node_modules/@repo/ui/src/styles.css"`;
 
 function appTsx(name: string): string {
   return `import { useEffect } from "react";

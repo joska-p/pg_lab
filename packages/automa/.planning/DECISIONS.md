@@ -8,3 +8,7 @@
   repliable); `<input type=color>` brut → `ColorField`.
 - 2026-09-21 D4: seule feature ajoutée = readout génération (`Readout`);
   sinon port à l'identique.
+- 2026-09-21 D5 (S1): `SimulationEngine.ts` copié dès S1 (requis par
+  l'import type de `store.ts`); `actions.ts`, `coordinates.ts`,
+  `useCellPainting.ts` restent en S2. Fichiers portés normalisés au
+  style repo via `vp check --fix` (guillemets doubles, indent 2).
