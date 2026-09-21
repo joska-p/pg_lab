@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { PerspectiveCamera } from '../core/camera';
-import { Quat } from '../math/quat';
+import type { Quat } from '../math/quat';
 import { Vec3 } from '../math/vec3';
 import { OrbitControls } from './orbit';
 

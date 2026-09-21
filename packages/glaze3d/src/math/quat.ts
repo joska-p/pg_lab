@@ -1,4 +1,4 @@
-import { Vec3 } from './vec3';
+import type { Vec3 } from './vec3';
 
 export class Quat {
     x: number;

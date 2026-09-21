@@ -3,7 +3,8 @@
 // The caller owns molGroup's lifecycle (clear/rebuild on switch); this
 // module only populates it, so it stays UI- and GL-free and testable.
 
-import { Group, Mesh } from '@repo/glaze3d/core';
+import type { Group } from '@repo/glaze3d/core';
+import { Mesh } from '@repo/glaze3d/core';
 import { CylinderGeometry, SphereGeometry } from '@repo/glaze3d/geometry';
 import { PhongMaterial } from '@repo/glaze3d/material';
 import { Vec3 } from '@repo/glaze3d/math';

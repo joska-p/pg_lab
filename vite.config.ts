@@ -38,6 +38,14 @@ export default defineConfig({
             'typescript/adjacent-overload-signatures': 'error',
             'typescript/consistent-type-assertions': 'error',
             'typescript/consistent-type-definitions': 'error',
+            'typescript/consistent-type-exports': 'error',
+            'typescript/consistent-type-imports': [
+                'error',
+                {
+                    prefer: 'type-imports',
+                    fixStyle: 'separate-type-imports',
+                },
+            ],
         },
         options: { typeAware: true, typeCheck: true },
     },
