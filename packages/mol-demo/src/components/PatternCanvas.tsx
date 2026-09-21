@@ -115,9 +115,9 @@ function makeProgram(gl: WebGL2RenderingContext, vsSrc: string, fsSrc: string): 
 type UniformMap = Record<string, WebGLUniformLocation | null>;
 
 function setAtomFFUniforms(gl: WebGL2RenderingContext, uniforms: UniformMap, mol: Molecule): void {
-    gl.uniform1i(uniforms['uNatoms'], mol.atoms.length);
+    gl.uniform1i(uniforms.uNatoms, mol.atoms.length);
     for (let i = 0; i < mol.atoms.length; i++) {
-        const c = FF[mol.atoms[i] as string];
+        const c = FF[mol.atoms[i]];
         if (!c) continue;
         gl.uniform4f(uniforms[`uFFa${i}`], c[0] ?? 0, c[1] ?? 0, c[2] ?? 0, c[3] ?? 0);
         gl.uniform4f(uniforms[`uFFb${i}`], c[4] ?? 0, c[5] ?? 0, c[6] ?? 0, c[7] ?? 0);
@@ -171,11 +171,11 @@ function drawPatternCPU(
 
     let sampLen = 0;
     for (let i = 0; i < raw.length; i += 8) {
-        if ((raw[i] as number) > 0) sampBuf[sampLen++] = raw[i] as number;
+        if (raw[i] > 0) sampBuf[sampLen++] = raw[i];
     }
     const samp = sampBuf.subarray(0, sampLen);
     samp.sort();
-    const norm = (samp[Math.floor(sampLen * 0.97)] as number) || maxV;
+    const norm = samp[Math.floor(sampLen * 0.97)] || maxV;
 
     const imgData = ctx.createImageData(w, h);
     const px4 = imgData.data;
@@ -185,12 +185,12 @@ function drawPatternCPU(
             px4[base + 3] = 0;
             continue;
         }
-        const vi = Math.min(255, (((raw[i] as number) / norm) * 255) | 0);
+        const vi = Math.min(255, ((raw[i] / norm) * 255) | 0);
         const li = vi * 3;
-        px4[base] = XRAY_LUT[li] as number;
-        px4[base + 1] = XRAY_LUT[li + 1] as number;
-        px4[base + 2] = XRAY_LUT[li + 2] as number;
-        px4[base + 3] = (vi * (fadeTbl[i] as number)) | 0;
+        px4[base] = XRAY_LUT[li];
+        px4[base + 1] = XRAY_LUT[li + 1];
+        px4[base + 2] = XRAY_LUT[li + 2];
+        px4[base + 3] = (vi * fadeTbl[i]) | 0;
     }
     ctx.putImageData(imgData, 0, 0);
 }
@@ -323,9 +323,9 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-                gl.uniform1i(uniforms['uLUT'], 0);
-                gl.uniform1f(uniforms['uQmin'], Q_MIN);
-                gl.uniform1f(uniforms['uQmax'], Q_MAX);
+                gl.uniform1i(uniforms.uLUT, 0);
+                gl.uniform1f(uniforms.uQmin, Q_MIN);
+                gl.uniform1f(uniforms.uQmax, Q_MAX);
                 setPatternPath('gpu');
             } catch (err) {
                 console.warn('pattern: WebGL2 init failed, using CPU fallback:', err);
@@ -403,10 +403,10 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
                 gl.viewport(0, 0, w, h);
                 gl.clearColor(0, 0, 0, 0);
                 gl.clear(gl.COLOR_BUFFER_BIT);
-                gl.uniform2f(uniforms['uResolution'], w, h);
-                gl.uniform1f(uniforms['uNorm'], normV);
+                gl.uniform2f(uniforms.uResolution, w, h);
+                gl.uniform1f(uniforms.uNorm, normV);
                 for (let i = 0; i < atoms.length; i++) {
-                    const a = atoms[i] as ProjectedAtom;
+                    const a = atoms[i];
                     gl.uniform2f(uniforms[`uAtomPos${i}`], a.vx, a.vy);
                 }
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

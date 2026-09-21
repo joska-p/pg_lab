@@ -21,11 +21,11 @@ describe('formFactors', () => {
         expect(FF_SYMS[53]).toBe('Xe');
         expect(FF_DATA).toHaveLength(54);
         for (const row of FF_DATA) expect(row).toHaveLength(9);
-        expect(FF['C']).toBe(FF_DATA[5]);
+        expect(FF.C).toBe(FF_DATA[5]);
     });
 
     it('builds a 128-entry lookup table per element', () => {
-        expect(FF_TBL['C']).toHaveLength(FF_N);
+        expect(FF_TBL.C).toHaveLength(FF_N);
         expect(Object.keys(FF_TBL)).toHaveLength(54);
     });
 
@@ -44,8 +44,8 @@ describe('formFactors', () => {
     });
 
     it('clamps q outside [Q_MIN, Q_MAX] to the table edges', () => {
-        expect(ff('C', -50)).toBe(FF_TBL['C'][0]);
-        expect(ff('C', 1e6)).toBe(FF_TBL['C'][FF_N - 1]);
+        expect(ff('C', -50)).toBe(FF_TBL.C[0]);
+        expect(ff('C', 1e6)).toBe(FF_TBL.C[FF_N - 1]);
     });
 
     it('throws on elements without form factors', () => {
