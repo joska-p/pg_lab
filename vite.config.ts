@@ -30,6 +30,10 @@ export default defineConfig({
         rules: {
             'vite-plus/prefer-vite-plus-imports': 'error',
             'oxc/branches-sharing-code': 'error',
+            'import/no-cycle': 'error',
+            'import/no-default-export': 'error',
+            'import/no-duplicates': 'error',
+            'import/no-relative-parent-imports': 'error',
         },
         options: { typeAware: true, typeCheck: true },
     },
