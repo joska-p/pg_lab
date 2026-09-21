@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vite-plus/test";
-import cid115374 from "../../public/molecules/cid-115374.sdf?raw";
-import cid1983 from "../../public/molecules/cid-1983.sdf?raw";
-import cid21550 from "../../public/molecules/cid-21550.sdf?raw";
-import cid52359 from "../../public/molecules/cid-52359.sdf?raw";
-import cid702 from "../../public/molecules/cid-702.sdf?raw";
-import cid936 from "../../public/molecules/cid-936.sdf?raw";
+import cid115374 from "../assets/molecules/cid-115374.sdf?raw";
+import cid1983 from "../assets/molecules/cid-1983.sdf?raw";
+import cid21550 from "../assets/molecules/cid-21550.sdf?raw";
+import cid52359 from "../assets/molecules/cid-52359.sdf?raw";
+import cid702 from "../assets/molecules/cid-702.sdf?raw";
+import cid936 from "../assets/molecules/cid-936.sdf?raw";
 import { MAX_ATOMS_DESKTOP } from "./formFactors";
 import { MOLECULES, parseAndValidate, switchMolecule, validateMolecule } from "./molecules";
 import { parseMol } from "./parseMol";

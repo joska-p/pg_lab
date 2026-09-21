@@ -25,10 +25,15 @@ Decide (not yet implement) how `apps/playground` should handle:
 - [x] **S2 — navigation spike (2026-09-21):** host-owned fixed "← Menu"
       button (`App.tsx`, `setPageName("menu")`, outside `Suspense`);
       fallback is now neutral `LoadingFallback`, guests untouched. D4 recorded.
-- [ ] **S3 — asset spike:** benchmark 4 asset strategies, record trade-offs.
+- [x] **S3 — asset spike (2026-09-21):** `mol-demo` SDFs moved
+      `public/molecules/` → `src/assets/molecules/`; `loadMolecule` now resolves
+      via lazy `import.meta.glob(..., { query: "?url" })`, no `baseUrl` fallback.
+      Verified: mol-demo `check` + 47 tests green, playground `check` + `build`
+      green, `dist/` emits base-aware `data:`/`.sdf` URLs, no `/molecules/` fetch.
+      Pattern documented in `codex/docs/coding-conventions.md` §12.3.
 - [ ] **S4 — RFC:** freeze D1 (navigation) + D2 (assets) in `DECISIONS.md`.
 
-**Next action:** run S3 asset spike (`ANALYSIS.md` §3 + §4).
+**Next action:** run S4 RFC (freeze D1 + D2, close track).
 
 ## Read-when
 

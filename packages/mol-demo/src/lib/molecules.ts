@@ -1,7 +1,7 @@
-// Molecule registry + switching rules. Ports MOLECULES / switchMolecule
-// from mol-demo.js; the viewer/pattern side effects (mesh rebuild, uniform
-// upload, patDirty) belong to later steps — this module stays UI-free and
-// pure except for the fetch wrapper loadMolecule.
+// SDF assets are co-located with the code and resolved by Vite at build time.
+// Lazy `?url` glob keeps per-molecule fetch: only the selected entry is fetched,
+// and Vite rewrites the URL with the consumer's `base` automatically. This works
+// when mol-demo is imported as a library (playground host), unlike `public/`.
 
 import { FF, maxAtoms } from "./formFactors";
 import { parseMol } from "./parseMol";
@@ -68,13 +68,21 @@ export function parseAndValidate(text: string, filename: string, maxAtomCount: n
   return mol;
 }
 
-// Fetch a registry entry (served from public/molecules/) and validate it.
-export async function loadMolecule(
-  entry: MoleculeEntry,
-  isMobile = false,
-  baseUrl = "/molecules/",
-): Promise<Molecule> {
-  const res = await fetch(`${baseUrl}${encodeURIComponent(entry.file)}`);
+// Vite-resolved SDF URLs (lazy: one fetch per selected molecule).
+const sdfUrlModules = import.meta.glob("../assets/molecules/*.sdf", {
+  query: "?url",
+  import: "default",
+}) as Record<string, () => Promise<string>>;
+
+const sdfUrlByFile = new Map<string, () => Promise<string>>(
+  Object.entries(sdfUrlModules).map(([path, loader]) => [path.split("/").pop() ?? path, loader]),
+);
+
+// Fetch a registry entry by its Vite-resolved URL and validate it.
+export async function loadMolecule(entry: MoleculeEntry, isMobile = false): Promise<Molecule> {
+  const loader = sdfUrlByFile.get(entry.file);
+  if (!loader) throw new Error(`mol-demo: unknown molecule ${entry.file}`);
+  const res = await fetch(await loader());
   if (!res.ok) throw new Error(`mol-demo: could not load ${entry.file} (${res.status})`);
   return parseAndValidate(await res.text(), entry.file, maxAtoms(isMobile));
 }

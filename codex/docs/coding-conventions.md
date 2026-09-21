@@ -785,6 +785,41 @@ Revisit this decision when that requirement appears.
 
 ---
 
+## 12.3 Package static assets consumed as libraries
+
+A package imported as a library (e.g. `apps/playground` lazy-imports `@repo/<pkg>/App` source) must not serve its own static files via `public/` + absolute `fetch()` paths.
+
+Vite never merges a guest's `public/` into the host's `public/`, and absolute paths ignore the host's `base`.
+
+Use Vite-resolved assets co-located with the code instead:
+
+- Store files under `src/assets/<domain>/` in the owning package.
+- Resolve them with a lazy `import.meta.glob` + `?url` map keyed by filename; `fetch()` the resolved URL.
+- Never keep a `baseUrl` / absolute-path fallback alongside it: one pattern only.
+
+```ts
+const sdfUrlModules = import.meta.glob("../assets/molecules/*.sdf", {
+  query: "?url",
+  import: "default",
+}) as Record<string, () => Promise<string>>;
+
+const sdfUrlByFile = new Map<string, () => Promise<string>>(
+  Object.entries(sdfUrlModules).map(([path, loader]) => [path.split("/").pop() ?? path, loader]),
+);
+
+export async function loadMolecule(entry: MoleculeEntry): Promise<Molecule> {
+  const loader = sdfUrlByFile.get(entry.file);
+  if (!loader) throw new Error(`unknown asset ${entry.file}`);
+  const res = await fetch(await loader());
+  if (!res.ok) throw new Error(`could not load ${entry.file} (${res.status})`);
+  return parseAndValidate(await res.text(), entry.file);
+}
+```
+
+Why: Vite hashes/emits the files, rewrites URLs with the consumer's `base` automatically, keeps per-file lazy fetch (small files may inline as `data:` URLs, larger ones emit separate files — both fetchable), and works unchanged in package standalone `dev`, host `dev`, and host `build`.
+
+---
+
 # 13. Decision rules
 
 When several implementations seem reasonable, prefer the one that satisfies these rules in order:
