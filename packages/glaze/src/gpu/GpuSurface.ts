@@ -10,13 +10,7 @@ import {
     type CssColor,
     type DevicePixelRatio,
 } from '../core/render';
-import {
-    type Circle,
-    type DrawStyle,
-    type Rectangle,
-    type Segment,
-    type TextStyle,
-} from '../core/shapes';
+import type { Circle, DrawStyle, Rectangle, Segment, TextStyle } from '../core/shapes';
 import {
     createNonNegativeSeconds,
     createSeconds,

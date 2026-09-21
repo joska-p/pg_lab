@@ -12,14 +12,7 @@ import {
     type FontSize,
     type PositiveNumber,
 } from '../core/render';
-import {
-    type Circle,
-    type DrawStyle,
-    type PathOptions,
-    type Rectangle,
-    type Segment,
-    type TextStyle,
-} from '../core/shapes';
+import type { Circle, DrawStyle, PathOptions, Rectangle, Segment, TextStyle } from '../core/shapes';
 import {
     createNonNegativeSeconds,
     createSeconds,
