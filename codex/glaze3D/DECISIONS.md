@@ -114,3 +114,10 @@ src/**/*.test.ts` dans `mol-demo/vite.config.ts` (miroir `glaze3d`).
 - 2026-09-21 (S9): partage camera via `ViewerHandle`/`ViewerRef` (`lib/pattern/viewer.ts`, type-only glaze3d, instance posee par `MolCanvas`, lue par `PatternCanvas`) — composition dans `App`, pas de singleton module; `glaze3d` ne connait pas le pattern (lecture `matrixWorldInverse.elements` cote pattern seul). Source: `PLAN.md:115-127`.
 - 2026-09-21 (S9): `computeNorm32Raw` pur (retourne `null` si grille vide) + `createPatternNorm` (EMA 0.25, `reset()` au switch) — le `s=(q/4π)²` local de l'original est mort (`ff()` fait sa table), supprime (lint). CPU fallback garde sa norme inline echantillonnee (fidele a l'original, sans EMA).
 - 2026-09-21 (S9): fallback CPU via bascule d'etat `gpu->cpu` (remount canvas frais: un canvas ayant pris un contexte webgl2 ne rend plus de 2d) + `loseContext` au cleanup (StrictMode double-mount); `setAtomFFUniforms` re-emis au switch molecule; `subscribeControls` paresseux (ordre de montage `MolCanvas`/`PatternCanvas` non garanti).
+- 2026-09-21 (S10): drop `.mol/.sdf` sur `.mol-stage` (`App.tsx`:
+  dragover/drop + `FileReader.readAsText` → `applyDroppedText`, refuse
+  propre + garde l'ancienne, erreur visible dans `MoleculeList` quel que
+  soit le statut); lifecycle (`MolCanvas` `pageshow` → `resizeMol` + relance
+  RAF si `persisted`, `PatternCanvas` `pageshow[persisted]` → `resizePat` +
+  `patDirty`, `visibilitychange` déjà en place). Source: `PLAN.md:129-136`,
+  `mol-demo.js.txt:798-816,840-855`.

@@ -10,6 +10,7 @@ import { MoleculeList } from "./components/MoleculeList";
 import { MolCanvas } from "./components/MolCanvas";
 import { PatternCanvas } from "./components/PatternCanvas";
 import type { ViewerHandle } from "./lib/pattern/viewer";
+import { applyDroppedText } from "./stores/moleculeStore";
 
 export function App() {
   const theme = useTheme();
@@ -37,7 +38,31 @@ export function App() {
       >
         <Stage label="mol-demo">
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap", width: "100%" }}>
-            <div className="mol-stage" style={{ flex: "1 1 320px", height: 420 }}>
+            <div
+              className="mol-stage"
+              style={{ flex: "1 1 320px", height: 420 }}
+              title="Drop a .mol/.sdf file here to load it"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const file = e.dataTransfer.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                  const text = evt.target?.result;
+                  if (typeof text !== "string") {
+                    console.error("mol-demo: failed to read .mol file: empty result");
+                    return;
+                  }
+                  try {
+                    applyDroppedText(text, file.name);
+                  } catch (err) {
+                    console.error("mol-demo: failed to parse .mol file:", err);
+                  }
+                };
+                reader.readAsText(file);
+              }}
+            >
               <MolCanvas viewerRef={viewerRef} />
             </div>
             <div style={{ flex: "1 1 320px", height: 420 }}>

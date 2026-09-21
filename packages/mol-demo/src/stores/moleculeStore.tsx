@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { MOLECULES, loadMolecule } from "../lib/molecules";
+import { maxAtoms } from "../lib/formFactors";
+import { MOLECULES, loadMolecule, parseAndValidate } from "../lib/molecules";
 import type { Molecule } from "../lib/parseMol";
 
 type LoadStatus = "idle" | "loading" | "ready" | "error";
@@ -51,6 +52,25 @@ export async function selectMolecule(file: string): Promise<void> {
       current: null,
       status: "error",
       error: err instanceof Error ? err.message : String(err),
+    });
+  }
+}
+
+// Applies a user-dropped .mol/.sdf file (UC A4, cf. mol-demo.js switchMolecule
+// + drop handler): invalid content keeps the previous molecule (A5) and only
+// records the error — the viewer never goes blank because of a bad drop.
+export function applyDroppedText(text: string, filename: string): void {
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
+  try {
+    const mol = parseAndValidate(text, filename, maxAtoms(isMobile));
+    moleculeStore.setState({ current: mol, status: "ready", error: null });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn("mol-demo: dropped file refused:", message);
+    const { current } = moleculeStore.getState();
+    moleculeStore.setState({
+      error: message,
+      status: current ? "ready" : "error",
     });
   }
 }

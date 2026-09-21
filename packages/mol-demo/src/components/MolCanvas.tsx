@@ -79,10 +79,23 @@ export function MolCanvas({ viewerRef }: { viewerRef?: ViewerRef }) {
     };
     rafId = requestAnimationFrame(loop);
 
+    // Page lifecycle (cf. mol-demo.js pageshow): after a bfcache restore
+    // the pending RAF may be gone — resize and make sure the loop ticks
+    // again. Cancelling first keeps a single loop when nothing was lost.
+    const onPageShow = (e: PageTransitionEvent) => {
+      resizeMol();
+      if (e.persisted && !disposed) {
+        cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(loop);
+      }
+    };
+    window.addEventListener("pageshow", onPageShow);
+
     return () => {
       disposed = true;
       cancelAnimationFrame(rafId);
       window.removeEventListener("resize", resizeMol);
+      window.removeEventListener("pageshow", onPageShow);
       controls.dispose();
       molGroupRef.current = null;
       if (viewerRef) viewerRef.current = null;

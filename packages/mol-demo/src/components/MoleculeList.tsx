@@ -42,7 +42,7 @@ export function MoleculeList() {
             : status
         }
       />
-      {status === "error" && error && <Text variant="muted">{error}</Text>}
+      {error && <Text variant="muted">{error}</Text>}
     </ControlSection>
   );
 }

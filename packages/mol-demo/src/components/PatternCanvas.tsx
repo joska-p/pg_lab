@@ -313,7 +313,10 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
     const onVisible = () => {
       if (!document.hidden) patDirty = true;
     };
-    const onPageShow = () => {
+    const onPageShow = (e: PageTransitionEvent) => {
+      // After a bfcache restore the canvas backing store may be gone —
+      // reallocate it like the origin demo does, then force a redraw.
+      if (e.persisted) resizePat();
       patDirty = true;
     };
     document.addEventListener("visibilitychange", onVisible);

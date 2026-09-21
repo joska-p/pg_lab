@@ -28,3 +28,7 @@ atoms,molecules,index}.ts` + 6 SDF `public/molecules/` (9->56 atomes) +
   - `PatternCanvas.tsx` (GPU shader + fallback CPU, throttle 33ms, early-out
     0.003, `change`→`patDirty`, lecture `matrixWorldInverse.elements`), `vp test`
     47/47 (7 fichiers) + `vp check` vert + build OK (72 modules), next=S10 finalisation.
+- 2026-09-21 (S10 clos): revue visuelle utilisateur OK — viewer+pattern+
+  registre+drop fonctionnent, projet clos. Suites pour sessions futures:
+  (a) perf (app inutilisable vs origine smooth), (b) layout overlay
+  (molécule centrée sur projection, pas côte à côte).
