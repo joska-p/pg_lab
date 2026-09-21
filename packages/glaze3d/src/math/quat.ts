@@ -57,20 +57,18 @@ export class Quat {
                 this.x = -from.y;
                 this.y = from.x;
                 this.z = 0;
-                this.w = r;
             } else {
                 this.x = 0;
                 this.y = -from.z;
                 this.z = from.y;
-                this.w = r;
             }
         } else {
             const tmp = from.clone().cross(to);
             this.x = tmp.x;
             this.y = tmp.y;
             this.z = tmp.z;
-            this.w = r;
         }
+        this.w = r;
         return this.normalize();
     }
 
