@@ -18,7 +18,9 @@ Verified: `vp check` vert (glaze3d 30 fichiers + mol-demo 25),
 4 packages hors scope (ui/glaze3d/glaze `vp pack` sans `src/index.ts`,
 playground `tsc -b` exit 137) — pré-existant, aucun fichier S1-S10
 en cause (`git status` = 5 fichiers mol-demo seuls).
-Next: session future (a) diagnostic perf puis (b) layout overlay.
+Next: projet clos — suites reprises dans `codex/glaze3D-perf/`
+(P0 diagnostic perf puis P5 layout overlay). Plan S0–S10 archivé :
+`codex/glaze3D/archive/PLAN-S0-S10.md`.
 Detail: `PLAN.md` §S10. Decisions: `DECISIONS.md`. Log: `SESSIONS.md`.
 
 Ritual fin de session (obligatoire): MAJ State+Next ici, 1 ligne datée
