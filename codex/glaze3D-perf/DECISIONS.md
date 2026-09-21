@@ -72,3 +72,10 @@
   (draw-call strategy), and P4 (tessellation/pixel budgets) stay parked:
   no budget fix without a measured need. Remaining work toward the goal
   is P5 overlay layout.
+- 2026-09-21 (P5): overlay composition — one `.mol-stage` relative parent
+  (`App.tsx` only): pattern absolute background with
+  `pointer-events:none` (drag-rotate + drop bubble to the parent, as
+  origin `mol-demo.js.txt:798-816`), molecule absolute foreground
+  (transparent clear, so the pattern shows through; `resizeMol` reads the
+  stage rect so the camera aspect follows it), molecule-name label as an
+  absolute overlay with text-shadow for readability. No `ui` change.

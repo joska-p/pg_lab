@@ -439,7 +439,7 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
     <canvas
       key={cpuFallback ? "cpu" : "gpu"}
       ref={canvasRef}
-      style={{ width: "100%", height: "100%", display: "block" }}
+      style={{ width: "100%", height: "100%", position: "absolute", pointerEvents: "none" }}
       aria-label="diffraction pattern"
     />
   );

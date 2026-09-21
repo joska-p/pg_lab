@@ -17,10 +17,6 @@ export function PerfHud() {
   return (
     <div
       style={{
-        position: "fixed",
-        right: 8,
-        bottom: 8,
-        zIndex: 50,
         fontFamily: "monospace",
         fontSize: 12,
         lineHeight: 1.5,
@@ -28,8 +24,8 @@ export function PerfHud() {
         color: "#fff",
         padding: "8px 10px",
         borderRadius: 6,
-        pointerEvents: "none",
-        whiteSpace: "pre",
+        display: "flex",
+        flexWrap: "wrap",
       }}
     >
       {`fps ${snap.fps.toFixed(0)} (loops ${snap.loops}) | render ${snap.renderMs.toFixed(2)}ms | pattern ${snap.patternMs.toFixed(2)}ms ${snap.patternPath}${snap.patternStale ? " idle" : ""}\nproj/norm/gl ${snap.patternSpans}ms\nmeshes ${snap.meshes} | mol ${snap.molBuffer} | pat ${snap.patBuffer}\n${snap.molecule}`}

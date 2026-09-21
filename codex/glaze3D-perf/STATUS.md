@@ -15,8 +15,11 @@ HUD shows gpu/cpu path + stale flag, CPU fallback bounded (BUF 320/256
 
 - 500 ms throttle). Live-verified by user: path `gpu`, `loops` 1,
   pattern 0.98 ms (cid-702) / 5.32 ms (cid-115374, norm-dominated),
-  viewer smooth even spun hard. Awaiting user
-  re-measure with the new HUD lines. Closed predecessor:
+  viewer smooth even spun hard. P5 overlay done in code
+  (`App.tsx`: single `.mol-stage` relative parent, pattern absolute
+  background `pointer-events:none`, molecule absolute foreground,
+  drop handlers on parent, name label overlay): `vp check` green,
+  `vp test` 47 passed; user visual OK pending. Closed predecessor:
   `codex/glaze3D/` S0–S10 done, plan archived to
   `codex/glaze3D/archive/PLAN-S0-S10.md`.
   SSOT: `codex/glaze3D-perf/PLAN.md`, `DIAG.md`, `DECISIONS.md`,
@@ -24,10 +27,9 @@ HUD shows gpu/cpu path + stale flag, CPU fallback bounded (BUF 320/256
 
 Verified: `vp check` green in `mol-demo` (27 files) + `glaze3d` (30
 files); `vp test` 47 + 60 passed, nothing broken.
-Next: smoothness verified live — P1/P3/P4 perf work stays parked (no
-budget fix needed at pattern ≤5.3 ms). Remaining goal half: P5 overlay
-layout (molecule over projection, `App.tsx`), whenever the user wants
-it.
+Next: P5 overlay done in code — user visual OK pending (molecule over
+projection, drop anywhere, drag-rotate). Then P6 closeout. P1/P3/P4
+stay parked (pattern ≤5.3 ms, no budget fix needed).
 
 Detail: `PLAN.md`. Analysis: `DIAG.md`. Log: `SESSIONS.md`.
 
