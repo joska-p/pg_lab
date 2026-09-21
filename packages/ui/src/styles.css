@@ -3,32 +3,32 @@
 *,
 *::before,
 *::after {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 html {
-  color-scheme: dark;
+    color-scheme: dark;
 }
 
 html,
 body {
-  margin: 0;
+    margin: 0;
 }
 
 body {
-  min-height: 100vh;
+    min-height: 100vh;
 }
 
 button,
 input,
 textarea,
 select {
-  font: inherit;
+    font: inherit;
 }
 
 img,
 svg,
 video,
 canvas {
-  display: block;
+    display: block;
 }
