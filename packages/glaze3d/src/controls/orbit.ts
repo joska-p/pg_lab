@@ -64,6 +64,10 @@ export class OrbitControls {
   private lastX = 0;
   private lastY = 0;
   private listeners = new Set<OrbitControlsListener>();
+  // P2: reused temporaries — update() runs every frame while autoRotate
+  // is on, so the two Quats must not allocate per call.
+  private readonly tmpYaw = new Quat();
+  private readonly tmpPitch = new Quat();
 
   constructor(
     camera: PerspectiveCamera,
@@ -154,9 +158,11 @@ export class OrbitControls {
     );
     // Camera looks down -Z with Y up: yaw then pitch orients -Z from the
     // camera position onto the origin target.
-    const yaw = new Quat().setFromAxisAngle(AXIS_Y, this.theta);
-    const pitch = new Quat().setFromAxisAngle(AXIS_X, this.phi - Math.PI / 2);
-    this.camera.quaternion.copy(yaw.multiply(pitch));
+    this.camera.quaternion.copy(
+      this.tmpYaw
+        .setFromAxisAngle(AXIS_Y, this.theta)
+        .multiply(this.tmpPitch.setFromAxisAngle(AXIS_X, this.phi - Math.PI / 2)),
+    );
     this.camera.updateMatrixWorld();
     for (const listener of this.listeners) {
       listener();

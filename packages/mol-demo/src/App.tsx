@@ -9,6 +9,7 @@ import { Segmented } from "@repo/ui/components/Segmented";
 import { MoleculeList } from "./components/MoleculeList";
 import { MolCanvas } from "./components/MolCanvas";
 import { PatternCanvas } from "./components/PatternCanvas";
+import { PerfHud } from "./components/PerfHud";
 import type { ViewerHandle } from "./lib/pattern/viewer";
 import { applyDroppedText } from "./stores/moleculeStore";
 
@@ -70,6 +71,7 @@ export function App() {
             </div>
           </div>
         </Stage>
+        <PerfHud />
       </ExperimentShell>
     </ShellWrapper>
   );

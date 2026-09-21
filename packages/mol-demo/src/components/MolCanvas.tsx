@@ -4,6 +4,13 @@ import { OrbitControls } from "@repo/glaze3d/controls";
 import { Renderer } from "@repo/glaze3d/renderer";
 import { buildMolMesh } from "../lib/buildMolMesh";
 import type { ViewerRef } from "../lib/pattern/viewer";
+import {
+  isPerfEnabled,
+  isRotateDisabled,
+  perfLoopEnter,
+  perfLoopExit,
+  recordMolFrame,
+} from "../lib/perf";
 import { useMoleculeCurrent } from "../stores/moleculeStore";
 
 // 3D viewer (UC A2/A3/A4): owns the glaze3d scene — camera, lights,
@@ -46,12 +53,14 @@ export function MolCanvas({ viewerRef }: { viewerRef?: ViewerRef }) {
     const controls = new OrbitControls(camera, canvas, {
       enablePan: false,
       enableZoom: false,
-      autoRotate: true,
+      // Dev-only `?norotate=1` freezes autoRotate (P2 discriminating test:
+      // the pattern early-out should then freeze redraws and fps recover).
+      autoRotate: !isRotateDisabled(),
       autoRotateSpeed: 0.75,
       enableDamping: true,
       dampingFactor: 0.07,
     });
-    if (viewerRef) viewerRef.current = { camera, controls };
+    if (viewerRef) viewerRef.current = { camera, controls, requestPatternDraw: null };
 
     const resizeMol = () => {
       const rect = canvas.getBoundingClientRect();
@@ -67,12 +76,26 @@ export function MolCanvas({ viewerRef }: { viewerRef?: ViewerRef }) {
 
     let rafId = 0;
     let disposed = false;
+    const perf = isPerfEnabled();
+    if (perf) perfLoopEnter();
     const loop = () => {
       if (disposed) return;
       rafId = requestAnimationFrame(loop);
       try {
         controls.update();
+        const t0 = perf ? performance.now() : 0;
         renderer.render(scene, camera);
+        if (perf) {
+          recordMolFrame(
+            performance.now() - t0,
+            molGroup.children.length,
+            canvas.width,
+            canvas.height,
+          );
+        }
+        // P2: single RAF owner — the pattern redraws on demand through the
+        // callback it registered (throttle + angle early-out live there).
+        viewerRef?.current?.requestPatternDraw?.();
       } catch {
         // WebGL context may be temporarily lost; keep the loop alive.
       }
@@ -94,6 +117,7 @@ export function MolCanvas({ viewerRef }: { viewerRef?: ViewerRef }) {
     return () => {
       disposed = true;
       cancelAnimationFrame(rafId);
+      if (perf) perfLoopExit();
       window.removeEventListener("resize", resizeMol);
       window.removeEventListener("pageshow", onPageShow);
       controls.dispose();

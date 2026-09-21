@@ -11,6 +11,7 @@ import {
 import type { ProjectedAtom } from "../lib/pattern/norm";
 import type { ViewerRef } from "../lib/pattern/viewer";
 import type { Molecule } from "../lib/parseMol";
+import { isPerfEnabled, recordPatternFrame, setPatternPath } from "../lib/perf";
 import { useMoleculeCurrent } from "../stores/moleculeStore";
 
 // Live oriented IAM scattering pattern (UC A6). Owns its own canvas +
@@ -193,6 +194,15 @@ function drawPatternCPU(
   ctx.putImageData(imgData, 0, 0);
 }
 
+// A CPU fallback that burns the main thread is not a fallback. When WebGL2
+// is unavailable the CPU path runs at a reduced buffer (320/256 instead of
+// 900/600 — pixel work scales with area, ~8x cheaper) and a longer
+// throttle (500 ms instead of 33 ms), so the viewer loop stays interactive
+// and the pattern updates slowly instead of freezing the page.
+const CPU_BUF_MOBILE = 256;
+const CPU_BUF_DESKTOP = 320;
+const PATTERN_PAT_MS_CPU = 500;
+
 export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
   const [cpuFallback, setCpuFallback] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -209,7 +219,14 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
     const maxCount = maxAtoms(isMobile);
     const norm = createPatternNorm();
     let disposed = false;
-    let rafId = 0;
+    // P2: no RAF here — the viewer loop (MolCanvas) owns the single RAF and
+    // calls drawPattern every frame; throttle + angle early-out below keep
+    // actual redraws on demand.
+    const perfEnabled = isPerfEnabled();
+    const cpuMode = fallbackRef.current;
+    // Throttle budget depends on the backend: GPU redraws are milliseconds,
+    // CPU redraws are hundreds of ms — sharing one budget freezes the page.
+    const patMs = cpuMode ? PATTERN_PAT_MS_CPU : PATTERN_PAT_MS;
     let patDirty = true;
     let lastTs = 0;
     let lastMol: Molecule | null = null;
@@ -244,10 +261,12 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
     // GPU state.
     let gl: WebGL2RenderingContext | null = null;
     let prog: WebGLProgram | null = null;
+    let lutTex: WebGLTexture | null = null;
     const uniforms: UniformMap = {};
 
     const resizePat = () => {
-      const BUF = window.matchMedia("(max-width: 768px)").matches ? 600 : 900;
+      const small = window.matchMedia("(max-width: 768px)").matches;
+      const BUF = cpuMode ? (small ? CPU_BUF_MOBILE : CPU_BUF_DESKTOP) : small ? 600 : 900;
       canvas.width = BUF;
       canvas.height = BUF;
       if (gl) {
@@ -267,7 +286,7 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
         alpha: true,
         premultipliedAlpha: false,
       });
-      if (maybeGl === null) {
+      if (maybeGl === null || maybeGl.isContextLost()) {
         setCpuFallback(true);
         return;
       }
@@ -284,9 +303,10 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
           uniforms[`uFFb${i}`] = gl.getUniformLocation(prog, `uFFb[${i}]`);
           uniforms[`uFFc${i}`] = gl.getUniformLocation(prog, `uFFc[${i}]`);
         }
-        const lutTex = gl.createTexture();
+        const lutTexObj = gl.createTexture();
+        lutTex = lutTexObj;
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, lutTex);
+        gl.bindTexture(gl.TEXTURE_2D, lutTexObj);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 256, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, XRAY_LUT);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -295,6 +315,7 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
         gl.uniform1i(uniforms["uLUT"], 0);
         gl.uniform1f(uniforms["uQmin"], Q_MIN);
         gl.uniform1f(uniforms["uQmax"], Q_MAX);
+        setPatternPath("gpu");
       } catch (err) {
         console.warn("pattern: WebGL2 init failed, using CPU fallback:", err);
         gl = null;
@@ -305,6 +326,7 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
     } else {
       patCtx = canvas.getContext("2d");
       if (patCtx === null) return;
+      setPatternPath("cpu");
     }
 
     resizePat();
@@ -322,9 +344,8 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
     document.addEventListener("visibilitychange", onVisible);
     window.addEventListener("pageshow", onPageShow);
 
-    const loop = () => {
+    const drawPattern = () => {
       if (disposed) return;
-      rafId = requestAnimationFrame(loop);
       const mol = molRef.current;
       if (mol === null) return;
       const camera = viewerRef.current?.camera;
@@ -342,7 +363,7 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
       }
 
       const now = performance.now();
-      if (now - lastTs < PATTERN_PAT_MS) return;
+      if (now - lastTs < patMs) return;
       if (!patDirty && !firstFrame && camera.quaternion.angleTo(prevQuat) < PATTERN_ANGLE_EPS) {
         return;
       }
@@ -355,11 +376,14 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
       const h = canvas.height;
       if (!w || !h) return;
 
+      const t0 = perfEnabled ? performance.now() : 0;
       camera.updateMatrixWorld();
       const atoms = projectAtoms(mol, camera.matrixWorldInverse.elements);
+      const t1 = perfEnabled ? performance.now() : 0;
 
       if (gl && prog) {
         const normV = norm.compute(atoms, w, h);
+        const t2 = perfEnabled ? performance.now() : 0;
         gl.useProgram(prog);
         gl.viewport(0, 0, w, h);
         gl.clearColor(0, 0, 0, 0);
@@ -371,18 +395,28 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
           gl.uniform2f(uniforms[`uAtomPos${i}`], a.vx, a.vy);
         }
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        if (perfEnabled) {
+          const t3 = performance.now();
+          recordPatternFrame(t3 - t0, w, mol.name, t1 - t0, t2 - t1, t3 - t2);
+        }
         return;
       }
 
       if (patCtx) {
         drawPatternCPU(patCtx, atoms, w, h, raw, mask, fadeTbl, sampBuf);
+        if (perfEnabled) {
+          const t3 = performance.now();
+          recordPatternFrame(t3 - t0, w, mol.name, t1 - t0, 0, t3 - t1);
+        }
       }
     };
-    rafId = requestAnimationFrame(loop);
+    if (viewerRef.current) viewerRef.current.requestPatternDraw = drawPattern;
 
     return () => {
       disposed = true;
-      cancelAnimationFrame(rafId);
+      if (viewerRef.current?.requestPatternDraw === drawPattern) {
+        viewerRef.current.requestPatternDraw = null;
+      }
       window.removeEventListener("resize", resizePat);
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("pageshow", onPageShow);
@@ -390,8 +424,13 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
       if (controls && onChange) controls.removeEventListener("change", onChange);
       subscribedControls = null;
       if (gl) {
+        // No loseContext() here: in dev StrictMode this effect mounts,
+        // cleans up, and remounts on the same canvas element, and losing
+        // the context would force the remount onto the CPU fallback.
+        // Releasing the program + texture is enough; the browser reclaims
+        // the context with the canvas.
+        if (lutTex) gl.deleteTexture(lutTex);
         if (prog) gl.deleteProgram(prog);
-        gl.getExtension("WEBGL_lose_context")?.loseContext();
       }
     };
   }, [cpuFallback, viewerRef]);
