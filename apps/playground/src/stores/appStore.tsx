@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 type theme = "light" | "dark" | "system";
-export type PageName = "menu" | "art-canvas" | "mosaic-maker" | "mol-demo";
+export type PageName = "menu" | "art-canvas" | "mosaic-maker" | "mol-demo" | "automa";
 
 type appStore = {
   theme: theme;

@@ -36,6 +36,10 @@ export const EXPERIMENTS: Record<
     label: "Mol Demo",
     Page: lazy(() => import("@repo/mol-demo/App").then((m) => ({ default: m.App }))),
   },
+  automa: {
+    label: "Automa",
+    Page: lazy(() => import("@repo/automa/App").then((m) => ({ default: m.App }))),
+  },
 };
 
 const PAGE_OPTIONS = Object.entries(EXPERIMENTS).map(([value, { label }]) => ({

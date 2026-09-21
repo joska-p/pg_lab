@@ -164,7 +164,7 @@ import { Stage } from "@repo/ui/components/Stage";
 import { ControlSection } from "@repo/ui/components/ControlSection";
 import { Segmented } from "@repo/ui/components/Segmented";
 
-function App() {
+export function App() {
   const theme = useTheme();
 
   useEffect(() => {
@@ -193,8 +193,6 @@ function App() {
     </ShellWrapper>
   );
 }
-
-export default App;
 `;
 }
 

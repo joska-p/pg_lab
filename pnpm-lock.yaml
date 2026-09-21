@@ -218,6 +218,9 @@ importers:
       '@repo/art-canvas':
         specifier: workspace:*
         version: link:../../packages/art-canvas
+      '@repo/automa':
+        specifier: workspace:*
+        version: link:../../packages/automa
       '@repo/mol-demo':
         specifier: workspace:*
         version: link:../../packages/mol-demo
