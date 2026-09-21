@@ -31,9 +31,11 @@ Decide (not yet implement) how `apps/playground` should handle:
       Verified: mol-demo `check` + 47 tests green, playground `check` + `build`
       green, `dist/` emits base-aware `data:`/`.sdf` URLs, no `/molecules/` fetch.
       Pattern documented in `codex/docs/coding-conventions.md` §12.3.
-- [ ] **S4 — RFC:** freeze D1 (navigation) + D2 (assets) in `DECISIONS.md`.
+- [x] **S4 — RFC (2026-09-21):** D1 frozen on minimal host-owned "← Menu"
+      (D4 stands, routing B/C deferred); D2 frozen on `src/assets/` + `?url` glob
+      (D5 stands, owner-verified on dev server). D6 recorded, track closed.
 
-**Next action:** run S4 RFC (freeze D1 + D2, close track).
+**Next action:** none — track closed. Follow-ups are new work items.
 
 ## Read-when
 

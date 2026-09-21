@@ -22,3 +22,12 @@
   mol-demo `check` + 47 tests green, playground `check` + `build` green with
   base-aware URLs (`data:` inline for small SDFs, `/pg_lab/assets/*.sdf` for large).
   Convention frozen in `codex/docs/coding-conventions.md` §12.3 for all future mini-apps.
+- D6 2026-09-21 — S4 RFC final (closes track): D1 CLOSED on option A minimal
+  (D4 stands: host-owned fixed "← Menu" in `apps/playground/src/App.tsx`, neutral
+  `LoadingFallback`, guests host-agnostic). Hash (B) / history (C) routing explicitly
+  deferred until a real deep-link need appears (§1.5, no abstraction before problem);
+  unmount-on-return + per-guest theme ownership accepted as-is. D2 CLOSED (D5 stands,
+  owner runtime-verified on playground dev 2026-09-21: no 404, molecules load).
+  Option 5 (shared `@repo/assets`) deferred until a second package needs it.
+  Note: D3 said "decides, does not implement" but owner ordered implementation
+  of S2/S3 spikes in-session; both landed + verified, so track closes as decided+done.
