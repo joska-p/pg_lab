@@ -1,4 +1,4 @@
-import { useStore, type StoreApi } from 'zustand';
+import { useStore } from 'zustand';
 import { createStore } from 'zustand/vanilla';
 
 export interface FractalParams {
@@ -31,18 +31,12 @@ export const DEFAULT_PARAMS: FractalParams = {
 
 export type ParamKey = keyof FractalParams;
 
-export function createParamStore(initial: FractalParams): StoreApi<FractalParams> {
-    return createStore<FractalParams>(() => ({ ...initial }));
-}
+const store = createStore<FractalParams>(() => ({ ...DEFAULT_PARAMS }));
 
-export function useParams(store: StoreApi<FractalParams>): FractalParams {
+export function useParams(): FractalParams {
     return useStore(store);
 }
 
-export function setParam(store: StoreApi<FractalParams>, key: ParamKey, value: number): void {
+export function setParam(key: ParamKey, value: number): void {
     store.setState({ [key]: value } as Partial<FractalParams>);
-}
-
-export function resetParams(store: StoreApi<FractalParams>): void {
-    store.setState({ ...DEFAULT_PARAMS });
 }

@@ -1,22 +1,9 @@
 import { ControlSection } from '@repo/ui/components/ControlSection';
-import { Segmented } from '@repo/ui/components/Segmented';
 import { Slider } from '@repo/ui/components/Slider';
 import { Text } from '@repo/ui/components/Text';
 
 import { computeMaxIterations } from '../../core/iterationPolicy';
-import {
-    mandelbrotStore,
-    setMandelbrotPrecision,
-    useMandelbrotPrecision,
-    type MandelbrotPrecision,
-} from '../../stores/mandelbrotStore';
-import { setParam, useParams, type FractalParams, type ParamKey } from '../../stores/paramStore';
-
-const PRECISION_OPTIONS: { value: MandelbrotPrecision; label: string }[] = [
-    { value: 'naive', label: 'Naive (f32)' },
-    { value: 'double-split', label: 'Double-split' },
-    { value: 'perturbation', label: 'Perturbation' },
-];
+import { setParam, useParams, type FractalParams, type ParamKey } from './store';
 
 interface ParamSlider {
     label: string;
@@ -62,16 +49,15 @@ function ParamSliderList({ params, sliders }: ParamSliderListProps) {
                     max={max}
                     step={step}
                     value={params[key]}
-                    onValueChange={(value) => setParam(mandelbrotStore, key, value)}
+                    onValueChange={(value) => setParam(key, value)}
                 />
             ))}
         </>
     );
 }
 
-function MandelbrotControls() {
-    const params = useParams(mandelbrotStore);
-    const precision = useMandelbrotPrecision();
+export function NaiveControls() {
+    const params = useParams();
 
     const iterationsHint = [1, 1e3, 1e6]
         .map((z) =>
@@ -86,14 +72,6 @@ function MandelbrotControls() {
 
     return (
         <>
-            <ControlSection title="Precision">
-                <Segmented<MandelbrotPrecision>
-                    options={PRECISION_OPTIONS}
-                    value={precision}
-                    onValueChange={setMandelbrotPrecision}
-                />
-            </ControlSection>
-
             <ControlSection title="Iterations">
                 <ParamSliderList params={params} sliders={ITERATION_SLIDERS} />
                 <Text variant="muted">iterations @ 1 / 1e3 / 1e6 · {iterationsHint}</Text>
@@ -109,5 +87,3 @@ function MandelbrotControls() {
         </>
     );
 }
-
-export { MandelbrotControls };

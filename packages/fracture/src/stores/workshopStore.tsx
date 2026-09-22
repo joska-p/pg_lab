@@ -1,13 +1,15 @@
 import { create } from 'zustand';
 
-import type { ExperimentId } from '../experiments';
+import { EXPERIMENTS, type ExperimentId } from '../experiments';
+
+const DEFAULT_EXPERIMENT = (Object.keys(EXPERIMENTS) as ExperimentId[])[0];
 
 interface WorkshopState {
     activeExperiment: ExperimentId;
 }
 
 const workshopStore = create<WorkshopState>(() => ({
-    activeExperiment: 'mandelbrot',
+    activeExperiment: DEFAULT_EXPERIMENT,
 }));
 
 export function useActiveExperiment(): ExperimentId {

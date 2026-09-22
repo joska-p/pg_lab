@@ -11,28 +11,19 @@ import {
     computeSecondaryOrbit,
     type ReferenceOrbit,
 } from '../../core/referenceOrbit';
-import doubleSplitShader from '../../shaders/mandelbrot/double-split.glsl?raw';
-import naiveShader from '../../shaders/mandelbrot/naive.glsl?raw';
-import perturbationShader from '../../shaders/mandelbrot/perturbation.glsl?raw';
+import perturbationShader from './perturbation.glsl?raw';
 import {
-    mandelbrotStore,
-    setMandelbrotSurface,
-    useMandelbrotPrecision,
-    useMandelbrotSurface,
-    type MandelbrotPrecision,
-} from '../../stores/mandelbrotStore';
-import { useParams, type FractalParams } from '../../stores/paramStore';
-import { fractalParamsUniforms } from './fractalUniforms';
+    setPerturbationSurface,
+    useParams,
+    usePerturbationSurface,
+    type FractalParams,
+} from './store';
 
-/**
- * One shared camera per experiment across precision modes (D2): glaze clamps the zoom of every
- * precision to this single ceiling. Naive float32 degrades honestly far below it — that is the
- * comparison value the workshop exists for.
- */
+/** Perturbation (reference orbit + double-single): the deepest honest tier, up to 1e15 (D10). */
 const MAX_ZOOM = 1e15;
 
 // Complex-plane width of the view at zoom = 1. The shaders map (uv − 0.5) · (3 / zoom) onto the
-// complex plane, so both the double-split centre and the perturbation deltas use this fixed width.
+// complex plane, so both the DS centre and the perturbation deltas use this fixed width.
 const WORLD_SCALE = 3.0;
 
 interface CameraView {
@@ -54,56 +45,6 @@ interface PerturbationRuntime {
     lastCenterReRef: RefObject<number>;
     lastCenterImRef: RefObject<number>;
     lastZoomRef: RefObject<number>;
-}
-
-function naiveUniforms(
-    params: FractalParams,
-    view: CameraView,
-    width: number,
-    height: number,
-): Record<string, UniformValue> {
-    // Normalize the camera pan by zoom and canvas size into UV space. The shader
-    // applies u_panOffset after zoom, and a drag offset moves content opposite the
-    // cursor, so x is negated. The −0.5·drift terms pin the anchor to screenToWorld
-    // across zoom: the shader's (uv − 0.5) reference sits inside the /zoom divide.
-    const panNormX = view.x / view.zoom / width;
-    const panNormY = view.y / view.zoom / height;
-    const drift = 1.0 - 1.0 / view.zoom;
-
-    return {
-        u_panOffset: [-panNormX - 0.5 * drift, panNormY + 0.5 * drift],
-        ...fractalParamsUniforms(params),
-    };
-}
-
-function doubleSplitUniforms(
-    params: FractalParams,
-    view: CameraView,
-    width: number,
-    height: number,
-): Record<string, UniformValue> {
-    // Map the interaction camera onto the complex-plane center the double-split shader expects.
-    // With its convention  c = (uvCoord − 0.5) · (3 / zoom) + center, the center is
-    // (−WORLD_SCALE·aspect·panNormX − 0.5 − 0.5·WORLD_SCALE·aspect·drift,
-    //  WORLD_SCALE·panNormY + 0.5·WORLD_SCALE·drift); the drift terms pin the anchor to
-    // screenToWorld across zoom.
-    const panNormX = view.x / view.zoom / width;
-    const panNormY = view.y / view.zoom / height;
-    const aspect = width / height;
-    const drift = 1.0 - 1.0 / view.zoom;
-    const centerRe = -WORLD_SCALE * aspect * panNormX - 0.5 - 0.5 * WORLD_SCALE * aspect * drift;
-    const centerIm = WORLD_SCALE * panNormY + 0.5 * WORLD_SCALE * drift;
-
-    // Split each float64 center component into a double-single (hi, lo) pair of float32s (~48 bits)
-    // before uploading, so the GPU keeps the center exact at zoom levels far beyond float32.
-    const [centerReHi, centerReLo] = splitDouble(centerRe);
-    const [centerImHi, centerImLo] = splitDouble(centerIm);
-
-    return {
-        u_centerRe: [centerReHi, centerReLo],
-        u_centerIm: [centerImHi, centerImLo],
-        ...fractalParamsUniforms(params),
-    };
 }
 
 function perturbationUniforms(
@@ -188,34 +129,20 @@ function perturbationUniforms(
         u_orbitLength2: orbits.secondary.orbitLength,
         u_referenceIterations2: orbits.secondary.referenceIterations,
 
-        ...fractalParamsUniforms(params),
+        u_interiorScale: params.interiorScale,
+        u_pixelEps: params.pixelEps,
+        u_sunAngle: params.sunAngle,
+        u_bumpHeight: params.bumpHeight,
+        u_ambient: params.ambientLight,
+        u_hueShift: params.hueShift,
+        u_hueFrequency: params.hueFrequency,
+        u_chromaScale: params.chromaScale,
     };
 }
 
-const SHADERS: Record<MandelbrotPrecision, string> = {
-    naive: naiveShader,
-    'double-split': doubleSplitShader,
-    perturbation: perturbationShader,
-};
-
-type MandelbrotUniformProvider = (
-    params: FractalParams,
-    view: CameraView,
-    width: number,
-    height: number,
-    runtime: PerturbationRuntime,
-) => Record<string, UniformValue>;
-
-const UNIFORMS: Record<MandelbrotPrecision, MandelbrotUniformProvider> = {
-    naive: naiveUniforms,
-    'double-split': doubleSplitUniforms,
-    perturbation: perturbationUniforms,
-};
-
-function Mandelbrot() {
-    const params = useParams(mandelbrotStore);
-    const precision = useMandelbrotPrecision();
-    const surface = useMandelbrotSurface();
+function Perturbation() {
+    const params = useParams();
+    const surface = usePerturbationSurface();
 
     const texturesRef = useRef<OrbitTextures | null>(null);
     const orbitsRef = useRef<Orbits | null>(null);
@@ -230,7 +157,7 @@ function Mandelbrot() {
             texturesRef.current?.dispose();
             texturesRef.current = null;
             orbitsRef.current = null;
-            setMandelbrotSurface(null);
+            setPerturbationSurface(null);
         };
     }, []);
 
@@ -262,12 +189,12 @@ function Mandelbrot() {
     return (
         <GpuCanvas
             className="h-full w-full"
-            fragmentShader={SHADERS[precision]}
+            fragmentShader={perturbationShader}
             initialCamera={{ maxZoom: MAX_ZOOM }}
             canvasInteractions={{ zoom: { speed: ZOOM_WHEEL_SPEED } }}
-            onMount={setMandelbrotSurface}
+            onMount={setPerturbationSurface}
             uniforms={({ camera: view, width, height, canvas }) =>
-                UNIFORMS[precision](params, view, width, height, {
+                perturbationUniforms(params, view, width, height, {
                     canvas,
                     texturesRef,
                     orbitsRef,
@@ -280,4 +207,4 @@ function Mandelbrot() {
     );
 }
 
-export { Mandelbrot };
+export { Perturbation };
