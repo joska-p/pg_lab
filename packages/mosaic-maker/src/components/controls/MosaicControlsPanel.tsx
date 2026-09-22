@@ -110,13 +110,17 @@ function MosaicControlsPanel() {
     const gapSize = useSliderState(CSS_VARS.gap, DEFAULT_GAP_SIZE);
 
     function shuffleColors() {
-        if (!mosaicRef.current) return;
+        if (!mosaicRef.current) {
+            return;
+        }
 
         updateElementStyles(mosaicRef.current, shuffleObject(currentPalette));
     }
 
     function shuffleRotations() {
-        if (!mosaicRef.current) return;
+        if (!mosaicRef.current) {
+            return;
+        }
 
         updateElementStyles(mosaicRef.current, shuffleObject(initialRotations));
     }

@@ -56,7 +56,9 @@ export function switchMolecule(
     maxAtomCount: number,
 ): SwitchResult {
     const check = validateMolecule(next, maxAtomCount);
-    if (!check.ok) return { mol: current, switched: false, reason: check.reason };
+    if (!check.ok) {
+        return { mol: current, switched: false, reason: check.reason };
+    }
     return { mol: next, switched: true };
 }
 
@@ -64,7 +66,9 @@ export function switchMolecule(
 export function parseAndValidate(text: string, filename: string, maxAtomCount: number): Molecule {
     const mol = parseMol(text, filename);
     const check = validateMolecule(mol, maxAtomCount);
-    if (!check.ok) throw new Error(`mol-demo: ${check.reason}`);
+    if (!check.ok) {
+        throw new Error(`mol-demo: ${check.reason}`);
+    }
     return mol;
 }
 
@@ -81,8 +85,12 @@ const sdfUrlByFile = new Map<string, () => Promise<string>>(
 // Fetch a registry entry by its Vite-resolved URL and validate it.
 export async function loadMolecule(entry: MoleculeEntry, isMobile = false): Promise<Molecule> {
     const loader = sdfUrlByFile.get(entry.file);
-    if (!loader) throw new Error(`mol-demo: unknown molecule ${entry.file}`);
+    if (!loader) {
+        throw new Error(`mol-demo: unknown molecule ${entry.file}`);
+    }
     const res = await fetch(await loader());
-    if (!res.ok) throw new Error(`mol-demo: could not load ${entry.file} (${res.status})`);
+    if (!res.ok) {
+        throw new Error(`mol-demo: could not load ${entry.file} (${res.status})`);
+    }
     return parseAndValidate(await res.text(), entry.file, maxAtoms(isMobile));
 }

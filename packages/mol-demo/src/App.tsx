@@ -52,7 +52,9 @@ export function App() {
                         onDrop={(e) => {
                             e.preventDefault();
                             const file = e.dataTransfer.files[0];
-                            if (!file) return;
+                            if (!file) {
+                                return;
+                            }
                             const reader = new FileReader();
                             reader.onload = (evt) => {
                                 const text = evt.target?.result;

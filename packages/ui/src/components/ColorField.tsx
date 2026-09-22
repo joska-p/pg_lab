@@ -27,7 +27,9 @@ interface ColorFieldProps {
 const DEFAULT_HEX = '#000000';
 
 function asHex(value: string) {
-    if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value)) return value;
+    if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value)) {
+        return value;
+    }
     return DEFAULT_HEX;
 }
 
@@ -81,7 +83,9 @@ export function ColorField(props: ColorFieldProps) {
 
     function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
         const next = event.currentTarget.value;
-        if (!isControlled) setInternal(next);
+        if (!isControlled) {
+            setInternal(next);
+        }
         onValueChange?.(next);
     }
 

@@ -21,7 +21,9 @@ export class PanGesture<TSurface> {
     }
 
     onStart = (event: InteractionEvent<PointerEvent, TSurface>): boolean => {
-        if (!matchesButton(event.nativeEvent.button, this.#button)) return false;
+        if (!matchesButton(event.nativeEvent.button, this.#button)) {
+            return false;
+        }
 
         this.active = true;
 
@@ -29,7 +31,9 @@ export class PanGesture<TSurface> {
     };
 
     onMove = (event: InteractionEvent<PointerEvent, TSurface>): void => {
-        if (!this.active) return;
+        if (!this.active) {
+            return;
+        }
 
         event.cameraControls.panBy(event.input.pointerDelta.x, event.input.pointerDelta.y);
     };
@@ -44,7 +48,9 @@ export class PanGesture<TSurface> {
     };
 
     onContextMenu = (event: InteractionEvent<MouseEvent, TSurface>): void => {
-        if (matchesButton(2, this.#button)) event.nativeEvent.preventDefault();
+        if (matchesButton(2, this.#button)) {
+            event.nativeEvent.preventDefault();
+        }
     };
 }
 
@@ -71,7 +77,9 @@ export function createZoomGesture<TSurface>(options: ZoomOptions = {}): ZoomGest
 }
 
 function matchesButton(button: number, filter?: number | number[]): boolean {
-    if (filter === undefined) return true;
+    if (filter === undefined) {
+        return true;
+    }
 
     return Array.isArray(filter) ? filter.includes(button) : filter === button;
 }
@@ -105,12 +113,16 @@ export class InputRouter<TSurface> {
     dispose(): void {
         const unsubscribe = this.#unsubscribe;
 
-        if (unsubscribe === undefined) return;
+        if (unsubscribe === undefined) {
+            return;
+        }
 
         this.#unsubscribe = undefined;
         unsubscribe();
 
-        for (const gesture of this.#options.getGestures()) gesture.onCancel?.();
+        for (const gesture of this.#options.getGestures()) {
+            gesture.onCancel?.();
+        }
     }
 
     #interaction = <TEvent>(
@@ -141,7 +153,9 @@ export class InputRouter<TSurface> {
         let claimed = false;
 
         for (const gesture of this.#options.getGestures()) {
-            if (invoke(gesture) === true) claimed = true;
+            if (invoke(gesture) === true) {
+                claimed = true;
+            }
         }
 
         return claimed;
@@ -150,7 +164,9 @@ export class InputRouter<TSurface> {
     #onStart = (nativeEvent: PointerEvent, point: Point2D): void => {
         const event = this.#interaction(nativeEvent, point);
 
-        if (this.#dispatch((gesture) => gesture.onStart?.(event))) capturePointer(nativeEvent);
+        if (this.#dispatch((gesture) => gesture.onStart?.(event))) {
+            capturePointer(nativeEvent);
+        }
     };
 
     #onMove = (nativeEvent: PointerEvent, point: Point2D): void => {

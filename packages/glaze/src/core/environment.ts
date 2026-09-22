@@ -5,7 +5,9 @@ import { createDevicePixelRatio, type DevicePixelRatio } from './render';
  * when `window` is absent or reports a non-positive value.
  */
 export function defaultGetDevicePixelRatio(): number {
-    if (typeof window === 'undefined') return 1;
+    if (typeof window === 'undefined') {
+        return 1;
+    }
 
     const value = window.devicePixelRatio;
 
@@ -21,7 +23,9 @@ export function resolveDevicePixelRatio(
     explicit?: DevicePixelRatio,
     getDpr: () => number = defaultGetDevicePixelRatio,
 ): DevicePixelRatio {
-    if (explicit !== undefined) return explicit;
+    if (explicit !== undefined) {
+        return explicit;
+    }
 
     try {
         return createDevicePixelRatio(getDpr());
@@ -36,7 +40,9 @@ export function resolveDevicePixelRatio(
  * injection reuses this single site.
  */
 export function createDocumentCanvas(): HTMLCanvasElement | null {
-    if (typeof document === 'undefined') return null;
+    if (typeof document === 'undefined') {
+        return null;
+    }
 
     return document.createElement('canvas');
 }

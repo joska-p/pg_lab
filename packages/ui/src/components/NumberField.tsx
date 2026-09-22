@@ -62,7 +62,9 @@ export function NumberField(props: NumberFieldProps) {
         } else {
             setClampNotice(null);
         }
-        if (!isControlled) setInternal(clamped);
+        if (!isControlled) {
+            setInternal(clamped);
+        }
         onValueChange?.(clamped);
     }
 
@@ -70,7 +72,9 @@ export function NumberField(props: NumberFieldProps) {
         const raw = event.currentTarget.value;
         setDraft(raw);
         const parsed = Number(raw);
-        if (raw !== '' && !Number.isNaN(parsed)) commit(parsed);
+        if (raw !== '' && !Number.isNaN(parsed)) {
+            commit(parsed);
+        }
     }
 
     return (

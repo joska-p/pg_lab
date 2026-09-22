@@ -28,7 +28,9 @@ export function GpuCanvas({
 
     // ── Shader Compilation Effect ──
     useEffect(() => {
-        if (!stack || !fragmentShader) return;
+        if (!stack || !fragmentShader) {
+            return;
+        }
 
         const program = stack.surface.createProgram(fragmentShader);
 
@@ -44,7 +46,9 @@ export function GpuCanvas({
     const mountedSurfaceRef = useRef<GpuSurface | null>(null);
 
     useEffect(() => {
-        if (!stack || mountedSurfaceRef.current === stack.surface) return;
+        if (!stack || mountedSurfaceRef.current === stack.surface) {
+            return;
+        }
 
         mountedSurfaceRef.current = stack.surface;
         onMount?.(stack.surface);
@@ -53,9 +57,13 @@ export function GpuCanvas({
 
     // ── Frame Loop Effect ──
     useEffect(() => {
-        if (!stack) return;
+        if (!stack) {
+            return;
+        }
 
-        if (onFrame === undefined && fragmentShader === undefined) return;
+        if (onFrame === undefined && fragmentShader === undefined) {
+            return;
+        }
 
         return stack.surface.onFrame((frame) => {
             const program = programRef.current;

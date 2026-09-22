@@ -81,7 +81,7 @@ function TileSetControls() {
                         disabled={isLastSelected}
                         title={
                             isLastSelected
-                                ? tileName + '- Keep at least one tile type selected'
+                                ? `${tileName}- Keep at least one tile type selected`
                                 : tileName
                         }
                         onClick={() => {

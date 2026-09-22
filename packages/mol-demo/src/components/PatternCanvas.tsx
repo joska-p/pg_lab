@@ -83,7 +83,9 @@ void main() {
 
 function makeShader(gl: WebGL2RenderingContext, type: number, src: string): WebGLShader {
     const shader = gl.createShader(type);
-    if (!shader) throw new Error('pattern: could not create shader');
+    if (!shader) {
+        throw new Error('pattern: could not create shader');
+    }
     gl.shaderSource(shader, src);
     gl.compileShader(shader);
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
@@ -96,7 +98,9 @@ function makeShader(gl: WebGL2RenderingContext, type: number, src: string): WebG
 
 function makeProgram(gl: WebGL2RenderingContext, vsSrc: string, fsSrc: string): WebGLProgram {
     const program = gl.createProgram();
-    if (!program) throw new Error('pattern: could not create program');
+    if (!program) {
+        throw new Error('pattern: could not create program');
+    }
     const vertexShader = makeShader(gl, gl.VERTEX_SHADER, vsSrc);
     const fragmentShader = makeShader(gl, gl.FRAGMENT_SHADER, fsSrc);
     gl.attachShader(program, vertexShader);
@@ -118,7 +122,9 @@ function setAtomFFUniforms(gl: WebGL2RenderingContext, uniforms: UniformMap, mol
     gl.uniform1i(uniforms.uNatoms, mol.atoms.length);
     for (let i = 0; i < mol.atoms.length; i++) {
         const c = FF[mol.atoms[i]];
-        if (!c) continue;
+        if (!c) {
+            continue;
+        }
         gl.uniform4f(uniforms[`uFFa${i}`], c[0] ?? 0, c[1] ?? 0, c[2] ?? 0, c[3] ?? 0);
         gl.uniform4f(uniforms[`uFFb${i}`], c[4] ?? 0, c[5] ?? 0, c[6] ?? 0, c[7] ?? 0);
         gl.uniform1f(uniforms[`uFFc${i}`], c[8] ?? 0);
@@ -149,7 +155,9 @@ function drawPatternCPU(
             const qx = (px - cx) * sc;
             const qy = (cy - py) * sc;
             const q = Math.sqrt(qx * qx + qy * qy);
-            if (q < Q_MIN || q > Q_MAX) continue;
+            if (q < Q_MIN || q > Q_MAX) {
+                continue;
+            }
             let re = 0;
             let im = 0;
             for (const { el, vx, vy } of atoms) {
@@ -164,14 +172,20 @@ function drawPatternCPU(
             mask[idx] = 1;
             fadeTbl[idx] =
                 Math.min(1, (q - Q_MIN) / (Q_MIN * 2)) * Math.min(1, (Q_MAX - q) / (Q_MAX * 0.06));
-            if (v > maxV) maxV = v;
+            if (v > maxV) {
+                maxV = v;
+            }
         }
     }
-    if (maxV === 0) return;
+    if (maxV === 0) {
+        return;
+    }
 
     let sampLen = 0;
     for (let i = 0; i < raw.length; i += 8) {
-        if (raw[i] > 0) sampBuf[sampLen++] = raw[i];
+        if (raw[i] > 0) {
+            sampBuf[sampLen++] = raw[i];
+        }
     }
     const samp = sampBuf.subarray(0, sampLen);
     samp.sort();
@@ -215,7 +229,9 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
 
     useEffect(() => {
         const canvas = canvasRef.current;
-        if (canvas === null) return;
+        if (canvas === null) {
+            return;
+        }
         const isMobile = window.matchMedia('(max-width: 768px)').matches;
         const maxCount = maxAtoms(isMobile);
         const norm = createPatternNorm();
@@ -242,12 +258,16 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
 
         const subscribeControls = () => {
             const controls = viewerRef.current?.controls;
-            if (!controls || subscribedControls) return;
+            if (!controls || subscribedControls) {
+                return;
+            }
             onChange = markDirty;
             controls.addEventListener('change', onChange);
             subscribedControls = {
                 dispose: () => {
-                    if (onChange) controls.removeEventListener('change', onChange);
+                    if (onChange) {
+                        controls.removeEventListener('change', onChange);
+                    }
                 },
             };
         };
@@ -336,7 +356,9 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
             }
         } else {
             patCtx = canvas.getContext('2d');
-            if (patCtx === null) return;
+            if (patCtx === null) {
+                return;
+            }
             setPatternPath('cpu');
         }
 
@@ -344,23 +366,33 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
         subscribeControls();
         window.addEventListener('resize', resizePat);
         const onVisible = () => {
-            if (!document.hidden) patDirty = true;
+            if (!document.hidden) {
+                patDirty = true;
+            }
         };
         const onPageShow = (e: PageTransitionEvent) => {
             // After a bfcache restore the canvas backing store may be gone —
             // reallocate it like the origin demo does, then force a redraw.
-            if (e.persisted) resizePat();
+            if (e.persisted) {
+                resizePat();
+            }
             patDirty = true;
         };
         document.addEventListener('visibilitychange', onVisible);
         window.addEventListener('pageshow', onPageShow);
 
         const drawPattern = () => {
-            if (disposed) return;
+            if (disposed) {
+                return;
+            }
             const mol = molRef.current;
-            if (mol === null) return;
+            if (mol === null) {
+                return;
+            }
             const camera = viewerRef.current?.camera;
-            if (!camera) return;
+            if (!camera) {
+                return;
+            }
             subscribeControls();
 
             if (mol !== lastMol) {
@@ -374,7 +406,9 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
             }
 
             const now = performance.now();
-            if (now - lastTs < patMs) return;
+            if (now - lastTs < patMs) {
+                return;
+            }
             if (
                 !patDirty &&
                 !firstFrame &&
@@ -389,7 +423,9 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
 
             const w = canvas.width;
             const h = canvas.height;
-            if (!w || !h) return;
+            if (!w || !h) {
+                return;
+            }
 
             const t0 = perfEnabled ? performance.now() : 0;
             camera.updateMatrixWorld();
@@ -427,8 +463,11 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
         };
         // The handle object is stable (owned by App) so registration is
         // order-independent: works whether Pattern mounts before or after Mol.
-        if (viewerRef.current) viewerRef.current.requestPatternDraw = drawPattern;
-        else viewerRef.current = { camera: null, controls: null, requestPatternDraw: drawPattern };
+        if (viewerRef.current) {
+            viewerRef.current.requestPatternDraw = drawPattern;
+        } else {
+            viewerRef.current = { camera: null, controls: null, requestPatternDraw: drawPattern };
+        }
 
         return () => {
             disposed = true;
@@ -439,7 +478,9 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
             document.removeEventListener('visibilitychange', onVisible);
             window.removeEventListener('pageshow', onPageShow);
             const controls = viewerRef.current?.controls;
-            if (controls && onChange) controls.removeEventListener('change', onChange);
+            if (controls && onChange) {
+                controls.removeEventListener('change', onChange);
+            }
             subscribedControls = null;
             if (gl) {
                 // No loseContext() here: in dev StrictMode this effect mounts,
@@ -447,8 +488,12 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
                 // the context would force the remount onto the CPU fallback.
                 // Releasing the program + texture is enough; the browser reclaims
                 // the context with the canvas.
-                if (lutTex) gl.deleteTexture(lutTex);
-                if (prog) gl.deleteProgram(prog);
+                if (lutTex) {
+                    gl.deleteTexture(lutTex);
+                }
+                if (prog) {
+                    gl.deleteProgram(prog);
+                }
             }
         };
     }, [cpuFallback, viewerRef]);

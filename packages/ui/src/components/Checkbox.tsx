@@ -82,7 +82,9 @@ export function Checkbox(props: CheckboxProps) {
 
     function handleClick() {
         const next = !isOn;
-        if (!isControlled) setInternal(next);
+        if (!isControlled) {
+            setInternal(next);
+        }
         onCheckedChange?.(next);
     }
 

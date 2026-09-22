@@ -50,7 +50,9 @@ export class CpuSurface {
     constructor(config: CpuSurfaceConfig) {
         const context = config.canvas.getContext('2d');
 
-        if (!context) throw new Error('Glaze: Canvas2D context unavailable');
+        if (!context) {
+            throw new Error('Glaze: Canvas2D context unavailable');
+        }
 
         this.canvas = config.canvas;
         this.#context = context;
@@ -105,7 +107,9 @@ export class CpuSurface {
 
     /** Applied automatically each frame; call manually before one-shot draws outside the loop. */
     applyCamera(): this {
-        if (this.width === 0) return this;
+        if (this.width === 0) {
+            return this;
+        }
 
         const context = this.#context;
 
@@ -198,9 +202,13 @@ export class CpuSurface {
         const deviceWidth = Math.round(this.#cssWidth * this.dpr);
         const deviceHeight = Math.round(this.#cssHeight * this.dpr);
 
-        if (this.canvas.width !== deviceWidth) this.canvas.width = deviceWidth;
+        if (this.canvas.width !== deviceWidth) {
+            this.canvas.width = deviceWidth;
+        }
 
-        if (this.canvas.height !== deviceHeight) this.canvas.height = deviceHeight;
+        if (this.canvas.height !== deviceHeight) {
+            this.canvas.height = deviceHeight;
+        }
     }
 
     #begin(fill?: CssColor, stroke?: CssColor, lineWidth?: PositiveNumber): void {
@@ -208,7 +216,9 @@ export class CpuSurface {
 
         context.beginPath();
 
-        if (fill) context.fillStyle = fill;
+        if (fill) {
+            context.fillStyle = fill;
+        }
 
         if (stroke) {
             context.strokeStyle = stroke;
@@ -222,9 +232,13 @@ export class CpuSurface {
         const doFill = options?.fill ?? fill !== undefined;
         const doStroke = options?.stroke ?? stroke !== undefined;
 
-        if (doFill && fill) this.#context.fill();
+        if (doFill && fill) {
+            this.#context.fill();
+        }
 
-        if (doStroke && stroke) this.#context.stroke();
+        if (doStroke && stroke) {
+            this.#context.stroke();
+        }
     }
 
     #strokeLine(
@@ -281,7 +295,9 @@ export class CpuSurface {
         closed?: boolean,
         options?: PathOptions,
     ): void {
-        if (points.length < 2) return;
+        if (points.length < 2) {
+            return;
+        }
 
         this.#begin(fill, stroke, lineWidth);
         const context = this.#context;
@@ -295,7 +311,9 @@ export class CpuSurface {
             context.lineTo(point.x, point.y);
         }
 
-        if (options?.closed ?? closed) context.closePath();
+        if (options?.closed ?? closed) {
+            context.closePath();
+        }
 
         this.#paintShape(fill, stroke, options);
     }

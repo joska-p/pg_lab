@@ -154,7 +154,9 @@ for (const sym of FF_SYMS) {
 // Throws on unknown elements — callers must validate first (see validateMolecule).
 export function ff(el: string, q: number): number {
     const tbl = FF_TBL[el];
-    if (!tbl) throw new Error(`mol-demo: no form factors for element "${el}"`);
+    if (!tbl) {
+        throw new Error(`mol-demo: no form factors for element "${el}"`);
+    }
     const i = Math.max(
         0,
         Math.min(FF_N - 1, Math.round(((q - Q_MIN) / (Q_MAX - Q_MIN)) * (FF_N - 1))),

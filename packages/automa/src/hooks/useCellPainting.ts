@@ -9,12 +9,16 @@ import { automaStore } from '../stores/automa/store';
 function paintAtEvent(event: PointerEvent, surface: GpuSurface): void {
     const canvas = event.currentTarget;
 
-    if (!(canvas instanceof HTMLCanvasElement)) return;
+    if (!(canvas instanceof HTMLCanvasElement)) {
+        return;
+    }
 
     const { cols, rows, toolMode, paletteBrush } = automaStore.getState();
     const cell = eventToGridPoint(event, canvas, cols, rows, surface.camera);
 
-    if (!cell) return;
+    if (!cell) {
+        return;
+    }
 
     if (toolMode !== 'erase' && paletteBrush !== 'pixel') {
         placeCreature(cell.column, cell.row, paletteBrush);

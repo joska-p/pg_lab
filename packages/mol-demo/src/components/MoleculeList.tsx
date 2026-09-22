@@ -23,7 +23,9 @@ export function MoleculeList() {
     const error = useMoleculeError();
 
     useEffect(() => {
-        if (status === 'idle') void selectMolecule(file);
+        if (status === 'idle') {
+            void selectMolecule(file);
+        }
     }, [status, file]);
 
     return (

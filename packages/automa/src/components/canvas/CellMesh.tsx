@@ -28,7 +28,9 @@ function CellMesh() {
             uniforms={(surface): Record<string, UniformValue> => {
                 const { engine, stateColors, cols, rows } = automaStore.getState();
 
-                if (!engine) return {};
+                if (!engine) {
+                    return {};
+                }
 
                 // Same placement math as eventToGridPoint: the display and the
                 // picking share computeGridRect, so cells stay under the cursor

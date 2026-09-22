@@ -26,9 +26,13 @@ function parseRule<const TId extends string>({
     const sPart = parts.find((p) => p.startsWith('S'))?.replace('S', '') ?? '';
     const cPart = parts.find((p) => p.startsWith('C'))?.replace('C', '') ?? '2';
 
-    for (const ch of bPart) birth[Number(ch)] = true;
+    for (const ch of bPart) {
+        birth[Number(ch)] = true;
+    }
 
-    for (const ch of sPart) survive[Number(ch)] = true;
+    for (const ch of sPart) {
+        survive[Number(ch)] = true;
+    }
 
     return {
         id,

@@ -25,7 +25,9 @@ export function MolCanvas({ viewerRef }: { viewerRef?: ViewerRef }) {
 
     useEffect(() => {
         const canvas = canvasRef.current;
-        if (canvas === null) return;
+        if (canvas === null) {
+            return;
+        }
 
         const scene = new Group();
         const camera = new PerspectiveCamera(40, 1, 0.01, 200);
@@ -77,7 +79,9 @@ export function MolCanvas({ viewerRef }: { viewerRef?: ViewerRef }) {
             const rect = canvas.getBoundingClientRect();
             const w = Math.round(rect.width);
             const h = Math.round(rect.height);
-            if (!w || !h) return;
+            if (!w || !h) {
+                return;
+            }
             renderer.setSize(w, h);
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
@@ -88,9 +92,13 @@ export function MolCanvas({ viewerRef }: { viewerRef?: ViewerRef }) {
         let rafId = 0;
         let disposed = false;
         const perf = isPerfEnabled();
-        if (perf) perfLoopEnter();
+        if (perf) {
+            perfLoopEnter();
+        }
         const loop = () => {
-            if (disposed) return;
+            if (disposed) {
+                return;
+            }
             rafId = requestAnimationFrame(loop);
             try {
                 controls.update();
@@ -128,7 +136,9 @@ export function MolCanvas({ viewerRef }: { viewerRef?: ViewerRef }) {
         return () => {
             disposed = true;
             cancelAnimationFrame(rafId);
-            if (perf) perfLoopExit();
+            if (perf) {
+                perfLoopExit();
+            }
             window.removeEventListener('resize', resizeMol);
             window.removeEventListener('pageshow', onPageShow);
             controls.dispose();

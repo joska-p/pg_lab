@@ -479,7 +479,9 @@ function FoundationsSection() {
 // ─── Section 05 · Resilience ──────────────────────────────────────────────────
 
 function ThrowOnRender({ shouldThrow }: { shouldThrow: boolean }) {
-    if (shouldThrow) throw new Error('demo crash — the boundary caught it');
+    if (shouldThrow) {
+        throw new Error('demo crash — the boundary caught it');
+    }
     return <Readout label="status" value="stable · nothing thrown" />;
 }
 

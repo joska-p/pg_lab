@@ -130,7 +130,9 @@ export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
     const listRef = useRef<HTMLDivElement>(null);
 
     function commit(next: T) {
-        if (!isControlled) setInternal(next);
+        if (!isControlled) {
+            setInternal(next);
+        }
         onValueChange?.(next);
     }
 
@@ -138,13 +140,17 @@ export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
         const index = items.findIndex((option) => option.value === current);
         const last = items.length - 1;
         let nextIndex = index;
-        if (event.key === 'ArrowDown' || event.key === 'ArrowRight')
+        if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
             nextIndex = index >= last ? 0 : index + 1;
-        else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft')
+        } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
             nextIndex = index <= 0 ? last : index - 1;
-        else if (event.key === 'Home') nextIndex = 0;
-        else if (event.key === 'End') nextIndex = last;
-        else return;
+        } else if (event.key === 'Home') {
+            nextIndex = 0;
+        } else if (event.key === 'End') {
+            nextIndex = last;
+        } else {
+            return;
+        }
 
         event.preventDefault();
         commit(items[nextIndex].value);

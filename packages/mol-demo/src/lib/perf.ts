@@ -40,7 +40,9 @@ const state = {
 };
 
 export function isPerfEnabled(): boolean {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === 'undefined') {
+        return false;
+    }
     try {
         return (
             import.meta.env.DEV === true && new URLSearchParams(window.location.search).has('perf')
@@ -54,7 +56,9 @@ export function isPerfEnabled(): boolean {
 // pattern early-out should freeze redraws — if fps recovers to ~60, the
 // pattern-on-main-thread diagnosis is confirmed.
 export function isRotateDisabled(): boolean {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === 'undefined') {
+        return false;
+    }
     try {
         return (
             import.meta.env.DEV === true &&

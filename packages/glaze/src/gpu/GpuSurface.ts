@@ -67,7 +67,9 @@ export class GpuSurface {
             premultipliedAlpha: true,
         });
 
-        if (!gl) throw new Error('Glaze: WebGL2 not supported');
+        if (!gl) {
+            throw new Error('Glaze: WebGL2 not supported');
+        }
 
         this.canvas = config.canvas;
         this.#gl = gl;
@@ -127,7 +129,9 @@ export class GpuSurface {
     renderProgram(program: Program): this {
         this.#flushBatch();
 
-        if (this.#lost) return this;
+        if (this.#lost) {
+            return this;
+        }
 
         program.setUniforms(
             createStandardUniformValues(
@@ -173,7 +177,9 @@ export class GpuSurface {
     clear(color?: CssColor): this {
         this.#flushBatch();
 
-        if (this.#lost) return this;
+        if (this.#lost) {
+            return this;
+        }
 
         const { r, g, b, a } = parseColor(color ?? createCssColor('#000000'));
 
@@ -198,11 +204,15 @@ export class GpuSurface {
         this.canvas.removeEventListener('webglcontextlost', this.#onContextLost);
         this.canvas.removeEventListener('webglcontextrestored', this.#onContextRestored);
 
-        for (const program of this.#programs) program.destroy();
+        for (const program of this.#programs) {
+            program.destroy();
+        }
 
         this.#programs.clear();
 
-        for (const buffer of this.#buffers) buffer.destroy();
+        for (const buffer of this.#buffers) {
+            buffer.destroy();
+        }
 
         this.#buffers.clear();
         this.#textProgram = null;
@@ -212,25 +222,33 @@ export class GpuSurface {
     }
 
     #drawCircle(circle: Circle, style?: DrawStyle): void {
-        if (this.#lost) return;
+        if (this.#lost) {
+            return;
+        }
 
         this.#batch.drawCircle(circle, style ?? {});
     }
 
     #drawRectangle(rectangle: Rectangle, style?: DrawStyle): void {
-        if (this.#lost) return;
+        if (this.#lost) {
+            return;
+        }
 
         this.#batch.drawRectangle(rectangle, style ?? {});
     }
 
     #drawLine(segment: Segment, style?: DrawStyle): void {
-        if (this.#lost) return;
+        if (this.#lost) {
+            return;
+        }
 
         this.#batch.drawLine(segment, style ?? {});
     }
 
     #drawText(text: string, x: number, y: number, style: TextStyle): void {
-        if (this.#lost || text.length === 0) return;
+        if (this.#lost || text.length === 0) {
+            return;
+        }
 
         this.#flushBatch();
         const rasterizer = (this.#textRasterizer ??= new TextRasterizer(this.#gl));
@@ -263,15 +281,21 @@ export class GpuSurface {
         const deviceWidth = Math.round(this.#cssWidth * this.dpr);
         const deviceHeight = Math.round(this.#cssHeight * this.dpr);
 
-        if (this.canvas.width !== deviceWidth) this.canvas.width = deviceWidth;
+        if (this.canvas.width !== deviceWidth) {
+            this.canvas.width = deviceWidth;
+        }
 
-        if (this.canvas.height !== deviceHeight) this.canvas.height = deviceHeight;
+        if (this.canvas.height !== deviceHeight) {
+            this.canvas.height = deviceHeight;
+        }
 
         this.#gl.viewport(0, 0, deviceWidth, deviceHeight);
     }
 
     #flushBatch(): void {
-        if (this.#lost) return;
+        if (this.#lost) {
+            return;
+        }
 
         this.#batch.flush();
     }
@@ -288,9 +312,13 @@ export class GpuSurface {
         this.#textRasterizer?.clear();
         this.#batch.reinitialize();
 
-        for (const program of this.#programs) program.reinitialize();
+        for (const program of this.#programs) {
+            program.reinitialize();
+        }
 
-        for (const buffer of this.#buffers) buffer.reinitialize();
+        for (const buffer of this.#buffers) {
+            buffer.reinitialize();
+        }
     };
 
     #frameStep: FrameStep = (time, deltaTime, frameToken): void => {

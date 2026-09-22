@@ -26,7 +26,9 @@ interface SliderProps {
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 function decimals(step: number) {
-    if (Number.isInteger(step)) return 0;
+    if (Number.isInteger(step)) {
+        return 0;
+    }
     return (
         step
             .toFixed(10)
@@ -136,7 +138,9 @@ export function Slider(props: SliderProps) {
 
     function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
         const next = clamp(Number(event.currentTarget.value), min, max);
-        if (!isControlled) setInternal(next);
+        if (!isControlled) {
+            setInternal(next);
+        }
         onValueChange?.(next);
     }
 

@@ -40,7 +40,9 @@ void main() { out_color = v_color; }`;
 function compileShader(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader {
     const shader = gl.createShader(type);
 
-    if (!shader) throw new Error('Glaze: batcher shader creation failed');
+    if (!shader) {
+        throw new Error('Glaze: batcher shader creation failed');
+    }
 
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
@@ -62,7 +64,9 @@ function compileProgram(
 ): WebGLProgram {
     const program = gl.createProgram();
 
-    if (!program) throw new Error('Glaze: batcher program creation failed');
+    if (!program) {
+        throw new Error('Glaze: batcher program creation failed');
+    }
 
     gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER, vertexSource));
     gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER, fragmentSource));
@@ -103,7 +107,9 @@ export class ShapeBatcher {
     }
 
     drawCircle(circle: Circle, style: DrawStyle): void {
-        if (!this.#initialized) return;
+        if (!this.#initialized) {
+            return;
+        }
 
         this.#setBatchProjection();
         const { center, radius } = circle;
@@ -124,7 +130,9 @@ export class ShapeBatcher {
     }
 
     drawRectangle(rectangle: Rectangle, style: DrawStyle): void {
-        if (!this.#initialized) return;
+        if (!this.#initialized) {
+            return;
+        }
 
         this.#setBatchProjection();
 
@@ -142,11 +150,15 @@ export class ShapeBatcher {
     }
 
     drawLine(segment: Segment, style: DrawStyle): void {
-        if (!this.#initialized) return;
+        if (!this.#initialized) {
+            return;
+        }
 
         const color = style.stroke ?? style.fill;
 
-        if (color === undefined) return;
+        if (color === undefined) {
+            return;
+        }
 
         this.#setBatchProjection();
         this.#pushLine(
@@ -211,11 +223,17 @@ export class ShapeBatcher {
     }
 
     #destroyGlObjects(): void {
-        if (this.#program) this.#gl.deleteProgram(this.#program);
+        if (this.#program) {
+            this.#gl.deleteProgram(this.#program);
+        }
 
-        if (this.#buffer) this.#gl.deleteBuffer(this.#buffer);
+        if (this.#buffer) {
+            this.#gl.deleteBuffer(this.#buffer);
+        }
 
-        if (this.#vao) this.#gl.deleteVertexArray(this.#vao);
+        if (this.#vao) {
+            this.#gl.deleteVertexArray(this.#vao);
+        }
 
         this.#program = null;
         this.#buffer = null;
@@ -247,11 +265,15 @@ export class ShapeBatcher {
     #ensureCapacity(extra: number): void {
         const needed = this.#vertexCount + extra;
 
-        if (needed <= this.#vertices.length) return;
+        if (needed <= this.#vertices.length) {
+            return;
+        }
 
         let size = this.#vertices.length * 2;
 
-        while (size < needed) size *= 2;
+        while (size < needed) {
+            size *= 2;
+        }
 
         const next = new Float32Array(size);
 
@@ -428,7 +450,9 @@ export class ShapeBatcher {
         const dy = segment.b.y - segment.a.y;
         const length = Math.hypot(dx, dy);
 
-        if (length === 0) return;
+        if (length === 0) {
+            return;
+        }
 
         const rawUx = dx / length;
         const rawUy = dy / length;

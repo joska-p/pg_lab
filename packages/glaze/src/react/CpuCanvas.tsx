@@ -25,7 +25,9 @@ export function CpuCanvas({
     const mountedSurfaceRef = useRef<CpuSurface | null>(null);
 
     useEffect(() => {
-        if (!stack || mountedSurfaceRef.current === stack.surface) return;
+        if (!stack || mountedSurfaceRef.current === stack.surface) {
+            return;
+        }
 
         mountedSurfaceRef.current = stack.surface;
         onMount?.(stack.surface);
@@ -33,7 +35,9 @@ export function CpuCanvas({
 
     // ── Frame Loop Effect ──
     useEffect(() => {
-        if (!stack || !onFrame) return;
+        if (!stack || !onFrame) {
+            return;
+        }
 
         return stack.surface.onFrame(onFrame);
     }, [onFrame, stack]);

@@ -9,14 +9,18 @@ const HEX_RE = /^#([0-9a-f]{3,8})$/i;
 function parseHex(color: string): RGBA | null {
     const match = HEX_RE.exec(color);
 
-    if (!match) return null;
+    if (!match) {
+        return null;
+    }
 
     let hex = match[1];
 
     if (hex.length === 3 || hex.length === 4) {
         let expanded = '';
 
-        for (const channel of hex) expanded += channel + channel;
+        for (const channel of hex) {
+            expanded += channel + channel;
+        }
 
         hex = expanded;
     }
@@ -30,11 +34,15 @@ function parseHex(color: string): RGBA | null {
 }
 
 function parseChannel(token: string | undefined): number {
-    if (token === undefined) return 0;
+    if (token === undefined) {
+        return 0;
+    }
 
     const t = token.trim();
 
-    if (t.endsWith('%')) return clamp01(parseFloat(t) / 100);
+    if (t.endsWith('%')) {
+        return clamp01(parseFloat(t) / 100);
+    }
 
     return clamp01(parseFloat(t) / 255);
 }
@@ -44,7 +52,9 @@ function parseChannel(token: string | undefined): number {
  * divides by 255 — unlike `parseChannel`, s/l are percentages, not 0..255 channels.
  */
 function parsePercentageChannel(token: string | undefined): number {
-    if (token === undefined) return 0;
+    if (token === undefined) {
+        return 0;
+    }
 
     return clamp01(parseFloat(token) / 100);
 }
@@ -52,11 +62,15 @@ function parsePercentageChannel(token: string | undefined): number {
 function parseRgb(color: string): RGBA | null {
     const match = /^rgba?\(([^)]+)\)$/i.exec(color);
 
-    if (!match) return null;
+    if (!match) {
+        return null;
+    }
 
     const parts = match[1].split(/[,/\s]+/).filter(Boolean);
 
-    if (parts.length < 3) return null;
+    if (parts.length < 3) {
+        return null;
+    }
 
     const alphaStr = parts[3] as string | undefined;
     const a =
@@ -77,15 +91,25 @@ function parseRgb(color: string): RGBA | null {
 function hueToRgb(p: number, q: number, t: number): number {
     let h = t;
 
-    if (h < 0) h += 1;
+    if (h < 0) {
+        h += 1;
+    }
 
-    if (h > 1) h -= 1;
+    if (h > 1) {
+        h -= 1;
+    }
 
-    if (h < 1 / 6) return p + (q - p) * 6 * h;
+    if (h < 1 / 6) {
+        return p + (q - p) * 6 * h;
+    }
 
-    if (h < 1 / 2) return q;
+    if (h < 1 / 2) {
+        return q;
+    }
 
-    if (h < 2 / 3) return p + (q - p) * (2 / 3 - h) * 6;
+    if (h < 2 / 3) {
+        return p + (q - p) * (2 / 3 - h) * 6;
+    }
 
     return p;
 }
@@ -93,11 +117,15 @@ function hueToRgb(p: number, q: number, t: number): number {
 function parseHsl(color: string): RGBA | null {
     const match = /^hsla?\(([^)]+)\)$/i.exec(color);
 
-    if (!match) return null;
+    if (!match) {
+        return null;
+    }
 
     const parts = match[1].split(/[,/\s]+/).filter(Boolean);
 
-    if (parts.length < 3) return null;
+    if (parts.length < 3) {
+        return null;
+    }
 
     // Hue is an angle: wrap any value into [0, 360) — `-60` and `720` behave like `300` and `0`.
     const hue = (((parseFloat(parts[0] ?? '0') % 360) + 360) % 360) / 360;
@@ -149,17 +177,23 @@ let canvasContext: CanvasRenderingContext2D | null = null;
 function parseViaCanvas(color: string): RGBA | null {
     const canvas = createDocumentCanvas();
 
-    if (canvas === null) return null;
+    if (canvas === null) {
+        return null;
+    }
 
     canvasContext ??= canvas.getContext('2d');
 
-    if (canvasContext === null) return null;
+    if (canvasContext === null) {
+        return null;
+    }
 
     canvasContext.fillStyle = '#000000';
     canvasContext.fillStyle = color;
     const normalized = canvasContext.fillStyle;
 
-    if (normalized.startsWith('#')) return parseHex(normalized);
+    if (normalized.startsWith('#')) {
+        return parseHex(normalized);
+    }
 
     return parseRgb(normalized);
 }
@@ -169,27 +203,37 @@ export function parseColor(color: Color): RGBA {
     if (color.startsWith('#')) {
         const hex = parseHex(color);
 
-        if (hex) return hex;
+        if (hex) {
+            return hex;
+        }
     } else if (/^rgba?\(/i.test(color)) {
         const rgb = parseRgb(color);
 
-        if (rgb) return rgb;
+        if (rgb) {
+            return rgb;
+        }
     } else if (/^hsla?\(/i.test(color)) {
         const hsl = parseHsl(color);
 
-        if (hsl) return hsl;
+        if (hsl) {
+            return hsl;
+        }
     } else {
         const named = NAMED_COLORS[color.toLowerCase()];
 
         if (named) {
             const hex = parseHex(named);
 
-            if (hex) return hex;
+            if (hex) {
+                return hex;
+            }
         }
 
         const viaCanvas = parseViaCanvas(color);
 
-        if (viaCanvas) return viaCanvas;
+        if (viaCanvas) {
+            return viaCanvas;
+        }
     }
 
     throw new Error(`Glaze: unrecognized color format "${String(color)}"`);

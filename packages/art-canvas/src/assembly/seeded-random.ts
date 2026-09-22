@@ -15,7 +15,9 @@ const HISTORY_LIMIT = 1024;
  * wrong.
  */
 function assertDefined<T>(value: T | undefined, message = 'Expected value to be defined'): T {
-    if (value === undefined) throw new Error(message);
+    if (value === undefined) {
+        throw new Error(message);
+    }
 
     return value;
 }
@@ -65,7 +67,9 @@ export function createSeededRandom(seedString: string): SeededRandom {
     };
 
     const pick = <T>(arr: readonly T[]): T => {
-        if (arr.length === 0) throw new Error('Cannot pick from empty array!');
+        if (arr.length === 0) {
+            throw new Error('Cannot pick from empty array!');
+        }
 
         const index = Math.floor(next() * arr.length);
 
@@ -75,7 +79,9 @@ export function createSeededRandom(seedString: string): SeededRandom {
     };
 
     const pickWeighted = <T extends { weight?: number }>(arr: readonly T[]): T => {
-        if (arr.length === 0) throw new Error('Cannot pick from empty array!');
+        if (arr.length === 0) {
+            throw new Error('Cannot pick from empty array!');
+        }
 
         const totalWeight = arr.reduce((sum, item) => sum + (item.weight ?? 1), 0);
         let target = next() * totalWeight;
@@ -84,7 +90,9 @@ export function createSeededRandom(seedString: string): SeededRandom {
         for (const item of arr) {
             target -= item.weight ?? 1;
 
-            if (target <= 0) return item;
+            if (target <= 0) {
+                return item;
+            }
         }
 
         // Guaranteed non-empty by the check above.

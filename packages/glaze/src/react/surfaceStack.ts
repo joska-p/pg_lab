@@ -32,7 +32,9 @@ function compact<T extends object>(source: T): Compact<T> {
     const result: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(source)) {
-        if (value !== undefined) result[key] = value;
+        if (value !== undefined) {
+            result[key] = value;
+        }
     }
 
     return result as Compact<T>;

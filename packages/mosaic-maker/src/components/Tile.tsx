@@ -33,9 +33,10 @@ function ShapeRenderer({ shape, colors }: { shape: Shape; colors: string[] }) {
     };
 
     switch (shape.type) {
-        case 'circle':
+        case 'circle': {
             return <circle cx={shape.cx} cy={shape.cy} r={shape.r} {...commonProps} />;
-        case 'rect':
+        }
+        case 'rect': {
             return (
                 <rect
                     x={shape.x}
@@ -45,12 +46,16 @@ function ShapeRenderer({ shape, colors }: { shape: Shape; colors: string[] }) {
                     {...commonProps}
                 />
             );
-        case 'path':
+        }
+        case 'path': {
             return <path d={shape.d} {...commonProps} />;
-        case 'polygon':
+        }
+        case 'polygon': {
             return <polygon points={shape.points} {...commonProps} />;
-        default:
+        }
+        default: {
             return null;
+        }
     }
 }
 

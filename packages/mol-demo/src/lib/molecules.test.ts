@@ -42,7 +42,9 @@ describe('molecules registry', () => {
         const bad: Molecule = { ...WATER, atoms: ['C', 'Xx', 'H'] };
         const check = validateMolecule(bad, MAX_ATOMS_DESKTOP);
         expect(check.ok).toBe(false);
-        if (!check.ok) expect(check.reason).toMatch(/Xx/);
+        if (!check.ok) {
+            expect(check.reason).toMatch(/Xx/);
+        }
     });
 
     it('refuses molecules over the atom budget', () => {
@@ -53,7 +55,9 @@ describe('molecules registry', () => {
         };
         const check = validateMolecule(big, MAX_ATOMS_DESKTOP);
         expect(check.ok).toBe(false);
-        if (!check.ok) expect(check.reason).toMatch(/61 atoms, max is 60/);
+        if (!check.ok) {
+            expect(check.reason).toMatch(/61 atoms, max is 60/);
+        }
     });
 
     it('switchMolecule keeps the current molecule on refusal', () => {

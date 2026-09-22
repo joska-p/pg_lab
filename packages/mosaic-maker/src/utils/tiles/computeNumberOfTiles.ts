@@ -17,7 +17,9 @@ function computeNumberOfTiles(element: HTMLDivElement): number {
         const width = element.clientWidth;
         const height = element.clientHeight;
 
-        if (width === 0 || height === 0) return 0;
+        if (width === 0 || height === 0) {
+            return 0;
+        }
 
         const tileSize = parseNumericValue(style.getPropertyValue(CSS_VARS.size));
 

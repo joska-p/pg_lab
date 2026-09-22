@@ -47,11 +47,15 @@ export function computeNorm32Raw(
     w: number,
     h: number,
 ): number | null {
-    if (w <= 0 || h <= 0) return null;
+    if (w <= 0 || h <= 0) {
+        return null;
+    }
     const cx = w / 2;
     const cy = h / 2;
     const r = Math.min(cx, cy) * 0.97;
-    if (!(r > 0)) return null;
+    if (!(r > 0)) {
+        return null;
+    }
     const sc = Q_MAX / r;
     const sx = w / PATTERN_GRID;
     const sy = h / PATTERN_GRID;
@@ -64,7 +68,9 @@ export function computeNorm32Raw(
             const qx = (px - cx) * sc;
             const qy = (cy - py) * sc;
             const q = Math.sqrt(qx * qx + qy * qy);
-            if (q < Q_MIN || q > Q_MAX) continue;
+            if (q < Q_MIN || q > Q_MAX) {
+                continue;
+            }
             let re = 0;
             let im = 0;
             for (const { el, vx, vy } of atoms) {
@@ -76,7 +82,9 @@ export function computeNorm32Raw(
             buf[k++] = Math.log(1 + re * re + im * im);
         }
     }
-    if (!k) return null;
+    if (!k) {
+        return null;
+    }
     const sub = buf.subarray(0, k);
     sub.sort();
     return sub[Math.floor(k * 0.97)] || 1;
@@ -99,7 +107,9 @@ export function createPatternNorm() {
         },
         compute(atoms: readonly ProjectedAtom[], w: number, h: number): number {
             const raw = computeNorm32Raw(atoms, w, h);
-            if (raw === null) return smooth || 1;
+            if (raw === null) {
+                return smooth || 1;
+            }
             smooth = smoothNormStep(smooth, raw);
             return smooth;
         },

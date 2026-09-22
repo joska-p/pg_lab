@@ -29,7 +29,9 @@ export function compileProgram(
 ): CompiledShaderProgram {
     const vertexShader = gl.createShader(gl.VERTEX_SHADER);
 
-    if (!vertexShader) throw new Error('Glaze: shader "vertex" creation failed');
+    if (!vertexShader) {
+        throw new Error('Glaze: shader "vertex" creation failed');
+    }
 
     gl.shaderSource(vertexShader, withVersionDirective(vertexSource));
     gl.compileShader(vertexShader);

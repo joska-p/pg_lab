@@ -75,7 +75,9 @@ export class SimulationEngine {
     tick(delta: NonNegativeSeconds): void {
         this.#clock.update(delta);
 
-        if (!this.#clock.isPlaying) return;
+        if (!this.#clock.isPlaying) {
+            return;
+        }
 
         this.#accumulator += this.#clock.deltaTime;
         let steps = 0;
@@ -86,7 +88,9 @@ export class SimulationEngine {
             steps++;
         }
 
-        if (steps === MAX_STEPS_PER_TICK) this.#accumulator = 0;
+        if (steps === MAX_STEPS_PER_TICK) {
+            this.#accumulator = 0;
+        }
     }
 
     play(): void {
@@ -148,13 +152,16 @@ export class SimulationEngine {
             for (let x = 0; x < creature.width; x++) {
                 const val = rowCells[x];
 
-                if (!val) continue;
+                if (!val) {
+                    continue;
+                }
 
                 const gx = col - offsetX + x;
                 const gy = row - offsetY + y;
 
-                if (gx < 0 || gx >= this.#buffer.width || gy < 0 || gy >= this.#buffer.height)
+                if (gx < 0 || gx >= this.#buffer.width || gy < 0 || gy >= this.#buffer.height) {
                     continue;
+                }
 
                 this.#gpuPaint(gx, gy, val);
                 changed = true;
@@ -198,7 +205,9 @@ export class SimulationEngine {
     #resetGrid(seed: boolean): void {
         const grid = createGrid(this.#rows, this.#cols);
 
-        if (seed) seedGrid(grid, this.#density, this.#seed);
+        if (seed) {
+            seedGrid(grid, this.#density, this.#seed);
+        }
 
         if (this.#buffer.width !== this.#cols || this.#buffer.height !== this.#rows) {
             this.#buffer.resize(this.#cols, this.#rows);

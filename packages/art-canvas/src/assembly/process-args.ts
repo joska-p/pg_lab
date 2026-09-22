@@ -4,7 +4,9 @@ import type { SeededRandom } from './seeded-random';
 export function processArgs(mod: ShaderModule, rng: SeededRandom): Record<string, string> {
     const resolvedArgs: Record<string, string> = { uv: 'uv' };
 
-    if (!mod.params) return resolvedArgs;
+    if (!mod.params) {
+        return resolvedArgs;
+    }
 
     for (const [paramName, rule] of Object.entries(mod.params)) {
         if (rule.type === 'global' || rule.type === 'literal') {

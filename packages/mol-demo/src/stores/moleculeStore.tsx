@@ -40,15 +40,21 @@ export function useMoleculeError(): string | null {
 // current === null with status "error" instead of throwing.
 export async function selectMolecule(file: string): Promise<void> {
     const entry = MOLECULES.find((e) => e.file === file);
-    if (!entry) return;
+    if (!entry) {
+        return;
+    }
     moleculeStore.setState({ file, current: null, status: 'loading', error: null });
     try {
         const isMobile = window.matchMedia('(max-width: 768px)').matches;
         const mol = await loadMolecule(entry, isMobile);
-        if (moleculeStore.getState().file !== file) return;
+        if (moleculeStore.getState().file !== file) {
+            return;
+        }
         moleculeStore.setState({ current: mol, status: 'ready' });
     } catch (err) {
-        if (moleculeStore.getState().file !== file) return;
+        if (moleculeStore.getState().file !== file) {
+            return;
+        }
         moleculeStore.setState({
             current: null,
             status: 'error',

@@ -47,9 +47,13 @@ export function advanceOnce(
 ): { time: Seconds; finished: boolean } {
     const t = time + delta;
 
-    if (t >= duration) return { time: createSeconds(duration), finished: true };
+    if (t >= duration) {
+        return { time: createSeconds(duration), finished: true };
+    }
 
-    if (t <= 0) return { time: ZERO_SECONDS, finished: false };
+    if (t <= 0) {
+        return { time: ZERO_SECONDS, finished: false };
+    }
 
     return { time: createSeconds(t), finished: false };
 }
@@ -109,7 +113,9 @@ export class Clock {
     }
 
     get progress(): number {
-        if (this.#state.kind !== 'timed') return 0;
+        if (this.#state.kind !== 'timed') {
+            return 0;
+        }
 
         return Math.max(0, Math.min(1, this.#time / this.#state.duration));
     }
@@ -187,7 +193,9 @@ export class Clock {
 
             this.#time = advanced.time;
 
-            if (advanced.finished) this.#isPlaying = false;
+            if (advanced.finished) {
+                this.#isPlaying = false;
+            }
         }
 
         return this;

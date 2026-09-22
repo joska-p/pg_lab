@@ -127,7 +127,9 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
     const groupRef = useRef<HTMLDivElement>(null);
 
     function commit(next: T) {
-        if (!isControlled) setInternal(next);
+        if (!isControlled) {
+            setInternal(next);
+        }
         onValueChange?.(next);
     }
 
@@ -135,13 +137,17 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
         const index = items.findIndex((option) => option.value === current);
         const last = items.length - 1;
         let nextIndex = index;
-        if (event.key === 'ArrowRight' || event.key === 'ArrowDown')
+        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
             nextIndex = index >= last ? 0 : index + 1;
-        else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp')
+        } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
             nextIndex = index <= 0 ? last : index - 1;
-        else if (event.key === 'Home') nextIndex = 0;
-        else if (event.key === 'End') nextIndex = last;
-        else return;
+        } else if (event.key === 'Home') {
+            nextIndex = 0;
+        } else if (event.key === 'End') {
+            nextIndex = last;
+        } else {
+            return;
+        }
 
         event.preventDefault();
         commit(items[nextIndex].value);

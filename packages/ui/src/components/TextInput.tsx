@@ -49,7 +49,9 @@ export function TextInput(props: TextInputProps) {
 
     function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
         const next = event.currentTarget.value;
-        if (!isControlled) setInternal(next);
+        if (!isControlled) {
+            setInternal(next);
+        }
         onValueChange?.(next);
     }
 

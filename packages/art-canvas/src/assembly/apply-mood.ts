@@ -2,7 +2,9 @@ export function applyMood<T extends { name: string; weight?: number }>(
     registry: readonly T[],
     moodWeights?: Record<string, number>,
 ): T[] {
-    if (!moodWeights) return [...registry];
+    if (!moodWeights) {
+        return [...registry];
+    }
 
     return registry.map((item) => ({
         ...item,

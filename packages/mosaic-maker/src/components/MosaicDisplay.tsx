@@ -36,7 +36,9 @@ function MosaicDisplay() {
 
     useEffect(() => {
         const element = mosaicRef.current;
-        if (!element) return;
+        if (!element) {
+            return;
+        }
 
         let timeout: ReturnType<typeof setTimeout> | null = null;
         let lastWidth = element.clientWidth;
@@ -46,18 +48,24 @@ function MosaicDisplay() {
             const width = element.clientWidth;
             const height = element.clientHeight;
 
-            if (width === lastWidth && height === lastHeight) return;
+            if (width === lastWidth && height === lastHeight) {
+                return;
+            }
             lastWidth = width;
             lastHeight = height;
 
-            if (timeout) clearTimeout(timeout);
+            if (timeout) {
+                clearTimeout(timeout);
+            }
             timeout = setTimeout(regenerateTiles, 150);
         });
 
         observer.observe(element);
 
         return () => {
-            if (timeout) clearTimeout(timeout);
+            if (timeout) {
+                clearTimeout(timeout);
+            }
             observer.disconnect();
         };
     }, []);

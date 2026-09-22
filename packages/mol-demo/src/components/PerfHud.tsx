@@ -8,12 +8,16 @@ export function PerfHud() {
     const [snap, setSnap] = useState<PerfSnapshot | null>(null);
 
     useEffect(() => {
-        if (!isPerfEnabled()) return;
+        if (!isPerfEnabled()) {
+            return;
+        }
         const id = window.setInterval(() => setSnap(perfSnapshot()), 500);
         return () => window.clearInterval(id);
     }, []);
 
-    if (!isPerfEnabled() || snap === null) return null;
+    if (!isPerfEnabled() || snap === null) {
+        return null;
+    }
 
     return (
         <div

@@ -17,7 +17,7 @@ const generateRandomSeed = () => {
     ];
     const randomPhrase =
         randomPhrases[Math.floor(Math.random() * randomPhrases.length)] ?? 'ojibwe-pisano-grid';
-    const newSeed = randomPhrase + '-' + String(Math.floor(Math.random() * 1000));
+    const newSeed = `${randomPhrase}-${String(Math.floor(Math.random() * 1000))}`;
 
     setSeed(newSeed);
 };

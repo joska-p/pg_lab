@@ -6,7 +6,9 @@ function withSurface<TEvent, TSurface>(
     event: InteractionEvent<TEvent, TSurface>,
     run: (event: LiveInteractionEvent<TEvent, TSurface>) => void,
 ): void {
-    if (event.surface) run({ ...event, surface: event.surface });
+    if (event.surface) {
+        run({ ...event, surface: event.surface });
+    }
 }
 
 /**
@@ -24,40 +26,45 @@ export function createInteractionAdapter<TSurface>(
 
     const lifecycle: Gesture<TSurface> = {};
 
-    if (interactions.onStart)
+    if (interactions.onStart) {
         lifecycle.onStart = (event: InteractionEvent<PointerEvent, TSurface>) => {
             withSurface(event, (e) => {
                 interactions.onStart?.(e);
             });
         };
+    }
 
-    if (interactions.onMove)
+    if (interactions.onMove) {
         lifecycle.onMove = (event: InteractionEvent<PointerEvent, TSurface>) => {
             withSurface(event, (e) => {
                 interactions.onMove?.(e);
             });
         };
+    }
 
-    if (interactions.onZoom)
+    if (interactions.onZoom) {
         lifecycle.onZoom = (event: InteractionEvent<WheelEvent, TSurface>) => {
             withSurface(event, (e) => {
                 interactions.onZoom?.(e);
             });
         };
+    }
 
-    if (interactions.onEnd)
+    if (interactions.onEnd) {
         lifecycle.onEnd = (event: InteractionEvent<PointerEvent, TSurface>) => {
             withSurface(event, (e) => {
                 interactions.onEnd?.(e);
             });
         };
+    }
 
-    if (interactions.onContextMenu)
+    if (interactions.onContextMenu) {
         lifecycle.onContextMenu = (event: InteractionEvent<MouseEvent, TSurface>) => {
             withSurface(event, (e) => {
                 interactions.onContextMenu?.(e);
             });
         };
+    }
 
     if (
         lifecycle.onStart ||
@@ -69,13 +76,15 @@ export function createInteractionAdapter<TSurface>(
         gestures.push(lifecycle);
     }
 
-    if (!interactions.onStart && !interactions.onMove && interactions.pan !== false)
+    if (!interactions.onStart && !interactions.onMove && interactions.pan !== false) {
         gestures.push(new PanGesture(typeof interactions.pan === 'object' ? interactions.pan : {}));
+    }
 
-    if (!interactions.onZoom && interactions.zoom !== false)
+    if (!interactions.onZoom && interactions.zoom !== false) {
         gestures.push(
             new ZoomGesture(typeof interactions.zoom === 'object' ? interactions.zoom : {}),
         );
+    }
 
     return gestures;
 }

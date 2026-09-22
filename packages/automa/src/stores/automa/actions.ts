@@ -42,7 +42,9 @@ export function initSimulation(surface: GpuSurface): void {
 export function destroySimulation(): void {
     const { engine } = automaStore.getState();
 
-    if (!engine) return;
+    if (!engine) {
+        return;
+    }
 
     engine.destroy();
     automaStore.setState({ engine: null });
@@ -53,7 +55,9 @@ export function destroySimulation(): void {
 export function toggleRunning(): void {
     const { engine, running } = automaStore.getState();
 
-    if (!engine) return;
+    if (!engine) {
+        return;
+    }
 
     if (running) {
         engine.pause();

@@ -8,7 +8,7 @@ describe('Mat4', () => {
     it('stores column-major identity', () => {
         const m = Mat4.identity();
         expect(m.elements.length).toBe(16);
-        expect(Array.from(m.elements)).toEqual([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+        expect([...m.elements]).toEqual([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     });
 
     it('perspective matches WebGL column-major layout', () => {

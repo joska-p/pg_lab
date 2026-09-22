@@ -117,7 +117,9 @@ export class InputStore {
 
     /** Clears per-frame state; requires proof of an active frame. */
     endFrame(token: FrameToken): void {
-        if (!token) return;
+        if (!token) {
+            return;
+        }
 
         this.#pressed.clear();
         this.wheelDelta = 0;
@@ -144,7 +146,9 @@ export class InputStore {
     }
 
     detach(handle: AttachedHandle): void {
-        if (this.#handle !== handle) return;
+        if (this.#handle !== handle) {
+            return;
+        }
 
         this.#unbind();
     }
@@ -248,7 +252,9 @@ export class InputStore {
     };
 
     #unbind(): void {
-        for (const cancel of this.#cancelBindings) cancel();
+        for (const cancel of this.#cancelBindings) {
+            cancel();
+        }
 
         this.#cancelBindings = [];
         this.#handle = null;

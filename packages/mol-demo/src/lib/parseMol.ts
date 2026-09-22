@@ -42,8 +42,12 @@ export function parseMol(text: string, filename?: string): Molecule {
     const counts = lines[ci] ?? '';
     const natoms = parseInt(counts.substring(0, 3), 10);
     const nbonds = parseInt(counts.substring(3, 6), 10);
-    if (!natoms || Number.isNaN(natoms)) fail('could not parse atom count');
-    if (Number.isNaN(nbonds)) fail('could not parse bond count');
+    if (!natoms || Number.isNaN(natoms)) {
+        fail('could not parse atom count');
+    }
+    if (Number.isNaN(nbonds)) {
+        fail('could not parse bond count');
+    }
 
     const atoms: string[] = [];
     const pos: Vec3Tuple[] = [];
@@ -54,7 +58,9 @@ export function parseMol(text: string, filename?: string): Molecule {
         const y = parseFloat(parts[1]);
         const z = parseFloat(parts[2]);
         const el = parts[3];
-        if (!el) fail(`atom ${i + 1}: missing element symbol`);
+        if (!el) {
+            fail(`atom ${i + 1}: missing element symbol`);
+        }
         if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
             fail(`atom ${i + 1} (${el}): invalid coordinates`);
         }

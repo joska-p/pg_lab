@@ -99,7 +99,9 @@ export function Select<T extends string>(props: SelectProps<T>) {
 
     function handleChange(event: React.ChangeEvent<HTMLSelectElement>) {
         const next = event.currentTarget.value as T;
-        if (!isControlled) setInternal(next);
+        if (!isControlled) {
+            setInternal(next);
+        }
         onValueChange?.(next);
     }
 

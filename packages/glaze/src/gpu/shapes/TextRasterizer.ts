@@ -55,7 +55,9 @@ export class TextRasterizer {
         const canvas = createDocumentCanvas();
         const context = canvas?.getContext('2d');
 
-        if (!canvas || !context) throw new Error('Glaze: offscreen text canvas unavailable');
+        if (!canvas || !context) {
+            throw new Error('Glaze: offscreen text canvas unavailable');
+        }
 
         this.#gl = gl;
         this.#canvas = canvas;
@@ -91,7 +93,9 @@ export class TextRasterizer {
 
         const texture = this.#gl.createTexture();
 
-        if (!texture) throw new Error('Glaze: text texture allocation failed');
+        if (!texture) {
+            throw new Error('Glaze: text texture allocation failed');
+        }
 
         this.#gl.bindTexture(this.#gl.TEXTURE_2D, texture);
         this.#gl.texImage2D(
@@ -125,7 +129,9 @@ export class TextRasterizer {
             if (oldest !== undefined) {
                 const stale = this.#cache.get(oldest);
 
-                if (stale) this.#gl.deleteTexture(stale.texture);
+                if (stale) {
+                    this.#gl.deleteTexture(stale.texture);
+                }
 
                 this.#cache.delete(oldest);
             }
@@ -135,7 +141,9 @@ export class TextRasterizer {
     }
 
     clear(): void {
-        for (const entry of this.#cache.values()) this.#gl.deleteTexture(entry.texture);
+        for (const entry of this.#cache.values()) {
+            this.#gl.deleteTexture(entry.texture);
+        }
 
         this.#cache.clear();
     }

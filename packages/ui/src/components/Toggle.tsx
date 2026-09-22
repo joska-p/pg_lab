@@ -95,7 +95,9 @@ export function Toggle(props: ToggleProps) {
 
     function handleClick() {
         const next = !isOn;
-        if (!isControlled) setInternal(next);
+        if (!isControlled) {
+            setInternal(next);
+        }
         onCheckedChange?.(next);
     }
 

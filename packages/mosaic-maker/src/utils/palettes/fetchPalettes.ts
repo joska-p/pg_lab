@@ -24,7 +24,9 @@ const COLOR_NAMES: (keyof Palette)[] = [
 function getCachedPalettes(): CachedPalettes | null {
     const stored = localStorage.getItem(CACHE_KEY);
 
-    if (!stored) return null;
+    if (!stored) {
+        return null;
+    }
 
     try {
         return JSON.parse(stored) as CachedPalettes;

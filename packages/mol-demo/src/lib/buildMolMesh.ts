@@ -49,7 +49,9 @@ function bondMesh(
     const p2 = Vec3.fromArray([b[0], b[1], b[2]]);
     const dir = Vec3.subVectors(p2, p1);
     const len = dir.length();
-    if (!(len > 1e-9)) return null;
+    if (!(len > 1e-9)) {
+        return null;
+    }
     const mid = p1.clone().lerp(p2, 0.5);
     const geometry = new CylinderGeometry(BOND_RADIUS, BOND_RADIUS, len, BOND_RADIAL_SEGS);
     const material = new PhongMaterial({ color: BOND_COLOR, shininess: BOND_SHININESS });
@@ -66,14 +68,20 @@ export function buildMolMesh(molGroup: Group, mol: Molecule): void {
     molGroup.clear();
     mol.atoms.forEach((el, i) => {
         const pos = mol.pos[i];
-        if (pos === undefined) return;
+        if (pos === undefined) {
+            return;
+        }
         molGroup.add(atomMesh(el, pos));
     });
     for (const [a, b] of mol.bonds) {
         const pa = mol.pos[a];
         const pb = mol.pos[b];
-        if (pa === undefined || pb === undefined) continue;
+        if (pa === undefined || pb === undefined) {
+            continue;
+        }
         const mesh = bondMesh(pa, pb);
-        if (mesh !== null) molGroup.add(mesh);
+        if (mesh !== null) {
+            molGroup.add(mesh);
+        }
     }
 }

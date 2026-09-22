@@ -51,23 +51,31 @@ export class Program {
     }
 
     reinitialize(): void {
-        if (this.#destroyed) return;
+        if (this.#destroyed) {
+            return;
+        }
 
         this.#gl.deleteProgram(this.#compiled.program);
 
-        if (this.#vao) this.#gl.deleteVertexArray(this.#vao);
+        if (this.#vao) {
+            this.#gl.deleteVertexArray(this.#vao);
+        }
 
         this.#compiled = compileProgram(this.#gl, this.#fragmentSource, this.#vertexSource);
         this.#vao = this.#gl.createVertexArray();
     }
 
     destroy(): void {
-        if (this.#destroyed) return;
+        if (this.#destroyed) {
+            return;
+        }
 
         this.#destroyed = true;
         this.#gl.deleteProgram(this.#compiled.program);
 
-        if (this.#vao) this.#gl.deleteVertexArray(this.#vao);
+        if (this.#vao) {
+            this.#gl.deleteVertexArray(this.#vao);
+        }
 
         this.#vao = null;
     }

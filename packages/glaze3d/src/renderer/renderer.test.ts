@@ -93,11 +93,11 @@ function createMockGl(): { gl: Record<string, unknown>; state: MockGl } {
         },
         uniformMatrix4fv(location: unknown, _transpose: boolean, value: Float32Array): void {
             const name = state.locationNames.get(location as object) ?? 'unknown';
-            state.uniformByName.set(name, Array.from(value));
+            state.uniformByName.set(name, [...value]);
         },
         uniformMatrix3fv(location: unknown, _transpose: boolean, value: Float32Array): void {
             const name = state.locationNames.get(location as object) ?? 'unknown';
-            state.uniformByName.set(name, Array.from(value));
+            state.uniformByName.set(name, [...value]);
         },
         uniform3f(location: unknown, x: number, y: number, z: number): void {
             const name = state.locationNames.get(location as object) ?? 'unknown';

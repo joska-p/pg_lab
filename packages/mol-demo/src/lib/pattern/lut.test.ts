@@ -16,7 +16,11 @@ describe('XRAY_LUT', () => {
     });
 
     it('stays within byte range', () => {
-        for (const v of XRAY_LUT) expect(v).toBeGreaterThanOrEqual(0);
-        for (const v of XRAY_LUT) expect(v).toBeLessThanOrEqual(255);
+        for (const v of XRAY_LUT) {
+            expect(v).toBeGreaterThanOrEqual(0);
+        }
+        for (const v of XRAY_LUT) {
+            expect(v).toBeLessThanOrEqual(255);
+        }
     });
 });

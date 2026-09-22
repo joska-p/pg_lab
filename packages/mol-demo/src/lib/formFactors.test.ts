@@ -20,7 +20,9 @@ describe('formFactors', () => {
         expect(FF_SYMS[0]).toBe('H');
         expect(FF_SYMS[53]).toBe('Xe');
         expect(FF_DATA).toHaveLength(54);
-        for (const row of FF_DATA) expect(row).toHaveLength(9);
+        for (const row of FF_DATA) {
+            expect(row).toHaveLength(9);
+        }
         expect(FF.C).toBe(FF_DATA[5]);
     });
 

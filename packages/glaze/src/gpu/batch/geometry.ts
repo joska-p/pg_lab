@@ -18,7 +18,9 @@ export function multiplyMat3(a: Mat3, b: Mat3): Mat3 {
 
 export function sameMat3(a: Mat3, b: Mat3): boolean {
     for (let i = 0; i < 9; i++) {
-        if (a[i] !== b[i]) return false;
+        if (a[i] !== b[i]) {
+            return false;
+        }
     }
 
     return true;

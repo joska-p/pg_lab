@@ -48,7 +48,9 @@ export class FrameLoop {
         return () => {
             this.#subscribers.delete(callback);
 
-            if (this.#subscribers.size === 0) this.#stop();
+            if (this.#subscribers.size === 0) {
+                this.#stop();
+            }
         };
     }
 
@@ -57,7 +59,9 @@ export class FrameLoop {
      * next frame, unsubscribing skips at the next frame — never mid-pass.
      */
     runFrameSubscribers(): void {
-        for (const callback of this.#subscribers) callback();
+        for (const callback of this.#subscribers) {
+            callback();
+        }
     }
 
     dispose(): void {
@@ -66,7 +70,9 @@ export class FrameLoop {
     }
 
     #start(): void {
-        if (this.#running) return;
+        if (this.#running) {
+            return;
+        }
 
         this.#running = true;
         const startMs = this.#now();
@@ -87,7 +93,9 @@ export class FrameLoop {
      */
 
     #tick = (rafTime: Milliseconds): void => {
-        if (!this.#running) return;
+        if (!this.#running) {
+            return;
+        }
 
         // The scheduler provides milliseconds; every value past this line is seconds.
         const time = msToSeconds(rafTime);

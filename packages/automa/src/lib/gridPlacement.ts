@@ -51,7 +51,9 @@ export function getCellAtWorld(
     const column = Math.floor((world.x - rect.originX) / rect.scale);
     const rowFromTop = Math.floor((world.y - rect.originY) / rect.scale);
 
-    if (column < 0 || column >= cols || rowFromTop < 0 || rowFromTop >= rows) return null;
+    if (column < 0 || column >= cols || rowFromTop < 0 || rowFromTop >= rows) {
+        return null;
+    }
 
     // The grid texture stores row 0 at the bottom (GL convention) while the
     // world counts downward from the top edge; flip exactly once here.

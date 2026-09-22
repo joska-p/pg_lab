@@ -28,48 +28,65 @@ function setUniformValue(
     }
 
     switch (type) {
-        case gl.FLOAT:
-            if (typeof value === 'number') gl.uniform1f(location, value);
-            else gl.uniform1fv(location, value as Float32List);
+        case gl.FLOAT: {
+            if (typeof value === 'number') {
+                gl.uniform1f(location, value);
+            } else {
+                gl.uniform1fv(location, value as Float32List);
+            }
 
             break;
+        }
         case gl.INT:
         case gl.BOOL:
-        case gl.SAMPLER_2D:
-            if (typeof value === 'number') gl.uniform1i(location, value);
-            else gl.uniform1iv(location, value as Int32List);
+        case gl.SAMPLER_2D: {
+            if (typeof value === 'number') {
+                gl.uniform1i(location, value);
+            } else {
+                gl.uniform1iv(location, value as Int32List);
+            }
 
             break;
-        case gl.FLOAT_VEC2:
+        }
+        case gl.FLOAT_VEC2: {
             gl.uniform2fv(location, value as Float32List);
             break;
-        case gl.FLOAT_VEC3:
+        }
+        case gl.FLOAT_VEC3: {
             gl.uniform3fv(location, value as Float32List);
             break;
-        case gl.FLOAT_VEC4:
+        }
+        case gl.FLOAT_VEC4: {
             gl.uniform4fv(location, value as Float32List);
             break;
+        }
         case gl.INT_VEC2:
-        case gl.BOOL_VEC2:
+        case gl.BOOL_VEC2: {
             gl.uniform2iv(location, value as Int32List);
             break;
+        }
         case gl.INT_VEC3:
-        case gl.BOOL_VEC3:
+        case gl.BOOL_VEC3: {
             gl.uniform3iv(location, value as Int32List);
             break;
+        }
         case gl.INT_VEC4:
-        case gl.BOOL_VEC4:
+        case gl.BOOL_VEC4: {
             gl.uniform4iv(location, value as Int32List);
             break;
-        case gl.FLOAT_MAT2:
+        }
+        case gl.FLOAT_MAT2: {
             gl.uniformMatrix2fv(location, false, value as Float32List);
             break;
-        case gl.FLOAT_MAT3:
+        }
+        case gl.FLOAT_MAT3: {
             gl.uniformMatrix3fv(location, false, value as Float32List);
             break;
-        case gl.FLOAT_MAT4:
+        }
+        case gl.FLOAT_MAT4: {
             gl.uniformMatrix4fv(location, false, value as Float32List);
             break;
+        }
     }
 }
 
@@ -87,7 +104,9 @@ export function setUniforms(
     for (const name in values) {
         const entry = uniforms.get(name);
 
-        if (entry === undefined) continue;
+        if (entry === undefined) {
+            continue;
+        }
 
         setUniformValue(gl, entry, values[name], nextTextureUnit);
     }

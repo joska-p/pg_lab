@@ -23,7 +23,9 @@ export function useNodeResource<N extends Element, R extends StackDisposable>(
     });
 
     useEffect(() => {
-        if (!node) return;
+        if (!node) {
+            return;
+        }
 
         const created = createRef.current(node);
 

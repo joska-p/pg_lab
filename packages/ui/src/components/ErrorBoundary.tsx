@@ -93,7 +93,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         const { error, stack } = this.state;
 
         if (error) {
-            if (fallback) return fallback;
+            if (fallback) {
+                return fallback;
+            }
 
             return (
                 <div role="alert" {...stylex.props(styles.base, style)}>

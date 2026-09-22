@@ -8,7 +8,9 @@ import { mosaicStore } from './store';
 export function regenerateTiles() {
     const { mosaicRef, tileSet } = mosaicStore.getState();
 
-    if (!mosaicRef.current) return;
+    if (!mosaicRef.current) {
+        return;
+    }
 
     mosaicStore.setState({
         tiles: computeInitialTiles(mosaicRef.current, tileSet),
@@ -49,7 +51,9 @@ export function applyPalette(palette: Palette) {
 export function toggleTileInSet(tileName: TileNames) {
     const { tileSet } = mosaicStore.getState();
 
-    if (tileSet.length === 1 && tileName === tileSet[0]) return;
+    if (tileSet.length === 1 && tileName === tileSet[0]) {
+        return;
+    }
 
     const newTileSet = tileSet.includes(tileName)
         ? tileSet.filter((tile) => tile !== tileName)

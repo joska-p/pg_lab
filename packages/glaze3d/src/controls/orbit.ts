@@ -76,13 +76,24 @@ export class OrbitControls {
     ) {
         this.camera = camera;
         this.domElement = domElement;
-        if (options.enableDamping !== undefined) this.enableDamping = options.enableDamping;
-        if (options.dampingFactor !== undefined)
+        if (options.enableDamping !== undefined) {
+            this.enableDamping = options.enableDamping;
+        }
+        if (options.dampingFactor !== undefined) {
             this.dampingFactor = clamp(options.dampingFactor, 0, 1);
-        if (options.autoRotate !== undefined) this.autoRotate = options.autoRotate;
-        if (options.autoRotateSpeed !== undefined) this.autoRotateSpeed = options.autoRotateSpeed;
-        if (options.enablePan !== undefined) this.enablePan = options.enablePan;
-        if (options.enableZoom !== undefined) this.enableZoom = options.enableZoom;
+        }
+        if (options.autoRotate !== undefined) {
+            this.autoRotate = options.autoRotate;
+        }
+        if (options.autoRotateSpeed !== undefined) {
+            this.autoRotateSpeed = options.autoRotateSpeed;
+        }
+        if (options.enablePan !== undefined) {
+            this.enablePan = options.enablePan;
+        }
+        if (options.enableZoom !== undefined) {
+            this.enableZoom = options.enableZoom;
+        }
 
         const offset = Vec3.subVectors(camera.position, new Vec3(0, 0, 0));
         this.radius = clamp(offset.length() || 1, MIN_RADIUS, MAX_RADIUS);
@@ -126,8 +137,12 @@ export class OrbitControls {
             const decay = 1 - this.dampingFactor;
             this.deltaTheta *= decay;
             this.deltaPhi *= decay;
-            if (Math.abs(this.deltaTheta) < EPSILON) this.deltaTheta = 0;
-            if (Math.abs(this.deltaPhi) < EPSILON) this.deltaPhi = 0;
+            if (Math.abs(this.deltaTheta) < EPSILON) {
+                this.deltaTheta = 0;
+            }
+            if (Math.abs(this.deltaPhi) < EPSILON) {
+                this.deltaPhi = 0;
+            }
             if (this.deltaTheta !== 0 || this.deltaPhi !== 0) {
                 this.theta += this.deltaTheta;
                 this.phi += this.deltaPhi;
@@ -147,7 +162,9 @@ export class OrbitControls {
             moved = true;
         }
 
-        if (!moved) return;
+        if (!moved) {
+            return;
+        }
 
         this.phi = clamp(this.phi, MIN_POLAR_ANGLE, MAX_POLAR_ANGLE);
         const sinPhi = Math.sin(this.phi);
@@ -170,7 +187,9 @@ export class OrbitControls {
     }
 
     private onPointerDown = (event: PointerEvent): void => {
-        if (event.button !== 0) return;
+        if (event.button !== 0) {
+            return;
+        }
         this.dragging = true;
         this.lastX = event.clientX;
         this.lastY = event.clientY;
@@ -187,7 +206,9 @@ export class OrbitControls {
     };
 
     private onPointerMove = (event: PointerEvent): void => {
-        if (!this.dragging) return;
+        if (!this.dragging) {
+            return;
+        }
         const dx = event.clientX - this.lastX;
         const dy = event.clientY - this.lastY;
         this.lastX = event.clientX;
@@ -203,7 +224,9 @@ export class OrbitControls {
     };
 
     private onWheel = (event: WheelEvent): void => {
-        if (!this.enableZoom) return;
+        if (!this.enableZoom) {
+            return;
+        }
         event.preventDefault();
         this.zoomScale *= Math.exp(event.deltaY * 0.001);
     };
