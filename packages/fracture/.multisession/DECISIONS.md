@@ -32,3 +32,12 @@ New decisions are appended; history is never rewritten. Date format: YYYY-MM-DD.
 - D6 — **No precision state yet in S1**: `Mandelbrot.tsx` stays naive-only; the explicit
   precision map + any store field land with S2 when a second precision actually exists.
   Avoids speculative state (conventions §1.5).
+
+## 2026-09-22 — Double-split precision (S2)
+
+- D7 — **Precision lives in a sibling zustand store in `stores/mandelbrotStore.ts`**, not
+  as a field in `FractalParams` nor as a third concern in `paramStore`. Rationale: the
+  fractal params stay a pure `Record<string, number>` fed to `fractalParamsUniforms`
+  (string-typed precision would leak into the uniform map); `paramStore` helpers
+  (`createParamStore` / `useParams` / `setParam`) stay generic for Julia (S6). The
+  experiment-scoped `mandelbrotStore.ts` module owns both params and precision.

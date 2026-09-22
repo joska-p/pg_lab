@@ -39,3 +39,22 @@ Sample entries:
 - `vp check` (package scope): pass — 23 files formatted, 0 lint/type errors.
 - `vp build`: pass — lazy chunks `Mandelbrot` / `MandelbrotControls` emitted separately.
 - Dev spot-check: user confirmed the dev run works (render, controls, theme toggle).
+
+2026-09-22 · S2 · double-split precision
+
+- `src/core/doubleSplit.ts`: ported `splitDouble` (migration `core/doubleSplit.ts`).
+- `src/shaders/mandelbrot/double-split.glsl`: ported migration
+  `core/mandelbrot-double-split.glsl`; non-comment diff vs source = zero (checked via
+  comment-stripped `diff`).
+- `stores/mandelbrotStore.ts`: added `MandelbrotPrecision = 'naive' | 'double-split'` +
+  `useMandelbrotPrecision` / `setMandelbrotPrecision` (sibling zustand store; params
+  store unchanged — D7).
+- `Mandebrot.tsx`: single GpuCanvas keeps shared camera (maxZoom 1e15); SHADERS/UNIFORMS
+  record select `double-split.glsl` + center→DS-pair provider (`splitDouble`) per
+  precision.
+- `MandelbrotControls.tsx`: added "Precision" ControlSection with a Segmented
+  (Naive (f32) / Double-split).
+- `vp check` (package scope): pass — 14 files, 0 lint/type errors (one `--fix` pass
+  for formatting).
+- `vp run build`: pass — double-split.glsl inlined in `Mandelbrot` lazy chunk
+  (57.26 kB).

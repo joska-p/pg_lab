@@ -32,7 +32,20 @@ camera readout, presets).
 - `vp build` (package scope): pass — lazy chunks `Mandelbrot` / `MandelbrotControls`
   emitted separately.
 - Dev spot-check: user confirmed the dev run works (renders, controls, theme).
+- S2 in progress: double-split precision ported.
+    - `core/doubleSplit.ts` (= migrated `splitDouble`).
+    - `shaders/mandelbrot/double-split.glsl` (= migrated `mandelbrot-double-split.glsl`,
+      semantics unchanged by diff).
+    - `stores/mandelbrotStore.ts` now also owns `MandelbrotPrecision` ('naive' |
+      'double-split') + `useMandelbrotPrecision` / `setMandelbrotPrecision` (D7).
+    - `Mandelbrot.tsx` = single GpuCanvas, shared camera (maxZoom 1e15); SHADERS/UNIFORMS
+      maps select shader + provider by precision (naive panOffset ↔ double-split
+      center→DS-pair with drift fix).
+    - `MandelbrotControls.tsx` gains a "Precision" Segmented (Naive f32 / Double-split).
+- `vp check` (package scope): pass — 14 files, 0 lint/type errors (after `--fix` format).
+- `vp run build`: pass — double-split.glsl inlined into the `Mandelbrot` lazy chunk.
 
 ## Next action
 
-S2 — double-split precision (see `PLAN.md`).
+S2 visual spot-check (user): switching precision keeps position/zoom; zoom > 1e6 stays
+sharp in double-split; then S3 — perturbation precision (see `PLAN.md`).
