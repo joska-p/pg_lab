@@ -28,3 +28,12 @@ family`, grille 2 col en stylex local. Dev server lancé
   manuellement par l'utilisateur (ne pas relancer via l'agent).
 - 2026-09-22 D9 (S4): `Readout Generation` placé dans un `ControlSection
 title="Simulation"`; S4 validé manuellement par l'utilisateur.
+- 2026-09-22 D10 (S5): familles Edit = Randomize `neon-violet`, Clear
+  `error`, Draw actif `solder` (inactif défaut), Erase actif `error`
+  (inactif défaut); Rule `amber`; Pattern `aqua` — pixels de mode = LED
+  famille, pas de variant "secondary/destructive" (D2). Grille 2 col
+  stylex identique à PlaybackSection.
+- 2026-09-22 D11 (S5): `Select` type-safe — `onValueChange={setRule}`
+  direct, pas de cast `value as RuleId` (le nouveau Select est générique
+  `<T extends string>`, obsolete depuis tlc). Couleurs: `ColorField`
+  value + `onValueChange` → `createCssColor` via `@repo/glaze/core/render`.

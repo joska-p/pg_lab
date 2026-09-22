@@ -5,7 +5,10 @@ import { Segmented } from '@repo/ui/components/Segmented';
 
 import { setTheme, useTheme } from '../../stores/appStore';
 import { useGeneration } from '../../stores/automa/selectors';
+import { CreatureSection } from './CreatureSection';
+import { EditSection } from './EditSection';
 import { PlaybackSection } from './PlaybackSection';
+import { RuleSection } from './RuleSection';
 
 export function ControlPanel() {
     const theme = useTheme();
@@ -17,6 +20,9 @@ export function ControlPanel() {
                 <Readout label="Generation" value={generation} />
             </ControlSection>
             <PlaybackSection />
+            <EditSection />
+            <RuleSection />
+            <CreatureSection />
             <ControlSection title="Theme">
                 <Segmented<'light' | 'dark' | 'system'>
                     options={['light', 'dark', 'system']}
