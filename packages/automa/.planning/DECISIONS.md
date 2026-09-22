@@ -21,3 +21,10 @@
   cible. Callback `uniforms` annoté `Record<string, UniformValue>`
   (nouveau glaze strict sur l'union avec `{}`). Montage `CellMesh`
   dans `App` temporaire, layout Shell définitif en S4.
+- 2026-09-22 D8 (S4): `PlaybackSection` porté dès S4 (pas en S5) —
+  la simulation autoStart=false ne s'incrémente que via Play, requis
+  pour le test manuel du live. Slider `onValueChange` + `Button
+family`, grille 2 col en stylex local. Dev server lancé
+  manuellement par l'utilisateur (ne pas relancer via l'agent).
+- 2026-09-22 D9 (S4): `Readout Generation` placé dans un `ControlSection
+title="Simulation"`; S4 validé manuellement par l'utilisateur.

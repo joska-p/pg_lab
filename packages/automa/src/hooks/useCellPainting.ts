@@ -25,30 +25,46 @@ function paintAtEvent(event: PointerEvent, surface: GpuSurface): void {
     paintCell(cell.column, cell.row, toolMode === 'erase' ? 0 : 1);
 }
 
+type DragMode = 'paint' | 'pan';
+
 export function useCellPainting(): CanvasInteractions<GpuSurface> {
-    const isPainting = useRef(false);
+    // `onStart`/`onMove` replace glaze's built-in pan (createInteractionAdapter only
+    // registers PanGesture when both are absent), so middle-drag panning lives here.
+    const drag = useRef<DragMode | null>(null);
 
-    const onStart = ({
-        nativeEvent,
-        surface,
-    }: LiveInteractionEvent<PointerEvent, GpuSurface>): void => {
-        if (nativeEvent.button !== 0) return;
+    const onStart = (event: LiveInteractionEvent<PointerEvent, GpuSurface>): void => {
+        const { nativeEvent, surface } = event;
 
-        isPainting.current = true;
-        paintAtEvent(nativeEvent, surface);
+        if (nativeEvent.button === 1) {
+            // Stop the browser's middle-click autoscroll while we own the drag.
+            nativeEvent.preventDefault();
+            drag.current = 'pan';
+        } else if (nativeEvent.button === 0) {
+            drag.current = 'paint';
+            paintAtEvent(nativeEvent, surface);
+        } else {
+            return;
+        }
+
+        // Mirror the router's capture policy: a claimed drag keeps receiving
+        // events when the cursor leaves the canvas.
+        const canvas = nativeEvent.currentTarget;
+
+        if (canvas instanceof HTMLCanvasElement) {
+            canvas.setPointerCapture(nativeEvent.pointerId);
+        }
     };
 
-    const onMove = ({
-        nativeEvent,
-        surface,
-    }: LiveInteractionEvent<PointerEvent, GpuSurface>): void => {
-        if (!isPainting.current) return;
-
-        paintAtEvent(nativeEvent, surface);
+    const onMove = (event: LiveInteractionEvent<PointerEvent, GpuSurface>): void => {
+        if (drag.current === 'paint') {
+            paintAtEvent(event.nativeEvent, event.surface);
+        } else if (drag.current === 'pan') {
+            event.cameraControls.panBy(event.input.pointerDelta.x, event.input.pointerDelta.y);
+        }
     };
 
     const onEnd = (_event: LiveInteractionEvent<PointerEvent, GpuSurface>): void => {
-        isPainting.current = false;
+        drag.current = null;
     };
 
     const onContextMenu = ({ nativeEvent }: LiveInteractionEvent<MouseEvent, GpuSurface>): void => {

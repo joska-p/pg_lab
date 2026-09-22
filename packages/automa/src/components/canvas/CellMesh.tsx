@@ -16,7 +16,9 @@ function CellMesh() {
 
     return (
         <GpuCanvas
-            canvasInteractions={{ pan: { button: 1 }, ...interactions }}
+            // No `pan` option here: providing onStart/onMove disables glaze's
+            // built-in pan, so useCellPainting handles middle-drag pan itself.
+            canvasInteractions={interactions}
             initialCamera={{ minZoom: 1, maxZoom: 64 }}
             fragmentShader={cellMeshShader}
             onMount={initSimulation}

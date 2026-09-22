@@ -1,14 +1,12 @@
-import { ControlPanel } from '@repo/ui/components/ControlPanel';
-import { ControlSection } from '@repo/ui/components/ControlSection';
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
-import { Segmented } from '@repo/ui/components/Segmented';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
 import { useEffect } from 'react';
 
 import { CellMesh } from './components/canvas/CellMesh';
-import { useTheme, setTheme } from './stores/appStore';
+import { ControlPanel } from './components/controls/ControlPanel';
+import { useTheme } from './stores/appStore';
 
 export function App() {
     const theme = useTheme();
@@ -20,19 +18,7 @@ export function App() {
     return (
         <ShellWrapper>
             <ErrorBoundary showStack={import.meta.env.DEV}>
-                <ExperimentShell
-                    panel={
-                        <ControlPanel title="automa controls">
-                            <ControlSection title="Theme">
-                                <Segmented<'light' | 'dark' | 'system'>
-                                    options={['light', 'dark', 'system']}
-                                    value={theme}
-                                    onValueChange={setTheme}
-                                />
-                            </ControlSection>
-                        </ControlPanel>
-                    }
-                >
+                <ExperimentShell panel={<ControlPanel />}>
                     <Stage label="automa">
                         <CellMesh />
                     </Stage>
