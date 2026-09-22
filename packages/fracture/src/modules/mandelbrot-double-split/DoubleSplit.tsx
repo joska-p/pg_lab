@@ -24,7 +24,7 @@ interface CameraView {
 
 function doubleSplitUniforms(
     params: FractalParams,
-    view: CameraView,
+    camera: CameraView,
     width: number,
     height: number,
 ): Record<string, UniformValue> {
@@ -33,10 +33,10 @@ function doubleSplitUniforms(
     // (−WORLD_SCALE·aspect·panNormX − 0.5 − 0.5·WORLD_SCALE·aspect·drift,
     //  WORLD_SCALE·panNormY + 0.5·WORLD_SCALE·drift); the drift terms pin the anchor to
     // screenToWorld across zoom.
-    const panNormX = view.x / view.zoom / width;
-    const panNormY = view.y / view.zoom / height;
+    const panNormX = camera.x / camera.zoom / width;
+    const panNormY = camera.y / camera.zoom / height;
     const aspect = width / height;
-    const drift = 1.0 - 1.0 / view.zoom;
+    const drift = 1.0 - 1.0 / camera.zoom;
     const centerRe = -WORLD_SCALE * aspect * panNormX - 0.5 - 0.5 * WORLD_SCALE * aspect * drift;
     const centerIm = WORLD_SCALE * panNormY + 0.5 * WORLD_SCALE * drift;
 
@@ -71,8 +71,8 @@ function DoubleSplit() {
             fragmentShader={doubleSplitShader}
             initialCamera={{ maxZoom: MAX_ZOOM }}
             canvasInteractions={{ zoom: { speed: ZOOM_WHEEL_SPEED } }}
-            uniforms={({ camera: view, width, height }) =>
-                doubleSplitUniforms(params, view, width, height)
+            uniforms={({ camera, width, height }) =>
+                doubleSplitUniforms(params, camera, width, height)
             }
         />
     );
