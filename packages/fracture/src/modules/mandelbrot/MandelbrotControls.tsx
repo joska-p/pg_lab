@@ -15,6 +15,7 @@ import { setParam, useParams, type FractalParams, type ParamKey } from '../../st
 const PRECISION_OPTIONS: { value: MandelbrotPrecision; label: string }[] = [
     { value: 'naive', label: 'Naive (f32)' },
     { value: 'double-split', label: 'Double-split' },
+    { value: 'perturbation', label: 'Perturbation' },
 ];
 
 interface ParamSlider {

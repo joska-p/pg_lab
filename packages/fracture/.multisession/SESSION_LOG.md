@@ -60,3 +60,22 @@ Sample entries:
   (57.26 kB).
 - Dev spot-check: user validated — precision switch keeps position/zoom; deep zoom stays
   sharp in double-split.
+
+2026-09-22 · S3 · perturbation precision
+
+- `src/core/referenceOrbit.ts`: ported migration `core/perturbationOrbit.ts`, dropping
+  `computeMaxIterations` (already extracted as `core/iterationPolicy.ts` in S1).
+- `src/core/orbitTextures.ts`: ported migration `core/createOrbitTextures.ts` (raw RG32F,
+  lazy create/upload/dispose, recreate on length change).
+- `src/shaders/mandelbrot/perturbation.glsl`: ported migration `core/mandelbrot-perturbation.frag`;
+  comment-stripped `diff` vs source = zero.
+- `stores/mandelbrotStore.ts`: `MandelbrotPrecision` += `'perturbation'`; added `surfaceStore`
+  holding the glaze `GpuSurface` as a stable reference (`useMandelbrotSurface` /
+  `setMandelbrotSurface`), dereferenced on unmount.
+- `Mandelbrot.tsx`: `perturbationUniforms` provider + `webglcontextrestored` re-upload listener
+  (canvas read from the store's surface); shared `WORLD_SCALE` for double-split + perturbation.
+- `MandelbrotControls.tsx`: Precision Segmented += Perturbation.
+- `vp check` (package scope): pass — 0 lint/type errors (one `--fix` pass).
+- `vp run build`: pass — `Mandelbrot` chunk 68.80 kB (perturbation.glsl inlined).
+- Dev spot-check: user validated — perturbation renders at 1e13–1e15, ds ↔ perturbation switch
+  keeps position/zoom, clean dispose on experiment switch.

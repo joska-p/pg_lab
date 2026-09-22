@@ -41,3 +41,13 @@ New decisions are appended; history is never rewritten. Date format: YYYY-MM-DD.
   (string-typed precision would leak into the uniform map); `paramStore` helpers
   (`createParamStore` / `useParams` / `setParam`) stay generic for Julia (S6). The
   experiment-scoped `mandelbrotStore.ts` module owns both params and precision.
+
+## 2026-09-22 — Perturbation precision (S3)
+
+- D8 — **The glaze `GpuSurface` is exposed through a sibling zustand store**
+  (`stores/mandelbrotStore.ts`: `useMandelbrotSurface` / `setMandelbrotSurface`), dereferenced to
+  `null` on unmount. Rationale: the surface is a live object owned by `GpuCanvas`; the store
+  provides only reachability (conventions §3.2, §12.1). A plain ref would never notify an effect
+  that must attach the `webglcontextrestored` listener as soon as the surface appears — the
+  surface's mount timing is asynchronous (`useNodeResource` materializes it via reactive state).
+  Applies to any later experiment that needs the surface (Perturbation only today).
