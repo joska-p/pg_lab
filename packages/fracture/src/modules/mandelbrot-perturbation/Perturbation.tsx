@@ -11,7 +11,11 @@ import {
     computeSecondaryOrbit,
     type ReferenceOrbit,
 } from '../../core/referenceOrbit';
-import perturbationShader from './perturbation.glsl?raw';
+import { assemble } from '../../shaders/assemble';
+import dsArithmeticChunk from '../../shaders/chunks/ds-arithmetic.glsl?raw';
+import lightingChunk from '../../shaders/chunks/lighting.glsl?raw';
+import oklchChunk from '../../shaders/chunks/oklch.glsl?raw';
+import perturbationBody from './perturbation.glsl?raw';
 import {
     setPerturbationSurface,
     useParams,
@@ -21,6 +25,8 @@ import {
 
 /** Perturbation (reference orbit + double-single): the deepest honest tier, up to 1e15 (D10). */
 const MAX_ZOOM = 1e15;
+
+const perturbationShader = assemble(dsArithmeticChunk, oklchChunk, lightingChunk, perturbationBody);
 
 // Complex-plane width of the view at zoom = 1. The shaders map (uv − 0.5) · (3 / zoom) onto the
 // complex plane, so both the DS centre and the perturbation deltas use this fixed width.

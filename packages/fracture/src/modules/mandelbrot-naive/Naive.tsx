@@ -2,8 +2,13 @@ import type { UniformValue } from '@repo/glaze/gpu/shader/types';
 import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
 
 import { ZOOM_WHEEL_SPEED } from '../../core/camera';
-import naiveShader from './naive.glsl?raw';
+import { assemble } from '../../shaders/assemble';
+import lightingChunk from '../../shaders/chunks/lighting.glsl?raw';
+import oklchChunk from '../../shaders/chunks/oklch.glsl?raw';
+import naiveBody from './naive.glsl?raw';
 import { useParams, type FractalParams } from './store';
+
+const naiveShader = assemble(oklchChunk, lightingChunk, naiveBody);
 
 /** Naive float32 pipeline: the honest camera ceiling for f32-only arithmetic (D10). */
 const MAX_ZOOM = 1e6;

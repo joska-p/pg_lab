@@ -1,5 +1,7 @@
-#version 300 es
-precision highp float;
+// Perturbation Mandelbrot body.
+// Assembled via shaders/assemble.ts with chunks:
+//   ds-arithmetic.glsl (ds_add/ds_sub canonical + ds_mul_8193 historical +
+//   ds_mul_float/cds_*/mod2_float) + oklch.glsl + lighting.glsl.
 
 // Primary + secondary reference orbits
 uniform sampler2D u_orbit;
@@ -30,109 +32,6 @@ uniform float u_aspect;
 
 in vec2 vUv;
 out vec4 fragColor;
-
-// ---------------------------------------------------------------------------
-// Double-single arithmetic
-// ---------------------------------------------------------------------------
-vec2 ds_set(float a) {
-    return vec2(a, 0.0);
-}
-
-vec2 ds_add(vec2 a, vec2 b) {
-    float t1 = a.x + b.x;
-    float e = t1 - a.x;
-    float t2 = b.x - e + (a.x - (t1 - e)) + a.y + b.y;
-    float hi = t1 + t2;
-    return vec2(hi, t2 - (hi - t1));
-}
-
-vec2 ds_sub(vec2 a, vec2 b) {
-    float t1 = a.x - b.x;
-    float e = t1 - a.x;
-    float t2 = -b.x - e + (a.x - (t1 - e)) + a.y - b.y;
-    float hi = t1 + t2;
-    return vec2(hi, t2 - (hi - t1));
-}
-
-vec2 ds_mul(vec2 a, vec2 b) {
-    const float split = 8193.0;
-    float cona = a.x * split;
-    float conb = b.x * split;
-    float a1 = cona - (cona - a.x);
-    float b1 = conb - (conb - b.x);
-    float a2 = a.x - a1;
-    float b2 = b.x - b1;
-
-    float c11 = a.x * b.x;
-    float c21 = a2 * b2 + (a2 * b1 + (a1 * b2 + (a1 * b1 - c11)));
-    float c2 = a.x * b.y + a.y * b.x;
-
-    float t1 = c11 + c2;
-    float e = t1 - c11;
-    float t2 = a.y * b.y + (c2 - e + (c11 - (t1 - e))) + c21;
-    float hi = t1 + t2;
-    return vec2(hi, t2 - (hi - t1));
-}
-
-vec2 ds_mul_float(vec2 a, float f) {
-    float c11 = a.x * f;
-    float c21 = a.y * f;
-    float t1 = c11 + c21;
-    float e = t1 - c11;
-    float t2 = c21 - e + (c11 - (t1 - e));
-    float hi = t1 + t2;
-    return vec2(hi, t2 - (hi - t1));
-}
-
-void cds_mul(vec2 ar, vec2 ai, vec2 br, vec2 bi, out vec2 rr, out vec2 ri) {
-    vec2 p0 = ds_mul(ar, br);
-    vec2 p1 = ds_mul(ai, bi);
-    vec2 p2 = ds_mul(ar, bi);
-    vec2 p3 = ds_mul(ai, br);
-    rr = ds_sub(p0, p1);
-    ri = ds_add(p2, p3);
-}
-
-void cds_mul_Xn(vec2 X, vec2 dzr, vec2 dzi, out vec2 rr, out vec2 ri) {
-    vec2 t0 = ds_mul_float(dzr, X.x);
-    vec2 t1 = ds_mul_float(dzi, X.y);
-    vec2 t2 = ds_mul_float(dzi, X.x);
-    vec2 t3 = ds_mul_float(dzr, X.y);
-    rr = ds_mul_float(ds_sub(t0, t1), 2.0);
-    ri = ds_mul_float(ds_add(t2, t3), 2.0);
-}
-
-float mod2_float(vec2 z) {
-    return dot(z, z);
-}
-
-// ---------------------------------------------------------------------------
-// OKLCH → RGB
-// ---------------------------------------------------------------------------
-vec3 oklchToRgb(vec3 oklch) {
-    float L = oklch.x,
-        C = oklch.y,
-        h = oklch.z;
-    float a = C * cos(h);
-    float b = C * sin(h);
-
-    float l_ = L + 0.3963377774 * a + 0.2158037573 * b;
-    float m_ = L - 0.1055613458 * a - 0.0638541728 * b;
-    float s_ = L - 0.0894841775 * a - 1.291485548 * b;
-
-    float l = l_ * l_ * l_;
-    float m = m_ * m_ * m_;
-    float s = s_ * s_ * s_;
-
-    vec3 linearRgb;
-    linearRgb.r = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
-    linearRgb.g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
-    linearRgb.b = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
-
-    vec3 low = linearRgb * 12.92;
-    vec3 high = 1.055 * pow(max(linearRgb, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055;
-    return clamp(mix(high, low, lessThanEqual(linearRgb, vec3(0.0031308))), 0.0, 1.0);
-}
 
 // ---------------------------------------------------------------------------
 // Core iteration with optional secondary reference
@@ -209,8 +108,8 @@ vec2 runOrbit(sampler2D orbitTex, int orbitLen, int refIters, vec2 d_re, vec2 d_
 vec2 getMandelbrotData(vec2 uvCoord) {
     vec2 uvOff = uvCoord - 0.5;
     uvOff.x *= u_aspect;
-    vec2 d_re = ds_mul(u_scale, ds_set(uvOff.x));
-    vec2 d_im = ds_mul(u_scale, ds_set(uvOff.y));
+    vec2 d_re = ds_mul_8193(u_scale, ds_set(uvOff.x));
+    vec2 d_im = ds_mul_8193(u_scale, ds_set(uvOff.y));
 
     // Try primary reference first
     vec2 res = runOrbit(u_orbit, u_orbitLength, u_referenceIterations, d_re, d_im);
@@ -242,26 +141,10 @@ void main() {
     vec2 data0 = getMandelbrotData(vUv);
     float h0 = data0.x;
 
-    // Analytical normals
-    vec2 dU = dFdx(vUv);
-    vec2 dV = dFdy(vUv);
-    float det = dU.x * dV.y - dU.y * dV.x;
-
-    float dhdu = 0.0,
-        dhdv = 0.0;
-    if (abs(det) > 1e-9) {
-        float dhdx = dFdx(h0);
-        float dhdy = dFdy(h0);
-        dhdu = (dhdx * dV.y - dhdy * dU.y) / det;
-        dhdv = (dU.x * dhdy - dV.x * dhdx) / det;
-    }
-
+    // Analytic normal from the height field (lighting chunk)
     float heightScale = u_bumpHeight / max(u_camera.z, 1.0);
-    vec3 normal = normalize(vec3(-dhdu * heightScale, -dhdv * heightScale, pixelEps));
-
-    vec3 lightDir = normalize(vec3(cos(u_sunAngle), sin(u_sunAngle), 1.0));
-    float diffuse = max(0.0, dot(normal, lightDir));
-    float lightIntensity = clamp(u_ambient + diffuse * (1.0 - u_ambient), 0.0, 1.0);
+    vec3 normal = computeAnalyticNormal(h0, vUv, heightScale, pixelEps);
+    float lightIntensity = computeLightIntensity(normal, u_sunAngle, u_ambient);
 
     // Continuous-potential colouring
     float baseRate = clamp(h0 * 0.035, 0.0, 1.0);

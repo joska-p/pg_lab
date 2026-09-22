@@ -3,8 +3,14 @@ import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
 
 import { ZOOM_WHEEL_SPEED } from '../../core/camera';
 import { splitDouble } from '../../core/doubleSplit';
-import doubleSplitShader from './double-split.glsl?raw';
+import { assemble } from '../../shaders/assemble';
+import dsArithmeticChunk from '../../shaders/chunks/ds-arithmetic.glsl?raw';
+import lightingChunk from '../../shaders/chunks/lighting.glsl?raw';
+import oklchChunk from '../../shaders/chunks/oklch.glsl?raw';
+import doubleSplitBody from './double-split.glsl?raw';
 import { useParams, type FractalParams } from './store';
+
+const doubleSplitShader = assemble(dsArithmeticChunk, oklchChunk, lightingChunk, doubleSplitBody);
 
 /**
  * Double-single (~48 bit) camera ceiling: far beyond float32, conservatively under what naive f64

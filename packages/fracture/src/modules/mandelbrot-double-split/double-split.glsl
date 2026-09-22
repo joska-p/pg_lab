@@ -1,5 +1,6 @@
-#version 300 es
-precision highp float;
+// Double-split Mandelbrot body.
+// Assembled via shaders/assemble.ts with chunks:
+//   ds-arithmetic.glsl (ds_* bitwise canonical) + oklch.glsl + lighting.glsl.
 
 // Fractal
 uniform float u_iterationBase;
@@ -26,90 +27,6 @@ uniform float u_aspect;
 
 in vec2 vUv;
 out vec4 fragColor;
-
-// ---------------------------------------------------------------------------
-// Double-single (DS) arithmetic (No fma, uses bitwise splitting)
-// ---------------------------------------------------------------------------
-
-vec2 ds_set(float a) {
-    return vec2(a, 0.0);
-}
-
-vec2 ds_set2(float hi, float lo) {
-    return vec2(hi, lo);
-}
-
-// Standard TwoSum (order-independent)
-vec2 ds_twoSum(float a, float b) {
-    float s = a + b;
-    float bv = s - a;
-    float err = a - (s - bv) + (b - bv);
-    return vec2(s, err);
-}
-
-vec2 ds_add(vec2 a, vec2 b) {
-    vec2 s = ds_twoSum(a.x, b.x);
-    s.y += a.y + b.y;
-    return ds_twoSum(s.x, s.y);
-}
-
-vec2 ds_sub(vec2 a, vec2 b) {
-    return ds_add(a, vec2(-b.x, -b.y));
-}
-
-// Bitwise Dekker split: splits a float into (hi, lo) where hi has the top
-// 11 bits of the mantissa. Avoids the 8193.0 multiply and avoids `fma`.
-// Works natively in ES 3.00 on all hardware.
-vec2 ds_split(float a) {
-    int bits = floatBitsToInt(a) & int(0xFFFFE000); // mask off lower 13 bits
-    float hi = intBitsToFloat(bits);
-    return vec2(hi, a - hi);
-}
-
-// Exact product error using bitwise splitting.
-vec2 ds_mul(vec2 a, vec2 b) {
-    vec2 as = ds_split(a.x);
-    vec2 bs = ds_split(b.x);
-    float hi = a.x * b.x;
-    float lo = as.x * bs.x - hi + as.x * bs.y + as.y * bs.x + as.y * bs.y;
-
-    // Add cross terms with the low parts of a and b
-    lo = a.y * b.x + a.x * b.y + lo;
-
-    // Renormalize
-    return ds_twoSum(hi, lo);
-}
-
-// ---------------------------------------------------------------------------
-// OKLCH → RGB
-// ---------------------------------------------------------------------------
-vec3 oklchToRgb(vec3 oklch) {
-    float L = oklch.x;
-    float C = oklch.y;
-    float h = oklch.z;
-
-    float a = C * cos(h);
-    float b = C * sin(h);
-
-    float l_ = L + 0.3963377774 * a + 0.2158037573 * b;
-    float m_ = L - 0.1055613458 * a - 0.0638541728 * b;
-    float s_ = L - 0.0894841775 * a - 1.291485548 * b;
-
-    float l = l_ * l_ * l_;
-    float m = m_ * m_ * m_;
-    float s = s_ * s_ * s_;
-
-    vec3 linearRgb;
-    linearRgb.r = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
-    linearRgb.g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
-    linearRgb.b = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
-
-    vec3 lowPart = linearRgb * 12.92;
-    vec3 highPart = 1.055 * pow(max(linearRgb, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055;
-
-    vec3 rgb = mix(highPart, lowPart, lessThanEqual(linearRgb, vec3(0.0031308)));
-    return clamp(rgb, 0.0, 1.0);
-}
 
 // ---------------------------------------------------------------------------
 // Returns (continuous height, |z|² at exterior escape / min interior)
@@ -182,27 +99,10 @@ void main() {
     vec2 data0 = getMandelbrotData(vUv, maxIterations);
     float h0 = data0.x;
 
-    // --- Reconstruct normals analytically via screen-space derivatives ---
-    vec2 dU = dFdx(vUv);
-    vec2 dV = dFdy(vUv);
-    float det = dU.x * dV.y - dU.y * dV.x;
-
-    float dhdu = 0.0;
-    float dhdv = 0.0;
-    if (abs(det) > 1e-9) {
-        float dhdx = dFdx(h0);
-        float dhdy = dFdy(h0);
-        dhdu = (dhdx * dV.y - dhdy * dU.y) / det;
-        dhdv = (dU.x * dhdy - dV.x * dhdx) / det;
-    }
-
+    // --- Analytic normal from the height field (lighting chunk) ---
     float heightScale = u_bumpHeight / max(u_camera.z, 1.0);
-
-    vec3 normal = normalize(vec3(-dhdu * heightScale, -dhdv * heightScale, pixelEps));
-
-    vec3 lightDir = normalize(vec3(cos(u_sunAngle), sin(u_sunAngle), 1.0));
-    float diffuse = max(0.0, dot(normal, lightDir));
-    float lightIntensity = clamp(u_ambient + diffuse * (1.0 - u_ambient), 0.0, 1.0);
+    vec3 normal = computeAnalyticNormal(h0, vUv, heightScale, pixelEps);
+    float lightIntensity = computeLightIntensity(normal, u_sunAngle, u_ambient);
 
     // -----------------------------------------------------------------
     // Color

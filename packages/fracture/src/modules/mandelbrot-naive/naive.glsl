@@ -1,9 +1,9 @@
-#version 300 es
-precision highp float;
-
 // ============================================================
-//  Mandelbrot Fragment Shader — bump-lit, OKLCH-coloured
+//  Mandelbrot Fragment Shader — bump-lit, OKLCH-coloured (body)
 // ------------------------------------------------------------
+//  Assembled via shaders/assemble.ts with chunks:
+//    oklch.glsl (oklchToRgb) + lighting.glsl (computeLightIntensity).
+//
 //  Pipeline per pixel:
 //    1. Evaluate the Mandelbrot field at this UV
 //       (exterior: smooth iteration count; interior: convergence)
@@ -13,10 +13,10 @@ precision highp float;
 //    4. Map the result to an OKLCH colour and convert to sRGB
 //
 //  Reading order for juniors:
-//    constants → uniforms → oklchToRgb → screenToComplex →
+//    constants → uniforms → oklchToRgb (chunk) → screenToComplex →
 //    iterateMandelbrot → computeExterior/InteriorData →
 //    getMandelbrotData → computeMaxIterations → computeNormal →
-//    computeLightIntensity → computeColor → main
+//    computeLightIntensity (chunk) → computeColor → main
 // ============================================================
 
 // ---------- Named math constants (no more magic numbers) ----------
@@ -69,47 +69,6 @@ uniform float u_aspect; // canvas width / height, for non-square canvases
 // ---------- Varyings ----------
 in vec2 vUv; // screen UV in [0,1]²
 out vec4 fragColor; // final pixel colour
-
-// ============================================================
-//  OKLCH → sRGB
-// ------------------------------------------------------------
-//  OKLCH is a perceptually uniform colour space (Lightness,
-//  Chroma, Hue). Mapping fractal data through it gives smoother,
-//  more "natural" palettes than HSV/RGB. The math here is the
-//  standard OKLab → linear sRGB → sRGB-gamma transform.
-// ============================================================
-vec3 oklchToRgb(vec3 oklch) {
-    float L = oklch.x; // Lightness  ∈ [0,1]
-    float C = oklch.y; // Chroma
-    float H = oklch.z; // Hue (radians)
-
-    // OKLab a/b axes from polar (C, H)
-    float a = C * cos(H);
-    float b = C * sin(H);
-
-    // OKLab → LMS (long/medium/short cone responses)
-    float l_ = L + 0.3963377774 * a + 0.2158037573 * b;
-    float m_ = L - 0.1055613458 * a - 0.0638541728 * b;
-    float s_ = L - 0.0894841775 * a - 1.291485548 * b;
-
-    // Non-linearity: cube the LMS values
-    float l = l_ * l_ * l_;
-    float m = m_ * m_ * m_;
-    float s = s_ * s_ * s_;
-
-    // LMS → linear sRGB
-    vec3 linearRgb;
-    linearRgb.r = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
-    linearRgb.g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
-    linearRgb.b = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
-
-    // Linear sRGB → gamma-encoded sRGB (piecewise sRGB transfer function)
-    vec3 lowPart = linearRgb * 12.92;
-    vec3 highPart = 1.055 * pow(max(linearRgb, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055;
-    vec3 rgb = mix(highPart, lowPart, lessThanEqual(linearRgb, vec3(0.0031308)));
-
-    return clamp(rgb, 0.0, 1.0);
-}
 
 // ============================================================
 //  Screen UV → complex-plane coordinate c
@@ -262,19 +221,6 @@ vec3 computeNormal(vec2 uv, int maxIter, float eps, float h0) {
 }
 
 // ============================================================
-//  Lambertian + ambient lighting
-// ------------------------------------------------------------
-//  light = ambient + diffuse * (1 − ambient)
-//  The mix form guarantees the result stays inside [ambient, 1],
-//  so ambient acts as the floor and full sun is the ceiling.
-// ============================================================
-float computeLightIntensity(vec3 normal) {
-    vec3 lightDir = normalize(vec3(cos(u_sunAngle), sin(u_sunAngle), 1.0));
-    float diffuse = max(0.0, dot(normal, lightDir));
-    return clamp(u_ambient + diffuse * (1.0 - u_ambient), 0.0, 1.0);
-}
-
-// ============================================================
 //  OKLCH colour mapping
 // ------------------------------------------------------------
 //  Lightness  ← normalised fractal height, modulated by light
@@ -327,7 +273,7 @@ void main() {
 
     // 2. Build a normal from neighbouring samples and light it
     vec3 normal = computeNormal(vUv, maxIter, eps, mandelbrotData.x);
-    float lightIntensity = computeLightIntensity(normal);
+    float lightIntensity = computeLightIntensity(normal, u_sunAngle, u_ambient);
 
     // 3. Map fractal + lighting to an OKLCH colour
     vec3 color = computeColor(mandelbrotData, maxIter, lightIntensity);
