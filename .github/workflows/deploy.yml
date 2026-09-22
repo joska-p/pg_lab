@@ -33,7 +33,7 @@ jobs:
                   node-version: '24'
                   cache: true
             - run: vp install
-            - run: vp check
+            - run: vp check --fix
             - run: vp run playground#build
 
             # Téléverse le dossier de sortie généré par le build de l'application
