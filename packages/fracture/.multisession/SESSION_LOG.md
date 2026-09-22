@@ -58,3 +58,5 @@ Sample entries:
   for formatting).
 - `vp run build`: pass — double-split.glsl inlined in `Mandelbrot` lazy chunk
   (57.26 kB).
+- Dev spot-check: user validated — precision switch keeps position/zoom; deep zoom stays
+  sharp in double-split.

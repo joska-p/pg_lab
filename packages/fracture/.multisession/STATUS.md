@@ -44,8 +44,11 @@ camera readout, presets).
     - `MandelbrotControls.tsx` gains a "Precision" Segmented (Naive f32 / Double-split).
 - `vp check` (package scope): pass — 14 files, 0 lint/type errors (after `--fix` format).
 - `vp run build`: pass — double-split.glsl inlined into the `Mandelbrot` lazy chunk.
+- Dev spot-check: user validated S2 — precision switch keeps position/zoom; zoom > 1e6
+  stays sharp in double-split.
 
 ## Next action
 
-S2 visual spot-check (user): switching precision keeps position/zoom; zoom > 1e6 stays
-sharp in double-split; then S3 — perturbation precision (see `PLAN.md`).
+S3 — perturbation precision: extract `core/referenceOrbit.ts` + `core/orbitTextures.ts`,
+port the perturbation shader + uniform provider as a third precision mode for Mandelbrot
+(see `PLAN.md`).
