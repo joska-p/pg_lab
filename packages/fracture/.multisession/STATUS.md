@@ -17,18 +17,22 @@ camera readout, presets).
 
 ## Current state (verified)
 
-- Destination scaffold builds: package-scoped `vp check` passes (8 files formatted,
-  4 linted, 0 errors). Repo-scoped check reports 62 pre-existing lint failures in
-  OTHER packages (glaze, glaze3d, mol-demo, automa, ui, art-canvas) — out of scope.
-- Destination `src/`: `App.tsx` (placeholder Stage + theme toggle), `main.tsx`,
-  `style.css`, `stores/appStore.tsx`.
-- Source to migrate: `_TMP/fracture-to-migrate/src` — `components/`
-  {ControlPanel, OriginalScene, PerturbationScene, DoubleSplitScene}.tsx,
-  `core/*.ts` + 3 GLSL files, `stores/*.ts`, `styles/global.css`.
-- New glaze: `GpuSurface` exposes `canvas` + `camera`; raw WebGL textures via
-  `canvas.getContext('webgl2')` are still viable (same context instance glaze uses).
-  `uniforms: (surface) => Record<string, UniformValue>` API is compatible.
+- S1 done: workshop skeleton + naive Mandelbrot migrated.
+    - `experiments.ts` registry + `stores/workshopStore.tsx` (active experiment; art-canvas
+      shape). `App.tsx` rewired: ExperimentShell + ControlPanel + Stage + ErrorBoundary;
+      theme store kept.
+    - `modules/mandelbrot/`: `experiment.ts` (lazy entries), `Mandelbrot.tsx` (naive via
+      GpuCanvas, shared camera maxZoom 1e15 = D2), `MandelbrotControls.tsx` (Iterations /
+      Lighting / Color groups on `@repo/ui`), `fractalUniforms.ts`.
+    - `core/camera.ts` (ZOOM_WHEEL_SPEED), `core/iterationPolicy.ts`
+      (computeMaxIterations), `stores/paramStore.ts` (create/use/set + defaults),
+      `stores/mandelbrotStore.ts`.
+    - `shaders/mandelbrot/naive.glsl` (= migrated `mandelbrot-original.glsl`).
+- `vp check` (package scope): pass — 23 files formatted, 0 lint/type errors.
+- `vp build` (package scope): pass — lazy chunks `Mandelbrot` / `MandelbrotControls`
+  emitted separately.
+- Dev spot-check: user confirmed the dev run works (renders, controls, theme).
 
 ## Next action
 
-S1 — Workshop skeleton + naive Mandelbrot migration (see `PLAN.md`).
+S2 — double-split precision (see `PLAN.md`).

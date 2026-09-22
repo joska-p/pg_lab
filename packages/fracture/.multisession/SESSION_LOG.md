@@ -24,3 +24,18 @@ Sample entries:
       `(surface) => Record<string, UniformValue>`; raw textures via
       `canvas.getContext('webgl2')` reuse glaze's context instance.
 - Multisession folder created: STATUS / SPEC / PLAN / DECISIONS / SESSION_LOG.
+
+2026-09-22 · S1 · workshop skeleton + naive Mandelbrot
+
+- `experiments.ts` registry + `stores/workshopStore.tsx` (active experiment, art-canvas
+  shape); `App.tsx` rewired to ExperimentShell / ControlPanel / Stage / ErrorBoundary,
+  theme store kept.
+- Ported `modules/mandelbrot/`: `experiment.ts` (lazy entries), `Mandelbrot.tsx` (naive
+  via GpuCanvas, shared camera maxZoom 1e15 = D2), `MandelbrotControls.tsx` (Iterations /
+  Lighting / Color groups on `@repo/ui`), `fractalUniforms.ts`.
+- Extracted `core/camera.ts` (ZOOM_WHEEL_SPEED), `core/iterationPolicy.ts`
+  (computeMaxIterations), `stores/paramStore.ts` (create/use/set + defaults),
+  `stores/mandelbrotStore.ts`; `shaders/mandelbrot/naive.glsl` (= original shader).
+- `vp check` (package scope): pass — 23 files formatted, 0 lint/type errors.
+- `vp build`: pass — lazy chunks `Mandelbrot` / `MandelbrotControls` emitted separately.
+- Dev spot-check: user confirmed the dev run works (render, controls, theme toggle).

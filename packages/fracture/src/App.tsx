@@ -5,12 +5,21 @@ import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { Segmented } from '@repo/ui/components/Segmented';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 
-import { useTheme, setTheme } from './stores/appStore';
+import { EXPERIMENTS, type ExperimentId } from './experiments';
+import { setTheme, useTheme } from './stores/appStore';
+import { setActiveExperiment, useActiveExperiment } from './stores/workshopStore';
+
+const EXPERIMENT_OPTIONS = (Object.keys(EXPERIMENTS) as ExperimentId[]).map((id) => ({
+    value: id,
+    label: EXPERIMENTS[id].label,
+}));
 
 export function App() {
     const theme = useTheme();
+    const activeExperiment = useActiveExperiment();
+    const { Canvas, Controls, label } = EXPERIMENTS[activeExperiment];
 
     useEffect(() => {
         document.documentElement.style.colorScheme = theme === 'system' ? 'light dark' : theme;
@@ -21,7 +30,23 @@ export function App() {
             <ErrorBoundary showStack={import.meta.env.DEV}>
                 <ExperimentShell
                     panel={
-                        <ControlPanel title="fracture controls">
+                        <ControlPanel title="fracture">
+                            <ControlSection title="Experiment">
+                                <Segmented<ExperimentId>
+                                    options={EXPERIMENT_OPTIONS}
+                                    value={activeExperiment}
+                                    onValueChange={setActiveExperiment}
+                                />
+                            </ControlSection>
+
+                            {Controls && (
+                                <ControlSection title={label}>
+                                    <Suspense fallback={null}>
+                                        <Controls />
+                                    </Suspense>
+                                </ControlSection>
+                            )}
+
                             <ControlSection title="Theme">
                                 <Segmented<'light' | 'dark' | 'system'>
                                     options={['light', 'dark', 'system']}
@@ -33,7 +58,9 @@ export function App() {
                     }
                 >
                     <Stage label="fracture">
-                        <h1>fracture</h1>
+                        <Suspense fallback={null}>
+                            <Canvas />
+                        </Suspense>
                     </Stage>
                 </ExperimentShell>
             </ErrorBoundary>

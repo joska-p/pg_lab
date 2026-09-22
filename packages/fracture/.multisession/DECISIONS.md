@@ -23,3 +23,12 @@ New decisions are appended; history is never rewritten. Date format: YYYY-MM-DD.
   cookie; readout consumes it via `useSyncExternalStore`. Explicitly rejected:
   copying camera state into a Zustand store per frame (conventions §3.3, §4).
 - Exercise: `vp check` scoped to the package dir is the per-session gate.
+
+## 2026-09-22 — Workshop skeleton & naive port layout (S1)
+
+- D5 — **`fractalParamsUniforms` lives in `modules/mandelbrot/`**, not `core/`: it maps
+  the param store onto shader uniform names, which is experiment-specific. Move to `core/`
+  only if Julia (S6) proves a real shared need.
+- D6 — **No precision state yet in S1**: `Mandelbrot.tsx` stays naive-only; the explicit
+  precision map + any store field land with S2 when a second precision actually exists.
+  Avoids speculative state (conventions §1.5).
