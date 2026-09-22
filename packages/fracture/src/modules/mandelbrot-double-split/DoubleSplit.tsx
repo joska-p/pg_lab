@@ -1,26 +1,16 @@
 import type { UniformValue } from '@repo/glaze/gpu/shader/types';
 import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
 
-import { ZOOM_WHEEL_SPEED } from '../../core/camera';
+import { ZOOM_WHEEL_SPEED, WORLD_SCALE } from '../../core/camera';
 import { splitDouble } from '../../core/doubleSplit';
 import { assemble } from '../../shaders/assemble';
 import dsArithmeticChunk from '../../shaders/chunks/ds-arithmetic.glsl?raw';
 import lightingChunk from '../../shaders/chunks/lighting.glsl?raw';
 import oklchChunk from '../../shaders/chunks/oklch.glsl?raw';
 import doubleSplitBody from './double-split.glsl?raw';
-import { useParams, type FractalParams } from './store';
+import { cameraRig, useParams, type FractalParams } from './store';
 
 const doubleSplitShader = assemble(dsArithmeticChunk, oklchChunk, lightingChunk, doubleSplitBody);
-
-/**
- * Double-single (~48 bit) camera ceiling: far beyond float32, conservatively under what naive f64
- * centers could reach (D10).
- */
-const MAX_ZOOM = 1e11;
-
-// Complex-plane width of the view at zoom = 1. The shaders map (uv − 0.5) · (3 / zoom) onto the
-// complex plane, so the double-split centre uses this fixed width.
-const WORLD_SCALE = 3.0;
 
 interface CameraView {
     x: number;
@@ -75,11 +65,14 @@ function DoubleSplit() {
         <GpuCanvas
             className="h-full w-full"
             fragmentShader={doubleSplitShader}
-            initialCamera={{ maxZoom: MAX_ZOOM }}
+            camera={cameraRig.camera}
+            cameraControls={cameraRig.controls}
             canvasInteractions={{ zoom: { speed: ZOOM_WHEEL_SPEED } }}
-            uniforms={({ camera, width, height }) =>
-                doubleSplitUniforms(params, camera, width, height)
-            }
+            uniforms={({ camera, width, height }) => {
+                cameraRig.setViewport(width, height);
+
+                return doubleSplitUniforms(params, camera, width, height);
+            }}
         />
     );
 }

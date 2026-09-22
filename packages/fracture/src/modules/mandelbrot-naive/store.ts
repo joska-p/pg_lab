@@ -1,6 +1,8 @@
 import { useStore } from 'zustand';
 import { createStore } from 'zustand/vanilla';
 
+import { createCameraRig } from '../../core/observedCamera';
+
 export interface FractalParams {
     iterationBase: number;
     iterationScale: number;
@@ -40,3 +42,9 @@ export function useParams(): FractalParams {
 export function setParam(key: ParamKey, value: number): void {
     store.setState({ [key]: value } as Partial<FractalParams>);
 }
+
+/** Naive float32 pipeline: the honest camera ceiling for f32-only arithmetic (D10). */
+export const MAX_ZOOM = 1e6;
+
+/** Module-owned camera rig (D4): the glaze camera is the truth, the rig owns its change signal. */
+export const cameraRig = createCameraRig({ maxZoom: MAX_ZOOM });

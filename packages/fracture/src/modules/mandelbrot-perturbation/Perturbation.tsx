@@ -2,7 +2,7 @@ import type { UniformValue } from '@repo/glaze/gpu/shader/types';
 import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
 import { useEffect, useRef, type RefObject } from 'react';
 
-import { ZOOM_WHEEL_SPEED } from '../../core/camera';
+import { ZOOM_WHEEL_SPEED, WORLD_SCALE } from '../../core/camera';
 import { splitDouble } from '../../core/doubleSplit';
 import { computeMaxIterations } from '../../core/iterationPolicy';
 import { createOrbitTextures, type OrbitTextures } from '../../core/orbitTextures';
@@ -17,20 +17,14 @@ import lightingChunk from '../../shaders/chunks/lighting.glsl?raw';
 import oklchChunk from '../../shaders/chunks/oklch.glsl?raw';
 import perturbationBody from './perturbation.glsl?raw';
 import {
+    cameraRig,
     setPerturbationSurface,
     useParams,
     usePerturbationSurface,
     type FractalParams,
 } from './store';
 
-/** Perturbation (reference orbit + double-single): the deepest honest tier, up to 1e15 (D10). */
-const MAX_ZOOM = 1e15;
-
 const perturbationShader = assemble(dsArithmeticChunk, oklchChunk, lightingChunk, perturbationBody);
-
-// Complex-plane width of the view at zoom = 1. The shaders map (uv − 0.5) · (3 / zoom) onto the
-// complex plane, so both the DS centre and the perturbation deltas use this fixed width.
-const WORLD_SCALE = 3.0;
 
 interface CameraView {
     x: number;
@@ -196,19 +190,22 @@ function Perturbation() {
         <GpuCanvas
             className="h-full w-full"
             fragmentShader={perturbationShader}
-            initialCamera={{ maxZoom: MAX_ZOOM }}
+            camera={cameraRig.camera}
+            cameraControls={cameraRig.controls}
             canvasInteractions={{ zoom: { speed: ZOOM_WHEEL_SPEED } }}
             onMount={setPerturbationSurface}
-            uniforms={({ camera: view, width, height, canvas }) =>
-                perturbationUniforms(params, view, width, height, {
+            uniforms={({ camera: view, width, height, canvas }) => {
+                cameraRig.setViewport(width, height);
+
+                return perturbationUniforms(params, view, width, height, {
                     canvas,
                     texturesRef,
                     orbitsRef,
                     lastCenterReRef,
                     lastCenterImRef,
                     lastZoomRef,
-                })
-            }
+                });
+            }}
         />
     );
 }

@@ -2,6 +2,8 @@ import type { GpuSurface } from '@repo/glaze/gpu/types';
 import { useStore } from 'zustand';
 import { createStore } from 'zustand/vanilla';
 
+import { createCameraRig } from '../../core/observedCamera';
+
 export interface FractalParams {
     iterationBase: number;
     iterationScale: number;
@@ -58,3 +60,9 @@ export function usePerturbationSurface(): GpuSurface | null {
 export function setPerturbationSurface(surface: GpuSurface | null): void {
     surfaceStore.setState({ surface });
 }
+
+/** Perturbation (reference orbit + double-single): the deepest honest tier, up to 1e15 (D10). */
+export const MAX_ZOOM = 1e15;
+
+/** Module-owned camera rig (D4): the glaze camera is the truth, the rig owns its change signal. */
+export const cameraRig = createCameraRig({ maxZoom: MAX_ZOOM });

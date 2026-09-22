@@ -3,7 +3,8 @@ import { Slider } from '@repo/ui/components/Slider';
 import { Text } from '@repo/ui/components/Text';
 
 import { computeMaxIterations } from '../../core/iterationPolicy';
-import { setParam, useParams, type FractalParams, type ParamKey } from './store';
+import { CameraSection } from '../../workshop/CameraSection';
+import { cameraRig, setParam, useParams, type FractalParams, type ParamKey } from './store';
 
 interface ParamSlider {
     label: string;
@@ -72,6 +73,12 @@ function PerturbationControls() {
 
     return (
         <>
+            <CameraSection
+                rig={cameraRig}
+                iterationBase={params.iterationBase}
+                iterationScale={params.iterationScale}
+                iterationCap={params.iterationCap}
+            />
             <ControlSection title="Iterations">
                 <ParamSliderList params={params} sliders={ITERATION_SLIDERS} />
                 <Text variant="muted">iterations @ 1 / 1e3 / 1e6 · {iterationsHint}</Text>

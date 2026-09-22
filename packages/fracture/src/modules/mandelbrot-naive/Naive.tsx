@@ -6,12 +6,9 @@ import { assemble } from '../../shaders/assemble';
 import lightingChunk from '../../shaders/chunks/lighting.glsl?raw';
 import oklchChunk from '../../shaders/chunks/oklch.glsl?raw';
 import naiveBody from './naive.glsl?raw';
-import { useParams, type FractalParams } from './store';
+import { cameraRig, useParams, type FractalParams } from './store';
 
 const naiveShader = assemble(oklchChunk, lightingChunk, naiveBody);
-
-/** Naive float32 pipeline: the honest camera ceiling for f32-only arithmetic (D10). */
-const MAX_ZOOM = 1e6;
 
 interface CameraView {
     x: number;
@@ -56,11 +53,14 @@ export function Naive() {
         <GpuCanvas
             className="h-full w-full"
             fragmentShader={naiveShader}
-            initialCamera={{ maxZoom: MAX_ZOOM }}
+            camera={cameraRig.camera}
+            cameraControls={cameraRig.controls}
             canvasInteractions={{ zoom: { speed: ZOOM_WHEEL_SPEED } }}
-            uniforms={({ camera: view, width, height }) =>
-                naiveUniforms(params, view, width, height)
-            }
+            uniforms={({ camera: view, width, height }) => {
+                cameraRig.setViewport(width, height);
+
+                return naiveUniforms(params, view, width, height);
+            }}
         />
     );
 }
