@@ -12,6 +12,7 @@
     "dependencies": {
         "@repo/art-canvas": "workspace:*",
         "@repo/automa": "workspace:*",
+        "@repo/fracture": "workspace:*",
         "@repo/mol-demo": "workspace:*",
         "@repo/mosaic-maker": "workspace:*",
         "@repo/ui": "workspace:*",

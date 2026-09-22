@@ -5,10 +5,9 @@ import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { Segmented } from '@repo/ui/components/Segmented';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
-import { Suspense, useEffect } from 'react';
+import { Suspense } from 'react';
 
 import { EXPERIMENTS, type ExperimentId } from './experiments';
-import { setTheme, useTheme } from './stores/appStore';
 import { setActiveExperiment, useActiveExperiment } from './stores/workshopStore';
 
 const EXPERIMENT_OPTIONS = (Object.keys(EXPERIMENTS) as ExperimentId[]).map((id) => ({
@@ -17,13 +16,8 @@ const EXPERIMENT_OPTIONS = (Object.keys(EXPERIMENTS) as ExperimentId[]).map((id)
 }));
 
 export function App() {
-    const theme = useTheme();
     const activeExperiment = useActiveExperiment();
     const { Canvas, Controls, label } = EXPERIMENTS[activeExperiment];
-
-    useEffect(() => {
-        document.documentElement.style.colorScheme = theme === 'system' ? 'light dark' : theme;
-    }, [theme]);
 
     return (
         <ShellWrapper>
@@ -46,14 +40,6 @@ export function App() {
                                     </Suspense>
                                 </ControlSection>
                             )}
-
-                            <ControlSection title="Theme">
-                                <Segmented<'light' | 'dark' | 'system'>
-                                    options={['light', 'dark', 'system']}
-                                    value={theme}
-                                    onValueChange={setTheme}
-                                />
-                            </ControlSection>
                         </ControlPanel>
                     }
                 >

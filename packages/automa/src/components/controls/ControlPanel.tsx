@@ -1,9 +1,7 @@
 import { ControlPanel as UiControlPanel } from '@repo/ui/components/ControlPanel';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Readout } from '@repo/ui/components/Readout';
-import { Segmented } from '@repo/ui/components/Segmented';
 
-import { setTheme, useTheme } from '../../stores/appStore';
 import { useGeneration } from '../../stores/automa/selectors';
 import { CreatureSection } from './CreatureSection';
 import { EditSection } from './EditSection';
@@ -11,7 +9,6 @@ import { PlaybackSection } from './PlaybackSection';
 import { RuleSection } from './RuleSection';
 
 export function ControlPanel() {
-    const theme = useTheme();
     const generation = useGeneration();
 
     return (
@@ -23,13 +20,6 @@ export function ControlPanel() {
             <EditSection />
             <RuleSection />
             <CreatureSection />
-            <ControlSection title="Theme">
-                <Segmented<'light' | 'dark' | 'system'>
-                    options={['light', 'dark', 'system']}
-                    value={theme}
-                    onValueChange={setTheme}
-                />
-            </ControlSection>
         </UiControlPanel>
     );
 }

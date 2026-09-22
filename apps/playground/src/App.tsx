@@ -41,6 +41,10 @@ export const EXPERIMENTS: Record<
         label: 'Automa',
         Page: lazy(() => import('@repo/automa/App').then((m) => ({ default: m.App }))),
     },
+    fracture: {
+        label: 'Fracture',
+        Page: lazy(() => import('@repo/fracture/App').then((m) => ({ default: m.App }))),
+    },
 };
 
 const PAGE_OPTIONS = Object.entries(EXPERIMENTS).map(([value, { label }]) => ({

@@ -109,9 +109,6 @@ export default defineConfig({
             // Keep expressions shallow.
             'unicorn/no-nested-ternary': 'error',
 
-            // Canonical literal representation.
-            'unicorn/number-literal-case': 'error',
-
             // Explicit and scoped switch cases.
             'unicorn/switch-case-braces': 'error',
 

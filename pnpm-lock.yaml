@@ -221,6 +221,9 @@ importers:
       '@repo/automa':
         specifier: workspace:*
         version: link:../../packages/automa
+      '@repo/fracture':
+        specifier: workspace:*
+        version: link:../../packages/fracture
       '@repo/mol-demo':
         specifier: workspace:*
         version: link:../../packages/mol-demo
