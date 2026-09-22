@@ -1,4 +1,6 @@
-_TMP
+_TMP/
+.dev/
+.direnv/
 
 # Logs
 logs
@@ -30,4 +32,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
