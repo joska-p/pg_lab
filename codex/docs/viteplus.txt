@@ -1,6 +1,3 @@
----
-url: /guide.md
----
 # Getting Started
 
 Vite+ is the unified toolchain and entry point for web development.
