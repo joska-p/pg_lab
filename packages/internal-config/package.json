@@ -1,0 +1,27 @@
+{
+    "name": "@repo/internal-config",
+    "version": "0.0.0",
+    "private": true,
+    "description": "Shared Vite wiring for StyleX apps and React libs (config-load only, never published).",
+    "type": "module",
+    "exports": {
+        "./package.json": "./package.json",
+        "./vite-app": "./src/vite-app.ts",
+        "./vite-lib": "./src/vite-lib.ts"
+    },
+    "scripts": {
+        "check": "vp check"
+    },
+    "dependencies": {
+        "@repo/ui": "workspace:*",
+        "@rolldown/plugin-babel": "catalog:",
+        "@vitejs/plugin-react": "catalog:",
+        "unplugin-stylex": "catalog:",
+        "vite-plus": "catalog:"
+    },
+    "devDependencies": {
+        "@types/node": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:"
+    }
+}
