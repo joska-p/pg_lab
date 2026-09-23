@@ -10,11 +10,11 @@
         },
         "./Scene": {
             "types": "./src/components/Scene.tsx",
-            "import": "./src/Scene.tsx"
+            "import": "./src/components/Scene.tsx"
         },
         "./Controls": {
             "types": "./src/components/Controls.tsx",
-            "import": "./src/Controls.tsx"
+            "import": "./src/components/Controls.tsx"
         }
     },
     "scripts": {

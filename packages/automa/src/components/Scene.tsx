@@ -3,7 +3,7 @@ import type { UniformValue } from '@repo/glaze/gpu/shader/types';
 import { parseColor } from '@repo/glaze/gpu/shapes/color';
 import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
 
-import cellMeshShader from '../../engine/gpu/shaders/cell-mesh.frag?raw';
+import cellMeshShader from '../engine/gpu/shaders/cell-mesh.frag?raw';
 import { useCellPainting } from '../hooks/useCellPainting';
 import { buildStateColorArray } from '../lib/colors';
 import { TRAIL_COLOR, TRAIL_STRENGTH } from '../lib/constants';
