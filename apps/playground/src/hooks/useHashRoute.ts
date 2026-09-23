@@ -1,21 +1,21 @@
 import { useEffect, useRef } from 'react';
 
-import { EXPERIMENTS } from './experiments';
-import { setPageName, usePageName } from './stores/appStore';
-import type { PageName } from './stores/appStore';
+import { EXPERIMENTS } from '../experiments';
+import type { ExperimentKey } from '../experiments';
+import { setExperimentKey, useExperimentKey } from '../stores/appStore';
 
 const EXPERIMENT_IDS: ReadonlySet<string> = new Set(Object.keys(EXPERIMENTS));
 
-function readHash(): PageName {
+function readHash(): ExperimentKey {
     const id = window.location.hash.replace(/^#\/?/, '');
     if (id !== '' && EXPERIMENT_IDS.has(id)) {
-        return id as PageName;
+        return id as ExperimentKey;
     }
-    return 'menu';
+    return 'home';
 }
 
-function writeHash(page: PageName): void {
-    const wanted = page === 'menu' ? '' : `#/${page}`;
+function writeHash(page: ExperimentKey): void {
+    const wanted = page === 'home' ? '' : `#/${page}`;
     if (window.location.hash === wanted) {
         return;
     }
@@ -31,33 +31,33 @@ function clearHash(): void {
 }
 
 export function useHashRoute(): void {
-    const pageName = usePageName();
-    const pageRef = useRef(pageName);
+    const experimentKey = useExperimentKey();
+    const experimentRef = useRef(experimentKey);
     const mountedRef = useRef(false);
 
     // Initial URL wins over the default store state.
     useEffect(() => {
         const id = readHash();
-        if (id === 'menu') {
+        if (id === 'home') {
             if (window.location.hash !== '') {
                 clearHash();
             }
             return;
         }
-        pageRef.current = id;
-        setPageName(id);
+        experimentRef.current = id;
+        setExperimentKey(id);
     }, []);
 
     // Browser chrome (back/forward/manual edit) drives the store.
     useEffect(() => {
         const onHashChange = () => {
             const id = readHash();
-            if (id === 'menu' && window.location.hash !== '') {
+            if (id === 'home' && window.location.hash !== '') {
                 clearHash();
             }
-            if (id !== pageRef.current) {
-                pageRef.current = id;
-                setPageName(id);
+            if (id !== experimentRef.current) {
+                experimentRef.current = id;
+                setExperimentKey(id);
             }
         };
         window.addEventListener('hashchange', onHashChange);
@@ -66,11 +66,11 @@ export function useHashRoute(): void {
 
     // In-app navigation drives the URL.
     useEffect(() => {
-        pageRef.current = pageName;
+        experimentRef.current = experimentKey;
         if (!mountedRef.current) {
             mountedRef.current = true;
             return;
         }
-        writeHash(pageName);
-    }, [pageName]);
+        writeHash(experimentKey);
+    }, [experimentKey]);
 }

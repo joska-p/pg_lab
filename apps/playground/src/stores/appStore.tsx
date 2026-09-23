@@ -1,30 +1,31 @@
 import { create } from 'zustand';
 
-type theme = 'light' | 'dark' | 'system';
-export type PageName = 'menu' | 'art-canvas' | 'mosaic-maker' | 'mol-demo' | 'automa' | 'fracture';
+import type { ExperimentKey } from '../experiments';
+
+type theme = 'light' | 'dark';
 
 interface appStore {
     theme: theme;
-    pageName: PageName;
+    experimentKey: ExperimentKey;
 }
 
 const appStore = create<appStore>(() => ({
     theme: 'dark',
-    pageName: 'menu',
+    experimentKey: 'home',
 }));
 
 export function useTheme(): theme {
     return appStore((s) => s.theme);
 }
 
-export function usePageName(): PageName {
-    return appStore((s) => s.pageName);
+export function useExperimentKey(): ExperimentKey {
+    return appStore((s) => s.experimentKey);
 }
 
 export function setTheme(theme: theme): void {
     appStore.setState({ theme });
 }
 
-export function setPageName(pageName: PageName): void {
-    appStore.setState({ pageName });
+export function setExperimentKey(experimentKey: ExperimentKey): void {
+    appStore.setState({ experimentKey });
 }
