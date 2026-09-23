@@ -13,7 +13,6 @@
         "check": "vp check"
     },
     "dependencies": {
-        "@repo/ui": "workspace:*",
         "@rolldown/plugin-babel": "catalog:",
         "@vitejs/plugin-react": "catalog:",
         "unplugin-stylex": "catalog:",

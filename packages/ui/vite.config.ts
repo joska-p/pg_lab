@@ -1,3 +1,4 @@
+import { defineReactLib } from '@repo/internal-config/vite-lib';
 import { defineConfig } from 'vite-plus';
 
 // @repo/ui ships StyleX source for consumers to compile, so no Vite
@@ -53,17 +54,14 @@ export default defineConfig({
             './src/tokens/typography.stylex.ts',
             './src/stylex-preset.ts',
         ],
-        deps: { resolveDepSubpath: true },
         dts: {
             generator: 'tsgo',
         },
         exports: false,
     },
-    lint: {
-        options: {
-            typeAware: true,
-            typeCheck: true,
-        },
+    test: {
+        include: ['src/**/*.test.ts'],
     },
-    fmt: {},
+    // lint: owned by the root config `lint.overrides`.
+    ...defineReactLib(),
 });

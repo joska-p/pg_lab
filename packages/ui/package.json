@@ -21,11 +21,6 @@
             "source": "./src/components/*.tsx",
             "types": "./dist/components/*.d.mts",
             "import": "./dist/components/*.mjs"
-        },
-        "./stylex-preset": {
-            "source": "./src/stylex-preset.ts",
-            "types": "./dist/stylex-preset.d.mts",
-            "import": "./dist/stylex-preset.mjs"
         }
     },
     "scripts": {
@@ -34,14 +29,12 @@
         "check": "vp check"
     },
     "devDependencies": {
-        "@rolldown/plugin-babel": "catalog:",
+        "@repo/internal-config": "workspace:*",
         "@stylexjs/stylex": "catalog:",
         "@types/node": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
-        "@vitejs/plugin-react": "catalog:",
         "typescript": "catalog:",
-        "unplugin-stylex": "catalog:",
         "vite": "catalog:",
         "vite-plus": "catalog:"
     },

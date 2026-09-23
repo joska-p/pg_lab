@@ -1,9 +1,10 @@
-import { stylexPreset } from '@repo/ui/stylex-preset';
 import babel from '@rolldown/plugin-babel';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import stylexPlugin from 'unplugin-stylex/vite';
 import { lazyPlugins } from 'vite-plus';
 import type { ViteUserConfig } from 'vite-plus';
+
+import { stylexPreset } from './stylex-preset.ts';
 
 export interface StylexAppOptions {
     base?: string;
