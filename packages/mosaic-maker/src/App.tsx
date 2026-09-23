@@ -4,8 +4,8 @@ import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
 
-import { MosaicControlsPanel } from './components/controls/MosaicControlsPanel';
-import { MosaicDisplay } from './components/MosaicDisplay';
+import { Controls } from './Controls';
+import { Scene } from './Scene';
 
 export function App() {
     return (
@@ -14,12 +14,12 @@ export function App() {
                 <ExperimentShell
                     panel={
                         <ControlPanel title="Mosaic Maker">
-                            <MosaicControlsPanel />
+                            <Controls />
                         </ControlPanel>
                     }
                 >
                     <Stage label="Mosaic">
-                        <MosaicDisplay />
+                        <Scene />
                     </Stage>
                 </ExperimentShell>
             </ErrorBoundary>

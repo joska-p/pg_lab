@@ -7,6 +7,14 @@
         "./App": {
             "types": "./src/App.tsx",
             "import": "./src/App.tsx"
+        },
+        "./Scene": {
+            "types": "./src/Scene.tsx",
+            "import": "./src/Scene.tsx"
+        },
+        "./Controls": {
+            "types": "./src/Controls.tsx",
+            "import": "./src/Controls.tsx"
         }
     },
     "scripts": {
