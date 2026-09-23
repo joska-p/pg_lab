@@ -1,60 +1,68 @@
 ---
-name: Multisession
-description: Split a large task across independent restartable sessions using minimal file-based memory. Use when work spans multiple sessions, risks filling the context window, or needs handoff between sessions (or models). The agent records WHAT to accomplish in files so no session needs the full detail.
+name: multisession
+description: Prepare large tasks for work across multiple sessions. Create minimal persistent context so a new session can quickly understand the goal, current state, and most useful next action without reconstructing the previous conversation.
 ---
 
-# Multisession work
+# Multisession Work
 
-Split big work into independent sessions. Each session restarts from files
-alone — never from carried-over context. The agent needs to know WHAT to
-accomplish, not every detail.
+Use this skill when a task is large enough to span multiple sessions.
 
-## Invariants (always apply, any project)
+The goal is to make restarting cheap, not to preserve the previous session.
 
-1. **One entry point, read first.** A single short file at a known path.
-   Every session starts by reading it — and only it.
-2. **Entry point holds: goal, current state, next action.** Nothing else.
-   Keep it short (~60 lines max). Push all detail into sibling files.
-3. **Append-only memory.** Decisions and per-session outcomes are appended,
-   never rewritten — history must survive, contradictions included.
-4. **End-of-session ritual (mandatory).** Before finishing: update state +
-   next action in the entry point, append one dated line to the session log,
-   record new decisions.
-5. **Evidence over memory.** Record only verified facts (command outputs,
-   `file:line` refs). Never reconstruct detail from memory — re-read the
-   source. Mark a step done only when verified.
+## Persistent context
 
-## Agent freedom (adapt per project)
+Create one short entry-point file containing:
 
-- **File layout is yours.** Choose names and splits that fit the work: a
-  migration may need an audit + mapping; a feature may need spec + plan; a
-  research spike may need findings + open questions. One proven shape is an
-  entry point (`STATUS.md`) plus an analysis file, a decisions log, and a
-  session log — adopt it, simplify it, or invent better.
-- **Step granularity is yours.** Each step must fit in one session and end in
-  a verifiable state (a command green, a file written, a decision recorded).
-- **Preparation depth is yours.** Do the analysis the project demands, no
-  more. Small tasks may need only the entry point file.
+- the overall goal;
+- the current state;
+- the most useful next action.
 
-## Session start
+Keep it minimal. The repository is the source of truth.
 
-1. Read the entry point. Stop there.
-2. Read a sibling file only when touching its domain.
-3. If the entry point is missing or stale, rebuild it from the repo
-   (evidence first) before acting.
+Create additional files only when they provide useful persistent context that does not belong in the entry point.
 
-## Session end
+Do not create documentation merely to preserve session history. Git already provides history.
 
-1. Update the state + next action in the entry point.
-2. Append one dated line to the session log.
-3. Append new decisions (append-only).
-4. Commit if the repo workflow expects it.
+## Planning
 
-## Anti-patterns
+Before starting, understand the task well enough to divide it into reasonable sessions.
 
-- Dumping everything into the entry point (unreadable → defeats the purpose).
-- Rewriting history instead of appending (loses contradictions).
-- Recording intentions as done (verified only).
-- Carrying full detail across sessions "just in case" (that is what files
-  are for).
-- Ending a session without updating the entry point (next session starts blind).
+The plan should describe intent and milestones, not detailed implementation instructions.
+
+The plan is guidance, not a contract. Adapt it whenever the actual state of the project suggests a better direction.
+
+A session may reorder, merge, split, replace, or abandon planned work.
+
+## Starting a session
+
+Read the entry-point file first.
+
+Then inspect the repository and other documentation as needed for the current task.
+
+Do not read unrelated planning, historical, or session files just because they exist.
+
+Treat persistent context as a navigation aid, not as a substitute for inspecting the actual project state.
+
+## Working
+
+Work normally within the current session.
+
+Preserve only information that is likely to matter to a future session.
+
+Prefer existing source code, documentation, Git history, and other repository state over duplicating information into planning files.
+
+Do not claim work is complete without appropriate verification.
+
+Do not run tests or other validation merely because this skill requires it. Validate when it provides useful evidence for the current task.
+
+## Ending a session
+
+Before stopping, update the entry-point file so that another session can continue without reconstructing the conversation.
+
+Record important decisions or discoveries only when they are likely to matter later.
+
+Leave the repository in the state that the normal project workflow expects.
+
+The goal is not to preserve the session.
+
+The goal is to make the next session start cleanly.
