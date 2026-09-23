@@ -6,28 +6,34 @@
     "type": "module",
     "exports": {
         "./core": {
-            "types": "./src/core/index.ts",
-            "import": "./src/core/index.ts"
+            "source": "./src/core/index.ts",
+            "types": "./dist/core/index.d.mts",
+            "import": "./dist/core/index.mjs"
         },
         "./geometry": {
-            "types": "./src/geometry/index.ts",
-            "import": "./src/geometry/index.ts"
+            "source": "./src/geometry/index.ts",
+            "types": "./dist/geometry/index.d.mts",
+            "import": "./dist/geometry/index.mjs"
         },
         "./material": {
-            "types": "./src/material/index.ts",
-            "import": "./src/material/index.ts"
+            "source": "./src/material/index.ts",
+            "types": "./dist/material/index.d.mts",
+            "import": "./dist/material/index.mjs"
         },
         "./math": {
-            "types": "./src/math/index.ts",
-            "import": "./src/math/index.ts"
+            "source": "./src/math/index.ts",
+            "types": "./dist/math/index.d.mts",
+            "import": "./dist/math/index.mjs"
         },
         "./renderer": {
-            "types": "./src/renderer/index.ts",
-            "import": "./src/renderer/index.ts"
+            "source": "./src/renderer/index.ts",
+            "types": "./dist/renderer/index.d.mts",
+            "import": "./dist/renderer/index.mjs"
         },
         "./controls": {
-            "types": "./src/controls/index.ts",
-            "import": "./src/controls/index.ts"
+            "source": "./src/controls/index.ts",
+            "types": "./dist/controls/index.d.mts",
+            "import": "./dist/controls/index.mjs"
         }
     },
     "scripts": {

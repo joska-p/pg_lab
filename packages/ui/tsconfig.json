@@ -1,20 +1,14 @@
 {
+    // Typecheck-only config: vp pack (tsdown + tsgo) owns emit and dts,
+    // so noEmit stays true and declaration is intentionally absent.
+    "extends": "../../tsconfig.base.json",
     "compilerOptions": {
         "target": "esnext",
-        "lib": ["ES2023", "DOM"],
+        "lib": ["ES2023", "DOM", "DOM.Iterable"],
         "jsx": "react-jsx",
-        "moduleDetection": "force",
         "module": "esnext",
         "moduleResolution": "bundler",
-        "resolveJsonModule": true,
         "types": ["node"],
-        "strict": true,
-        "noUnusedLocals": true,
-        "declaration": true,
-        "noEmit": true,
-        "esModuleInterop": true,
-        "isolatedModules": true,
-        "verbatimModuleSyntax": true,
-        "skipLibCheck": true
+        "noEmit": true
     }
 }

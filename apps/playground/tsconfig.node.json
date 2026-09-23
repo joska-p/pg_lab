@@ -1,12 +1,13 @@
 {
-    // Typecheck-only config: vp pack (tsdown + tsgo) owns emit and dts.
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
-        "target": "esnext",
-        "lib": ["ES2023", "WebWorker"],
+        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+        "target": "ES2023",
+        "lib": ["ES2023"],
         "module": "nodenext",
         "moduleResolution": "nodenext",
         "types": ["node"],
         "noEmit": true
-    }
+    },
+    "include": ["vite.config.ts"]
 }

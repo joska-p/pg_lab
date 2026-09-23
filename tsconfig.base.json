@@ -1,0 +1,43 @@
+{
+    // Shared strict baseline for every package in the monorepo.
+    //
+    // Coherent with the Oxlint rules in vite.config.ts:
+    // - strict (incl. noImplicitAny) backs typescript/no-explicit-any.
+    // - verbatimModuleSyntax + isolatedModules back
+    //   typescript/consistent-type-imports (separate-type-imports).
+    // - erasableSyntaxOnly backs oxc/no-const-enum (no enums at all,
+    //   so erasable output is guaranteed).
+    // - noFallthroughCasesInSwitch supports
+    //   typescript/switch-exhaustiveness-check.
+    // - noPropertyAccessFromIndexSignature stays OFF on purpose:
+    //   enabling it would force bracket access and fight
+    //   typescript/dot-notation.
+    //
+    // Deliberately NOT enabled (opt in per package if wanted):
+    // - exactOptionalPropertyTypes / noUncheckedIndexedAccess:
+    //   too noisy for math/store-heavy code, low value here.
+    //
+    // Module system, JSX, lib, target and types are per-project
+    // (bundler apps vs. nodenext node configs vs. pack libraries).
+    //
+    // customConditions lets internal projects resolve workspace packages
+    // through their "source" export condition (raw .ts sources, required
+    // for the shared StyleX preset). External consumers without this
+    // condition fall through to the compiled dist files.
+    "customConditions": ["source"],
+    "compilerOptions": {
+        "strict": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "isolatedModules": true,
+        "verbatimModuleSyntax": true,
+        "erasableSyntaxOnly": true,
+        "moduleDetection": "force",
+        "resolveJsonModule": true,
+        "allowImportingTsExtensions": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true
+    }
+}

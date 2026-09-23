@@ -1,7 +1,9 @@
-import stylexPlugin from 'unplugin-stylex/vite';
 import { defineConfig } from 'vite-plus';
 
-const ignorePatterns = ['dist/**', '**/vendor/*.js', '.agents/skills/impeccable'];
+// Root config owns shared lint/fmt/staged/task defaults only.
+// Vite transform plugins (StyleX, React, Babel) belong to each app's own
+// vite.config.ts: dev/build/pack run per package, never on this root.
+const ignorePatterns = ['dist/**', '**/vendor/*.js', '.agents/skills/impeccable/**'];
 
 export default defineConfig({
     create: {
@@ -14,10 +16,22 @@ export default defineConfig({
         ],
     },
 
-    plugins: [stylexPlugin()],
-
     staged: {
-        '*': 'vp check --fix',
+        '*.{js,ts,tsx}': 'vp check --fix',
+    },
+
+    test: {
+        // `exclude` replaces Vitest's defaults, so restate them here plus
+        // repo-specific noise: .direnv vendors nix flake sources containing
+        // *.test.ts files that are not our suites.
+        exclude: [
+            '**/node_modules/**',
+            '**/dist/**',
+            '**/cypress/**',
+            '**/.{idea,git,cache,output,temp}/**',
+            '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,eslint,prettier}.config.*',
+            '.direnv/**',
+        ],
     },
 
     // ─────────────────────────────────────────────
@@ -224,5 +238,14 @@ export default defineConfig({
 
     run: {
         cache: true,
+    },
+
+    resolve: {
+        // Bundler mirror of tsconfig.base.json customConditions: internal
+        // runs resolve workspace packages through their "source" export
+        // condition (raw .ts, required for the shared StyleX preset).
+        // External consumers without it fall through to compiled dist.
+        // Order = Vite client defaults with "source" first.
+        conditions: ['source', 'module', 'browser', 'development|production'],
     },
 });

@@ -39,6 +39,9 @@ export default defineConfig({
         react(),
     ]),
     resolve: {
+        // Internal runs use workspace sources (see tsconfig.base.json
+        // customConditions); externals fall through to compiled dist.
+        conditions: ['source', 'module', 'browser', 'development|production'],
         dedupe: ['@stylexjs/stylex', 'react', 'react-dom'],
     },
     optimizeDeps: {

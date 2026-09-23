@@ -59,6 +59,18 @@ function parsePercentageChannel(token: string | undefined): number {
     return clamp01(parseFloat(token) / 100);
 }
 
+function parseAlphaValue(alphaStr: string | undefined): number {
+    if (alphaStr === undefined) {
+        return 1;
+    }
+
+    if (alphaStr.endsWith('%')) {
+        return clamp01(parseFloat(alphaStr) / 100);
+    }
+
+    return clamp01(parseFloat(alphaStr));
+}
+
 function parseRgb(color: string): RGBA | null {
     const match = /^rgba?\(([^)]+)\)$/i.exec(color);
 
@@ -73,12 +85,7 @@ function parseRgb(color: string): RGBA | null {
     }
 
     const alphaStr = parts[3] as string | undefined;
-    const a =
-        alphaStr !== undefined
-            ? alphaStr.endsWith('%')
-                ? clamp01(parseFloat(alphaStr) / 100)
-                : clamp01(parseFloat(alphaStr))
-            : 1;
+    const a = parseAlphaValue(alphaStr);
 
     return {
         r: parseChannel(parts[0]),
@@ -132,12 +139,7 @@ function parseHsl(color: string): RGBA | null {
     const s = parsePercentageChannel(parts[1]);
     const l = parsePercentageChannel(parts[2]);
     const alphaStr = parts[3] as string | undefined;
-    const a =
-        alphaStr !== undefined
-            ? alphaStr.endsWith('%')
-                ? clamp01(parseFloat(alphaStr) / 100)
-                : clamp01(parseFloat(alphaStr))
-            : 1;
+    const a = parseAlphaValue(alphaStr);
     const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
     const p = 2 * l - q;
 

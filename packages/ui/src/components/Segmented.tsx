@@ -172,6 +172,7 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
             >
                 {items.map((option) => {
                     const chosen = option.value === current;
+                    const familyStyle = family ? chosenVariants[family] : styles.chosenNeutral;
                     return (
                         <button
                             key={option.value}
@@ -185,11 +186,7 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
                                 styles.option,
                                 interactive.base,
                                 pressable.base,
-                                chosen
-                                    ? family
-                                        ? chosenVariants[family]
-                                        : styles.chosenNeutral
-                                    : null,
+                                chosen ? familyStyle : null,
                                 disabled ? disabledRecipe.base : null,
                             )}
                         >

@@ -220,12 +220,12 @@ export class InputStore {
 
         // Normalize to CSS pixels: lineMode ≈ 16 px/line, pageMode ≈ viewport height.
         const raw = event.deltaY;
-        const delta =
-            event.deltaMode === 1
-                ? raw * LINE_HEIGHT_PX
-                : event.deltaMode === 2
-                  ? raw * this.#bounds().height
-                  : raw;
+        let delta = raw;
+        if (event.deltaMode === 1) {
+            delta = raw * LINE_HEIGHT_PX;
+        } else if (event.deltaMode === 2) {
+            delta = raw * this.#bounds().height;
+        }
 
         this.wheelDelta += delta;
 

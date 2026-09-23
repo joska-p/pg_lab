@@ -2,47 +2,23 @@
     "name": "pg_lab",
     "version": "0.0.0",
     "private": true,
-    "workspaces": {
-        "packages": [
-            "apps/*",
-            "packages/*",
-            "tools/*"
-        ],
-        "catalog": {
-            "@rolldown/plugin-babel": "^0.2.4",
-            "@stylexjs/stylex": "^0.19.0",
-            "@types/node": "^26.1.1",
-            "@types/react": "^19.3.0",
-            "@types/react-dom": "^19.3.0",
-            "@vitejs/plugin-react": "^6.1.1",
-            "babel-plugin-react-compiler": "^1.0.0",
-            "bumpp": "^12.3.0",
-            "degit": "^3.10.0",
-            "react": "^19.3.0",
-            "react-dom": "^19.3.0",
-            "typescript": "^7.0.2",
-            "unplugin-stylex": "^0.6.3",
-            "vite": "npm:@voidzero-dev/vite-plus-core@0.3.1",
-            "vite-plus": "0.3.1",
-            "zod": "^4.6.5",
-            "zustand": "^5.0.15"
-        }
-    },
+    "workspaces": [
+        "apps/*",
+        "packages/*",
+        "tools/*"
+    ],
     "type": "module",
     "scripts": {
-        "ready": "vp check && vp run -r test && vp run -r build",
-        "dev": "vp run playground#dev --host",
-        "build": "vp run playground#build",
+        "ready": "vp check && vp test && vp run -r --concurrency-limit 1 build",
+        "dev": "vp -C apps/playground dev --host",
+        "dev:brouillon": "vp -C apps/brouillon dev --host",
+        "build": "vp run @repo/playground#build",
         "prepare": "vp config"
     },
     "devDependencies": {
-        "@stylexjs/stylex": "catalog:",
-        "unplugin-stylex": "catalog:",
+        "@types/node": "catalog:",
         "vite": "catalog:",
         "vite-plus": "catalog:"
-    },
-    "overrides": {
-        "vite@*": "catalog:"
     },
     "devEngines": {
         "packageManager": {

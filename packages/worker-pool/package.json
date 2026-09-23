@@ -3,15 +3,21 @@
     "version": "0.0.0",
     "type": "module",
     "exports": {
-        "./worker-pool": "./src/worker-pool.ts"
+        "./package.json": "./package.json",
+        "./worker-pool": {
+            "source": "./src/worker-pool.ts",
+            "types": "./dist/worker-pool.d.mts",
+            "import": "./dist/worker-pool.mjs"
+        }
     },
     "scripts": {
+        "build": "vp pack",
         "dev": "vp pack --watch",
         "check": "vp check"
     },
     "devDependencies": {
-        "@types/node": "^26.1.1",
-        "typescript": "^7.0.2",
+        "@types/node": "catalog:",
+        "typescript": "catalog:",
         "vite": "catalog:",
         "vite-plus": "catalog:"
     }

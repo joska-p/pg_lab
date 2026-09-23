@@ -8,20 +8,24 @@
     "exports": {
         "./styles": "./src/styles.css",
         "./tokens/*": {
-            "types": "./src/tokens/*.ts",
-            "import": "./src/tokens/*.ts"
+            "source": "./src/tokens/*.ts",
+            "types": "./dist/tokens/*.d.mts",
+            "import": "./dist/tokens/*.mjs"
         },
         "./recipes/*": {
-            "types": "./src/recipes/*.ts",
-            "import": "./src/recipes/*.ts"
+            "source": "./src/recipes/*.ts",
+            "types": "./dist/recipes/*.d.mts",
+            "import": "./dist/recipes/*.mjs"
         },
         "./components/*": {
-            "types": "./src/components/*.tsx",
-            "import": "./src/components/*.tsx"
+            "source": "./src/components/*.tsx",
+            "types": "./dist/components/*.d.mts",
+            "import": "./dist/components/*.mjs"
         },
         "./stylex-preset": {
-            "types": "./stylex-preset.ts",
-            "import": "./stylex-preset.ts"
+            "source": "./src/stylex-preset.ts",
+            "types": "./dist/stylex-preset.d.mts",
+            "import": "./dist/stylex-preset.mjs"
         }
     },
     "scripts": {

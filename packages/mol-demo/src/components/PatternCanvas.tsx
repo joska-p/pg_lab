@@ -287,7 +287,9 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
 
         const resizePat = () => {
             const small = window.matchMedia('(max-width: 768px)').matches;
-            const BUF = cpuMode ? (small ? CPU_BUF_MOBILE : CPU_BUF_DESKTOP) : small ? 600 : 900;
+            const desktopBuf = cpuMode ? CPU_BUF_DESKTOP : 900;
+            const mobileBuf = cpuMode ? CPU_BUF_MOBILE : 600;
+            const BUF = small ? mobileBuf : desktopBuf;
             canvas.width = BUF;
             canvas.height = BUF;
             if (gl) {
