@@ -3,8 +3,8 @@ import { Slider } from '@repo/ui/components/Slider';
 import { TextArea } from '@repo/ui/components/TextArea';
 import { startTransition } from 'react';
 
-import { setComplexity, setModulo, setSeed } from '../store/actions';
-import { useComplexity, useModulo, useSeed } from '../store/selectors';
+import { setComplexity, setModulo, setSeed } from './store/actions';
+import { useComplexity, useModulo, useSeed } from './store/selectors';
 
 const generateRandomSeed = () => {
     const randomPhrases = [

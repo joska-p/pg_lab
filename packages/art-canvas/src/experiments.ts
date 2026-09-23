@@ -1,17 +1,15 @@
 import { lazy, type ComponentType } from 'react';
 
-import type { InputMode } from './stores/ui/store';
-
-export interface ArtCanvasMode {
-    label: string;
-    Canvas: ComponentType;
-    Controls?: ComponentType;
+export interface Experiment {
+    readonly label: string;
+    readonly Scene: ComponentType;
+    readonly Controls: ComponentType;
 }
 
-export const EXPERIMENTS: Record<InputMode, ArtCanvasMode> = {
+export const EXPERIMENTS = {
     spirale: {
         label: 'Spirale',
-        Canvas: lazy(() =>
+        Scene: lazy(() =>
             import('./modules/spirale/Spirale').then((m) => ({ default: m.Spirale })),
         ),
         Controls: lazy(() =>
@@ -22,7 +20,7 @@ export const EXPERIMENTS: Record<InputMode, ArtCanvasMode> = {
     },
     seed: {
         label: 'Seed',
-        Canvas: lazy(() =>
+        Scene: lazy(() =>
             import('./modules/seed/SeedCanvas').then((m) => ({ default: m.SeedCanvas })),
         ),
         Controls: lazy(() =>
@@ -31,28 +29,32 @@ export const EXPERIMENTS: Record<InputMode, ArtCanvasMode> = {
     },
     'folded-space': {
         label: 'Folded space',
-        Canvas: lazy(() =>
+        Scene: lazy(() =>
             import('./modules/folded-space/FoldedSpace').then((m) => ({
                 default: m.FoldedSpace,
             })),
         ),
+        Controls: () => null,
     },
     atlas: {
         label: 'Atlas',
-        Canvas: lazy(() => import('./modules/atlas/Atlas').then((m) => ({ default: m.Atlas }))),
+        Scene: lazy(() => import('./modules/atlas/Atlas').then((m) => ({ default: m.Atlas }))),
         Controls: lazy(() =>
-            import('./modules/atlas/controls/AtlasControls').then((m) => ({
+            import('./modules/atlas/AtlasControls').then((m) => ({
                 default: m.AtlasControls,
             })),
         ),
     },
     manual: {
         label: 'Manual',
-        Canvas: lazy(() => import('./modules/manual/Manual').then((m) => ({ default: m.Manual }))),
+        Scene: lazy(() => import('./modules/manual/Manual').then((m) => ({ default: m.Manual }))),
         Controls: lazy(() =>
             import('./modules/manual/ManualControls').then((m) => ({
                 default: m.ManualControls,
             })),
         ),
     },
-};
+} as const satisfies Record<string, Experiment>;
+
+export type ExperimentKey = keyof typeof EXPERIMENTS;
+export const experimentKeys = Object.keys(EXPERIMENTS) as ExperimentKey[];
