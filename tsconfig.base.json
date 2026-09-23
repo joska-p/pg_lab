@@ -20,12 +20,13 @@
     // Module system, JSX, lib, target and types are per-project
     // (bundler apps vs. nodenext node configs vs. pack libraries).
     //
-    // customConditions lets internal projects resolve workspace packages
-    // through their "source" export condition (raw .ts sources, required
-    // for the shared StyleX preset). External consumers without this
-    // condition fall through to the compiled dist files.
-    "customConditions": ["source"],
+    // customConditions must live inside compilerOptions (top-level is ignored):
+    // it lets internal projects resolve workspace packages through their
+    // "source" export condition (raw .ts sources, required for the shared
+    // StyleX preset). External consumers without this condition fall through
+    // to the compiled dist files. Valid under bundler/node16/nodenext only.
     "compilerOptions": {
+        "customConditions": ["source"],
         "strict": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,

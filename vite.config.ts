@@ -54,6 +54,43 @@ export default defineConfig({
     lint: {
         ignorePatterns,
 
+        // React packages share one lint setup here instead of duplicating
+        // the same `lint` block in each package's own vite.config.ts.
+        // No `options` in overrides (not accepted there): typeAware/typeCheck
+        // come from the root `lint.options` below (global).
+        overrides: [
+            {
+                files: [
+                    'apps/brouillon/**',
+                    'apps/playground/**',
+                    'packages/art-canvas/**',
+                    'packages/automa/**',
+                    'packages/fracture/**',
+                    'packages/glaze/**',
+                    'packages/glaze3d/**',
+                    'packages/mol-demo/**',
+                    'packages/mosaic-maker/**',
+                ],
+                plugins: ['react', 'typescript', 'oxc'],
+                rules: {
+                    'react/rules-of-hooks': 'error',
+                    'react/only-export-components': [
+                        'warn',
+                        {
+                            allowConstantExport: true,
+                        },
+                    ],
+                    'vite-plus/prefer-vite-plus-imports': 'error',
+                },
+                jsPlugins: [
+                    {
+                        name: 'vite-plus',
+                        specifier: 'vite-plus/oxlint-plugin',
+                    },
+                ],
+            },
+        ],
+
         jsPlugins: [
             {
                 name: 'vite-plus',

@@ -1,0 +1,15 @@
+{
+    // Shared base for browser apps (bundler + React + StyleX sources).
+    // Per-package configs only add their own tsBuildInfoFile + include.
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+        "target": "ES2023",
+        "lib": ["ES2023", "DOM", "DOM.Iterable"],
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "types": ["vite/client"],
+        "allowArbitraryExtensions": true,
+        "noEmit": true,
+        "jsx": "react-jsx"
+    }
+}

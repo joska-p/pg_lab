@@ -69,29 +69,7 @@ import { stylexPreset } from "@repo/ui/stylex-preset";
 
 // https://vite.dev/config/
 export default defineConfig({
-  lint: {
-    plugins: ["react", "typescript", "oxc"],
-    rules: {
-      "react/rules-of-hooks": "error",
-      "react/only-export-components": [
-        "warn",
-        {
-          allowConstantExport: true,
-        },
-      ],
-      "vite-plus/prefer-vite-plus-imports": "error",
-    },
-    options: {
-      typeAware: true,
-      typeCheck: true,
-    },
-    jsPlugins: [
-      {
-        name: "vite-plus",
-        specifier: "vite-plus/oxlint-plugin",
-      },
-    ],
-  },
+  // lint: owned by the root config lint.overrides.
   plugins: lazyPlugins(() => [
     stylexPlugin(stylexPreset),
     babel({
@@ -100,6 +78,9 @@ export default defineConfig({
     react(),
   ]),
   resolve: {
+    // Internal runs use workspace sources (see tsconfig.base.json
+    // customConditions); externals fall through to compiled dist.
+    conditions: ["source", "module", "browser", "development|production"],
     dedupe: ["@stylexjs/stylex", "react", "react-dom"],
   },
   optimizeDeps: {
@@ -114,29 +95,26 @@ export default defineConfig({
 `;
 
 const tsconfig = `{
+  "files": [],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
+}
+`;
+
+const tsconfigApp = `{
+  "extends": "../../tsconfig.app-base.json",
   "compilerOptions": {
-    "target": "es2023",
-    "module": "esnext",
-    "lib": ["ES2023", "DOM"],
-    "types": ["vite/client"],
-    "allowArbitraryExtensions": true,
-    "skipLibCheck": true,
-
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "moduleDetection": "force",
-    "noEmit": true,
-    "jsx": "react-jsx",
-
-    /* Linting */
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
   },
   "include": ["src"]
+}
+`;
+
+const tsconfigNode = `{
+  "extends": "../../tsconfig.node-base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo"
+  },
+  "include": ["vite.config.ts"]
 }
 `;
 
@@ -272,6 +250,8 @@ export default createTemplate({
                 'index.html': indexHtml(name),
                 'vite.config.ts': viteConfig,
                 'tsconfig.json': tsconfig,
+                'tsconfig.app.json': tsconfigApp,
+                'tsconfig.node.json': tsconfigNode,
                 '.gitignore': gitignore,
                 src: {
                     'main.tsx': mainTsx,
