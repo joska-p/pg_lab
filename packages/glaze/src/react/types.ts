@@ -116,6 +116,12 @@ export interface GpuCanvasProps extends GpuSurfaceOptions {
     fragmentShader?: string;
     /** Computed from the surface before each frame's draw. */
     uniforms?: (surface: GpuSurface) => Record<string, UniformValue>;
+    /**
+     * Opt-in render gate evaluated before each frame's draw. Return false to skip `setUniforms` +
+     * `renderProgram` for this frame (GPU stays idle); `onFrame` still runs. Defaults to always
+     * rendering (continuous mode). Lets static content (fractals, stills) sleep while mounted.
+     */
+    shouldRender?: (surface: GpuSurface) => boolean;
     onFrame?: GpuDraw;
     /**
      * Called exactly once per `GpuSurface` instance, right after it's created — the right place for

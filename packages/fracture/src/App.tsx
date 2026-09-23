@@ -5,9 +5,11 @@ import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { Segmented } from '@repo/ui/components/Segmented';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 
+import { PerfHud } from './components/PerfHud';
 import { EXPERIMENTS, type ExperimentId } from './experiments';
+import { setPerfExperiment } from './lib/perf';
 import { setActiveExperiment, useActiveExperiment } from './stores/workshopStore';
 
 const EXPERIMENT_OPTIONS = (Object.keys(EXPERIMENTS) as ExperimentId[]).map((id) => ({
@@ -18,6 +20,10 @@ const EXPERIMENT_OPTIONS = (Object.keys(EXPERIMENTS) as ExperimentId[]).map((id)
 export function App() {
     const activeExperiment = useActiveExperiment();
     const { Canvas, Controls, label } = EXPERIMENTS[activeExperiment];
+
+    useEffect(() => {
+        setPerfExperiment(activeExperiment);
+    }, [activeExperiment]);
 
     return (
         <ShellWrapper>
@@ -40,6 +46,9 @@ export function App() {
                                     </Suspense>
                                 </ControlSection>
                             )}
+                            <ControlSection title="Perf">
+                                <PerfHud />
+                            </ControlSection>
                         </ControlPanel>
                     }
                 >

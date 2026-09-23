@@ -144,24 +144,6 @@ int computeMaxIterations() {
 }
 
 // ============================================================
-//  Estimate the surface normal via finite differences
-// ============================================================
-vec3 computeNormal(vec2 uv, int maxIter, float eps, float h0, vec2 c) {
-    float hX = getJuliaData(uv + vec2(eps / max(u_aspect, 1e-6), 0.0), maxIter, c).x;
-    float hY = getJuliaData(uv + vec2(0.0, eps), maxIter, c).x;
-
-    float heightScale = u_bumpHeight / max(u_camera.z, 1.0);
-
-    return normalize(
-        vec3(
-            (h0 - hX) * heightScale,
-            (h0 - hY) * heightScale,
-            eps // z-component is constant in pixel space
-        )
-    );
-}
-
-// ============================================================
 //  OKLCH colour mapping (same as the naive Mandelbrot body)
 // ============================================================
 vec3 computeColor(vec2 juliaData, int maxIter, float lightIntensity) {
@@ -199,11 +181,12 @@ void main() {
     float eps = u_pixelEps;
     vec2 c = vec2(u_juliaRe, u_juliaIm);
 
-    // 1. Evaluate the fractal field for this pixel
+    // 1. Evaluate the fractal field for this pixel — exactly once
     vec2 juliaData = getJuliaData(vUv, maxIter, c);
 
-    // 2. Build a normal from neighbouring samples and light it
-    vec3 normal = computeNormal(vUv, maxIter, eps, juliaData.x, c);
+    // 2. Analytic normal from screen-space derivatives (no extra evaluations)
+    float heightScale = u_bumpHeight / max(u_camera.z, 1.0);
+    vec3 normal = computeAnalyticNormal(juliaData.x, vUv, heightScale, eps);
     float lightIntensity = computeLightIntensity(normal, u_sunAngle, u_ambient);
 
     // 3. Map fractal + lighting to an OKLCH colour

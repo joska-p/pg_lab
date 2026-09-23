@@ -11,6 +11,8 @@ import {
     computeSecondaryOrbit,
     type ReferenceOrbit,
 } from '../../core/referenceOrbit';
+import { useDemandRender } from '../../lib/demandRender';
+import { isPerfEnabled, perfLoopEnter, perfLoopExit, recordFractalFrame } from '../../lib/perf';
 import { assemble } from '../../shaders/assemble';
 import dsArithmeticChunk from '../../shaders/chunks/ds-arithmetic.glsl?raw';
 import lightingChunk from '../../shaders/chunks/lighting.glsl?raw';
@@ -47,12 +49,20 @@ interface PerturbationRuntime {
     lastZoomRef: RefObject<number>;
 }
 
+/** Per-frame CPU stats reported back to the PerfHUD via the out-param. */
+export interface PerturbationStats {
+    orbitMs: number;
+    orbitLength: number;
+    maxIterations: number;
+}
+
 function perturbationUniforms(
     params: FractalParams,
     view: CameraView,
     width: number,
     height: number,
     runtime: PerturbationRuntime,
+    stats?: PerturbationStats,
 ): Record<string, UniformValue> {
     const { canvas, texturesRef, orbitsRef, lastCenterReRef, lastCenterImRef, lastZoomRef } =
         runtime;
@@ -99,15 +109,31 @@ function perturbationUniforms(
 
         // Primary at the exact view centre; secondary a few pixels away (still useful for the
         // current view, but less likely to hit the same glitch).
+        const tOrbit = isPerfEnabled() ? performance.now() : 0;
         const primary = computeReferenceOrbit(centerRe, centerIm, maxIterations);
         const secondary = computeSecondaryOrbit(centerRe, centerIm, viewScale, maxIterations);
 
         textures.upload(primary, secondary);
         orbitsRef.current = { primary, secondary };
 
+        if (stats) {
+            stats.orbitMs = isPerfEnabled() ? performance.now() - tOrbit : 0;
+            stats.orbitLength = primary.orbitLength;
+            stats.maxIterations = maxIterations;
+        }
+
         lastCenterReRef.current = centerRe;
         lastCenterImRef.current = centerIm;
         lastZoomRef.current = view.zoom;
+    } else if (stats && orbitsRef.current) {
+        stats.orbitMs = 0;
+        stats.orbitLength = orbitsRef.current.primary.orbitLength;
+        stats.maxIterations = computeMaxIterations(
+            view.zoom,
+            params.iterationBase,
+            params.iterationScale,
+            params.iterationCap,
+        );
     }
 
     const orbits = orbitsRef.current;
@@ -143,6 +169,7 @@ function perturbationUniforms(
 function Perturbation() {
     const params = useParams();
     const surface = usePerturbationSurface();
+    const demand = useDemandRender(params, cameraRig);
 
     const texturesRef = useRef<OrbitTextures | null>(null);
     const orbitsRef = useRef<Orbits | null>(null);
@@ -153,11 +180,17 @@ function Perturbation() {
     // Dispose the raw-GL orbit textures with the component and drop the glaze surface from the
     // store; the glaze runtime owns its own resources and cleans those up when the canvas unmounts.
     useEffect(() => {
+        if (isPerfEnabled()) {
+            perfLoopEnter();
+        }
         return () => {
             texturesRef.current?.dispose();
             texturesRef.current = null;
             orbitsRef.current = null;
             setPerturbationSurface(null);
+            if (isPerfEnabled()) {
+                perfLoopExit();
+            }
         };
     }, []);
 
@@ -193,18 +226,42 @@ function Perturbation() {
             camera={cameraRig.camera}
             cameraControls={cameraRig.controls}
             canvasInteractions={{ zoom: { speed: ZOOM_WHEEL_SPEED } }}
-            onMount={setPerturbationSurface}
+            onMount={(s) => {
+                setPerturbationSurface(s);
+                demand.handleMount(s);
+            }}
+            shouldRender={demand.shouldRender}
             uniforms={({ camera: view, width, height, canvas }) => {
                 cameraRig.setViewport(width, height);
 
-                return perturbationUniforms(params, view, width, height, {
-                    canvas,
-                    texturesRef,
-                    orbitsRef,
-                    lastCenterReRef,
-                    lastCenterImRef,
-                    lastZoomRef,
-                });
+                const perf = isPerfEnabled();
+                const t0 = perf ? performance.now() : 0;
+                const stats: PerturbationStats = { orbitMs: 0, orbitLength: 0, maxIterations: 0 };
+                const result = perturbationUniforms(
+                    params,
+                    view,
+                    width,
+                    height,
+                    {
+                        canvas,
+                        texturesRef,
+                        orbitsRef,
+                        lastCenterReRef,
+                        lastCenterImRef,
+                        lastZoomRef,
+                    },
+                    stats,
+                );
+                if (perf) {
+                    recordFractalFrame(performance.now() - t0, width, height, {
+                        orbitMs: stats.orbitMs,
+                        orbitLength: stats.orbitLength,
+                        maxIterations: stats.maxIterations,
+                        zoom: view.zoom,
+                    });
+                }
+
+                return result;
             }}
         />
     );

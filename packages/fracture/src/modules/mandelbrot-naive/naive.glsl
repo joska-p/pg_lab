@@ -5,18 +5,18 @@
 //    oklch.glsl (oklchToRgb) + lighting.glsl (computeLightIntensity).
 //
 //  Pipeline per pixel:
-//    1. Evaluate the Mandelbrot field at this UV
+//    1. Evaluate the Mandelbrot field at this UV ONCE
 //       (exterior: smooth iteration count; interior: convergence)
-//    2. Estimate a surface normal from 3 nearby samples
-//       (finite differences of the height field)
+//    2. Derive a surface normal from the height field's screen-space
+//       derivatives (lighting chunk, zero extra fractal evaluations)
 //    3. Apply simple Lambertian + ambient lighting
 //    4. Map the result to an OKLCH colour and convert to sRGB
 //
 //  Reading order for juniors:
 //    constants → uniforms → oklchToRgb (chunk) → screenToComplex →
 //    iterateMandelbrot → computeExterior/InteriorData →
-//    getMandelbrotData → computeMaxIterations → computeNormal →
-//    computeLightIntensity (chunk) → computeColor → main
+//    getMandelbrotData → computeMaxIterations →
+//    computeAnalyticNormal + computeLightIntensity (chunk) → computeColor → main
 // ============================================================
 
 // ---------- Named math constants (no more magic numbers) ----------
@@ -189,38 +189,6 @@ int computeMaxIterations() {
 }
 
 // ============================================================
-//  Estimate the surface normal via finite differences
-// ------------------------------------------------------------
-//  We treat the Mandelbrot height field as a height map and
-//  sample it at three nearby points: the pixel itself and two
-//  neighbours offset by ε in x and y. The two tangent vectors
-//  (Δx, Δh_x) and (Δy, Δh_y) define a local plane whose normal
-//  we return.
-//
-//  IMPORTANT: the height differences are divided by zoom so the
-//  *world-space* slope stays roughly constant as we zoom in.
-//  Without this compensation the surface would appear to flatten
-//  out at high zoom because the UV-space ε shrinks in world space.
-//
-//  `h0` is passed in (rather than recomputed) so we evaluate the
-//  fractal exactly 3 times per pixel, not 4.
-// ============================================================
-vec3 computeNormal(vec2 uv, int maxIter, float eps, float h0) {
-    float hX = getMandelbrotData(uv + vec2(eps / max(u_aspect, 1e-6), 0.0), maxIter).x;
-    float hY = getMandelbrotData(uv + vec2(0.0, eps), maxIter).x;
-
-    float heightScale = u_bumpHeight / max(u_camera.z, 1.0);
-
-    return normalize(
-        vec3(
-            (h0 - hX) * heightScale,
-            (h0 - hY) * heightScale,
-            eps // z-component is constant in pixel space
-        )
-    );
-}
-
-// ============================================================
 //  OKLCH colour mapping
 // ------------------------------------------------------------
 //  Lightness  ← normalised fractal height, modulated by light
@@ -268,11 +236,12 @@ void main() {
     int maxIter = computeMaxIterations();
     float eps = u_pixelEps;
 
-    // 1. Evaluate the fractal field for this pixel
+    // 1. Evaluate the fractal field for this pixel — exactly once
     vec2 mandelbrotData = getMandelbrotData(vUv, maxIter);
 
-    // 2. Build a normal from neighbouring samples and light it
-    vec3 normal = computeNormal(vUv, maxIter, eps, mandelbrotData.x);
+    // 2. Analytic normal from screen-space derivatives (no extra evaluations)
+    float heightScale = u_bumpHeight / max(u_camera.z, 1.0);
+    vec3 normal = computeAnalyticNormal(mandelbrotData.x, vUv, heightScale, eps);
     float lightIntensity = computeLightIntensity(normal, u_sunAngle, u_ambient);
 
     // 3. Map fractal + lighting to an OKLCH colour

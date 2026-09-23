@@ -1,7 +1,11 @@
 import type { UniformValue } from '@repo/glaze/gpu/shader/types';
 import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
+import { useEffect } from 'react';
 
 import { ZOOM_WHEEL_SPEED } from '../../core/camera';
+import { computeMaxIterations } from '../../core/iterationPolicy';
+import { useDemandRender } from '../../lib/demandRender';
+import { isPerfEnabled, perfLoopEnter, perfLoopExit, recordFractalFrame } from '../../lib/perf';
 import { assemble } from '../../shaders/assemble';
 import lightingChunk from '../../shaders/chunks/lighting.glsl?raw';
 import oklchChunk from '../../shaders/chunks/oklch.glsl?raw';
@@ -48,6 +52,17 @@ function naiveUniforms(
 
 export function Naive() {
     const params = useParams();
+    const demand = useDemandRender(params, cameraRig);
+
+    useEffect(() => {
+        if (!isPerfEnabled()) {
+            return;
+        }
+        perfLoopEnter();
+        return () => {
+            perfLoopExit();
+        };
+    }, []);
 
     return (
         <GpuCanvas
@@ -56,10 +71,26 @@ export function Naive() {
             camera={cameraRig.camera}
             cameraControls={cameraRig.controls}
             canvasInteractions={{ zoom: { speed: ZOOM_WHEEL_SPEED } }}
+            shouldRender={demand.shouldRender}
+            onMount={demand.handleMount}
             uniforms={({ camera: view, width, height }) => {
                 cameraRig.setViewport(width, height);
 
-                return naiveUniforms(params, view, width, height);
+                const t0 = isPerfEnabled() ? performance.now() : 0;
+                const result = naiveUniforms(params, view, width, height);
+                if (isPerfEnabled()) {
+                    recordFractalFrame(performance.now() - t0, width, height, {
+                        maxIterations: computeMaxIterations(
+                            view.zoom,
+                            params.iterationBase,
+                            params.iterationScale,
+                            params.iterationCap,
+                        ),
+                        zoom: view.zoom,
+                    });
+                }
+
+                return result;
             }}
         />
     );

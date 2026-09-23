@@ -1,8 +1,12 @@
 import type { UniformValue } from '@repo/glaze/gpu/shader/types';
 import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
+import { useEffect } from 'react';
 
 import { WORLD_SCALE, ZOOM_WHEEL_SPEED } from '../../core/camera';
 import { splitDouble } from '../../core/doubleSplit';
+import { computeMaxIterations } from '../../core/iterationPolicy';
+import { useDemandRender } from '../../lib/demandRender';
+import { isPerfEnabled, perfLoopEnter, perfLoopExit, recordFractalFrame } from '../../lib/perf';
 import { assemble } from '../../shaders/assemble';
 import dsArithmeticChunk from '../../shaders/chunks/ds-arithmetic.glsl?raw';
 import lightingChunk from '../../shaders/chunks/lighting.glsl?raw';
@@ -60,6 +64,17 @@ function juliaDoubleSplitUniforms(
 
 export function JuliaDoubleSplit() {
     const params = useParams();
+    const demand = useDemandRender(params, cameraRig);
+
+    useEffect(() => {
+        if (!isPerfEnabled()) {
+            return;
+        }
+        perfLoopEnter();
+        return () => {
+            perfLoopExit();
+        };
+    }, []);
 
     return (
         <GpuCanvas
@@ -68,10 +83,26 @@ export function JuliaDoubleSplit() {
             camera={cameraRig.camera}
             cameraControls={cameraRig.controls}
             canvasInteractions={{ zoom: { speed: ZOOM_WHEEL_SPEED } }}
+            shouldRender={demand.shouldRender}
+            onMount={demand.handleMount}
             uniforms={({ camera, width, height }) => {
                 cameraRig.setViewport(width, height);
 
-                return juliaDoubleSplitUniforms(params, camera, width, height);
+                const t0 = isPerfEnabled() ? performance.now() : 0;
+                const result = juliaDoubleSplitUniforms(params, camera, width, height);
+                if (isPerfEnabled()) {
+                    recordFractalFrame(performance.now() - t0, width, height, {
+                        maxIterations: computeMaxIterations(
+                            camera.zoom,
+                            params.iterationBase,
+                            params.iterationScale,
+                            params.iterationCap,
+                        ),
+                        zoom: camera.zoom,
+                    });
+                }
+
+                return result;
             }}
         />
     );

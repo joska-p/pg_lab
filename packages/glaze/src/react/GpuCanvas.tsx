@@ -10,6 +10,7 @@ import { useNodeResource } from './useNodeResource';
 export function GpuCanvas({
     fragmentShader,
     uniforms,
+    shouldRender,
     onFrame,
     onMount,
     onClockStore,
@@ -68,14 +69,14 @@ export function GpuCanvas({
         return stack.surface.onFrame((frame) => {
             const program = programRef.current;
 
-            if (program) {
+            if (program && (!shouldRender || shouldRender(frame))) {
                 program.setUniforms(uniforms ? uniforms(frame) : {});
                 frame.renderProgram(program);
             }
 
             onFrame?.(frame);
         });
-    }, [onFrame, uniforms, fragmentShader, stack]);
+    }, [onFrame, uniforms, shouldRender, fragmentShader, stack]);
 
     return (
         <canvas
