@@ -1,10 +1,10 @@
 import { useRef } from 'react';
 import type { ComponentPropsWithoutRef } from 'react';
 
-import { MolCanvas } from './components/MolCanvas';
-import { PatternCanvas } from './components/PatternCanvas';
-import type { ViewerHandle } from './lib/pattern/viewer';
-import { applyDroppedText } from './stores/moleculeStore';
+import type { ViewerHandle } from '../lib/pattern/viewer';
+import { applyDroppedText } from '../stores/moleculeStore';
+import { MolCanvas } from './MolCanvas';
+import { PatternCanvas } from './PatternCanvas';
 
 export const stageProps: Omit<ComponentPropsWithoutRef<'section'>, 'children' | 'aria-label'> = {
     title: 'Drop a .mol/.sdf file here to load it',

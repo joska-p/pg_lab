@@ -9,12 +9,12 @@
             "import": "./src/App.tsx"
         },
         "./Scene": {
-            "types": "./src/Scene.tsx",
-            "import": "./src/Scene.tsx"
+            "types": "./src/components/Scene.tsx",
+            "import": "./src/components/Scene.tsx"
         },
         "./Controls": {
-            "types": "./src/Controls.tsx",
-            "import": "./src/Controls.tsx"
+            "types": "./src/components/controls/Controls.tsx",
+            "import": "./src/components/controls/Controls.tsx"
         }
     },
     "scripts": {

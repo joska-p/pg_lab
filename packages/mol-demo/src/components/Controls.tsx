@@ -1,5 +1,5 @@
-import { MoleculeList } from './components/MoleculeList';
-import { PerfHud } from './components/PerfHud';
+import { MoleculeList } from './MoleculeList';
+import { PerfHud } from './PerfHud';
 
 export function Controls() {
     return (

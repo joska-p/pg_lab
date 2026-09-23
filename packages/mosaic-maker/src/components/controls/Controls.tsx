@@ -101,7 +101,7 @@ const styles = stylex.create({
     },
 });
 
-function MosaicControlsPanel() {
+export function Controls() {
     const isPalettesLoading = useIsPalettesLoading();
     const mosaicRef = useMosaicRef();
     const currentPalette = useCurrentPalette();
@@ -184,5 +184,3 @@ function MosaicControlsPanel() {
         </>
     );
 }
-
-export { MosaicControlsPanel };

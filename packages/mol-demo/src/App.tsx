@@ -4,8 +4,8 @@ import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
 
-import { Controls } from './Controls';
-import { Scene, stageProps } from './Scene';
+import { Controls } from './components/Controls';
+import { Scene, stageProps } from './components/Scene';
 
 export function App() {
     return (

@@ -26,7 +26,7 @@ const MOSAIC_STYLES = {
     gap: `var(${CSS_VARS.gap})`,
 } as React.CSSProperties;
 
-function MosaicDisplay() {
+export function Scene() {
     const tiles = useTiles();
     const mosaicRef = useRef<HTMLDivElement>(null);
 
@@ -92,5 +92,3 @@ function MosaicDisplay() {
         </div>
     );
 }
-
-export { MosaicDisplay };
