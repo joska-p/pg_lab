@@ -9,11 +9,11 @@
             "import": "./src/App.tsx"
         },
         "./Scene": {
-            "types": "./src/Scene.tsx",
+            "types": "./src/components/Scene.tsx",
             "import": "./src/Scene.tsx"
         },
         "./Controls": {
-            "types": "./src/Controls.tsx",
+            "types": "./src/components/Controls.tsx",
             "import": "./src/Controls.tsx"
         }
     },

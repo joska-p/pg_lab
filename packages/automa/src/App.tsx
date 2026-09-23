@@ -3,16 +3,16 @@ import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
 
-import { CellMesh } from './components/canvas/CellMesh';
-import { ControlPanel } from './components/controls/ControlPanel';
+import { Controls } from './components/controls/Controls';
+import { Scene } from './components/Scene';
 
 export function App() {
     return (
         <ShellWrapper>
             <ErrorBoundary showStack={import.meta.env.DEV}>
-                <ExperimentShell panel={<ControlPanel />}>
+                <ExperimentShell panel={<Controls />}>
                     <Stage label="automa">
-                        <CellMesh />
+                        <Scene />
                     </Stage>
                 </ExperimentShell>
             </ErrorBoundary>

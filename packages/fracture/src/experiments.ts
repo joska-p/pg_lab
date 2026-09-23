@@ -12,43 +12,39 @@ import { DoubleSplit, DoubleSplitControls } from './modules/mandelbrot-double-sp
 import { Naive, NaiveControls } from './modules/mandelbrot-naive/experiment';
 import { Perturbation, PerturbationControls } from './modules/mandelbrot-perturbation/experiment';
 
-export type ExperimentId =
-    | 'mandelbrot-naive'
-    | 'mandelbrot-double-split'
-    | 'mandelbrot-perturbation'
-    | 'julia-naive'
-    | 'julia-double-split';
-
-export interface WorkshopExperiment {
-    label: string;
-    Canvas: ComponentType;
-    Controls?: ComponentType;
+export interface Experiment {
+    readonly label: string;
+    readonly Scene: ComponentType;
+    readonly Controls: ComponentType;
 }
 
-export const EXPERIMENTS: Record<ExperimentId, WorkshopExperiment> = {
+export const EXPERIMENTS = {
     'mandelbrot-naive': {
         label: 'Mandelbrot · Naive',
-        Canvas: Naive,
+        Scene: Naive,
         Controls: NaiveControls,
     },
     'mandelbrot-double-split': {
         label: 'Mandelbrot · Double-split',
-        Canvas: DoubleSplit,
+        Scene: DoubleSplit,
         Controls: DoubleSplitControls,
     },
     'mandelbrot-perturbation': {
         label: 'Mandelbrot · Perturbation',
-        Canvas: Perturbation,
+        Scene: Perturbation,
         Controls: PerturbationControls,
     },
     'julia-naive': {
         label: 'Julia · Naive',
-        Canvas: JuliaNaive,
+        Scene: JuliaNaive,
         Controls: JuliaNaiveControls,
     },
     'julia-double-split': {
         label: 'Julia · Double-split',
-        Canvas: JuliaDoubleSplit,
+        Scene: JuliaDoubleSplit,
         Controls: JuliaDoubleSplitControls,
     },
-};
+} as const satisfies Record<string, Experiment>;
+
+export type ExperimentKey = keyof typeof EXPERIMENTS;
+export const experimentKeys = Object.keys(EXPERIMENTS) as ExperimentKey[];

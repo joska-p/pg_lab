@@ -4,14 +4,14 @@ import { parseColor } from '@repo/glaze/gpu/shapes/color';
 import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
 
 import cellMeshShader from '../../engine/gpu/shaders/cell-mesh.frag?raw';
-import { useCellPainting } from '../../hooks/useCellPainting';
-import { buildStateColorArray } from '../../lib/colors';
-import { TRAIL_COLOR, TRAIL_STRENGTH } from '../../lib/constants';
-import { computeGridRect } from '../../lib/gridPlacement';
-import { initSimulation, tickSimulation } from '../../stores/automa/actions';
-import { automaStore } from '../../stores/automa/store';
+import { useCellPainting } from '../hooks/useCellPainting';
+import { buildStateColorArray } from '../lib/colors';
+import { TRAIL_COLOR, TRAIL_STRENGTH } from '../lib/constants';
+import { computeGridRect } from '../lib/gridPlacement';
+import { initSimulation, tickSimulation } from '../stores/automa/actions';
+import { automaStore } from '../stores/automa/store';
 
-function CellMesh() {
+export function Scene() {
     const interactions = useCellPainting();
 
     return (
@@ -52,5 +52,3 @@ function CellMesh() {
         />
     );
 }
-
-export { CellMesh };

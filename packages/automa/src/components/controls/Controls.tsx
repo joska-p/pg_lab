@@ -1,11 +1,11 @@
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Readout } from '@repo/ui/components/Readout';
 
-import { CreatureSection } from './components/controls/CreatureSection';
-import { EditSection } from './components/controls/EditSection';
-import { PlaybackSection } from './components/controls/PlaybackSection';
-import { RuleSection } from './components/controls/RuleSection';
-import { useGeneration } from './stores/automa/selectors';
+import { useGeneration } from '../../stores/automa/selectors';
+import { CreatureSection } from './CreatureSection';
+import { EditSection } from './EditSection';
+import { PlaybackSection } from './PlaybackSection';
+import { RuleSection } from './RuleSection';
 
 export function Controls() {
     const generation = useGeneration();
