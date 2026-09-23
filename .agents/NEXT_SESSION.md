@@ -59,3 +59,8 @@ dans un package workspace partagé `@repo/internal-config`.
 - `package.json` racine : ne pas toucher (dérive `workspaces`/`catalog` en attente
   d'élucidation `vp install`).
 - Builds : `--concurrency-limit 1` (exit 137 en parallèle sur cette machine).
+
+## Consignes
+
+- Valider jiti immédiatement : Dès que le package de config et l'app brouillon sont liés, lancez un vp dev (ou la commande de dev de l'app) pour valider que jiti arrive à lire le .ts direct du package partagé à travers le lien du workspace.
+- Attention à React 19 / Babel : Assurez-vous que le preset de plugin React utilisé dans la config partagée n'entre pas en conflit avec les exigences de React 19 (qui se passe désormais souvent de certaines configurations Babel historiques, sauf pour StyleX qui en a encore besoin pour sa transformation de composants).

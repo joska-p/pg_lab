@@ -1,5 +1,5 @@
 import { Quat } from '@repo/glaze3d/math';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 
 import { FF, Q_MAX, Q_MIN, ff, maxAtoms } from '../lib/formFactors';
 import type { Molecule } from '../lib/parseMol';
@@ -223,11 +223,21 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const molecule = useMoleculeCurrent();
     const molRef = useRef(molecule);
-    molRef.current = molecule;
     const fallbackRef = useRef(cpuFallback);
-    fallbackRef.current = cpuFallback;
 
     useEffect(() => {
+        if (molRef) {
+            molRef.current = molecule;
+        }
+    }, [molecule]);
+
+    useEffect(() => {
+        if (fallbackRef) {
+            fallbackRef.current = cpuFallback;
+        }
+    }, [cpuFallback]);
+
+    useEffectEvent(() => {
         const canvas = canvasRef.current;
         if (canvas === null) {
             return;
@@ -498,7 +508,7 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
                 }
             }
         };
-    }, [cpuFallback, viewerRef]);
+    });
 
     return (
         <canvas
