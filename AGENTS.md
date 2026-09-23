@@ -8,7 +8,7 @@ Python environment is managed by `uv`.
 Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.dev/guide/.
 
 - `vp install` : Install dependencies.
-- `vp check` : Format, lint, and type-check.
+- `vp check --fix` : Format, lint, and type-check.
 - `vp test` : Run tests.
 - `vp run <script>` : Run package scripts or `vite.config.ts` tasks.
 
