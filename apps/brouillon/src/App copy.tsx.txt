@@ -1,0 +1,77 @@
+import { ControlPanel } from '@repo/ui/components/ControlPanel';
+import { ControlSection } from '@repo/ui/components/ControlSection';
+import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
+import { Segmented } from '@repo/ui/components/Segmented';
+import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
+import { useEffect, useState } from 'react';
+
+import { Laboratory } from './experiments/laboratory';
+import { Showcase } from './experiments/showcase';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type View = 'showcase' | 'lab';
+type ThemeMode = 'light' | 'dark' | 'system';
+type PanelPlacement = 'docked' | 'floating';
+
+// ─── Theme hook ───────────────────────────────────────────────────────────────
+
+function useTheme() {
+    const [theme, setTheme] = useState<ThemeMode>('system');
+
+    useEffect(() => {
+        document.documentElement.style.colorScheme = theme === 'system' ? 'light dark' : theme;
+    }, [theme]);
+
+    return [theme, setTheme] as const;
+}
+
+// ─── App ──────────────────────────────────────────────────────────────────────
+
+function App() {
+    const [theme, setTheme] = useTheme();
+    const [view, setView] = useState<View>('lab');
+    const [panelPlacement, setPanelPlacement] = useState<PanelPlacement>('docked');
+
+    return (
+        <ShellWrapper>
+            <ExperimentShell
+                panelPlacement={panelPlacement}
+                panel={
+                    <ControlPanel title="pg_lab">
+                        {/* Identity header */}
+                        <ControlSection title="navigation">
+                            <Segmented<View>
+                                options={['showcase', 'lab']}
+                                value={view}
+                                onValueChange={setView}
+                            />
+                        </ControlSection>
+
+                        {/* Workspace controls */}
+                        <ControlSection title="theme">
+                            <Segmented<ThemeMode>
+                                options={['light', 'dark', 'system']}
+                                value={theme}
+                                onValueChange={setTheme}
+                            />
+                        </ControlSection>
+
+                        <ControlSection title="panel">
+                            <Segmented<PanelPlacement>
+                                options={['docked', 'floating']}
+                                value={panelPlacement}
+                                onValueChange={setPanelPlacement}
+                            />
+                        </ControlSection>
+                    </ControlPanel>
+                }
+            >
+                {view === 'showcase' && <Showcase synth={undefined} />}
+                {view === 'lab' && <Laboratory />}
+            </ExperimentShell>
+        </ShellWrapper>
+    );
+}
+
+export default App;
