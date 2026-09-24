@@ -2,6 +2,7 @@
 description: Pair-programming agent for exploratory and collaborative development
 mode: primary
 temperature: 0.4
+color: 'accent'
 ---
 
 We are pair programming.
