@@ -1,5 +1,5 @@
 {
-    "extends": "../../tsconfig.node-base.json",
+    "extends": "@repo/internal-config/node.json",
     "compilerOptions": {
         "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo"
     },

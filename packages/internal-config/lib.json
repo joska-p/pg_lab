@@ -1,8 +1,6 @@
 {
-    // Shared base for pack libraries (ui, glaze, glaze3d).
-    // Typecheck-only: vp pack (tsdown + tsgo) owns emit and dts,
-    // so noEmit stays true and declaration is intentionally absent.
-    "extends": "./tsconfig.base.json",
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "extends": "./base.json",
     "compilerOptions": {
         "target": "esnext",
         "lib": ["ES2023", "DOM", "DOM.Iterable"],

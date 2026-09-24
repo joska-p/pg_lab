@@ -278,7 +278,7 @@ export default defineConfig({
     },
 
     resolve: {
-        // Bundler mirror of tsconfig.base.json customConditions: internal
+        // Bundler mirror of @repo/internal-config/base.json customConditions: internal
         // runs resolve workspace packages through their "source" export
         // condition (raw .ts, required for the shared StyleX preset).
         // External consumers without it fall through to compiled dist.

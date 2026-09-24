@@ -7,7 +7,11 @@
     "exports": {
         "./package.json": "./package.json",
         "./vite-app": "./src/vite-app.ts",
-        "./vite-lib": "./src/vite-lib.ts"
+        "./vite-lib": "./src/vite-lib.ts",
+        "./base.json": "./base.json",
+        "./app.json": "./app.json",
+        "./node.json": "./node.json",
+        "./lib.json": "./lib.json"
     },
     "scripts": {
         "check": "vp check"

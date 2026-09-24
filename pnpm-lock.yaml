@@ -158,6 +158,9 @@ importers:
 
   .:
     devDependencies:
+      '@repo/internal-config':
+        specifier: workspace:*
+        version: link:packages/internal-config
       '@types/node':
         specifier: 'catalog:'
         version: 26.5.1
@@ -607,6 +610,9 @@ importers:
 
   packages/worker-pool:
     devDependencies:
+      '@repo/internal-config':
+        specifier: workspace:*
+        version: link:../internal-config
       '@types/node':
         specifier: 'catalog:'
         version: 26.5.1
@@ -629,6 +635,9 @@ importers:
         specifier: ^3.25.76
         version: 3.25.76
     devDependencies:
+      '@repo/internal-config':
+        specifier: workspace:*
+        version: link:../../packages/internal-config
       '@types/node':
         specifier: 'catalog:'
         version: 26.5.1

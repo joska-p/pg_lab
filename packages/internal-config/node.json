@@ -1,7 +1,6 @@
 {
-    // Shared base for vite.config.ts typechecking (node, nodenext).
-    // Per-package configs only add their own tsBuildInfoFile + include.
-    "extends": "./tsconfig.base.json",
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "extends": "./base.json",
     "compilerOptions": {
         "target": "ES2023",
         "lib": ["ES2023"],

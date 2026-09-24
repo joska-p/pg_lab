@@ -1,6 +1,6 @@
 {
     // Typecheck-only config: vp pack (tsdown + tsgo) owns emit and dts.
-    "extends": "../../tsconfig.base.json",
+    "extends": "@repo/internal-config/base.json",
     "compilerOptions": {
         "target": "esnext",
         "lib": ["ES2023", "WebWorker"],

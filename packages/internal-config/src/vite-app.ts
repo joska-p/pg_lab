@@ -32,7 +32,7 @@ export function defineStylexApp(options: StylexAppOptions = {}): ViteUserConfig 
             react(),
         ]),
         resolve: {
-            // Internal runs use workspace sources (see tsconfig.base.json
+            // Internal runs use workspace sources (see @repo/internal-config/base.json
             // customConditions); externals fall through to compiled dist.
             conditions: ['source', 'module', 'browser', 'development|production'],
             dedupe: ['@stylexjs/stylex', 'react', 'react-dom'],

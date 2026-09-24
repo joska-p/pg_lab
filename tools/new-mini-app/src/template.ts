@@ -26,6 +26,7 @@ function packageJson(name: string): string {
                 zustand: 'catalog:',
             },
             devDependencies: {
+                '@repo/internal-config': 'workspace:*',
                 '@rolldown/plugin-babel': 'catalog:',
                 '@stylexjs/stylex': 'catalog:',
                 '@types/node': 'catalog:',
@@ -78,7 +79,7 @@ export default defineConfig({
     react(),
   ]),
   resolve: {
-    // Internal runs use workspace sources (see tsconfig.base.json
+    // Internal runs use workspace sources (see @repo/internal-config/base.json
     // customConditions); externals fall through to compiled dist.
     conditions: ["source", "module", "browser", "development|production"],
     dedupe: ["@stylexjs/stylex", "react", "react-dom"],
@@ -101,7 +102,7 @@ const tsconfig = `{
 `;
 
 const tsconfigApp = `{
-  "extends": "../../tsconfig.app-base.json",
+  "extends": "@repo/internal-config/app.json",
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
   },
@@ -110,7 +111,7 @@ const tsconfigApp = `{
 `;
 
 const tsconfigNode = `{
-  "extends": "../../tsconfig.node-base.json",
+  "extends": "@repo/internal-config/node.json",
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo"
   },

@@ -1,8 +1,0 @@
-{
-    // Solution-style root: references only, no implicit include.
-    // (A root config without files/include would otherwise claim every
-    // source file in the repo under nodenext settings, fighting each
-    // package's own bundler config during type-aware lint.)
-    "files": [],
-    "references": [{ "path": "./tsconfig.node.json" }]
-}
