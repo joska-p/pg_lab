@@ -1,6 +1,3 @@
 {
-    // Config-only package (node, no JSX): factory functions run under jiti
-    // at config load, never bundled or published. Single config, no split
-    // app/node references.
-    "extends": "./node.json"
+    "extends": "./src/node.json"
 }

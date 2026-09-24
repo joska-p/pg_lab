@@ -8,10 +8,10 @@
         "./package.json": "./package.json",
         "./vite-app": "./src/vite-app.ts",
         "./vite-lib": "./src/vite-lib.ts",
-        "./base.json": "./base.json",
-        "./app.json": "./app.json",
-        "./node.json": "./node.json",
-        "./lib.json": "./lib.json"
+        "./base.json": "./src/base.json",
+        "./app.json": "./src/app.json",
+        "./node.json": "./src/node.json",
+        "./lib.json": "./src/lib.json"
     },
     "scripts": {
         "check": "vp check"
