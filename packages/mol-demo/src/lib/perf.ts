@@ -44,8 +44,9 @@ export function isPerfEnabled(): boolean {
         return false;
     }
     try {
-        return true; // entry point to disable the perf
-        // import.meta.env.DEV === true && new URLSearchParams(window.location.search).has('perf')
+        return (
+            import.meta.env.DEV === true && new URLSearchParams(window.location.search).has('perf')
+        );
     } catch {
         return false;
     }

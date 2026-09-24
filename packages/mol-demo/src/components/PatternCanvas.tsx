@@ -1,5 +1,5 @@
 import { Quat } from '@repo/glaze3d/math';
-import { useEffect, useEffectEvent, useRef, useState } from 'react';
+import { useEffect, useRef, useLayoutEffect } from 'react';
 
 import { FF, Q_MAX, Q_MIN, ff, maxAtoms } from '../lib/formFactors';
 import type { Molecule } from '../lib/parseMol';
@@ -19,7 +19,7 @@ import { useMoleculeCurrent } from '../stores/moleculeStore';
 // raw WebGL2 shader; glaze3d stays unaware — the camera is only read here
 // via `camera.updateMatrixWorld()` + `matrixWorldInverse.elements`.
 
-const VS_SRC = `#version 300 es
+const VERTEX_SHADER_SOURCE = `#version 300 es
 void main() {
     const vec2 pos[4] = vec2[4](
         vec2(-1,-1), vec2(1,-1), vec2(-1,1), vec2(1,1)
@@ -27,10 +27,13 @@ void main() {
     gl_Position = vec4(pos[gl_VertexID], 0.0, 1.0);
 }`;
 
-function fragSrc(maxAtomsCount: number): string {
+// GLSL uniform names below (uResolution, uQmin, ...) are matched by exact
+// string elsewhere in this file (getUniformLocation calls) — don't rename
+// them without updating every matching string at the same time.
+function buildFragmentShaderSource(maxAtomCount: number): string {
     return `#version 300 es
 precision highp float;
-#define MAX_ATOMS ${maxAtomsCount}
+#define MAX_ATOMS ${maxAtomCount}
 #define PI 3.141592653589793
 
 uniform vec2  uResolution;
@@ -81,12 +84,12 @@ void main() {
 }`;
 }
 
-function makeShader(gl: WebGL2RenderingContext, type: number, src: string): WebGLShader {
+function compileShader(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader {
     const shader = gl.createShader(type);
     if (!shader) {
         throw new Error('pattern: could not create shader');
     }
-    gl.shaderSource(shader, src);
+    gl.shaderSource(shader, source);
     gl.compileShader(shader);
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
         const log = gl.getShaderInfoLog(shader);
@@ -96,13 +99,17 @@ function makeShader(gl: WebGL2RenderingContext, type: number, src: string): WebG
     return shader;
 }
 
-function makeProgram(gl: WebGL2RenderingContext, vsSrc: string, fsSrc: string): WebGLProgram {
+function linkProgram(
+    gl: WebGL2RenderingContext,
+    vertexSource: string,
+    fragmentSource: string,
+): WebGLProgram {
     const program = gl.createProgram();
     if (!program) {
         throw new Error('pattern: could not create program');
     }
-    const vertexShader = makeShader(gl, gl.VERTEX_SHADER, vsSrc);
-    const fragmentShader = makeShader(gl, gl.FRAGMENT_SHADER, fsSrc);
+    const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vertexSource);
+    const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
@@ -118,95 +125,121 @@ function makeProgram(gl: WebGL2RenderingContext, vsSrc: string, fsSrc: string): 
 
 type UniformMap = Record<string, WebGLUniformLocation | null>;
 
-function setAtomFFUniforms(gl: WebGL2RenderingContext, uniforms: UniformMap, mol: Molecule): void {
-    gl.uniform1i(uniforms.uNatoms, mol.atoms.length);
-    for (let i = 0; i < mol.atoms.length; i++) {
-        const c = FF[mol.atoms[i]];
-        if (!c) {
+// "FF" = scattering form factor: per-element coefficients used to compute
+// how strongly an atom scatters at a given q. uFFa/uFFb/uFFc are the three
+// coefficient groups the shader expects, one triple per atom.
+function uploadAtomFormFactorUniforms(
+    gl: WebGL2RenderingContext,
+    uniforms: UniformMap,
+    molecule: Molecule,
+): void {
+    gl.uniform1i(uniforms.uNatoms, molecule.atoms.length);
+    for (let i = 0; i < molecule.atoms.length; i++) {
+        const coeffs = FF[molecule.atoms[i]];
+        if (!coeffs) {
             continue;
         }
-        gl.uniform4f(uniforms[`uFFa${i}`], c[0] ?? 0, c[1] ?? 0, c[2] ?? 0, c[3] ?? 0);
-        gl.uniform4f(uniforms[`uFFb${i}`], c[4] ?? 0, c[5] ?? 0, c[6] ?? 0, c[7] ?? 0);
-        gl.uniform1f(uniforms[`uFFc${i}`], c[8] ?? 0);
+        gl.uniform4f(
+            uniforms[`uFFa${i}`],
+            coeffs[0] ?? 0,
+            coeffs[1] ?? 0,
+            coeffs[2] ?? 0,
+            coeffs[3] ?? 0,
+        );
+        gl.uniform4f(
+            uniforms[`uFFb${i}`],
+            coeffs[4] ?? 0,
+            coeffs[5] ?? 0,
+            coeffs[6] ?? 0,
+            coeffs[7] ?? 0,
+        );
+        gl.uniform1f(uniforms[`uFFc${i}`], coeffs[8] ?? 0);
     }
 }
 
-function drawPatternCPU(
+// CPU fallback path: same math as the fragment shader above, done in a
+// double loop over pixels instead of on the GPU. "q" is the scattering
+// vector magnitude (distance from the pattern's center in reciprocal
+// space) — the physics term for "how far out in the diffraction pattern".
+function renderPatternOnCpu(
     ctx: CanvasRenderingContext2D,
-    atoms: readonly ProjectedAtom[],
-    w: number,
-    h: number,
-    raw: Float32Array,
-    mask: Uint8Array,
-    fadeTbl: Float32Array,
-    sampBuf: Float32Array,
+    projectedAtoms: readonly ProjectedAtom[],
+    width: number,
+    height: number,
+    intensityBuffer: Float32Array,
+    validMask: Uint8Array,
+    fadeBuffer: Float32Array,
+    sampleBuffer: Float32Array,
 ): void {
-    const cx = w / 2;
-    const cy = h / 2;
-    const r = Math.min(cx, cy) * 0.97;
-    const sc = Q_MAX / r;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radius = Math.min(centerX, centerY) * 0.97;
+    const qScale = Q_MAX / radius;
 
-    raw.fill(0);
-    mask.fill(0);
-    let maxV = 0;
+    intensityBuffer.fill(0);
+    validMask.fill(0);
+    let maxIntensity = 0;
 
-    for (let py = 0; py < h; py++) {
-        for (let px = 0; px < w; px++) {
-            const qx = (px - cx) * sc;
-            const qy = (cy - py) * sc;
+    for (let py = 0; py < height; py++) {
+        for (let px = 0; px < width; px++) {
+            const qx = (px - centerX) * qScale;
+            const qy = (centerY - py) * qScale;
             const q = Math.sqrt(qx * qx + qy * qy);
             if (q < Q_MIN || q > Q_MAX) {
                 continue;
             }
-            let re = 0;
-            let im = 0;
-            for (const { el, vx, vy } of atoms) {
-                const f = ff(el, q);
-                const ph = qx * vx + qy * vy;
-                re += f * Math.cos(ph);
-                im += f * Math.sin(ph);
+            let real = 0;
+            let imaginary = 0;
+            for (const { el, vx, vy } of projectedAtoms) {
+                const formFactor = ff(el, q);
+                const phase = qx * vx + qy * vy;
+                real += formFactor * Math.cos(phase);
+                imaginary += formFactor * Math.sin(phase);
             }
-            const v = Math.log(1 + re * re + im * im);
-            const idx = py * w + px;
-            raw[idx] = v;
-            mask[idx] = 1;
-            fadeTbl[idx] =
+            const intensity = Math.log(1 + real * real + imaginary * imaginary);
+            const pixelIndex = py * width + px;
+            intensityBuffer[pixelIndex] = intensity;
+            validMask[pixelIndex] = 1;
+            fadeBuffer[pixelIndex] =
                 Math.min(1, (q - Q_MIN) / (Q_MIN * 2)) * Math.min(1, (Q_MAX - q) / (Q_MAX * 0.06));
-            if (v > maxV) {
-                maxV = v;
+            if (intensity > maxIntensity) {
+                maxIntensity = intensity;
             }
         }
     }
-    if (maxV === 0) {
+    if (maxIntensity === 0) {
         return;
     }
 
-    let sampLen = 0;
-    for (let i = 0; i < raw.length; i += 8) {
-        if (raw[i] > 0) {
-            sampBuf[sampLen++] = raw[i];
+    // Normalize against the 97th percentile of sampled intensities rather
+    // than the raw max, so a single very bright spot doesn't wash out the
+    // rest of the pattern. Sampling every 8th pixel keeps this cheap.
+    let sampleCount = 0;
+    for (let i = 0; i < intensityBuffer.length; i += 8) {
+        if (intensityBuffer[i] > 0) {
+            sampleBuffer[sampleCount++] = intensityBuffer[i];
         }
     }
-    const samp = sampBuf.subarray(0, sampLen);
-    samp.sort();
-    const norm = samp[Math.floor(sampLen * 0.97)] || maxV;
+    const sortedSample = sampleBuffer.subarray(0, sampleCount);
+    sortedSample.sort();
+    const intensityNorm = sortedSample[Math.floor(sampleCount * 0.97)] || maxIntensity;
 
-    const imgData = ctx.createImageData(w, h);
-    const px4 = imgData.data;
-    for (let i = 0; i < w * h; i++) {
-        const base = i * 4;
-        if (!mask[i]) {
-            px4[base + 3] = 0;
+    const imageData = ctx.createImageData(width, height);
+    const pixels = imageData.data;
+    for (let i = 0; i < width * height; i++) {
+        const pixelOffset = i * 4;
+        if (!validMask[i]) {
+            pixels[pixelOffset + 3] = 0;
             continue;
         }
-        const vi = Math.min(255, ((raw[i] / norm) * 255) | 0);
-        const li = vi * 3;
-        px4[base] = XRAY_LUT[li];
-        px4[base + 1] = XRAY_LUT[li + 1];
-        px4[base + 2] = XRAY_LUT[li + 2];
-        px4[base + 3] = (vi * fadeTbl[i]) | 0;
+        const intensityByte = Math.min(255, ((intensityBuffer[i] / intensityNorm) * 255) | 0);
+        const lutOffset = intensityByte * 3;
+        pixels[pixelOffset] = XRAY_LUT[lutOffset];
+        pixels[pixelOffset + 1] = XRAY_LUT[lutOffset + 1];
+        pixels[pixelOffset + 2] = XRAY_LUT[lutOffset + 2];
+        pixels[pixelOffset + 3] = (intensityByte * fadeBuffer[i]) | 0;
     }
-    ctx.putImageData(imgData, 0, 0);
+    ctx.putImageData(imageData, 0, 0);
 }
 
 // A CPU fallback that burns the main thread is not a fallback. When WebGL2
@@ -214,132 +247,122 @@ function drawPatternCPU(
 // 900/600 — pixel work scales with area, ~8x cheaper) and a longer
 // throttle (500 ms instead of 33 ms), so the viewer loop stays interactive
 // and the pattern updates slowly instead of freezing the page.
-const CPU_BUF_MOBILE = 256;
-const CPU_BUF_DESKTOP = 320;
-const PATTERN_PAT_MS_CPU = 500;
+const CPU_BUFFER_SIZE_MOBILE = 256;
+const CPU_BUFFER_SIZE_DESKTOP = 320;
+const REDRAW_THROTTLE_MS_CPU = 500;
+
+// WebGL2 support is knowable before the first render — no need to mount on
+// the GPU path, run the setup effect, discover it's unsupported, then
+// setState + remount into the CPU path. A throwaway canvas answers this
+// synchronously, so the initial render already picks the right branch.
+function supportsWebGL2(): boolean {
+    if (typeof document === 'undefined') {
+        return true;
+    }
+    try {
+        const probe = document.createElement('canvas');
+        const ctx = probe.getContext('webgl2');
+        return ctx !== null && !ctx.isContextLost();
+    } catch {
+        return false;
+    }
+}
 
 export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
-    const [cpuFallback, setCpuFallback] = useState(false);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const molecule = useMoleculeCurrent();
-    const molRef = useRef(molecule);
-    const fallbackRef = useRef(cpuFallback);
+    const moleculeRef = useRef(molecule);
 
-    useEffect(() => {
-        if (molRef) {
-            molRef.current = molecule;
-        }
+    // The renderer is driven by MolCanvas' RAF, not by React.
+    // Keep the latest committed molecule available to that imperative loop.
+    useLayoutEffect(() => {
+        moleculeRef.current = molecule;
     }, [molecule]);
 
     useEffect(() => {
-        if (fallbackRef) {
-            fallbackRef.current = cpuFallback;
-        }
-    }, [cpuFallback]);
-
-    useEffectEvent(() => {
         const canvas = canvasRef.current;
         if (canvas === null) {
             return;
         }
-        const isMobile = window.matchMedia('(max-width: 768px)').matches;
-        const maxCount = maxAtoms(isMobile);
-        const norm = createPatternNorm();
-        let disposed = false;
-        // P2: no RAF here — the viewer loop (MolCanvas) owns the single RAF and
-        // calls drawPattern every frame; throttle + angle early-out below keep
-        // actual redraws on demand.
-        const perfEnabled = isPerfEnabled();
-        const cpuMode = fallbackRef.current;
-        // Throttle budget depends on the backend: GPU redraws are milliseconds,
-        // CPU redraws are hundreds of ms — sharing one budget freezes the page.
-        const patMs = cpuMode ? PATTERN_PAT_MS_CPU : PATTERN_PAT_MS;
-        let patDirty = true;
-        let lastTs = 0;
-        let lastMol: Molecule | null = null;
-        const prevQuat = new Quat();
-        let firstFrame = true;
-        let subscribedControls: { dispose?: () => void } | { remove?: () => void } | null = null;
-        let onChange: (() => void) | null = null;
 
-        const markDirty = () => {
-            patDirty = true;
-        };
+        const isMobileViewport = window.matchMedia('(max-width: 768px)').matches;
+        const maxAtomCount = maxAtoms(isMobileViewport);
+        const intensityNormalizer = createPatternNorm();
+        const isPerfTrackingEnabled = isPerfEnabled();
 
-        const subscribeControls = () => {
-            const controls = viewerRef.current?.controls;
-            if (!controls || subscribedControls) {
-                return;
-            }
-            onChange = markDirty;
-            controls.addEventListener('change', onChange);
-            subscribedControls = {
-                dispose: () => {
-                    if (onChange) {
-                        controls.removeEventListener('change', onChange);
-                    }
-                },
-            };
-        };
+        let isDisposed = false;
 
-        // CPU buffers (allocated on resize when in fallback mode).
-        let patCtx: CanvasRenderingContext2D | null = null;
-        let raw = new Float32Array(0);
-        let mask = new Uint8Array(0);
-        let fadeTbl = new Float32Array(0);
-        let sampBuf = new Float32Array(0);
+        // ---------------------------------------------------------------------
+        // Renderer state
+        // ---------------------------------------------------------------------
 
-        // GPU state.
         let gl: WebGL2RenderingContext | null = null;
-        let prog: WebGLProgram | null = null;
-        let lutTex: WebGLTexture | null = null;
+        let program: WebGLProgram | null = null;
+        let lutTexture: WebGLTexture | null = null;
+        let cpuContext: CanvasRenderingContext2D | null = null;
+
         const uniforms: UniformMap = {};
 
-        const resizePat = () => {
-            const small = window.matchMedia('(max-width: 768px)').matches;
-            const desktopBuf = cpuMode ? CPU_BUF_DESKTOP : 900;
-            const mobileBuf = cpuMode ? CPU_BUF_MOBILE : 600;
-            const BUF = small ? mobileBuf : desktopBuf;
-            canvas.width = BUF;
-            canvas.height = BUF;
-            if (gl) {
-                gl.viewport(0, 0, BUF, BUF);
-            } else {
-                const n = BUF * BUF;
-                raw = new Float32Array(n);
-                mask = new Uint8Array(n);
-                fadeTbl = new Float32Array(n);
-                sampBuf = new Float32Array(Math.ceil(n / 8));
-            }
-            patDirty = true;
-        };
+        let intensityBuffer = new Float32Array(0);
+        let validMask = new Uint8Array(0);
+        let fadeBuffer = new Float32Array(0);
+        let sampleBuffer = new Float32Array(0);
 
-        if (!fallbackRef.current) {
+        let needsRedraw = true;
+        let lastDrawTime = 0;
+        let lastRenderedMolecule: Molecule | null = null;
+        const lastCameraOrientation = new Quat();
+        let isFirstFrame = true;
+
+        let subscribedControls: NonNullable<ViewerRef['current']>['controls'] | null = null;
+        let handleControlsChange: (() => void) | null = null;
+
+        // ---------------------------------------------------------------------
+        // Backend initialization
+        // ---------------------------------------------------------------------
+
+        const initializeGpu = (): boolean => {
             const maybeGl = canvas.getContext('webgl2', {
                 alpha: true,
                 premultipliedAlpha: false,
             });
+
             if (maybeGl === null || maybeGl.isContextLost()) {
-                setCpuFallback(true);
-                return;
+                return false;
             }
+
             try {
                 gl = maybeGl;
-                prog = makeProgram(gl, VS_SRC, fragSrc(maxCount));
-                gl.useProgram(prog);
-                for (const n of ['uResolution', 'uQmin', 'uQmax', 'uNatoms', 'uNorm', 'uLUT']) {
-                    uniforms[n] = gl.getUniformLocation(prog, n);
+
+                program = linkProgram(
+                    gl,
+                    VERTEX_SHADER_SOURCE,
+                    buildFragmentShaderSource(maxAtomCount),
+                );
+
+                gl.useProgram(program);
+
+                for (const name of ['uResolution', 'uQmin', 'uQmax', 'uNatoms', 'uNorm', 'uLUT']) {
+                    uniforms[name] = gl.getUniformLocation(program, name);
                 }
-                for (let i = 0; i < maxCount; i++) {
-                    uniforms[`uAtomPos${i}`] = gl.getUniformLocation(prog, `uAtomPos[${i}]`);
-                    uniforms[`uFFa${i}`] = gl.getUniformLocation(prog, `uFFa[${i}]`);
-                    uniforms[`uFFb${i}`] = gl.getUniformLocation(prog, `uFFb[${i}]`);
-                    uniforms[`uFFc${i}`] = gl.getUniformLocation(prog, `uFFc[${i}]`);
+
+                for (let i = 0; i < maxAtomCount; i++) {
+                    uniforms[`uAtomPos${i}`] = gl.getUniformLocation(program, `uAtomPos[${i}]`);
+                    uniforms[`uFFa${i}`] = gl.getUniformLocation(program, `uFFa[${i}]`);
+                    uniforms[`uFFb${i}`] = gl.getUniformLocation(program, `uFFb[${i}]`);
+                    uniforms[`uFFc${i}`] = gl.getUniformLocation(program, `uFFc[${i}]`);
                 }
-                const lutTexObj = gl.createTexture();
-                lutTex = lutTexObj;
+
+                const texture = gl.createTexture();
+                if (texture === null) {
+                    throw new Error('pattern: could not create LUT texture');
+                }
+
+                lutTexture = texture;
+
                 gl.activeTexture(gl.TEXTURE0);
-                gl.bindTexture(gl.TEXTURE_2D, lutTexObj);
+                gl.bindTexture(gl.TEXTURE_2D, texture);
+
                 gl.texImage2D(
                     gl.TEXTURE_2D,
                     0,
@@ -351,168 +374,328 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
                     gl.UNSIGNED_BYTE,
                     XRAY_LUT,
                 );
+
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
                 gl.uniform1i(uniforms.uLUT, 0);
                 gl.uniform1f(uniforms.uQmin, Q_MIN);
                 gl.uniform1f(uniforms.uQmax, Q_MAX);
+
                 setPatternPath('gpu');
-            } catch (err) {
-                console.warn('pattern: WebGL2 init failed, using CPU fallback:', err);
+
+                return true;
+            } catch (error) {
+                console.warn('pattern: WebGL2 initialization failed:', error);
+
+                if (lutTexture !== null) {
+                    maybeGl.deleteTexture(lutTexture);
+                    lutTexture = null;
+                }
+
+                if (program !== null) {
+                    maybeGl.deleteProgram(program);
+                    program = null;
+                }
+
                 gl = null;
-                prog = null;
-                setCpuFallback(true);
-                return;
+
+                return false;
             }
-        } else {
-            patCtx = canvas.getContext('2d');
-            if (patCtx === null) {
-                return;
+        };
+
+        const initializeCpu = (): boolean => {
+            const context = canvas.getContext('2d');
+
+            if (context === null) {
+                return false;
             }
+
+            cpuContext = context;
             setPatternPath('cpu');
+
+            return true;
+        };
+
+        // Probe WebGL2 before claiming the real canvas context.
+        //
+        // This keeps the CPU fallback possible without requiring a React
+        // state update/remount. Once the real canvas has a WebGL context,
+        // switching that same canvas to 2D is not possible.
+        const useGpu = supportsWebGL2();
+
+        if (useGpu) {
+            if (!initializeGpu()) {
+                console.warn(
+                    'pattern: WebGL2 was available during the probe but initialization failed; pattern disabled',
+                );
+                return;
+            }
+        } else if (!initializeCpu()) {
+            console.error('pattern: no supported rendering backend available');
+            return;
         }
 
-        resizePat();
-        subscribeControls();
-        window.addEventListener('resize', resizePat);
-        const onVisible = () => {
-            if (!document.hidden) {
-                patDirty = true;
-            }
-        };
-        const onPageShow = (e: PageTransitionEvent) => {
-            // After a bfcache restore the canvas backing store may be gone —
-            // reallocate it like the origin demo does, then force a redraw.
-            if (e.persisted) {
-                resizePat();
-            }
-            patDirty = true;
-        };
-        document.addEventListener('visibilitychange', onVisible);
-        window.addEventListener('pageshow', onPageShow);
+        const isCpuMode = gl === null;
+        const redrawThrottleMs = isCpuMode ? REDRAW_THROTTLE_MS_CPU : PATTERN_PAT_MS;
 
-        const drawPattern = () => {
-            if (disposed) {
+        // ---------------------------------------------------------------------
+        // Subscriptions
+        // ---------------------------------------------------------------------
+
+        const requestRedraw = () => {
+            needsRedraw = true;
+        };
+
+        const subscribeToControlsChanges = () => {
+            const controls = viewerRef.current?.controls;
+
+            if (!controls || controls === subscribedControls) {
                 return;
             }
-            const mol = molRef.current;
-            if (mol === null) {
+
+            if (subscribedControls && handleControlsChange) {
+                subscribedControls.removeEventListener('change', handleControlsChange);
+            }
+
+            subscribedControls = controls;
+            handleControlsChange = requestRedraw;
+
+            subscribedControls.addEventListener('change', handleControlsChange);
+        };
+
+        // ---------------------------------------------------------------------
+        // Canvas sizing
+        // ---------------------------------------------------------------------
+
+        const resizeCanvas = () => {
+            const isMobileNow = window.matchMedia('(max-width: 768px)').matches;
+
+            const desktopBufferSize = isCpuMode ? CPU_BUFFER_SIZE_DESKTOP : 900;
+            const mobileBufferSize = isCpuMode ? CPU_BUFFER_SIZE_MOBILE : 600;
+
+            const bufferSize = isMobileNow ? mobileBufferSize : desktopBufferSize;
+
+            canvas.width = bufferSize;
+            canvas.height = bufferSize;
+
+            if (gl !== null) {
+                gl.viewport(0, 0, bufferSize, bufferSize);
+            } else {
+                const pixelCount = bufferSize * bufferSize;
+
+                intensityBuffer = new Float32Array(pixelCount);
+                validMask = new Uint8Array(pixelCount);
+                fadeBuffer = new Float32Array(pixelCount);
+                sampleBuffer = new Float32Array(Math.ceil(pixelCount / 8));
+            }
+
+            needsRedraw = true;
+        };
+
+        // ---------------------------------------------------------------------
+        // Rendering
+        // ---------------------------------------------------------------------
+
+        const renderFrame = () => {
+            if (isDisposed) {
                 return;
             }
+
+            const currentMolecule = moleculeRef.current;
+
+            if (currentMolecule === null) {
+                return;
+            }
+
             const camera = viewerRef.current?.camera;
+
             if (!camera) {
                 return;
             }
-            subscribeControls();
 
-            if (mol !== lastMol) {
-                lastMol = mol;
-                norm.reset();
-                if (gl && prog) {
-                    gl.useProgram(prog);
-                    setAtomFFUniforms(gl, uniforms, mol);
+            subscribeToControlsChanges();
+
+            if (currentMolecule !== lastRenderedMolecule) {
+                lastRenderedMolecule = currentMolecule;
+                intensityNormalizer.reset();
+
+                if (gl !== null && program !== null) {
+                    gl.useProgram(program);
+                    uploadAtomFormFactorUniforms(gl, uniforms, currentMolecule);
                 }
-                patDirty = true;
+
+                needsRedraw = true;
             }
 
             const now = performance.now();
-            if (now - lastTs < patMs) {
+
+            if (now - lastDrawTime < redrawThrottleMs) {
                 return;
             }
+
             if (
-                !patDirty &&
-                !firstFrame &&
-                camera.quaternion.angleTo(prevQuat) < PATTERN_ANGLE_EPS
+                !needsRedraw &&
+                !isFirstFrame &&
+                camera.quaternion.angleTo(lastCameraOrientation) < PATTERN_ANGLE_EPS
             ) {
                 return;
             }
-            prevQuat.copy(camera.quaternion);
-            patDirty = false;
-            lastTs = now;
-            firstFrame = false;
 
-            const w = canvas.width;
-            const h = canvas.height;
-            if (!w || !h) {
+            lastCameraOrientation.copy(camera.quaternion);
+            needsRedraw = false;
+            lastDrawTime = now;
+            isFirstFrame = false;
+
+            const width = canvas.width;
+            const height = canvas.height;
+
+            if (!width || !height) {
                 return;
             }
 
-            const t0 = perfEnabled ? performance.now() : 0;
-            camera.updateMatrixWorld();
-            const atoms = projectAtoms(mol, camera.matrixWorldInverse.elements);
-            const t1 = perfEnabled ? performance.now() : 0;
+            const frameStartTime = isPerfTrackingEnabled ? performance.now() : 0;
 
-            if (gl && prog) {
-                const normV = norm.compute(atoms, w, h);
-                const t2 = perfEnabled ? performance.now() : 0;
-                gl.useProgram(prog);
-                gl.viewport(0, 0, w, h);
+            camera.updateMatrixWorld();
+
+            const projectedAtoms = projectAtoms(
+                currentMolecule,
+                camera.matrixWorldInverse.elements,
+            );
+
+            const projectionDoneTime = isPerfTrackingEnabled ? performance.now() : 0;
+
+            if (gl !== null && program !== null) {
+                const intensityNorm = intensityNormalizer.compute(projectedAtoms, width, height);
+
+                const normComputeDoneTime = isPerfTrackingEnabled ? performance.now() : 0;
+
+                gl.useProgram(program);
+                gl.viewport(0, 0, width, height);
                 gl.clearColor(0, 0, 0, 0);
                 gl.clear(gl.COLOR_BUFFER_BIT);
-                gl.uniform2f(uniforms.uResolution, w, h);
-                gl.uniform1f(uniforms.uNorm, normV);
-                for (let i = 0; i < atoms.length; i++) {
-                    const a = atoms[i];
-                    gl.uniform2f(uniforms[`uAtomPos${i}`], a.vx, a.vy);
+
+                gl.uniform2f(uniforms.uResolution, width, height);
+                gl.uniform1f(uniforms.uNorm, intensityNorm);
+
+                for (let i = 0; i < projectedAtoms.length; i++) {
+                    const atom = projectedAtoms[i];
+
+                    gl.uniform2f(uniforms[`uAtomPos${i}`], atom.vx, atom.vy);
                 }
+
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-                if (perfEnabled) {
-                    const t3 = performance.now();
-                    recordPatternFrame(t3 - t0, w, mol.name, t1 - t0, t2 - t1, t3 - t2);
+
+                if (isPerfTrackingEnabled) {
+                    const frameEndTime = performance.now();
+
+                    recordPatternFrame(
+                        frameEndTime - frameStartTime,
+                        width,
+                        currentMolecule.name,
+                        projectionDoneTime - frameStartTime,
+                        normComputeDoneTime - projectionDoneTime,
+                        frameEndTime - normComputeDoneTime,
+                    );
                 }
+
                 return;
             }
 
-            if (patCtx) {
-                drawPatternCPU(patCtx, atoms, w, h, raw, mask, fadeTbl, sampBuf);
-                if (perfEnabled) {
-                    const t3 = performance.now();
-                    recordPatternFrame(t3 - t0, w, mol.name, t1 - t0, 0, t3 - t1);
+            if (cpuContext !== null) {
+                renderPatternOnCpu(
+                    cpuContext,
+                    projectedAtoms,
+                    width,
+                    height,
+                    intensityBuffer,
+                    validMask,
+                    fadeBuffer,
+                    sampleBuffer,
+                );
+
+                if (isPerfTrackingEnabled) {
+                    const frameEndTime = performance.now();
+
+                    recordPatternFrame(
+                        frameEndTime - frameStartTime,
+                        width,
+                        currentMolecule.name,
+                        projectionDoneTime - frameStartTime,
+                        0,
+                        frameEndTime - projectionDoneTime,
+                    );
                 }
             }
         };
-        // The handle object is stable (owned by App) so registration is
-        // order-independent: works whether Pattern mounts before or after Mol.
+
+        // ---------------------------------------------------------------------
+        // Lifecycle
+        // ---------------------------------------------------------------------
+
+        resizeCanvas();
+        subscribeToControlsChanges();
+
+        window.addEventListener('resize', resizeCanvas);
+
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                needsRedraw = true;
+            }
+        };
+
+        const handlePageShow = (event: PageTransitionEvent) => {
+            if (event.persisted) {
+                resizeCanvas();
+            }
+
+            needsRedraw = true;
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('pageshow', handlePageShow);
+
         if (viewerRef.current) {
-            viewerRef.current.requestPatternDraw = drawPattern;
+            viewerRef.current.requestPatternDraw = renderFrame;
         } else {
-            viewerRef.current = { camera: null, controls: null, requestPatternDraw: drawPattern };
+            viewerRef.current = {
+                camera: null,
+                controls: null,
+                requestPatternDraw: renderFrame,
+            };
         }
 
         return () => {
-            disposed = true;
-            if (viewerRef.current?.requestPatternDraw === drawPattern) {
+            isDisposed = true;
+
+            if (viewerRef.current?.requestPatternDraw === renderFrame) {
                 viewerRef.current.requestPatternDraw = null;
             }
-            window.removeEventListener('resize', resizePat);
-            document.removeEventListener('visibilitychange', onVisible);
-            window.removeEventListener('pageshow', onPageShow);
-            const controls = viewerRef.current?.controls;
-            if (controls && onChange) {
-                controls.removeEventListener('change', onChange);
+
+            window.removeEventListener('resize', resizeCanvas);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('pageshow', handlePageShow);
+
+            if (subscribedControls && handleControlsChange) {
+                subscribedControls.removeEventListener('change', handleControlsChange);
             }
-            subscribedControls = null;
-            if (gl) {
-                // No loseContext() here: in dev StrictMode this effect mounts,
-                // cleans up, and remounts on the same canvas element, and losing
-                // the context would force the remount onto the CPU fallback.
-                // Releasing the program + texture is enough; the browser reclaims
-                // the context with the canvas.
-                if (lutTex) {
-                    gl.deleteTexture(lutTex);
+
+            if (gl !== null) {
+                if (lutTexture !== null) {
+                    gl.deleteTexture(lutTexture);
                 }
-                if (prog) {
-                    gl.deleteProgram(prog);
+
+                if (program !== null) {
+                    gl.deleteProgram(program);
                 }
             }
         };
-    });
+    }, [viewerRef]);
 
     return (
         <canvas
-            key={cpuFallback ? 'cpu' : 'gpu'}
             ref={canvasRef}
             style={{
                 width: '100%',
