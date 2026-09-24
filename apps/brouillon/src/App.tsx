@@ -10,8 +10,8 @@ import { typography } from '@repo/ui/tokens/typography.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 
-import { LabStage } from './experiments/lab/laboratory';
-import { ShowcaseStage } from './experiments/showcase/index';
+import { Laboratory } from './experiments/laboratory';
+import { Showcase } from './experiments/showcase';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -94,8 +94,8 @@ function App() {
                     </ControlPanel>
                 }
             >
-                {view === 'showcase' && <ShowcaseStage synth={undefined} />}
-                {view === 'lab' && <LabStage />}
+                {view === 'showcase' && <Showcase synth={undefined} />}
+                {view === 'lab' && <Laboratory />}
             </ExperimentShell>
         </ShellWrapper>
     );

@@ -529,7 +529,7 @@ function ResilienceSection() {
 // ─── ShowcaseStage ────────────────────────────────────────────────────────────
 // Exported: only the Stage content. ExperimentShell + panel live in App.tsx.
 
-export function ShowcaseStage(_props: { synth?: undefined }) {
+export function Showcase(_props: { synth?: undefined }) {
     const [synth, setSynth] = useState<Synth>(DEFAULT_SYNTH);
 
     function patchSynth(next: Partial<Synth>) {
