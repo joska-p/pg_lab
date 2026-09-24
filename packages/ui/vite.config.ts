@@ -52,7 +52,6 @@ export default defineConfig({
             './src/tokens/shadows.stylex.ts',
             './src/tokens/transparency.stylex.ts',
             './src/tokens/typography.stylex.ts',
-            './src/stylex-preset.ts',
         ],
         dts: {
             generator: 'tsgo',
