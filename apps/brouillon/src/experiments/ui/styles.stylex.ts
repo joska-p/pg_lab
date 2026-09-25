@@ -156,11 +156,6 @@ export const interactions = stylex.create({
     },
 });
 
-/* -------------------------------------------------------------------------- */
-/* themed — pose les vars couleur (border/shadow/background) pour un nom      */
-/* sémantique donné. Deux variantes, honnêtes sur ce qu'elles peignent :      */
-/* -------------------------------------------------------------------------- */
-
 export const themed = stylex.create({
     // Bordure + ombre teintées, PAS de fond. Pour les surfaces passives
     // (Card, Panel...) qui gardent leur propre fond neutre (surface.bg) et
@@ -180,15 +175,6 @@ export const themed = stylex.create({
 });
 
 export type SurfaceTint = 'tinted' | 'accented';
-
-/* -------------------------------------------------------------------------- */
-/* surfaceStyles — LA recette de composition partagée par tout composant      */
-/* "surface" de la lib (Button, Card, futur Input/Badge...). Elle centralise  */
-/* ce que signifie "être une surface cohérente" : un seul endroit à changer   */
-/* pour faire évoluer tous les composants d'un coup. Chaque composant garde   */
-/* sa propre base structurelle (padding, gap, display...) et compose         */
-/* simplement avec le résultat de cette fonction.                            */
-/* -------------------------------------------------------------------------- */
 
 export function surfaceStyles({
     color = 'neutral',

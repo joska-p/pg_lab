@@ -25,7 +25,6 @@ const styles = stylex.create({
         position: 'relative',
         flex: 1,
         display: 'flex',
-        flexGrow: 1,
         minWidth: 0,
         minHeight: 0,
         overflowY: 'auto',
@@ -137,7 +136,7 @@ export function ExperimentShell({
 
     return (
         <div {...compoundExperimentStyle}>
-            <div {...styles.stageSlot}>{children}</div>
+            <div {...stylex.props(styles.stageSlot)}>{children}</div>
 
             {panel && (
                 <>

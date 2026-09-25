@@ -6,7 +6,6 @@ import { surface } from '../styles.stylex';
 const styles = stylex.create({
     base: {
         width: '100%',
-        minHeight: '100dvh',
         height: '100dvh',
         backgroundColor: surface.bg,
         backgroundImage: `
@@ -23,7 +22,6 @@ const styles = stylex.create({
         color: surface.fg,
         fontFamily: typography.fontFamilySans,
         padding: space['0'],
-        boxSizing: 'border-box',
         '@media (min-width: 1024px)': {
             padding: space['4'],
         },

@@ -66,14 +66,17 @@ export function Laboratory() {
 
     return (
         <ShellWrapper>
-            <ExperimentShell panel={<ControlPanel label="testing">Hello world.</ControlPanel>}>
+            <ExperimentShell
+                panelPlacement="docked"
+                panel={<ControlPanel label="testing">Hello world.</ControlPanel>}
+            >
                 <Stage>
                     <select {...stylex.props(labStyles.select)} onChange={handleChange}>
                         <option value="dark">dark</option>
                         <option value={'light'}>light</option>
                     </select>
 
-                    <Stack direction="horizontal" gap="5">
+                    <Stack direction="horizontal" gap="5" justify="around">
                         {colorList.map((color, index) => (
                             <ElevationStack key={index} color={color} />
                         ))}
