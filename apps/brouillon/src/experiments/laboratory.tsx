@@ -1,6 +1,9 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
+import { useEffect } from 'react';
 
+import { useTheme, setTheme } from '../stores/appStore';
+import type { Theme } from '../stores/appStore';
 import {
     backgrounds,
     backgroundColor,
@@ -128,22 +131,42 @@ function Button({
 const labStyles = stylex.create({
     root: {
         display: 'grid',
-        gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-        gap: space['4'],
-        maxWidth: '640px',
+        placeContent: 'center',
+        padding: space['4'],
     },
 
     stack: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: space['2'],
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+        gap: space['4'],
+    },
+
+    select: {
+        width: 'fit-content',
+        marginBlock: space['4'],
+        marginInline: 'auto',
     },
 });
 
 export function Laboratory() {
+    const theme = useTheme();
+
+    function handleChange(event: React.ChangeEvent<HTMLSelectElement>) {
+        const theme = event.currentTarget.value as Theme;
+        setTheme(theme);
+    }
+
+    useEffect(() => {
+        document.documentElement.style.colorScheme = theme === 'dark' ? 'light dark' : theme;
+    }, [theme]);
+
     return (
-        <div>
-            <div {...stylex.props(labStyles.root)}>
+        <div {...stylex.props(labStyles.root)}>
+            <select {...stylex.props(labStyles.select)} onChange={handleChange}>
+                <option value="dark">dark</option>
+                <option value={'light'}>light</option>
+            </select>
+            <div {...stylex.props(labStyles.stack)}>
                 <Card family="neutral" elevation="flat">
                     <strong>neutral</strong>
 

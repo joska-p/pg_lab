@@ -12,7 +12,8 @@
     "dependencies": {
         "@repo/ui": "workspace:*",
         "react": "catalog:",
-        "react-dom": "catalog:"
+        "react-dom": "catalog:",
+        "zustand": "catalog:"
     },
     "devDependencies": {
         "@repo/internal-config": "workspace:*",
