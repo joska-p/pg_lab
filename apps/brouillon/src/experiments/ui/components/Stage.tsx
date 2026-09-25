@@ -19,12 +19,17 @@ const styles = stylex.create({
     },
 });
 
-interface StageProps {
+interface StageProps extends Omit<React.ComponentProps<'section'>, 'style'> {
     children?: React.ReactNode;
+    style?: stylex.StyleXStyles;
 }
 
-export function Stage({ children }: StageProps) {
-    const compoundStyle = stylex.props(styles.base, elevations.raised);
+export function Stage({ children, style, ...props }: StageProps) {
+    const compoundStyle = stylex.props(styles.base, elevations.raised, style);
 
-    return <section {...compoundStyle}>{children}</section>;
+    return (
+        <section {...props} {...compoundStyle}>
+            {children}
+        </section>
+    );
 }

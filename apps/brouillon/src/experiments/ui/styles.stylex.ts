@@ -14,10 +14,6 @@ export const shadowColor = stylex.defineVars({
     color: 'transparent',
 });
 
-export const glowColor = stylex.defineVars({
-    color: 'transparent',
-});
-
 export const surface = stylex.defineVars({
     bg: `light-dark(${palette.light0}, ${palette.dark0})`,
     fg: `light-dark(${palette.dark0}, ${palette.light0})`,
@@ -34,7 +30,7 @@ export type ColorNames =
     | 'orange';
 
 export const colors = stylex.defineVars({
-    neutral: palette.gray245,
+    neutral: `light-dark(${palette.light0Soft}, ${palette.dark0Soft})`,
     aurora: `light-dark(${palette.brightBlue}, ${palette.fadedBlue})`,
     solder: `light-dark(${palette.brightGreen}, ${palette.fadedGreen})`,
     purple: `light-dark(${palette.brightPurple}, ${palette.fadedPurple})`,
@@ -44,6 +40,7 @@ export const colors = stylex.defineVars({
     orange: `light-dark(${palette.brightOrange}, ${palette.fadedOrange})`,
 } as const satisfies Record<ColorNames, string>);
 
+// Statique : ce que c'est (fond plein ou voilé).
 export const backgrounds = stylex.create({
     solid: {
         backgroundColor: backgroundColor.color,
@@ -51,18 +48,6 @@ export const backgrounds = stylex.create({
 
     soft: {
         backgroundColor: `color-mix(in oklab, ${backgroundColor.color} 18%, transparent)`,
-    },
-
-    hover: {
-        ':hover': {
-            backgroundColor: `color-mix(in oklab, ${backgroundColor.color} 42%, transparent)`,
-        },
-    },
-
-    active: {
-        ':active': {
-            backgroundColor: `color-mix(in oklab, ${backgroundColor.color} 58%, transparent)`,
-        },
     },
 });
 
@@ -80,6 +65,7 @@ export const gaps = stylex.create({
     '16': { gap: space['16'] },
 });
 
+// Statique : ce que c'est (bordure + radius).
 export const borders = stylex.create({
     subtle: {
         borderWidth: borderWidth.hairline,
@@ -91,19 +77,6 @@ export const borders = stylex.create({
         borderWidth: borderWidth.hairline,
         borderStyle: 'solid',
         borderColor: `color-mix(in oklab, ${borderColor.color} 20%, transparent)`,
-    },
-
-    hover: {
-        ':hover': {
-            borderColor: `color-mix(in oklab, ${borderColor.color} 30%, transparent)`,
-        },
-    },
-
-    focus: {
-        ':focus-visible': {
-            outline: `1px solid ${borderColor.color}`,
-            outlineOffset: '2px',
-        },
     },
 
     rounded: {
@@ -132,18 +105,10 @@ export const elevations = stylex.create({
 
 export type Elevation = keyof typeof elevations;
 
+// Dynamique : ce que ça fait (survol, appui, focus, état).
+// Valeurs déplacées sans changement — `active` et `borderHover`
+// restent définis mais non branchés pour le moment.
 export const interactions = stylex.create({
-    base: {
-        cursorPointer: 'pointer',
-        cursorProgress: 'progress',
-        cursorNotAllowed: 'not-allowed',
-        disabledOpacity: 0.45,
-        pressScale: 0.98,
-    },
-    disabled: {
-        cursor: 'not-allowed',
-        opacity: 0.45,
-    },
     pressable: {
         cursor: 'pointer',
         transitionProperty: 'background-color, border-color, color, box-shadow, transform',
@@ -153,6 +118,31 @@ export const interactions = stylex.create({
             default: null,
             ':active': 'scale(0.98)',
         },
+    },
+    hover: {
+        ':hover': {
+            backgroundColor: `color-mix(in oklab, ${backgroundColor.color} 42%, transparent)`,
+        },
+    },
+    active: {
+        ':active': {
+            backgroundColor: `color-mix(in oklab, ${backgroundColor.color} 58%, transparent)`,
+        },
+    },
+    borderHover: {
+        ':hover': {
+            borderColor: `color-mix(in oklab, ${borderColor.color} 30%, transparent)`,
+        },
+    },
+    focus: {
+        ':focus-visible': {
+            outline: `1px solid ${borderColor.color}`,
+            outlineOffset: '2px',
+        },
+    },
+    disabled: {
+        cursor: 'not-allowed',
+        opacity: 0.45,
     },
 });
 
@@ -176,16 +166,20 @@ export const themed = stylex.create({
 
 export type SurfaceTint = 'tinted' | 'accented';
 
-export function surfaceStyles({
+// Statique : concepts in, style out. Ne sait rien du survol ou du disabled.
+// Le dynamique lit les mêmes vars CSS, donc pas besoin de lui passer le tint
+// pour le moment — le jour où le hover `tinted` aura ses propres valeurs,
+// `dynamicStyles` prendra un paramètre `tint` et choisira par conditionnel,
+// comme `staticStyles` le fait déjà. Pas besoin du pattern "dynamic styles"
+// à CSS vars runtime : nos variantes sont finies, les conditionnels suffisent.
+export function staticStyles({
     color = 'neutral',
     tint = 'accented',
     elevation = 'flat',
-    disabled = false,
 }: {
     color?: ColorNames;
     tint?: SurfaceTint;
     elevation?: Elevation;
-    disabled?: boolean;
 }) {
     return [
         tint === 'tinted' ? themed.tinted(color) : themed.accented(color),
@@ -193,6 +187,17 @@ export function surfaceStyles({
         borders.subtle,
         borders.rounded,
         elevations[elevation],
+    ];
+}
+
+// Dynamique : branché à l'identique du comportement actuel de Button
+// (pressable + hover + focus), avec `pressable`/`hover` coupés si disabled.
+// `active` et `borderHover` existent mais restent non branchés pour l'instant.
+export function dynamicStyles({ disabled = false }: { disabled?: boolean }) {
+    return [
+        !disabled && interactions.pressable,
+        !disabled && interactions.hover,
+        interactions.focus,
         disabled && interactions.disabled,
     ];
 }

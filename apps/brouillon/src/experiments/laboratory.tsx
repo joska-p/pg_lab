@@ -11,7 +11,8 @@ import { ShellWrapper } from './ui/components/ShellWrapper';
 import { Stack } from './ui/components/Stack';
 import { Stage } from './ui/components/Stage';
 import { space } from './ui/const.stylex';
-import type { ColorNames } from './ui/styles.stylex';
+import { heading } from './ui/styles.stylex';
+import type { ColorNames, SurfaceTint } from './ui/styles.stylex';
 
 /* -------------------------------------------------------------------------- */
 /* Laboratory                                                                 */
@@ -35,19 +36,52 @@ const labStyles = stylex.create({
         marginBlock: space['4'],
         marginInline: 'auto',
     },
+    section: {
+        marginBlock: space['4'],
+    },
 });
 
-function ElevationStack({ color }: { color: ColorNames }) {
+// Boutons : fond constant (carte neutre), seule la couleur du bouton varie.
+// Chaque elevation de carte est testée, les boutons gardent leurs defaults
+// (tinted → raised, accented → flat).
+function ButtonShowcase() {
     return (
         <Stack direction="vertical" gap="5">
-            {elevationList.map((elevation) => {
-                return (
-                    <Card elevation={elevation} color={color} key={elevation}>
-                        {elevation}
-                        <Button color={color}>{color.toString()}</Button>
-                    </Card>
-                );
-            })}
+            {elevationList.map((elevation) => (
+                <Card key={elevation} color="neutral" tint="accented" elevation={elevation}>
+                    {elevation}
+                    <Stack direction="horizontal" gap="3">
+                        {colorList.map((color) => (
+                            <Button key={color} color={color} tint="tinted">
+                                {color.toString()}
+                            </Button>
+                        ))}
+                    </Stack>
+                    <Stack direction="horizontal" gap="3">
+                        {colorList.map((color) => (
+                            <Button key={`${color}-accented`} color={color} tint="accented">
+                                {color.toString()}
+                            </Button>
+                        ))}
+                    </Stack>
+                </Card>
+            ))}
+        </Stack>
+    );
+}
+
+// Cartes : contenu constant (bouton neutre), seule la carte varie.
+function CardShowcase({ tint }: { tint: SurfaceTint }) {
+    return (
+        <Stack direction="horizontal" gap="5">
+            {colorList.map((color) => (
+                <Card key={color} color={color} tint={tint} elevation="flat">
+                    {color}
+                    <Button color="neutral" tint="accented">
+                        action
+                    </Button>
+                </Card>
+            ))}
         </Stack>
     );
 }
@@ -76,11 +110,20 @@ export function Laboratory() {
                         <option value={'light'}>light</option>
                     </select>
 
-                    <Stack direction="horizontal" gap="5" justify="around">
-                        {colorList.map((color, index) => (
-                            <ElevationStack key={index} color={color} />
-                        ))}
-                    </Stack>
+                    <div {...stylex.props(labStyles.section)}>
+                        <h2 {...stylex.props(heading.level2)}>Boutons sur fond neutre</h2>
+                        <ButtonShowcase />
+                    </div>
+
+                    <div {...stylex.props(labStyles.section)}>
+                        <h2 {...stylex.props(heading.level2)}>Cartes accented</h2>
+                        <CardShowcase tint="accented" />
+                    </div>
+
+                    <div {...stylex.props(labStyles.section)}>
+                        <h2 {...stylex.props(heading.level2)}>Cartes tinted</h2>
+                        <CardShowcase tint="tinted" />
+                    </div>
                 </Stage>
             </ExperimentShell>
         </ShellWrapper>

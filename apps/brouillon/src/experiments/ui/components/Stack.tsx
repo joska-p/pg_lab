@@ -18,11 +18,12 @@ const directions = stylex.create({
     },
 });
 
-interface StackProps {
+interface StackProps extends Omit<React.ComponentProps<'div'>, 'style'> {
     direction?: keyof typeof directions;
     gap?: keyof typeof gaps;
     justify?: keyof typeof justifyContent;
     children?: React.ReactNode;
+    style?: stylex.StyleXStyles;
 }
 
 export function Stack({
@@ -30,13 +31,20 @@ export function Stack({
     gap = '3',
     justify = 'start',
     children,
+    style,
+    ...props
 }: StackProps) {
     const coumpoundStyle = stylex.props(
         styles.base,
         directions[direction],
         gaps[gap],
         justifyContent[justify],
+        style,
     );
 
-    return <div {...coumpoundStyle}>{children}</div>;
+    return (
+        <div {...props} {...coumpoundStyle}>
+            {children}
+        </div>
+    );
 }

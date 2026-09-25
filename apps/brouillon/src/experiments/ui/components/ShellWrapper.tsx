@@ -28,10 +28,15 @@ const styles = stylex.create({
     },
 });
 
-interface ShellWrapperProps {
+interface ShellWrapperProps extends Omit<React.ComponentProps<'div'>, 'style'> {
     children?: React.ReactNode;
+    style?: stylex.StyleXStyles;
 }
 
-export function ShellWrapper({ children }: ShellWrapperProps) {
-    return <div {...stylex.props(styles.base)}>{children}</div>;
+export function ShellWrapper({ children, style, ...props }: ShellWrapperProps) {
+    return (
+        <div {...props} {...stylex.props(styles.base, style)}>
+            {children}
+        </div>
+    );
 }

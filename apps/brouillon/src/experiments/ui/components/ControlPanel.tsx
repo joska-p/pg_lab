@@ -12,15 +12,20 @@ const styles = stylex.create({
     },
 });
 
-interface ControlPanelProps {
+interface ControlPanelProps extends Omit<React.ComponentProps<'aside'>, 'style'> {
     title?: string;
     label?: string;
+    style?: stylex.StyleXStyles;
     children?: React.ReactNode;
 }
 
-export function ControlPanel({ title, label, children }: ControlPanelProps) {
+export function ControlPanel({ title, label, children, style, ...props }: ControlPanelProps) {
     return (
-        <aside aria-label={label ?? title ?? 'control panel'} {...stylex.props(styles.base)}>
+        <aside
+            {...props}
+            aria-label={label ?? title ?? 'control panel'}
+            {...stylex.props(styles.base, style)}
+        >
             {title ? <h2 {...stylex.props(heading.level2)}>{title}</h2> : null}
             {children}
         </aside>

@@ -97,16 +97,19 @@ const styles = stylex.create({
     },
 });
 
-interface ExperimentShellProps {
+interface ExperimentShellProps extends Omit<React.ComponentProps<'div'>, 'style'> {
     children: React.ReactNode;
     panel?: React.ReactNode;
     panelPlacement?: 'docked' | 'floating';
+    style?: stylex.StyleXStyles;
 }
 
 export function ExperimentShell({
     children,
     panel,
     panelPlacement = 'docked',
+    style,
+    ...props
 }: ExperimentShellProps) {
     const panelId = useId();
     const [panelVisible, setPanelVisible] = useState(true);
@@ -127,6 +130,7 @@ export function ExperimentShell({
         elevations.raised,
         borders.subtle,
         borders.rounded,
+        style,
     );
 
     const compoundToggleStyle = stylex.props(
@@ -135,7 +139,7 @@ export function ExperimentShell({
     );
 
     return (
-        <div {...compoundExperimentStyle}>
+        <div {...props} {...compoundExperimentStyle}>
             <div {...stylex.props(styles.stageSlot)}>{children}</div>
 
             {panel && (

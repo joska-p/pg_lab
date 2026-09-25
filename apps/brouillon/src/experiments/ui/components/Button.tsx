@@ -2,8 +2,8 @@ import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { typography, space } from '../const.stylex';
-import { interactions, surface, surfaceStyles, backgrounds } from '../styles.stylex';
-import type { ColorNames } from '../styles.stylex';
+import { surface, staticStyles, dynamicStyles } from '../styles.stylex';
+import type { ColorNames, Elevation, SurfaceTint } from '../styles.stylex';
 
 const styles = stylex.create({
     base: {
@@ -22,30 +22,36 @@ const styles = stylex.create({
     },
 });
 
-type ButtonProps = {
+interface ButtonProps extends Omit<React.ComponentProps<'button'>, 'style'> {
     color?: ColorNames;
+    tint?: SurfaceTint;
+    elevation?: Elevation;
     disabled?: boolean;
     style?: StyleXStyles;
-} & Omit<React.ComponentProps<'button'>, 'style'>;
+}
 
 export function Button({
     color = 'neutral',
+    tint = 'tinted',
+    elevation = 'raised',
     disabled = false,
     style,
+    type = 'button',
     children,
     ...props
 }: ButtonProps) {
-    const compoundStyle = stylex.props(
-        styles.base,
-        surfaceStyles({ color, tint: 'tinted', elevation: 'raised', disabled }),
-        interactions.pressable,
-        disabled && interactions.disabled,
-        backgrounds.hover,
-        style,
-    );
-
     return (
-        <button {...props} type={props.type ?? 'button'} disabled={disabled} {...compoundStyle}>
+        <button
+            {...props}
+            type={type}
+            disabled={disabled}
+            {...stylex.props(
+                styles.base,
+                staticStyles({ color, tint, elevation }),
+                dynamicStyles({ disabled }),
+                style,
+            )}
+        >
             {children}
         </button>
     );
