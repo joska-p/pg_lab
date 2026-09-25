@@ -1,6 +1,22 @@
 import * as stylex from '@stylexjs/stylex';
 
-import { gruvboxPalette as palette } from './const.stylex';
+import { gruvboxPalette as palette, borderWidth, radius, typography } from './const.stylex';
+
+export const backgroundColor = stylex.defineVars({
+    color: 'transparent',
+});
+
+export const borderColor = stylex.defineVars({
+    color: 'transparent',
+});
+
+export const shadowColor = stylex.defineVars({
+    color: 'transparent',
+});
+
+export const glowColor = stylex.defineVars({
+    color: 'transparent',
+});
 
 export const surface = stylex.defineVars({
     bg: `light-dark(${palette.light0}, ${palette.dark0})`,
@@ -28,22 +44,6 @@ export const colors = stylex.defineVars({
     orange: `light-dark(${palette.brightOrange}, ${palette.fadedOrange})`,
 } as const satisfies Record<ColorNames, string>);
 
-export const backgroundColor = stylex.defineVars({
-    color: 'transparent',
-});
-
-export const borderColor = stylex.defineVars({
-    color: 'transparent',
-});
-
-export const shadowColor = stylex.defineVars({
-    color: 'transparent',
-});
-
-export const glowColor = stylex.defineVars({
-    color: 'transparent',
-});
-
 export const backgrounds = stylex.create({
     solid: {
         backgroundColor: backgroundColor.color,
@@ -68,13 +68,13 @@ export const backgrounds = stylex.create({
 
 export const borders = stylex.create({
     subtle: {
-        borderWidth: '1px',
+        borderWidth: borderWidth.hairline,
         borderStyle: 'solid',
         borderColor: `color-mix(in oklab, ${borderColor.color} 10%, transparent)`,
     },
 
     strong: {
-        borderWidth: '1px',
+        borderWidth: borderWidth.hairline,
         borderStyle: 'solid',
         borderColor: `color-mix(in oklab, ${borderColor.color} 20%, transparent)`,
     },
@@ -93,7 +93,7 @@ export const borders = stylex.create({
     },
 
     rounded: {
-        borderRadius: '6px',
+        borderRadius: radius.md,
     },
 });
 
@@ -118,8 +118,19 @@ export const elevations = stylex.create({
 
 export type Elevation = keyof typeof elevations;
 
-export const pressable = stylex.create({
+export const interactions = stylex.create({
     base: {
+        cursorPointer: 'pointer',
+        cursorProgress: 'progress',
+        cursorNotAllowed: 'not-allowed',
+        disabledOpacity: 0.45,
+        pressScale: 0.98,
+    },
+    disabled: {
+        cursor: 'not-allowed',
+        opacity: 0.45,
+    },
+    pressable: {
         cursor: 'pointer',
         transitionProperty: 'background-color, border-color, color, box-shadow, transform',
         transitionDuration: '120ms',
@@ -128,13 +139,6 @@ export const pressable = stylex.create({
             default: null,
             ':active': 'scale(0.98)',
         },
-    },
-});
-
-export const inactive = stylex.create({
-    base: {
-        cursor: 'not-allowed',
-        opacity: 0.45,
     },
 });
 
@@ -178,7 +182,7 @@ export function surfaceStyles({
     elevation = 'flat',
     disabled = false,
 }: {
-    color: ColorNames;
+    color?: ColorNames;
     tint?: SurfaceTint;
     elevation?: Elevation;
     disabled?: boolean;
@@ -189,6 +193,56 @@ export function surfaceStyles({
         borders.subtle,
         borders.rounded,
         elevations[elevation],
-        disabled && inactive.base,
+        disabled && interactions.disabled,
     ];
 }
+
+export const heading = stylex.create({
+    level1: {
+        margin: 0,
+        fontFamily: typography.fontFamilySans,
+        fontSize: typography.fontSizeLg,
+        fontWeight: typography.fontWeightSemibold,
+        letterSpacing: typography.letterSpacingWide,
+        textTransform: typography.textCaseUppercase,
+        color: surface.fg,
+    },
+    level2: {
+        margin: 0,
+        fontFamily: typography.fontFamilySans,
+        fontSize: typography.fontSizeSm,
+        fontWeight: typography.fontWeightMedium,
+        letterSpacing: typography.letterSpacingWide,
+        textTransform: typography.textCaseUppercase,
+        color: surface.fg,
+    },
+    level3: {
+        margin: 0,
+        fontFamily: typography.fontFamilyMono,
+        fontSize: typography.fontSizeXs,
+        fontWeight: typography.fontWeightMedium,
+        letterSpacing: typography.letterSpacingWide,
+        textTransform: typography.textCaseUppercase,
+        color: surface.fg,
+    },
+});
+
+export const fieldText = stylex.create({
+    label: {
+        fontFamily: typography.fontFamilySans,
+        fontSize: typography.fontSizeSm,
+        fontWeight: typography.fontWeightMedium,
+        letterSpacing: typography.letterSpacingTight,
+        color: surface.fg,
+    },
+    value: {
+        fontFamily: typography.fontFamilyMono,
+        fontSize: typography.fontSizeSm,
+        color: surface.fg,
+    },
+    message: {
+        fontFamily: typography.fontFamilyMono,
+        fontSize: typography.fontSizeXs,
+        color: colors.orange,
+    },
+});

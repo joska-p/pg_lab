@@ -1,9 +1,9 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { typography, space } from './const.stylex';
-import { pressable, surface, surfaceStyles, backgrounds } from './styles.stylex';
-import type { ColorNames } from './styles.stylex';
+import { typography, space } from '../const.stylex';
+import { interactions, surface, surfaceStyles, backgrounds } from '../styles.stylex';
+import type { ColorNames } from '../styles.stylex';
 
 const styles = stylex.create({
     base: {
@@ -38,7 +38,8 @@ export function Button({
     const compoundStyle = stylex.props(
         styles.base,
         surfaceStyles({ color, tint: 'tinted', elevation: 'raised', disabled }),
-        pressable.base,
+        interactions.pressable,
+        disabled && interactions.disabled,
         backgrounds.hover,
         style,
     );

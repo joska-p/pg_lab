@@ -3,11 +3,14 @@ import { useEffect } from 'react';
 
 import { useTheme, setTheme } from '../stores/appStore';
 import type { Theme } from '../stores/appStore';
-import { Button } from './Button';
-import { Card } from './Card';
-import { space } from './const.stylex';
-import { colors } from './styles.stylex';
-import type { ColorNames } from './styles.stylex';
+import { Button } from './ui/components/Button';
+import { Card } from './ui/components/Card';
+import { ControlPanel } from './ui/components/ControlPanel';
+import { ExperimentShell } from './ui/components/ExperimentShell';
+import { ShellWrapper } from './ui/components/ShellWrapper';
+import { Stage } from './ui/components/Stage';
+import { space } from './ui/const.stylex';
+import type { ColorNames } from './ui/styles.stylex';
 
 /* -------------------------------------------------------------------------- */
 /* Laboratory                                                                 */
@@ -26,24 +29,6 @@ const colorList = [
 ] as ColorNames[];
 
 const labStyles = stylex.create({
-    root: {
-        display: 'grid',
-        minHeight: '100dvh',
-        placeContent: 'center',
-        padding: space['4'],
-        backgroundImage: `
-      radial-gradient(45% 35% at 4% 6%, color-mix(in oklab, ${colors.error} 30%, transparent), transparent 70%),
-      radial-gradient(40% 35% at 96% 8%, color-mix(in oklab, ${colors.orange} 28%, transparent), transparent 70%),
-      radial-gradient(50% 40% at 88% 88%, color-mix(in oklab, ${colors.amber} 26%, transparent), transparent 70%),
-      radial-gradient(45% 45% at 8% 92%, color-mix(in oklab, ${colors.solder} 28%, transparent), transparent 70%),
-      radial-gradient(55% 40% at 50% 0%, color-mix(in oklab, ${colors.aqua} 24%, transparent), transparent 70%),
-      radial-gradient(50% 50% at 100% 55%, color-mix(in oklab, ${colors.aurora} 30%, transparent), transparent 70%),
-      radial-gradient(45% 40% at 0% 50%, color-mix(in oklab, ${colors.purple} 28%, transparent), transparent 70%),
-      radial-gradient(35% 30% at 50% 55%, color-mix(in oklab, ${colors.neutral} 20%, transparent), transparent 70%),
-      linear-gradient(160deg, color-mix(in oklab, ${colors.neutral} 20%, transparent), transparent 65%)
-    `,
-    },
-
     stackH: {
         display: 'flex',
         flexDirection: 'row',
@@ -92,17 +77,21 @@ export function Laboratory() {
     }, [theme]);
 
     return (
-        <div {...stylex.props(labStyles.root)}>
-            <select {...stylex.props(labStyles.select)} onChange={handleChange}>
-                <option value="dark">dark</option>
-                <option value={'light'}>light</option>
-            </select>
+        <ShellWrapper>
+            <ExperimentShell panel={<ControlPanel label="testing">Hello world.</ControlPanel>}>
+                <Stage>
+                    <select {...stylex.props(labStyles.select)} onChange={handleChange}>
+                        <option value="dark">dark</option>
+                        <option value={'light'}>light</option>
+                    </select>
 
-            <div {...stylex.props(labStyles.stackH)}>
-                {colorList.map((color, index) => (
-                    <ElevationStack key={index} color={color} />
-                ))}
-            </div>
-        </div>
+                    <div {...stylex.props(labStyles.stackH)}>
+                        {colorList.map((color, index) => (
+                            <ElevationStack key={index} color={color} />
+                        ))}
+                    </div>
+                </Stage>
+            </ExperimentShell>
+        </ShellWrapper>
     );
 }

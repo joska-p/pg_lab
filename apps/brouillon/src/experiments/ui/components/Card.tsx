@@ -1,9 +1,9 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { space } from './const.stylex';
-import { surface, surfaceStyles } from './styles.stylex';
-import type { ColorNames, Elevation } from './styles.stylex';
+import { space } from '../const.stylex';
+import { surface, surfaceStyles } from '../styles.stylex';
+import type { ColorNames, Elevation } from '../styles.stylex';
 
 const cardStyles = stylex.create({
     base: {
@@ -24,7 +24,11 @@ interface CardProps {
 }
 
 export function Card({ elevation = 'flat', color = 'neutral', style, children }: CardProps) {
-    const compoundStyle = stylex.props(cardStyles.base, surfaceStyles({ color, elevation }), style);
+    const compoundStyle = stylex.props(
+        cardStyles.base,
+        surfaceStyles({ color, elevation, tint: 'accented' }),
+        style,
+    );
 
     return <div {...compoundStyle}>{children}</div>;
 }
