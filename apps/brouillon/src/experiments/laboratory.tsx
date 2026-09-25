@@ -11,7 +11,7 @@ import {
     borderColor,
     disabled,
     families,
-    shadows,
+    elevations,
     shadowColor,
     space,
     surface,
@@ -37,7 +37,7 @@ const cardStyles = stylex.create({
 });
 
 interface CardProps {
-    elevation?: keyof typeof shadows;
+    elevation?: keyof typeof elevations;
     family?: FamilyName;
     style?: StyleXStyles;
     children?: React.ReactNode;
@@ -48,7 +48,7 @@ function Card({ elevation = 'flat', family = 'neutral', style, children }: CardP
         cardStyles.base(family),
         borders.subtle,
         borders.rounded,
-        shadows[elevation],
+        elevations[elevation],
         style,
     );
 
@@ -128,17 +128,48 @@ function Button({
 /* Laboratory                                                                 */
 /* -------------------------------------------------------------------------- */
 
+const elevationList = ['sunken', 'flat', 'raised'] as const;
+const familyList = [
+    'neutral',
+    'aurora',
+    'solder',
+    'neon-violet',
+    'amber',
+    'error',
+    'aqua',
+    'orange',
+] as FamilyName[];
+
 const labStyles = stylex.create({
     root: {
         display: 'grid',
+        minHeight: '100dvh',
         placeContent: 'center',
         padding: space['4'],
+        backgroundImage: `
+      radial-gradient(45% 35% at 4% 6%, color-mix(in oklab, ${families.error} 30%, transparent), transparent 70%),
+      radial-gradient(40% 35% at 96% 8%, color-mix(in oklab, ${families.orange} 28%, transparent), transparent 70%),
+      radial-gradient(50% 40% at 88% 88%, color-mix(in oklab, ${families.amber} 26%, transparent), transparent 70%),
+      radial-gradient(45% 45% at 8% 92%, color-mix(in oklab, ${families.solder} 28%, transparent), transparent 70%),
+      radial-gradient(55% 40% at 50% 0%, color-mix(in oklab, ${families.aqua} 24%, transparent), transparent 70%),
+      radial-gradient(50% 50% at 100% 55%, color-mix(in oklab, ${families.aurora} 30%, transparent), transparent 70%),
+      radial-gradient(45% 40% at 0% 50%, color-mix(in oklab, ${families['neon-violet']} 28%, transparent), transparent 70%),
+      radial-gradient(35% 30% at 50% 55%, color-mix(in oklab, ${families.neutral} 20%, transparent), transparent 70%),
+      linear-gradient(160deg, color-mix(in oklab, ${families.neutral} 20%, transparent), transparent 65%)
+    `,
     },
 
-    stack: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-        gap: space['4'],
+    stackH: {
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: space['5'],
+    },
+
+    stackV: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: space['5'],
     },
 
     select: {
@@ -147,6 +178,21 @@ const labStyles = stylex.create({
         marginInline: 'auto',
     },
 });
+
+function ElevationStack({ family }: { family: FamilyName }) {
+    return (
+        <div {...stylex.props(labStyles.stackV)}>
+            {elevationList.map((elevation) => {
+                return (
+                    <Card elevation={elevation} family={family} key={elevation}>
+                        {elevation}
+                        <Button family={family}>{family.toString()}</Button>
+                    </Card>
+                );
+            })}
+        </div>
+    );
+}
 
 export function Laboratory() {
     const theme = useTheme();
@@ -166,60 +212,11 @@ export function Laboratory() {
                 <option value="dark">dark</option>
                 <option value={'light'}>light</option>
             </select>
-            <div {...stylex.props(labStyles.stack)}>
-                <Card family="neutral" elevation="flat">
-                    <strong>neutral</strong>
 
-                    <Button>default</Button>
-                </Card>
-
-                <Card family="aurora" elevation="raised">
-                    <strong>aurora</strong>
-
-                    <Button family="aurora">aurora</Button>
-                </Card>
-
-                <Card family="solder" elevation="sunken">
-                    <strong>solder</strong>
-
-                    <Button family="solder">solder</Button>
-                </Card>
-
-                <Card family="amber" elevation="raised">
-                    <strong>amber</strong>
-
-                    <Button family="amber">amber</Button>
-                </Card>
-
-                <Card family="error" elevation="raised">
-                    <strong>error</strong>
-
-                    <Button family="error">error</Button>
-                </Card>
-
-                <Card family="aqua" elevation="raised">
-                    <strong>aqua</strong>
-
-                    <Button family="aqua">aqua</Button>
-                </Card>
-
-                <Card family="orange" elevation="raised">
-                    <strong>orange</strong>
-
-                    <Button family="orange">orange</Button>
-                </Card>
-
-                <Card family="neon-violet" elevation="raised">
-                    <strong>neon violet</strong>
-
-                    <div {...stylex.props(labStyles.stack)}>
-                        <Button family="neon-violet">neon violet</Button>
-
-                        <Button family="neon-violet" disabled>
-                            disabled
-                        </Button>
-                    </div>
-                </Card>
+            <div {...stylex.props(labStyles.stackH)}>
+                {familyList.map((family, index) => (
+                    <ElevationStack key={index} family={family} />
+                ))}
             </div>
         </div>
     );

@@ -19,6 +19,7 @@ export const space = stylex.defineConsts({
     '2': '8px',
     '3': '12px',
     '4': '16px',
+    '5': '20px',
 });
 
 /* -------------------------------------------------------------------------- */
@@ -94,18 +95,18 @@ export const borders = stylex.create({
     subtle: {
         borderWidth: '1px',
         borderStyle: 'solid',
-        borderColor: `color-mix(in oklab, ${borderColor.color} 24%, transparent)`,
+        borderColor: `color-mix(in oklab, ${borderColor.color} 10%, transparent)`,
     },
 
     strong: {
         borderWidth: '1px',
         borderStyle: 'solid',
-        borderColor: `color-mix(in oklab, ${borderColor.color} 52%, transparent)`,
+        borderColor: `color-mix(in oklab, ${borderColor.color} 20%, transparent)`,
     },
 
     hover: {
         ':hover': {
-            borderColor: `color-mix(in oklab, ${borderColor.color} 52%, transparent)`,
+            borderColor: `color-mix(in oklab, ${borderColor.color} 30%, transparent)`,
         },
     },
 
@@ -122,10 +123,10 @@ export const borders = stylex.create({
 });
 
 /* -------------------------------------------------------------------------- */
-/* Shadows                                                                    */
+/* Elevations                                                                 */
 /* -------------------------------------------------------------------------- */
 
-export const shadows = stylex.create({
+export const elevations = stylex.create({
     flat: {
         boxShadow: 'none',
     },
