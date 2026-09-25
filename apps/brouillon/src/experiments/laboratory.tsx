@@ -8,6 +8,7 @@ import { Card } from './ui/components/Card';
 import { ControlPanel } from './ui/components/ControlPanel';
 import { ExperimentShell } from './ui/components/ExperimentShell';
 import { ShellWrapper } from './ui/components/ShellWrapper';
+import { Stack } from './ui/components/Stack';
 import { Stage } from './ui/components/Stage';
 import { space } from './ui/const.stylex';
 import type { ColorNames } from './ui/styles.stylex';
@@ -29,19 +30,6 @@ const colorList = [
 ] as ColorNames[];
 
 const labStyles = stylex.create({
-    stackH: {
-        display: 'flex',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: space['5'],
-    },
-
-    stackV: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: space['5'],
-    },
-
     select: {
         width: 'fit-content',
         marginBlock: space['4'],
@@ -51,7 +39,7 @@ const labStyles = stylex.create({
 
 function ElevationStack({ color }: { color: ColorNames }) {
     return (
-        <div {...stylex.props(labStyles.stackV)}>
+        <Stack direction="vertical" gap="5">
             {elevationList.map((elevation) => {
                 return (
                     <Card elevation={elevation} color={color} key={elevation}>
@@ -60,7 +48,7 @@ function ElevationStack({ color }: { color: ColorNames }) {
                     </Card>
                 );
             })}
-        </div>
+        </Stack>
     );
 }
 
@@ -85,11 +73,11 @@ export function Laboratory() {
                         <option value={'light'}>light</option>
                     </select>
 
-                    <div {...stylex.props(labStyles.stackH)}>
+                    <Stack direction="horizontal" gap="5">
                         {colorList.map((color, index) => (
                             <ElevationStack key={index} color={color} />
                         ))}
-                    </div>
+                    </Stack>
                 </Stage>
             </ExperimentShell>
         </ShellWrapper>
