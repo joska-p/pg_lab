@@ -35,7 +35,12 @@
         "dev": "vp -C apps/playground dev --host",
         "dev:brouillon": "vp -C apps/brouillon dev --host",
         "build": "vp run @repo/playground#build",
-        "prepare": "vp config"
+        "prepare": "vp config",
+        "clean": "pnpm clean:cache && pnpm clean:dist && pnpm clean:tsbuildinfo && pnpm clean:modules",
+        "clean:cache": "vp cache clean",
+        "clean:dist": "find . -name node_modules -type d -prune -o -name dist -type d -prune -exec rm -rf {} +",
+        "clean:tsbuildinfo": "find . -name '*.tsbuildinfo' -type f -not -path '*/node_modules/*' -delete",
+        "clean:modules": "find . -name node_modules -type d -prune -exec rm -rf {} +"
     },
     "devDependencies": {
         "@repo/internal-config": "workspace:*",
