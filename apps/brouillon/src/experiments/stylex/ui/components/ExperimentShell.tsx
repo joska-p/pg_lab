@@ -29,6 +29,7 @@ const styles = stylex.create({
         minWidth: 0,
         minHeight: 0,
         overflowY: 'auto',
+        padding: space['4'],
     },
 
     panel: {
@@ -119,7 +120,7 @@ export function ExperimentShell({
 
     const compoundStageSlotStyle = stylex.props(
         styles.stageSlot,
-        staticStyles({ color: 'neutral', tint: 'tinted', bg: 'soft' }),
+        staticStyles({ color: 'neutral', tint: 'tinted', bg: 'soft', elevation: 'raised' }),
     );
 
     const compoundPanelStyle = stylex.props(

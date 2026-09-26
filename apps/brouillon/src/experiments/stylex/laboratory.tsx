@@ -27,6 +27,16 @@ const colors = [
     'aqua',
     'orange',
 ] as ColorNames[];
+const shiftedColors = [
+    'aurora',
+    'solder',
+    'purple',
+    'amber',
+    'error',
+    'aqua',
+    'orange',
+    'neutral',
+] as ColorNames[];
 const bgs = ['solid', 'soft'] as Background[];
 const tints = ['tinted', 'accent'] as SurfaceTint[];
 
@@ -43,9 +53,7 @@ const labStyles = stylex.create({
         colorScheme: 'light dark',
     },
     select: {
-        width: 'fit-content',
         marginBlock: space['4'],
-        marginInline: 'auto',
     },
     section: {
         marginBlock: space['4'],
@@ -56,33 +64,32 @@ export function Tints({
     color,
     elevation,
     bg,
+    btnColor,
 }: {
     color: ColorNames;
     elevation: Elevation;
     bg: Background;
+    btnColor: ColorNames;
 }) {
     return (
         <>
             {tints.map((tint, index) => {
                 return (
                     <Card key={index} bg={bg} color={color} elevation={elevation} tint={tint}>
-                        <ul>
-                            <li> Elevation: {elevation}</li>
-                            <li>Color: {color}</li>
-                            <li>Tint: {tint}</li>
-                            <li>Background: {bg}</li>
-                        </ul>
-                        <Button bg="solid" color={color} elevation={elevation} tint="accented">
-                            solid, accented
+                        {color} - {elevation}
+                        <br />
+                        {bg} - {tint}
+                        <Button bg="soft" color={btnColor} elevation={elevation} tint="accented">
+                            soft, accented, {btnColor}
                         </Button>
-                        <Button bg="solid" color={color} elevation={elevation} tint="tinted">
-                            solid, tinted
+                        <Button bg="soft" color={btnColor} elevation={elevation} tint="tinted">
+                            soft, tinted, {btnColor}
                         </Button>
-                        <Button bg="soft" color={color} elevation={elevation} tint="accented">
-                            soft, accented
+                        <Button bg="solid" color={btnColor} elevation={elevation} tint="accented">
+                            solid, accented, {btnColor}
                         </Button>
-                        <Button bg="soft" color={color} elevation={elevation} tint="tinted">
-                            soft, tinted
+                        <Button bg="solid" color={btnColor} elevation={elevation} tint="tinted">
+                            solid, tinted, {btnColor}
                         </Button>
                     </Card>
                 );
@@ -91,21 +98,35 @@ export function Tints({
     );
 }
 
-export function Backgrounds({ color, elevation }: { color: ColorNames; elevation: Elevation }) {
+export function Backgrounds({
+    color,
+    elevation,
+    btnColor,
+}: {
+    color: ColorNames;
+    elevation: Elevation;
+    btnColor: ColorNames;
+}) {
     return (
         <>
             {bgs.map((bg, index) => (
-                <Tints key={index} bg={bg} color={color} elevation={elevation} />
+                <Tints
+                    key={index}
+                    bg={bg}
+                    color={color}
+                    elevation={elevation}
+                    btnColor={btnColor}
+                />
             ))}
         </>
     );
 }
 
-export function Elevations({ color }: { color: ColorNames }) {
+export function Elevations({ color, btnColor }: { color: ColorNames; btnColor: ColorNames }) {
     return (
         <Stack direction="vertical" gap="4">
             {elevations.map((elevation, index) => (
-                <Backgrounds key={index} elevation={elevation} color={color} />
+                <Backgrounds key={index} elevation={elevation} color={color} btnColor={btnColor} />
             ))}
         </Stack>
     );
@@ -115,7 +136,7 @@ export function Colors() {
     return (
         <Stack direction="horizontal" gap="4" justify="between">
             {colors.map((color, index) => (
-                <Elevations key={index} color={color} />
+                <Elevations key={index} color={color} btnColor={shiftedColors[index]} />
             ))}
         </Stack>
     );
@@ -134,18 +155,20 @@ export function Laboratory() {
             <ShellWrapper>
                 <ExperimentShell
                     panelPlacement="docked"
-                    panel={<ControlPanel label="testing">Hello world.</ControlPanel>}
+                    panel={
+                        <ControlPanel label="testing">
+                            <select
+                                {...stylex.props(labStyles.select)}
+                                onChange={handleChange}
+                                value={theme}
+                            >
+                                <option value="dark">dark</option>
+                                <option value={'light'}>light</option>
+                            </select>
+                        </ControlPanel>
+                    }
                 >
                     <Stage>
-                        <select
-                            {...stylex.props(labStyles.select)}
-                            onChange={handleChange}
-                            value={theme}
-                        >
-                            <option value="dark">dark</option>
-                            <option value={'light'}>light</option>
-                        </select>
-
                         <Colors />
                     </Stage>
                 </ExperimentShell>

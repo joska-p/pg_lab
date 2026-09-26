@@ -30,7 +30,7 @@ export type ColorNames =
     | 'orange';
 
 export const colors = stylex.defineVars({
-    neutral: `light-dark(${palette.light0Soft}, ${palette.dark0Soft})`,
+    neutral: `light-dark(${palette.light0Hard}, ${palette.dark0Hard})`,
     aurora: `light-dark(${palette.brightBlue}, ${palette.fadedBlue})`,
     solder: `light-dark(${palette.brightGreen}, ${palette.fadedGreen})`,
     purple: `light-dark(${palette.brightPurple}, ${palette.fadedPurple})`,
@@ -123,7 +123,7 @@ export const interactions = stylex.create({
     },
     hover: {
         ':hover': {
-            backgroundColor: `color-mix(in oklab, ${backgroundColor.color} 42%, transparent)`,
+            backgroundColor: `color-mix(in oklab, ${backgroundColor.color} 80%, transparent)`,
         },
     },
     active: {

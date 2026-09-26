@@ -1,7 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 
-import { radius, space } from '../const.stylex';
-import { elevations } from '../styles.stylex';
+import { radius } from '../const.stylex';
 
 const styles = stylex.create({
     base: {
@@ -12,7 +11,6 @@ const styles = stylex.create({
         display: 'flex',
         flexDirection: 'column',
         overflowY: 'auto',
-        padding: space['4'],
         borderRadius: { default: radius.none, '@media (min-width: 1024px)': radius.md },
     },
 });
@@ -23,7 +21,7 @@ interface StageProps extends Omit<React.ComponentProps<'section'>, 'style'> {
 }
 
 export function Stage({ children, style, ...props }: StageProps) {
-    const compoundStyle = stylex.props(styles.base, elevations.raised, style);
+    const compoundStyle = stylex.props(styles.base, style);
 
     return (
         <section {...props} {...compoundStyle}>
