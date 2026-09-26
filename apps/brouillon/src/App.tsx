@@ -1,4 +1,4 @@
-import { Laboratory } from './experiments/laboratory';
+import { Laboratory } from './experiments/stylex/laboratory';
 
 export function App() {
     return <Laboratory />;

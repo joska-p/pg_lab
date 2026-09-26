@@ -1,8 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 import { useEffect } from 'react';
 
-import { useTheme, setTheme } from '../stores/appStore';
-import type { Theme } from '../stores/appStore';
+import { useTheme, setTheme } from '../../stores/appStore';
+import type { Theme } from '../../stores/appStore';
 import { Button } from './ui/components/Button';
 import { Card } from './ui/components/Card';
 import { ControlPanel } from './ui/components/ControlPanel';
