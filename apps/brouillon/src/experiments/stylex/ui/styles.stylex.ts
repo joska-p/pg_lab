@@ -114,7 +114,7 @@ export const interactions = stylex.create({
     pressable: {
         cursor: 'pointer',
         transitionProperty: 'background-color, border-color, color, box-shadow, transform',
-        transitionDuration: '120ms',
+        transitionDuration: '1300ms',
         transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
         transform: {
             default: null,
@@ -123,17 +123,17 @@ export const interactions = stylex.create({
     },
     hover: {
         ':hover': {
-            backgroundColor: `color-mix(in oklab, ${backgroundColor.color} 80%, transparent)`,
+            backgroundColor: `light-dark(color-mix(in oklab, ${backgroundColor.color} 92%, black), color-mix(in oklab, ${backgroundColor.color} 88%, white))`,
         },
     },
     active: {
         ':active': {
-            backgroundColor: `color-mix(in oklab, ${backgroundColor.color} 58%, transparent)`,
+            backgroundColor: `light-dark(color-mix(in oklab, ${backgroundColor.color} 85%, black), color-mix(in oklab, ${backgroundColor.color} 80%, white))`,
         },
     },
     borderHover: {
         ':hover': {
-            borderColor: `color-mix(in oklab, ${borderColor.color} 30%, transparent)`,
+            backgroundColor: `light-dark(color-mix(in oklab, ${backgroundColor.color} 92%, black), color-mix(in oklab, ${backgroundColor.color} 88%, white))`,
         },
     },
     focus: {

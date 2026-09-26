@@ -2,7 +2,7 @@ import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { typography, space } from '../const.stylex';
-import { surface, staticStyles, dynamicStyles } from '../styles.stylex';
+import { surface, staticStyles, dynamicStyles, backgroundColor } from '../styles.stylex';
 import type { ColorNames, Elevation, SurfaceTint, Background } from '../styles.stylex';
 
 const styles = stylex.create({
@@ -19,6 +19,7 @@ const styles = stylex.create({
         fontSize: typography.fontSizeSm,
         fontWeight: typography.fontWeightMedium,
         lineHeight: typography.lineHeightTight,
+        [backgroundColor.color]: surface.bg,
     },
 });
 
