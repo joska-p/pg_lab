@@ -1,13 +1,13 @@
 import { create } from 'zustand';
 
-export type Theme = 'light' | 'dark';
+export type Theme = 'light' | 'dark' | 'system';
 
 interface appStore {
     theme: Theme;
 }
 
 const appStore = create<appStore>(() => ({
-    theme: 'dark',
+    theme: 'system',
 }));
 
 export function useTheme(): Theme {

@@ -1,7 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 
 import { radius, space } from '../const.stylex';
-import { elevations, surface } from '../styles.stylex';
+import { elevations } from '../styles.stylex';
 
 const styles = stylex.create({
     base: {
@@ -13,8 +13,6 @@ const styles = stylex.create({
         flexDirection: 'column',
         overflowY: 'auto',
         padding: space['4'],
-        backgroundColor: surface.bg,
-        color: surface.fg,
         borderRadius: { default: radius.none, '@media (min-width: 1024px)': radius.md },
     },
 });

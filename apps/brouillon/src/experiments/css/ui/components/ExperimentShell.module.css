@@ -1,0 +1,93 @@
+.base {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-3);
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+    container-type: inline-size;
+}
+
+.stageSlot {
+    position: relative;
+    flex: 1;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+    width: var(--layout-panel-width);
+    flex-shrink: 0;
+    min-height: 0;
+    max-height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: var(--radius-none);
+    background-color: var(--surface-bg);
+    color: var(--surface-fg);
+}
+
+@media (min-width: 1024px) {
+    .panel {
+        border-radius: var(--radius-md);
+    }
+}
+
+.panelFloating {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    bottom: var(--space-3);
+    z-index: var(--z-panel);
+    width: var(--layout-panel-width);
+    max-height: none;
+    border-radius: var(--radius-md);
+}
+
+.hidden {
+    display: none;
+}
+
+.toggle {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    z-index: var(--z-overlay);
+}
+
+.toggleClearOfFloatingPanel {
+    top: calc(var(--space-3) + var(--layout-panel-gap));
+    right: calc(var(--space-3) + var(--layout-panel-gap));
+}
+
+/* Responsive: media queries d'origine, exprimées en container queries
+   pour que la décision dépende du shell, pas du viewport. */
+@container (max-width: 720px) {
+    .base {
+        flex-direction: column;
+    }
+
+    .panel {
+        width: auto;
+        max-height: var(--layout-panel-max-mobile-height);
+    }
+
+    .panelFloating {
+        left: var(--space-3);
+        top: auto;
+        bottom: var(--space-3);
+        width: auto;
+        max-height: var(--layout-panel-max-mobile-height);
+    }
+
+    .toggleClearOfFloatingPanel {
+        right: var(--space-3);
+    }
+}

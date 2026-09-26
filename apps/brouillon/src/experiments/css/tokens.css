@@ -1,0 +1,113 @@
+@layer tokens;
+
+@layer tokens {
+    :root {
+        color-scheme: light dark;
+
+        /* Gruvbox palette (oklch) */
+        --palette-dark0-hard: oklch(0.241 0.005 219.672);
+        --palette-dark0: oklch(0.277 0 0);
+        --palette-dark0-soft: oklch(0.311 0.003 48.619);
+        --palette-dark1: oklch(0.344 0.007 48.523);
+        --palette-dark2: oklch(0.411 0.012 51.866);
+        --palette-dark3: oklch(0.482 0.018 61.042);
+        --palette-dark4: oklch(0.55 0.023 62.567);
+
+        --palette-gray245: oklch(0.619 0.029 67.258);
+        --palette-gray244: oklch(0.619 0.029 67.258);
+
+        --palette-light0-hard: oklch(0.965 0.039 100.862);
+        --palette-light0: oklch(0.956 0.055 96.155);
+        --palette-light0-soft: oklch(0.922 0.055 92.526);
+        --palette-light1: oklch(0.894 0.057 89.24);
+        --palette-light2: oklch(0.825 0.051 85.116);
+        --palette-light3: oklch(0.756 0.041 82.284);
+        --palette-light4: oklch(0.69 0.035 76.307);
+
+        --palette-bright-red: oklch(0.66 0.218 30.392);
+        --palette-bright-green: oklch(0.765 0.158 110.835);
+        --palette-bright-yellow: oklch(0.832 0.159 82.987);
+        --palette-bright-blue: oklch(0.693 0.042 169.768);
+        --palette-bright-purple: oklch(0.705 0.098 2.189);
+        --palette-bright-aqua: oklch(0.756 0.108 137.676);
+        --palette-bright-orange: oklch(0.731 0.182 51.693);
+
+        --palette-neutral-red: oklch(0.546 0.203 28.662);
+        --palette-neutral-green: oklch(0.656 0.135 109.119);
+        --palette-neutral-yellow: oklch(0.725 0.143 77.708);
+        --palette-neutral-blue: oklch(0.576 0.066 199.487);
+        --palette-neutral-purple: oklch(0.597 0.111 352.218);
+        --palette-neutral-aqua: oklch(0.645 0.094 145.266);
+        --palette-neutral-orange: oklch(0.622 0.171 45.812);
+
+        --palette-faded-red: oklch(0.437 0.179 28.26);
+        --palette-faded-green: oklch(0.546 0.112 106.464);
+        --palette-faded-yellow: oklch(0.618 0.128 70.674);
+        --palette-faded-blue: oklch(0.471 0.082 215.806);
+        --palette-faded-purple: oklch(0.489 0.124 344.276);
+        --palette-faded-aqua: oklch(0.534 0.082 155.401);
+        --palette-faded-orange: oklch(0.513 0.162 39.297);
+
+        /* Semantic surfaces — light/dark via light-dark(). */
+        --surface-bg: light-dark(var(--palette-light0), var(--palette-dark0));
+        --surface-fg: light-dark(var(--palette-dark0), var(--palette-light0));
+
+        --color-neutral: light-dark(var(--palette-light0-soft), var(--palette-dark0-soft));
+        --color-aurora: light-dark(var(--palette-bright-blue), var(--palette-faded-blue));
+        --color-solder: light-dark(var(--palette-bright-green), var(--palette-faded-green));
+        --color-purple: light-dark(var(--palette-bright-purple), var(--palette-faded-purple));
+        --color-amber: light-dark(var(--palette-bright-yellow), var(--palette-faded-yellow));
+        --color-error: light-dark(var(--palette-bright-red), var(--palette-faded-red));
+        --color-aqua: light-dark(var(--palette-bright-aqua), var(--palette-faded-aqua));
+        --color-orange: light-dark(var(--palette-bright-orange), var(--palette-faded-orange));
+
+        /* Spacing */
+        --space-0: 0px;
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-5: 20px;
+        --space-6: 24px;
+        --space-8: 32px;
+        --space-10: 40px;
+        --space-12: 48px;
+        --space-16: 64px;
+
+        /* Radius / borders */
+        --radius-none: 0px;
+        --radius-sm: 4px;
+        --radius-md: 6px;
+        --radius-lg: 8px;
+        --radius-xl: 12px;
+        --radius-full: 9999px;
+        --border-hairline: 1px;
+
+        /* Typography */
+        --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+        --font-size-xs: 0.75rem;
+        --font-size-sm: 0.875rem;
+        --font-size-md: 1rem;
+        --font-size-lg: 1.125rem;
+        --font-size-xl: 1.25rem;
+        --font-size-2xl: 1.875rem;
+        --font-size-3xl: 2.25rem;
+        --font-weight-regular: 400;
+        --font-weight-medium: 500;
+        --font-weight-semibold: 600;
+        --font-weight-bold: 700;
+        --line-height-tight: 1.25;
+        --line-height-normal: 1.5;
+        --line-height-relaxed: 1.75;
+
+        /* Layout */
+        --layout-panel-width: 320px;
+        --layout-panel-max-mobile-height: 300px;
+        --layout-panel-gap: 12px;
+
+        --z-panel: 50;
+        --z-overlay: 100;
+        --z-modal: 300;
+    }
+}

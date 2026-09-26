@@ -1,0 +1,61 @@
+.base {
+    width: 100%;
+    height: 100dvh;
+    background-color: var(--surface-bg);
+    background-image:
+        radial-gradient(
+            45% 35% at 4% 6%,
+            color-mix(in oklab, var(--palette-bright-red) 30%, transparent),
+            transparent 70%
+        ),
+        radial-gradient(
+            40% 35% at 96% 8%,
+            color-mix(in oklab, var(--palette-bright-orange) 28%, transparent),
+            transparent 70%
+        ),
+        radial-gradient(
+            50% 40% at 88% 88%,
+            color-mix(in oklab, var(--palette-bright-yellow) 26%, transparent),
+            transparent 70%
+        ),
+        radial-gradient(
+            45% 45% at 8% 92%,
+            color-mix(in oklab, var(--palette-bright-green) 28%, transparent),
+            transparent 70%
+        ),
+        radial-gradient(
+            55% 40% at 50% 0%,
+            color-mix(in oklab, var(--palette-bright-aqua) 24%, transparent),
+            transparent 70%
+        ),
+        radial-gradient(
+            50% 50% at 100% 55%,
+            color-mix(in oklab, var(--palette-bright-blue) 30%, transparent),
+            transparent 70%
+        ),
+        radial-gradient(
+            45% 40% at 0% 50%,
+            color-mix(in oklab, var(--palette-bright-purple) 28%, transparent),
+            transparent 70%
+        ),
+        radial-gradient(
+            35% 30% at 50% 55%,
+            color-mix(in oklab, var(--palette-neutral-yellow) 20%, transparent),
+            transparent 70%
+        ),
+        linear-gradient(
+            160deg,
+            color-mix(in oklab, var(--palette-gray244) 20%, transparent),
+            transparent 65%
+        );
+    color: var(--surface-fg);
+    font-family: var(--font-sans);
+    padding: var(--space-0);
+    overflow: clip;
+}
+
+@media (min-width: 1024px) {
+    .base {
+        padding: var(--space-4);
+    }
+}

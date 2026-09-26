@@ -51,6 +51,8 @@ export const backgrounds = stylex.create({
     },
 });
 
+export type Background = keyof typeof backgrounds;
+
 export const gaps = stylex.create({
     '0': { gap: space['0'] },
     '1': { gap: space['1'] },
@@ -164,7 +166,7 @@ export const themed = stylex.create({
     }),
 });
 
-export type SurfaceTint = 'tinted' | 'accented';
+export type SurfaceTint = keyof typeof themed;
 
 // Statique : concepts in, style out. Ne sait rien du survol ou du disabled.
 // Le dynamique lit les mêmes vars CSS, donc pas besoin de lui passer le tint
@@ -176,14 +178,16 @@ export function staticStyles({
     color = 'neutral',
     tint = 'accented',
     elevation = 'flat',
+    bg = 'solid',
 }: {
     color?: ColorNames;
     tint?: SurfaceTint;
     elevation?: Elevation;
+    bg?: Background;
 }) {
     return [
         tint === 'tinted' ? themed.tinted(color) : themed.accented(color),
-        tint === 'tinted' && backgrounds.solid,
+        tint === 'tinted' && backgrounds[bg],
         borders.subtle,
         borders.rounded,
         elevations[elevation],

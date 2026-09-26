@@ -2,7 +2,7 @@ import * as stylex from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
 import { space, layout, radius, zIndex } from '../const.stylex';
-import { borders, surface, elevations } from '../styles.stylex';
+import { staticStyles } from '../styles.stylex';
 import { Button } from './Button';
 
 const styles = stylex.create({
@@ -11,7 +11,7 @@ const styles = stylex.create({
         display: 'flex',
         flexDirection: {
             default: 'row',
-            '@media (max-width: 720px)': 'column',
+            '@container (max-width: 720px)': 'column',
             '@media (orientation: portrait)': 'column',
         },
         gap: space['3'],
@@ -19,6 +19,7 @@ const styles = stylex.create({
         height: '100%',
         padding: 0,
         overflow: 'hidden',
+        containerType: 'inline-size',
     },
 
     stageSlot: {
@@ -39,10 +40,8 @@ const styles = stylex.create({
         maxHeight: '100%',
         overflowY: 'auto',
         borderRadius: { default: radius.none, '@media (min-width: 1024px)': radius.md },
-        backgroundColor: surface.bg,
-        color: surface.fg,
 
-        '@media (max-width: 720px)': {
+        '@container (max-width: 720px)': {
             width: 'auto',
             maxHeight: layout.panelMaxMobileHeight,
         },
@@ -63,7 +62,7 @@ const styles = stylex.create({
         maxHeight: 'none',
         borderRadius: radius.md,
 
-        '@media (max-width: 720px)': {
+        '@container (max-width: 720px)': {
             left: space['3'],
             top: 'auto',
             bottom: space['3'],
@@ -87,7 +86,7 @@ const styles = stylex.create({
         top: `calc(${space['3']} + calc(${layout.panelGap}))`,
         right: `calc(${space['3']} + calc(${layout.panelGap}))`,
 
-        '@media (max-width: 720px)': {
+        '@container (max-width: 720px)': {
             right: space['3'],
         },
 
@@ -116,21 +115,18 @@ export function ExperimentShell({
 
     const isFloating = panelPlacement === 'floating';
 
-    const compoundPanelStyle = stylex.props(
-        styles.panel,
-        elevations.raised,
-        borders.subtle,
-        borders.rounded,
-        isFloating && styles.panelFloating,
-        !panelVisible && styles.hidden,
+    const compoundExperimentStyle = stylex.props(styles.base, style);
+
+    const compoundStageSlotStyle = stylex.props(
+        styles.stageSlot,
+        staticStyles({ color: 'neutral', tint: 'tinted', bg: 'soft' }),
     );
 
-    const compoundExperimentStyle = stylex.props(
-        styles.base,
-        elevations.raised,
-        borders.subtle,
-        borders.rounded,
-        style,
+    const compoundPanelStyle = stylex.props(
+        styles.panel,
+        staticStyles({ color: 'neutral', tint: 'tinted', bg: 'soft' }),
+        isFloating && styles.panelFloating,
+        !panelVisible && styles.hidden,
     );
 
     const compoundToggleStyle = stylex.props(
@@ -140,7 +136,7 @@ export function ExperimentShell({
 
     return (
         <div {...props} {...compoundExperimentStyle}>
-            <div {...stylex.props(styles.stageSlot)}>{children}</div>
+            <div {...compoundStageSlotStyle}>{children}</div>
 
             {panel && (
                 <>

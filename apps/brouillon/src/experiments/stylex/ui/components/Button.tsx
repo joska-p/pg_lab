@@ -3,7 +3,7 @@ import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { typography, space } from '../const.stylex';
 import { surface, staticStyles, dynamicStyles } from '../styles.stylex';
-import type { ColorNames, Elevation, SurfaceTint } from '../styles.stylex';
+import type { ColorNames, Elevation, SurfaceTint, Background } from '../styles.stylex';
 
 const styles = stylex.create({
     base: {
@@ -26,6 +26,7 @@ interface ButtonProps extends Omit<React.ComponentProps<'button'>, 'style'> {
     color?: ColorNames;
     tint?: SurfaceTint;
     elevation?: Elevation;
+    bg?: Background;
     disabled?: boolean;
     style?: StyleXStyles;
 }
@@ -34,6 +35,7 @@ export function Button({
     color = 'neutral',
     tint = 'tinted',
     elevation = 'raised',
+    bg = 'solid',
     disabled = false,
     style,
     type = 'button',
@@ -47,7 +49,7 @@ export function Button({
             disabled={disabled}
             {...stylex.props(
                 styles.base,
-                staticStyles({ color, tint, elevation }),
+                staticStyles({ color, tint, elevation, bg }),
                 dynamicStyles({ disabled }),
                 style,
             )}

@@ -1,5 +1,4 @@
 import * as stylex from '@stylexjs/stylex';
-import { useEffect } from 'react';
 
 import { useTheme, setTheme } from '../../stores/appStore';
 import type { Theme } from '../../stores/appStore';
@@ -11,15 +10,14 @@ import { ShellWrapper } from './ui/components/ShellWrapper';
 import { Stack } from './ui/components/Stack';
 import { Stage } from './ui/components/Stage';
 import { space } from './ui/const.stylex';
-import { heading } from './ui/styles.stylex';
-import type { ColorNames, SurfaceTint } from './ui/styles.stylex';
+import type { Background, ColorNames, Elevation, SurfaceTint } from './ui/styles.stylex';
 
 /* -------------------------------------------------------------------------- */
 /* Laboratory                                                                 */
 /* -------------------------------------------------------------------------- */
 
-const elevationList = ['sunken', 'flat', 'raised'] as const;
-const colorList = [
+const elevations = ['sunken', 'flat', 'raised'] as Elevation[];
+const colors = [
     'neutral',
     'aurora',
     'solder',
@@ -29,8 +27,21 @@ const colorList = [
     'aqua',
     'orange',
 ] as ColorNames[];
+const bgs = ['solid', 'soft'] as Background[];
+const tints = ['tinted', 'accent'] as SurfaceTint[];
 
 const labStyles = stylex.create({
+    // Scope de thème : color-scheme local pilote light-dark()
+    // pour tout le lab, sans toucher à documentElement.
+    light: {
+        colorScheme: 'light',
+    },
+    dark: {
+        colorScheme: 'dark',
+    },
+    system: {
+        colorScheme: 'light dark',
+    },
     select: {
         width: 'fit-content',
         marginBlock: space['4'],
@@ -41,46 +52,70 @@ const labStyles = stylex.create({
     },
 });
 
-// Boutons : fond constant (carte neutre), seule la couleur du bouton varie.
-// Chaque elevation de carte est testée, les boutons gardent leurs defaults
-// (tinted → raised, accented → flat).
-function ButtonShowcase() {
+export function Tints({
+    color,
+    elevation,
+    bg,
+}: {
+    color: ColorNames;
+    elevation: Elevation;
+    bg: Background;
+}) {
     return (
-        <Stack direction="vertical" gap="5">
-            {elevationList.map((elevation) => (
-                <Card key={elevation} color="neutral" tint="accented" elevation={elevation}>
-                    {elevation}
-                    <Stack direction="horizontal" gap="3">
-                        {colorList.map((color) => (
-                            <Button key={color} color={color} tint="tinted">
-                                {color.toString()}
-                            </Button>
-                        ))}
-                    </Stack>
-                    <Stack direction="horizontal" gap="3">
-                        {colorList.map((color) => (
-                            <Button key={`${color}-accented`} color={color} tint="accented">
-                                {color.toString()}
-                            </Button>
-                        ))}
-                    </Stack>
-                </Card>
+        <>
+            {tints.map((tint, index) => {
+                return (
+                    <Card key={index} bg={bg} color={color} elevation={elevation} tint={tint}>
+                        <ul>
+                            <li> Elevation: {elevation}</li>
+                            <li>Color: {color}</li>
+                            <li>Tint: {tint}</li>
+                            <li>Background: {bg}</li>
+                        </ul>
+                        <Button bg="solid" color={color} elevation={elevation} tint="accented">
+                            solid, accented
+                        </Button>
+                        <Button bg="solid" color={color} elevation={elevation} tint="tinted">
+                            solid, tinted
+                        </Button>
+                        <Button bg="soft" color={color} elevation={elevation} tint="accented">
+                            soft, accented
+                        </Button>
+                        <Button bg="soft" color={color} elevation={elevation} tint="tinted">
+                            soft, tinted
+                        </Button>
+                    </Card>
+                );
+            })}
+        </>
+    );
+}
+
+export function Backgrounds({ color, elevation }: { color: ColorNames; elevation: Elevation }) {
+    return (
+        <>
+            {bgs.map((bg, index) => (
+                <Tints key={index} bg={bg} color={color} elevation={elevation} />
+            ))}
+        </>
+    );
+}
+
+export function Elevations({ color }: { color: ColorNames }) {
+    return (
+        <Stack direction="vertical" gap="4">
+            {elevations.map((elevation, index) => (
+                <Backgrounds key={index} elevation={elevation} color={color} />
             ))}
         </Stack>
     );
 }
 
-// Cartes : contenu constant (bouton neutre), seule la carte varie.
-function CardShowcase({ tint }: { tint: SurfaceTint }) {
+export function Colors() {
     return (
-        <Stack direction="horizontal" gap="5">
-            {colorList.map((color) => (
-                <Card key={color} color={color} tint={tint} elevation="flat">
-                    {color}
-                    <Button color="neutral" tint="accented">
-                        action
-                    </Button>
-                </Card>
+        <Stack direction="horizontal" gap="4" justify="between">
+            {colors.map((color, index) => (
+                <Elevations key={index} color={color} />
             ))}
         </Stack>
     );
@@ -94,38 +129,27 @@ export function Laboratory() {
         setTheme(theme);
     }
 
-    useEffect(() => {
-        document.documentElement.style.colorScheme = theme === 'dark' ? 'light dark' : theme;
-    }, [theme]);
-
     return (
-        <ShellWrapper>
-            <ExperimentShell
-                panelPlacement="docked"
-                panel={<ControlPanel label="testing">Hello world.</ControlPanel>}
-            >
-                <Stage>
-                    <select {...stylex.props(labStyles.select)} onChange={handleChange}>
-                        <option value="dark">dark</option>
-                        <option value={'light'}>light</option>
-                    </select>
+        <div {...stylex.props(labStyles[theme])}>
+            <ShellWrapper>
+                <ExperimentShell
+                    panelPlacement="docked"
+                    panel={<ControlPanel label="testing">Hello world.</ControlPanel>}
+                >
+                    <Stage>
+                        <select
+                            {...stylex.props(labStyles.select)}
+                            onChange={handleChange}
+                            value={theme}
+                        >
+                            <option value="dark">dark</option>
+                            <option value={'light'}>light</option>
+                        </select>
 
-                    <div {...stylex.props(labStyles.section)}>
-                        <h2 {...stylex.props(heading.level2)}>Boutons sur fond neutre</h2>
-                        <ButtonShowcase />
-                    </div>
-
-                    <div {...stylex.props(labStyles.section)}>
-                        <h2 {...stylex.props(heading.level2)}>Cartes accented</h2>
-                        <CardShowcase tint="accented" />
-                    </div>
-
-                    <div {...stylex.props(labStyles.section)}>
-                        <h2 {...stylex.props(heading.level2)}>Cartes tinted</h2>
-                        <CardShowcase tint="tinted" />
-                    </div>
-                </Stage>
-            </ExperimentShell>
-        </ShellWrapper>
+                        <Colors />
+                    </Stage>
+                </ExperimentShell>
+            </ShellWrapper>
+        </div>
     );
 }

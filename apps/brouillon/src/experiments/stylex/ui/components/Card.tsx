@@ -3,9 +3,9 @@ import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { space } from '../const.stylex';
 import { surface, staticStyles } from '../styles.stylex';
-import type { ColorNames, Elevation, SurfaceTint } from '../styles.stylex';
+import type { ColorNames, Elevation, SurfaceTint, Background } from '../styles.stylex';
 
-const cardStyles = stylex.create({
+const styles = stylex.create({
     base: {
         display: 'flex',
         flexDirection: 'column',
@@ -20,6 +20,7 @@ interface CardProps extends Omit<React.ComponentProps<'div'>, 'style'> {
     elevation?: Elevation;
     color?: ColorNames;
     tint?: SurfaceTint;
+    bg?: Background;
     style?: StyleXStyles;
     children?: React.ReactNode;
 }
@@ -28,6 +29,7 @@ export function Card({
     elevation = 'flat',
     color = 'neutral',
     tint = 'accented',
+    bg = 'soft',
     style,
     children,
     ...props
@@ -35,7 +37,7 @@ export function Card({
     return (
         <div
             {...props}
-            {...stylex.props(cardStyles.base, staticStyles({ color, elevation, tint }), style)}
+            {...stylex.props(styles.base, staticStyles({ color, elevation, tint, bg }), style)}
         >
             {children}
         </div>

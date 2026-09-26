@@ -1,0 +1,9 @@
+.select {
+    width: fit-content;
+    margin-block: var(--space-4);
+    margin-inline: auto;
+}
+
+.section {
+    margin-block: var(--space-4);
+}
