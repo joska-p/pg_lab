@@ -30,6 +30,7 @@ const styles = stylex.create({
         minHeight: 0,
         overflowY: 'auto',
         padding: space['4'],
+        scrollbarGutter: 'stable',
     },
 
     panel: {
