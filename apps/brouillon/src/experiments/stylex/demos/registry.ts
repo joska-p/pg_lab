@@ -1,12 +1,12 @@
-import React from 'react';
+import type { ComponentType } from 'react';
 
-import { ButtonMatrix } from './button.demo';
-import { CheckboxMatrix } from './checkbox.demo';
+import { Button } from '../ui/components/Button';
+import { Checkbox } from '../ui/components/Checkbox';
 
 export const registry = {
-    button: ButtonMatrix,
-    checkbox: CheckboxMatrix,
-} as const satisfies Record<string, React.ComponentType>;
+    button: Button,
+    checkbox: Checkbox,
+} as const satisfies Record<string, ComponentType>;
 
 export type RegistryKey = keyof typeof registry;
 export const registryOptions = Object.keys(registry) as RegistryKey[];

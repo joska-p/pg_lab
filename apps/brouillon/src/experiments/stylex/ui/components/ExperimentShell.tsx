@@ -148,6 +148,9 @@ export function ExperimentShell({
 
                     <div {...compoundToggleStyle}>
                         <Button
+                            bg="soft"
+                            color="aqua"
+                            tintBackground={true}
                             aria-expanded={panelVisible}
                             aria-controls={panelId}
                             onClick={() => setPanelVisible((visible) => !visible)}

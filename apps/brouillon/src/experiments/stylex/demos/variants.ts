@@ -28,15 +28,15 @@ export interface SurfaceVariant {
     readonly bg: Background;
 }
 
-export function getSurfaceVariants(): SurfaceVariant[] {
+export function buildSurfaceVariants(filter: VariantFilter): SurfaceVariant[] {
     const variants: SurfaceVariant[] = [];
 
-    for (const color of colorVariants) {
-        for (const elevation of elevationVariants) {
-            for (const bg of bgVariants) {
-                for (const tintBackground of tintBackgroundVariants) {
-                    for (const tintBorder of tintBorderVariants) {
-                        for (const tintShadow of tintShadowVariants) {
+    for (const color of filter.colors) {
+        for (const elevation of filter.elevations) {
+            for (const bg of filter.bgs) {
+                for (const tintBackground of filter.tintBackground) {
+                    for (const tintBorder of filter.tintBorder) {
+                        for (const tintShadow of filter.tintShadow) {
                             variants.push({
                                 label: `${color}-${elevation}-${bg}-bg:${tintBackground}-border:${tintBorder}-shadow:${tintShadow}`,
                                 color,
@@ -55,3 +55,48 @@ export function getSurfaceVariants(): SurfaceVariant[] {
 
     return variants;
 }
+
+export interface VariantFilter {
+    readonly colors: ColorNames[];
+    readonly elevations: Elevation[];
+    readonly bgs: Background[];
+    readonly tintBackground: boolean[];
+    readonly tintBorder: boolean[];
+    readonly tintShadow: boolean[];
+}
+
+export const VARIANT_PROPERTY_OPTIONS = {
+    colors: colorVariants,
+    elevations: elevationVariants,
+    bgs: bgVariants,
+    tintBackground: tintBackgroundVariants,
+    tintBorder: tintBorderVariants,
+    tintShadow: tintShadowVariants,
+} as const satisfies { [K in keyof VariantFilter]: readonly VariantFilter[K][number][] };
+
+export const VARIANT_PROPERTIES = [
+    { property: 'colors', label: 'Color' },
+    { property: 'elevations', label: 'Elevation' },
+    { property: 'bgs', label: 'Background' },
+    { property: 'tintBackground', label: 'Tint background' },
+    { property: 'tintBorder', label: 'Tint border' },
+    { property: 'tintShadow', label: 'Tint shadow' },
+] as const satisfies readonly { property: keyof VariantFilter; label: string }[];
+
+export const DEFAULT_CARD_FILTER: VariantFilter = {
+    colors: ['neutral', 'aurora'],
+    elevations: ['flat'],
+    bgs: ['soft'],
+    tintBackground: [true],
+    tintBorder: [true],
+    tintShadow: [true],
+};
+
+export const DEFAULT_COMPONENT_FILTER: VariantFilter = {
+    colors: ['aurora', 'neutral'],
+    elevations: ['raised'],
+    bgs: ['solid'],
+    tintBackground: [true],
+    tintBorder: [true],
+    tintShadow: [true],
+};

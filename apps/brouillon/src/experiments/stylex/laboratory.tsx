@@ -2,13 +2,13 @@ import * as stylex from '@stylexjs/stylex';
 
 import { useTheme, setTheme, useRegistryKey, setRegistryKey } from '../../stores/appStore';
 import type { Theme } from '../../stores/appStore';
-import { CardMatrix } from './demos/card.demo';
+import { DemoCanvas } from './demos/DemoCanvas';
 import type { RegistryKey } from './demos/registry';
 import { registryOptions } from './demos/registry';
+import { VariantFilterSection } from './demos/VariantFilterSection';
 import { ControlPanel } from './ui/components/ControlPanel';
 import { ExperimentShell } from './ui/components/ExperimentShell';
 import { ShellWrapper } from './ui/components/ShellWrapper';
-import { Stack } from './ui/components/Stack';
 import { Stage } from './ui/components/Stage';
 import { space } from './ui/const.stylex';
 import { heading } from './ui/styles.stylex';
@@ -50,6 +50,7 @@ export function Laboratory() {
                                 <option value="light">light</option>
                                 <option value="system">system</option>
                             </select>
+                            <VariantFilterSection target="card" title="Card (support)" />
                             <h4 {...stylex.props(heading.level2)}>Component</h4>
                             <select
                                 {...stylex.props(labStyles.select)}
@@ -62,13 +63,15 @@ export function Laboratory() {
                                     </option>
                                 ))}
                             </select>
+                            <VariantFilterSection
+                                target="component"
+                                title={`Component (${registryKey})`}
+                            />
                         </ControlPanel>
                     }
                 >
                     <Stage>
-                        <Stack direction="vertical" gap="8">
-                            <CardMatrix />
-                        </Stack>
+                        <DemoCanvas />
                     </Stage>
                 </ExperimentShell>
             </ShellWrapper>
