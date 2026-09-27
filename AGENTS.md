@@ -7,6 +7,7 @@ Python environment is managed by `uv`.
 
 ## Guidelines & Flow
 
+- **Before starting any task**: Make sure to have a well define scope and that you understand the underlying goal.
 - **Coding conventions**: codex/docs/coding-conventions.md.
 - **Navigation**: Fast code search via `rg` (ripgrep) and `fd`.
 - **Browser**: Browser automation CLI. `agent-browser open example.com`.
