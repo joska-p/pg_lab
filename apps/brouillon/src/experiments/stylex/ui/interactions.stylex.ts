@@ -13,7 +13,7 @@ export const interactions = stylex.create({
     pressable: {
         cursor: 'pointer',
         transitionProperty: 'background-color, border-color, color, box-shadow, transform',
-        transitionDuration: '1300ms',
+        transitionDuration: '300ms',
         transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
         transform: {
             default: null,
