@@ -13,25 +13,45 @@ export const colorVariants = [
 ] as ColorNames[];
 
 export const elevationVariants = ['sunken', 'flat', 'raised'] as Elevation[];
+export const tintBackgroundVariants = [true, false];
+export const tintBorderVariants = [true, false];
+export const tintShadowVariants = [true, false];
+export const bgVariants = ['soft', 'solid'] as Background[];
 
-// `bg` (solid/soft) n'a d'effet que quand tintBackground est true, donc pas
-// de variante "accented" x bg : elle rendrait deux fois la meme chose (voir
-// surface.stylex.ts, surfaceStyles() n'applique `backgrounds[bg]` que si
-// `background` est true).
-export const surfaceVariants = [
-    { label: 'accented', tintBackground: false, tintBorder: true, tintShadow: true, bg: 'solid' },
-    {
-        label: 'tinted solid',
-        tintBackground: true,
-        tintBorder: true,
-        tintShadow: true,
-        bg: 'solid',
-    },
-    { label: 'tinted soft', tintBackground: true, tintBorder: true, tintShadow: true, bg: 'soft' },
-] as const satisfies ReadonlyArray<{
-    label: string;
-    tintBackground: boolean;
-    tintBorder: boolean;
-    tintShadow: boolean;
-    bg: Background;
-}>;
+export interface SurfaceVariant {
+    readonly label: string;
+    readonly color: ColorNames;
+    readonly elevation: Elevation;
+    readonly tintBackground: boolean;
+    readonly tintBorder: boolean;
+    readonly tintShadow: boolean;
+    readonly bg: Background;
+}
+
+export function getSurfaceVariants(): SurfaceVariant[] {
+    const variants: SurfaceVariant[] = [];
+
+    for (const color of colorVariants) {
+        for (const elevation of elevationVariants) {
+            for (const bg of bgVariants) {
+                for (const tintBackground of tintBackgroundVariants) {
+                    for (const tintBorder of tintBorderVariants) {
+                        for (const tintShadow of tintShadowVariants) {
+                            variants.push({
+                                label: `${color}-${elevation}-${bg}-bg:${tintBackground}-border:${tintBorder}-shadow:${tintShadow}`,
+                                color,
+                                elevation,
+                                bg,
+                                tintBackground,
+                                tintBorder,
+                                tintShadow,
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return variants;
+}
