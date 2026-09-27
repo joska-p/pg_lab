@@ -1,14 +1,16 @@
 import * as stylex from '@stylexjs/stylex';
 
-import { useTheme, setTheme } from '../../stores/appStore';
+import { useTheme, setTheme, useRegistryKey, setRegistryKey } from '../../stores/appStore';
 import type { Theme } from '../../stores/appStore';
+import { CardMatrix } from './demos/card.demo';
+import type { RegistryKey } from './demos/registry';
+import { registryOptions } from './demos/registry';
 import { ControlPanel } from './ui/components/ControlPanel';
 import { ExperimentShell } from './ui/components/ExperimentShell';
 import { ShellWrapper } from './ui/components/ShellWrapper';
 import { Stack } from './ui/components/Stack';
 import { Stage } from './ui/components/Stage';
 import { space } from './ui/const.stylex';
-import { CardMatrix } from './ui/demos/card.demo';
 import { heading } from './ui/styles.stylex';
 
 const labStyles = stylex.create({
@@ -21,9 +23,14 @@ const labStyles = stylex.create({
 
 export function Laboratory() {
     const theme = useTheme();
+    const registryKey = useRegistryKey();
 
     function handleTheme(event: React.ChangeEvent<HTMLSelectElement>) {
         setTheme(event.currentTarget.value as Theme);
+    }
+
+    function handleComponent(event: React.ChangeEvent<HTMLSelectElement>) {
+        setRegistryKey(event.currentTarget.value as RegistryKey);
     }
 
     return (
@@ -33,7 +40,7 @@ export function Laboratory() {
                     panelPlacement="docked"
                     panel={
                         <ControlPanel label="laboratory controls">
-                            <h2 {...stylex.props(heading.level2)}>Theme</h2>
+                            <h4 {...stylex.props(heading.level2)}>Theme</h4>
                             <select
                                 {...stylex.props(labStyles.select)}
                                 onChange={handleTheme}
@@ -42,6 +49,18 @@ export function Laboratory() {
                                 <option value="dark">dark</option>
                                 <option value="light">light</option>
                                 <option value="system">system</option>
+                            </select>
+                            <h4 {...stylex.props(heading.level2)}>Component</h4>
+                            <select
+                                {...stylex.props(labStyles.select)}
+                                onChange={handleComponent}
+                                value={registryKey}
+                            >
+                                {registryOptions.map((key) => (
+                                    <option key={key} value={key}>
+                                        {key}
+                                    </option>
+                                ))}
                             </select>
                         </ControlPanel>
                     }

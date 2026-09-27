@@ -1,22 +1,22 @@
 import * as stylex from '@stylexjs/stylex';
 
-import { gruvboxPalette as palette, borderWidth, radius, typography, space } from './const.stylex';
+import { palette, borderWidth, radius, typography, space } from './const.stylex';
 
-export const backgroundColor = stylex.defineVars({
+export const backgroundColorVar = stylex.defineVars({
     color: 'transparent',
 });
 
-export const borderColor = stylex.defineVars({
+export const borderColorVar = stylex.defineVars({
     color: 'transparent',
 });
 
-export const shadowColor = stylex.defineVars({
+export const shadowColorVar = stylex.defineVars({
     color: 'transparent',
 });
 
 export const surface = stylex.defineVars({
-    bg: `light-dark(${palette.light0}, ${palette.dark0})`,
-    fg: `light-dark(${palette.dark0}, ${palette.light0})`,
+    background: `light-dark(${palette.light0}, ${palette.dark0})`,
+    foreground: `light-dark(${palette.dark0}, ${palette.light0})`,
 });
 
 export type ColorNames =
@@ -43,11 +43,11 @@ export const colors = stylex.defineVars({
 // Statique : ce que c'est (fond plein ou voilé).
 export const backgrounds = stylex.create({
     solid: {
-        backgroundColor: backgroundColor.color,
+        backgroundColor: backgroundColorVar.color,
     },
 
     soft: {
-        backgroundColor: `color-mix(in oklab, ${backgroundColor.color} 18%, transparent)`,
+        backgroundColor: `color-mix(in oklab, ${backgroundColorVar.color} 18%, transparent)`,
     },
 });
 
@@ -72,13 +72,13 @@ export const borders = stylex.create({
     subtle: {
         borderWidth: borderWidth.hairline,
         borderStyle: 'solid',
-        borderColor: `color-mix(in oklab, ${borderColor.color} 10%, transparent)`,
+        borderColor: `color-mix(in oklab, ${borderColorVar.color} 10%, transparent)`,
     },
 
     strong: {
         borderWidth: borderWidth.hairline,
         borderStyle: 'solid',
-        borderColor: `color-mix(in oklab, ${borderColor.color} 20%, transparent)`,
+        borderColor: `color-mix(in oklab, ${borderColorVar.color} 20%, transparent)`,
     },
 
     rounded: {
@@ -92,15 +92,15 @@ export const elevations = stylex.create({
     },
 
     raised: {
-        boxShadow: `0 2px 8px color-mix(in oklab, ${shadowColor.color} 36%, transparent)`,
+        boxShadow: `0 2px 8px color-mix(in oklab, ${shadowColorVar.color} 36%, transparent)`,
     },
 
     sunken: {
         boxShadow: `
             inset 0 1px 0
-                color-mix(in oklab, ${shadowColor.color} 88%, transparent),
+                color-mix(in oklab, ${shadowColorVar.color} 88%, transparent),
             inset 0 1px 3px
-                color-mix(in oklab, ${shadowColor.color} 16%, transparent)
+                color-mix(in oklab, ${shadowColorVar.color} 16%, transparent)
         `,
     },
 });
@@ -123,22 +123,22 @@ export const interactions = stylex.create({
     },
     hover: {
         ':hover': {
-            backgroundColor: `light-dark(color-mix(in oklab, ${backgroundColor.color} 92%, black), color-mix(in oklab, ${backgroundColor.color} 88%, white))`,
+            backgroundColor: `light-dark(color-mix(in oklab, ${backgroundColorVar.color} 92%, black), color-mix(in oklab, ${backgroundColorVar.color} 88%, white))`,
         },
     },
     active: {
         ':active': {
-            backgroundColor: `light-dark(color-mix(in oklab, ${backgroundColor.color} 85%, black), color-mix(in oklab, ${backgroundColor.color} 80%, white))`,
+            backgroundColor: `light-dark(color-mix(in oklab, ${backgroundColorVar.color} 85%, black), color-mix(in oklab, ${backgroundColorVar.color} 80%, white))`,
         },
     },
     borderHover: {
         ':hover': {
-            backgroundColor: `light-dark(color-mix(in oklab, ${backgroundColor.color} 92%, black), color-mix(in oklab, ${backgroundColor.color} 88%, white))`,
+            backgroundColor: `light-dark(color-mix(in oklab, ${backgroundColorVar.color} 92%, black), color-mix(in oklab, ${backgroundColorVar.color} 88%, white))`,
         },
     },
     focus: {
         ':focus-visible': {
-            outline: `1px solid ${borderColor.color}`,
+            outline: `1px solid ${borderColorVar.color}`,
             outlineOffset: '2px',
         },
     },
@@ -153,16 +153,16 @@ export const themed = stylex.create({
     // (Card, Panel...) qui gardent leur propre fond neutre (surface.bg) et
     // n'utilisent la couleur que comme accent.
     accented: (color: ColorNames) => ({
-        [borderColor.color]: colors[color],
-        [shadowColor.color]: colors[color],
+        [borderColorVar.color]: colors[color],
+        [shadowColorVar.color]: colors[color],
     }),
 
     // accented + fond teinté. Pour les surfaces actives qui SONT la couleur
     // (Button, Badge...).
     tinted: (color: ColorNames) => ({
-        [backgroundColor.color]: colors[color],
-        [borderColor.color]: colors[color],
-        [shadowColor.color]: colors[color],
+        [backgroundColorVar.color]: colors[color],
+        [borderColorVar.color]: colors[color],
+        [shadowColorVar.color]: colors[color],
     }),
 });
 
@@ -214,7 +214,7 @@ export const heading = stylex.create({
         fontWeight: typography.fontWeightSemibold,
         letterSpacing: typography.letterSpacingWide,
         textTransform: typography.textCaseUppercase,
-        color: surface.fg,
+        color: surface.foreground,
     },
     level2: {
         margin: 0,
@@ -223,7 +223,7 @@ export const heading = stylex.create({
         fontWeight: typography.fontWeightMedium,
         letterSpacing: typography.letterSpacingWide,
         textTransform: typography.textCaseUppercase,
-        color: surface.fg,
+        color: surface.foreground,
     },
     level3: {
         margin: 0,
@@ -232,7 +232,7 @@ export const heading = stylex.create({
         fontWeight: typography.fontWeightMedium,
         letterSpacing: typography.letterSpacingWide,
         textTransform: typography.textCaseUppercase,
-        color: surface.fg,
+        color: surface.foreground,
     },
 });
 
@@ -242,12 +242,12 @@ export const fieldText = stylex.create({
         fontSize: typography.fontSizeSm,
         fontWeight: typography.fontWeightMedium,
         letterSpacing: typography.letterSpacingTight,
-        color: surface.fg,
+        color: surface.foreground,
     },
     value: {
         fontFamily: typography.fontFamilyMono,
         fontSize: typography.fontSizeSm,
-        color: surface.fg,
+        color: surface.foreground,
     },
     message: {
         fontFamily: typography.fontFamilyMono,

@@ -1,6 +1,6 @@
-import { Button } from '../components/Button';
-import { Stack } from '../components/Stack';
-import { colorVariants, elevationVariants, staticVariants } from './vartiants';
+import { Button } from '../ui/components/Button';
+import { Stack } from '../ui/components/Stack';
+import { colorVariants, elevationVariants, surfaceVariants } from './variants';
 
 export function ButtonMatrix() {
     return (
@@ -9,12 +9,14 @@ export function ButtonMatrix() {
                 <Stack key={index} direction="horizontal" gap="12">
                     {elevationVariants.map((elevation) => (
                         <Stack key={elevation} direction="vertical" gap="4">
-                            {staticVariants.map((variant) => (
+                            {surfaceVariants.map((variant) => (
                                 <Button
                                     key={variant.label}
                                     color={color}
                                     bg={variant.bg}
-                                    tint={variant.tint}
+                                    tintBackground={variant.tintBackground}
+                                    tintBorder={variant.tintBorder}
+                                    tintShadow={variant.tintShadow}
                                     elevation={elevation}
                                 >
                                     {elevation} {variant.label} {color}

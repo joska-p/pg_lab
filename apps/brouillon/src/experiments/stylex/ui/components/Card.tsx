@@ -2,8 +2,9 @@ import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { space } from '../const.stylex';
-import { surface, staticStyles } from '../styles.stylex';
-import type { ColorNames, Elevation, SurfaceTint, Background } from '../styles.stylex';
+import { surface, surfaceStyles } from '../surface.stylex';
+import type { Background, Elevation } from '../surface.stylex';
+import type { ColorNames } from '../tint.stylex';
 
 const styles = stylex.create({
     base: {
@@ -11,15 +12,17 @@ const styles = stylex.create({
         flexDirection: 'column',
         gap: space['3'],
         padding: space['4'],
-        backgroundColor: surface.bg,
-        color: surface.fg,
+        backgroundColor: surface.background,
+        color: surface.foreground,
     },
 });
 
 interface CardProps extends Omit<React.ComponentProps<'div'>, 'style'> {
     elevation?: Elevation;
     color?: ColorNames;
-    tint?: SurfaceTint;
+    tintBackground?: boolean;
+    tintBorder?: boolean;
+    tintShadow?: boolean;
     bg?: Background;
     style?: StyleXStyles;
     children?: React.ReactNode;
@@ -28,17 +31,29 @@ interface CardProps extends Omit<React.ComponentProps<'div'>, 'style'> {
 export function Card({
     elevation = 'flat',
     color = 'neutral',
-    tint = 'accented',
+    tintBackground = false,
+    tintBorder = true,
+    tintShadow = true,
     bg = 'soft',
     style,
     children,
     ...props
 }: CardProps) {
+    const compoundStyle = stylex.props(
+        styles.base,
+        surfaceStyles({
+            color,
+            background: tintBackground,
+            border: tintBorder,
+            shadow: tintShadow,
+            bg,
+            elevation,
+        }),
+        style,
+    );
+
     return (
-        <div
-            {...props}
-            {...stylex.props(styles.base, staticStyles({ color, elevation, tint, bg }), style)}
-        >
+        <div {...props} {...compoundStyle}>
             {children}
         </div>
     );

@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 
-export const gruvboxPalette = stylex.defineConsts({
+export const palette = stylex.defineConsts({
     // Dark grounds & foregrounds
     dark0Hard: 'oklch(0.241 0.005 219.672)',
     dark0: 'oklch(0.277 0 0)',
@@ -117,12 +117,6 @@ export const zIndex = stylex.defineConsts({
 export const breakpoints = stylex.defineConsts({
     narrowMax: 720,
     wideMin: 1024,
-});
-
-export const media = stylex.defineConsts({
-    narrow: '@media (max-width: 720px)',
-    wide: '@media (min-width: 1024px)',
-    portrait: '@media (orientation: portrait)',
 });
 
 export const layout = stylex.defineConsts({

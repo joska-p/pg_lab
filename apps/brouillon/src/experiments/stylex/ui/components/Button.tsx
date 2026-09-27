@@ -2,8 +2,11 @@ import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { typography, space } from '../const.stylex';
-import { surface, staticStyles, dynamicStyles, backgroundColor } from '../styles.stylex';
-import type { ColorNames, Elevation, SurfaceTint, Background } from '../styles.stylex';
+import { interactionStyles } from '../interactions.stylex';
+import { surface, surfaceStyles } from '../surface.stylex';
+import type { Background, Elevation } from '../surface.stylex';
+import { tintVars } from '../tint.stylex';
+import type { ColorNames } from '../tint.stylex';
 
 const styles = stylex.create({
     base: {
@@ -14,29 +17,36 @@ const styles = stylex.create({
         gap: space['2'],
         paddingBlock: space['2'],
         paddingInline: space['4'],
-        color: surface.fg,
+        color: surface.foreground,
         fontFamily: typography.fontFamilySans,
         fontSize: typography.fontSizeSm,
         fontWeight: typography.fontWeightMedium,
         lineHeight: typography.lineHeightTight,
-        [backgroundColor.color]: surface.bg,
+        [tintVars.background]: surface.background,
     },
 });
 
 interface ButtonProps extends Omit<React.ComponentProps<'button'>, 'style'> {
     color?: ColorNames;
-    tint?: SurfaceTint;
-    elevation?: Elevation;
+    /** Remplit le fond avec `color`. Off par defaut (surface neutre + accent). */
+    tintBackground?: boolean;
+    /** Teinte la bordure avec `color`. */
+    tintBorder?: boolean;
+    /** Teinte l'ombre avec `color`. */
+    tintShadow?: boolean;
     bg?: Background;
+    elevation?: Elevation;
     disabled?: boolean;
     style?: StyleXStyles;
 }
 
 export function Button({
     color = 'neutral',
-    tint = 'tinted',
-    elevation = 'raised',
+    tintBackground = true,
+    tintBorder = true,
+    tintShadow = true,
     bg = 'solid',
+    elevation = 'raised',
     disabled = false,
     style,
     type = 'button',
@@ -50,8 +60,15 @@ export function Button({
             disabled={disabled}
             {...stylex.props(
                 styles.base,
-                staticStyles({ color, tint, elevation, bg }),
-                dynamicStyles({ disabled }),
+                surfaceStyles({
+                    color,
+                    background: tintBackground,
+                    border: tintBorder,
+                    shadow: tintShadow,
+                    bg,
+                    elevation,
+                }),
+                interactionStyles({ disabled }),
                 style,
             )}
         >
