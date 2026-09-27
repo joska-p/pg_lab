@@ -28,11 +28,8 @@ const styles = stylex.create({
 
 interface ButtonProps extends Omit<React.ComponentProps<'button'>, 'style'> {
     color?: ColorNames;
-    /** Remplit le fond avec `color`. Off par defaut (surface neutre + accent). */
     tintBackground?: boolean;
-    /** Teinte la bordure avec `color`. */
     tintBorder?: boolean;
-    /** Teinte l'ombre avec `color`. */
     tintShadow?: boolean;
     bg?: Background;
     elevation?: Elevation;

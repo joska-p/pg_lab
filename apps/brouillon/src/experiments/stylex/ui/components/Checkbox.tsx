@@ -6,7 +6,7 @@ import { layout, radius, space } from '../const.stylex';
 import { interactionStyles } from '../interactions.stylex';
 import { surface, surfaceStyles } from '../surface.stylex';
 import type { Background, Elevation } from '../surface.stylex';
-import { colors, tintVars } from '../tint.stylex';
+import { tintVars, colorText } from '../tint.stylex';
 import type { ColorNames } from '../tint.stylex';
 import { fieldText } from '../typography.stylex';
 
@@ -42,20 +42,6 @@ const styles = stylex.create({
         width: layout.controlTouchTarget,
         height: layout.controlTouchTarget,
     },
-});
-
-// Coche coloree quand la case est cochee sans fond teinte (variante
-// "accented") : le fond reste neutre, c'est la marque qui porte la couleur.
-// Statique et enumere comme tintBackground/tintBorder/tintShadow.
-const checkedMark = stylex.create({
-    neutral: { color: colors.neutral },
-    aurora: { color: colors.aurora },
-    solder: { color: colors.solder },
-    purple: { color: colors.purple },
-    amber: { color: colors.amber },
-    error: { color: colors.error },
-    aqua: { color: colors.aqua },
-    orange: { color: colors.orange },
 });
 
 interface CheckboxProps extends Omit<React.ComponentProps<'button'>, 'style'> {
@@ -107,7 +93,7 @@ export function Checkbox({
             bg,
             elevation,
         }),
-        isOn && !tintBackground ? checkedMark[color] : null,
+        isOn && !tintBackground ? colorText[color] : null,
         interactionStyles({ disabled }),
         style,
     );

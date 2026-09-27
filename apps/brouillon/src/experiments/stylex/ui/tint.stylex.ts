@@ -23,7 +23,7 @@ export type ColorNames =
     | 'orange';
 
 export const colors = stylex.defineVars({
-    neutral: `light-dark(${palette.light0Hard}, ${palette.dark0Hard})`,
+    neutral: `light-dark(${palette.light4}, ${palette.dark4})`,
     aurora: `light-dark(${palette.brightBlue}, ${palette.fadedBlue})`,
     solder: `light-dark(${palette.brightGreen}, ${palette.fadedGreen})`,
     purple: `light-dark(${palette.brightPurple}, ${palette.fadedPurple})`,
@@ -74,6 +74,17 @@ const tintShadow = stylex.create({
     error: { [tintVars.shadow]: colors.error },
     aqua: { [tintVars.shadow]: colors.aqua },
     orange: { [tintVars.shadow]: colors.orange },
+});
+
+export const colorText = stylex.create({
+    neutral: { color: colors.neutral },
+    aurora: { color: colors.aurora },
+    solder: { color: colors.solder },
+    purple: { color: colors.purple },
+    amber: { color: colors.amber },
+    error: { color: colors.error },
+    aqua: { color: colors.aqua },
+    orange: { color: colors.orange },
 });
 
 /**
