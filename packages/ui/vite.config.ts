@@ -7,6 +7,12 @@ import { defineConfig } from 'vite-plus';
 // at ./src so every app compiles the same source with the shared preset.
 export default defineConfig({
     pack: {
+        deps: {
+            // tsdown <0.23 compatibility: resolve external dependency subpaths.
+            // Remove to preserve subpath imports as written (the new default).
+            // https://tsdown.dev/options/dependencies#deps-resolvedepsubpath
+            resolveDepSubpath: true,
+        },
         // One entry per public file (see package.json exports).
         // exports: false: the dual source/dist map is hand-written so it
         // keeps pointing at ./src for internal "source" resolution.

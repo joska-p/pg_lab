@@ -3,7 +3,7 @@ import { defineConfig } from 'vite-plus';
 // Root config owns shared lint/fmt/staged/task defaults only.
 // Vite transform plugins (StyleX, React, Babel) belong to each app's own
 // vite.config.ts: dev/build/pack run per package, never on this root.
-const ignorePatterns = ['dist/**', '**/vendor/*.js', '.agents/skills/impeccable/**'];
+const ignorePatterns = ['dist/**', '**/vendor/*.js', '.agents/**'];
 
 export default defineConfig({
     create: {
@@ -21,6 +21,11 @@ export default defineConfig({
     },
 
     test: {
+        // Vitest v4 compatibility: preserve mock call history.
+        // Remove after tests no longer rely on calls from setup or earlier tests.
+        // https://viteplus.dev/guide/vitest-v5#remove-unneeded-compatibility-settings
+        // https://vitest.dev/guide/migration/#clearmocks-is-enabled-by-default
+        clearMocks: false,
         // `exclude` replaces Vitest's defaults, so restate them here plus
         // repo-specific noise: .direnv vendors nix flake sources containing
         // *.test.ts files that are not our suites.
