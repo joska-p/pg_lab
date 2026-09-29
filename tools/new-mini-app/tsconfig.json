@@ -1,3 +1,25 @@
 {
-    "extends": "@repo/internal-config/node.json"
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "compilerOptions": {
+        "customConditions": ["source"],
+        "strict": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "isolatedModules": true,
+        "verbatimModuleSyntax": true,
+        "erasableSyntaxOnly": true,
+        "moduleDetection": "force",
+        "resolveJsonModule": true,
+        "allowImportingTsExtensions": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "target": "ES2023",
+        "lib": ["ES2023"],
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "types": ["node"],
+        "noEmit": true
+    }
 }

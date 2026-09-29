@@ -21,18 +21,18 @@ function packageJson(name: string): string {
             },
             dependencies: {
                 '@repo/ui': 'workspace:*',
+                '@stylexjs/stylex': 'catalog:',
                 react: 'catalog:',
                 'react-dom': 'catalog:',
                 zustand: 'catalog:',
             },
             devDependencies: {
-                '@repo/internal-config': 'workspace:*',
                 '@rolldown/plugin-babel': 'catalog:',
                 '@stylexjs/stylex': 'catalog:',
-                '@types/node': 'catalog:',
                 '@types/react': 'catalog:',
                 '@types/react-dom': 'catalog:',
                 '@vitejs/plugin-react': 'catalog:',
+                'babel-plugin-react-compiler': 'catalog:',
                 typescript: 'catalog:',
                 'unplugin-stylex': 'catalog:',
                 vite: 'catalog:',
@@ -61,63 +61,61 @@ function indexHtml(name: string): string {
 `;
 }
 
-const viteConfig = `import react, { reactCompilerPreset } from "@vitejs/plugin-react";
-import { defineConfig } from "vite-plus";
-import { lazyPlugins } from "vite-plus";
-import stylexPlugin from "unplugin-stylex/vite";
-import babel from "@rolldown/plugin-babel";
-import { stylexPreset } from "@repo/ui/stylex-preset";
+const viteConfig = `import { stylexPreset } from '@repo/ui/presets';
+  import babel from '@rolldown/plugin-babel';
+  import react, { reactCompilerPreset } from '@vitejs/plugin-react';
+  import stylexPlugin from 'unplugin-stylex/vite';
+  import { defineConfig } from 'vite-plus';
+  import { lazyPlugins } from 'vite-plus';
 
-// https://vite.dev/config/
-export default defineConfig({
-  // lint: owned by the root config lint.overrides.
-  plugins: lazyPlugins(() => [
-    stylexPlugin(stylexPreset),
-    babel({
-      presets: [reactCompilerPreset()],
-    }),
-    react(),
-  ]),
-  resolve: {
-    // Internal runs use workspace sources (see @repo/internal-config/base.json
-    // customConditions); externals fall through to compiled dist.
-    conditions: ["source", "module", "browser", "development|production"],
-    dedupe: ["@stylexjs/stylex", "react", "react-dom"],
-  },
-  optimizeDeps: {
-    exclude: ["@repo/ui"],
-  },
-  server: {
-    fs: {
-      allow: ["../.."],
-    },
-  },
-});
-`;
+  export default defineConfig({
+      plugins: lazyPlugins(() => [
+          stylexPlugin(stylexPreset),
+          babel({
+              presets: [reactCompilerPreset()],
+          }),
+          react(),
+      ]),
+      pack: {
+          deps: {
+              resolveDepSubpath: true,
+          },
+          dts: {
+              generator: 'tsgo',
+          },
+          exports: false,
+      },
+      test: {
+          include: ['src/**/*.test.ts'],
+      },
+  });`;
 
 const tsconfig = `{
-  "files": [],
-  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
-}
-`;
+      "$schema": "https://json.schemastore.org/tsconfig",
+      "compilerOptions": {
+          "target": "es2023",
+          "module": "esnext",
+          "lib": ["ES2023", "DOM"],
+          "jsx": "react-jsx",
+          "types": ["vite/client"],
+          "allowArbitraryExtensions": true,
+          "skipLibCheck": true,
 
-const tsconfigApp = `{
-  "extends": "@repo/internal-config/app.json",
-  "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
-  },
-  "include": ["src"]
-}
-`;
+          /* Bundler mode */
+          "moduleResolution": "bundler",
+          "allowImportingTsExtensions": true,
+          "verbatimModuleSyntax": true,
+          "moduleDetection": "force",
+          "noEmit": true,
 
-const tsconfigNode = `{
-  "extends": "@repo/internal-config/node.json",
-  "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo"
-  },
-  "include": ["vite.config.ts"]
-}
-`;
+          /* Linting */
+          "noUnusedLocals": true,
+          "noUnusedParameters": true,
+          "erasableSyntaxOnly": true,
+          "noFallthroughCasesInSwitch": true
+      },
+      "include": ["src"]
+  }`;
 
 const mainTsx = `import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
@@ -251,8 +249,6 @@ export default createTemplate({
                 'index.html': indexHtml(name),
                 'vite.config.ts': viteConfig,
                 'tsconfig.json': tsconfig,
-                'tsconfig.app.json': tsconfigApp,
-                'tsconfig.node.json': tsconfigNode,
                 '.gitignore': gitignore,
                 src: {
                     'main.tsx': mainTsx,

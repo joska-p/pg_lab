@@ -1,8 +1,5 @@
 import { defineConfig } from 'vite-plus';
 
-// Root config owns shared lint/fmt/staged/task defaults only.
-// Vite transform plugins (StyleX, React, Babel) belong to each app's own
-// vite.config.ts: dev/build/pack run per package, never on this root.
 const ignorePatterns = ['dist/**', '**/vendor/*.js', '.agents/**'];
 
 export default defineConfig({
@@ -15,34 +12,9 @@ export default defineConfig({
             },
         ],
     },
-
     staged: {
-        '*.{js,ts,tsx}': 'vp check --fix',
+        '*': 'vp check --fix',
     },
-
-    test: {
-        // Vitest v4 compatibility: preserve mock call history.
-        // Remove after tests no longer rely on calls from setup or earlier tests.
-        // https://viteplus.dev/guide/vitest-v5#remove-unneeded-compatibility-settings
-        // https://vitest.dev/guide/migration/#clearmocks-is-enabled-by-default
-        clearMocks: false,
-        // `exclude` replaces Vitest's defaults, so restate them here plus
-        // repo-specific noise: .direnv vendors nix flake sources containing
-        // *.test.ts files that are not our suites.
-        exclude: [
-            '**/node_modules/**',
-            '**/dist/**',
-            '**/cypress/**',
-            '**/.{idea,git,cache,output,temp}/**',
-            '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,eslint,prettier}.config.*',
-            '.direnv/**',
-        ],
-    },
-
-    // ─────────────────────────────────────────────
-    // Formatting — Oxfmt owns code representation
-    // ─────────────────────────────────────────────
-
     fmt: {
         ignorePatterns,
 
@@ -51,60 +23,11 @@ export default defineConfig({
         sortImports: true,
         jsdoc: true,
     },
-
-    // ─────────────────────────────────────────────
-    // Linting — Oxlint owns code invariants
-    // ─────────────────────────────────────────────
-
     lint: {
         ignorePatterns,
 
-        // React packages share one lint setup here instead of duplicating
-        // the same `lint` block in each package's own vite.config.ts.
-        // No `options` in overrides (not accepted there): typeAware/typeCheck
-        // come from the root `lint.options` below (global).
-        overrides: [
-            {
-                files: [
-                    'apps/brouillon/**',
-                    'apps/playground/**',
-                    'packages/art-canvas/**',
-                    'packages/automa/**',
-                    'packages/fracture/**',
-                    'packages/glaze/**',
-                    'packages/glaze3d/**',
-                    'packages/mol-demo/**',
-                    'packages/mosaic-maker/**',
-                ],
-                plugins: ['react', 'typescript', 'oxc'],
-                rules: {
-                    'react/rules-of-hooks': 'error',
-                    'react/only-export-components': [
-                        'warn',
-                        {
-                            allowConstantExport: true,
-                        },
-                    ],
-                    'vite-plus/prefer-vite-plus-imports': 'error',
-                },
-                jsPlugins: [
-                    {
-                        name: 'vite-plus',
-                        specifier: 'vite-plus/oxlint-plugin',
-                    },
-                ],
-            },
-        ],
-
-        jsPlugins: [
-            {
-                name: 'vite-plus',
-                specifier: 'vite-plus/oxlint-plugin',
-            },
-        ],
-
+        jsPlugins: [{ name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' }],
         rules: {
-            // ─────────────────────────────────────────────
             // Repo / tooling
             // ─────────────────────────────────────────────
 
@@ -267,27 +190,12 @@ export default defineConfig({
             'react/incompatible-library': 'warn',
             'react/preserve-manual-memoization': 'error',
         },
-
-        options: {
-            typeAware: true,
-            typeCheck: true,
-        },
+        options: { typeAware: true, typeCheck: true },
     },
-
-    // ─────────────────────────────────────────────
-    // Runtime
-    // ─────────────────────────────────────────────
-
     run: {
         cache: true,
     },
-
     resolve: {
-        // Bundler mirror of @repo/internal-config/base.json customConditions: internal
-        // runs resolve workspace packages through their "source" export
-        // condition (raw .ts, required for the shared StyleX preset).
-        // External consumers without it fall through to compiled dist.
-        // Order = Vite client defaults with "source" first.
         conditions: ['source', 'module', 'browser', 'development|production'],
     },
 });

@@ -3,20 +3,12 @@
     "version": "0.0.0",
     "type": "module",
     "exports": {
-        "./package.json": "./package.json",
-        "./worker-pool": {
-            "source": "./src/worker-pool.ts",
-            "types": "./dist/worker-pool.d.mts",
-            "import": "./dist/worker-pool.mjs"
-        }
+        "./worker-pool": "./src/worker-pool.ts"
     },
     "scripts": {
-        "build": "vp pack",
-        "dev": "vp pack --watch",
         "check": "vp check"
     },
     "devDependencies": {
-        "@repo/internal-config": "workspace:*",
         "@types/node": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",

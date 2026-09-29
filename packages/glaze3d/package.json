@@ -1,58 +1,22 @@
 {
     "name": "@repo/glaze3d",
     "version": "0.0.0",
-    "description": "Personnal Graphic toolkit",
-    "author": "Joska <joska-p@gmail.com>",
     "type": "module",
     "exports": {
-        "./core": {
-            "source": "./src/core/index.ts",
-            "types": "./dist/core/index.d.mts",
-            "import": "./dist/core/index.mjs"
-        },
-        "./geometry": {
-            "source": "./src/geometry/index.ts",
-            "types": "./dist/geometry/index.d.mts",
-            "import": "./dist/geometry/index.mjs"
-        },
-        "./material": {
-            "source": "./src/material/index.ts",
-            "types": "./dist/material/index.d.mts",
-            "import": "./dist/material/index.mjs"
-        },
-        "./math": {
-            "source": "./src/math/index.ts",
-            "types": "./dist/math/index.d.mts",
-            "import": "./dist/math/index.mjs"
-        },
-        "./renderer": {
-            "source": "./src/renderer/index.ts",
-            "types": "./dist/renderer/index.d.mts",
-            "import": "./dist/renderer/index.mjs"
-        },
-        "./controls": {
-            "source": "./src/controls/index.ts",
-            "types": "./dist/controls/index.d.mts",
-            "import": "./dist/controls/index.mjs"
-        }
+        "./core": "./src/core/index.ts",
+        "./geometry": "./src/geometry/index.ts",
+        "./material": "./src/material/index.ts",
+        "./math": "./src/math/index.ts",
+        "./renderer": "./src/renderer/index.ts",
+        "./controls": "./src/controls/index.ts"
     },
     "scripts": {
-        "build": "vp pack",
-        "dev": "vp pack --watch",
         "check": "vp check"
     },
     "devDependencies": {
-        "@repo/internal-config": "workspace:*",
-        "@stylexjs/stylex": "catalog:",
         "@types/node": "catalog:",
-        "@types/react": "catalog:",
-        "@types/react-dom": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",
         "vite-plus": "catalog:"
-    },
-    "peerDependencies": {
-        "react": "catalog:",
-        "react-dom": "catalog:"
     }
 }

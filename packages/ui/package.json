@@ -1,40 +1,26 @@
 {
     "name": "@repo/ui",
     "version": "0.0.0",
-    "description": "This is a small personal UI toolkit for creative mini-apps.",
-    "license": "MIT",
-    "author": "Joska <joska-p@gmail.com>",
+    "private": true,
     "type": "module",
     "exports": {
         "./styles": "./src/styles.css",
-        "./tokens/*": {
-            "source": "./src/tokens/*.ts",
-            "types": "./dist/tokens/*.d.mts",
-            "import": "./dist/tokens/*.mjs"
-        },
-        "./recipes/*": {
-            "source": "./src/recipes/*.ts",
-            "types": "./dist/recipes/*.d.mts",
-            "import": "./dist/recipes/*.mjs"
-        },
-        "./components/*": {
-            "source": "./src/components/*.tsx",
-            "types": "./dist/components/*.d.mts",
-            "import": "./dist/components/*.mjs"
-        }
+        "./presets": "./src/stylex-preset.ts",
+        "./tokens/*": "./src/tokens/*.ts",
+        "./recipes/*": "./src/recipes/*.ts",
+        "./components/*": "./src/components/*.tsx"
     },
     "scripts": {
-        "build": "vp pack",
-        "dev": "vp pack --watch",
         "check": "vp check"
     },
     "devDependencies": {
-        "@repo/internal-config": "workspace:*",
-        "@stylexjs/stylex": "catalog:",
-        "@types/node": "catalog:",
+        "@rolldown/plugin-babel": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
+        "@vitejs/plugin-react": "catalog:",
+        "babel-plugin-react-compiler": "catalog:",
         "typescript": "catalog:",
+        "unplugin-stylex": "catalog:",
         "vite": "catalog:",
         "vite-plus": "catalog:"
     },

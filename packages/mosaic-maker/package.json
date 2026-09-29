@@ -4,23 +4,14 @@
     "private": true,
     "type": "module",
     "exports": {
-        "./App": {
-            "types": "./src/App.tsx",
-            "import": "./src/App.tsx"
-        },
-        "./Scene": {
-            "types": "./src/components/Scene.tsx",
-            "import": "./src/components/Scene.tsx"
-        },
-        "./Controls": {
-            "types": "./src/components/controls/Controls.tsx",
-            "import": "./src/components/controls/Controls.tsx"
-        }
+        "./App": "./src/App.tsx",
+        "./Scene": "./src/components/Scene.tsx",
+        "./Controls": "./src/components/controls/Controls.tsx"
     },
     "scripts": {
-        "dev": "vp dev",
-        "build": "tsc -b && vp build",
-        "preview": "vp preview"
+        "build": "vp pack",
+        "dev": "vp pack --watch",
+        "check": "vp check"
     },
     "dependencies": {
         "@repo/ui": "workspace:*",
@@ -30,12 +21,14 @@
         "zustand": "catalog:"
     },
     "devDependencies": {
-        "@repo/internal-config": "workspace:*",
+        "@rolldown/plugin-babel": "catalog:",
         "@stylexjs/stylex": "catalog:",
-        "@types/node": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
+        "@vitejs/plugin-react": "catalog:",
+        "babel-plugin-react-compiler": "catalog:",
         "typescript": "catalog:",
+        "unplugin-stylex": "catalog:",
         "vite": "catalog:",
         "vite-plus": "catalog:"
     }
