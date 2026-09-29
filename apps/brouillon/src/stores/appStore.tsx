@@ -1,16 +1,16 @@
 import { create } from 'zustand';
 
-import type { RegistryKey } from '../experiments/stylex/demos/registry';
+import type { ComponentName } from '../experiments/stylex/demos/registry';
 
 export type Theme = 'light' | 'dark' | 'system';
 
 interface appStore {
-    registryKey: RegistryKey;
+    componentName: ComponentName;
     theme: Theme;
 }
 
 const appStore = create<appStore>(() => ({
-    registryKey: 'button',
+    componentName: 'button',
     theme: 'system',
 }));
 
@@ -18,14 +18,14 @@ export function useTheme(): Theme {
     return appStore((s) => s.theme);
 }
 
-export function useRegistryKey(): RegistryKey {
-    return appStore((s) => s.registryKey);
+export function useComponentName(): ComponentName {
+    return appStore((s) => s.componentName);
 }
 
 export function setTheme(theme: Theme): void {
     appStore.setState({ theme });
 }
 
-export function setRegistryKey(registryKey: RegistryKey): void {
-    appStore.setState({ registryKey });
+export function setComponentName(componentName: ComponentName): void {
+    appStore.setState({ componentName });
 }

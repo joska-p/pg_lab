@@ -1,10 +1,10 @@
 import * as stylex from '@stylexjs/stylex';
 
-import { useTheme, setTheme, useRegistryKey, setRegistryKey } from '../../stores/appStore';
+import { useTheme, setTheme, useComponentName, setComponentName } from '../../stores/appStore';
 import type { Theme } from '../../stores/appStore';
 import { DemoCanvas } from './demos/DemoCanvas';
-import type { RegistryKey } from './demos/registry';
-import { registryOptions } from './demos/registry';
+import type { ComponentName } from './demos/registry';
+import { components } from './demos/registry';
 import { VariantFilterSection } from './demos/VariantFilterSection';
 import { ControlPanel } from './ui/components/ControlPanel';
 import { ExperimentShell } from './ui/components/ExperimentShell';
@@ -21,16 +21,18 @@ const labStyles = stylex.create({
     section: { marginBlock: space['4'] },
 });
 
+export const registryOptions = Object.keys(components) as ComponentName[];
+
 export function Laboratory() {
     const theme = useTheme();
-    const registryKey = useRegistryKey();
+    const registryKey = useComponentName();
 
     function handleTheme(event: React.ChangeEvent<HTMLSelectElement>) {
         setTheme(event.currentTarget.value as Theme);
     }
 
     function handleComponent(event: React.ChangeEvent<HTMLSelectElement>) {
-        setRegistryKey(event.currentTarget.value as RegistryKey);
+        setComponentName(event.currentTarget.value as ComponentName);
     }
 
     return (
@@ -41,6 +43,7 @@ export function Laboratory() {
                     panel={
                         <ControlPanel label="laboratory controls">
                             <h4 {...stylex.props(heading.level2)}>Theme</h4>
+
                             <select
                                 {...stylex.props(labStyles.select)}
                                 onChange={handleTheme}
@@ -50,8 +53,11 @@ export function Laboratory() {
                                 <option value="light">light</option>
                                 <option value="system">system</option>
                             </select>
+
                             <VariantFilterSection target="card" title="Card (support)" />
+
                             <h4 {...stylex.props(heading.level2)}>Component</h4>
+
                             <select
                                 {...stylex.props(labStyles.select)}
                                 onChange={handleComponent}
@@ -63,6 +69,7 @@ export function Laboratory() {
                                     </option>
                                 ))}
                             </select>
+
                             <VariantFilterSection
                                 target="component"
                                 title={`Component (${registryKey})`}

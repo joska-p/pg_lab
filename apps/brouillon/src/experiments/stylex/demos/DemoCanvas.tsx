@@ -1,19 +1,19 @@
 import * as stylex from '@stylexjs/stylex';
 import { useMemo } from 'react';
 
-import { useRegistryKey } from '../../../stores/appStore';
+import { useComponentName } from '../../../stores/appStore';
 import { Card } from '../ui/components/Card';
 import { Stack } from '../ui/components/Stack';
 import { fieldText } from '../ui/styles.stylex';
-import { registry } from './registry';
+import { components } from './registry';
 import { useCardFilter, useComponentFilter } from './variantFilter.store';
 import { buildSurfaceVariants } from './variants';
 
 export function DemoCanvas() {
-    const registryKey = useRegistryKey();
+    const registryKey = useComponentName();
     const cardFilter = useCardFilter();
     const componentFilter = useComponentFilter();
-    const Sample = registry[registryKey];
+    const Sample = components[registryKey];
 
     const cardVariants = useMemo(() => buildSurfaceVariants(cardFilter), [cardFilter]);
     const componentVariants = useMemo(
