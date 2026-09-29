@@ -175,6 +175,14 @@ export default defineConfig({
             // React / React Compiler
             // ─────────────────────────────────────────────
 
+            'react/rules-of-hooks': 'error',
+            'react/only-export-components': [
+                'warn',
+                {
+                    allowConstantExport: true,
+                },
+            ],
+
             'react/syntax': 'error',
             'react/globals': 'error',
             'react/immutability': 'error',

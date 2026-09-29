@@ -16,7 +16,6 @@ function packageJson(name: string): string {
             type: 'module',
             scripts: {
                 dev: 'vp dev',
-                build: 'tsc -b && vp build',
                 preview: 'vp preview',
             },
             dependencies: {
@@ -75,47 +74,14 @@ const viteConfig = `import { stylexPreset } from '@repo/ui/presets';
               presets: [reactCompilerPreset()],
           }),
           react(),
-      ]),
-      pack: {
-          deps: {
-              resolveDepSubpath: true,
-          },
-          dts: {
-              generator: 'tsgo',
-          },
-          exports: false,
-      },
-      test: {
-          include: ['src/**/*.test.ts'],
-      },
+      ])
   });`;
 
 const tsconfig = `{
-      "$schema": "https://json.schemastore.org/tsconfig",
-      "compilerOptions": {
-          "target": "es2023",
-          "module": "esnext",
-          "lib": ["ES2023", "DOM"],
-          "jsx": "react-jsx",
-          "types": ["vite/client"],
-          "allowArbitraryExtensions": true,
-          "skipLibCheck": true,
-
-          /* Bundler mode */
-          "moduleResolution": "bundler",
-          "allowImportingTsExtensions": true,
-          "verbatimModuleSyntax": true,
-          "moduleDetection": "force",
-          "noEmit": true,
-
-          /* Linting */
-          "noUnusedLocals": true,
-          "noUnusedParameters": true,
-          "erasableSyntaxOnly": true,
-          "noFallthroughCasesInSwitch": true
-      },
-      "include": ["src"]
-  }`;
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "extends": "../../tsconfig.app",
+    "include": ["src"]
+}`;
 
 const mainTsx = `import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
