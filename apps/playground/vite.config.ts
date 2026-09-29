@@ -6,6 +6,7 @@ import { defineConfig } from 'vite-plus';
 import { lazyPlugins } from 'vite-plus';
 
 export default defineConfig({
+    base: '/pg_lab/',
     plugins: lazyPlugins(() => [
         stylexPlugin(stylexPreset),
         babel({
