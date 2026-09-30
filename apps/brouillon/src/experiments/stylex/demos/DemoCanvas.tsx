@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useComponentName } from '../../../stores/appStore';
 import { Card } from '../ui/components/Card';
 import { Stack } from '../ui/components/Stack';
-import { fieldText } from '../ui/styles.stylex';
+import { fieldText } from '../ui/typography.stylex';
 import { components } from './registry';
 import { useCardFilter, useComponentFilter } from './variantFilter.store';
 import { buildSurfaceVariants } from './variants';

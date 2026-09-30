@@ -1,7 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 
 import { space } from '../const.stylex';
-import { heading } from '../styles.stylex';
+import { heading } from '../typography.stylex';
 
 const styles = stylex.create({
     base: {

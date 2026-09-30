@@ -1,7 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 
 import { space } from '../ui/const.stylex';
-import { fieldText, heading } from '../ui/styles.stylex';
+import { fieldText, heading } from '../ui/typography.stylex';
 import {
     resetFilter,
     toggleOption,

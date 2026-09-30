@@ -11,7 +11,7 @@ import { ExperimentShell } from './ui/components/ExperimentShell';
 import { ShellWrapper } from './ui/components/ShellWrapper';
 import { Stage } from './ui/components/Stage';
 import { space } from './ui/const.stylex';
-import { heading } from './ui/styles.stylex';
+import { heading } from './ui/typography.stylex';
 
 const labStyles = stylex.create({
     light: { colorScheme: 'light' },

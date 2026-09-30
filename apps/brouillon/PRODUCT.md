@@ -72,7 +72,7 @@ Open decisions, deliberately unrecorded:
 
 Real material that exists and may be relied on:
 
-- Local StyleX layer: `const.stylex.ts` (palette, typography, space, radius, border width, z-index, breakpoints, layout), `tint.stylex.ts`, `surface.stylex.ts`, `typography.stylex.ts`, `styles.stylex.ts`, `interactions.stylex.ts`, `layout.stylex.ts`.
+- Local StyleX layer: `const.stylex.ts` (palette, typography, space, radius, border width, z-index, breakpoints, layout), `tint.stylex.ts`, `surface.stylex.ts`, `typography.stylex.ts`, `interactions.stylex.ts`.
 - Local components: `Button`, `Card`, `Checkbox`, `ControlPanel`, `ExperimentShell`, `ShellWrapper`, `Stack`, `Stage`.
 - `packages/ui`: a wider set — 27 components, 7 token files, 4 recipe files, `styles.css`, `stylex-preset.ts`. It is the promotion target, not the source of the lab's current rendering.
 - `public/favicon.svg`, `public/icons.svg`.

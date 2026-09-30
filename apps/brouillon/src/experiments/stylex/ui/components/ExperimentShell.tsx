@@ -2,7 +2,7 @@ import * as stylex from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
 import { space, layout, radius, zIndex } from '../const.stylex';
-import { staticStyles } from '../styles.stylex';
+import { surfaceStyles } from '../surface.stylex';
 import { Button } from './Button';
 
 const styles = stylex.create({
@@ -121,12 +121,12 @@ export function ExperimentShell({
 
     const compoundStageSlotStyle = stylex.props(
         styles.stageSlot,
-        staticStyles({ color: 'neutral', tint: 'tinted', bg: 'soft', elevation: 'raised' }),
+        surfaceStyles({ color: 'neutral', background: true, bg: 'soft', elevation: 'raised' }),
     );
 
     const compoundPanelStyle = stylex.props(
         styles.panel,
-        staticStyles({ color: 'neutral', tint: 'tinted', bg: 'soft' }),
+        surfaceStyles({ color: 'neutral', background: true, bg: 'soft' }),
         isFloating && styles.panelFloating,
         !panelVisible && styles.hidden,
     );

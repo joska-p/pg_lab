@@ -127,11 +127,10 @@ The result should feel like precision instrumentation rather than a product: den
 
 ### Known gaps in the current implementation
 
-This document records the system's intended rules. Three pieces of the incumbent app do not yet obey them, and are the first things any refinement should close:
+This document records the system's intended rules. Two pieces of the incumbent app do not yet obey them, and are the first things any refinement should close:
 
-1. **The lab's own chrome is half-migrated.** `ExperimentShell`, `ControlPanel`, `Stack` and the lab surfaces still consume an older parallel token layer whose `neutral` resolves to a near-white paper instead of the mid warm gray documented above. Every component _under test_ is correct.
-2. **Form controls are unstyled user-agent elements.** The theme `<select>`, the variant checkboxes and the "Reset" buttons currently render with browser defaults — serif 16px, `2px outset` borders, 13px checkboxes — inside a panel whose labels are already on-token.
-3. **`html` is pinned to `color-scheme: dark` by the shared base stylesheet** while the app switches the theme on an inner node, so anything that does not set an explicit ink token inherits the wrong foreground in light mode.
+1. **Form controls are unstyled user-agent elements.** The theme `<select>`, the variant checkboxes and the "Reset" buttons currently render with browser defaults — serif 16px, `2px outset` borders, 13px checkboxes — inside a panel whose labels are already on-token.
+2. **`html` is pinned to `color-scheme: dark` by the shared base stylesheet** while the app switches the theme on an inner node, so anything that does not set an explicit ink token inherits the wrong foreground in light mode.
 
 ## Colors
 
