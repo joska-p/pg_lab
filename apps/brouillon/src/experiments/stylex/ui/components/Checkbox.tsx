@@ -1,8 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 
-import { layout, radius, space } from '../const.stylex';
+import { interaction, layout, radius, space } from '../const.stylex';
 import { interactionStyles } from '../interactions.stylex';
 import { surface, surfaceStyles } from '../surface.stylex';
 import type { Background, Elevation, Borders } from '../surface.stylex';
@@ -41,6 +41,9 @@ const styles = stylex.create({
         width: layout.controlTouchTarget,
         height: layout.controlTouchTarget,
     },
+    labelDisabled: {
+        opacity: interaction.disabledOpacity,
+    },
 });
 
 interface CheckboxProps extends Omit<React.ComponentProps<'button'>, 'style'> {
@@ -73,6 +76,8 @@ export function Checkbox({
     ...props
 }: CheckboxProps) {
     const id = useId();
+    const labelId = useId();
+    const buttonRef = useRef<HTMLButtonElement>(null);
     const controlId = idProp ?? id;
     const [internal, setInternal] = useState(defaultChecked);
     const isControlled = checked !== undefined;
@@ -106,13 +111,20 @@ export function Checkbox({
     return (
         <div {...stylex.props(styles.row)}>
             {label ? (
-                <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
+                <label
+                    id={labelId}
+                    htmlFor={controlId}
+                    onClick={() => buttonRef.current?.click()}
+                    {...stylex.props(fieldText.label, disabled && styles.labelDisabled)}
+                >
                     {label}
                 </label>
             ) : null}
 
             <button
+                aria-labelledby={label ? labelId : undefined}
                 {...props}
+                ref={buttonRef}
                 id={controlId}
                 type="button"
                 role="checkbox"

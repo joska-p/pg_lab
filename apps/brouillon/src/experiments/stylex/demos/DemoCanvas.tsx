@@ -2,18 +2,15 @@ import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo, useState } from 'react';
 
 import { useComponentName } from '../../../stores/appStore';
+import { Button } from '../ui/components/Button';
 import { Card } from '../ui/components/Card';
+import { Checkbox } from '../ui/components/Checkbox';
 import { Stack } from '../ui/components/Stack';
 import { space } from '../ui/const.stylex';
 import { fieldText } from '../ui/typography.stylex';
-import { components } from './registry';
 import { useCardFilter, useComponentFilter } from './variantFilter.store';
 import { buildSurfaceVariants } from './variants';
 
-// Render budget: the matrix is card variants × component variants (up to 216 × 216 =
-// 46 656 instances at full filter). All variants stay reachable through
-// pages, and the honest total is always displayed — pagination bounds the
-// synchronous React/DOM cost without hiding any variant.
 const CARDS_PER_PAGE = 12;
 
 const canvasStyles = stylex.create({
@@ -32,7 +29,6 @@ export function DemoCanvas() {
     const registryKey = useComponentName();
     const cardFilter = useCardFilter();
     const componentFilter = useComponentFilter();
-    const Sample = components[registryKey];
 
     const cardVariants = useMemo(() => buildSurfaceVariants(cardFilter), [cardFilter]);
     const componentVariants = useMemo(
@@ -71,25 +67,29 @@ export function DemoCanvas() {
             </p>
             {totalPages > 1 ? (
                 <nav aria-label="Card pages" {...stylex.props(canvasStyles.pager)}>
-                    <button
+                    <Button
                         type="button"
+                        background="soft"
+                        color="neutral"
                         aria-label="Show previous cards"
                         disabled={safePage === 0}
                         onClick={() => setPage(safePage - 1)}
                     >
                         Previous
-                    </button>
+                    </Button>
                     <span aria-live="polite" {...stylex.props(fieldText.label)}>
                         Page {safePage + 1} of {totalPages}
                     </span>
-                    <button
+                    <Button
                         type="button"
+                        background="soft"
+                        color="neutral"
                         aria-label="Show next cards"
                         disabled={safePage >= totalPages - 1}
                         onClick={() => setPage(safePage + 1)}
                     >
                         Next
-                    </button>
+                    </Button>
                 </nav>
             ) : null}
             {componentVariants.length === 0 ? (
@@ -105,21 +105,31 @@ export function DemoCanvas() {
                             border={card.border}
                             elevation={card.elevation}
                         >
-                            <h2>{card.label}</h2>
+                            <h2 {...stylex.props(fieldText.value)}>{card.label}</h2>
                             <Stack direction="horizontal" gap="12">
-                                {componentVariants.map((variant) => (
-                                    <Sample
-                                        key={variant.label}
-                                        label={variant.label}
-                                        color={variant.color}
-                                        background={variant.background}
-                                        border={variant.border}
-                                        elevation={variant.elevation}
-                                        defaultChecked
-                                    >
-                                        {variant.label}
-                                    </Sample>
-                                ))}
+                                {componentVariants.map((variant) =>
+                                    registryKey === 'checkbox' ? (
+                                        <Checkbox
+                                            key={variant.label}
+                                            label={variant.label}
+                                            color={variant.color}
+                                            background={variant.background}
+                                            border={variant.border}
+                                            elevation={variant.elevation}
+                                            defaultChecked
+                                        />
+                                    ) : (
+                                        <Button
+                                            key={variant.label}
+                                            color={variant.color}
+                                            background={variant.background}
+                                            border={variant.border}
+                                            elevation={variant.elevation}
+                                        >
+                                            {variant.label}
+                                        </Button>
+                                    ),
+                                )}
                             </Stack>
                         </Card>
                     </div>

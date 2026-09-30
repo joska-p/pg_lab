@@ -1,7 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { typography, space } from '../const.stylex';
+import { layout, typography, space } from '../const.stylex';
 import { interactionStyles } from '../interactions.stylex';
 import { surface, surfaceStyles } from '../surface.stylex';
 import type { Background, Elevation, Borders } from '../surface.stylex';
@@ -16,6 +16,7 @@ const styles = stylex.create({
         gap: space['2'],
         paddingBlock: space['2'],
         paddingInline: space['4'],
+        minHeight: layout.controlFieldMinHeight,
         color: surface.foreground,
         fontFamily: typography.fontFamilySans,
         fontSize: typography.fontSizeSm,

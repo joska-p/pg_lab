@@ -11,14 +11,24 @@ import { ControlPanel } from './ui/components/ControlPanel';
 import { ExperimentShell } from './ui/components/ExperimentShell';
 import { ShellWrapper } from './ui/components/ShellWrapper';
 import { Stage } from './ui/components/Stage';
-import { space } from './ui/const.stylex';
+import { layout, space } from './ui/const.stylex';
+import { interactionStyles } from './ui/interactions.stylex';
+import { surface, surfaceStyles } from './ui/surface.stylex';
 import { heading } from './ui/typography.stylex';
 
 const labStyles = stylex.create({
     light: { colorScheme: 'light' },
     dark: { colorScheme: 'dark' },
     system: { colorScheme: 'light dark' },
-    select: { marginBlock: space['4'] },
+    select: {
+        marginBlock: space['4'],
+        width: '100%',
+        minHeight: layout.controlFieldMinHeight,
+        paddingBlock: space['2'],
+        paddingInline: space['2'],
+        color: surface.foreground,
+        cursor: 'pointer',
+    },
     section: { marginBlock: space['4'] },
 });
 
@@ -51,7 +61,16 @@ export function Laboratory() {
 
                             <select
                                 id={themeId}
-                                {...stylex.props(labStyles.select)}
+                                {...stylex.props(
+                                    labStyles.select,
+                                    surfaceStyles({
+                                        color: 'neutral',
+                                        background: 'soft',
+                                        border: 'subtle',
+                                        elevation: 'flat',
+                                    }),
+                                    interactionStyles(),
+                                )}
                                 onChange={handleTheme}
                                 value={theme}
                             >
@@ -68,7 +87,16 @@ export function Laboratory() {
 
                             <select
                                 id={componentId}
-                                {...stylex.props(labStyles.select)}
+                                {...stylex.props(
+                                    labStyles.select,
+                                    surfaceStyles({
+                                        color: 'neutral',
+                                        background: 'soft',
+                                        border: 'subtle',
+                                        elevation: 'flat',
+                                    }),
+                                    interactionStyles(),
+                                )}
                                 onChange={handleComponent}
                                 value={registryKey}
                             >

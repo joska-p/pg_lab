@@ -10,10 +10,8 @@ import { tintVars } from './tint.stylex';
 export const interactions = stylex.create({
     pressable: {
         cursor: interaction.cursorPointer,
-        transitionProperty: 'background-color, border-color, color, box-shadow, transform',
+        transitionProperty: 'background-color, border-color, color, box-shadow, transform, filter',
         transitionDuration: {
-            // durationSlow (320ms) : le plus proche du 300ms historique.
-            // DESIGN.md:253 dit encore 300ms — drift de 20ms a trancher en polish.
             default: motion.durationSlow,
             '@media (prefers-reduced-motion: reduce)': '1ms',
         },
@@ -25,22 +23,17 @@ export const interactions = stylex.create({
     },
     hover: {
         ':hover': {
-            backgroundColor: `light-dark(color-mix(in oklab, ${tintVars.background} 92%, black), color-mix(in oklab, ${tintVars.background} 88%, white))`,
+            filter: 'light-dark(brightness(0.96), brightness(1.1))',
         },
     },
     active: {
         ':active': {
-            backgroundColor: `light-dark(color-mix(in oklab, ${tintVars.background} 85%, black), color-mix(in oklab, ${tintVars.background} 80%, white))`,
-        },
-    },
-    borderHover: {
-        ':hover': {
-            backgroundColor: `light-dark(color-mix(in oklab, ${tintVars.background} 92%, black), color-mix(in oklab, ${tintVars.background} 88%, white))`,
+            filter: 'light-dark(brightness(0.92), brightness(1.18))',
         },
     },
     focus: {
         ':focus-visible': {
-            outline: `1px solid ${tintVars.border}`,
+            outline: `2px solid ${tintVars.border}`,
             outlineOffset: '2px',
         },
     },
@@ -51,9 +44,7 @@ export const interactions = stylex.create({
 });
 
 // Branche a l'identique du comportement actuel de Button (pressable +
-// hover + focus), avec pressable/hover coupes si disabled. `borderHover`
-// n'est pas applique ici : il est identique a l'octet a `hover` (voir
-// audit P1 #7), le brancher en plus doublait la regle :hover pour rien.
+// hover + focus), avec pressable/hover coupes si disabled.
 export function interactionStyles({ disabled = false }: { disabled?: boolean } = {}) {
     return [
         !disabled && interactions.pressable,

@@ -30,6 +30,9 @@ const styles = stylex.create({
         minHeight: 0,
         overflow: 'hidden',
         padding: space['4'],
+        '@container (max-width: 720px)': {
+            paddingTop: `calc(${space['3']} + ${space['10']})`,
+        },
     },
 
     panel: {

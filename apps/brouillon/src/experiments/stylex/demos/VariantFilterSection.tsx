@@ -1,6 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 
-import { space } from '../ui/const.stylex';
+import { Button } from '../ui/components/Button';
+import { layout, space } from '../ui/const.stylex';
 import { fieldText, heading } from '../ui/typography.stylex';
 import {
     resetFilter,
@@ -38,6 +39,15 @@ const filterStyles = stylex.create({
         display: 'flex',
         alignItems: 'center',
         gap: space['1'],
+        minHeight: layout.radioOptionMinHeight,
+        cursor: 'pointer',
+    },
+    checkbox: {
+        width: layout.checkboxSize,
+        height: layout.checkboxSize,
+        margin: 0,
+        flexShrink: 0,
+        cursor: 'pointer',
     },
 });
 
@@ -59,14 +69,16 @@ export function VariantFilterSection({ target, title }: VariantFilterSectionProp
     return (
         <section aria-label={title}>
             <div {...stylex.props(filterStyles.titleRow)}>
-                <h4 {...stylex.props(heading.level2)}>{title}</h4>
-                <button
+                <h2 {...stylex.props(heading.level2)}>{title}</h2>
+                <Button
                     type="button"
+                    background="soft"
+                    color="neutral"
                     aria-label={`Reset ${target} filter`}
                     onClick={() => resetFilter(target)}
                 >
                     Reset
-                </button>
+                </Button>
             </div>
             {VARIANT_PROPERTIES.map(({ property, label }) => {
                 const options = VARIANT_PROPERTY_OPTIONS[property] as readonly (string | boolean)[];
@@ -84,6 +96,7 @@ export function VariantFilterSection({ target, title }: VariantFilterSectionProp
                                 >
                                     <input
                                         type="checkbox"
+                                        {...stylex.props(filterStyles.checkbox)}
                                         checked={selected.includes(option)}
                                         onChange={() => toggleOption(target, property, option)}
                                     />

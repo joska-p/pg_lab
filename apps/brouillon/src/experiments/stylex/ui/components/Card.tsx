@@ -22,7 +22,6 @@ interface CardProps extends Omit<React.ComponentProps<'div'>, 'style'> {
     background?: Background;
     border?: Borders;
     elevation?: Elevation;
-    disabled?: boolean;
     style?: StyleXStyles;
     children?: React.ReactNode;
 }

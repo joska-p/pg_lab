@@ -22,20 +22,6 @@ export const backgrounds = stylex.create({
     soft: {
         backgroundColor: `color-mix(in oklab, ${tintVars.background} 18%, transparent)`,
     },
-    chaos: {
-        backgroundColor: surface.background,
-        backgroundImage: `
-      radial-gradient(45% 35% at 4% 6%, color-mix(in oklab, ${palette.brightRed} 30%, transparent), transparent 70%),
-      radial-gradient(40% 35% at 96% 8%, color-mix(in oklab, ${palette.brightOrange} 28%, transparent), transparent 70%),
-      radial-gradient(50% 40% at 88% 88%, color-mix(in oklab, ${palette.brightYellow} 26%, transparent), transparent 70%),
-      radial-gradient(45% 45% at 8% 92%, color-mix(in oklab, ${palette.brightGreen} 28%, transparent), transparent 70%),
-      radial-gradient(55% 40% at 50% 0%, color-mix(in oklab, ${palette.brightAqua} 24%, transparent), transparent 70%),
-      radial-gradient(50% 50% at 100% 55%, color-mix(in oklab, ${palette.brightBlue} 30%, transparent), transparent 70%),
-      radial-gradient(45% 40% at 0% 50%, color-mix(in oklab, ${palette.brightPurple} 28%, transparent), transparent 70%),
-      radial-gradient(35% 30% at 50% 55%, color-mix(in oklab, ${palette.neutralYellow} 20%, transparent), transparent 70%),
-      linear-gradient(160deg, color-mix(in oklab, ${palette.gray244} 20%, transparent), transparent 65%)
-    `,
-    },
 });
 
 export type Background = keyof typeof backgrounds;
@@ -51,14 +37,14 @@ export const borders = stylex.create({
     subtle: {
         borderWidth: borderWidth.hairline,
         borderStyle: 'solid',
-        borderColor: `color-mix(in oklab, ${tintVars.border} 10%, transparent)`,
+        borderColor: `color-mix(in oklab, ${tintVars.border} 38%, transparent)`,
         borderRadius: radius.md,
     },
 
     strong: {
         borderWidth: borderWidth.hairline,
         borderStyle: 'solid',
-        borderColor: `color-mix(in oklab, ${tintVars.border} 20%, transparent)`,
+        borderColor: `color-mix(in oklab, ${tintVars.border} 72%, transparent)`,
         borderRadius: radius.md,
     },
 });
@@ -71,15 +57,15 @@ export const elevations = stylex.create({
     },
 
     raised: {
-        boxShadow: `0 2px 8px color-mix(in oklab, ${tintVars.shadow} 36%, transparent)`,
+        boxShadow: `0 3px 14px color-mix(in oklab, ${tintVars.shadow} 60%, transparent)`,
     },
 
     sunken: {
         boxShadow: `
             inset 0 1px 0
-                color-mix(in oklab, ${tintVars.shadow} 88%, transparent),
-            inset 0 1px 3px
-                color-mix(in oklab, ${tintVars.shadow} 16%, transparent)
+                color-mix(in oklab, ${tintVars.shadow} 70%, transparent),
+            inset 0 3px 8px
+                color-mix(in oklab, ${tintVars.shadow} 35%, transparent)
         `,
     },
 });
