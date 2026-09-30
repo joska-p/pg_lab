@@ -51,12 +51,13 @@ export const interactions = stylex.create({
 });
 
 // Branche a l'identique du comportement actuel de Button (pressable +
-// hover + focus), avec pressable/hover coupes si disabled.
+// hover + focus), avec pressable/hover coupes si disabled. `borderHover`
+// n'est pas applique ici : il est identique a l'octet a `hover` (voir
+// audit P1 #7), le brancher en plus doublait la regle :hover pour rien.
 export function interactionStyles({ disabled = false }: { disabled?: boolean } = {}) {
     return [
         !disabled && interactions.pressable,
         !disabled && interactions.hover,
-        !disabled && interactions.borderHover,
         !disabled && interactions.active,
         interactions.focus,
         disabled && interactions.disabled,

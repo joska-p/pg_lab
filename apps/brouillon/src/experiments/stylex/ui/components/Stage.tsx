@@ -11,6 +11,7 @@ const styles = stylex.create({
         display: 'flex',
         flexDirection: 'column',
         overflowY: 'auto',
+        scrollbarGutter: 'stable',
         borderRadius: { default: radius.none, '@media (min-width: 1024px)': radius.md },
     },
 });

@@ -28,9 +28,8 @@ const styles = stylex.create({
         display: 'flex',
         minWidth: 0,
         minHeight: 0,
-        overflowY: 'auto',
+        overflow: 'hidden',
         padding: space['4'],
-        scrollbarGutter: 'stable',
     },
 
     panel: {
@@ -159,7 +158,7 @@ export function ExperimentShell({
                             aria-controls={panelId}
                             onClick={() => setPanelVisible((visible) => !visible)}
                         >
-                            {panelVisible ? 'hide panel' : 'show panel'}
+                            {panelVisible ? 'Hide panel' : 'Show panel'}
                         </Button>
                     </div>
                 </>

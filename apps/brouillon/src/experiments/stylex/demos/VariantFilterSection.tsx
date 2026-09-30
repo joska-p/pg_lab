@@ -60,7 +60,11 @@ export function VariantFilterSection({ target, title }: VariantFilterSectionProp
         <section aria-label={title}>
             <div {...stylex.props(filterStyles.titleRow)}>
                 <h4 {...stylex.props(heading.level2)}>{title}</h4>
-                <button type="button" onClick={() => resetFilter(target)}>
+                <button
+                    type="button"
+                    aria-label={`Reset ${target} filter`}
+                    onClick={() => resetFilter(target)}
+                >
                     Reset
                 </button>
             </div>

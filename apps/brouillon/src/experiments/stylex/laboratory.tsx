@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
+import { useId } from 'react';
 
 import { useTheme, setTheme, useComponentName, setComponentName } from '../../stores/appStore';
 import type { Theme } from '../../stores/appStore';
@@ -26,6 +27,8 @@ export const registryOptions = Object.keys(components) as ComponentName[];
 export function Laboratory() {
     const theme = useTheme();
     const registryKey = useComponentName();
+    const themeId = useId();
+    const componentId = useId();
 
     function handleTheme(event: React.ChangeEvent<HTMLSelectElement>) {
         setTheme(event.currentTarget.value as Theme);
@@ -41,10 +44,13 @@ export function Laboratory() {
                 <ExperimentShell
                     panelPlacement="docked"
                     panel={
-                        <ControlPanel label="laboratory controls">
-                            <h4 {...stylex.props(heading.level2)}>Theme</h4>
+                        <ControlPanel label="Laboratory controls">
+                            <label htmlFor={themeId} {...stylex.props(heading.level2)}>
+                                Theme
+                            </label>
 
                             <select
+                                id={themeId}
                                 {...stylex.props(labStyles.select)}
                                 onChange={handleTheme}
                                 value={theme}
@@ -54,11 +60,14 @@ export function Laboratory() {
                                 <option value="system">system</option>
                             </select>
 
-                            <VariantFilterSection target="card" title="Card (support)" />
+                            <VariantFilterSection target="card" title="Card filter" />
 
-                            <h4 {...stylex.props(heading.level2)}>Component</h4>
+                            <label htmlFor={componentId} {...stylex.props(heading.level2)}>
+                                Component
+                            </label>
 
                             <select
+                                id={componentId}
                                 {...stylex.props(labStyles.select)}
                                 onChange={handleComponent}
                                 value={registryKey}
@@ -72,7 +81,7 @@ export function Laboratory() {
 
                             <VariantFilterSection
                                 target="component"
-                                title={`Component (${registryKey})`}
+                                title={`Component filter (${registryKey})`}
                             />
                         </ControlPanel>
                     }
