@@ -1,0 +1,394 @@
+{
+    "schemaVersion": 2,
+    "generatedAt": "2026-09-30T09:22:01Z",
+    "title": "Design System: The Optical Bench",
+    "extensions": {
+        "colorMeta": {
+            "neutral-tint": {
+                "role": "neutral",
+                "displayName": "Warm Slate",
+                "canonical": "light-dark(oklch(0.69 0.035 76.307), oklch(0.55 0.023 62.567))",
+                "tonalRamp": [
+                    "oklch(0.241 0.005 219.672)",
+                    "oklch(0.277 0 0)",
+                    "oklch(0.311 0.003 48.619)",
+                    "oklch(0.344 0.007 48.523)",
+                    "oklch(0.411 0.012 51.866)",
+                    "oklch(0.482 0.018 61.042)",
+                    "oklch(0.55 0.023 62.567)",
+                    "oklch(0.69 0.035 76.307)",
+                    "oklch(0.756 0.041 82.284)",
+                    "oklch(0.825 0.051 85.116)",
+                    "oklch(0.894 0.057 89.24)",
+                    "oklch(0.922 0.055 92.526)",
+                    "oklch(0.956 0.055 96.155)",
+                    "oklch(0.965 0.039 100.862)"
+                ]
+            },
+            "aurora": {
+                "role": "primary",
+                "displayName": "Aurora (cyan to deep blue)",
+                "canonical": "light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806))",
+                "tonalRamp": [
+                    "oklch(0.15 0.082 169.768)",
+                    "oklch(0.27 0.082 169.768)",
+                    "oklch(0.39 0.082 169.768)",
+                    "oklch(0.51 0.076 169.768)",
+                    "oklch(0.63 0.055 169.768)",
+                    "oklch(0.75 0.042 169.768)",
+                    "oklch(0.87 0.042 169.768)",
+                    "oklch(0.95 0.042 169.768)"
+                ]
+            },
+            "solder": {
+                "role": "primary",
+                "displayName": "Solder (luminous yellow-green)",
+                "canonical": "light-dark(oklch(0.765 0.158 110.835), oklch(0.546 0.112 106.464))",
+                "tonalRamp": [
+                    "oklch(0.15 0.112 110.835)",
+                    "oklch(0.27 0.112 110.835)",
+                    "oklch(0.39 0.112 110.835)",
+                    "oklch(0.51 0.112 110.835)",
+                    "oklch(0.63 0.13 110.835)",
+                    "oklch(0.75 0.155 110.835)",
+                    "oklch(0.87 0.158 110.835)",
+                    "oklch(0.95 0.158 110.835)"
+                ]
+            },
+            "purple": {
+                "role": "primary",
+                "displayName": "Petal Crimson",
+                "canonical": "light-dark(oklch(0.705 0.098 2.189), oklch(0.489 0.124 344.276))",
+                "tonalRamp": [
+                    "oklch(0.15 0.124 2.189)",
+                    "oklch(0.27 0.124 2.189)",
+                    "oklch(0.39 0.124 2.189)",
+                    "oklch(0.51 0.121 2.189)",
+                    "oklch(0.63 0.107 2.189)",
+                    "oklch(0.75 0.098 2.189)",
+                    "oklch(0.87 0.098 2.189)",
+                    "oklch(0.95 0.098 2.189)"
+                ]
+            },
+            "amber": {
+                "role": "primary",
+                "displayName": "Amber",
+                "canonical": "light-dark(oklch(0.832 0.159 82.987), oklch(0.618 0.128 70.674))",
+                "tonalRamp": [
+                    "oklch(0.15 0.128 82.987)",
+                    "oklch(0.27 0.128 82.987)",
+                    "oklch(0.39 0.128 82.987)",
+                    "oklch(0.51 0.128 82.987)",
+                    "oklch(0.63 0.13 82.987)",
+                    "oklch(0.75 0.147 82.987)",
+                    "oklch(0.87 0.159 82.987)",
+                    "oklch(0.95 0.159 82.987)"
+                ]
+            },
+            "error": {
+                "role": "primary",
+                "displayName": "Error Red (deepest chroma)",
+                "canonical": "light-dark(oklch(0.66 0.218 30.392), oklch(0.437 0.179 28.26))",
+                "tonalRamp": [
+                    "oklch(0.15 0.179 30.392)",
+                    "oklch(0.27 0.179 30.392)",
+                    "oklch(0.39 0.179 30.392)",
+                    "oklch(0.51 0.195 30.392)",
+                    "oklch(0.63 0.214 30.392)",
+                    "oklch(0.75 0.218 30.392)",
+                    "oklch(0.87 0.218 30.392)",
+                    "oklch(0.95 0.218 30.392)"
+                ]
+            },
+            "aqua": {
+                "role": "primary",
+                "displayName": "Aqua (rotating to spring green)",
+                "canonical": "light-dark(oklch(0.756 0.108 137.676), oklch(0.534 0.082 155.401))",
+                "tonalRamp": [
+                    "oklch(0.15 0.082 137.676)",
+                    "oklch(0.27 0.082 137.676)",
+                    "oklch(0.39 0.082 137.676)",
+                    "oklch(0.51 0.082 137.676)",
+                    "oklch(0.63 0.092 137.676)",
+                    "oklch(0.75 0.107 137.676)",
+                    "oklch(0.87 0.108 137.676)",
+                    "oklch(0.95 0.108 137.676)"
+                ]
+            },
+            "orange": {
+                "role": "primary",
+                "displayName": "Orange (reserved for messages)",
+                "canonical": "light-dark(oklch(0.731 0.182 51.693), oklch(0.513 0.162 39.297))",
+                "tonalRamp": [
+                    "oklch(0.15 0.162 51.693)",
+                    "oklch(0.27 0.162 51.693)",
+                    "oklch(0.39 0.162 51.693)",
+                    "oklch(0.51 0.162 51.693)",
+                    "oklch(0.63 0.172 51.693)",
+                    "oklch(0.75 0.182 51.693)",
+                    "oklch(0.87 0.182 51.693)",
+                    "oklch(0.95 0.182 51.693)"
+                ]
+            },
+            "surface-ground": {
+                "role": "neutral",
+                "displayName": "Ground (warm paper / warm near-black)",
+                "canonical": "light-dark(oklch(0.956 0.055 96.155), oklch(0.277 0 0))",
+                "tonalRamp": [
+                    "oklch(0.241 0.005 219.672)",
+                    "oklch(0.277 0 0)",
+                    "oklch(0.344 0.007 48.523)",
+                    "oklch(0.411 0.012 51.866)",
+                    "oklch(0.482 0.018 61.042)",
+                    "oklch(0.55 0.023 62.567)",
+                    "oklch(0.69 0.035 76.307)",
+                    "oklch(0.825 0.051 85.116)",
+                    "oklch(0.894 0.057 89.24)",
+                    "oklch(0.956 0.055 96.155)",
+                    "oklch(0.965 0.039 100.862)"
+                ]
+            },
+            "surface-ink": {
+                "role": "neutral",
+                "displayName": "Ink (exact inverse of Ground)",
+                "canonical": "light-dark(oklch(0.277 0 0), oklch(0.956 0.055 96.155))",
+                "tonalRamp": [
+                    "oklch(0.241 0.005 219.672)",
+                    "oklch(0.277 0 0)",
+                    "oklch(0.344 0.007 48.523)",
+                    "oklch(0.411 0.012 51.866)",
+                    "oklch(0.482 0.018 61.042)",
+                    "oklch(0.55 0.023 62.567)",
+                    "oklch(0.69 0.035 76.307)",
+                    "oklch(0.825 0.051 85.116)",
+                    "oklch(0.894 0.057 89.24)",
+                    "oklch(0.956 0.055 96.155)",
+                    "oklch(0.965 0.039 100.862)"
+                ]
+            }
+        },
+        "typographyMeta": {
+            "display": {
+                "displayName": "Display",
+                "purpose": "Topmost heading only. Used almost nowhere by design."
+            },
+            "headline": {
+                "displayName": "Index Tab",
+                "purpose": "The workhorse section label. Uppercase, 14px, wide-tracked."
+            },
+            "title": {
+                "displayName": "Metadata Label",
+                "purpose": "The narrowest label tier, for headings inside dense groups."
+            },
+            "label": {
+                "displayName": "Label",
+                "purpose": "Control labels and button text. The default reading size."
+            },
+            "body": {
+                "displayName": "Measured Value",
+                "purpose": "Counts, dimensions and readouts. Always mono so a value is never read as a name."
+            }
+        },
+        "shadows": [
+            {
+                "name": "raised",
+                "value": "0 2px 8px color-mix(in oklab, <tint shadow> 36%, transparent)",
+                "purpose": "Short chromatic lift. Default for Button and stage slot."
+            },
+            {
+                "name": "sunken",
+                "value": "inset 0 1px 0 color-mix(in oklab, <tint shadow> 88%, transparent), inset 0 1px 3px color-mix(in oklab, <tint shadow> 16%, transparent)",
+                "purpose": "Carved recess for wells and inputs."
+            },
+            {
+                "name": "flat",
+                "value": "none",
+                "purpose": "The neutral default. Every passive surface."
+            }
+        ],
+        "motion": [
+            {
+                "name": "ease-bench",
+                "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+                "purpose": "The only easing curve in the system, on every pressable."
+            },
+            {
+                "name": "duration-bench",
+                "value": "300ms",
+                "purpose": "Single transition duration, on background-color, border-color, color, box-shadow and transform."
+            },
+            {
+                "name": "press-scale",
+                "value": "scale(0.98)",
+                "purpose": "The press acknowledgement, applied on :active to every pressable."
+            }
+        ],
+        "breakpoints": [
+            { "name": "narrow-max", "value": "720px" },
+            { "name": "wide-min", "value": "1024px" }
+        ]
+    },
+    "components": [
+        {
+            "name": "Tinted Button",
+            "kind": "button",
+            "refersTo": "button-tinted-raised",
+            "description": "All three tint channels filled. The system's most saturated surface.",
+            "html": "<button class=\"ds-btn-tinted\">aurora-raised</button>",
+            "css": ".ds-btn-tinted { appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border-radius: 6px; border: 1px solid light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)); background: light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)); color: light-dark(oklch(0.277 0 0), oklch(0.956 0.055 96.155)); font-family: system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; font-size: 14px; font-weight: 500; line-height: 1.25; box-shadow: 0 2px 8px color-mix(in oklab, light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)) 36%, transparent); cursor: pointer; transition: background-color 300ms, border-color 300ms, color 300ms, box-shadow 300ms, transform 300ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-tinted:hover { background: light-dark(color-mix(in oklab, oklch(0.693 0.042 169.768) 92%, black), color-mix(in oklab, oklch(0.471 0.082 215.806) 88%, white)); } .ds-btn-tinted:active { transform: scale(0.98); } .ds-btn-tinted:focus-visible { outline: 1px solid light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)); outline-offset: 2px; }"
+        },
+        {
+            "name": "Soft Button",
+            "kind": "button",
+            "refersTo": "button-tinted-soft",
+            "description": "Background veiled to 18%, border and shadow at full tint.",
+            "html": "<button class=\"ds-btn-soft\">aurora-soft</button>",
+            "css": ".ds-btn-soft { appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border-radius: 6px; border: 1px solid light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)); background: color-mix(in oklab, light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)) 18%, transparent); color: light-dark(oklch(0.277 0 0), oklch(0.956 0.055 96.155)); font-family: system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; font-size: 14px; font-weight: 500; box-shadow: 0 2px 8px color-mix(in oklab, light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)) 36%, transparent); cursor: pointer; transition: background-color 300ms, transform 300ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-soft:hover { background: color-mix(in oklab, light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)) 26%, transparent); } .ds-btn-soft:active { transform: scale(0.98); } .ds-btn-soft:focus-visible { outline: 1px solid light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)); outline-offset: 2px; }"
+        },
+        {
+            "name": "Accented Button (no fill)",
+            "kind": "button",
+            "refersTo": "button-accent-flat",
+            "description": "Ground background with the tint on border and shadow only.",
+            "html": "<button class=\"ds-btn-accent\">aurora-accent</button>",
+            "css": ".ds-btn-accent { appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border-radius: 6px; border: 1px solid color-mix(in oklab, light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)) 20%, transparent); background: light-dark(oklch(0.956 0.055 96.155), oklch(0.277 0 0)); color: light-dark(oklch(0.277 0 0), oklch(0.956 0.055 96.155)); font-family: system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; font-size: 14px; font-weight: 500; box-shadow: 0 2px 8px color-mix(in oklab, light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)) 36%, transparent); cursor: pointer; transition: background-color 300ms, transform 300ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-accent:hover { background: light-dark(oklch(0.925 0.052 96.155), oklch(0.30 0 0)); } .ds-btn-accent:active { transform: scale(0.98); } .ds-btn-accent:focus-visible { outline: 1px solid light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)); outline-offset: 2px; }"
+        },
+        {
+            "name": "Tinted Card",
+            "kind": "card",
+            "refersTo": "card-tinted-soft",
+            "description": "Passive surface: no background tint by default, accent on border and shadow.",
+            "html": "<div class=\"ds-card\"><h3 class=\"ds-card-title\">neutral-flat-soft</h3><button class=\"ds-card-btn\">variant</button></div>",
+            "css": ".ds-card { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 6px; border: 1px solid color-mix(in oklab, light-dark(oklch(0.69 0.035 76.307), oklch(0.55 0.023 62.567)) 10%, transparent); background: color-mix(in oklab, light-dark(oklch(0.69 0.035 76.307), oklch(0.55 0.023 62.567)) 18%, transparent); color: light-dark(oklch(0.277 0 0), oklch(0.956 0.055 96.155)); } .ds-card-title { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; font-size: 16px; font-weight: 400; color: inherit; } .ds-card-btn { appearance: none; align-self: flex-start; padding: 8px 16px; border-radius: 6px; border: 1px solid light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)); background: light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)); color: light-dark(oklch(0.277 0 0), oklch(0.956 0.055 96.155)); font-family: system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-card-btn:active { transform: scale(0.98); } .ds-card-btn:focus-visible { outline: 1px solid light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)); outline-offset: 2px; }"
+        },
+        {
+            "name": "Checkbox On",
+            "kind": "custom",
+            "refersTo": "checkbox-on-tinted",
+            "description": "Checked box, all three tint channels filled, with a stroked glyph.",
+            "html": "<button class=\"ds-cbx-on\" role=\"checkbox\" aria-checked=\"true\"><svg viewBox=\"0 0 12 12\" aria-hidden=\"true\"><path d=\"M2 6.4 4.8 9 10 3.2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg><span class=\"ds-cbx-hit\" aria-hidden=\"true\"></span></button>",
+            "css": ".ds-cbx-on { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; padding: 0; border-radius: 4px; border: 1px solid light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)); background: light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)); color: light-dark(oklch(0.277 0 0), oklch(0.956 0.055 96.155)); cursor: pointer; box-shadow: 0 2px 8px color-mix(in oklab, light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)) 36%, transparent); transition: background-color 300ms, transform 300ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-cbx-on svg { width: 12px; height: 12px; } .ds-cbx-on:active { transform: scale(0.98); } .ds-cbx-on:focus-visible { outline: 1px solid light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)); outline-offset: 2px; } .ds-cbx-hit { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 44px; height: 44px; }"
+        },
+        {
+            "name": "Checkbox Off",
+            "kind": "custom",
+            "refersTo": "checkbox-off-accented",
+            "description": "Unchecked box on the ground, accent carried by border and shadow.",
+            "html": "<button class=\"ds-cbx-off\" role=\"checkbox\" aria-checked=\"false\"><span class=\"ds-cbx-hit\" aria-hidden=\"true\"></span></button>",
+            "css": ".ds-cbx-off { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; padding: 0; border-radius: 4px; border: 1px solid color-mix(in oklab, light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)) 20%, transparent); background: light-dark(oklch(0.956 0.055 96.155), oklch(0.277 0 0)); color: light-dark(oklch(0.277 0 0), oklch(0.956 0.055 96.155)); cursor: pointer; transition: background-color 300ms, transform 300ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-cbx-off:active { transform: scale(0.98); } .ds-cbx-off:focus-visible { outline: 1px solid light-dark(oklch(0.693 0.042 169.768), oklch(0.471 0.082 215.806)); outline-offset: 2px; } .ds-cbx-hit { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 44px; height: 44px; }"
+        },
+        {
+            "name": "Control Panel",
+            "kind": "custom",
+            "refersTo": "panel-soft",
+            "description": "Fixed 320px flat column of index tabs and filters, independently scrollable.",
+            "html": "<aside class=\"ds-panel\"><h2 class=\"ds-panel-h\">Theme</h2><p class=\"ds-panel-value\">system</p></aside>",
+            "css": ".ds-panel { display: flex; flex-direction: column; gap: 16px; width: 320px; flex-shrink: 0; padding: 16px; border-radius: 6px; border: 1px solid color-mix(in oklab, light-dark(oklch(0.69 0.035 76.307), oklch(0.55 0.023 62.567)) 10%, transparent); background: color-mix(in oklab, light-dark(oklch(0.69 0.035 76.307), oklch(0.55 0.023 62.567)) 18%, transparent); color: light-dark(oklch(0.277 0 0), oklch(0.956 0.055 96.155)); overflow-y: auto; } .ds-panel-h { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; font-size: 14px; font-weight: 500; line-height: 1.25; letter-spacing: 0.02em; text-transform: uppercase; color: inherit; } .ds-panel-value { margin: 0; font-family: \"SFMono-Regular\", Consolas, \"Liberation Mono\", monospace; font-size: 14px; color: inherit; }"
+        },
+        {
+            "name": "Stage Slot",
+            "kind": "custom",
+            "refersTo": "stage-soft-raised",
+            "description": "The lit field holding the variant matrix. Raised so specimens read against it.",
+            "html": "<section class=\"ds-stage\"><p class=\"ds-stage-count\">2 cards &times; 2 components = 4 nodes</p></section>",
+            "css": ".ds-stage { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 16px; border-radius: 6px; border: 1px solid color-mix(in oklab, light-dark(oklch(0.69 0.035 76.307), oklch(0.55 0.023 62.567)) 10%, transparent); background: color-mix(in oklab, light-dark(oklch(0.69 0.035 76.307), oklch(0.55 0.023 62.567)) 18%, transparent); box-shadow: 0 2px 8px color-mix(in oklab, light-dark(oklch(0.69 0.035 76.307), oklch(0.55 0.023 62.567)) 36%, transparent); color: light-dark(oklch(0.277 0 0), oklch(0.956 0.055 96.155)); overflow-y: auto; scrollbar-gutter: stable; } .ds-stage-count { margin: 0; font-family: \"SFMono-Regular\", Consolas, \"Liberation Mono\", monospace; font-size: 14px; color: inherit; }"
+        },
+        {
+            "name": "Chaos Ground",
+            "kind": "custom",
+            "description": "The permanent full-bleed backdrop: eight radial washes, one per accent.",
+            "html": "<div class=\"ds-chaos\"></div>",
+            "css": ".ds-chaos { width: 100%; height: 100%; background-color: light-dark(oklch(0.956 0.055 96.155), oklch(0.277 0 0)); background-image: radial-gradient(45% 35% at 4% 6%, color-mix(in oklab, oklch(0.66 0.218 30.392) 30%, transparent), transparent 70%), radial-gradient(40% 35% at 96% 8%, color-mix(in oklab, oklch(0.731 0.182 51.693) 28%, transparent), transparent 70%), radial-gradient(50% 40% at 88% 88%, color-mix(in oklab, oklch(0.832 0.159 82.987) 26%, transparent), transparent 70%), radial-gradient(45% 45% at 8% 92%, color-mix(in oklab, oklch(0.765 0.158 110.835) 28%, transparent), transparent 70%), radial-gradient(55% 40% at 50% 0%, color-mix(in oklab, oklch(0.756 0.108 137.676) 24%, transparent), transparent 70%), radial-gradient(50% 50% at 100% 55%, color-mix(in oklab, oklch(0.693 0.042 169.768) 30%, transparent), transparent 70%), radial-gradient(45% 40% at 0% 50%, color-mix(in oklab, oklch(0.705 0.098 2.189) 28%, transparent), transparent 70%), radial-gradient(35% 30% at 50% 55%, color-mix(in oklab, oklch(0.725 0.143 77.708) 20%, transparent), transparent 70%), linear-gradient(160deg, color-mix(in oklab, oklch(0.619 0.029 67.258) 20%, transparent), transparent 65%); }"
+        }
+    ],
+    "narrative": {
+        "northStar": "The Optical Bench",
+        "overview": "An optical bench lines up specimens under a single light and lets you turn one adjustment at a time. That is the whole proposition here. This system is not a set of pretty surfaces; it is an instrument for deciding which surface becomes the system's surface. Every choice the design makes serves that one job — making a difference visible, and making it attributable to exactly one variable.\n\nThe geometry is deliberately sober. Corners are short (rounded.md, 6px). Borders are hairlines (1px). There are no gradients on any component, no shadows of atmosphere, no decorative motion. Type is two system families at small sizes, with headings set in uppercase and wide-tracked so they read as index tabs rather than titles. All of this restraint exists to protect the one thing the system is actually loud about: color. Eight tinted accents are running at once across a matrix of variants, and every visual decision here is in service of keeping them mutually distinguishable.\n\nThe result should feel like precision instrumentation rather than a product: dense, quiet, and completely uninterested in impressing anyone. What earns delight here is not polish on any single component — it is the moment a whole matrix resolves at once and the comparison becomes obvious.",
+        "keyCharacteristics": [
+            "A tint is applied through three independent channels — background, border, shadow — and any subset is legal.",
+            "Every accent exists as a light/dark pair whose hue shifts between themes; the dark palette is re-tuned, not merely darkened.",
+            "Elevation is a value you choose and compare, a peer of color and fill density, not decoration.",
+            "Two fill densities: solid, and a veil at 18% of the tint.",
+            "Geometry stays quiet so the palette can be loud.",
+            "Interactive controls are minimum 44x44px at the hit level, even when the visible box is far smaller."
+        ],
+        "rules": [
+            {
+                "name": "The Three-Channel Rule",
+                "body": "A tint reaches a surface through exactly three channels: background, border, shadow. Each is independently switchable, and any subset is legal. Three channels filled means this surface is the color. Border and shadow only means this surface is neutral with an accent. Background only means a wash with no edge. Never reach for a named combination like \"accented\" or \"tinted\" — the correct subset is a property of the component, not of the vocabulary.",
+                "section": "colors"
+            },
+            {
+                "name": "The One-Accent Rule",
+                "body": "A surface carries at most one tint. Two accents on one surface is a defect, not a style.",
+                "section": "colors"
+            },
+            {
+                "name": "The Eight Rule",
+                "body": "Exactly eight tints exist. Adding a ninth means removing one. The count is small enough that all eight can share a screen and stay mutually legible; that property is the reason for the number.",
+                "section": "colors"
+            },
+            {
+                "name": "The Two-Face Rule",
+                "body": "Two families, never three. Mono is reserved for measured values; if something is not a measured value, it is sans. A third family has no meaning to add here.",
+                "section": "typography"
+            },
+            {
+                "name": "The Measured-Value Rule",
+                "body": "Any string that is a value rather than a name gets mono: the node-count readout, filter option labels that are literal tokens (soft, raised, true), and the variant slug under test. This is what lets the operator scan a matrix and pick out values from names without reading them.",
+                "section": "typography"
+            },
+            {
+                "name": "The 4px Rule",
+                "body": "No dimension is a free number. Every gap, pad, offset and radius is a named step of the spacing scale, and every control dimension is a named step of the layout scale.",
+                "section": "layout"
+            },
+            {
+                "name": "The Stable-Gutter Rule",
+                "body": "Anything that scrolls reserves its scrollbar space permanently. Reflow caused by a scrollbar appearing is never acceptable in a comparison tool, because it changes the very alignment the operator is reading.",
+                "section": "layout"
+            },
+            {
+                "name": "The Shadow-Is-A-Variant Rule",
+                "body": "Shadow is one of the axes a surface is judged along, exactly like color and fill density. A shadow that appears for reasons of hierarchy rather than selection has been applied without permission.",
+                "section": "elevation"
+            },
+            {
+                "name": "The Tinted-Shadow Rule",
+                "body": "No neutral-black shadow anywhere. Every shadow takes its color from the surface's own tint channel, so that depth and hue never disagree.",
+                "section": "elevation"
+            },
+            {
+                "name": "The 18% Rule",
+                "body": "Fills, borders and shadows are one density family: veiled fill at 18%, subtle border at 10%, strong border at 20%, raised shadow at 36%. These four numbers are the entire opacity vocabulary of the system.",
+                "section": "elevation"
+            },
+            {
+                "name": "The 6px Rule",
+                "body": "6px is the system's corner, and it is not a default to be overridden casually. Larger radii are reserved for genuinely rounded containers; smaller radii are for controls. A component whose corner differs from its role's default needs a reason written next to it.",
+                "section": "shapes"
+            },
+            {
+                "name": "The Hairline Rule",
+                "body": "One border weight exists. Weight is expressed by opacity and color, never by thickness.",
+                "section": "shapes"
+            }
+        ],
+        "dos": [
+            "Do judge every variant in all three themes before accepting it. A tint that survives only one color scheme has not been evaluated.",
+            "Do set a surface's three channel flags explicitly rather than inheriting them. Card is border + shadow with no fill; Button is all three. The default is not the answer.",
+            "Do keep elevation at its role default: Card flat, Button raised, stage slot raised, panel flat.",
+            "Do read tint colors through the colors light/dark vars, never from the raw palette ramps. The light-dark() pair is what makes the theme flip correct.",
+            "Do keep hit areas at 44px (layout.controlTouchTarget) even when the visible control is 18px.",
+            "Do let color carry the expressiveness. If a surface feels flat, change the tint or the elevation — not the geometry."
+        ],
+        "donts": [
+            "Don't add a ninth tint without removing one, and don't name new accents with Material or generic scales. The system's names (neutral, aurora, solder, purple, amber, error, aqua, orange) are the vocabulary; the values are light-dark() pairs.",
+            "Don't apply two tints to one surface.",
+            "Don't introduce a third font family, or use the mono face for anything that is not a measured value.",
+            "Don't use a neutral-black shadow, a glow focus ring, or a gradient on any component. Depth is chromatic, focus is an outline, fills are flat or 18% veiled.",
+            "Don't reference a token across package boundaries at runtime. StyleX tokens are compile-time constants; a component that needs a token composes from its own layer instead of importing across the workspace boundary.",
+            "Don't let a browser default stand in for a designed control. Unstyled native form elements are the most visible defect the system can have, because they are the one surface the operator sees that the system did not draw."
+        ]
+    }
+}

@@ -1,1 +1,30 @@
-@import '../node_modules/@repo/ui/src/styles.css';
+/* Base browser normalization */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+}
+
+body {
+    min-height: 100vh;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+img,
+svg,
+video,
+canvas {
+    display: block;
+}
