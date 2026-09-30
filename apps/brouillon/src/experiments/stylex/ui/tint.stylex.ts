@@ -33,47 +33,51 @@ export const colors = stylex.defineVars({
     orange: `light-dark(${palette.brightOrange}, ${palette.fadedOrange})`,
 } as const satisfies Record<ColorNames, string>);
 
-// Statique et enumere (pas de dynamic styles) : ColorNames est un ensemble
-// ferme de 8 valeurs connues a la compilation, donc chaque couleur devient
-// une classe atomique reutilisee entre toutes les instances qui la
-// partagent, plutot qu'un style inline recalcule a chaque render.
-//
-// Volontairement non exportes : ce sont des briques internes. Les
-// consommateurs passent par `surfaceTint()` ci-dessous, qui combine les
-// trois canaux (background/border/shadow) via des flags independants
-// plutot que par un enum de combinaisons nommees (ex. "accented"/"tinted")
-// — une surface peut vouloir n'importe quel sous-ensemble des trois.
-const tintBackground = stylex.create({
-    neutral: { [tintVars.background]: colors.neutral },
-    aurora: { [tintVars.background]: colors.aurora },
-    solder: { [tintVars.background]: colors.solder },
-    purple: { [tintVars.background]: colors.purple },
-    amber: { [tintVars.background]: colors.amber },
-    error: { [tintVars.background]: colors.error },
-    aqua: { [tintVars.background]: colors.aqua },
-    orange: { [tintVars.background]: colors.orange },
-});
-
-const tintBorder = stylex.create({
-    neutral: { [tintVars.border]: colors.neutral },
-    aurora: { [tintVars.border]: colors.aurora },
-    solder: { [tintVars.border]: colors.solder },
-    purple: { [tintVars.border]: colors.purple },
-    amber: { [tintVars.border]: colors.amber },
-    error: { [tintVars.border]: colors.error },
-    aqua: { [tintVars.border]: colors.aqua },
-    orange: { [tintVars.border]: colors.orange },
-});
-
-const tintShadow = stylex.create({
-    neutral: { [tintVars.shadow]: colors.neutral },
-    aurora: { [tintVars.shadow]: colors.aurora },
-    solder: { [tintVars.shadow]: colors.solder },
-    purple: { [tintVars.shadow]: colors.purple },
-    amber: { [tintVars.shadow]: colors.amber },
-    error: { [tintVars.shadow]: colors.error },
-    aqua: { [tintVars.shadow]: colors.aqua },
-    orange: { [tintVars.shadow]: colors.orange },
+// Une seule map : les 3 canaux sont toujours ecrits ensemble (voir
+// surfaceStyles() dans surface.stylex.ts). Trois maps separees
+// (tintBackground/tintBorder/tintShadow) ne feraient que tripliquer
+// chaque couleur sans jamais servir independamment.
+export const tint = stylex.create({
+    neutral: {
+        [tintVars.background]: colors.neutral,
+        [tintVars.border]: colors.neutral,
+        [tintVars.shadow]: colors.neutral,
+    },
+    aurora: {
+        [tintVars.background]: colors.aurora,
+        [tintVars.border]: colors.aurora,
+        [tintVars.shadow]: colors.aurora,
+    },
+    solder: {
+        [tintVars.background]: colors.solder,
+        [tintVars.border]: colors.solder,
+        [tintVars.shadow]: colors.solder,
+    },
+    purple: {
+        [tintVars.background]: colors.purple,
+        [tintVars.border]: colors.purple,
+        [tintVars.shadow]: colors.purple,
+    },
+    amber: {
+        [tintVars.background]: colors.amber,
+        [tintVars.border]: colors.amber,
+        [tintVars.shadow]: colors.amber,
+    },
+    error: {
+        [tintVars.background]: colors.error,
+        [tintVars.border]: colors.error,
+        [tintVars.shadow]: colors.error,
+    },
+    aqua: {
+        [tintVars.background]: colors.aqua,
+        [tintVars.border]: colors.aqua,
+        [tintVars.shadow]: colors.aqua,
+    },
+    orange: {
+        [tintVars.background]: colors.orange,
+        [tintVars.border]: colors.orange,
+        [tintVars.shadow]: colors.orange,
+    },
 });
 
 export const colorText = stylex.create({
@@ -86,28 +90,3 @@ export const colorText = stylex.create({
     aqua: { color: colors.aqua },
     orange: { color: colors.orange },
 });
-
-/**
- * Applique une couleur a un sous-ensemble des 3 canaux de teinte (background/border/shadow),
- * independamment les uns des autres.
- *
- * Par defaut : border + shadow, background off. `surfaceStyles()` dans surface.stylex.ts s'appuie
- * dessus pour ajouter le remplissage visuel (backgrounds/borders/elevations).
- */
-export function surfaceTint({
-    color = 'neutral',
-    background = false,
-    border = true,
-    shadow = true,
-}: {
-    color?: ColorNames;
-    background?: boolean;
-    border?: boolean;
-    shadow?: boolean;
-}) {
-    return [
-        background && tintBackground[color],
-        border && tintBorder[color],
-        shadow && tintShadow[color],
-    ];
-}

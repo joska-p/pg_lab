@@ -3,7 +3,7 @@ import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { space } from '../const.stylex';
 import { surface, surfaceStyles } from '../surface.stylex';
-import type { Background, Elevation } from '../surface.stylex';
+import type { Background, Elevation, Borders } from '../surface.stylex';
 import type { ColorNames } from '../tint.stylex';
 
 const styles = stylex.create({
@@ -18,12 +18,11 @@ const styles = stylex.create({
 });
 
 interface CardProps extends Omit<React.ComponentProps<'div'>, 'style'> {
-    elevation?: Elevation;
     color?: ColorNames;
-    tintBackground?: boolean;
-    tintBorder?: boolean;
-    tintShadow?: boolean;
-    bg?: Background;
+    background?: Background;
+    border?: Borders;
+    elevation?: Elevation;
+    disabled?: boolean;
     style?: StyleXStyles;
     children?: React.ReactNode;
 }
@@ -31,10 +30,8 @@ interface CardProps extends Omit<React.ComponentProps<'div'>, 'style'> {
 export function Card({
     elevation = 'flat',
     color = 'neutral',
-    tintBackground = false,
-    tintBorder = true,
-    tintShadow = true,
-    bg = 'soft',
+    border = 'subtle',
+    background = 'soft',
     style,
     children,
     ...props
@@ -43,10 +40,8 @@ export function Card({
         styles.base,
         surfaceStyles({
             color,
-            background: tintBackground,
-            border: tintBorder,
-            shadow: tintShadow,
-            bg,
+            background,
+            border,
             elevation,
         }),
         style,

@@ -4,8 +4,7 @@ import type { StyleXStyles } from '@stylexjs/stylex';
 import { typography, space } from '../const.stylex';
 import { interactionStyles } from '../interactions.stylex';
 import { surface, surfaceStyles } from '../surface.stylex';
-import type { Background, Elevation } from '../surface.stylex';
-import { tintVars } from '../tint.stylex';
+import type { Background, Elevation, Borders } from '../surface.stylex';
 import type { ColorNames } from '../tint.stylex';
 
 const styles = stylex.create({
@@ -22,16 +21,13 @@ const styles = stylex.create({
         fontSize: typography.fontSizeSm,
         fontWeight: typography.fontWeightMedium,
         lineHeight: typography.lineHeightTight,
-        [tintVars.background]: surface.background,
     },
 });
 
 interface ButtonProps extends Omit<React.ComponentProps<'button'>, 'style'> {
     color?: ColorNames;
-    tintBackground?: boolean;
-    tintBorder?: boolean;
-    tintShadow?: boolean;
-    bg?: Background;
+    background?: Background;
+    border?: Borders;
     elevation?: Elevation;
     disabled?: boolean;
     style?: StyleXStyles;
@@ -39,10 +35,8 @@ interface ButtonProps extends Omit<React.ComponentProps<'button'>, 'style'> {
 
 export function Button({
     color = 'neutral',
-    tintBackground = true,
-    tintBorder = true,
-    tintShadow = true,
-    bg = 'solid',
+    background = 'solid',
+    border = 'subtle',
     elevation = 'raised',
     disabled = false,
     style,
@@ -59,10 +53,8 @@ export function Button({
                 styles.base,
                 surfaceStyles({
                     color,
-                    background: tintBackground,
-                    border: tintBorder,
-                    shadow: tintShadow,
-                    bg,
+                    background,
+                    border,
                     elevation,
                 }),
                 interactionStyles({ disabled }),

@@ -121,12 +121,17 @@ export function ExperimentShell({
 
     const compoundStageSlotStyle = stylex.props(
         styles.stageSlot,
-        surfaceStyles({ color: 'neutral', background: true, bg: 'soft', elevation: 'raised' }),
+        surfaceStyles({
+            color: 'neutral',
+            background: 'soft',
+            border: 'subtle',
+            elevation: 'raised',
+        }),
     );
 
     const compoundPanelStyle = stylex.props(
         styles.panel,
-        surfaceStyles({ color: 'neutral', background: true, bg: 'soft' }),
+        surfaceStyles({ color: 'neutral', background: 'soft', border: 'subtle' }),
         isFloating && styles.panelFloating,
         !panelVisible && styles.hidden,
     );
@@ -148,9 +153,8 @@ export function ExperimentShell({
 
                     <div {...compoundToggleStyle}>
                         <Button
-                            bg="soft"
+                            background="soft"
                             color="aqua"
-                            tintBackground={true}
                             aria-expanded={panelVisible}
                             aria-controls={panelId}
                             onClick={() => setPanelVisible((visible) => !visible)}

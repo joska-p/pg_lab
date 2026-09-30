@@ -5,8 +5,8 @@ import { useId, useState } from 'react';
 import { layout, radius, space } from '../const.stylex';
 import { interactionStyles } from '../interactions.stylex';
 import { surface, surfaceStyles } from '../surface.stylex';
-import type { Background, Elevation } from '../surface.stylex';
-import { tintVars, colorText } from '../tint.stylex';
+import type { Background, Elevation, Borders } from '../surface.stylex';
+import { colorText } from '../tint.stylex';
 import type { ColorNames } from '../tint.stylex';
 import { fieldText } from '../typography.stylex';
 
@@ -28,7 +28,6 @@ const styles = stylex.create({
         borderRadius: radius.sm,
         backgroundColor: surface.background,
         color: surface.foreground,
-        [tintVars.background]: surface.background,
     },
     check: {
         width: layout.checkboxMarkSize,
@@ -47,10 +46,8 @@ const styles = stylex.create({
 interface CheckboxProps extends Omit<React.ComponentProps<'button'>, 'style'> {
     label?: string;
     color?: ColorNames;
-    tintBackground?: boolean;
-    tintBorder?: boolean;
-    tintShadow?: boolean;
-    bg?: Background;
+    background?: Background;
+    border?: Borders;
     elevation?: Elevation;
     checked?: boolean;
     defaultChecked?: boolean;
@@ -63,10 +60,8 @@ interface CheckboxProps extends Omit<React.ComponentProps<'button'>, 'style'> {
 export function Checkbox({
     label,
     color = 'neutral',
-    tintBackground = true,
-    tintBorder = true,
-    tintShadow = true,
-    bg = 'solid',
+    background = 'solid',
+    border = 'strong',
     elevation = 'flat',
     checked,
     defaultChecked = false,
@@ -87,13 +82,11 @@ export function Checkbox({
         styles.box,
         surfaceStyles({
             color,
-            background: isOn && tintBackground,
-            border: tintBorder,
-            shadow: tintShadow,
-            bg,
+            background,
+            border,
             elevation,
         }),
-        isOn && !tintBackground ? colorText[color] : null,
+        isOn && background != 'solid' ? colorText[color] : null,
         interactionStyles({ disabled }),
         style,
     );

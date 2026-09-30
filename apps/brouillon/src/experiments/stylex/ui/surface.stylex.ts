@@ -1,7 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 
 import { palette, borderWidth, radius } from './const.stylex';
-import { tintVars, surfaceTint } from './tint.stylex';
+import { tintVars, tint } from './tint.stylex';
 import type { ColorNames } from './tint.stylex';
 
 // Fond/texte neutres par defaut d'une surface, independamment de toute
@@ -13,6 +13,9 @@ export const surface = stylex.defineVars({
 
 // Statique : ce que c'est (fond plein ou voile), lit tintVars.background
 export const backgrounds = stylex.create({
+    none: {
+        backgroundColor: 'transparent',
+    },
     solid: {
         backgroundColor: tintVars.background,
     },
@@ -39,6 +42,12 @@ export type Background = keyof typeof backgrounds;
 
 // Statique : ce que c'est (bordure + radius).
 export const borders = stylex.create({
+    none: {
+        borderWidth: borderWidth.hairline,
+        borderStyle: 'solid',
+        borderColor: 'transparent',
+        borderRadius: radius.md,
+    },
     subtle: {
         borderWidth: borderWidth.hairline,
         borderStyle: 'solid',
@@ -53,6 +62,8 @@ export const borders = stylex.create({
         borderRadius: radius.md,
     },
 });
+
+export type Borders = keyof typeof borders;
 
 export const elevations = stylex.create({
     flat: {
@@ -76,33 +87,20 @@ export const elevations = stylex.create({
 export type Elevation = keyof typeof elevations;
 
 /**
- * Concepts in, style out : compose la teinte (via surfaceTint) avec le remplissage visuel. Ne sait
- * rien du survol ou du disabled — voir interactionStyles() dans interactions.stylex.ts pour ca.
- *
- * `background`/`border`/`shadow` sont independants : une Card peut vouloir juste `border`+`shadow`
- * (accent discret sur fond neutre), un Button les trois (surface pleinement coloree), un Chip juste
- * `background`, etc. Pas de nom pour chaque combinaison — le bon sous-ensemble depend du composant,
- * pas de la lib.
+ * Concepts in, style out : ecrit la teinte (les 3 canaux d'un coup via `tint[color]`), puis le
+ * remplissage visuel (backgrounds/borders/elevations lisent ces canaux). Ne sait rien du survol ou
+ * du disabled — voir interactionStyles() dans interactions.stylex.ts pour ca.
  */
 export function surfaceStyles({
     color = 'neutral',
-    background = false,
-    border = true,
-    shadow = true,
-    bg = 'solid',
+    background = 'soft',
+    border = 'subtle',
     elevation = 'flat',
 }: {
     color?: ColorNames;
-    background?: boolean;
-    border?: boolean;
-    shadow?: boolean;
-    bg?: Background;
+    background?: Background;
+    border?: Borders;
     elevation?: Elevation;
 } = {}) {
-    return [
-        surfaceTint({ color, background, border, shadow }),
-        background && backgrounds[bg],
-        borders.subtle,
-        elevations[elevation],
-    ];
+    return [tint[color], backgrounds[background], borders[border], elevations[elevation]];
 }

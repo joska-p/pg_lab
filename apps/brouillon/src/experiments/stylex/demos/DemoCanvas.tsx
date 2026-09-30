@@ -44,10 +44,8 @@ export function DemoCanvas() {
                     <Card
                         key={card.label}
                         color={card.color}
-                        bg={card.bg}
-                        tintBackground={card.tintBackground}
-                        tintBorder={card.tintBorder}
-                        tintShadow={card.tintShadow}
+                        background={card.background}
+                        border={card.border}
                         elevation={card.elevation}
                     >
                         <h2>{card.label}</h2>
@@ -57,10 +55,8 @@ export function DemoCanvas() {
                                     key={variant.label}
                                     label={variant.label}
                                     color={variant.color}
-                                    bg={variant.bg}
-                                    tintBackground={variant.tintBackground}
-                                    tintBorder={variant.tintBorder}
-                                    tintShadow={variant.tintShadow}
+                                    background={variant.background}
+                                    border={variant.border}
                                     elevation={variant.elevation}
                                     defaultChecked
                                 >
