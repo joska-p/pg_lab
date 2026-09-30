@@ -69,7 +69,7 @@ export function Stack({
     style,
     ...props
 }: StackProps) {
-    const coumpoundStyle = stylex.props(
+    const compoundStyle = stylex.props(
         styles.base,
         directions[direction],
         gaps[gap],
@@ -78,7 +78,7 @@ export function Stack({
     );
 
     return (
-        <div {...props} {...coumpoundStyle}>
+        <div {...props} {...compoundStyle}>
             {children}
         </div>
     );

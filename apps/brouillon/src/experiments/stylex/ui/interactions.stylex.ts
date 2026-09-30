@@ -1,23 +1,26 @@
 import * as stylex from '@stylexjs/stylex';
 
+import { interaction, motion } from './const.stylex';
 import { tintVars } from './tint.stylex';
 
 // Ce que ca fait (survol, appui, focus, etat) — par opposition a
 // surface.stylex.ts qui decrit ce que c'est. Lit tintVars directement :
 // peu importe comment le composant a rempli ces vars (surfaceStyles() ou
 // autrement), le comportement au survol/focus suit.
-//
-// `active` et `borderHover` restent definis mais non branches pour le
-// moment (voir interactionStyles ci-dessous).
 export const interactions = stylex.create({
     pressable: {
-        cursor: 'pointer',
+        cursor: interaction.cursorPointer,
         transitionProperty: 'background-color, border-color, color, box-shadow, transform',
-        transitionDuration: '300ms',
-        transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        transitionDuration: {
+            // durationSlow (320ms) : le plus proche du 300ms historique.
+            // DESIGN.md:253 dit encore 300ms — drift de 20ms a trancher en polish.
+            default: motion.durationSlow,
+            '@media (prefers-reduced-motion: reduce)': '1ms',
+        },
+        transitionTimingFunction: motion.easingOut,
         transform: {
             default: null,
-            ':active': 'scale(0.98)',
+            ':active': `scale(${interaction.pressScale})`,
         },
     },
     hover: {
@@ -42,8 +45,8 @@ export const interactions = stylex.create({
         },
     },
     disabled: {
-        cursor: 'not-allowed',
-        opacity: 0.45,
+        cursor: interaction.cursorNotAllowed,
+        opacity: interaction.disabledOpacity,
     },
 });
 

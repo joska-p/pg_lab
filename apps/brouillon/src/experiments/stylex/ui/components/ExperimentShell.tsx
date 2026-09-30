@@ -1,7 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
-import { space, layout, radius, zIndex } from '../const.stylex';
+import { layout, radius, space, zIndex } from '../const.stylex';
 import { surfaceStyles } from '../surface.stylex';
 import { Button } from './Button';
 

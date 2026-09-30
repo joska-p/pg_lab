@@ -11,7 +11,6 @@ export const palette = stylex.defineConsts({
     dark4: 'oklch(0.55 0.023 62.567)',
 
     // Gray
-    gray245: 'oklch(0.619 0.029 67.258)',
     gray244: 'oklch(0.619 0.029 67.258)',
 
     // Light grounds & foregrounds
@@ -117,6 +116,42 @@ export const zIndex = stylex.defineConsts({
 export const breakpoints = stylex.defineConsts({
     narrowMax: 720,
     wideMin: 1024,
+});
+
+// Port of packages/ui tokens/layout `media` — vocabulary parity only.
+// StyleX (0.19) rejects consts as query keys ("Invalid pseudo or at-rule"),
+// so call sites keep literal queries. Upstream has the same limitation:
+// `media.*` y a zero consommateur.
+export const media = stylex.defineConsts({
+    narrow: '@media (max-width: 720px)',
+    wide: '@media (min-width: 1024px)',
+    portrait: '@media (orientation: portrait)',
+});
+
+// Local only, no upstream equivalent: the lab collapses on its own
+// inline size (container), upstream only knows viewport queries.
+export const container = stylex.defineConsts({
+    narrow: '@container (max-width: 720px)',
+});
+
+// Port of packages/ui tokens/layout `interaction`.
+export const interaction = stylex.defineConsts({
+    cursorPointer: 'pointer',
+    cursorProgress: 'progress',
+    cursorNotAllowed: 'not-allowed',
+    disabledOpacity: 0.45,
+    pressScale: 0.98,
+});
+
+// Port of packages/ui tokens/motion.
+export const motion = stylex.defineConsts({
+    durationFast: '120ms',
+    durationNormal: '200ms',
+    durationSlow: '320ms',
+    easingOut: 'cubic-bezier(0.16, 1, 0.3, 1)',
+    easingInOut: 'cubic-bezier(0.65, 0, 0.35, 1)',
+    easingLinear: 'linear',
+    iterationInfinite: 'infinite',
 });
 
 export const layout = stylex.defineConsts({

@@ -62,7 +62,7 @@ Mesuré sur la matrice réelle (filtre `tintShadow: off` + `tintBorder: off`) :
 
 Un checkbox déclaré « pas de shadow de teinte » rend une ombre pleine dans la teinte de sa Card. Deux variants `tintShadow: true` / `false` ne se distinguent que par l'accident de leur ancêtre — l'inverse du principe directeur de `DESIGN.md`.
 
-_Correctif_ : écrire un `transparent` explicite dans le canal coupé, **et** réinitialiser `tintVars.*` dans le `styles.base` de chaque composant pour qu'aucune surface n'hérite.
+_Correctif initialement proposé_ : écrire un `transparent` explicite dans le canal coupé, **et** réinitialiser `tintVars.*` dans le `styles.base` de chaque composant pour qu'aucune surface n'hérite. **Supersédé — voir §2bis : le design à flags a été supprimé au lieu d'être corrigé, ce qui ferme ce P0 par construction.**
 
 #### P1 — six
 
@@ -83,8 +83,8 @@ _Correctif_ : écrire un `transparent` explicite dans le canal coupé, **et** r�
 - `ControlPanel` pose `aria-label` **par-dessus** son `<h2>` visible → WCAG 2.5.3.
 - `Checkbox` prend `label?: string` alors que `Button`/`Card`/`Stack` prennent `children`. En mode Checkbox le slug est **silencieusement perdu** (mesuré : 8 boutons à `textContent: ""`).
 - La branche floating de `ExperimentShell` + `toggleClearOfFloatingPanel` sont **inatteignables** (`laboratory.tsx:42` force `docked`). Le calcul ne tient pas non plus : `right: calc(12px + calc(12px))` déplace le toggle de 12 px alors que le panel fait 320 px de large → il se superposerait, ne le dégage pas.
-- `Card` accepte `bg` mais l'ignore tant que `tintBackground` n'est pas mis — piège d'API.
-- `colors.error` et `borders.strong` jamais utilisés : une voix « error » et une bordure « strong » à 20 % sont documentées mais inexistantes au rendu.
+- ~~`Card` accepte `bg` mais l'ignore tant que `tintBackground` n'est pas mis — piège d'API.~~ **Résolu par §2bis** (plus de `bg`/`tintBackground`, la prop `background` dessine toujours).
+- ~~`colors.error` et `borders.strong` jamais utilisés.~~ **Résolu par §2bis** (exercés par la matrice : `colorVariants`, `borderVariants`).
 - `coumpoundStyle` — faute de frappe, `Stack.tsx:72`.
 
 #### Les jetons « morts » — le décompte était exagéré
@@ -126,19 +126,36 @@ Les deux seuls vrais défauts : `breakpoints` est inutilisé pendant que `720` e
 - `vp check` propre : 397 fichiers formatés, 0 erreur de lint ou de type sur 330 fichiers.
 - Contraste sain partout où le kit écrit : 11.79:1 au repos, 5.64:1 au survol, 10.8:1 panel, 9.17:1 slug, dans les deux thèmes. Seule faiblesse : la hairline de Card à 10 % de teinte, **2.1:1** sur fond sombre.
 
-### 3. `harden` — le P0 d'abord
+### 3. `harden` — fait
 
 **Réordonner : le P0 passe devant `optimize`.** On ne virtualise pas une matrice dont les axes mentent. Tant que `tintBorder: false` rend une bordure, corriger la falaise de nœuds revient à optimiser un rendu faux.
 
-- Fermer le P0 : canal coupé ⇒ `transparent` explicite + réinitialisation locale de `tintVars.*` dans chaque `styles.base`.
-- Porter les 3 groupes de jetons amont (`media`, `interaction`, `motion`) — supprime 3 nombres en dur, pas de composant créé.
-- `ErrorBoundary` existe dans `packages/ui`, non utilisé ici. Le brancher ne crée aucun composant.
-- `prefers-reduced-motion`.
-- Perte d'état au reload (non décidé dans `PRODUCT.md`).
+P0 fermé par §2bis (suppression du design à flags). Reste fait ici :
+
+- ✅ Groupes amont portés dans `const.stylex.ts` : `media`, `interaction`, `motion` (+ `container.narrow` local, sans équivalent amont). `interaction`/`motion` sont référencés par `interactions.stylex.ts` (curseurs, `disabledOpacity`, `pressScale`, `durationSlow`, `easingOut`) ; en revanche `media.*` reste du vocabulaire seul — StyleX 0.19 rejette les consts en clés de requêtes (« Invalid pseudo or at-rule », build cassé vérifié), donc les 6 littéraux `720`/`1024`/`portrait` restent en place. Même limitation en amont (`media.*` y a zéro consommateur).
+- ✅ `ErrorBoundary` branché à la racine (`App.tsx`, `showStack` gated sur `dev`). Aucun composant créé.
+- ✅ `prefers-reduced-motion` : `transitionDuration` → `1ms` sous `reduce` (contrat amont — le `:active` scale reste, instantané). Vérifié dans le CSS buildé.
+- ✅ Perte d'état au reload : **état jetable assumé** (option `a`, validée en séance). Rien à persister.
+- Drive-by : `gray245` supprimé (doublon exact inutilisé de `gray244`), `coumpoundStyle` → `compoundStyle`, commentaire périmé `active`/`borderHover` « non branchés » corrigé.
+
+Vérifié : `vp check` propre, `vp build` OK, CSS buildé contient le `1ms` sous `reduce` + le fallback `Something went wrong`, navigateur sur `vp dev` — `2 cards × 2 components = 4 nodes`, zéro erreur console, `scrollWidth === clientWidth`.
+
+Drifts notés, pas traités (pour `polish`/`clarify`) : `durationSlow` 320ms vs `DESIGN.md:253` 300ms ; `borderHover` toujours identique à `hover` (P1 #7) ; requêtes `720`/`1024` en dur ×6.
+
+### 2bis. API surface unifiée + simplification `tint` — fait (hors plan, post-audit)
+
+Les flags booléens (`tintBackground`/`tintBorder`/`tintShadow`, `bg`) sont supprimés. Déclaration actuelle d'un composant : `color` + `background` (`none`/`soft`/`solid`/`chaos`) + `border` (`none`/`subtle`/`strong`) + `elevation` (`flat`/`raised`/`sunken`). Le piège P2 « `bg` ignoré sans `tintBackground` » disparaît avec son design ; `colors.error` et `borders.strong` sont maintenant exercés par la matrice.
+
+- `surfaceStyles()` écrit toujours les 3 canaux d'un coup (`tint[color]` — map unique remplaçant `tintBackground`/`tintBorder`/`tintShadow`, `surfaceTint()` supprimée car sans appelant), puis le remplissage visuel (`backgrounds`/`borders`/`elevations`). 6 entrées → 4.
+- Contrat explicite : **c'est `surfaceStyles()` qui possède les canaux, pas les `base`**. Les initialisations `[tintVars.*]` dans chaque `styles.base` étaient mortes (écrasées juste après — `Button` le prouvait déjà, lignes commentées sans effet) : 6 blocs supprimés (`Button`, `Card`, `Checkbox`, `ShellWrapper`, `ExperimentShell` ×2).
+- Bug trouvé et corrigé au passage : `border[border]` au lieu de `borders[border]` (`surface.stylex.ts:114`) — le param shadow la map, aucune bordure ne s'appliquait, `tsc` signalait `TS7015`. `elevation` n'était pas cassée (vérifié avant/après au navigateur).
+- Vérifié : `tsc` propre, `vp build` OK, navigateur sur 6 boutons — `borderColor` transparent / mix 10 % / mix 20 %, `boxShadow` none / portée / inset, teintés de la `color` du bouton.
+- Effet P0 : le P0 ci-dessus (canal « off » qui hérite l'ancêtre) est **fermé par suppression** — il n'y a plus de canal « off », donc plus de lecture accidentelle de l'ancêtre. La note « fuite structurelle » en § À savoir est périmée.
+- Effet `optimize` : le plafond passe à 8 couleurs × 3 élévations × 3 fonds × 3 bordures = **216 variantes par calque**, 46 656 nœuds à filtre complet (contre 384 / 147 456).
 
 ### 4. `optimize` — conditionnel
 
-**Le chiffre :** filtre complet = 8 couleurs × 3 élévations × 2 fonds × 2³ flags de teinte = **384 variantes par calque**. Les deux calques complets = **147 456 nœuds DOM**. Les défauts n'en donnent que 4, mais cocher toutes les cases est à un clic.
+**Le chiffre (nouvelle API, voir §2bis) :** filtre complet = 8 couleurs × 3 élévations × 3 fonds × 3 bordures = **216 variantes par calque**. Les deux calques complets = **46 656 nœuds DOM**. Les défauts n'en donnent que 4, mais cocher toutes les cases est à un clic.
 
 Non mesuré en runtime cette séance — l'audit a confirmé le plafond arithmétique, pas le coût réel. Virtualiser, plafonner ou paginer, **après** le P0.
 
@@ -160,8 +177,8 @@ Dernier. Cohérence finale de la surface.
 - **`live` n'est pas configuré.** Sa première installation injecte un script dans le dev server. À invoquer explicitement.
 - **Le tool `browser.*` peut être déconnecté** selon la séance. `agent-browser` (CLI du dépôt) est le repli et pilote les media queries CSS, donc **il vérifie vraiment le responsive** — contrairement à ce que supposait la note d'audit précédente.
 - **`impeccable detect` ne couvre pas les `.stylex.ts`.** Zéro finding sur ce kit malgré des dizaines de jetons orphelins et un style dupliqué à l'octet. Ne pas le lire comme une validation ; il faut compter les consommateurs à la main (`rg -c "layout\.$token\b"`).
-- **La fuite de `tintVars.*` est structurelle, pas un forgot.** Tant qu'aucun composant ne réinitialise les trois variables localement, tout canal « off » lit l'ancêtre. C'est la première chose à vérifier après toute retouche de `surface.stylex.ts`.
-- **Rien n'a été modifié dans le code.** Cette séance est mesure et documentation uniquement.
+- **La fuite de `tintVars.*` par canal « off » est fermée par construction** (voir §2bis) : plus de flag `false`, et chaque composant écrit les trois canaux via `surfaceStyles()`. Première chose à vérifier après toute retouche de `surface.stylex.ts` : qu'aucun composant n'utilise `backgrounds`/`borders`/`elevations` sans passer par `surfaceStyles()` — auquel cas il devrait initialiser ses vars lui-même.
+- **Le code a été modifié depuis l'audit** (§2bis : nouvelle API surface, fix `borders[border]`, simplification `tint`). La note « mesure et documentation uniquement » ci-dessous concernait la séance d'audit.
 
 ---
 
