@@ -1,7 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { space } from '../const.stylex';
-import { heading } from '../typography.stylex';
+import { heading } from '../typography';
 
 const styles = stylex.create({
     base: {
@@ -12,10 +13,10 @@ const styles = stylex.create({
     },
 });
 
-interface ControlPanelProps extends Omit<React.ComponentProps<'aside'>, 'style'> {
+interface ControlPanelProps extends Omit<React.ComponentProps<'aside'>, 'style' | 'className'> {
     title?: string;
     label?: string;
-    style?: stylex.StyleXStyles;
+    style?: StyleXStyles;
     children?: React.ReactNode;
 }
 

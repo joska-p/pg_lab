@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { radius } from '../const.stylex';
 
@@ -16,16 +17,14 @@ const styles = stylex.create({
     },
 });
 
-interface StageProps extends Omit<React.ComponentProps<'section'>, 'style'> {
+interface StageProps extends Omit<React.ComponentProps<'section'>, 'style' | 'className'> {
     children?: React.ReactNode;
-    style?: stylex.StyleXStyles;
+    style?: StyleXStyles;
 }
 
 export function Stage({ children, style, ...props }: StageProps) {
-    const compoundStyle = stylex.props(styles.base, style);
-
     return (
-        <section {...props} {...compoundStyle}>
+        <section {...props} {...stylex.props(styles.base, style)}>
             {children}
         </section>
     );

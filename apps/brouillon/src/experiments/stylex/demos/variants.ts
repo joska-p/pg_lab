@@ -1,4 +1,4 @@
-import type { Background, Elevation, Borders } from '../ui/surface.stylex';
+import type { Background, Elevation, Borders } from '../ui/surface';
 import type { ColorNames } from '../ui/tint.stylex';
 
 export const colorVariants = [
@@ -28,8 +28,8 @@ export function buildSurfaceVariants(filter: VariantFilter): SurfaceVariant[] {
     const variants: SurfaceVariant[] = [];
 
     for (const color of filter.colors) {
-        for (const elevation of filter.elevations) {
-            for (const background of filter.backgrounds) {
+        for (const background of filter.backgrounds) {
+            for (const elevation of filter.elevations) {
                 for (const border of filter.borders) {
                     variants.push({
                         label: `${color}-${elevation}-${background}-${border}`,

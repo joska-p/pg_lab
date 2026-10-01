@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { space } from '../const.stylex';
 
@@ -10,12 +11,8 @@ const styles = stylex.create({
 });
 
 const directions = stylex.create({
-    vertical: {
-        flexDirection: 'column',
-    },
-    horizontal: {
-        flexDirection: 'row',
-    },
+    vertical: { flexDirection: 'column' },
+    horizontal: { flexDirection: 'row' },
 });
 
 const gaps = stylex.create({
@@ -33,32 +30,20 @@ const gaps = stylex.create({
 });
 
 const justifyContent = stylex.create({
-    start: {
-        justifyContent: 'flex-start',
-    },
-    center: {
-        justifyContent: 'center',
-    },
-    end: {
-        justifyContent: 'flex-end',
-    },
-    between: {
-        justifyContent: 'space-between',
-    },
-    around: {
-        justifyContent: 'space-around',
-    },
-    evenly: {
-        justifyContent: 'space-evenly',
-    },
+    start: { justifyContent: 'flex-start' },
+    center: { justifyContent: 'center' },
+    end: { justifyContent: 'flex-end' },
+    between: { justifyContent: 'space-between' },
+    around: { justifyContent: 'space-around' },
+    evenly: { justifyContent: 'space-evenly' },
 });
 
-interface StackProps extends Omit<React.ComponentProps<'div'>, 'style'> {
+interface StackProps extends Omit<React.ComponentProps<'div'>, 'style' | 'className'> {
     direction?: keyof typeof directions;
     gap?: keyof typeof gaps;
     justify?: keyof typeof justifyContent;
     children?: React.ReactNode;
-    style?: stylex.StyleXStyles;
+    style?: StyleXStyles;
 }
 
 export function Stack({
@@ -69,16 +54,17 @@ export function Stack({
     style,
     ...props
 }: StackProps) {
-    const compoundStyle = stylex.props(
-        styles.base,
-        directions[direction],
-        gaps[gap],
-        justifyContent[justify],
-        style,
-    );
-
     return (
-        <div {...props} {...compoundStyle}>
+        <div
+            {...props}
+            {...stylex.props(
+                styles.base,
+                directions[direction],
+                gaps[gap],
+                justifyContent[justify],
+                style,
+            )}
+        >
             {children}
         </div>
     );

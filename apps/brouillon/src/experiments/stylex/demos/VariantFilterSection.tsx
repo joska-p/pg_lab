@@ -2,7 +2,7 @@ import * as stylex from '@stylexjs/stylex';
 
 import { Button } from '../ui/components/Button';
 import { layout, space } from '../ui/const.stylex';
-import { fieldText, heading } from '../ui/typography.stylex';
+import { fieldText, heading } from '../ui/typography';
 import {
     resetFilter,
     toggleOption,

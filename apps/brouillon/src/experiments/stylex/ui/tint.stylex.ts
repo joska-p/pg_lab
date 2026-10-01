@@ -2,14 +2,12 @@ import * as stylex from '@stylexjs/stylex';
 
 import { palette } from './const.stylex';
 
-// Les 3 vars CSS qu'une surface teintee expose a ses enfants. Regroupees
-// dans un seul objet (comme `surface`) plutot qu'en 3 exports separes :
-// elles forment un seul concept ("la teinte de cette surface"), toujours
-// lues et ecrites ensemble.
+// La teinte d'une surface : une seule var (couleur), lue par le fond, la
+// bordure et l'ombre qui la dosent chacun avec leur propre color-mix.
+// `onColor` = couleur de texte lisible quand la teinte sert de fond plein.
 export const tintVars = stylex.defineVars({
-    background: 'transparent',
-    border: 'transparent',
-    shadow: 'transparent',
+    color: 'transparent',
+    onColor: `light-dark(${palette.dark0}, ${palette.light0})`,
 });
 
 export type ColorNames =
@@ -33,60 +31,16 @@ export const colors = stylex.defineVars({
     orange: `light-dark(${palette.brightOrange}, ${palette.fadedOrange})`,
 } as const satisfies Record<ColorNames, string>);
 
-// Une seule map : les 3 canaux sont toujours ecrits ensemble (voir
-// surfaceStyles() dans surface.stylex.ts). Trois maps separees
-// (tintBackground/tintBorder/tintShadow) ne feraient que tripliquer
-// chaque couleur sans jamais servir independamment.
-export const tint = stylex.create({
-    neutral: {
-        [tintVars.background]: colors.neutral,
-        [tintVars.border]: colors.neutral,
-        [tintVars.shadow]: colors.neutral,
-    },
-    aurora: {
-        [tintVars.background]: colors.aurora,
-        [tintVars.border]: colors.aurora,
-        [tintVars.shadow]: colors.aurora,
-    },
-    solder: {
-        [tintVars.background]: colors.solder,
-        [tintVars.border]: colors.solder,
-        [tintVars.shadow]: colors.solder,
-    },
-    purple: {
-        [tintVars.background]: colors.purple,
-        [tintVars.border]: colors.purple,
-        [tintVars.shadow]: colors.purple,
-    },
-    amber: {
-        [tintVars.background]: colors.amber,
-        [tintVars.border]: colors.amber,
-        [tintVars.shadow]: colors.amber,
-    },
-    error: {
-        [tintVars.background]: colors.error,
-        [tintVars.border]: colors.error,
-        [tintVars.shadow]: colors.error,
-    },
-    aqua: {
-        [tintVars.background]: colors.aqua,
-        [tintVars.border]: colors.aqua,
-        [tintVars.shadow]: colors.aqua,
-    },
-    orange: {
-        [tintVars.background]: colors.orange,
-        [tintVars.border]: colors.orange,
-        [tintVars.shadow]: colors.orange,
-    },
-});
-
-export const colorText = stylex.create({
-    neutral: { color: colors.neutral },
-    aurora: { color: colors.aurora },
-    solder: { color: colors.solder },
-    purple: { color: colors.purple },
-    amber: { color: colors.amber },
-    error: { color: colors.error },
-    aqua: { color: colors.aqua },
-    orange: { color: colors.orange },
-});
+// Texte posé sur un fond plein de la teinte correspondante. Sombre en clair,
+// clair en sombre, sauf amber dont le fond "faded" reste trop clair pour du
+// texte clair (voir contraste).
+export const onColors = stylex.defineVars({
+    neutral: `light-dark(${palette.dark0}, ${palette.light0})`,
+    aurora: `light-dark(${palette.dark0}, ${palette.light0})`,
+    solder: `light-dark(${palette.dark0}, ${palette.light0})`,
+    purple: `light-dark(${palette.dark0}, ${palette.light0})`,
+    amber: palette.dark0,
+    error: `light-dark(${palette.dark0}, ${palette.light0})`,
+    aqua: `light-dark(${palette.dark0}, ${palette.light0})`,
+    orange: `light-dark(${palette.dark0}, ${palette.light0})`,
+} as const satisfies Record<ColorNames, string>);

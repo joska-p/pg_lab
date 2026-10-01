@@ -7,7 +7,7 @@ import { Card } from '../ui/components/Card';
 import { Checkbox } from '../ui/components/Checkbox';
 import { Stack } from '../ui/components/Stack';
 import { space } from '../ui/const.stylex';
-import { fieldText } from '../ui/typography.stylex';
+import { fieldText } from '../ui/typography';
 import { useCardFilter, useComponentFilter } from './variantFilter.store';
 import { buildSurfaceVariants } from './variants';
 

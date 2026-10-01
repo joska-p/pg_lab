@@ -1,14 +1,13 @@
 import * as stylex from '@stylexjs/stylex';
-import type { StyleXStyles } from '@stylexjs/stylex';
-import { useId, useRef, useState } from 'react';
+import { useId, useState } from 'react';
 
-import { interaction, layout, radius, space } from '../const.stylex';
-import { interactionStyles } from '../interactions.stylex';
-import { surface, surfaceStyles } from '../surface.stylex';
-import type { Background, Elevation, Borders } from '../surface.stylex';
-import { colorText } from '../tint.stylex';
-import type { ColorNames } from '../tint.stylex';
-import { fieldText } from '../typography.stylex';
+import { interaction, layout, space } from '../const.stylex';
+import { interactionStyles } from '../interactions';
+import { surfaceStyles } from '../surface';
+import type { SurfaceProps } from '../surface';
+import { colorText } from '../tint';
+import type { LayoutStyle } from '../types';
+import { fieldText } from '../typography';
 
 const styles = stylex.create({
     row: {
@@ -25,9 +24,7 @@ const styles = stylex.create({
         justifyContent: 'center',
         width: layout.checkboxSize,
         height: layout.checkboxSize,
-        borderRadius: radius.sm,
-        backgroundColor: surface.background,
-        color: surface.foreground,
+        padding: 0,
     },
     check: {
         width: layout.checkboxMarkSize,
@@ -46,18 +43,15 @@ const styles = stylex.create({
     },
 });
 
-interface CheckboxProps extends Omit<React.ComponentProps<'button'>, 'style'> {
+interface CheckboxProps
+    extends Omit<React.ComponentProps<'button'>, 'style' | 'className' | 'color'>, SurfaceProps {
     label?: string;
-    color?: ColorNames;
-    background?: Background;
-    border?: Borders;
-    elevation?: Elevation;
     checked?: boolean;
     defaultChecked?: boolean;
     onCheckedChange?: (checked: boolean) => void;
     disabled?: boolean;
     id?: string;
-    style?: StyleXStyles;
+    style?: LayoutStyle;
 }
 
 export function Checkbox({
@@ -65,6 +59,7 @@ export function Checkbox({
     color = 'neutral',
     background = 'solid',
     border = 'strong',
+    radius = 'sm',
     elevation = 'flat',
     checked,
     defaultChecked = false,
@@ -76,25 +71,10 @@ export function Checkbox({
     ...props
 }: CheckboxProps) {
     const id = useId();
-    const labelId = useId();
-    const buttonRef = useRef<HTMLButtonElement>(null);
     const controlId = idProp ?? id;
     const [internal, setInternal] = useState(defaultChecked);
     const isControlled = checked !== undefined;
     const isOn = isControlled ? checked : internal;
-
-    const compoundButtonStyle = stylex.props(
-        styles.box,
-        surfaceStyles({
-            color,
-            background,
-            border,
-            elevation,
-        }),
-        isOn && background != 'solid' ? colorText[color] : null,
-        interactionStyles({ disabled }),
-        style,
-    );
 
     function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
         onClick?.(event);
@@ -112,9 +92,7 @@ export function Checkbox({
         <div {...stylex.props(styles.row)}>
             {label ? (
                 <label
-                    id={labelId}
                     htmlFor={controlId}
-                    onClick={() => buttonRef.current?.click()}
                     {...stylex.props(fieldText.label, disabled && styles.labelDisabled)}
                 >
                     {label}
@@ -122,16 +100,21 @@ export function Checkbox({
             ) : null}
 
             <button
-                aria-labelledby={label ? labelId : undefined}
                 {...props}
-                ref={buttonRef}
                 id={controlId}
                 type="button"
                 role="checkbox"
                 aria-checked={isOn}
                 onClick={handleClick}
                 disabled={disabled}
-                {...compoundButtonStyle}
+                {...stylex.props(
+                    styles.box,
+                    surfaceStyles({ color, background, border, radius, elevation }),
+                    // Hors fond plein, la coche prend la teinte (sur fond plein : onColor).
+                    isOn && background !== 'solid' ? colorText[color] : null,
+                    interactionStyles({ disabled }),
+                    style,
+                )}
             >
                 <span aria-hidden {...stylex.props(styles.hit)} />
                 {isOn ? (

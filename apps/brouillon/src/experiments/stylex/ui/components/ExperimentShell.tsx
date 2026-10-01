@@ -1,8 +1,9 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
 import { layout, radius, space, zIndex } from '../const.stylex';
-import { surfaceStyles } from '../surface.stylex';
+import { surfaceStyles } from '../surface';
 import { Button } from './Button';
 
 const styles = stylex.create({
@@ -87,8 +88,8 @@ const styles = stylex.create({
     },
 
     toggleClearOfFloatingPanel: {
-        top: `calc(${space['3']} + calc(${layout.panelGap}))`,
-        right: `calc(${space['3']} + calc(${layout.panelGap}))`,
+        top: `calc(${space['3']} + ${layout.panelGap})`,
+        right: `calc(${space['3']} + ${layout.panelGap})`,
 
         '@container (max-width: 720px)': {
             right: space['3'],
@@ -100,11 +101,11 @@ const styles = stylex.create({
     },
 });
 
-interface ExperimentShellProps extends Omit<React.ComponentProps<'div'>, 'style'> {
+interface ExperimentShellProps extends Omit<React.ComponentProps<'div'>, 'style' | 'className'> {
     children: React.ReactNode;
     panel?: React.ReactNode;
     panelPlacement?: 'docked' | 'floating';
-    style?: stylex.StyleXStyles;
+    style?: StyleXStyles;
 }
 
 export function ExperimentShell({
@@ -119,41 +120,39 @@ export function ExperimentShell({
 
     const isFloating = panelPlacement === 'floating';
 
-    const compoundExperimentStyle = stylex.props(styles.base, style);
-
-    const compoundStageSlotStyle = stylex.props(
-        styles.stageSlot,
-        surfaceStyles({
-            color: 'neutral',
-            background: 'soft',
-            border: 'subtle',
-            elevation: 'raised',
-        }),
-    );
-
-    const compoundPanelStyle = stylex.props(
-        styles.panel,
-        surfaceStyles({ color: 'neutral', background: 'soft', border: 'subtle' }),
-        isFloating && styles.panelFloating,
-        !panelVisible && styles.hidden,
-    );
-
-    const compoundToggleStyle = stylex.props(
-        styles.toggle,
-        isFloating && panelVisible && styles.toggleClearOfFloatingPanel,
-    );
-
     return (
-        <div {...props} {...compoundExperimentStyle}>
-            <div {...compoundStageSlotStyle}>{children}</div>
+        <div {...props} {...stylex.props(styles.base, style)}>
+            <div
+                {...stylex.props(
+                    surfaceStyles({ background: 'soft', border: 'subtle', elevation: 'raised' }),
+                    styles.stageSlot,
+                )}
+            >
+                {children}
+            </div>
 
             {panel && (
                 <>
-                    <div id={panelId} {...compoundPanelStyle}>
+                    {/* surfaceStyles d'abord : le rayon responsive du panneau doit passer après
+                        le rayon par défaut de la surface, sinon il est écrasé. */}
+                    <div
+                        id={panelId}
+                        {...stylex.props(
+                            surfaceStyles({ background: 'soft', border: 'subtle' }),
+                            styles.panel,
+                            isFloating && styles.panelFloating,
+                            !panelVisible && styles.hidden,
+                        )}
+                    >
                         {panel}
                     </div>
 
-                    <div {...compoundToggleStyle}>
+                    <div
+                        {...stylex.props(
+                            styles.toggle,
+                            isFloating && panelVisible && styles.toggleClearOfFloatingPanel,
+                        )}
+                    >
                         <Button
                             background="soft"
                             color="aqua"

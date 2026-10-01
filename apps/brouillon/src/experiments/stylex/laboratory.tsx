@@ -12,9 +12,10 @@ import { ExperimentShell } from './ui/components/ExperimentShell';
 import { ShellWrapper } from './ui/components/ShellWrapper';
 import { Stage } from './ui/components/Stage';
 import { layout, space } from './ui/const.stylex';
-import { interactionStyles } from './ui/interactions.stylex';
-import { surface, surfaceStyles } from './ui/surface.stylex';
-import { heading } from './ui/typography.stylex';
+import { interactionStyles } from './ui/interactions';
+import { surfaceStyles } from './ui/surface';
+import { surface } from './ui/surface.stylex';
+import { heading } from './ui/typography';
 
 const labStyles = stylex.create({
     light: { colorScheme: 'light' },

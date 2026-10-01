@@ -1,11 +1,10 @@
 import * as stylex from '@stylexjs/stylex';
-import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { layout, typography, space } from '../const.stylex';
-import { interactionStyles } from '../interactions.stylex';
-import { surface, surfaceStyles } from '../surface.stylex';
-import type { Background, Elevation, Borders } from '../surface.stylex';
-import type { ColorNames } from '../tint.stylex';
+import { interactionStyles } from '../interactions';
+import { surfaceStyles } from '../surface';
+import type { SurfaceProps } from '../surface';
+import type { LayoutStyle } from '../types';
 
 const styles = stylex.create({
     base: {
@@ -17,7 +16,6 @@ const styles = stylex.create({
         paddingBlock: space['2'],
         paddingInline: space['4'],
         minHeight: layout.controlFieldMinHeight,
-        color: surface.foreground,
         fontFamily: typography.fontFamilySans,
         fontSize: typography.fontSizeSm,
         fontWeight: typography.fontWeightMedium,
@@ -25,19 +23,17 @@ const styles = stylex.create({
     },
 });
 
-interface ButtonProps extends Omit<React.ComponentProps<'button'>, 'style'> {
-    color?: ColorNames;
-    background?: Background;
-    border?: Borders;
-    elevation?: Elevation;
+interface ButtonProps
+    extends Omit<React.ComponentProps<'button'>, 'style' | 'className' | 'color'>, SurfaceProps {
     disabled?: boolean;
-    style?: StyleXStyles;
+    style?: LayoutStyle;
 }
 
 export function Button({
     color = 'neutral',
     background = 'solid',
     border = 'subtle',
+    radius = 'md',
     elevation = 'raised',
     disabled = false,
     style,
@@ -52,12 +48,7 @@ export function Button({
             disabled={disabled}
             {...stylex.props(
                 styles.base,
-                surfaceStyles({
-                    color,
-                    background,
-                    border,
-                    elevation,
-                }),
+                surfaceStyles({ color, background, border, radius, elevation }),
                 interactionStyles({ disabled }),
                 style,
             )}

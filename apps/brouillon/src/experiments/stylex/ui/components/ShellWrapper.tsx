@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { space, palette } from '../const.stylex';
 import { surface } from '../surface.stylex';
@@ -7,7 +8,10 @@ const styles = stylex.create({
     base: {
         width: '100%',
         height: '100dvh',
+        // Le fond et le texte de page vivent ici : c'est le seul endroit où
+        // surface.background / surface.foreground sont posés.
         backgroundColor: surface.background,
+        color: surface.foreground,
         backgroundImage: `
       radial-gradient(45% 35% at 4% 6%, color-mix(in oklab, ${palette.brightRed} 30%, transparent), transparent 70%),
       radial-gradient(40% 35% at 96% 8%, color-mix(in oklab, ${palette.brightOrange} 28%, transparent), transparent 70%),
@@ -26,16 +30,14 @@ const styles = stylex.create({
     },
 });
 
-interface ShellWrapperProps extends Omit<React.ComponentProps<'div'>, 'style'> {
+interface ShellWrapperProps extends Omit<React.ComponentProps<'div'>, 'style' | 'className'> {
     children?: React.ReactNode;
-    style?: stylex.StyleXStyles;
+    style?: StyleXStyles;
 }
 
 export function ShellWrapper({ children, style, ...props }: ShellWrapperProps) {
-    const compoundStyle = stylex.props(styles.base, style);
-
     return (
-        <div {...props} {...compoundStyle}>
+        <div {...props} {...stylex.props(styles.base, style)}>
             {children}
         </div>
     );
