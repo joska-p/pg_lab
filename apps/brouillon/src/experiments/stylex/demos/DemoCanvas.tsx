@@ -2,6 +2,7 @@ import { Badge } from '@repo/ui-next/components/Badge';
 import { Button } from '@repo/ui-next/components/Button';
 import { Card } from '@repo/ui-next/components/Card';
 import { Checkbox } from '@repo/ui-next/components/Checkbox';
+import { ColorField } from '@repo/ui-next/components/ColorField';
 import { Stack } from '@repo/ui-next/components/Stack';
 import { fieldText } from '@repo/ui-next/recipes/typography';
 import { space } from '@repo/ui-next/tokens/const.stylex';
@@ -144,6 +145,16 @@ export function DemoCanvas() {
                                                 >
                                                     {variant.label}
                                                 </Badge>
+                                            );
+                                        }
+                                        case 'colorField': {
+                                            return (
+                                                <ColorField
+                                                    key={variant.label}
+                                                    label={variant.label}
+                                                    live={true}
+                                                    color={variant.color}
+                                                />
                                             );
                                         }
                                         default: {
