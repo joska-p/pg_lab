@@ -1,3 +1,4 @@
+import { Badge } from '@repo/ui-next/components/Badge';
 import { Button } from '@repo/ui-next/components/Button';
 import { Card } from '@repo/ui-next/components/Card';
 import { Checkbox } from '@repo/ui-next/components/Checkbox';
@@ -5,7 +6,7 @@ import { Stack } from '@repo/ui-next/components/Stack';
 import { fieldText } from '@repo/ui-next/recipes/typography';
 import { space } from '@repo/ui-next/tokens/const.stylex';
 import * as stylex from '@stylexjs/stylex';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useComponentName } from '../../../stores/appStore';
 import { useCardFilter, useComponentFilter } from './variantFilter.store';
@@ -30,11 +31,8 @@ export function DemoCanvas() {
     const cardFilter = useCardFilter();
     const componentFilter = useComponentFilter();
 
-    const cardVariants = useMemo(() => buildSurfaceVariants(cardFilter), [cardFilter]);
-    const componentVariants = useMemo(
-        () => buildSurfaceVariants(componentFilter),
-        [componentFilter],
-    );
+    const cardVariants = buildSurfaceVariants(cardFilter);
+    const componentVariants = buildSurfaceVariants(componentFilter);
 
     const [page, setPage] = useState(0);
     useEffect(() => {
@@ -107,29 +105,52 @@ export function DemoCanvas() {
                         >
                             <h2 {...stylex.props(fieldText.value)}>{card.label}</h2>
                             <Stack direction="horizontal" gap="12">
-                                {componentVariants.map((variant) =>
-                                    registryKey === 'checkbox' ? (
-                                        <Checkbox
-                                            key={variant.label}
-                                            label={variant.label}
-                                            color={variant.color}
-                                            background={variant.background}
-                                            border={variant.border}
-                                            elevation={variant.elevation}
-                                            defaultChecked
-                                        />
-                                    ) : (
-                                        <Button
-                                            key={variant.label}
-                                            color={variant.color}
-                                            background={variant.background}
-                                            border={variant.border}
-                                            elevation={variant.elevation}
-                                        >
-                                            {variant.label}
-                                        </Button>
-                                    ),
-                                )}
+                                {componentVariants.map((variant) => {
+                                    switch (registryKey) {
+                                        case 'checkbox': {
+                                            return (
+                                                <Checkbox
+                                                    key={variant.label}
+                                                    label={variant.label}
+                                                    color={variant.color}
+                                                    background={variant.background}
+                                                    border={variant.border}
+                                                    elevation={variant.elevation}
+                                                    defaultChecked
+                                                />
+                                            );
+                                        }
+                                        case 'button': {
+                                            return (
+                                                <Button
+                                                    key={variant.label}
+                                                    color={variant.color}
+                                                    background={variant.background}
+                                                    border={variant.border}
+                                                    elevation={variant.elevation}
+                                                >
+                                                    {variant.label}
+                                                </Button>
+                                            );
+                                        }
+                                        case 'badge': {
+                                            return (
+                                                <Badge
+                                                    key={variant.label}
+                                                    color={variant.color}
+                                                    background={variant.background}
+                                                    border={variant.border}
+                                                    elevation={variant.elevation}
+                                                >
+                                                    {variant.label}
+                                                </Badge>
+                                            );
+                                        }
+                                        default: {
+                                            return null;
+                                        }
+                                    }
+                                })}
                             </Stack>
                         </Card>
                     </div>
