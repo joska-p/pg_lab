@@ -1,4 +1,4 @@
-import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
+import { ErrorBoundary } from '@repo/ui-next/components/ErrorBoundary';
 
 import { Laboratory } from './experiments/stylex/laboratory';
 
