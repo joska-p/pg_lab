@@ -1,10 +1,10 @@
 import * as stylex from '@stylexjs/stylex';
 
-import { borderWidth, radius } from './const.stylex';
-import { surface } from './surface.stylex';
+import { borderWidth, radius } from '../tokens/const.stylex';
+import { surface } from '../tokens/surface.stylex';
+import { tintVars } from '../tokens/tint.stylex';
+import type { ColorNames } from '../tokens/tint.stylex';
 import { tint } from './tint';
-import { tintVars } from './tint.stylex';
-import type { ColorNames } from './tint.stylex';
 
 // Ce que c'est : fond plein / voile / rien. Lit tintVars.color.
 // Le texte suit le fond : `onColor` sur fond plein, foreground sinon.

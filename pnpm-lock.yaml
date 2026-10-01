@@ -232,6 +232,9 @@ importers:
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@repo/ui-next':
+        specifier: workspace:*
+        version: link:../../packages/ui-next
       react:
         specifier: 'catalog:'
         version: 19.3.0
@@ -629,6 +632,46 @@ importers:
         version: 1.0.0(@types/node@24.19.0)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1)
 
   packages/ui:
+    dependencies:
+      '@stylexjs/stylex':
+        specifier: 'catalog:'
+        version: 0.19.1
+      react:
+        specifier: 'catalog:'
+        version: 19.3.0
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.3.0(react@19.3.0)
+    devDependencies:
+      '@rolldown/plugin-babel':
+        specifier: 'catalog:'
+        version: 0.2.4(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.11)
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.3.0(@types/react@19.3.0)
+      '@vitejs/plugin-react':
+        specifier: 'catalog:'
+        version: 6.1.1(@rolldown/plugin-babel@0.2.4(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.11))(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1))(babel-plugin-react-compiler@1.0.0)
+      babel-plugin-react-compiler:
+        specifier: 'catalog:'
+        version: 1.0.0
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      unplugin-stylex:
+        specifier: 'catalog:'
+        version: 0.6.3(@stylexjs/stylex@0.19.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.11)
+      vite:
+        specifier: 'catalog:'
+        version: '@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1)'
+      vite-plus:
+        specifier: 'catalog:'
+        version: 1.0.0(@types/node@24.19.0)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1)
+
+  packages/ui-next:
     dependencies:
       '@stylexjs/stylex':
         specifier: 'catalog:'

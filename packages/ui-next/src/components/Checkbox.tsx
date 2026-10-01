@@ -1,13 +1,12 @@
 import * as stylex from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
-import { interaction, layout, space } from '../const.stylex';
-import { interactionStyles } from '../interactions';
-import { surfaceStyles } from '../surface';
-import type { SurfaceProps } from '../surface';
-import { colorText } from '../tint';
+import { interactionStyles } from '../recipes/interactions';
+import { surfaceStyles } from '../recipes/surface';
+import type { SurfaceProps } from '../recipes/surface';
+import { fieldText } from '../recipes/typography';
+import { interaction, layout, space } from '../tokens/const.stylex';
 import type { LayoutStyle } from '../types';
-import { fieldText } from '../typography';
 
 const styles = stylex.create({
     row: {
@@ -110,8 +109,6 @@ export function Checkbox({
                 {...stylex.props(
                     styles.box,
                     surfaceStyles({ color, background, border, radius, elevation }),
-                    // Hors fond plein, la coche prend la teinte (sur fond plein : onColor).
-                    isOn && background !== 'solid' ? colorText[color] : null,
                     interactionStyles({ disabled }),
                     style,
                 )}

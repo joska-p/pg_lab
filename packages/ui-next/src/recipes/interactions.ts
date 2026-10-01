@@ -1,7 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 
-import { interaction, motion } from './const.stylex';
-import { surface } from './surface.stylex';
+import { interaction, motion } from '../tokens/const.stylex';
+import { surface } from '../tokens/surface.stylex';
 
 // Ce que ça fait (survol, appui, focus, état) — par opposition à surface.ts
 // qui décrit ce que c'est. N'utilise que des vars de thème (surface.foreground),

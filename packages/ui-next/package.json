@@ -1,24 +1,20 @@
 {
-    "name": "@repo/brouillon",
+    "name": "@repo/ui-next",
     "version": "0.0.0",
     "private": true,
     "type": "module",
-    "scripts": {
-        "dev": "vp dev --host",
-        "build": "tsc -b && vp build",
-        "lint": "vp lint",
-        "preview": "vp preview"
+    "exports": {
+        "./styles": "./src/styles.css",
+        "./tokens/*": "./src/tokens/*.ts",
+        "./recipes/*": "./src/recipes/*.ts",
+        "./components/*": "./src/components/*.tsx",
+        "./types": "./src/types.ts"
     },
-    "dependencies": {
-        "@repo/ui": "workspace:*",
-        "@repo/ui-next": "workspace:*",
-        "react": "catalog:",
-        "react-dom": "catalog:",
-        "zustand": "catalog:"
+    "scripts": {
+        "check": "vp check"
     },
     "devDependencies": {
         "@rolldown/plugin-babel": "catalog:",
-        "@stylexjs/stylex": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
         "@vitejs/plugin-react": "catalog:",
@@ -27,5 +23,10 @@
         "unplugin-stylex": "catalog:",
         "vite": "catalog:",
         "vite-plus": "catalog:"
+    },
+    "peerDependencies": {
+        "@stylexjs/stylex": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:"
     }
 }

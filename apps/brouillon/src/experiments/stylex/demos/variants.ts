@@ -1,5 +1,5 @@
-import type { Background, Elevation, Borders } from '../ui/surface';
-import type { ColorNames } from '../ui/tint.stylex';
+import type { Background, Elevation, Borders } from '@repo/ui-next/recipes/surface';
+import type { ColorNames } from '@repo/ui-next/tokens/tint.stylex';
 
 export const colorVariants = [
     'neutral',

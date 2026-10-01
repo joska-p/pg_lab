@@ -1,3 +1,12 @@
+import { ControlPanel } from '@repo/ui-next/components/ControlPanel';
+import { ExperimentShell } from '@repo/ui-next/components/ExperimentShell';
+import { ShellWrapper } from '@repo/ui-next/components/ShellWrapper';
+import { Stage } from '@repo/ui-next/components/Stage';
+import { interactionStyles } from '@repo/ui-next/recipes/interactions';
+import { surfaceStyles } from '@repo/ui-next/recipes/surface';
+import { heading } from '@repo/ui-next/recipes/typography';
+import { layout, space } from '@repo/ui-next/tokens/const.stylex';
+import { surface } from '@repo/ui-next/tokens/surface.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useId } from 'react';
 
@@ -7,15 +16,6 @@ import { DemoCanvas } from './demos/DemoCanvas';
 import type { ComponentName } from './demos/registry';
 import { components } from './demos/registry';
 import { VariantFilterSection } from './demos/VariantFilterSection';
-import { ControlPanel } from './ui/components/ControlPanel';
-import { ExperimentShell } from './ui/components/ExperimentShell';
-import { ShellWrapper } from './ui/components/ShellWrapper';
-import { Stage } from './ui/components/Stage';
-import { layout, space } from './ui/const.stylex';
-import { interactionStyles } from './ui/interactions';
-import { surfaceStyles } from './ui/surface';
-import { surface } from './ui/surface.stylex';
-import { heading } from './ui/typography';
 
 const labStyles = stylex.create({
     light: { colorScheme: 'light' },

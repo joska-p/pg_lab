@@ -1,7 +1,6 @@
+import { Button } from '@repo/ui-next/components/Button';
+import { Checkbox } from '@repo/ui-next/components/Checkbox';
 import type { ComponentType } from 'react';
-
-import { Button } from '../ui/components/Button';
-import { Checkbox } from '../ui/components/Checkbox';
 
 export const components = {
     button: Button,

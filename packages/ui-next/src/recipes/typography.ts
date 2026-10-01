@@ -1,8 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 
-import { typography } from './const.stylex';
-import { surface } from './surface.stylex';
-import { colors } from './tint.stylex';
+import { typography } from '../tokens/const.stylex';
+import { surface } from '../tokens/surface.stylex';
+import { colors } from '../tokens/tint.stylex';
 
 export const heading = stylex.create({
     level1: {

@@ -1,8 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 
-import { space } from '../const.stylex';
-import { surfaceStyles } from '../surface';
-import type { SurfaceProps } from '../surface';
+import { surfaceStyles } from '../recipes/surface';
+import type { SurfaceProps } from '../recipes/surface';
+import { space } from '../tokens/const.stylex';
 import type { LayoutStyle } from '../types';
 
 const styles = stylex.create({

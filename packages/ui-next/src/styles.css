@@ -1,0 +1,45 @@
+/* Base browser normalization */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+}
+
+:root {
+    color-scheme: light dark;
+}
+
+::selection {
+    background: light-dark(oklch(0.756 0.108 137.676), oklch(0.534 0.082 155.401));
+    color: light-dark(oklch(0.277 0 0), oklch(0.956 0.055 96.155));
+}
+
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+body {
+    min-height: 100vh;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+img,
+svg,
+video,
+canvas {
+    display: block;
+}

@@ -1,13 +1,13 @@
+import { Button } from '@repo/ui-next/components/Button';
+import { Card } from '@repo/ui-next/components/Card';
+import { Checkbox } from '@repo/ui-next/components/Checkbox';
+import { Stack } from '@repo/ui-next/components/Stack';
+import { fieldText } from '@repo/ui-next/recipes/typography';
+import { space } from '@repo/ui-next/tokens/const.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useMemo, useState } from 'react';
 
 import { useComponentName } from '../../../stores/appStore';
-import { Button } from '../ui/components/Button';
-import { Card } from '../ui/components/Card';
-import { Checkbox } from '../ui/components/Checkbox';
-import { Stack } from '../ui/components/Stack';
-import { space } from '../ui/const.stylex';
-import { fieldText } from '../ui/typography';
 import { useCardFilter, useComponentFilter } from './variantFilter.store';
 import { buildSurfaceVariants } from './variants';
 

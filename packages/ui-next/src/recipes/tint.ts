@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 
-import { colors, onColors, tintVars } from './tint.stylex';
+import { colors, onColors, tintVars } from '../tokens/tint.stylex';
 
 // Une entrée par couleur : écrit la teinte ET son texte lisible. Les deux sont
 // toujours posés ensemble, sinon une surface imbriquée hériterait du `onColor`

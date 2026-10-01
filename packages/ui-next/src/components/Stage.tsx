@@ -1,7 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { radius } from '../const.stylex';
+import { radius } from '../tokens/const.stylex';
 
 const styles = stylex.create({
     base: {

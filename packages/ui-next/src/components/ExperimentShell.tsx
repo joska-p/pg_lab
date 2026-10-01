@@ -2,8 +2,8 @@ import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
-import { layout, radius, space, zIndex } from '../const.stylex';
-import { surfaceStyles } from '../surface';
+import { surfaceStyles } from '../recipes/surface';
+import { layout, radius, space, zIndex } from '../tokens/const.stylex';
 import { Button } from './Button';
 
 const styles = stylex.create({
