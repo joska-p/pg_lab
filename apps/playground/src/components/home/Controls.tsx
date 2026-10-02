@@ -1,14 +1,9 @@
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Select } from '@repo/ui/components/Select';
 import { useTheme, type Theme } from '@repo/ui/hooks/useTheme';
-import { useEffect } from 'react';
 
 export function Controls() {
     const [theme, setTheme] = useTheme();
-
-    useEffect(() => {
-        document.documentElement.style.colorScheme = theme === 'dark' ? 'light dark' : theme;
-    }, [theme]);
 
     return (
         <>
