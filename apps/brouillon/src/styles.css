@@ -15,6 +15,14 @@ body {
     color-scheme: light dark;
 }
 
+:root[data-theme='light'] {
+    color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+    color-scheme: dark;
+}
+
 ::selection {
     background: light-dark(oklch(0.756 0.108 137.676), oklch(0.534 0.082 155.401));
     color: light-dark(oklch(0.277 0 0), oklch(0.956 0.055 96.155));

@@ -2,26 +2,21 @@ import { ControlPanel } from '@repo/ui-next/components/ControlPanel';
 import { ExperimentShell } from '@repo/ui-next/components/ExperimentShell';
 import { ShellWrapper } from '@repo/ui-next/components/ShellWrapper';
 import { Stage } from '@repo/ui-next/components/Stage';
+import { useTheme, type Theme } from '@repo/ui-next/hooks/useTheme';
 import { useId } from 'react';
 
-import { useTheme, setTheme, useComponentName, setComponentName } from '../../stores/appStore';
-import type { Theme } from '../../stores/appStore';
+import { useComponentName, setComponentName } from '../../stores/appStore';
 import { DemoCanvas } from './demos/DemoCanvas';
-import type { ComponentName } from './demos/registry';
-import { components } from './demos/registry';
+import { components, type ComponentName } from './demos/registry';
 import { VariantFilterSection } from './demos/VariantFilterSection';
 
 export const registryOptions = Object.keys(components) as ComponentName[];
 
 export function Laboratory() {
-    const theme = useTheme();
     const registryKey = useComponentName();
     const themeId = useId();
     const componentId = useId();
-
-    function handleTheme(event: React.ChangeEvent<HTMLSelectElement>) {
-        setTheme(event.currentTarget.value as Theme);
-    }
+    const [theme, setTheme] = useTheme();
 
     function handleComponent(event: React.ChangeEvent<HTMLSelectElement>) {
         setComponentName(event.currentTarget.value as ComponentName);
@@ -38,13 +33,12 @@ export function Laboratory() {
 
                             <select
                                 id={themeId}
-
-                                onChange={handleTheme}
                                 value={theme}
+                                onChange={(e) => setTheme(e.target.value as Theme)}
                             >
-                                <option value="dark">dark</option>
-                                <option value="light">light</option>
-                                <option value="system">system</option>
+                                <option value="system">System</option>
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
                             </select>
 
                             <VariantFilterSection target="card" title="Card filter" />
