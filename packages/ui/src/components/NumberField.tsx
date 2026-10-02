@@ -150,11 +150,11 @@ export function NumberField({
                 )}
             />
 
-            {message ? (
+            {message && (
                 <span id={messageId} role="alert" {...stylex.props(fieldText.message)}>
                     {message}
                 </span>
-            ) : null}
+            )}
         </div>
     );
 }

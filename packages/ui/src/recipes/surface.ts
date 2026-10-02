@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 
-import { borderWidth, radius } from '../tokens/const.stylex';
+import { borderWidth, palette, radius } from '../tokens/const.stylex';
 import { surface } from '../tokens/surface.stylex';
 import { tintVars } from '../tokens/tint.stylex';
 import type { ColorNames } from '../tokens/tint.stylex';
@@ -18,7 +18,7 @@ export const backgrounds = stylex.create({
         color: tintVars.onColor,
     },
     soft: {
-        backgroundColor: `color-mix(in oklab, ${tintVars.color} 18%, transparent)`,
+        backgroundColor: `color-mix(in oklab, color-mix(in oklab, ${tintVars.color} 12%, ${surface.background}) 70%, transparent)`,
         color: surface.foreground,
     },
 });
@@ -62,14 +62,15 @@ export const elevations = stylex.create({
         boxShadow: 'none',
     },
     raised: {
-        boxShadow: `0 3px 14px color-mix(in oklab, ${tintVars.color} 60%, transparent)`,
+        boxShadow: `
+            0 1px 3px color-mix(in oklab, ${palette.dark0Hard} 22%, transparent),
+            0 6px 18px -2px color-mix(in oklab, ${tintVars.color} 24%, color-mix(in oklab, ${palette.dark0Hard} 40%, transparent))
+        `,
     },
     sunken: {
         boxShadow: `
-            inset 0 1px 0
-                color-mix(in oklab, ${tintVars.color} 70%, transparent),
-            inset 0 3px 8px
-                color-mix(in oklab, ${tintVars.color} 35%, transparent)
+            inset 0 1px 2px color-mix(in oklab, ${palette.dark0Hard} 26%, transparent),
+            inset 0 3px 8px color-mix(in oklab, ${tintVars.color} 20%, color-mix(in oklab, ${palette.dark0Hard} 30%, transparent))
         `,
     },
 });

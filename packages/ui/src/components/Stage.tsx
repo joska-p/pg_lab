@@ -1,7 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { radius } from '../tokens/const.stylex';
+import { radius, space } from '../tokens/const.stylex';
 
 const styles = stylex.create({
     base: {
@@ -11,6 +11,7 @@ const styles = stylex.create({
         minHeight: '100%',
         display: 'flex',
         flexDirection: 'column',
+        gap: space['4'],
         overflowY: 'auto',
         scrollbarGutter: 'stable',
         borderRadius: { default: radius.none, '@media (min-width: 1024px)': radius.md },

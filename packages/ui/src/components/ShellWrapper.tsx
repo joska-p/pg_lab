@@ -1,13 +1,14 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { space, palette } from '../tokens/const.stylex';
+import { palette } from '../tokens/const.stylex';
 import { surface } from '../tokens/surface.stylex';
 
 const styles = stylex.create({
     base: {
         width: '100%',
         height: '100dvh',
+        boxSizing: 'border-box',
         // Le fond et le texte de page vivent ici : c'est le seul endroit où
         // surface.background / surface.foreground sont posés.
         backgroundColor: surface.background,
@@ -23,10 +24,6 @@ const styles = stylex.create({
       radial-gradient(35% 30% at 50% 55%, color-mix(in oklab, ${palette.neutralYellow} 20%, transparent), transparent 70%),
       linear-gradient(160deg, color-mix(in oklab, ${palette.gray244} 20%, transparent), transparent 65%)
     `,
-        padding: space['0'],
-        '@media (min-width: 1024px)': {
-            padding: space['4'],
-        },
     },
 });
 

@@ -9,6 +9,7 @@ import { Button } from './Button';
 const styles = stylex.create({
     base: {
         position: 'relative',
+        boxSizing: 'border-box',
         display: 'flex',
         flexDirection: {
             default: 'row',
@@ -18,9 +19,12 @@ const styles = stylex.create({
         gap: space['3'],
         width: '100%',
         height: '100%',
-        padding: 0,
         overflow: 'hidden',
         containerType: 'inline-size',
+        padding: space['2'],
+        '@media (min-width: 1024px)': {
+            padding: space['4'],
+        },
     },
 
     stageSlot: {
@@ -31,6 +35,8 @@ const styles = stylex.create({
         minHeight: 0,
         overflow: 'hidden',
         padding: space['4'],
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
         '@container (max-width: 720px)': {
             paddingTop: `calc(${space['3']} + ${space['10']})`,
         },
@@ -44,6 +50,8 @@ const styles = stylex.create({
         minHeight: 0,
         maxHeight: '100%',
         overflowY: 'auto',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
         borderRadius: { default: radius.none, '@media (min-width: 1024px)': radius.md },
 
         '@container (max-width: 720px)': {
@@ -133,12 +141,14 @@ export function ExperimentShell({
 
             {panel && (
                 <>
-                    {/* surfaceStyles d'abord : le rayon responsive du panneau doit passer après
-                        le rayon par défaut de la surface, sinon il est écrasé. */}
                     <div
                         id={panelId}
                         {...stylex.props(
-                            surfaceStyles({ background: 'soft', border: 'subtle' }),
+                            surfaceStyles({
+                                background: 'soft',
+                                border: 'subtle',
+                                elevation: 'raised',
+                            }),
                             styles.panel,
                             isFloating && styles.panelFloating,
                             !panelVisible && styles.hidden,

@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite-plus';
 
-const ignorePatterns = ['dist/**', '**/vendor/*.js', '.agents/**'];
+const ignorePatterns = ['dist/**', '**/vendor/*.js', '.agent/**/*.{js,ts}'];
 
 export default defineConfig({
     create: {

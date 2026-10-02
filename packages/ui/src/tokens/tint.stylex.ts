@@ -21,7 +21,7 @@ export type ColorNames =
     | 'orange';
 
 export const colors = stylex.defineVars({
-    neutral: `light-dark(${palette.light4}, ${palette.dark4})`,
+    neutral: `light-dark(${palette.light2}, ${palette.dark2})`,
     aurora: `light-dark(${palette.brightBlue}, ${palette.fadedBlue})`,
     solder: `light-dark(${palette.brightGreen}, ${palette.fadedGreen})`,
     purple: `light-dark(${palette.brightPurple}, ${palette.fadedPurple})`,
@@ -31,9 +31,7 @@ export const colors = stylex.defineVars({
     orange: `light-dark(${palette.brightOrange}, ${palette.fadedOrange})`,
 } as const satisfies Record<ColorNames, string>);
 
-// Texte posé sur un fond plein de la teinte correspondante. Sombre en clair,
-// clair en sombre, sauf amber dont le fond "faded" reste trop clair pour du
-// texte clair (voir contraste).
+// Texte posé sur un fond plein de la teinte correspondante.
 export const onColors = stylex.defineVars({
     neutral: `light-dark(${palette.dark0}, ${palette.light0})`,
     aurora: `light-dark(${palette.dark0}, ${palette.light0})`,
