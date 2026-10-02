@@ -1,6 +1,6 @@
 import { Button } from '@repo/ui/components/Button';
 import { Slider } from '@repo/ui/components/Slider';
-import { space } from '@repo/ui/tokens/layout.stylex';
+import { space } from '@repo/ui/tokens/const.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useSyncExternalStore } from 'react';
 

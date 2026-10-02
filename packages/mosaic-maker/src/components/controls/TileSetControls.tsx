@@ -1,7 +1,7 @@
-import { focusRing, interactive } from '@repo/ui/recipes/interaction.stylex';
-import { colors } from '@repo/ui/tokens/colors.stylex';
-import { radius, space } from '@repo/ui/tokens/layout.stylex';
-import { typography } from '@repo/ui/tokens/typography.stylex';
+import { interactionStyles } from '@repo/ui/recipes/interactions';
+import { radius, space } from '@repo/ui/tokens/const.stylex';
+import { typography } from '@repo/ui/tokens/const.stylex';
+import { colors } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
 
 import { initialPalette, initialTileSet } from '../../core/constants';
@@ -43,7 +43,7 @@ const styles = stylex.create({
         borderWidth: 0,
         borderRadius: radius.sm,
         backgroundColor: 'transparent',
-        color: colors.foreground,
+        color: colors.neutral,
     },
 
     dimmed: {
@@ -51,13 +51,13 @@ const styles = stylex.create({
     },
 
     ring: {
-        boxShadow: `0 0 0 3px ${colors.ring}`,
+        boxShadow: `0 0 0 3px ${colors.neutral}`,
     },
 
     hint: {
         margin: 0,
         fontSize: typography.fontSizeXs,
-        color: `color-mix(in oklab, ${colors.mutedForeground} 60%, transparent)`,
+        color: `color-mix(in oklab, ${colors.neutral} 60%, transparent)`,
         textAlign: 'center',
     },
 });
@@ -89,8 +89,7 @@ function TileSetControls() {
                         }}
                         {...stylex.props(
                             styles.option,
-                            interactive.base,
-                            focusRing.base,
+                            interactionStyles(),
                             selected ? styles.ring : styles.dimmed,
                         )}
                     >

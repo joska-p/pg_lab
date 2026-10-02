@@ -1,9 +1,10 @@
 import * as stylex from '@stylexjs/stylex';
-import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { fieldText } from '../recipes/typography.stylex';
-import { colors } from '../tokens/colors.stylex';
-import { borderWidth, radius, space } from '../tokens/layout.stylex';
+import { surfaceStyles } from '../recipes/surface';
+import type { SurfaceProps } from '../recipes/surface';
+import { fieldText } from '../recipes/typography';
+import { space } from '../tokens/const.stylex';
+import type { LayoutStyle } from '../types';
 
 const styles = stylex.create({
     base: {
@@ -12,23 +13,33 @@ const styles = stylex.create({
         gap: space['3'],
         paddingBlock: space['1'],
         paddingInline: space['3'],
-        borderRadius: radius.sm,
-        borderWidth: borderWidth.hairline,
-        borderStyle: 'solid',
-        borderColor: colors.border,
-        backgroundColor: colors.card,
     },
 });
 
-interface ReadoutProps {
+interface ReadoutProps extends SurfaceProps {
     label: string;
     value?: React.ReactNode;
-    style?: StyleXStyles;
+    style?: LayoutStyle;
 }
 
-export function Readout({ label, value, style }: ReadoutProps) {
+export function Readout({
+    label,
+    value,
+    color = 'neutral',
+    background = 'solid',
+    border = 'strong',
+    radius = 'sm',
+    elevation = 'flat',
+    style,
+}: ReadoutProps) {
     return (
-        <div {...stylex.props(styles.base, style)}>
+        <div
+            {...stylex.props(
+                styles.base,
+                surfaceStyles({ color, background, border, radius, elevation }),
+                style,
+            )}
+        >
             <span {...stylex.props(fieldText.label)}>{label}</span>
             <span aria-live="polite" {...stylex.props(fieldText.value)}>
                 {value}

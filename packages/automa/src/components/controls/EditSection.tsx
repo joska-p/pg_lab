@@ -19,20 +19,20 @@ export function EditSection() {
     return (
         <ControlSection title="Edit">
             <div {...stylex.props(styles.actions)}>
-                <Button family="neon-violet" onClick={randomizeGrid}>
+                <Button color="purple" onClick={randomizeGrid}>
                     Randomize
                 </Button>
-                <Button family="error" onClick={clearGrid}>
+                <Button color="error" onClick={clearGrid}>
                     Clear
                 </Button>
                 <Button
-                    family={brushMode === 'draw' ? 'solder' : undefined}
+                    color={brushMode === 'draw' ? 'solder' : undefined}
                     onClick={() => setToolMode('draw')}
                 >
                     Draw
                 </Button>
                 <Button
-                    family={brushMode === 'erase' ? 'error' : undefined}
+                    color={brushMode === 'erase' ? 'error' : undefined}
                     onClick={() => setToolMode('erase')}
                 >
                     Erase

@@ -1,8 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { heading } from '../recipes/typography.stylex';
-import { space } from '../tokens/layout.stylex';
+import { heading } from '../recipes/typography';
+import { space } from '../tokens/const.stylex';
 
 const styles = stylex.create({
     base: {
@@ -13,16 +13,20 @@ const styles = stylex.create({
     },
 });
 
-interface ControlPanelProps {
+interface ControlPanelProps extends Omit<React.ComponentProps<'aside'>, 'style' | 'className'> {
     title?: string;
     label?: string;
     style?: StyleXStyles;
     children?: React.ReactNode;
 }
 
-export function ControlPanel({ title, label, style, children }: ControlPanelProps) {
+export function ControlPanel({ title, label, children, style, ...props }: ControlPanelProps) {
     return (
-        <aside aria-label={label ?? title ?? 'control panel'} {...stylex.props(styles.base, style)}>
+        <aside
+            {...props}
+            aria-label={label ?? title ?? 'control panel'}
+            {...stylex.props(styles.base, style)}
+        >
             {title ? <h2 {...stylex.props(heading.level2)}>{title}</h2> : null}
             {children}
         </aside>

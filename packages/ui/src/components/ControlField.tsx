@@ -1,8 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { fieldText } from '../recipes/typography.stylex';
-import { layout, space } from '../tokens/layout.stylex';
+import { fieldText } from '../recipes/typography';
+import { layout, space } from '../tokens/const.stylex';
 
 const styles = stylex.create({
     base: {

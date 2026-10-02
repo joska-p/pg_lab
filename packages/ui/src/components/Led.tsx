@@ -1,11 +1,11 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { fx } from '../recipes/effects.stylex';
-import { families, type FamilyName } from '../tokens/families.stylex';
-import { layout, radius } from '../tokens/layout.stylex';
+import { colorText } from '../recipes/tint';
+import { layout, radius } from '../tokens/const.stylex';
+import type { ColorNames } from '../tokens/tint.stylex';
 
-const ledStyles = stylex.create({
+const styles = stylex.create({
     base: {
         flexShrink: 0,
         width: layout.ledAtomSize,
@@ -14,16 +14,15 @@ const ledStyles = stylex.create({
         backgroundColor: 'currentColor',
     },
     live: {
-        filter: `drop-shadow(0 0 ${fx.glowSubtleBlur} currentColor)`,
+        filter: 'drop-shadow(0 0 4px currentColor)',
     },
     off: {
         opacity: 0.45,
     },
-    fill: (base: string) => ({ color: base }),
 });
 
 export interface LedProps {
-    color: FamilyName;
+    color: ColorNames;
     live?: boolean;
     off?: boolean;
     style?: StyleXStyles;
@@ -34,10 +33,10 @@ export function Led({ color, live = false, off = false, style }: LedProps) {
         <span
             aria-hidden="true"
             {...stylex.props(
-                ledStyles.base,
-                ledStyles.fill(families[color].base),
-                live ? ledStyles.live : null,
-                off ? ledStyles.off : null,
+                styles.base,
+                colorText[color],
+                live ? styles.live : null,
+                off ? styles.off : null,
                 style,
             )}
         />

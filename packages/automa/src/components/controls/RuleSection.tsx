@@ -16,7 +16,7 @@ export function RuleSection() {
         <ControlSection title="Rule">
             <Select
                 label="Rule"
-                family="amber"
+                color="amber"
                 value={ruleId}
                 onValueChange={setRule}
                 options={allRules.map((r) => ({

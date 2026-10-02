@@ -2,17 +2,17 @@ import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
-import { field } from '../recipes/fields.stylex';
-import { disabled as disabledRecipe, focusRing, interactive } from '../recipes/interaction.stylex';
-import { fieldText } from '../recipes/typography.stylex';
-import { colors } from '../tokens/colors.stylex';
-import { families, type FamilyName } from '../tokens/families.stylex';
-import { borderWidth, layout, radius, space } from '../tokens/layout.stylex';
+import { field } from '../recipes/fields';
+import { interactionStyles } from '../recipes/interactions';
+import { surfaceStyles } from '../recipes/surface';
+import { fieldText } from '../recipes/typography';
+import { layout, space } from '../tokens/const.stylex';
+import type { ColorNames } from '../tokens/tint.stylex';
 import { Led } from './Led';
 
 interface ColorFieldProps {
     label?: string;
-    family?: FamilyName;
+    color?: ColorNames;
     live?: boolean;
     invalid?: boolean;
     errorMessage?: string;
@@ -27,10 +27,12 @@ interface ColorFieldProps {
 const DEFAULT_HEX = '#000000';
 
 function asHex(value: string) {
-    if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value)) {
-        return value;
+    const match = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(value);
+    if (!match) {
+        return DEFAULT_HEX;
     }
-    return DEFAULT_HEX;
+    const hex = match[1];
+    return hex.length === 3 ? `#${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}` : value;
 }
 
 const styles = stylex.create({
@@ -46,11 +48,6 @@ const styles = stylex.create({
         height: layout.colorSwatchHeight,
         margin: 0,
         padding: layout.colorSwatchPad,
-        borderRadius: radius.sm,
-        borderWidth: borderWidth.hairline,
-        borderStyle: 'solid',
-        borderColor: colors.border,
-        backgroundColor: colors.background,
     },
 
     value: {
@@ -58,28 +55,25 @@ const styles = stylex.create({
     },
 });
 
-export function ColorField(props: ColorFieldProps) {
-    const {
-        label,
-        family,
-        live = false,
-        invalid = false,
-        errorMessage,
-        value,
-        defaultValue = DEFAULT_HEX,
-        onValueChange,
-        disabled,
-        id: idProp,
-        style,
-    } = props;
-
+export function ColorField({
+    label,
+    color,
+    live = false,
+    invalid = false,
+    errorMessage,
+    value,
+    defaultValue = DEFAULT_HEX,
+    onValueChange,
+    disabled = false,
+    id: idProp,
+    style,
+}: ColorFieldProps) {
     const id = useId();
     const controlId = idProp ?? id;
     const messageId = useId();
     const [internal, setInternal] = useState(defaultValue);
     const isControlled = value !== undefined;
     const current = asHex(isControlled ? value : internal);
-    const fam = family ? families[family] : null;
 
     function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
         const next = event.currentTarget.value;
@@ -91,9 +85,9 @@ export function ColorField(props: ColorFieldProps) {
 
     return (
         <div {...stylex.props(field.col, style)}>
-            {label || fam ? (
+            {label || color ? (
                 <div {...stylex.props(field.labelRow)}>
-                    {family ? <Led color={family} live={live} /> : null}
+                    {color ? <Led color={color} live={live} /> : null}
                     {label ? (
                         <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
                             {label}
@@ -112,11 +106,14 @@ export function ColorField(props: ColorFieldProps) {
                     aria-invalid={invalid || undefined}
                     aria-describedby={errorMessage ? messageId : undefined}
                     {...stylex.props(
+                        surfaceStyles({
+                            color: invalid ? 'orange' : 'neutral',
+                            background: 'soft',
+                            border: 'strong',
+                            radius: 'sm',
+                        }),
                         styles.input,
-                        interactive.base,
-                        focusRing.base,
-                        invalid ? field.wellInvalid : null,
-                        disabled ? disabledRecipe.base : null,
+                        interactionStyles({ disabled }),
                     )}
                 />
 

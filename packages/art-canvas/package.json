@@ -23,12 +23,13 @@
     "devDependencies": {
         "@rolldown/plugin-babel": "catalog:",
         "@stylexjs/stylex": "catalog:",
+        "@stylexjs/unplugin": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
         "@vitejs/plugin-react": "catalog:",
         "babel-plugin-react-compiler": "catalog:",
+        "lightningcss": "catalog:",
         "typescript": "catalog:",
-        "unplugin-stylex": "catalog:",
         "vite": "catalog:",
         "vite-plus": "catalog:"
     }

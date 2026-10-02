@@ -1,14 +1,19 @@
-import { stylexPreset } from '@repo/ui/presets';
 import babel from '@rolldown/plugin-babel';
+import stylex from '@stylexjs/unplugin';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
-import stylexPlugin from 'unplugin-stylex/vite';
-import { defineConfig } from 'vite-plus';
-import { lazyPlugins } from 'vite-plus';
+import { Features } from 'lightningcss';
+import { defineConfig, lazyPlugins } from 'vite-plus';
 
 export default defineConfig({
     base: '/pg_lab/',
     plugins: lazyPlugins(() => [
-        stylexPlugin(stylexPreset),
+        stylex.vite({
+            dev: true,
+            useCSSLayers: true,
+            lightningcssOptions: {
+                exclude: Features.LightDark,
+            },
+        }),
         babel({
             presets: [reactCompilerPreset()],
         }),

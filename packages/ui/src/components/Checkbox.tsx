@@ -1,31 +1,15 @@
 import * as stylex from '@stylexjs/stylex';
-import type { StyleXStyles } from '@stylexjs/stylex';
-import { useId, useState } from 'react';
+import { useId } from 'react';
 
-import { glow } from '../recipes/effects.stylex';
-import {
-    active,
-    disabled as disabledRecipe,
-    interactive,
-    pressable,
-    touch,
-} from '../recipes/interaction.stylex';
-import { fieldText } from '../recipes/typography.stylex';
-import { colors } from '../tokens/colors.stylex';
-import { families, type FamilyName } from '../tokens/families.stylex';
-import { borderWidth, layout, radius, space } from '../tokens/layout.stylex';
-import { shadowColor } from '../tokens/shadows.stylex';
+import { interactionStyles } from '../recipes/interactions';
+import { surfaceStyles } from '../recipes/surface';
+import type { SurfaceProps } from '../recipes/surface';
+import { fieldText } from '../recipes/typography';
+import { interaction, layout, space } from '../tokens/const.stylex';
+import type { LayoutStyle } from '../types';
 
-interface CheckboxProps {
-    label?: string;
-    family?: FamilyName;
-    checked?: boolean;
-    defaultChecked?: boolean;
-    onCheckedChange?: (checked: boolean) => void;
-    disabled?: boolean;
-    id?: string;
-    style?: StyleXStyles;
-}
+const CHECK_MASK =
+    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.4 4.8 9 10 3.2' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")";
 
 const styles = stylex.create({
     row: {
@@ -34,99 +18,108 @@ const styles = stylex.create({
         justifyContent: 'space-between',
         gap: space['3'],
     },
-
-    box: {
+    input: {
+        appearance: 'none',
         position: 'relative',
         flexShrink: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        margin: 0,
+        padding: 0,
         width: layout.checkboxSize,
         height: layout.checkboxSize,
-        borderRadius: radius.sm,
-        borderWidth: borderWidth.hairline,
-        borderStyle: 'solid',
-        borderColor: colors.border,
-        backgroundColor: colors.muted,
-    },
 
-    check: {
-        width: layout.checkboxMarkSize,
-        height: layout.checkboxMarkSize,
-    },
+        // Zone de clic élargie (le pseudo-élément fait partie de l'input, donc cliquable).
+        '::before': {
+            content: '""',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: layout.controlTouchTarget,
+            height: layout.controlTouchTarget,
+        },
 
-    tint: (color: string) => ({
-        [shadowColor.color]: color,
-    }),
+        // Coche : toujours présente, mais colorée seulement quand :checked.
+        '::after': {
+            content: '""',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: layout.checkboxMarkSize,
+            height: layout.checkboxMarkSize,
+            pointerEvents: 'none',
+            backgroundColor: {
+                default: 'transparent',
+                ':checked': 'currentColor',
+            },
+            maskImage: CHECK_MASK,
+            WebkitMaskImage: CHECK_MASK,
+            maskRepeat: 'no-repeat',
+            WebkitMaskRepeat: 'no-repeat',
+            maskPosition: 'center',
+            WebkitMaskPosition: 'center',
+            maskSize: 'contain',
+            WebkitMaskSize: 'contain',
+        },
+    },
+    labelDisabled: {
+        opacity: interaction.disabledOpacity,
+    },
 });
 
-export function Checkbox(props: CheckboxProps) {
-    const {
-        label,
-        family,
-        checked,
-        defaultChecked = false,
-        onCheckedChange,
-        disabled,
-        id: idProp,
-        style,
-    } = props;
+interface CheckboxProps
+    extends
+        Omit<React.ComponentProps<'input'>, 'style' | 'className' | 'color' | 'type' | 'onChange'>,
+        SurfaceProps {
+    label?: string;
+    onCheckedChange?: (checked: boolean) => void;
+    style?: LayoutStyle;
+}
 
+export function Checkbox({
+    label,
+    color = 'neutral',
+    background = 'solid',
+    border = 'strong',
+    radius = 'sm',
+    elevation = 'flat',
+    checked,
+    defaultChecked,
+    onCheckedChange,
+    disabled = false,
+    id: idProp,
+    style,
+    ...props
+}: CheckboxProps) {
     const id = useId();
     const controlId = idProp ?? id;
-    const [internal, setInternal] = useState(defaultChecked);
-    const isControlled = checked !== undefined;
-    const isOn = isControlled ? checked : internal;
-    const fam = family ? families[family] : null;
-    const onFill = fam ? fam.base : colors.ring;
-
-    function handleClick() {
-        const next = !isOn;
-        if (!isControlled) {
-            setInternal(next);
-        }
-        onCheckedChange?.(next);
-    }
 
     return (
         <div {...stylex.props(styles.row)}>
-            {label ? (
-                <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
+            {label && (
+                <label
+                    htmlFor={controlId}
+                    {...stylex.props(fieldText.label, disabled && styles.labelDisabled)}
+                >
                     {label}
                 </label>
-            ) : null}
+            )}
 
-            <button
+            <input
+                {...props}
                 id={controlId}
-                type="button"
-                role="checkbox"
-                aria-checked={isOn}
-                onClick={handleClick}
+                type="checkbox"
+                checked={checked}
+                defaultChecked={defaultChecked}
                 disabled={disabled}
+                onChange={(event) => onCheckedChange?.(event.target.checked)}
                 {...stylex.props(
-                    styles.box,
-                    interactive.base,
-                    isOn ? active.fill(onFill) : null,
-                    isOn ? styles.tint(onFill) : null,
-                    isOn ? glow.glowWithPress : pressable.base,
-                    disabled ? disabledRecipe.base : null,
+                    styles.input,
+                    surfaceStyles({ color, background, border, radius, elevation }),
+                    interactionStyles({ disabled }),
                     style,
                 )}
-            >
-                <span aria-hidden {...stylex.props(touch.hit)} />
-                {isOn ? (
-                    <svg viewBox="0 0 12 12" aria-hidden {...stylex.props(styles.check)}>
-                        <path
-                            d="M2 6.4 4.8 9 10 3.2"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
-                ) : null}
-            </button>
+            />
         </div>
     );
 }

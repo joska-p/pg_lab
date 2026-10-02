@@ -22,7 +22,7 @@ export function PlaybackSection() {
     return (
         <ControlSection title="Playback">
             <div {...stylex.props(styles.actions)}>
-                <Button family="aurora" onClick={toggleRunning}>
+                <Button color="aurora" onClick={toggleRunning}>
                     {running ? 'Pause' : 'Play'}
                 </Button>
                 <Button onClick={stepOnce} disabled={running}>

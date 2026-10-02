@@ -1,11 +1,9 @@
 import * as stylex from '@stylexjs/stylex';
-import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { colors } from '../tokens/colors.stylex';
-import { families, type FamilyName } from '../tokens/families.stylex';
-import { borderWidth, layout, radius, space } from '../tokens/layout.stylex';
-import { typography } from '../tokens/typography.stylex';
-import { Led } from './Led';
+import { surfaceStyles } from '../recipes/surface';
+import type { SurfaceProps } from '../recipes/surface';
+import { layout, typography, space } from '../tokens/const.stylex';
+import type { LayoutStyle } from '../types';
 
 const styles = stylex.create({
     base: {
@@ -14,37 +12,37 @@ const styles = stylex.create({
         gap: space['1'],
         paddingBlock: layout.chipPadBlock,
         paddingInline: space['2'],
-        borderRadius: radius.full,
-        borderWidth: borderWidth.hairline,
-        borderStyle: 'solid',
-        fontFamily: typography.fontFamilyMono,
-        fontSize: typography.fontSizeXs,
-    },
-    family: (strong: string) => ({
-        color: strong,
-        borderColor: `color-mix(in oklab, ${strong} 60%, transparent)`,
-    }),
-    neutral: {
-        color: colors.mutedForeground,
-        borderColor: colors.border,
+        fontFamily: typography.fontFamilySans,
+        fontSize: typography.fontSizeSm,
+        fontWeight: typography.fontWeightMedium,
+        lineHeight: typography.lineHeightTight,
     },
 });
 
-interface BadgeProps {
-    family?: FamilyName;
-    live?: boolean;
-    style?: StyleXStyles;
+interface BadgeProps
+    extends Omit<React.ComponentProps<'span'>, 'style' | 'className' | 'color'>, SurfaceProps {
+    disabled?: boolean;
+    style?: LayoutStyle;
     children?: React.ReactNode;
 }
 
-export function Badge({ family, live = false, style, children }: BadgeProps) {
-    const fam = family ? families[family] : null;
-
+export function Badge({
+    color = 'neutral',
+    background = 'solid',
+    border = 'subtle',
+    radius = 'full',
+    elevation = 'raised',
+    style,
+    children,
+}: BadgeProps) {
     return (
         <span
-            {...stylex.props(styles.base, fam ? styles.family(fam.strong) : styles.neutral, style)}
+            {...stylex.props(
+                styles.base,
+                surfaceStyles({ color, background, border, radius, elevation }),
+                style,
+            )}
         >
-            {family ? <Led color={family} live={live} /> : null}
             {children}
         </span>
     );

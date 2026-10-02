@@ -3,29 +3,25 @@
     "version": "0.0.0",
     "private": true,
     "type": "module",
+    "sideEffects": false,
     "exports": {
         "./styles": "./src/styles.css",
-        "./presets": "./src/stylex-preset.ts",
-        "./tokens/*": "./src/tokens/*.ts",
+        "./components/*": "./src/components/*.tsx",
+        "./hooks/*": "./src/hooks/*.ts",
         "./recipes/*": "./src/recipes/*.ts",
-        "./components/*": "./src/components/*.tsx"
+        "./tokens/*": "./src/tokens/*.ts"
     },
     "scripts": {
         "check": "vp check"
     },
     "devDependencies": {
-        "@rolldown/plugin-babel": "catalog:",
+        "@stylexjs/stylex": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
-        "@vitejs/plugin-react": "catalog:",
-        "babel-plugin-react-compiler": "catalog:",
         "typescript": "catalog:",
-        "unplugin-stylex": "catalog:",
-        "vite": "catalog:",
         "vite-plus": "catalog:"
     },
     "peerDependencies": {
-        "@stylexjs/stylex": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:"
     }

@@ -2,10 +2,8 @@ import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
-import { glass } from '../recipes/effects.stylex';
-import { colors } from '../tokens/colors.stylex';
-import { borderWidth, layout, radius, space, zIndex } from '../tokens/layout.stylex';
-import { shadowColor } from '../tokens/shadows.stylex';
+import { surfaceStyles } from '../recipes/surface';
+import { layout, radius, space, zIndex } from '../tokens/const.stylex';
 import { Button } from './Button';
 
 const styles = stylex.create({
@@ -14,15 +12,15 @@ const styles = stylex.create({
         display: 'flex',
         flexDirection: {
             default: 'row',
-            '@media (max-width: 720px)': 'column',
+            '@container (max-width: 720px)': 'column',
             '@media (orientation: portrait)': 'column',
         },
         gap: space['3'],
         width: '100%',
         height: '100%',
         padding: 0,
-        boxSizing: 'border-box',
         overflow: 'hidden',
+        containerType: 'inline-size',
     },
 
     stageSlot: {
@@ -31,26 +29,24 @@ const styles = stylex.create({
         display: 'flex',
         minWidth: 0,
         minHeight: 0,
-        overflowY: 'auto',
+        overflow: 'hidden',
+        padding: space['4'],
+        '@container (max-width: 720px)': {
+            paddingTop: `calc(${space['3']} + ${space['10']})`,
+        },
     },
 
     panel: {
         display: 'flex',
         flexDirection: 'column',
-        [shadowColor.color]: colors.card,
         width: layout.panelWidth,
         flexShrink: 0,
         minHeight: 0,
         maxHeight: '100%',
         overflowY: 'auto',
         borderRadius: { default: radius.none, '@media (min-width: 1024px)': radius.md },
-        borderWidth: borderWidth.hairline,
-        borderStyle: 'solid',
-        borderColor: colors.border,
-        backgroundColor: colors.card,
-        color: colors.cardForeground,
 
-        '@media (max-width: 720px)': {
+        '@container (max-width: 720px)': {
             width: 'auto',
             maxHeight: layout.panelMaxMobileHeight,
         },
@@ -71,7 +67,7 @@ const styles = stylex.create({
         maxHeight: 'none',
         borderRadius: radius.md,
 
-        '@media (max-width: 720px)': {
+        '@container (max-width: 720px)': {
             left: space['3'],
             top: 'auto',
             bottom: space['3'],
@@ -92,10 +88,10 @@ const styles = stylex.create({
     },
 
     toggleClearOfFloatingPanel: {
-        top: `calc(${space['3']} + calc(${layout.panelGap}))`,
-        right: `calc(${space['3']} + calc(${layout.panelGap}))`,
+        top: `calc(${space['3']} + ${layout.panelGap})`,
+        right: `calc(${space['3']} + ${layout.panelGap})`,
 
-        '@media (max-width: 720px)': {
+        '@container (max-width: 720px)': {
             right: space['3'],
         },
 
@@ -105,7 +101,7 @@ const styles = stylex.create({
     },
 });
 
-interface ExperimentShellProps {
+interface ExperimentShellProps extends Omit<React.ComponentProps<'div'>, 'style' | 'className'> {
     children: React.ReactNode;
     panel?: React.ReactNode;
     panelPlacement?: 'docked' | 'floating';
@@ -117,41 +113,54 @@ export function ExperimentShell({
     panel,
     panelPlacement = 'docked',
     style,
+    ...props
 }: ExperimentShellProps) {
     const panelId = useId();
     const [panelVisible, setPanelVisible] = useState(true);
 
     const isFloating = panelPlacement === 'floating';
 
-    const panelStyle = [
-        styles.panel,
-        isFloating && styles.panelFloating,
-        glass.glass,
-        !panelVisible && styles.hidden,
-    ];
-
-    const toggleStyle = [
-        styles.toggle,
-        isFloating && panelVisible && styles.toggleClearOfFloatingPanel,
-    ];
-
     return (
-        <div {...stylex.props(styles.base, style)}>
-            <div {...stylex.props(styles.stageSlot)}>{children}</div>
+        <div {...props} {...stylex.props(styles.base, style)}>
+            <div
+                {...stylex.props(
+                    surfaceStyles({ background: 'soft', border: 'subtle', elevation: 'raised' }),
+                    styles.stageSlot,
+                )}
+            >
+                {children}
+            </div>
 
             {panel && (
                 <>
-                    <div id={panelId} {...stylex.props(...panelStyle)}>
+                    {/* surfaceStyles d'abord : le rayon responsive du panneau doit passer après
+                        le rayon par défaut de la surface, sinon il est écrasé. */}
+                    <div
+                        id={panelId}
+                        {...stylex.props(
+                            surfaceStyles({ background: 'soft', border: 'subtle' }),
+                            styles.panel,
+                            isFloating && styles.panelFloating,
+                            !panelVisible && styles.hidden,
+                        )}
+                    >
                         {panel}
                     </div>
 
-                    <div {...stylex.props(...toggleStyle)}>
+                    <div
+                        {...stylex.props(
+                            styles.toggle,
+                            isFloating && panelVisible && styles.toggleClearOfFloatingPanel,
+                        )}
+                    >
                         <Button
+                            background="soft"
+                            color="aqua"
                             aria-expanded={panelVisible}
                             aria-controls={panelId}
                             onClick={() => setPanelVisible((visible) => !visible)}
                         >
-                            {panelVisible ? 'hide panel' : 'show panel'}
+                            {panelVisible ? 'Hide panel' : 'Show panel'}
                         </Button>
                     </div>
                 </>

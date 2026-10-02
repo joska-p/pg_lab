@@ -1,10 +1,9 @@
 import { Button } from '@repo/ui/components/Button';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Slider } from '@repo/ui/components/Slider';
-import { colors } from '@repo/ui/tokens/colors.stylex';
-import { borderWidth, radius, space } from '@repo/ui/tokens/layout.stylex';
-import { motion } from '@repo/ui/tokens/motion.stylex';
-import { typography } from '@repo/ui/tokens/typography.stylex';
+import { borderWidth, radius, space, motion } from '@repo/ui/tokens/const.stylex';
+import { typography } from '@repo/ui/tokens/const.stylex';
+import { colors } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useRef, useState } from 'react';
 
@@ -76,10 +75,10 @@ const styles = stylex.create({
         marginTop: space['2'],
         borderTopWidth: borderWidth.hairline,
         borderTopStyle: 'solid',
-        borderTopColor: `color-mix(in oklab, ${colors.border} 30%, transparent)`,
+        borderTopColor: `color-mix(in oklab, ${colors.neutral} 30%, transparent)`,
         paddingTop: space['3'],
         fontSize: typography.fontSizeSm,
-        color: `color-mix(in oklab, ${colors.mutedForeground} 60%, transparent)`,
+        color: `color-mix(in oklab, ${colors.neutral} 60%, transparent)`,
     },
 
     spinner: {
@@ -95,8 +94,7 @@ const styles = stylex.create({
             default: spin,
             '@media (prefers-reduced-motion: reduce)': 'none',
         },
-        animationDuration: motion.durationSlow,
-        animationTimingFunction: motion.easingLinear,
+        animationDuration: motion.durationNormal,
         animationIterationCount: motion.iterationInfinite,
     },
 });
@@ -133,20 +131,16 @@ export function Controls() {
 
             <ControlSection title="Actions">
                 <div {...stylex.props(styles.actions)}>
-                    <Button family="aurora" onClick={shuffleColors}>
+                    <Button color="aurora" onClick={shuffleColors}>
                         Shuffle Colors
                     </Button>
-                    <Button family="amber" onClick={shuffleRotations}>
+                    <Button color="amber" onClick={shuffleRotations}>
                         Shuffle Rotations
                     </Button>
-                    <Button
-                        family="neon-violet"
-                        disabled={isPalettesLoading}
-                        onClick={cyclePalettes}
-                    >
+                    <Button color="purple" disabled={isPalettesLoading} onClick={cyclePalettes}>
                         Cycle Palettes
                     </Button>
-                    <Button family="solder" onClick={regenerateTiles}>
+                    <Button color="solder" onClick={regenerateTiles}>
                         Regenerate Tiles
                     </Button>
                 </div>

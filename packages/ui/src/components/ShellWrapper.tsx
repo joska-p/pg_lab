@@ -1,17 +1,17 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { colors } from '../tokens/colors.stylex';
-import { space } from '../tokens/layout.stylex';
-import { gruvboxPalette as palette } from '../tokens/palette.stylex';
-import { typography } from '../tokens/typography.stylex';
+import { space, palette } from '../tokens/const.stylex';
+import { surface } from '../tokens/surface.stylex';
 
 const styles = stylex.create({
     base: {
         width: '100%',
-        minHeight: '100dvh',
         height: '100dvh',
-        backgroundColor: colors.background,
+        // Le fond et le texte de page vivent ici : c'est le seul endroit où
+        // surface.background / surface.foreground sont posés.
+        backgroundColor: surface.background,
+        color: surface.foreground,
         backgroundImage: `
       radial-gradient(45% 35% at 4% 6%, color-mix(in oklab, ${palette.brightRed} 30%, transparent), transparent 70%),
       radial-gradient(40% 35% at 96% 8%, color-mix(in oklab, ${palette.brightOrange} 28%, transparent), transparent 70%),
@@ -23,21 +23,22 @@ const styles = stylex.create({
       radial-gradient(35% 30% at 50% 55%, color-mix(in oklab, ${palette.neutralYellow} 20%, transparent), transparent 70%),
       linear-gradient(160deg, color-mix(in oklab, ${palette.gray244} 20%, transparent), transparent 65%)
     `,
-        color: colors.foreground,
-        fontFamily: typography.fontFamilySans,
         padding: space['0'],
-        boxSizing: 'border-box',
         '@media (min-width: 1024px)': {
             padding: space['4'],
         },
     },
 });
 
-interface ShellWrapperProps {
-    style?: StyleXStyles;
+interface ShellWrapperProps extends Omit<React.ComponentProps<'div'>, 'style' | 'className'> {
     children?: React.ReactNode;
+    style?: StyleXStyles;
 }
 
-export function ShellWrapper({ style, children }: ShellWrapperProps) {
-    return <div {...stylex.props(styles.base, style)}>{children}</div>;
+export function ShellWrapper({ children, style, ...props }: ShellWrapperProps) {
+    return (
+        <div {...props} {...stylex.props(styles.base, style)}>
+            {children}
+        </div>
+    );
 }

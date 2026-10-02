@@ -1,24 +1,26 @@
 import * as stylex from '@stylexjs/stylex';
-import type { StyleXStyles } from '@stylexjs/stylex';
-import { useId, useState } from 'react';
+import { useId } from 'react';
 
-import { field } from '../recipes/fields.stylex';
-import { disabled as disabledRecipe } from '../recipes/interaction.stylex';
-import { fieldText } from '../recipes/typography.stylex';
-import { colors } from '../tokens/colors.stylex';
-import { families, type FamilyName } from '../tokens/families.stylex';
-import { interaction, layout, space } from '../tokens/layout.stylex';
-import { Led } from './Led';
+import { interactionStyles } from '../recipes/interactions';
+import { surfaceStyles } from '../recipes/surface';
+import type { SurfaceProps } from '../recipes/surface';
+import { fieldText } from '../recipes/typography';
+import { interaction, layout, space } from '../tokens/const.stylex';
+import type { LayoutStyle } from '../types';
 
 interface SelectOption<T extends string> {
     value: T;
     label?: string;
 }
 
-interface SelectProps<T extends string> {
+interface SelectProps<T extends string>
+    extends
+        Omit<
+            React.ComponentProps<'select'>,
+            'style' | 'className' | 'color' | 'onChange' | 'value' | 'defaultValue'
+        >,
+        SurfaceProps {
     label?: string;
-    family?: FamilyName;
-    live?: boolean;
     invalid?: boolean;
     errorMessage?: string;
     options: readonly T[] | readonly SelectOption<T>[];
@@ -26,19 +28,21 @@ interface SelectProps<T extends string> {
     defaultValue?: T;
     placeholder?: string;
     onValueChange?: (value: T) => void;
-    disabled?: boolean;
-    id?: string;
-    style?: StyleXStyles;
+    style?: LayoutStyle;
 }
 
 const styles = stylex.create({
+    col: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: space['2'],
+    },
     wrap: {
         position: 'relative',
         display: 'flex',
         flex: 1,
         minWidth: 0,
     },
-
     select: {
         appearance: 'none',
         width: '100%',
@@ -47,12 +51,7 @@ const styles = stylex.create({
         paddingBlock: space['2'],
         paddingLeft: space['3'],
         paddingRight: space['8'],
-        backgroundColor: colors.input,
-        color: colors.foreground,
-        outline: 'none',
-        cursor: interaction.cursorPointer,
     },
-
     chevron: {
         position: 'absolute',
         right: space['3'],
@@ -60,82 +59,77 @@ const styles = stylex.create({
         transform: 'translateY(-50%)',
         width: layout.chevronSize,
         height: layout.chevronSize,
-        color: colors.mutedForeground,
         pointerEvents: 'none',
+    },
+    labelDisabled: {
+        opacity: interaction.disabledOpacity,
     },
 });
 
-function items0<T extends string>(options: readonly T[] | readonly SelectOption<T>[]): T {
-    const first = options[0];
-    return typeof first === 'string' ? first : first.value;
-}
-
-export function Select<T extends string>(props: SelectProps<T>) {
-    const {
-        label,
-        family,
-        live = false,
-        invalid = false,
-        errorMessage,
-        options,
-        value,
-        defaultValue,
-        placeholder,
-        onValueChange,
-        disabled,
-        id: idProp,
-        style,
-    } = props;
-
+export function Select<T extends string>({
+    label,
+    color = 'neutral',
+    background = 'solid',
+    border = 'strong',
+    radius = 'md',
+    elevation = 'flat',
+    invalid = false,
+    errorMessage,
+    options,
+    value,
+    defaultValue,
+    placeholder,
+    onValueChange,
+    disabled = false,
+    id: idProp,
+    style,
+    ...props
+}: SelectProps<T>) {
     const id = useId();
     const controlId = idProp ?? id;
     const messageId = useId();
-    const [internal, setInternal] = useState(
-        defaultValue ?? (placeholder ? undefined : items0(options)),
-    );
-    const isControlled = value !== undefined;
-    const current = isControlled ? value : internal;
-    const fam = family ? families[family] : null;
 
-    function handleChange(event: React.ChangeEvent<HTMLSelectElement>) {
-        const next = event.currentTarget.value as T;
-        if (!isControlled) {
-            setInternal(next);
-        }
-        onValueChange?.(next);
-    }
-
-    const items = options.map((option) =>
+    const items: SelectOption<T>[] = (options as readonly (T | SelectOption<T>)[]).map((option) =>
         typeof option === 'string' ? { value: option } : option,
     );
 
+    // Sans valeur contrôlée : avec placeholder on sélectionne l'option vide,
+    // sinon le navigateur sélectionne naturellement la première option.
+    const uncontrolledDefault =
+        value === undefined ? (defaultValue ?? (placeholder ? '' : undefined)) : undefined;
+
     return (
-        <div {...stylex.props(field.col, style)}>
-            {label || fam ? (
-                <div {...stylex.props(field.labelRow)}>
-                    {family ? <Led color={family} live={live} /> : null}
-                    {label ? (
-                        <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
-                            {label}
-                        </label>
-                    ) : null}
-                </div>
+        <div {...stylex.props(styles.col, style)}>
+            {label ? (
+                <label
+                    htmlFor={controlId}
+                    {...stylex.props(fieldText.label, disabled && styles.labelDisabled)}
+                >
+                    {label}
+                </label>
             ) : null}
 
             <div {...stylex.props(styles.wrap)}>
                 <select
+                    {...props}
                     id={controlId}
-                    value={current ?? ''}
-                    onChange={handleChange}
+                    value={value}
+                    defaultValue={uncontrolledDefault}
+                    onChange={(event) => onValueChange?.(event.currentTarget.value as T)}
                     disabled={disabled}
                     aria-invalid={invalid || undefined}
                     aria-describedby={errorMessage ? messageId : undefined}
                     {...stylex.props(
-                        field.well,
                         styles.select,
                         fieldText.value,
-                        invalid ? field.wellInvalid : null,
-                        disabled ? disabledRecipe.base : null,
+                        surfaceStyles({
+                            color: invalid ? 'error' : color,
+                            background,
+                            border,
+                            radius,
+                            elevation,
+                        }),
+                        interactionStyles({ disabled }),
                     )}
                 >
                     {placeholder ? (

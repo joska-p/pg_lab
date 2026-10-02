@@ -1,29 +1,29 @@
 import * as stylex from '@stylexjs/stylex';
-import type { StyleXStyles } from '@stylexjs/stylex';
-import { useId, useRef, useState } from 'react';
+import { useId, useState } from 'react';
 
-import { disabled as disabledRecipe, interactive, pressable } from '../recipes/interaction.stylex';
-import { fieldText } from '../recipes/typography.stylex';
-import { colors } from '../tokens/colors.stylex';
-import { familiesConsts, type FamilyName } from '../tokens/families.stylex';
-import { borderWidth, layout, radius, space } from '../tokens/layout.stylex';
-import { shadowColor } from '../tokens/shadows.stylex';
+import { interactionStyles } from '../recipes/interactions';
+import { surfaceStyles } from '../recipes/surface';
+import type { SurfaceProps } from '../recipes/surface';
+import { fieldText } from '../recipes/typography';
+import { layout, space } from '../tokens/const.stylex';
+import type { LayoutStyle } from '../types';
 
 interface SegmentOption<T extends string> {
     value: T;
     label?: string;
 }
 
-interface SegmentedProps<T extends string> {
+interface SegmentedProps<T extends string> extends SurfaceProps {
     label?: string;
-    family?: FamilyName;
     options: readonly T[] | readonly SegmentOption<T>[];
     value?: T;
     defaultValue?: T;
     onValueChange?: (value: T) => void;
+    /** Nom du champ pour les formulaires natifs. Généré automatiquement sinon. */
+    name?: string;
     disabled?: boolean;
     id?: string;
-    style?: StyleXStyles;
+    style?: LayoutStyle;
 }
 
 const styles = stylex.create({
@@ -33,98 +33,76 @@ const styles = stylex.create({
         gap: space['3'],
         flexWrap: 'wrap',
     },
-
+    // Le conteneur garde la bordure de la surface mais pas son fond,
+    // pour que le segment choisi (plein) ressorte.
     group: {
         display: 'inline-flex',
         flexWrap: 'wrap',
         gap: space['1'],
         padding: space['1'],
-        borderRadius: radius.md,
-        borderWidth: borderWidth.hairline,
-        borderStyle: 'solid',
-        borderColor: colors.border,
-        backgroundColor: colors.muted,
+        backgroundColor: 'transparent',
     },
-
     option: {
+        position: 'relative',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         paddingBlock: layout.segmentPadBlock,
         paddingInline: space['3'],
-        borderRadius: radius.sm,
-        borderWidth: borderWidth.hairline,
-        borderStyle: 'solid',
-        borderColor: 'transparent',
+        // Anneau de focus piloté par l'input radio contenu dans le label.
+        outline: {
+            default: 'none',
+            [stylex.when.descendant(':focus-visible')]: '2px solid currentColor',
+        },
+        outlineOffset: '2px',
+    },
+    // Segment non choisi : même gabarit que le choisi, mais sans fond ni bordure visibles.
+    idle: {
         backgroundColor: 'transparent',
-        color: colors.mutedForeground,
-        [shadowColor.color]: colors.muted,
+        borderColor: 'transparent',
+        boxShadow: 'none',
     },
-
-    chosenNeutral: {
-        backgroundColor: colors.mutedForeground,
-        color: colors.background,
-        [shadowColor.color]: colors.mutedForeground,
-    },
-});
-
-const chosenVariants = stylex.create({
-    aurora: {
-        backgroundColor: familiesConsts.auroraBase,
-        color: colors.foreground,
-        [shadowColor.color]: familiesConsts.auroraBase,
-    },
-    solder: {
-        backgroundColor: familiesConsts.solderBase,
-        color: colors.foreground,
-        [shadowColor.color]: familiesConsts.solderBase,
-    },
-    'neon-violet': {
-        backgroundColor: familiesConsts.neonVioletBase,
-        color: colors.foreground,
-        [shadowColor.color]: familiesConsts.neonVioletBase,
-    },
-    amber: {
-        backgroundColor: familiesConsts.amberBase,
-        color: colors.foreground,
-        [shadowColor.color]: familiesConsts.amberBase,
-    },
-    error: {
-        backgroundColor: familiesConsts.errorBase,
-        color: colors.foreground,
-        [shadowColor.color]: familiesConsts.errorBase,
-    },
-    aqua: {
-        backgroundColor: familiesConsts.aquaBase,
-        color: colors.foreground,
-        [shadowColor.color]: familiesConsts.aquaBase,
-    },
-    orange: {
-        backgroundColor: familiesConsts.orangeBase,
-        color: colors.foreground,
-        [shadowColor.color]: familiesConsts.orangeBase,
+    // Input natif invisible qui recouvre tout le segment : clavier, focus et formulaire natifs.
+    input: {
+        appearance: 'none',
+        position: 'absolute',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        margin: 0,
+        opacity: 0,
+        cursor: 'inherit',
     },
 });
 
-export function Segmented<T extends string>(props: SegmentedProps<T>) {
-    const {
-        label,
-        family,
-        options,
-        value,
-        defaultValue,
-        onValueChange,
-        disabled,
-        id: idProp,
-        style,
-    } = props;
-
+export function Segmented<T extends string>({
+    label,
+    color = 'neutral',
+    background = 'solid',
+    border = 'strong',
+    radius = 'sm',
+    elevation = 'flat',
+    options,
+    value,
+    defaultValue,
+    onValueChange,
+    name: nameProp,
+    disabled = false,
+    id: idProp,
+    style,
+}: SegmentedProps<T>) {
     const id = useId();
     const groupId = idProp ?? id;
-    const [internal, setInternal] = useState(defaultValue);
-    const isControlled = value !== undefined;
-    const items = options.map((option) =>
-        typeof option === 'string' ? { value: option } : option,
+    const generatedName = useId();
+    const name = nameProp ?? generatedName;
+
+    const items: SegmentOption<T>[] = (options as readonly (T | SegmentOption<T>)[]).map(
+        (option) => (typeof option === 'string' ? { value: option } : option),
     );
-    const current = isControlled ? value : (internal ?? items[0].value);
-    const groupRef = useRef<HTMLDivElement>(null);
+    const [internal, setInternal] = useState(defaultValue ?? items[0]?.value);
+    const isControlled = value !== undefined;
+    const current = isControlled ? value : internal;
+    const surface = surfaceStyles({ color, background, border, radius, elevation });
 
     function commit(next: T) {
         if (!isControlled) {
@@ -133,65 +111,46 @@ export function Segmented<T extends string>(props: SegmentedProps<T>) {
         onValueChange?.(next);
     }
 
-    function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
-        const index = items.findIndex((option) => option.value === current);
-        const last = items.length - 1;
-        let nextIndex = index;
-        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
-            nextIndex = index >= last ? 0 : index + 1;
-        } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
-            nextIndex = index <= 0 ? last : index - 1;
-        } else if (event.key === 'Home') {
-            nextIndex = 0;
-        } else if (event.key === 'End') {
-            nextIndex = last;
-        } else {
-            return;
-        }
-
-        event.preventDefault();
-        commit(items[nextIndex].value);
-        (groupRef.current?.children[nextIndex] as HTMLElement | undefined)?.focus();
-    }
-
+    // Flèches et roving tabindex : gérés par le navigateur (inputs radio de même `name`).
     return (
         <div {...stylex.props(styles.row)}>
-            {label && (
-                <label id={groupId} {...stylex.props(fieldText.label)}>
+            {label ? (
+                <span id={groupId} {...stylex.props(fieldText.label)}>
                     {label}
-                </label>
-            )}
+                </span>
+            ) : null}
 
             <div
-                ref={groupRef}
                 role="radiogroup"
                 aria-labelledby={label ? groupId : undefined}
                 aria-label={label ? undefined : 'selection'}
-                onKeyDown={handleKeyDown}
-                {...stylex.props(styles.group, disabled ? disabledRecipe.base : null, style)}
+                aria-disabled={disabled || undefined}
+                {...stylex.props(surface, styles.group, style)}
             >
                 {items.map((option) => {
                     const chosen = option.value === current;
-                    const familyStyle = family ? chosenVariants[family] : styles.chosenNeutral;
                     return (
-                        <button
+                        <label
                             key={option.value}
-                            type="button"
-                            role="radio"
-                            aria-checked={chosen}
-                            tabIndex={chosen ? 0 : -1}
-                            onClick={() => commit(option.value)}
-                            disabled={disabled}
                             {...stylex.props(
+                                surface,
                                 styles.option,
-                                interactive.base,
-                                pressable.base,
-                                chosen ? familyStyle : null,
-                                disabled ? disabledRecipe.base : null,
+                                fieldText.value,
+                                chosen ? null : styles.idle,
+                                interactionStyles({ disabled }),
                             )}
                         >
+                            <input
+                                type="radio"
+                                name={name}
+                                value={option.value}
+                                checked={chosen}
+                                disabled={disabled}
+                                onChange={() => commit(option.value)}
+                                {...stylex.props(styles.input, stylex.defaultMarker())}
+                            />
                             {option.label ?? option.value}
-                        </button>
+                        </label>
                     );
                 })}
             </div>

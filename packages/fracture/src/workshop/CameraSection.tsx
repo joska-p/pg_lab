@@ -82,7 +82,7 @@ export function CameraSection({
             </ControlSection>
 
             <ControlSection title="Presets">
-                <Stack direction="horizontal" gap="2" wrap>
+                <Stack direction="horizontal" gap="2">
                     {CURATED_PRESETS.map((preset) => (
                         <Button
                             key={preset.id}

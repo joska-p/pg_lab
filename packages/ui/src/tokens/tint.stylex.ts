@@ -39,7 +39,7 @@ export const onColors = stylex.defineVars({
     aurora: `light-dark(${palette.dark0}, ${palette.light0})`,
     solder: `light-dark(${palette.dark0}, ${palette.light0})`,
     purple: `light-dark(${palette.dark0}, ${palette.light0})`,
-    amber: palette.dark0,
+    amber: `light-dark(${palette.dark0}, ${palette.light0})`,
     error: `light-dark(${palette.dark0}, ${palette.light0})`,
     aqua: `light-dark(${palette.dark0}, ${palette.light0})`,
     orange: `light-dark(${palette.dark0}, ${palette.light0})`,

@@ -1,32 +1,12 @@
 import * as stylex from '@stylexjs/stylex';
-import type { StyleXStyles } from '@stylexjs/stylex';
-import { useId, useState } from 'react';
+import { useId } from 'react';
 
-import { glow } from '../recipes/effects.stylex';
-import {
-    active,
-    disabled as disabledRecipe,
-    interactive,
-    pressable,
-    touch,
-} from '../recipes/interaction.stylex';
-import { fieldText } from '../recipes/typography.stylex';
-import { colors } from '../tokens/colors.stylex';
-import { families, type FamilyName } from '../tokens/families.stylex';
-import { borderWidth, layout, radius, space } from '../tokens/layout.stylex';
-import { motion } from '../tokens/motion.stylex';
-import { shadowColor } from '../tokens/shadows.stylex';
-
-interface ToggleProps {
-    label?: string;
-    family?: FamilyName;
-    checked?: boolean;
-    defaultChecked?: boolean;
-    onCheckedChange?: (checked: boolean) => void;
-    disabled?: boolean;
-    id?: string;
-    style?: StyleXStyles;
-}
+import { interactionStyles } from '../recipes/interactions';
+import { surfaceStyles } from '../recipes/surface';
+import type { SurfaceProps } from '../recipes/surface';
+import { fieldText } from '../recipes/typography';
+import { interaction, layout, space } from '../tokens/const.stylex';
+import type { LayoutStyle } from '../types';
 
 const styles = stylex.create({
     row: {
@@ -35,106 +15,115 @@ const styles = stylex.create({
         justifyContent: 'space-between',
         gap: space['3'],
     },
-
-    track: {
+    input: {
+        appearance: 'none',
         position: 'relative',
         flexShrink: 0,
+        margin: 0,
+        padding: 0,
         width: layout.toggleTrackWidth,
         height: layout.toggleTrackHeight,
-        borderRadius: radius.full,
-        borderWidth: borderWidth.hairline,
-        borderStyle: 'solid',
-        borderColor: colors.border,
-        backgroundColor: colors.muted,
-    },
 
-    tint: (color: string) => ({
-        [shadowColor.color]: color,
-    }),
-
-    knob: {
-        position: 'absolute',
-        top: '2px',
-        left: '2px',
-        width: layout.toggleKnobSize,
-        height: layout.toggleKnobSize,
-        borderRadius: radius.full,
-        backgroundColor: colors.background,
-        transitionDuration: {
-            default: motion.durationFast,
-            '@media (prefers-reduced-motion: reduce)': '1ms',
+        // Zone de clic élargie.
+        '::before': {
+            content: '""',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: layout.controlTouchTarget,
+            height: layout.controlTouchTarget,
         },
-        transitionTimingFunction: motion.easingOut,
-        transitionProperty: 'transform, background-color',
-    },
 
-    knobOn: {
-        transform: `translateX(${layout.toggleKnobTravel})`,
+        // Bouton : prend `currentColor`, se décale et s'opacifie quand :checked.
+        '::after': {
+            content: '""',
+            position: 'absolute',
+            top: '2px',
+            left: '2px',
+            width: layout.toggleKnobSize,
+            height: layout.toggleKnobSize,
+            borderRadius: '50%',
+            pointerEvents: 'none',
+            backgroundColor: 'currentColor',
+            opacity: {
+                default: 0.5,
+                ':checked': 1,
+            },
+            transform: {
+                default: 'translateX(0)',
+                ':checked': `translateX(${layout.toggleKnobTravel})`,
+            },
+            transitionProperty: 'transform, opacity',
+            transitionDuration: {
+                default: '120ms',
+                '@media (prefers-reduced-motion: reduce)': '1ms',
+            },
+            transitionTimingFunction: 'ease-out',
+        },
+    },
+    labelDisabled: {
+        opacity: interaction.disabledOpacity,
     },
 });
 
-export function Toggle(props: ToggleProps) {
-    const {
-        label,
-        family,
-        checked,
-        defaultChecked = false,
-        onCheckedChange,
-        disabled,
-        id: idProp,
-        style,
-    } = props;
+interface ToggleProps
+    extends
+        Omit<
+            React.ComponentProps<'input'>,
+            'style' | 'className' | 'color' | 'type' | 'role' | 'onChange'
+        >,
+        SurfaceProps {
+    label?: string;
+    onCheckedChange?: (checked: boolean) => void;
+    style?: LayoutStyle;
+}
 
+export function Toggle({
+    label,
+    color = 'neutral',
+    background = 'solid',
+    border = 'strong',
+    radius = 'full',
+    elevation = 'flat',
+    checked,
+    defaultChecked,
+    onCheckedChange,
+    disabled = false,
+    id: idProp,
+    style,
+    ...props
+}: ToggleProps) {
     const id = useId();
     const controlId = idProp ?? id;
-    const [internal, setInternal] = useState(defaultChecked);
-    const isControlled = checked !== undefined;
-    const isOn = isControlled ? checked : internal;
-    const fam = family ? families[family] : null;
-    const onFill = fam ? fam.base : colors.ring;
-
-    function handleClick() {
-        const next = !isOn;
-        if (!isControlled) {
-            setInternal(next);
-        }
-        onCheckedChange?.(next);
-    }
 
     return (
         <div {...stylex.props(styles.row)}>
             {label ? (
-                <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
+                <label
+                    htmlFor={controlId}
+                    {...stylex.props(fieldText.label, disabled && styles.labelDisabled)}
+                >
                     {label}
                 </label>
             ) : null}
 
-            <button
+            <input
+                {...props}
                 id={controlId}
-                type="button"
+                type="checkbox"
                 role="switch"
-                aria-checked={isOn}
-                onClick={handleClick}
+                checked={checked}
+                defaultChecked={defaultChecked}
                 disabled={disabled}
+                onChange={(event) => onCheckedChange?.(event.target.checked)}
                 {...stylex.props(
-                    styles.track,
-                    interactive.base,
-                    isOn ? active.fill(onFill) : null,
-                    isOn ? styles.tint(onFill) : null,
-                    isOn ? glow.glowWithPress : pressable.base,
-                    disabled ? disabledRecipe.base : null,
+                    styles.input,
+                    surfaceStyles({ color, background, border, radius, elevation }),
+                    interactionStyles({ disabled }),
                     style,
                 )}
-            >
-                <span aria-hidden {...stylex.props(touch.hit)} />
-                <span
-                    {...stylex.props(
-                        styles.knob,
-                        isOn ? styles.knobOn : null,
-                        isOn ? active.knob : null,
-                    )}
-                />
-            </button>
+            />
         </div>
     );
 }

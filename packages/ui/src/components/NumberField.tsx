@@ -1,17 +1,48 @@
 import * as stylex from '@stylexjs/stylex';
-import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
-import { field } from '../recipes/fields.stylex';
-import { disabled as disabledRecipe } from '../recipes/interaction.stylex';
-import { fieldText } from '../recipes/typography.stylex';
-import { families, type FamilyName } from '../tokens/families.stylex';
-import { Led } from './Led';
+import { interactionStyles } from '../recipes/interactions';
+import { surfaceStyles } from '../recipes/surface';
+import type { SurfaceProps } from '../recipes/surface';
+import { fieldText } from '../recipes/typography';
+import { interaction, space } from '../tokens/const.stylex';
+import type { LayoutStyle } from '../types';
 
-interface NumberFieldProps {
+const styles = stylex.create({
+    col: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: space['2'],
+    },
+    input: {
+        boxSizing: 'border-box',
+        width: '100%',
+        minWidth: 0,
+        paddingBlock: space['2'],
+        paddingInline: space['3'],
+    },
+    labelDisabled: {
+        opacity: interaction.disabledOpacity,
+    },
+});
+
+interface NumberFieldProps
+    extends
+        Omit<
+            React.ComponentProps<'input'>,
+            | 'style'
+            | 'className'
+            | 'color'
+            | 'type'
+            | 'onChange'
+            | 'value'
+            | 'defaultValue'
+            | 'min'
+            | 'max'
+            | 'step'
+        >,
+        SurfaceProps {
     label?: string;
-    family?: FamilyName;
-    live?: boolean;
     invalid?: boolean;
     errorMessage?: string;
     min?: number;
@@ -20,29 +51,29 @@ interface NumberFieldProps {
     value?: number;
     defaultValue?: number;
     onValueChange?: (value: number) => void;
-    disabled?: boolean;
-    id?: string;
-    style?: StyleXStyles;
+    style?: LayoutStyle;
 }
 
-export function NumberField(props: NumberFieldProps) {
-    const {
-        label,
-        family,
-        live = false,
-        invalid = false,
-        errorMessage,
-        min = Number.NEGATIVE_INFINITY,
-        max = Number.POSITIVE_INFINITY,
-        step = 1,
-        value,
-        defaultValue = 0,
-        onValueChange,
-        disabled,
-        id: idProp,
-        style,
-    } = props;
-
+export function NumberField({
+    label,
+    color = 'neutral',
+    background = 'solid',
+    border = 'strong',
+    radius = 'sm',
+    elevation = 'flat',
+    invalid = false,
+    errorMessage,
+    min = Number.NEGATIVE_INFINITY,
+    max = Number.POSITIVE_INFINITY,
+    step = 1,
+    value,
+    defaultValue = 0,
+    onValueChange,
+    disabled = false,
+    id: idProp,
+    style,
+    ...props
+}: NumberFieldProps) {
     const id = useId();
     const controlId = idProp ?? id;
     const messageId = useId();
@@ -51,8 +82,8 @@ export function NumberField(props: NumberFieldProps) {
     const [clampNotice, setClampNotice] = useState<string | null>(null);
     const isControlled = value !== undefined;
     const current = isControlled ? value : internal;
-    const fam = family ? families[family] : null;
-    const isClamped = clampNotice !== null;
+    const isInvalid = invalid || clampNotice !== null;
+    const message = errorMessage ?? clampNotice;
 
     function commit(next: number) {
         const clamped = Math.min(max, Math.max(min, next));
@@ -78,19 +109,18 @@ export function NumberField(props: NumberFieldProps) {
     }
 
     return (
-        <div {...stylex.props(field.col, style)}>
-            {label || fam ? (
-                <div {...stylex.props(field.labelRow)}>
-                    {family ? <Led color={family} live={live} /> : null}
-                    {label ? (
-                        <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
-                            {label}
-                        </label>
-                    ) : null}
-                </div>
+        <div {...stylex.props(styles.col, style)}>
+            {label ? (
+                <label
+                    htmlFor={controlId}
+                    {...stylex.props(fieldText.label, disabled && styles.labelDisabled)}
+                >
+                    {label}
+                </label>
             ) : null}
 
             <input
+                {...props}
                 id={controlId}
                 type="number"
                 min={min}
@@ -98,24 +128,31 @@ export function NumberField(props: NumberFieldProps) {
                 step={step}
                 value={draft ?? String(current)}
                 onChange={handleChange}
-                onBlur={() => {
+                onBlur={(event) => {
+                    props.onBlur?.(event);
                     setDraft(null);
                     setClampNotice(null);
                 }}
                 disabled={disabled}
-                aria-invalid={invalid || isClamped || undefined}
-                aria-describedby={errorMessage || clampNotice ? messageId : undefined}
+                aria-invalid={isInvalid || undefined}
+                aria-describedby={message ? messageId : undefined}
                 {...stylex.props(
-                    field.well,
+                    styles.input,
                     fieldText.value,
-                    invalid || isClamped ? field.wellInvalid : null,
-                    disabled ? disabledRecipe.base : null,
+                    surfaceStyles({
+                        color: isInvalid ? 'error' : color,
+                        background,
+                        border,
+                        radius,
+                        elevation,
+                    }),
+                    interactionStyles({ disabled }),
                 )}
             />
 
-            {errorMessage || clampNotice ? (
+            {message ? (
                 <span id={messageId} role="alert" {...stylex.props(fieldText.message)}>
-                    {errorMessage ?? clampNotice}
+                    {message}
                 </span>
             ) : null}
         </div>

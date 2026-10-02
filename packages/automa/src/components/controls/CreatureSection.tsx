@@ -12,7 +12,7 @@ export function CreatureSection() {
         <ControlSection title="Creature">
             <Select
                 label="Pattern"
-                family="aqua"
+                color="aqua"
                 value={paletteBrush}
                 onValueChange={setPaletteBrush}
                 options={allCreatures.map((creature) => ({

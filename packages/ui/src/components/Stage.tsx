@@ -1,8 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { glass } from '../recipes/effects.stylex';
-import { colors } from '../tokens/colors.stylex';
-import { borderWidth, radius, space } from '../tokens/layout.stylex';
+import { radius } from '../tokens/const.stylex';
 
 const styles = stylex.create({
     base: {
@@ -13,26 +12,20 @@ const styles = stylex.create({
         display: 'flex',
         flexDirection: 'column',
         overflowY: 'auto',
-        padding: space['4'],
+        scrollbarGutter: 'stable',
         borderRadius: { default: radius.none, '@media (min-width: 1024px)': radius.md },
-        borderWidth: borderWidth.hairline,
-        borderStyle: 'solid',
-        borderColor: colors.border,
     },
 });
 
-type StageProps = {
+export interface StageProps extends Omit<React.ComponentProps<'section'>, 'style'> {
     label?: string;
     children?: React.ReactNode;
-} & React.ComponentPropsWithoutRef<'section'>;
+    style?: StyleXStyles;
+}
 
-export function Stage({ label, children, ...props }: StageProps) {
+export function Stage({ label = 'stage', children, style, ...props }: StageProps) {
     return (
-        <section
-            aria-label={label ?? 'stage'}
-            {...stylex.props(styles.base, glass.glass)}
-            {...props}
-        >
+        <section aria-label={label} {...props} {...stylex.props(styles.base, style)}>
             {children}
         </section>
     );

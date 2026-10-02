@@ -1,29 +1,29 @@
 import * as stylex from '@stylexjs/stylex';
-import type { StyleXStyles } from '@stylexjs/stylex';
-import { useId, useRef, useState } from 'react';
+import { useId } from 'react';
 
-import { disabled as disabledRecipe, focusRing, interactive } from '../recipes/interaction.stylex';
-import { fieldText } from '../recipes/typography.stylex';
-import { colors } from '../tokens/colors.stylex';
-import { familiesConsts, type FamilyName } from '../tokens/families.stylex';
-import { borderWidth, layout, radius, space } from '../tokens/layout.stylex';
-import { shadows } from '../tokens/shadows.stylex';
+import { interactionStyles } from '../recipes/interactions';
+import { surfaceStyles } from '../recipes/surface';
+import type { SurfaceProps } from '../recipes/surface';
+import { fieldText } from '../recipes/typography';
+import { interaction, layout, space } from '../tokens/const.stylex';
+import type { LayoutStyle } from '../types';
 
 interface RadioOption<T extends string> {
     value: T;
     label?: string;
 }
 
-interface RadioGroupProps<T extends string> {
+interface RadioGroupProps<T extends string> extends SurfaceProps {
     label?: string;
-    family?: FamilyName;
     options: readonly T[] | readonly RadioOption<T>[];
     value?: T;
     defaultValue?: T;
     onValueChange?: (value: T) => void;
+    /** Nom du champ pour les formulaires natifs. Généré automatiquement sinon. */
+    name?: string;
     disabled?: boolean;
     id?: string;
-    style?: StyleXStyles;
+    style?: LayoutStyle;
 }
 
 const styles = stylex.create({
@@ -31,7 +31,6 @@ const styles = stylex.create({
         display: 'flex',
         gap: space['3'],
     },
-
     options: {
         display: 'flex',
         flexDirection: 'column',
@@ -39,123 +38,80 @@ const styles = stylex.create({
         flex: 1,
         minWidth: 0,
     },
-
     option: {
         display: 'flex',
         alignItems: 'center',
         gap: space['2'],
         minHeight: layout.radioOptionMinHeight,
-        padding: 0,
-        borderWidth: 0,
-        backgroundColor: 'transparent',
-        color: colors.foreground,
-        textAlign: 'start',
     },
-
-    circle: {
+    optionDisabled: {
+        opacity: interaction.disabledOpacity,
+    },
+    input: {
+        appearance: 'none',
+        position: 'relative',
         flexShrink: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        margin: 0,
+        padding: 0,
         width: layout.radioCircleSize,
         height: layout.radioCircleSize,
-        borderRadius: radius.full,
-        borderWidth: borderWidth.hairline,
-        borderStyle: 'solid',
-        borderColor: colors.border,
-        backgroundColor: colors.muted,
-        boxShadow: shadows.sunken,
-    },
 
-    dot: {
-        width: layout.radioDotSize,
-        height: layout.radioDotSize,
-        borderRadius: radius.full,
-        backgroundColor: colors.foreground,
+        // Zone de clic élargie.
+        '::before': {
+            content: '""',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: layout.controlTouchTarget,
+            height: layout.controlTouchTarget,
+        },
+
+        // Point central : visible seulement quand :checked, prend `currentColor`.
+        '::after': {
+            content: '""',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: layout.radioDotSize,
+            height: layout.radioDotSize,
+            borderRadius: '50%',
+            pointerEvents: 'none',
+            backgroundColor: {
+                default: 'transparent',
+                ':checked': 'currentColor',
+            },
+        },
     },
 });
 
-const circleChosenVariants = stylex.create({
-    aurora: {
-        backgroundColor: familiesConsts.auroraBase,
-        borderColor: familiesConsts.auroraBase,
-    },
-    solder: {
-        backgroundColor: familiesConsts.solderBase,
-        borderColor: familiesConsts.solderBase,
-    },
-    'neon-violet': {
-        backgroundColor: familiesConsts.neonVioletBase,
-        borderColor: familiesConsts.neonVioletBase,
-    },
-    amber: {
-        backgroundColor: familiesConsts.amberBase,
-        borderColor: familiesConsts.amberBase,
-    },
-    error: {
-        backgroundColor: familiesConsts.errorBase,
-        borderColor: familiesConsts.errorBase,
-    },
-    aqua: {
-        backgroundColor: familiesConsts.aquaBase,
-        borderColor: familiesConsts.aquaBase,
-    },
-    orange: {
-        backgroundColor: familiesConsts.orangeBase,
-        borderColor: familiesConsts.orangeBase,
-    },
-});
-
-export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
-    const {
-        label,
-        family,
-        options,
-        value,
-        defaultValue,
-        onValueChange,
-        disabled,
-        id: idProp,
-        style,
-    } = props;
-
+export function RadioGroup<T extends string>({
+    label,
+    color = 'neutral',
+    background = 'solid',
+    border = 'strong',
+    radius = 'full',
+    elevation = 'flat',
+    options,
+    value,
+    defaultValue,
+    onValueChange,
+    name: nameProp,
+    disabled = false,
+    id: idProp,
+    style,
+}: RadioGroupProps<T>) {
     const id = useId();
     const groupId = idProp ?? id;
-    const [internal, setInternal] = useState(defaultValue);
+    const generatedName = useId();
+    const name = nameProp ?? generatedName;
     const isControlled = value !== undefined;
-    const items = options.map((option) =>
+
+    const items: RadioOption<T>[] = (options as readonly (T | RadioOption<T>)[]).map((option) =>
         typeof option === 'string' ? { value: option } : option,
     );
-    const current = isControlled ? value : (internal ?? items[0].value);
-    const listRef = useRef<HTMLDivElement>(null);
-
-    function commit(next: T) {
-        if (!isControlled) {
-            setInternal(next);
-        }
-        onValueChange?.(next);
-    }
-
-    function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
-        const index = items.findIndex((option) => option.value === current);
-        const last = items.length - 1;
-        let nextIndex = index;
-        if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
-            nextIndex = index >= last ? 0 : index + 1;
-        } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
-            nextIndex = index <= 0 ? last : index - 1;
-        } else if (event.key === 'Home') {
-            nextIndex = 0;
-        } else if (event.key === 'End') {
-            nextIndex = last;
-        } else {
-            return;
-        }
-
-        event.preventDefault();
-        commit(items[nextIndex].value);
-        (listRef.current?.children[nextIndex] as HTMLElement | undefined)?.focus();
-    }
+    const initial = defaultValue ?? items[0]?.value;
 
     return (
         <div {...stylex.props(styles.row)}>
@@ -166,45 +122,38 @@ export function RadioGroup<T extends string>(props: RadioGroupProps<T>) {
             ) : null}
 
             <div
-                ref={listRef}
                 role="radiogroup"
                 aria-labelledby={label ? groupId : undefined}
                 aria-label={label ? undefined : 'choice'}
-                onKeyDown={handleKeyDown}
-                {...stylex.props(styles.options, disabled ? disabledRecipe.base : null, style)}
+                aria-disabled={disabled || undefined}
+                {...stylex.props(styles.options, style)}
             >
-                {items.map((option) => {
-                    const chosen = option.value === current;
-                    return (
-                        <button
-                            key={option.value}
-                            type="button"
-                            role="radio"
-                            aria-checked={chosen}
-                            tabIndex={chosen ? 0 : -1}
-                            onClick={() => commit(option.value)}
+                {items.map((option) => (
+                    <label
+                        key={option.value}
+                        {...stylex.props(
+                            styles.option,
+                            fieldText.value,
+                            disabled && styles.optionDisabled,
+                        )}
+                    >
+                        <input
+                            type="radio"
+                            name={name}
+                            value={option.value}
+                            checked={isControlled ? option.value === value : undefined}
+                            defaultChecked={isControlled ? undefined : option.value === initial}
                             disabled={disabled}
+                            onChange={() => onValueChange?.(option.value)}
                             {...stylex.props(
-                                styles.option,
-                                fieldText.value,
-                                interactive.base,
-                                focusRing.base,
-                                disabled ? disabledRecipe.base : null,
+                                styles.input,
+                                surfaceStyles({ color, background, border, radius, elevation }),
+                                interactionStyles({ disabled }),
                             )}
-                        >
-                            <span
-                                {...stylex.props(
-                                    styles.circle,
-                                    chosen && family ? circleChosenVariants[family] : null,
-                                )}
-                            >
-                                {chosen ? <span {...stylex.props(styles.dot)} /> : null}
-                            </span>
-
-                            {option.label ?? option.value}
-                        </button>
-                    );
-                })}
+                        />
+                        {option.label ?? option.value}
+                    </label>
+                ))}
             </div>
         </div>
     );

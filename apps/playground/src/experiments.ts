@@ -1,8 +1,9 @@
-import type { ComponentPropsWithoutRef, ComponentType } from 'react';
+import type { StageProps } from '@repo/ui/components/Stage';
+import type { ComponentType } from 'react';
 
 export interface SceneModule {
     Scene: ComponentType;
-    stageProps?: Omit<ComponentPropsWithoutRef<'section'>, 'children' | 'aria-label'>;
+    stageProps?: StageProps;
 }
 
 export interface ControlsModule {

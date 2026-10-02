@@ -1,6 +1,6 @@
-import { focusRing, interactive } from '@repo/ui/recipes/interaction.stylex';
-import { colors } from '@repo/ui/tokens/colors.stylex';
-import { borderWidth, layout, radius, space } from '@repo/ui/tokens/layout.stylex';
+import { interactionStyles } from '@repo/ui/recipes/interactions';
+import { borderWidth, layout, radius, space } from '@repo/ui/tokens/const.stylex';
+import { colors } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
@@ -31,7 +31,7 @@ const styles = stylex.create({
     },
 
     ring: {
-        boxShadow: `0 0 0 3px ${colors.ring}`,
+        boxShadow: `0 0 0 3px ${colors.neutral}`,
     },
 
     strip: {
@@ -41,7 +41,7 @@ const styles = stylex.create({
         borderRadius: radius.sm,
         borderWidth: borderWidth.hairline,
         borderStyle: 'solid',
-        borderColor: colors.border,
+        borderColor: colors.neutral,
     },
 
     box: (color: string) => ({
@@ -77,8 +77,7 @@ function PalettePicker({ style }: PalettePickerProps) {
                         }}
                         {...stylex.props(
                             styles.option,
-                            interactive.base,
-                            focusRing.base,
+                            interactionStyles(),
                             selected ? styles.ring : null,
                         )}
                     >
