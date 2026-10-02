@@ -15,12 +15,13 @@ function packageJson(name: string): string {
             private: true,
             type: 'module',
             scripts: {
-                dev: 'vp dev',
+                dev: 'vp dev --host',
+                build: 'tsc -b && vp build',
+                lint: 'vp lint',
                 preview: 'vp preview',
             },
             dependencies: {
                 '@repo/ui': 'workspace:*',
-                '@stylexjs/stylex': 'catalog:',
                 react: 'catalog:',
                 'react-dom': 'catalog:',
                 zustand: 'catalog:',
@@ -28,12 +29,13 @@ function packageJson(name: string): string {
             devDependencies: {
                 '@rolldown/plugin-babel': 'catalog:',
                 '@stylexjs/stylex': 'catalog:',
+                '@stylexjs/unplugin': 'catalog:',
                 '@types/react': 'catalog:',
                 '@types/react-dom': 'catalog:',
                 '@vitejs/plugin-react': 'catalog:',
                 'babel-plugin-react-compiler': 'catalog:',
+                lightningcss: 'catalog:',
                 typescript: 'catalog:',
-                'unplugin-stylex': 'catalog:',
                 vite: 'catalog:',
                 'vite-plus': 'catalog:',
             },
@@ -60,22 +62,27 @@ function indexHtml(name: string): string {
 `;
 }
 
-const viteConfig = `import { stylexPreset } from '@repo/ui/presets';
-  import babel from '@rolldown/plugin-babel';
-  import react, { reactCompilerPreset } from '@vitejs/plugin-react';
-  import stylexPlugin from 'unplugin-stylex/vite';
-  import { defineConfig } from 'vite-plus';
-  import { lazyPlugins } from 'vite-plus';
+const viteConfig = `import babel from '@rolldown/plugin-babel';
+import stylex from '@stylexjs/unplugin';
+import react, { reactCompilerPreset } from '@vitejs/plugin-react';
+import { Features } from 'lightningcss';
+import { defineConfig, lazyPlugins } from 'vite-plus';
 
-  export default defineConfig({
-      plugins: lazyPlugins(() => [
-          stylexPlugin(stylexPreset),
-          babel({
-              presets: [reactCompilerPreset()],
-          }),
-          react(),
-      ])
-  });`;
+export default defineConfig({
+    plugins: lazyPlugins(() => [
+        stylex.vite({
+            dev: true,
+            useCSSLayers: true,
+            lightningcssOptions: {
+                exclude: Features.LightDark,
+            },
+        }),
+        babel({
+            presets: [reactCompilerPreset()],
+        }),
+        react(),
+    ]),
+});`;
 
 const tsconfig = `{
     "$schema": "https://json.schemastore.org/tsconfig",
@@ -95,7 +102,52 @@ createRoot(document.getElementById("root")!).render(
 );
 `;
 
-const styleCss = `@import "../node_modules/@repo/ui/src/styles.css"`;
+const styleCss = `/* Base browser normalization */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+}
+
+:root {
+    color-scheme: light dark;
+}
+
+::selection {
+    background: light-dark(oklch(0.756 0.108 137.676), oklch(0.534 0.082 155.401));
+    color: light-dark(oklch(0.277 0 0), oklch(0.956 0.055 96.155));
+}
+
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+body {
+    min-height: 100vh;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+img,
+svg,
+video,
+canvas {
+    display: block;
+}
+`;
 
 function appTsx(name: string): string {
     return `import { useEffect } from "react";

@@ -4,9 +4,6 @@ import { Card } from '@repo/ui-next/components/Card';
 import { Checkbox } from '@repo/ui-next/components/Checkbox';
 import { ColorField } from '@repo/ui-next/components/ColorField';
 import { Stack } from '@repo/ui-next/components/Stack';
-import { fieldText } from '@repo/ui-next/recipes/typography';
-import { space } from '@repo/ui-next/tokens/const.stylex';
-import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 
 import { useComponentName } from '../../../stores/appStore';
@@ -14,18 +11,6 @@ import { useCardFilter, useComponentFilter } from './variantFilter.store';
 import { buildSurfaceVariants } from './variants';
 
 const CARDS_PER_PAGE = 12;
-
-const canvasStyles = stylex.create({
-    cardItem: {
-        contentVisibility: 'auto',
-        containIntrinsicSize: 'auto 320px',
-    },
-    pager: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: space['2'],
-    },
-});
 
 export function DemoCanvas() {
     const registryKey = useComponentName();
@@ -41,11 +26,7 @@ export function DemoCanvas() {
     }, [registryKey, cardFilter, componentFilter]);
 
     if (cardVariants.length === 0) {
-        return (
-            <p {...stylex.props(fieldText.message)}>
-                No card variants selected — adjust the Card filter.
-            </p>
-        );
+        return <p>No card variants selected — adjust the Card filter.</p>;
     }
 
     const totalNodes = cardVariants.length * componentVariants.length;
@@ -57,7 +38,7 @@ export function DemoCanvas() {
 
     return (
         <Stack direction="vertical" gap="8">
-            <p {...stylex.props(fieldText.value)}>
+            <p>
                 {cardVariants.length} card variants × {componentVariants.length} component variants
                 = {totalNodes} nodes
                 {totalPages > 1
@@ -65,7 +46,7 @@ export function DemoCanvas() {
                     : null}
             </p>
             {totalPages > 1 ? (
-                <nav aria-label="Card pages" {...stylex.props(canvasStyles.pager)}>
+                <nav aria-label="Card pages">
                     <Button
                         type="button"
                         background="soft"
@@ -76,7 +57,7 @@ export function DemoCanvas() {
                     >
                         Previous
                     </Button>
-                    <span aria-live="polite" {...stylex.props(fieldText.label)}>
+                    <span aria-live="polite">
                         Page {safePage + 1} of {totalPages}
                     </span>
                     <Button
@@ -92,19 +73,17 @@ export function DemoCanvas() {
                 </nav>
             ) : null}
             {componentVariants.length === 0 ? (
-                <p {...stylex.props(fieldText.message)}>
-                    No component variants selected — adjust the Component filter.
-                </p>
+                <p>No component variants selected — adjust the Component filter.</p>
             ) : (
                 pagedCards.map((card) => (
-                    <div key={card.label} {...stylex.props(canvasStyles.cardItem)}>
+                    <div key={card.label}>
                         <Card
                             color={card.color}
                             background={card.background}
                             border={card.border}
                             elevation={card.elevation}
                         >
-                            <h2 {...stylex.props(fieldText.value)}>{card.label}</h2>
+                            <h2>{card.label}</h2>
                             <Stack direction="horizontal" gap="12">
                                 {componentVariants.map((variant) => {
                                     switch (registryKey) {

@@ -8,12 +8,14 @@ catalogMode: prefer
 catalog:
     '@rolldown/plugin-babel': ^0.2.4
     '@stylexjs/stylex': ^0.19.1
+    '@stylexjs/unplugin': ^0.19.1
     '@types/node': ^24
     '@types/react': ^19.3.0
     '@types/react-dom': ^19.3.0
     '@vitejs/plugin-react': ^6.1.1
     babel-plugin-react-compiler: ^1.0.0
     bingo: ^0.13.0
+    lightningcss: ^1.33.0
     react: ^19.3.0
     react-dom: ^19.3.0
     typescript: ^7.0.2

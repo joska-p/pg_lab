@@ -1,5 +1,16 @@
-import type { Background, Elevation, Borders } from '@repo/ui-next/recipes/surface';
-import type { ColorNames } from '@repo/ui-next/tokens/tint.stylex';
+export type ColorNames =
+    | 'neutral'
+    | 'aurora'
+    | 'solder'
+    | 'purple'
+    | 'amber'
+    | 'error'
+    | 'aqua'
+    | 'orange';
+
+export type Background = 'none' | 'soft' | 'solid';
+export type Elevation = 'sunken' | 'flat' | 'raised';
+export type Borders = 'none' | 'subtle' | 'strong';
 
 export const colorVariants = [
     'neutral',

@@ -1,7 +1,4 @@
 import { Button } from '@repo/ui-next/components/Button';
-import { fieldText, heading } from '@repo/ui-next/recipes/typography';
-import { layout, space } from '@repo/ui-next/tokens/const.stylex';
-import * as stylex from '@stylexjs/stylex';
 
 import {
     resetFilter,
@@ -10,46 +7,6 @@ import {
     type FilterTarget,
 } from './variantFilter.store';
 import { VARIANT_PROPERTIES, VARIANT_PROPERTY_OPTIONS } from './variants';
-
-const filterStyles = stylex.create({
-    titleRow: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: space['2'],
-        marginBlock: space['2'],
-    },
-    group: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: space['1'],
-        marginBlock: space['2'],
-    },
-    groupRow: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: space['2'],
-    },
-    options: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: space['2'],
-    },
-    option: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: space['1'],
-        minHeight: layout.radioOptionMinHeight,
-        cursor: 'pointer',
-    },
-    checkbox: {
-        width: layout.checkboxSize,
-        height: layout.checkboxSize,
-        margin: 0,
-        flexShrink: 0,
-        cursor: 'pointer',
-    },
-});
 
 function formatOption(option: string | boolean): string {
     if (typeof option === 'boolean') {
@@ -68,8 +25,8 @@ export function VariantFilterSection({ target, title }: VariantFilterSectionProp
 
     return (
         <section aria-label={title}>
-            <div {...stylex.props(filterStyles.titleRow)}>
-                <h2 {...stylex.props(heading.level2)}>{title}</h2>
+            <div>
+                <h2>{title}</h2>
                 <Button
                     type="button"
                     background="soft"
@@ -84,19 +41,15 @@ export function VariantFilterSection({ target, title }: VariantFilterSectionProp
                 const options = VARIANT_PROPERTY_OPTIONS[property] as readonly (string | boolean)[];
                 const selected = filter[property] as readonly (string | boolean)[];
                 return (
-                    <div key={property} {...stylex.props(filterStyles.group)}>
-                        <div {...stylex.props(filterStyles.groupRow)}>
-                            <span {...stylex.props(fieldText.value)}>{label}</span>
+                    <div key={property}>
+                        <div>
+                            <span>{label}</span>
                         </div>
-                        <div {...stylex.props(filterStyles.options)}>
+                        <div>
                             {options.map((option) => (
-                                <label
-                                    key={String(option)}
-                                    {...stylex.props(filterStyles.option, fieldText.label)}
-                                >
+                                <label key={String(option)}>
                                     <input
                                         type="checkbox"
-                                        {...stylex.props(filterStyles.checkbox)}
                                         checked={selected.includes(option)}
                                         onChange={() => toggleOption(target, property, option)}
                                     />

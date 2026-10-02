@@ -170,6 +170,9 @@ catalogs:
     '@stylexjs/stylex':
       specifier: ^0.19.1
       version: 0.19.1
+    '@stylexjs/unplugin':
+      specifier: ^0.19.1
+      version: 0.19.1
     '@types/node':
       specifier: ^24
       version: 24.19.0
@@ -188,6 +191,9 @@ catalogs:
     bingo:
       specifier: ^0.13.0
       version: 0.13.0
+    lightningcss:
+      specifier: ^1.33.0
+      version: 1.33.0
     react:
       specifier: ^19.3.0
       version: 19.3.0
@@ -229,9 +235,6 @@ importers:
 
   apps/brouillon:
     dependencies:
-      '@repo/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       '@repo/ui-next':
         specifier: workspace:*
         version: link:../../packages/ui-next
@@ -251,6 +254,9 @@ importers:
       '@stylexjs/stylex':
         specifier: 'catalog:'
         version: 0.19.1
+      '@stylexjs/unplugin':
+        specifier: 'catalog:'
+        version: 0.19.1(unplugin@2.3.11)
       '@types/react':
         specifier: 'catalog:'
         version: 19.3.0
@@ -263,12 +269,12 @@ importers:
       babel-plugin-react-compiler:
         specifier: 'catalog:'
         version: 1.0.0
+      lightningcss:
+        specifier: 'catalog:'
+        version: 1.33.0
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
-      unplugin-stylex:
-        specifier: 'catalog:'
-        version: 0.6.3(@stylexjs/stylex@0.19.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.11)
       vite:
         specifier: 'catalog:'
         version: '@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1)'
@@ -673,9 +679,6 @@ importers:
 
   packages/ui-next:
     dependencies:
-      '@stylexjs/stylex':
-        specifier: 'catalog:'
-        version: 0.19.1
       react:
         specifier: 'catalog:'
         version: 19.3.0
@@ -683,30 +686,18 @@ importers:
         specifier: 'catalog:'
         version: 19.3.0(react@19.3.0)
     devDependencies:
-      '@rolldown/plugin-babel':
+      '@stylexjs/stylex':
         specifier: 'catalog:'
-        version: 0.2.4(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.11)
+        version: 0.19.1
       '@types/react':
         specifier: 'catalog:'
         version: 19.3.0
       '@types/react-dom':
         specifier: 'catalog:'
         version: 19.3.0(@types/react@19.3.0)
-      '@vitejs/plugin-react':
-        specifier: 'catalog:'
-        version: 6.1.1(@rolldown/plugin-babel@0.2.4(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.11))(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1))(babel-plugin-react-compiler@1.0.0)
-      babel-plugin-react-compiler:
-        specifier: 'catalog:'
-        version: 1.0.0
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
-      unplugin-stylex:
-        specifier: 'catalog:'
-        version: 0.6.3(@stylexjs/stylex@0.19.1)(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.11)
-      vite:
-        specifier: 'catalog:'
-        version: '@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1)'
       vite-plus:
         specifier: 'catalog:'
         version: 1.0.0(@types/node@24.19.0)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1)
@@ -1413,14 +1404,25 @@ packages:
   '@stylexjs/babel-plugin@0.18.3':
     resolution: {integrity: sha512-5VeMIChNaXWlizLUL6c7WrMfuhydHXl3ASTlbj3O0qlEkNOlcgZMH3zzZ0iUrOSFTSgbHAOWUsVJKX5bFeZk4A==}
 
+  '@stylexjs/babel-plugin@0.19.1':
+    resolution: {integrity: sha512-Ig3crX6MuGWDEAx+f89aLxTQUWVeEc2Aco2moIdcObyvo7hZJgU26rxJN3k7geFjhi+5dfna6TNR8iTRK0PQGA==}
+
   '@stylexjs/shared@0.18.3':
     resolution: {integrity: sha512-g72AKGGhLTFsaez19zod2je9IQeaub2eM85jwJPvfmxymKW8Aleoxm5/pYIsnyxx3MZNOB5AVN6khfo90f9Lgw==}
+
+  '@stylexjs/shared@0.19.1':
+    resolution: {integrity: sha512-oFBtW0NPNLJOT1gLweWRNKrIJHjJMwOmSV7fgd6ewok4fwb/Nh95PEaYGKu+ZONk0nNghjLFfOwiIsxJdvh3TQ==}
 
   '@stylexjs/stylex@0.18.3':
     resolution: {integrity: sha512-15gDzAJAorOE0yzxaWLNxldW2aqdmCiLG5QcPD8nmVCVqvrWp0Asgv45zk7LtN86WJb/4Ym9eQ6qT5MJW59tWQ==}
 
   '@stylexjs/stylex@0.19.1':
     resolution: {integrity: sha512-JwNFm0MOYPqi+M4Ax5Un4ZxfZp4HEAX2sAWetZ88KALFcv1eEiHNJs75oO3V3U7RVWnzfkiM8i9eBowC3hqgUw==}
+
+  '@stylexjs/unplugin@0.19.1':
+    resolution: {integrity: sha512-MJz/IPrFe3hSHbZtjbxaYd3kLgS718/NFBEY/Mf+njteJKLdY7bHHfVka3051LCYy9fKfyZapGCmUpibraHqmQ==}
+    peerDependencies:
+      unplugin: ^2.3.11
 
   '@testing-library/dom@10.4.2':
     resolution: {integrity: sha512-yzr2S9HyAIdhz2/6qHgbs665Q7PKVcDF05vsOlHPxG1mo36gKVesdYVeDLnXgfjJ03CrKRk08knc6+E/9m8v2Q==}
@@ -1878,6 +1880,11 @@ packages:
 
   '@yuku-toolchain/types@0.9.5':
     resolution: {integrity: sha512-KiuLNNgX9uNealaWAR+G3/cMXnRk9x4TY2EkYe/KIag+UPdwiA0RRf1hr1WAxzTP8KGzCTkqUdLPvqh32sEO3w==}
+
+  acorn@8.18.0:
+    resolution: {integrity: sha512-lGq+9yr1/GuAWaVYIHRjvvySG5/4VfKIvC8EWxStPdcDh/Ka7FG3twP6v4d5BkravUilhIAsG4Qj83t02LWUPQ==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
 
   all-properties-lazy@0.1.0:
     resolution: {integrity: sha512-Ab9UQDstwhrTcsRP1m4QkT6W1PRMBoAnPJeB5LZcuum/nLiFMlSwYxH1J8fsRAolaXez0ijgbm6BAWZkQC9DVg==}
@@ -2501,6 +2508,10 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     peerDependencies:
       '@stylexjs/stylex': 0.x
+
+  unplugin@2.3.11:
+    resolution: {integrity: sha512-5uKD0nqiYVzlmCRs01Fhs2BdkEgBS3SAVP6ndrBsuK42iC2+JHyxM05Rm9G8+5mkmRtzMZGY8Ct5+mliZxU/Ww==}
+    engines: {node: '>=18.12.0'}
 
   unplugin@3.4.0:
     resolution: {integrity: sha512-9skdIFlCsPdFV7wUfZxNsFInlW+7nJmGu2gkTu0OUhF56aXGsHab9x52/QhdJ4lC7ZDPWTxbiC4ANqVlsuaW3w==}
@@ -3211,7 +3222,22 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@stylexjs/babel-plugin@0.19.1':
+    dependencies:
+      '@babel/core': 7.29.7
+      '@babel/helper-module-imports': 7.29.7
+      '@babel/traverse': 7.29.8
+      '@babel/types': 7.29.8
+      '@dual-bundle/import-meta-resolve': 4.2.1
+      '@stylexjs/shared': 0.19.1
+      '@stylexjs/stylex': 0.19.1
+      postcss-value-parser: 4.2.0
+    transitivePeerDependencies:
+      - supports-color
+
   '@stylexjs/shared@0.18.3': {}
+
+  '@stylexjs/shared@0.19.1': {}
 
   '@stylexjs/stylex@0.18.3':
     dependencies:
@@ -3224,6 +3250,19 @@ snapshots:
       css-mediaquery: 0.1.2
       invariant: 2.2.4
       styleq: 0.2.1
+
+  '@stylexjs/unplugin@0.19.1(unplugin@2.3.11)':
+    dependencies:
+      '@babel/core': 7.29.7
+      '@babel/plugin-syntax-flow': 7.29.7(@babel/core@7.29.7)
+      '@babel/plugin-syntax-jsx': 7.29.7(@babel/core@7.29.7)
+      '@babel/plugin-syntax-typescript': 7.29.7(@babel/core@7.29.7)
+      '@stylexjs/babel-plugin': 0.19.1
+      browserslist: 4.29.2
+      lightningcss: 1.33.0
+      unplugin: 2.3.11
+    transitivePeerDependencies:
+      - supports-color
 
   '@testing-library/dom@10.4.2':
     dependencies:
@@ -3574,6 +3613,8 @@ snapshots:
     optional: true
 
   '@yuku-toolchain/types@0.9.5': {}
+
+  acorn@8.18.0: {}
 
   all-properties-lazy@0.1.0:
     dependencies:
@@ -4178,6 +4219,13 @@ snapshots:
       - unloader
       - vite
       - webpack
+
+  unplugin@2.3.11:
+    dependencies:
+      '@jridgewell/remapping': 2.3.5
+      acorn: 8.18.0
+      picomatch: 4.0.7
+      webpack-virtual-modules: 0.6.2
 
   unplugin@3.4.0(@voidzero-dev/vite-plus-core@1.0.0(@types/node@24.19.0)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.11):
     dependencies:
