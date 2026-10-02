@@ -1,11 +1,10 @@
 import { ControlSection } from '@repo/ui/components/ControlSection';
-import { Segmented } from '@repo/ui/components/Segmented';
+import { Select } from '@repo/ui/components/Select';
+import { useTheme, type Theme } from '@repo/ui/hooks/useTheme';
 import { useEffect } from 'react';
 
-import { useTheme, setTheme } from '../../stores/appStore';
-
 export function Controls() {
-    const theme = useTheme();
+    const [theme, setTheme] = useTheme();
 
     useEffect(() => {
         document.documentElement.style.colorScheme = theme === 'dark' ? 'light dark' : theme;
@@ -14,7 +13,16 @@ export function Controls() {
     return (
         <>
             <ControlSection title="Theme">
-                <Segmented options={['light', 'dark']} value={theme} onValueChange={setTheme} />
+                <Select
+                    label="Theme"
+                    value={theme}
+                    onValueChange={(val) => setTheme(val as Theme)}
+                    options={[
+                        { value: 'system', label: 'System' },
+                        { value: 'light', label: 'Light' },
+                        { value: 'dark', label: 'Dark' },
+                    ]}
+                />
             </ControlSection>
         </>
     );
