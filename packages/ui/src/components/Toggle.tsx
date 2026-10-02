@@ -5,7 +5,7 @@ import { interactionStyles } from '../recipes/interactions';
 import { surfaceStyles } from '../recipes/surface';
 import type { SurfaceProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
-import { interaction, layout, space } from '../tokens/const.stylex';
+import { interaction, layout, motion, space } from '../tokens/const.stylex';
 import type { LayoutStyle } from '../types';
 
 const styles = stylex.create({
@@ -56,10 +56,10 @@ const styles = stylex.create({
             },
             transitionProperty: 'transform, opacity',
             transitionDuration: {
-                default: '120ms',
+                default: motion.durationFast,
                 '@media (prefers-reduced-motion: reduce)': '1ms',
             },
-            transitionTimingFunction: 'ease-out',
+            transitionTimingFunction: motion.easingOut,
         },
     },
     labelDisabled: {

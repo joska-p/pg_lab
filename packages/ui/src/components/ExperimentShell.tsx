@@ -13,7 +13,6 @@ const styles = stylex.create({
         display: 'flex',
         flexDirection: {
             default: 'row',
-            '@container (max-width: 720px)': 'column',
             '@media (orientation: portrait)': 'column',
         },
         gap: space['3'],
@@ -54,11 +53,6 @@ const styles = stylex.create({
         WebkitBackdropFilter: 'blur(20px)',
         borderRadius: { default: radius.none, '@media (min-width: 1024px)': radius.md },
 
-        '@container (max-width: 720px)': {
-            width: 'auto',
-            maxHeight: layout.panelMaxMobileHeight,
-        },
-
         '@media (orientation: portrait)': {
             width: 'auto',
             maxHeight: layout.panelMaxMobileHeight,
@@ -98,10 +92,6 @@ const styles = stylex.create({
     toggleClearOfFloatingPanel: {
         top: `calc(${space['3']} + ${layout.panelGap})`,
         right: `calc(${space['3']} + ${layout.panelGap})`,
-
-        '@container (max-width: 720px)': {
-            right: space['3'],
-        },
 
         '@media (orientation: portrait)': {
             right: space['3'],

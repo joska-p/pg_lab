@@ -124,7 +124,6 @@ export function RadioGroup<T extends string>({
             <div
                 role="radiogroup"
                 aria-labelledby={label ? groupId : undefined}
-                aria-label={label ? undefined : 'choice'}
                 aria-disabled={disabled || undefined}
                 {...stylex.props(styles.options, style)}
             >

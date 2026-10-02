@@ -1,7 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
-import { interactionStyles } from '../recipes/interactions';
 import { surfaceStyles } from '../recipes/surface';
 import type { SurfaceProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
@@ -32,6 +31,7 @@ const styles = stylex.create({
         position: 'relative',
         flex: 1,
         minHeight: layout.controlTouchTarget,
+        touchAction: 'pan-y',
     },
     track: {
         position: 'absolute',
@@ -152,7 +152,7 @@ export function Slider({
                 </label>
             ) : null}
 
-            <div {...stylex.props(styles.container, interactionStyles({ disabled }), style)}>
+            <div {...stylex.props(styles.container, style)}>
                 <div {...stylex.props(surface, styles.track)}>
                     <div {...stylex.props(styles.fill(progress))} />
                 </div>
