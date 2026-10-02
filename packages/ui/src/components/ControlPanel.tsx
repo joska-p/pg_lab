@@ -9,7 +9,6 @@ const styles = stylex.create({
         display: 'flex',
         flexDirection: 'column',
         gap: space['4'],
-        padding: space['4'],
     },
 });
 

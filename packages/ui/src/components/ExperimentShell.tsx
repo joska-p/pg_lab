@@ -32,11 +32,9 @@ const styles = stylex.create({
         display: 'flex',
         minWidth: 0,
         minHeight: 0,
-        overflow: 'hidden',
-        padding: space['4'],
-        '@container (max-width: 720px)': {
-            paddingTop: `calc(${space['3']} + ${space['10']})`,
-        },
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        scrollbarGutter: 'stable',
     },
 
     panel: {
@@ -48,7 +46,7 @@ const styles = stylex.create({
         maxHeight: '100%',
         overflowY: 'auto',
         borderRadius: { default: radius.none, '@media (min-width: 1024px)': radius.md },
-
+        padding: space['4'],
         '@media (orientation: portrait)': {
             width: 'auto',
             maxHeight: layout.panelMaxMobileHeight,

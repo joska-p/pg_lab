@@ -11,10 +11,6 @@ body {
     margin: 0;
 }
 
-:root {
-    color-scheme: light dark;
-}
-
 :root[data-theme='light'] {
     color-scheme: light;
 }
