@@ -29,7 +29,8 @@ body {
 }
 
 input:focus-visible,
-select:focus-visible {
+select:focus-visible,
+textarea:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 2px;
 }
