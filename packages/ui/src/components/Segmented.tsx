@@ -5,7 +5,7 @@ import { interactionStyles } from '../recipes/interactions';
 import { surfaceStyles } from '../recipes/surface';
 import type { SurfaceProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
-import { layout, space } from '../tokens/const.stylex';
+import { space } from '../tokens/const.stylex';
 import type { LayoutStyle } from '../types';
 
 interface SegmentOption<T extends string> {
@@ -47,7 +47,7 @@ const styles = stylex.create({
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingBlock: layout.segmentPadBlock,
+        paddingBlock: space['2'],
         paddingInline: space['3'],
         // Anneau de focus piloté par l'input radio contenu dans le label.
         outline: {

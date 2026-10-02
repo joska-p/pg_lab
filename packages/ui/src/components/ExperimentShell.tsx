@@ -34,8 +34,6 @@ const styles = stylex.create({
         minHeight: 0,
         overflow: 'hidden',
         padding: space['4'],
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
         '@container (max-width: 720px)': {
             paddingTop: `calc(${space['3']} + ${space['10']})`,
         },
@@ -49,8 +47,6 @@ const styles = stylex.create({
         minHeight: 0,
         maxHeight: '100%',
         overflowY: 'auto',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
         borderRadius: { default: radius.none, '@media (min-width: 1024px)': radius.md },
 
         '@media (orientation: portrait)': {

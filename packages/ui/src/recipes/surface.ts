@@ -18,7 +18,7 @@ export const backgrounds = stylex.create({
         color: tintVars.onColor,
     },
     soft: {
-        backgroundColor: `color-mix(in oklab, color-mix(in oklab, ${tintVars.color} 12%, ${surface.background}) 70%, transparent)`,
+        backgroundColor: `color-mix(in oklab, color-mix(in oklab, ${tintVars.color} 25%, ${surface.background}) 60%, transparent)`,
         color: surface.foreground,
     },
 });
@@ -61,10 +61,12 @@ export const elevations = stylex.create({
     flat: {
         boxShadow: 'none',
     },
+    // Repos : glow néon très subtil. Hover/press sont boostés par
+    // `interactions.glow` (3 temps : rest / hover / active), sans nouvelle prop.
     raised: {
         boxShadow: `
-            0 1px 3px color-mix(in oklab, ${palette.dark0Hard} 22%, transparent),
-            0 6px 18px -2px color-mix(in oklab, ${tintVars.color} 24%, color-mix(in oklab, ${palette.dark0Hard} 40%, transparent))
+            0 1px 2px color-mix(in oklab, ${palette.dark0Hard} 18%, transparent),
+            0 0 12px -2px color-mix(in oklab, ${tintVars.color} 18%, transparent)
         `,
     },
     sunken: {

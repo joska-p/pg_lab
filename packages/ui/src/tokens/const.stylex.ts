@@ -175,7 +175,6 @@ export const layout = stylex.defineConsts({
     radioCircleSize: '16px',
     radioDotSize: '8px',
 
-    segmentPadBlock: '1px',
     ledAtomSize: '7px',
 
     colorSwatchWidth: '36px',
