@@ -158,6 +158,7 @@ export function ExperimentShell({
                             color="aqua"
                             aria-expanded={panelVisible}
                             aria-controls={panelId}
+                            aria-label={panelVisible ? 'Hide control panel' : 'Show control panel'}
                             onClick={() => setPanelVisible((visible) => !visible)}
                         >
                             {panelVisible ? 'Hide panel' : 'Show panel'}

@@ -1,9 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
+import { wellStyles } from '../recipes/fields';
 import { interactionStyles } from '../recipes/interactions';
-import { surfaceStyles } from '../recipes/surface';
-import type { SurfaceProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { interaction, space } from '../tokens/const.stylex';
 import type { LayoutStyle } from '../types';
@@ -14,34 +13,24 @@ const styles = stylex.create({
         flexDirection: 'column',
         gap: space['2'],
     },
-    input: {
-        boxSizing: 'border-box',
-        width: '100%',
-        minWidth: 0,
-        paddingBlock: space['2'],
-        paddingInline: space['3'],
-    },
     labelDisabled: {
         opacity: interaction.disabledOpacity,
     },
 });
 
-interface NumberFieldProps
-    extends
-        Omit<
-            React.ComponentProps<'input'>,
-            | 'style'
-            | 'className'
-            | 'color'
-            | 'type'
-            | 'onChange'
-            | 'value'
-            | 'defaultValue'
-            | 'min'
-            | 'max'
-            | 'step'
-        >,
-        SurfaceProps {
+interface NumberFieldProps extends Omit<
+    React.ComponentProps<'input'>,
+    | 'style'
+    | 'className'
+    | 'color'
+    | 'type'
+    | 'onChange'
+    | 'value'
+    | 'defaultValue'
+    | 'min'
+    | 'max'
+    | 'step'
+> {
     label?: string;
     invalid?: boolean;
     errorMessage?: string;
@@ -56,11 +45,6 @@ interface NumberFieldProps
 
 export function NumberField({
     label,
-    color = 'neutral',
-    background = 'solid',
-    border = 'strong',
-    radius = 'sm',
-    elevation = 'flat',
     invalid = false,
     errorMessage,
     min = Number.NEGATIVE_INFINITY,
@@ -137,15 +121,8 @@ export function NumberField({
                 aria-invalid={isInvalid || undefined}
                 aria-describedby={message ? messageId : undefined}
                 {...stylex.props(
-                    styles.input,
                     fieldText.value,
-                    surfaceStyles({
-                        color: isInvalid ? 'error' : color,
-                        background,
-                        border,
-                        radius,
-                        elevation,
-                    }),
+                    ...wellStyles({ invalid: isInvalid, disabled }),
                     interactionStyles({ disabled }),
                 )}
             />

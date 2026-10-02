@@ -1,9 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 import { useId } from 'react';
 
+import { wellStyles } from '../recipes/fields';
 import { interactionStyles } from '../recipes/interactions';
-import { surfaceStyles } from '../recipes/surface';
-import type { SurfaceProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { interaction, layout, space } from '../tokens/const.stylex';
 import type { LayoutStyle } from '../types';
@@ -13,13 +12,10 @@ interface SelectOption<T extends string> {
     label?: string;
 }
 
-interface SelectProps<T extends string>
-    extends
-        Omit<
-            React.ComponentProps<'select'>,
-            'style' | 'className' | 'color' | 'onChange' | 'value' | 'defaultValue'
-        >,
-        SurfaceProps {
+interface SelectProps<T extends string> extends Omit<
+    React.ComponentProps<'select'>,
+    'style' | 'className' | 'color' | 'onChange' | 'value' | 'defaultValue'
+> {
     label?: string;
     invalid?: boolean;
     errorMessage?: string;
@@ -68,11 +64,6 @@ const styles = stylex.create({
 
 export function Select<T extends string>({
     label,
-    color = 'neutral',
-    background = 'solid',
-    border = 'strong',
-    radius = 'md',
-    elevation = 'flat',
     invalid = false,
     errorMessage,
     options,
@@ -122,13 +113,7 @@ export function Select<T extends string>({
                     {...stylex.props(
                         styles.select,
                         fieldText.value,
-                        surfaceStyles({
-                            color: invalid ? 'error' : color,
-                            background,
-                            border,
-                            radius,
-                            elevation,
-                        }),
+                        ...wellStyles({ invalid, disabled }),
                         interactionStyles({ disabled }),
                     )}
                 >

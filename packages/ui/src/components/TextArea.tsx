@@ -1,9 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 import { useId } from 'react';
 
+import { wellStyles } from '../recipes/fields';
 import { interactionStyles } from '../recipes/interactions';
-import { surfaceStyles } from '../recipes/surface';
-import type { SurfaceProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { interaction, space } from '../tokens/const.stylex';
 import type { LayoutStyle } from '../types';
@@ -14,12 +13,7 @@ const styles = stylex.create({
         flexDirection: 'column',
         gap: space['2'],
     },
-    input: {
-        boxSizing: 'border-box',
-        width: '100%',
-        minWidth: 0,
-        paddingBlock: space['2'],
-        paddingInline: space['3'],
+    textarea: {
         resize: 'vertical',
     },
     labelDisabled: {
@@ -27,13 +21,10 @@ const styles = stylex.create({
     },
 });
 
-interface TextAreaProps
-    extends
-        Omit<
-            React.ComponentProps<'textarea'>,
-            'style' | 'className' | 'color' | 'onChange' | 'value' | 'defaultValue'
-        >,
-        SurfaceProps {
+interface TextAreaProps extends Omit<
+    React.ComponentProps<'textarea'>,
+    'style' | 'className' | 'color' | 'onChange' | 'value' | 'defaultValue'
+> {
     label?: string;
     invalid?: boolean;
     errorMessage?: string;
@@ -45,11 +36,6 @@ interface TextAreaProps
 
 export function TextArea({
     label,
-    color = 'neutral',
-    background = 'solid',
-    border = 'strong',
-    radius = 'sm',
-    elevation = 'flat',
     invalid = false,
     errorMessage,
     rows = 3,
@@ -87,15 +73,9 @@ export function TextArea({
                 aria-invalid={invalid || undefined}
                 aria-describedby={errorMessage ? messageId : undefined}
                 {...stylex.props(
-                    styles.input,
                     fieldText.value,
-                    surfaceStyles({
-                        color: invalid ? 'error' : color,
-                        background,
-                        border,
-                        radius,
-                        elevation,
-                    }),
+                    styles.textarea,
+                    ...wellStyles({ invalid, disabled }),
                     interactionStyles({ disabled }),
                 )}
             />

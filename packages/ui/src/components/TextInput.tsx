@@ -1,9 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 import { useId } from 'react';
 
+import { wellStyles } from '../recipes/fields';
 import { interactionStyles } from '../recipes/interactions';
-import { surfaceStyles } from '../recipes/surface';
-import type { SurfaceProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { interaction, space } from '../tokens/const.stylex';
 import type { LayoutStyle } from '../types';
@@ -14,25 +13,15 @@ const styles = stylex.create({
         flexDirection: 'column',
         gap: space['2'],
     },
-    input: {
-        boxSizing: 'border-box',
-        width: '100%',
-        minWidth: 0,
-        paddingBlock: space['2'],
-        paddingInline: space['3'],
-    },
     labelDisabled: {
         opacity: interaction.disabledOpacity,
     },
 });
 
-interface TextInputProps
-    extends
-        Omit<
-            React.ComponentProps<'input'>,
-            'style' | 'className' | 'color' | 'type' | 'onChange' | 'value' | 'defaultValue'
-        >,
-        SurfaceProps {
+interface TextInputProps extends Omit<
+    React.ComponentProps<'input'>,
+    'style' | 'className' | 'color' | 'type' | 'onChange' | 'value' | 'defaultValue'
+> {
     label?: string;
     invalid?: boolean;
     errorMessage?: string;
@@ -44,11 +33,6 @@ interface TextInputProps
 
 export function TextInput({
     label,
-    color = 'neutral',
-    background = 'solid',
-    border = 'strong',
-    radius = 'sm',
-    elevation = 'flat',
     invalid = false,
     errorMessage,
     value,
@@ -85,15 +69,8 @@ export function TextInput({
                 aria-invalid={invalid || undefined}
                 aria-describedby={errorMessage ? messageId : undefined}
                 {...stylex.props(
-                    styles.input,
                     fieldText.value,
-                    surfaceStyles({
-                        color: invalid ? 'error' : color,
-                        background,
-                        border,
-                        radius,
-                        elevation,
-                    }),
+                    ...wellStyles({ invalid, disabled }),
                     interactionStyles({ disabled }),
                 )}
             />

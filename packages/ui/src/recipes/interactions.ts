@@ -32,7 +32,9 @@ export const interactions = stylex.create({
     },
     focus: {
         ':focus-visible': {
-            outline: `2px solid ${surface.foreground}`,
+            outlineStyle: 'solid',
+            outlineWidth: '2px',
+            outlineColor: surface.foreground,
             outlineOffset: '2px',
         },
     },

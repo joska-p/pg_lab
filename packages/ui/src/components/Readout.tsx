@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
+import { useId } from 'react';
 
 import { surfaceStyles } from '../recipes/surface';
 import type { SurfaceProps } from '../recipes/surface';
@@ -32,6 +33,8 @@ export function Readout({
     elevation = 'flat',
     style,
 }: ReadoutProps) {
+    const labelId = useId();
+
     return (
         <div
             {...stylex.props(
@@ -40,8 +43,10 @@ export function Readout({
                 style,
             )}
         >
-            <span {...stylex.props(fieldText.label)}>{label}</span>
-            <span aria-live="polite" {...stylex.props(fieldText.value)}>
+            <span id={labelId} {...stylex.props(fieldText.label)}>
+                {label}
+            </span>
+            <span aria-live="polite" aria-labelledby={labelId} {...stylex.props(fieldText.value)}>
                 {value}
             </span>
         </div>

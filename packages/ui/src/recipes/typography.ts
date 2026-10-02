@@ -50,6 +50,6 @@ export const fieldText = stylex.create({
     message: {
         fontFamily: typography.fontFamilyMono,
         fontSize: typography.fontSizeXs,
-        color: colors.orange,
+        color: colors.error,
     },
 });

@@ -12,7 +12,6 @@ export function CreatureSection() {
         <ControlSection title="Creature">
             <Select
                 label="Pattern"
-                color="aqua"
                 value={paletteBrush}
                 onValueChange={setPaletteBrush}
                 options={allCreatures.map((creature) => ({

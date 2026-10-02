@@ -8,8 +8,11 @@ import { fieldText } from '../recipes/typography';
 import { interaction, layout, space } from '../tokens/const.stylex';
 import type { LayoutStyle } from '../types';
 
+// Masque alpha pur : le SVG est entièrement blanc opaque (fill seul, pas de stroke coloré),
+// donc le masque découpe la forme et laisse backgroundColor — c'est-à-dire `currentColor`
+// du contexte de surface — fournir la teinte. Pas de couleur hardcodée dans l'URL.
 const CHECK_MASK =
-    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.4 4.8 9 10 3.2' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")";
+    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.4 4.8 9 10 3.2' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")";
 
 const styles = stylex.create({
     row: {

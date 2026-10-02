@@ -11,8 +11,8 @@ const styles = stylex.create({
 });
 
 const directions = stylex.create({
-    vertical: { flexDirection: 'column' },
-    horizontal: { flexDirection: 'row' },
+    vertical: { flexDirection: 'column', alignItems: 'stretch' },
+    horizontal: { flexDirection: 'row', alignItems: 'center' },
 });
 
 const gaps = stylex.create({

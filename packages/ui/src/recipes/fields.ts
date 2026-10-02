@@ -31,8 +31,8 @@ export const field = stylex.create({
 
 /**
  * Puits de saisie : surface enfoncée + gabarit + anneau de focus. `invalid` bascule la teinte en
- * orange (même couleur que fieldText.message) au lieu d'un style séparé. Pas de pressable ni de
- * voile au survol : ce n'est pas un bouton.
+ * `error` (rouge) au lieu d'un style séparé. Pas de pressable ni de voile au survol : ce n'est pas
+ * un bouton.
  */
 export function wellStyles({
     invalid = false,
@@ -40,7 +40,7 @@ export function wellStyles({
 }: { invalid?: boolean; disabled?: boolean } = {}) {
     return [
         surfaceStyles({
-            color: invalid ? 'orange' : 'neutral',
+            color: invalid ? 'error' : 'neutral',
             background: 'soft',
             border: 'strong',
             radius: 'sm',
