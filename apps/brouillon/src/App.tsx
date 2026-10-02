@@ -24,6 +24,7 @@ import { TextInput } from '@repo/ui/components/TextInput';
 import { Toggle } from '@repo/ui/components/Toggle';
 import { useTheme, type Theme } from '@repo/ui/hooks/useTheme';
 import type { Background, Borders, Elevation, Radius } from '@repo/ui/recipes/surface';
+import { space } from '@repo/ui/tokens/const.stylex';
 import type { ColorNames } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
@@ -43,26 +44,26 @@ const styles = stylex.create({
     cardContent: {
         display: 'flex',
         flexDirection: 'column',
-        gap: '16px',
+        gap: space['4'],
     },
     controlsGrid: {
         display: 'grid',
         gridTemplateColumns: {
             default: 'repeat(auto-fit, minmax(280px, 1fr))',
         },
-        gap: '16px',
+        gap: space['4'],
     },
     swatchGrid: {
         display: 'grid',
         gridTemplateColumns: {
             default: 'repeat(auto-fill, minmax(140px, 1fr))',
         },
-        gap: '12px',
+        gap: space['3'],
     },
     statusRow: {
         display: 'flex',
         alignItems: 'center',
-        gap: '8px',
+        gap: space['2'],
     },
 });
 
@@ -94,7 +95,7 @@ export function App() {
                 <ExperimentShell
                     panelPlacement={panelPlacement}
                     panel={
-                        <ControlPanel label="Laboratory Workbench Controls">
+                        <ControlPanel title="Workbench" label="Laboratory Workbench Controls">
                             <ControlSection title="Environment & Shell">
                                 <Select
                                     label="Theme"
@@ -229,7 +230,6 @@ export function App() {
                         >
                             <div {...stylex.props(styles.cardContent)}>
                                 <SectionHeading
-                                    index="01"
                                     title="Live Surface Composition Studio"
                                     color={activeColor}
                                 />
@@ -246,7 +246,7 @@ export function App() {
                                     <Badge color={activeColor} elevation="raised">
                                         Elevation: {activeElevation}
                                     </Badge>
-                                    <div {...stylex.props(styles.statusRow)}>
+                                    <Stack direction="horizontal" gap="2">
                                         <Led color={activeColor} live={true} />
                                         <Readout
                                             label="LED"
@@ -254,7 +254,7 @@ export function App() {
                                             color={activeColor}
                                             background="soft"
                                         />
-                                    </div>
+                                    </Stack>
                                 </Stack>
 
                                 <Stack direction="horizontal" gap="3">
@@ -320,7 +320,6 @@ export function App() {
                         <Card color="neutral" background="soft" border="subtle" radius="md">
                             <div {...stylex.props(styles.cardContent)}>
                                 <SectionHeading
-                                    index="02"
                                     title="Button Palette & Surface Variants"
                                     color="aurora"
                                 />
@@ -378,7 +377,6 @@ export function App() {
                         <Card color="neutral" background="soft" border="subtle" radius="md">
                             <div {...stylex.props(styles.cardContent)}>
                                 <SectionHeading
-                                    index="03"
                                     title="Sliders, Toggles & Interactive Inputs"
                                     color="solder"
                                 />
@@ -500,11 +498,9 @@ export function App() {
                         <Card color="neutral" background="soft" border="subtle" radius="md">
                             <div {...stylex.props(styles.cardContent)}>
                                 <SectionHeading
-                                    index="04"
                                     title="Telemetry Readouts & Status Indicators"
                                     color="amber"
                                 />
-
                                 <ControlField label="Diagnostic Metrics Bar">
                                     <Stack direction="horizontal" gap="3">
                                         <Readout
@@ -566,7 +562,6 @@ export function App() {
                         <Card color="neutral" background="soft" border="subtle" radius="md">
                             <div {...stylex.props(styles.cardContent)}>
                                 <SectionHeading
-                                    index="05"
                                     title="Palette Tokens & Surface Recipes"
                                     color="purple"
                                 />
