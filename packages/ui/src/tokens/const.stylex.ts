@@ -184,9 +184,6 @@ export const layout = stylex.defineConsts({
     spinnerRingWidth: '2px',
     chipPadBlock: '2px',
 
-    sliderRailHeight: '4px',
-    sliderThumbSize: '14px',
-
     swatchMinWidth: '160px',
     swatchHeight: '64px',
     textMaxWidth: '62ch',

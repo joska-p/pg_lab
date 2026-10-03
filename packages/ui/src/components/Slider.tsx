@@ -5,7 +5,12 @@ import { surfaceStyles } from '../recipes/surface';
 import type { SurfaceProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { layout, space } from '../tokens/const.stylex';
+import { tintVars } from '../tokens/tint.stylex';
 import type { LayoutStyle } from '../types';
+
+// Dimensions locales (px). À remplacer par des tokens `layout.*` si tu les agrandis.
+const RAIL = 6;
+const THUMB = 18;
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -21,11 +26,18 @@ function decimals(step: number) {
     );
 }
 
+// Position (0 à 1) → distance depuis la gauche, mesurée au centre du thumb.
+// Le thumb reste ainsi entièrement dans le conteneur aux deux extrémités.
+const centerAt = (ratio: number) => `calc(${THUMB / 2}px + (100% - ${THUMB}px) * ${ratio})`;
+
 const styles = stylex.create({
     row: {
         display: 'flex',
         alignItems: 'center',
         gap: space['3'],
+    },
+    rowDisabled: {
+        opacity: 0.5,
     },
     container: {
         position: 'relative',
@@ -39,34 +51,41 @@ const styles = stylex.create({
         right: 0,
         top: '50%',
         transform: 'translateY(-50%)',
-        height: layout.sliderRailHeight,
+        height: RAIL,
         overflow: 'hidden',
     },
-    // `currentColor` = la couleur définie par surfaceStyles sur la piste.
-    fill: (progress: string) => ({
+    // Le fill porte la couleur via sa propre surface solide.
+    fill: (ratio: number) => ({
         position: 'absolute',
         top: 0,
         bottom: 0,
         left: 0,
-        width: progress,
-        backgroundColor: 'currentColor',
+        width: centerAt(ratio),
     }),
     thumb: {
         position: 'absolute',
         top: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: layout.sliderThumbSize,
-        height: layout.sliderThumbSize,
+        width: THUMB,
+        height: THUMB,
         pointerEvents: 'none',
-        // Anneau de focus piloté par l'input frère placé après le thumb.
+        transform: {
+            default: 'translate(-50%, -50%) scale(1)',
+            [stylex.when.siblingAfter(':hover')]: 'translate(-50%, -50%) scale(1.1)',
+            [stylex.when.siblingAfter(':active')]: 'translate(-50%, -50%) scale(0.94)',
+        },
+        transitionProperty: 'transform',
+        transitionDuration: {
+            default: '120ms',
+            '@media (prefers-reduced-motion: reduce)': '0ms',
+        },
         outline: {
             default: 'none',
-            [stylex.when.siblingAfter(':focus-visible')]: '2px solid currentColor',
+            [stylex.when.siblingAfter(':focus-visible')]: `3px solid ${tintVars.color}`,
         },
-        outlineOffset: '2px',
+        outlineOffset: 3,
     },
-    thumbAt: (progress: string) => ({
-        left: progress,
+    thumbAt: (ratio: number) => ({
+        left: centerAt(ratio),
     }),
     input: {
         position: 'absolute',
@@ -77,9 +96,13 @@ const styles = stylex.create({
         opacity: 0,
         cursor: 'pointer',
     },
+    inputDisabled: {
+        cursor: 'not-allowed',
+    },
     value: {
         minWidth: space['10'],
         textAlign: 'right',
+        fontVariantNumeric: 'tabular-nums',
     },
 });
 
@@ -112,10 +135,10 @@ interface SliderProps
 export function Slider({
     label,
     color = 'neutral',
-    background = 'solid',
+    background = 'soft', // la piste est un voile teinté ; le fill et le thumb sont pleins
     border = 'strong',
     radius = 'full',
-    elevation = 'flat',
+    elevation = 'raised', // appliqué au thumb
     min,
     max,
     step = 1,
@@ -133,11 +156,26 @@ export function Slider({
     const isControlled = value !== undefined;
     const current = clamp(isControlled ? value : internal, min, max);
     const precision = decimals(step);
-    const progress = `${((current - min) / (max - min)) * 100}%`;
-    const surface = surfaceStyles({ color, background, border, radius, elevation });
+    const ratio = max > min ? (current - min) / (max - min) : 0;
+
+    const trackSurface = surfaceStyles({ color, background, border, radius, elevation: 'flat' });
+    const fillSurface = surfaceStyles({
+        color,
+        background: 'solid',
+        border: 'none',
+        radius: 'none', // la piste clippe déjà avec overflow: hidden
+    });
+    const thumbSurface = surfaceStyles({
+        color,
+        background: 'solid',
+        border,
+        radius: 'full',
+        elevation,
+    });
 
     function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-        const next = clamp(Number(event.currentTarget.value), min, max);
+        // Arrondi à la précision du pas pour éviter 0.30000000000000004.
+        const next = clamp(Number(Number(event.currentTarget.value).toFixed(precision)), min, max);
         if (!isControlled) {
             setInternal(next);
         }
@@ -145,18 +183,18 @@ export function Slider({
     }
 
     return (
-        <div {...stylex.props(styles.row)}>
-            {label ? (
+        <div {...stylex.props(styles.row, disabled && styles.rowDisabled)}>
+            {label && (
                 <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
                     {label}
                 </label>
-            ) : null}
+            )}
 
             <div {...stylex.props(styles.container, style)}>
-                <div {...stylex.props(surface, styles.track)}>
-                    <div {...stylex.props(styles.fill(progress))} />
+                <div {...stylex.props(trackSurface, styles.track)}>
+                    <div {...stylex.props(fillSurface, styles.fill(ratio))} />
                 </div>
-                <div {...stylex.props(surface, styles.thumb, styles.thumbAt(progress))} />
+                <div {...stylex.props(thumbSurface, styles.thumb, styles.thumbAt(ratio))} />
 
                 <input
                     {...props}
@@ -168,7 +206,11 @@ export function Slider({
                     value={current}
                     onChange={handleChange}
                     disabled={disabled}
-                    {...stylex.props(styles.input, stylex.defaultMarker())}
+                    {...stylex.props(
+                        styles.input,
+                        disabled && styles.inputDisabled,
+                        stylex.defaultMarker(),
+                    )}
                 />
             </div>
 
