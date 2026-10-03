@@ -110,7 +110,7 @@ export function ColorField({
                             color: invalid ? 'orange' : 'neutral',
                             background: 'soft',
                             border: 'strong',
-                            radius: 'sm',
+                            radius: 'none',
                         }),
                         styles.input,
                         interactionStyles({ disabled }),

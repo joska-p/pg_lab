@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 
-import { space } from '../tokens/const.stylex';
+import { layout, space } from '../tokens/const.stylex';
 import { interactions } from './interactions';
 import { surfaceStyles } from './surface';
 
@@ -20,9 +20,13 @@ export const field = stylex.create({
     },
     // Gabarit d'un puits de saisie (texte, nombre, select...) : dimensions et
     // padding seulement. Fond, bordure, rayon et ombre viennent de surfaceStyles.
+    // `minHeight` porte le plancher tactile de 44px — le padding vertical ne le
+    // fait plus, il ne sert que le textarea et les polices plus hautes. Le
+    // navigateur centre la valeur dans la boîte, donc le texte reste centré.
     well: {
         width: '100%',
         minWidth: 0,
+        minHeight: layout.controlTouchTarget,
         margin: 0,
         paddingBlock: space['2'],
         paddingInline: space['3'],

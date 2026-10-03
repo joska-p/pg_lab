@@ -9,7 +9,7 @@ const styles = stylex.create({
         display: 'flex',
         flexDirection: 'column',
         gap: space['2'],
-        minHeight: layout.controlFieldMinHeight,
+        minHeight: layout.controlTouchTarget,
         justifyContent: 'center',
     },
 });

@@ -5,7 +5,7 @@ import { interactionStyles } from '../recipes/interactions';
 import { surfaceStyles } from '../recipes/surface';
 import type { SurfaceProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
-import { space } from '../tokens/const.stylex';
+import { layout, space } from '../tokens/const.stylex';
 import type { LayoutStyle } from '../types';
 
 interface SegmentOption<T extends string> {
@@ -47,6 +47,11 @@ const styles = stylex.create({
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
+        // C'est le segment, pas la piste, qui est la cible tactile : deux cibles
+        // de 44px ne peuvent pas se chevaucher dans un groupe, donc on ne peut pas
+        // agrandir la zone de clic à la façon de Toggle/Checkbox. Le segment
+        // occupe 44px et le padding du groupe dessine l'encoche qui le détache.
+        minHeight: layout.controlTouchTarget,
         paddingBlock: space['2'],
         paddingInline: space['3'],
         // Anneau de focus piloté par l'input radio contenu dans le label.

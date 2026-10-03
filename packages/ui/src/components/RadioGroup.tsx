@@ -34,7 +34,7 @@ const styles = stylex.create({
     options: {
         display: 'flex',
         flexDirection: 'column',
-        gap: space['2'],
+        gap: space['4'],
         flex: 1,
         minWidth: 0,
     },

@@ -15,7 +15,7 @@ const styles = stylex.create({
         gap: space['2'],
         paddingBlock: space['2'],
         paddingInline: space['4'],
-        minHeight: layout.controlFieldMinHeight,
+        minHeight: layout.controlTouchTarget,
         fontFamily: typography.fontFamilySans,
         fontSize: typography.fontSizeSm,
         fontWeight: typography.fontWeightMedium,

@@ -159,8 +159,6 @@ export const layout = stylex.defineConsts({
     panelMaxMobileHeight: '300px',
     panelGap: '12px',
 
-    controlFieldMinHeight: '44px',
-
     controlTouchTarget: '44px',
 
     toggleTrackWidth: '34px',
@@ -177,8 +175,8 @@ export const layout = stylex.defineConsts({
 
     ledAtomSize: '7px',
 
-    colorSwatchWidth: '36px',
-    colorSwatchHeight: '26px',
+    colorSwatchWidth: '44px',
+    colorSwatchHeight: '44px',
     colorSwatchPad: '2px',
 
     chevronSize: '12px',
