@@ -10,12 +10,13 @@ import { Suspense, use, useEffect } from 'react';
 import { EXPERIMENTS, loadControls, loadScene } from './experiments';
 import type { ExperimentKey } from './experiments';
 import { useHashRoute } from './hooks/useHashRoute';
-import { useExperimentKey } from './stores/appStore';
-import { setExperimentKey } from './stores/appStore';
+import { setExperimentKey, useExperimentKey, useShellBackground } from './stores/appStore';
 
 function LoadingFallback() {
+    const shellBackground = useShellBackground();
+
     return (
-        <ShellWrapper>
+        <ShellWrapper background={shellBackground}>
             <Stage label="loading">
                 <p>Loading…</p>
             </Stage>
@@ -34,6 +35,7 @@ export function App() {
     const controlsModule = use(loadControls(experimentKey));
     const { Scene, stageProps } = sceneModule;
     const { Controls } = controlsModule;
+    const shellBackground = useShellBackground();
 
     useHashRoute();
 
@@ -44,7 +46,7 @@ export function App() {
     return (
         <Suspense fallback={<LoadingFallback />}>
             <ErrorBoundary showStack={import.meta.env.DEV}>
-                <ShellWrapper>
+                <ShellWrapper background={shellBackground}>
                     <ExperimentShell
                         panel={
                             <ControlPanel title={EXPERIMENTS[experimentKey].panelTitle}>

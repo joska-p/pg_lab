@@ -4,37 +4,124 @@ import type { StyleXStyles } from '@stylexjs/stylex';
 import { palette } from '../tokens/const.stylex';
 import { surface } from '../tokens/surface.stylex';
 
+export const backgrounds = stylex.create({
+    'thermal-magma': {
+        backgroundImage: `
+            radial-gradient(
+                70% 60% at 15% 15%,
+                color-mix(in oklab, light-dark(${palette.neutralRed}, ${palette.brightRed}) 50%, transparent),
+                transparent 80%
+            ),
+            radial-gradient(
+                65% 65% at 85% 20%,
+                color-mix(in oklab, light-dark(${palette.neutralOrange}, ${palette.brightOrange}) 45%, transparent),
+                transparent 80%
+            ),
+            radial-gradient(
+                75% 70% at 80% 80%,
+                color-mix(in oklab, light-dark(${palette.neutralPurple}, ${palette.brightPurple}) 40%, transparent),
+                transparent 80%
+            ),
+            radial-gradient(
+                60% 60% at 20% 85%,
+                color-mix(in oklab, light-dark(${palette.neutralBlue}, ${palette.brightBlue}) 40%, transparent),
+                transparent 80%
+            ),
+            radial-gradient(
+                50% 50% at 50% 50%,
+                color-mix(in oklab, light-dark(${palette.neutralYellow}, ${palette.brightYellow}) 35%, transparent),
+                transparent 75%
+            )
+        `,
+    },
+
+    'auroral-fluid': {
+        backgroundImage: `
+            radial-gradient(
+                80% 50% at 50% 0%,
+                color-mix(in oklab, light-dark(${palette.fadedAqua}, ${palette.brightAqua}) 65%, transparent),
+                transparent 75%
+            ),
+            radial-gradient(
+                60% 70% at 0% 50%,
+                color-mix(in oklab, light-dark(${palette.fadedPurple}, ${palette.brightPurple}) 60%, transparent),
+                transparent 75%
+            ),
+            radial-gradient(
+                60% 70% at 100% 50%,
+                color-mix(in oklab, light-dark(${palette.fadedYellow}, ${palette.brightYellow}) 60%, transparent),
+                transparent 75%
+            ),
+            radial-gradient(
+                70% 60% at 30% 100%,
+                color-mix(in oklab, light-dark(${palette.fadedGreen}, ${palette.brightGreen}) 55%, transparent),
+                transparent 80%
+            ),
+            radial-gradient(
+                70% 60% at 70% 100%,
+                color-mix(in oklab, light-dark(${palette.fadedRed}, ${palette.brightRed}) 55%, transparent),
+                transparent 80%
+            )
+        `,
+    },
+
+    'lava-flow': {
+        backgroundImage: `
+            radial-gradient(
+                60% 60% at 30% 25%,
+                color-mix(in oklab, light-dark(${palette.neutralOrange}, ${palette.brightOrange}) 55%, transparent),
+                transparent 75%
+            ),
+            radial-gradient(
+                70% 50% at 75% 30%,
+                color-mix(in oklab, light-dark(${palette.neutralRed}, ${palette.brightRed}) 50%, transparent),
+                transparent 80%
+            ),
+            radial-gradient(
+                65% 65% at 50% 75%,
+                color-mix(in oklab, light-dark(${palette.neutralYellow}, ${palette.brightYellow}) 45%, transparent),
+                transparent 80%
+            ),
+            radial-gradient(
+                55% 55% at 10% 80%,
+                color-mix(in oklab, light-dark(${palette.neutralPurple}, ${palette.brightPurple}) 40%, transparent),
+                transparent 75%
+            ),
+            radial-gradient(
+                50% 50% at 90% 85%,
+                color-mix(in oklab, light-dark(${palette.neutralBlue}, ${palette.brightBlue}) 35%, transparent),
+                transparent 75%
+            )
+        `,
+    },
+});
+
+export type ShellBackground = keyof typeof backgrounds;
+
 const styles = stylex.create({
     base: {
         width: '100%',
         height: '100dvh',
         boxSizing: 'border-box',
-        // Le fond et le texte de page vivent ici : c'est le seul endroit où
-        // surface.background / surface.foreground sont posés.
         backgroundColor: surface.background,
         color: surface.foreground,
-        backgroundImage: `
-      radial-gradient(45% 35% at 4% 6%, color-mix(in oklab, ${palette.brightRed} 30%, transparent), transparent 70%),
-      radial-gradient(40% 35% at 96% 8%, color-mix(in oklab, ${palette.brightOrange} 28%, transparent), transparent 70%),
-      radial-gradient(50% 40% at 88% 88%, color-mix(in oklab, ${palette.brightYellow} 26%, transparent), transparent 70%),
-      radial-gradient(45% 45% at 8% 92%, color-mix(in oklab, ${palette.brightGreen} 28%, transparent), transparent 70%),
-      radial-gradient(55% 40% at 50% 0%, color-mix(in oklab, ${palette.brightAqua} 24%, transparent), transparent 70%),
-      radial-gradient(50% 50% at 100% 55%, color-mix(in oklab, ${palette.brightBlue} 30%, transparent), transparent 70%),
-      radial-gradient(45% 40% at 0% 50%, color-mix(in oklab, ${palette.brightPurple} 28%, transparent), transparent 70%),
-      radial-gradient(35% 30% at 50% 55%, color-mix(in oklab, ${palette.neutralYellow} 20%, transparent), transparent 70%),
-      linear-gradient(160deg, color-mix(in oklab, ${palette.gray244} 20%, transparent), transparent 65%)
-    `,
     },
 });
 
 interface ShellWrapperProps extends Omit<React.ComponentProps<'div'>, 'style' | 'className'> {
     children?: React.ReactNode;
+    background?: ShellBackground;
     style?: StyleXStyles;
 }
 
-export function ShellWrapper({ children, style, ...props }: ShellWrapperProps) {
+export function ShellWrapper({
+    children,
+    background = 'auroral-fluid',
+    style,
+    ...props
+}: ShellWrapperProps) {
     return (
-        <div {...props} {...stylex.props(styles.base, style)}>
+        <div {...props} {...stylex.props(styles.base, backgrounds[background], style)}>
             {children}
         </div>
     );
