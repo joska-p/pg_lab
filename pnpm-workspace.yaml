@@ -20,8 +20,8 @@ catalog:
     react-dom: ^19.3.0
     typescript: ^7.0.2
     unplugin-stylex: ^0.6.3
-    vite: npm:@voidzero-dev/vite-plus-core@1.0.0
-    vite-plus: 1.0.0
+    vite: npm:@voidzero-dev/vite-plus-core@1.1.0
+    vite-plus: 1.1.0
     zod: ^4.6.5
     zustand: ^5.0.15
 overrides:
