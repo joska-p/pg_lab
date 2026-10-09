@@ -9,7 +9,7 @@ import { StateIOButtons } from './StateIOButtons';
 const styles = stylex.create({
     grid: {
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(2, 1fr)',
         gap: space['2'],
     },
 });

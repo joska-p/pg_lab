@@ -9,21 +9,21 @@ import {
     useAnimationSpeed,
     useChannelTrees,
     useColorSpace,
+    useMode,
     useSeedText,
 } from '../stores/randomart/selectors';
+import { FloatingInspector } from './inspector/FloatingInspector';
+import { TestMode } from './testMode/TestMode';
 
 const styles = stylex.create({
     frame: {
-        position: 'relative',
-        flex: 1,
-        display: 'flex',
-        minWidth: 0,
-        minHeight: 0,
-        overflow: 'hidden',
+        aspectRatio: 1,
+        marginInline: 'auto',
+        height: '100%',
     },
 });
 
-export function Scene() {
+function PlayScene() {
     const seedText = useSeedText();
     const trees = useChannelTrees();
     const activeBehaviorIds = useActiveBehaviorIds();
@@ -43,15 +43,27 @@ export function Scene() {
     }, []);
 
     return (
-        <div {...stylex.props(styles.frame)}>
-            <GpuCanvas
-                fragmentShader={fragmentShader}
-                uniforms={() => ({ u_animSpeed: animationSpeed })}
-                onClockStore={setClockStore}
-                onMount={setGpuSurface}
-                clockOptions={{ autoStart: false }}
-                canvasInteractions={{ pan: false, zoom: false }}
-            />
-        </div>
+        <>
+            <div {...stylex.props(styles.frame)}>
+                <GpuCanvas
+                    fragmentShader={fragmentShader}
+                    uniforms={() => ({ u_animSpeed: animationSpeed })}
+                    onClockStore={setClockStore}
+                    onMount={setGpuSurface}
+                    clockOptions={{ autoStart: false }}
+                    canvasInteractions={{ pan: false, zoom: false }}
+                />
+            </div>
+            <FloatingInspector />
+        </>
     );
+}
+
+// Play mode renders the generated shader; test mode owns the stage with the
+// per-operator CPU/GPU gallery (the play canvas is unmounted, so its published
+// surface is cleared and PNG export disables).
+export function Scene() {
+    const mode = useMode();
+
+    return mode === 'test' ? <TestMode /> : <PlayScene />;
 }

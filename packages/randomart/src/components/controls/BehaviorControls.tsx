@@ -12,7 +12,7 @@ const BEHAVIOR_KINDS = getBehaviorKinds();
 const styles = stylex.create({
     grid: {
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
+        gridTemplateColumns: 'repeat(2, 1fr)',
         gap: space['2'],
     },
 });

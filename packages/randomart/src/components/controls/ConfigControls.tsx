@@ -18,7 +18,7 @@ const COLOR_SPACES: { id: ColorSpaceId; label: string }[] = [
 const styles = stylex.create({
     colorSpaces: {
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(2, 1fr)',
         gap: space['2'],
     },
 });
