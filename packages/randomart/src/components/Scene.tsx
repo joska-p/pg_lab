@@ -1,8 +1,9 @@
 import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
 import * as stylex from '@stylexjs/stylex';
+import { useEffect } from 'react';
 
 import { compileToShader, getBehavior } from '../core';
-import { setClockStore } from '../stores/randomart/actions';
+import { setClockStore, setGpuSurface } from '../stores/randomart/actions';
 import {
     useActiveBehaviorIds,
     useAnimationSpeed,
@@ -32,14 +33,22 @@ export function Scene() {
     const behaviors = activeBehaviorIds.map((id) => getBehavior(id));
     const fragmentShader = compileToShader({ seedText, trees, behaviors, colorSpace });
 
+    // The surface has its own lifecycle (owned by `GpuCanvas`); clear the
+    // published reference when this scene unmounts so a reload reads pixels
+    // from a live surface, not a destroyed one.
+    useEffect(() => {
+        return () => {
+            setGpuSurface(null);
+        };
+    }, []);
+
     return (
         <div {...stylex.props(styles.frame)}>
             <GpuCanvas
                 fragmentShader={fragmentShader}
                 uniforms={() => ({ u_animSpeed: animationSpeed })}
                 onClockStore={setClockStore}
-                // Parity with the source app, which starts paused. Play/pause is
-                // owned by the clock; controls toggle it via the published store.
+                onMount={setGpuSurface}
                 clockOptions={{ autoStart: false }}
                 canvasInteractions={{ pan: false, zoom: false }}
             />

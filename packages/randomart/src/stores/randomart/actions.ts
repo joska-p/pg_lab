@@ -1,3 +1,4 @@
+import type { GpuSurface } from '@repo/glaze/gpu/GpuSurface';
 import type { ClockStore } from '@repo/glaze/react/types';
 
 import { getRule } from '../../core';
@@ -68,6 +69,12 @@ export function setActiveChannel(channel: Channel): void {
 // controls can reach it (reachability, not ownership).
 export function setClockStore(clockStore: ClockStore): void {
     randomartStore.setState({ clockStore });
+}
+
+// Same reachability seam for the render surface itself: `GpuCanvas` publishes
+// it on mount, controls clear it on unmount. PNG export reads its pixels.
+export function setGpuSurface(gpuSurface: GpuSurface | null): void {
+    randomartStore.setState({ gpuSurface });
 }
 
 export function toggleBehavior(id: BehaviorId): void {

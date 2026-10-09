@@ -1,3 +1,4 @@
+import type { GpuSurface } from '@repo/glaze/gpu/GpuSurface';
 import type { ClockStore } from '@repo/glaze/react/types';
 
 import type {
@@ -47,6 +48,10 @@ export function useClockStore(): ClockStore {
 
 export function useHasClockStore(): boolean {
     return randomartStore((s) => s.clockStore !== nullClockStore);
+}
+
+export function useGpuSurface(): GpuSurface | null {
+    return randomartStore((s) => s.gpuSurface);
 }
 
 export function useAnimationSpeed(): number {

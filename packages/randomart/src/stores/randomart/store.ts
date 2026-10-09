@@ -1,3 +1,4 @@
+import type { GpuSurface } from '@repo/glaze/gpu/GpuSurface';
 import { createNullClockStore } from '@repo/glaze/react/clockStore';
 import type { ClockStore } from '@repo/glaze/react/types';
 import { create } from 'zustand';
@@ -22,6 +23,9 @@ export interface RandomartState extends RandomartConfig {
     mode: Mode;
     activeChannel: Channel;
     clockStore: ClockStore;
+    // Reachability of the live render surface (owned by `GpuCanvas`), so controls
+    // can read the rendered pixels for PNG export. Null until the surface mounts.
+    gpuSurface: GpuSurface | null;
     animationSpeed: number;
     activeBehaviorIds: BehaviorId[];
     colorSpace: ColorSpaceId;
@@ -33,13 +37,13 @@ export interface RandomartRecipe extends RandomartConfig {
     activeBehaviorIds: BehaviorId[];
 }
 
-// The store owns shared values: generation config + UI selection, plus a
-// stable reference to the surface's clock (reachability, not ownership — the
-// surface owns its lifecycle). Channel trees are NOT stored — consumers derive
-// them with useChannelTrees, so a config change cannot leave stale trees
-// behind. Per-frame time and play/pause are NOT stored either: the clock owns
-// them and consumers subscribe to it (the ClockStore pattern in art-canvas)
-// instead of broadcasting every frame through zustand.
+// The store owns shared values: generation config + UI selection, plus stable
+// references to the surface's clock and render surface (reachability, not
+// ownership — the surface owns its lifecycle). Channel trees are NOT stored —
+// consumers derive them with useChannelTrees, so a config change cannot leave
+// stale trees behind. Per-frame time and play/pause are NOT stored either: the
+// clock owns them and consumers subscribe to it (the ClockStore pattern in
+// art-canvas) instead of broadcasting every frame through zustand.
 //
 // `nullClockStore` is a sentinel: the store starts with it, and `GpuCanvas`
 // replaces it with the real store once the surface mounts.
@@ -57,6 +61,7 @@ function generateInitial(): RandomartState {
         minDepth: preset.minDepth,
         maxDepth: preset.maxDepth,
         clockStore: nullClockStore,
+        gpuSurface: null,
         animationSpeed: 0.3,
         activeBehaviorIds: ['hue-shift'],
         colorSpace: 'srgb',
