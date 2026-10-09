@@ -113,10 +113,13 @@ export const mouseProximityBehavior = {
     kind: 'spatial',
     applyCode: ({ spatial }: ApplyCodeContext) => {
         return [
-            `vec2 fragPx = vec2(v_texCoord.x * u_resolution.x, (1.0 - v_texCoord.y) * u_resolution.y);`,
-            `float distToMouse = length(fragPx - u_mouse);`,
+            // Glaze hands us `u_mouse` normalized to [0, 1] with y pointing up;
+            // the behavior works in pixels measured from the top-left.
+            `vec2 mousePx = vec2(u_mouse.x, 1.0 - u_mouse.y) * u_resolution;`,
+            `vec2 fragPx = vec2(vUv.x, 1.0 - vUv.y) * u_resolution;`,
+            `float distToMouse = length(fragPx - mousePx);`,
             `float force = 1.0 - smoothstep(0.0, 300.0, distToMouse);`,
-            `${spatial} += normalize(fragPx - u_mouse) * force * 0.25;`,
+            `${spatial} += normalize(fragPx - mousePx) * force * 0.25;`,
         ].join('\n  ');
     },
 } as const;

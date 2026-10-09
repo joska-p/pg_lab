@@ -55,7 +55,7 @@ vec3 applyLaplacianEdges(vec3 baseColor, vec2 uv, float time) {
 }
 `,
     applyCode: ({ time, speed, color }: ApplyCodeContext) =>
-        `${color} = applyLaplacianEdges(${color}, v_texCoord, ${time} * ${speed});`,
+        `${color} = applyLaplacianEdges(${color}, vUv, ${time} * ${speed});`,
 } as const;
 
 export const vignetteBehavior = {

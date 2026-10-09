@@ -65,7 +65,9 @@ export interface ApplyBehaviorsProps {
 
 function applyBehaviors({ behaviors, behaviorType }: ApplyBehaviorsProps): string {
     const ctx: ApplyCodeContext = {
-        time: 'u_time',
+        // `u_clockTime` is Glaze's pause-aware clock time: the renderer maps the
+        // play/pause control onto the surface clock instead of a raw wall clock.
+        time: 'u_clockTime',
         speed: 'u_animSpeed',
         spatial: 'p',
         color: 'color',
@@ -115,22 +117,22 @@ export function compileToShader({
     return `#version 300 es
 precision highp float;
 
-uniform float u_time;
+uniform float u_clockTime;
 uniform float u_animSpeed;
 uniform vec2 u_resolution;
 uniform vec2 u_mouse;
 
-in vec2 v_texCoord;
+in vec2 vUv;
 
 out vec4 fragColor;
 
 ${buildShaderPreamble({ noiseIds: [...noiseDeps], behaviors })}
 ${colorSpaceGlsl ? `${colorSpaceGlsl}\n` : ''}
 void main() {
-  vec2 p = v_texCoord * 2.0 - 1.0;
+  vec2 p = vUv * 2.0 - 1.0;
   p.y = -p.y;
 
-  float t_time = u_time;
+  float t_time = u_clockTime;
   float t_speed = u_animSpeed;
   ${spatialCode}
 

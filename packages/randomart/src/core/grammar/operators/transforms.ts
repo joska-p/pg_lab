@@ -92,7 +92,7 @@ export const oscOp = {
     argNames: ['value'],
     // Oscillates the input slowly over time within a perfect [-1, 1] bounds
     evaluate: ({ args, ctx }) => Math.sin((args.value ?? 0.5) + ctx.t * 0.5),
-    toGLSL: ({ args }) => `sin(${args.value} + u_time * 0.5)`,
+    toGLSL: ({ args }) => `sin(${args.value} + u_clockTime * 0.5)`,
     toMathString: ({ args }) => `osc(${args.value})`,
 } as const satisfies Operator;
 
@@ -108,6 +108,6 @@ export const shiftOp = {
         // Keep it wrapped between [-1, 1] cleanly
         return ((shifted + 1) % 2) - 1;
     },
-    toGLSL: ({ args }) => `(mod(${args.value} + u_time * 0.2 + 1.0, 2.0) - 1.0)`,
+    toGLSL: ({ args }) => `(mod(${args.value} + u_clockTime * 0.2 + 1.0, 2.0) - 1.0)`,
     toMathString: ({ args }) => `shift(${args.value})`,
 } as const satisfies Operator;
