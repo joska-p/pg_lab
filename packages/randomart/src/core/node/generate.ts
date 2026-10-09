@@ -1,11 +1,13 @@
 import type { Buffer } from 'node:buffer';
 
+import { CHANNELS } from '../color.ts';
+import type { Channel } from '../color.ts';
 import { compileToShader } from '../compileToGLSL.ts';
 import { toMathString } from '../format.ts';
 import { DEFAULT_RULE_ID, getRule } from '../grammar/rules/registry.ts';
 import type { RuleId } from '../grammar/rules/registry.ts';
 import { buildChannelTrees, evaluate } from '../tree.ts';
-import type { Node } from '../tree.ts';
+import type { ChannelTrees } from '../tree.ts';
 import { encodePNG } from './png.ts';
 
 export interface GenerateOptions {
@@ -17,12 +19,8 @@ export interface GenerateOptions {
 export interface GenerateResult {
     png: Buffer;
     shader: string;
-    mathR: string;
-    mathG: string;
-    mathB: string;
-    treeR: Node;
-    treeG: Node;
-    treeB: Node;
+    math: Record<Channel, string>;
+    trees: ChannelTrees;
 }
 
 export interface GenerateError {
@@ -59,7 +57,7 @@ export function generate(
             };
         }
 
-        const { treeR, treeG, treeB } = buildChannelTrees({
+        const trees = buildChannelTrees({
             seedText,
             rule,
             correlated: false,
@@ -73,29 +71,27 @@ export function generate(
 
             for (let px = 0; px < size; px++) {
                 const x = (px / (size - 1 || 1)) * 2 - 1;
-                const r = Math.round((evaluate(treeR, x, y) + 1) * 127.5);
-                const g = Math.round((evaluate(treeG, x, y) + 1) * 127.5);
-                const b = Math.round((evaluate(treeB, x, y) + 1) * 127.5);
                 const idx = (py * size + px) * 3;
 
-                pixels[idx] = Math.max(0, Math.min(255, r));
-                pixels[idx + 1] = Math.max(0, Math.min(255, g));
-                pixels[idx + 2] = Math.max(0, Math.min(255, b));
+                for (let offset = 0; offset < CHANNELS.length; offset++) {
+                    const value = Math.round((evaluate(trees[CHANNELS[offset]], x, y) + 1) * 127.5);
+                    pixels[idx + offset] = Math.max(0, Math.min(255, value));
+                }
             }
         }
 
         const png = encodePNG(pixels, size, size);
-        const shader = compileToShader({ seedText, treeR, treeG, treeB });
+        const shader = compileToShader({ seedText, trees });
 
         return {
             png,
             shader,
-            mathR: toMathString(treeR),
-            mathG: toMathString(treeG),
-            mathB: toMathString(treeB),
-            treeR,
-            treeG,
-            treeB,
+            trees,
+            math: {
+                red: toMathString(trees.red),
+                green: toMathString(trees.green),
+                blue: toMathString(trees.blue),
+            },
         };
     } catch (err) {
         return { error: (err as Error).message };

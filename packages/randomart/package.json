@@ -6,8 +6,9 @@
     "scripts": {
         "dev": "vp dev --host",
         "build": "tsc -b && vp build",
-        "lint": "vp lint",
-        "preview": "vp preview"
+        "check": "vp check",
+        "preview": "vp preview",
+        "randomart": "tsx src/core/node/cli.ts"
     },
     "dependencies": {
         "@repo/glaze": "workspace:*",
@@ -26,6 +27,7 @@
         "@vitejs/plugin-react": "catalog:",
         "babel-plugin-react-compiler": "catalog:",
         "lightningcss": "catalog:",
+        "tsx": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",
         "vite-plus": "catalog:"

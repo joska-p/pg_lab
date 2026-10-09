@@ -3,10 +3,9 @@ export type {
     ApplyBehaviorsProps,
     CollectNoiseDependenciesProps,
     CompileToShaderProps,
-    compileColorExpressionProps,
 } from './compileToGLSL';
-export { createColorMapper, parseHex } from './color';
-export type { RGB } from './color';
+export { CHANNELS, createColorMapper, parseHex } from './color';
+export type { Channel, RGB } from './color';
 export { toMathString, toTreeView } from './format';
 export type { TreeView } from './format';
 export { getColorSpaceGlslFunction, wrapWithColorSpaceConversion } from './glsl-color-spaces';
@@ -23,7 +22,7 @@ export {
     toGLSL,
     toStructuredView,
 } from './tree';
-export type { BuildChannelTreesProps, BuildTreeProps, Node } from './tree';
+export type { BuildChannelTreesProps, BuildTreeProps, ChannelTrees, Node } from './tree';
 export { clamp } from './util';
 export { BEHAVIORS, getBehavior, getBehaviorKinds } from './behaviors/registry';
 export type {

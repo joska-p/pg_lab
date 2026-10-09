@@ -1,11 +1,12 @@
 import type { ApplyCodeContext, Behavior } from './behaviors/registry';
+import { CHANNELS } from './color';
 import { getColorSpaceGlslFunction, wrapWithColorSpaceConversion } from './glsl-color-spaces';
 import type { ColorSpaceId } from './glsl-color-spaces';
 import { resolveGlslDeps } from './glsl-library';
 import { getOperator } from './grammar/operators/registry';
 import { seededShuffle } from './prng';
 import { toGLSL } from './tree';
-import type { Node } from './tree';
+import type { ChannelTrees, Node } from './tree';
 
 interface BuildShaderPreambleProps {
     noiseIds: string[];
@@ -76,45 +77,34 @@ function applyBehaviors({ behaviors, behaviorType }: ApplyBehaviorsProps): strin
         .join('\n');
 }
 
-/** @internal */
-export interface compileColorExpressionProps {
-    treeR: Node;
-    treeG: Node;
-    treeB: Node;
-}
-
-function compileColorExpression({ treeR, treeG, treeB }: compileColorExpressionProps): string {
-    return `vec3(${toGLSL(treeR, 'p')}, ${toGLSL(treeG, 'p')}, ${toGLSL(treeB, 'p')})`;
+function compileColorExpression(trees: ChannelTrees): string {
+    return `vec3(${CHANNELS.map((channel) => toGLSL(trees[channel], 'p')).join(', ')})`;
 }
 
 export interface CompileToShaderProps {
     seedText: string;
-    treeR: Node;
-    treeG: Node;
-    treeB: Node;
+    trees: ChannelTrees;
     behaviors?: Behavior[];
     colorSpace?: ColorSpaceId;
 }
 
 export function compileToShader({
     seedText,
-    treeR,
-    treeG,
-    treeB,
+    trees,
     behaviors = [],
     colorSpace = 'srgb',
 }: CompileToShaderProps): string {
     const deterministicBehaviors = seededShuffle(behaviors, `${seedText}_behaviors`);
     const noiseDeps = new Set<string>();
-    const colorExpr = compileColorExpression({ treeR, treeG, treeB });
+    const colorExpr = compileColorExpression(trees);
     const spatialCode = applyBehaviors({ behaviors, behaviorType: 'spatial' });
     const colorCode = applyBehaviors({ behaviors, behaviorType: 'color' });
     const colorSpaceGlsl = getColorSpaceGlslFunction(colorSpace);
 
     // TODO: make collectNoiseDependencies return a set of noise dependencies instead of mutating it
-    collectNoiseDependencies({ node: treeR, deps: noiseDeps });
-    collectNoiseDependencies({ node: treeG, deps: noiseDeps });
-    collectNoiseDependencies({ node: treeB, deps: noiseDeps });
+    for (const channel of CHANNELS) {
+        collectNoiseDependencies({ node: trees[channel], deps: noiseDeps });
+    }
 
     for (const behavior of deterministicBehaviors) {
         for (const id of behavior.noiseDependencies ?? []) {

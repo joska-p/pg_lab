@@ -1,6 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import process from 'node:process';
 
+import { CHANNELS } from '../color.ts';
 import { toTreeView } from '../format.ts';
 import { listRules, ruleIds } from '../grammar/rules/registry.ts';
 import type { RuleId } from '../types.ts';
@@ -143,15 +144,12 @@ async function main(): Promise<void> {
     console.log(`Wrote ${result.png.length} bytes to ${parsed.outputFile}`);
     console.log(`Rule:  ${parsed.ruleId ?? 'classic'}`);
     console.log();
-    console.log('R channel:');
-    console.log(`  Math: ${result.mathR}`);
-    console.log(toTreeView(result.treeR));
-    console.log('G channel:');
-    console.log(`  Math: ${result.mathG}`);
-    console.log(toTreeView(result.treeG));
-    console.log('B channel:');
-    console.log(`  Math: ${result.mathB}`);
-    console.log(toTreeView(result.treeB));
+
+    for (const channel of CHANNELS) {
+        console.log(`${channel} channel:`);
+        console.log(`  Math: ${result.math[channel]}`);
+        console.log(toTreeView(result.trees[channel]));
+    }
 }
 
 void main();

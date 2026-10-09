@@ -1,3 +1,4 @@
+import type { Channel } from './color';
 import type { TreeView } from './format';
 import { getOperator } from './grammar/operators/registry';
 import type { OperatorId } from './grammar/operators/registry';
@@ -191,6 +192,9 @@ export function toStructuredView(node: Node): TreeView {
 
 const STRUCTURE_RNG_DEPTH = 3;
 
+/** One tree per output channel; the channel is the key, so the two cannot drift apart. */
+export type ChannelTrees = Record<Channel, Node>;
+
 export interface BuildChannelTreesProps {
     seedText: string;
     rule: Rule;
@@ -201,61 +205,31 @@ export interface BuildChannelTreesProps {
  * Structural decisions come from a shared RNG, channel variation from per-channel RNGs — or a
  * single shared stream in `correlated` mode.
  */
-export function buildChannelTrees({ seedText, rule, correlated = false }: BuildChannelTreesProps): {
-    treeR: Node;
-    treeG: Node;
-    treeB: Node;
-} {
+export function buildChannelTrees({
+    seedText,
+    rule,
+    correlated = false,
+}: BuildChannelTreesProps): ChannelTrees {
     const pickRng =
         (structure: SeededRandom, channel: SeededRandom) =>
         (depth: number): SeededRandom =>
             depth < STRUCTURE_RNG_DEPTH ? structure : channel;
 
-    if (correlated) {
-        const { structure, channels } = createCorrelatedRng(seedText);
+    const { structure, channels } = correlated
+        ? createCorrelatedRng(seedText)
+        : createDualRng(seedText, rule.maxDepth);
 
-        return {
-            treeR: buildTree({
-                rule,
-                maxDepth: rule.maxDepth,
-                pickRng: pickRng(structure, channels[0]),
-                seedText,
-            }),
-            treeG: buildTree({
-                rule,
-                maxDepth: rule.maxDepth,
-                pickRng: pickRng(structure, channels[1]),
-                seedText,
-            }),
-            treeB: buildTree({
-                rule,
-                maxDepth: rule.maxDepth,
-                pickRng: pickRng(structure, channels[2]),
-                seedText,
-            }),
-        };
-    }
-
-    const { structure, channels } = createDualRng(seedText, rule.maxDepth);
+    const buildChannelTree = (channel: Channel): Node =>
+        buildTree({
+            rule,
+            maxDepth: rule.maxDepth,
+            pickRng: pickRng(structure, channels[channel]),
+            seedText,
+        });
 
     return {
-        treeR: buildTree({
-            rule,
-            maxDepth: rule.maxDepth,
-            pickRng: pickRng(structure, channels[0]),
-            seedText,
-        }),
-        treeG: buildTree({
-            rule,
-            maxDepth: rule.maxDepth,
-            pickRng: pickRng(structure, channels[1]),
-            seedText,
-        }),
-        treeB: buildTree({
-            rule,
-            maxDepth: rule.maxDepth,
-            pickRng: pickRng(structure, channels[2]),
-            seedText,
-        }),
+        red: buildChannelTree('red'),
+        green: buildChannelTree('green'),
+        blue: buildChannelTree('blue'),
     };
 }

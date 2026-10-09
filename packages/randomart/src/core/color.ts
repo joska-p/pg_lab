@@ -1,3 +1,8 @@
+// The RGB axis, single source of truth for its membership and canonical order.
+export const CHANNELS = ['red', 'green', 'blue'] as const;
+
+export type Channel = (typeof CHANNELS)[number];
+
 export interface RGB {
     r: number;
     g: number;

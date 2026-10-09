@@ -16,8 +16,6 @@ export default defineConfig({
         '*': 'vp check --fix',
     },
     fmt: {
-        ignorePatterns,
-
         tabWidth: 4,
         singleQuote: true,
         sortImports: true,

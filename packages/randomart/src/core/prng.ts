@@ -4,6 +4,8 @@
  * art.
  */
 
+import type { Channel } from './color';
+
 const textEncoder = new TextEncoder();
 
 function fnv1a(text: string): number {
@@ -56,24 +58,24 @@ export class SeededRandom {
 /** Tree-shape decisions stay identical across R/G/B while channel values diverge — two streams. */
 export interface DualRng {
     structure: SeededRandom;
-    channels: [SeededRandom, SeededRandom, SeededRandom];
+    channels: Record<Channel, SeededRandom>;
 }
 
 export function createDualRng(seedText: string, maxDepth: number): DualRng {
     return {
         structure: new SeededRandom(`${seedText}_struct_${String(maxDepth)}`),
-        channels: [
-            new SeededRandom(`${seedText}_red`),
-            new SeededRandom(`${seedText}_green`),
-            new SeededRandom(`${seedText}_blue`),
-        ],
+        channels: {
+            red: new SeededRandom(`${seedText}_red`),
+            green: new SeededRandom(`${seedText}_green`),
+            blue: new SeededRandom(`${seedText}_blue`),
+        },
     };
 }
 
 export function createCorrelatedRng(seedText: string): DualRng {
     const rng = new SeededRandom(`${seedText}_rgb`);
 
-    return { structure: rng, channels: [rng, rng, rng] };
+    return { structure: rng, channels: { red: rng, green: rng, blue: rng } };
 }
 
 /** Separate mini-LCG, so shuffling never consumes the tree-generation stream. */

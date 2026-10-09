@@ -1,37 +1,15 @@
-import { ControlPanel } from '@repo/ui/components/ControlPanel';
-import { ControlSection } from '@repo/ui/components/ControlSection';
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
-import { Segmented } from '@repo/ui/components/Segmented';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
-import { useEffect } from 'react';
 
-import { useTheme, setTheme } from './stores/appStore';
-
+// Placeholder shell until S3 (WebGL rendering) lands. The real randomart
+// state already lives in `src/stores/randomart/` with no UI attached.
 export function App() {
-    const theme = useTheme();
-
-    useEffect(() => {
-        document.documentElement.style.colorScheme = theme === 'system' ? 'light dark' : theme;
-    }, [theme]);
-
     return (
         <ShellWrapper>
             <ErrorBoundary showStack={import.meta.env.DEV}>
-                <ExperimentShell
-                    panel={
-                        <ControlPanel title="randomart controls">
-                            <ControlSection title="Theme">
-                                <Segmented<'light' | 'dark' | 'system'>
-                                    options={['light', 'dark', 'system']}
-                                    value={theme}
-                                    onValueChange={setTheme}
-                                />
-                            </ControlSection>
-                        </ControlPanel>
-                    }
-                >
+                <ExperimentShell>
                     <Stage label="randomart">
                         <h1>randomart</h1>
                     </Stage>
