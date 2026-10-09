@@ -820,6 +820,19 @@ Why: Vite hashes/emits the files, rewrites URLs with the consumer's `base` autom
 
 ---
 
+## 12.4 React Compiler
+
+The React Compiler is enabled in every package (`reactCompilerPreset()` in the
+package `vite.config.ts`).
+
+Do not write `useMemo`, `useCallback`, or `React.memo` by hand. The compiler
+memoizes derived values and stabilizes callbacks automatically; manual memo hooks
+add noise and can conflict with what the compiler already does.
+
+Keep components following the Rules of React so the compiler can do its job.
+
+---
+
 # 13. Decision rules
 
 When several implementations seem reasonable, prefer the one that satisfies these rules in order:

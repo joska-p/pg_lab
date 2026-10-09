@@ -1,16 +1,13 @@
-import { createNullClockStore } from '@repo/glaze/react/clockStore';
 import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
-import type { ClockStore } from '@repo/glaze/react/types';
 import * as stylex from '@stylexjs/stylex';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { compileToShader, getBehavior } from '../core';
+import { setClockStore } from '../stores/randomart/actions';
 import {
     useActiveBehaviorIds,
     useAnimationSpeed,
     useChannelTrees,
     useColorSpace,
-    useRunning,
     useSeedText,
 } from '../stores/randomart/selectors';
 
@@ -30,53 +27,20 @@ export function Scene() {
     const trees = useChannelTrees();
     const activeBehaviorIds = useActiveBehaviorIds();
     const colorSpace = useColorSpace();
-    const running = useRunning();
     const animationSpeed = useAnimationSpeed();
 
-    const behaviors = useMemo(
-        () => activeBehaviorIds.map((id) => getBehavior(id)),
-        [activeBehaviorIds],
-    );
-
-    const fragmentShader = useMemo(
-        () => compileToShader({ seedText, trees, behaviors, colorSpace }),
-        [seedText, trees, behaviors, colorSpace],
-    );
-
-    // The clock is a live object owned by the surface; Glaze reaches it to us
-    // once. `running` stays the store's value — the clock only mirrors it, so
-    // pausing freezes `u_clockTime` without losing the accumulated time.
-    const clockStoreRef = useRef<ClockStore>(createNullClockStore());
-    const runningRef = useRef(running);
-
-    useEffect(() => {
-        runningRef.current = running;
-
-        const clockStore = clockStoreRef.current;
-
-        if (running) {
-            clockStore.play();
-        } else {
-            clockStore.pause();
-        }
-    }, [running]);
-
-    const handleClockStore = useCallback((clockStore: ClockStore) => {
-        clockStoreRef.current = clockStore;
-
-        if (runningRef.current) {
-            clockStore.play();
-        } else {
-            clockStore.pause();
-        }
-    }, []);
+    const behaviors = activeBehaviorIds.map((id) => getBehavior(id));
+    const fragmentShader = compileToShader({ seedText, trees, behaviors, colorSpace });
 
     return (
         <div {...stylex.props(styles.frame)}>
             <GpuCanvas
                 fragmentShader={fragmentShader}
                 uniforms={() => ({ u_animSpeed: animationSpeed })}
-                onClockStore={handleClockStore}
+                onClockStore={setClockStore}
+                // Parity with the source app, which starts paused. Play/pause is
+                // owned by the clock; controls toggle it via the published store.
+                clockOptions={{ autoStart: false }}
                 canvasInteractions={{ pan: false, zoom: false }}
             />
         </div>

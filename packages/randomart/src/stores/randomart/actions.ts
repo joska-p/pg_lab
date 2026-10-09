@@ -1,3 +1,5 @@
+import type { ClockStore } from '@repo/glaze/react/types';
+
 import { getRule } from '../../core';
 import type { BehaviorId, Channel, ColorSpaceId, OperatorId, RuleId } from '../../core';
 import { randomartStore } from './store';
@@ -62,10 +64,10 @@ export function setActiveChannel(channel: Channel): void {
     randomartStore.setState({ activeChannel: channel });
 }
 
-export function toggleRunning(): void {
-    const { running } = randomartStore.getState();
-
-    randomartStore.setState({ running: !running });
+// `GpuCanvas` hands us the surface's clock once, on mount. Publish it so
+// controls can reach it (reachability, not ownership).
+export function setClockStore(clockStore: ClockStore): void {
+    randomartStore.setState({ clockStore });
 }
 
 export function toggleBehavior(id: BehaviorId): void {

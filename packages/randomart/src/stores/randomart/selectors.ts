@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import type { ClockStore } from '@repo/glaze/react/types';
 
 import type {
     BehaviorId,
@@ -9,7 +9,7 @@ import type {
     OperatorId,
     RuleId,
 } from '../../core';
-import { randomartStore } from './store';
+import { nullClockStore, randomartStore } from './store';
 import type { Mode } from './store';
 import { generateTrees } from './trees';
 
@@ -41,8 +41,12 @@ export function useActiveChannel(): Channel {
     return randomartStore((s) => s.activeChannel);
 }
 
-export function useRunning(): boolean {
-    return randomartStore((s) => s.running);
+export function useClockStore(): ClockStore {
+    return randomartStore((s) => s.clockStore);
+}
+
+export function useHasClockStore(): boolean {
+    return randomartStore((s) => s.clockStore !== nullClockStore);
 }
 
 export function useAnimationSpeed(): number {
@@ -71,18 +75,14 @@ export function useChannelTrees(): ChannelTrees {
     const maxDepth = useMaxDepth();
     const correlatedRGB = useCorrelatedRGB();
 
-    return useMemo(
-        () =>
-            generateTrees({
-                seedText,
-                selectedRuleId,
-                customOperatorIds,
-                minDepth,
-                maxDepth,
-                correlated: correlatedRGB,
-            }),
-        [seedText, selectedRuleId, customOperatorIds, minDepth, maxDepth, correlatedRGB],
-    );
+    return generateTrees({
+        seedText,
+        selectedRuleId,
+        customOperatorIds,
+        minDepth,
+        maxDepth,
+        correlated: correlatedRGB,
+    });
 }
 
 export function useSelectedTree(): Node {

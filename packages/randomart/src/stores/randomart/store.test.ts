@@ -13,7 +13,7 @@ describe('randomart store', () => {
         expect(state.selectedRuleId).toBe('classic');
         expect(state.customOperatorIds).toBeNull();
         expect(state.maxDepth).toBeGreaterThanOrEqual(state.minDepth);
-        expect(state.running).toBe(false);
+        expect(state.clockStore.getIsPlaying()).toBe(false);
     });
 
     it('derives channel trees deterministically from the config', () => {
