@@ -61,6 +61,13 @@ export const EXPERIMENTS = {
         loadScene: () => import('@repo/fracture/Scene'),
         loadControls: () => import('@repo/fracture/Controls'),
     },
+    randomart: {
+        label: 'Randomart',
+        panelTitle: 'randomart',
+        stageLabel: 'randomart',
+        loadScene: () => import('@repo/randomart/Scene'),
+        loadControls: () => import('@repo/randomart/Controls'),
+    },
 } as const satisfies Record<string, Experiment>;
 
 export type ExperimentKey = keyof typeof EXPERIMENTS;

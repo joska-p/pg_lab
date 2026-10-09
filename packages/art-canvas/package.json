@@ -9,8 +9,9 @@
         "./Controls": "./src/components/Controls.tsx"
     },
     "scripts": {
-        "dev": "vp dev",
+        "dev": "vp dev --host",
         "build": "tsc -b && vp build",
+        "check": "vp check",
         "preview": "vp preview"
     },
     "dependencies": {

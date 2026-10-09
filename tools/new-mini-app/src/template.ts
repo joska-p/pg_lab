@@ -17,7 +17,7 @@ function packageJson(name: string): string {
             scripts: {
                 dev: 'vp dev --host',
                 build: 'tsc -b && vp build',
-                lint: 'vp lint',
+                check: 'vp check',
                 preview: 'vp preview',
             },
             dependencies: {

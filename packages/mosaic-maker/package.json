@@ -9,9 +9,10 @@
         "./Controls": "./src/components/controls/Controls.tsx"
     },
     "scripts": {
-        "build": "vp pack",
-        "dev": "vp pack --watch",
-        "check": "vp check"
+        "dev": "vp dev --host",
+        "build": "tsc -b && vp build",
+        "check": "vp check",
+        "preview": "vp preview"
     },
     "dependencies": {
         "@repo/ui": "workspace:*",

@@ -299,6 +299,9 @@ importers:
       '@repo/mosaic-maker':
         specifier: workspace:*
         version: link:../../packages/mosaic-maker
+      '@repo/randomart':
+        specifier: workspace:*
+        version: link:../../packages/randomart
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
