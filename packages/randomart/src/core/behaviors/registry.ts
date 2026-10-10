@@ -38,28 +38,9 @@ import {
     voronoiBehavior,
     waveInterferenceBehavior,
 } from './spatial';
+import type { Behavior, BehaviorKind } from './types';
 
-export type BehaviorKind = 'spatial' | 'color';
-
-/**
- * GLSL variable names interpolated into a behavior's `applyCode` — the strings are identifiers in
- * the generated shader, not values.
- */
-export interface ApplyCodeContext {
-    time: string;
-    speed: string;
-    spatial: string;
-    color: string;
-}
-
-export interface Behavior {
-    readonly id: string;
-    readonly label: string;
-    readonly glslFunction?: string;
-    readonly kind: BehaviorKind;
-    readonly applyCode: (ctx: ApplyCodeContext) => string;
-    readonly noiseDependencies?: readonly string[];
-}
+export type { ApplyCodeContext, Behavior, BehaviorKind } from './types';
 
 export const BEHAVIORS = {
     // ── Spatial ──
