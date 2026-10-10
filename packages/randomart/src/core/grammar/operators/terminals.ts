@@ -1,8 +1,8 @@
 import { GLSL_PI } from '../../glsl-library';
 import { clamp } from '../../util';
-import type { Operator } from './registry';
+import { defineOperator } from './types';
 
-export const xOp = {
+export const xOp = defineOperator({
     arity: 0,
     kind: 'terminal',
     label: 'x',
@@ -10,9 +10,9 @@ export const xOp = {
     evaluate: ({ ctx }) => ctx.x,
     toGLSL: ({ coordVar }) => `${coordVar}.x`,
     toMathString: () => 'x',
-} as const satisfies Operator;
+});
 
-export const yOp = {
+export const yOp = defineOperator({
     arity: 0,
     kind: 'terminal',
     label: 'y',
@@ -20,9 +20,9 @@ export const yOp = {
     evaluate: ({ ctx }) => ctx.y,
     toGLSL: ({ coordVar }) => `${coordVar}.y`,
     toMathString: () => 'y',
-} as const satisfies Operator;
+});
 
-export const constOp = {
+export const constOp = defineOperator({
     arity: 0,
     kind: 'terminal',
     label: 'const',
@@ -33,10 +33,10 @@ export const constOp = {
 
         return isNaN(num) ? '0.0000' : num.toFixed(4);
     },
-    toMathString: ({ args }) => args.value ?? 0,
-} as const satisfies Operator;
+    toMathString: ({ args }) => args.value ?? '0',
+});
 
-export const radialOp = {
+export const radialOp = defineOperator({
     arity: 0,
     kind: 'terminal',
     label: 'radial',
@@ -44,9 +44,9 @@ export const radialOp = {
     evaluate: ({ ctx }) => clamp(Math.sqrt(ctx.x * ctx.x + ctx.y * ctx.y) * 2.0 - 1.0),
     toGLSL: ({ coordVar }) => `(length(${coordVar}) * 2.0 - 1.0)`,
     toMathString: () => 'radial(p)',
-} as const satisfies Operator;
+});
 
-export const sweepOp = {
+export const sweepOp = defineOperator({
     arity: 0,
     kind: 'terminal',
     label: 'sweep',
@@ -54,9 +54,9 @@ export const sweepOp = {
     evaluate: ({ ctx }) => clamp((Math.atan2(ctx.y, ctx.x) / Math.PI) * 2.0 - 1.0),
     toGLSL: ({ coordVar }) => `(atan(${coordVar}.y, ${coordVar}.x) / ${GLSL_PI} * 2.0 - 1.0)`,
     toMathString: () => 'sweep(p)',
-} as const satisfies Operator;
+});
 
-export const randomOp = {
+export const randomOp = defineOperator({
     arity: 0,
     kind: 'terminal',
     label: 'random',
@@ -70,4 +70,4 @@ export const randomOp = {
     toGLSL: ({ coordVar }) =>
         `(fract(sin(abs(${coordVar}.x) * 12.9898 + abs(${coordVar}.y) * 78.233) * 43758.5453) * 2.0 - 1.0)`,
     toMathString: () => 'random(p)',
-} as const satisfies Operator;
+});

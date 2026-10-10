@@ -1,8 +1,8 @@
 import { GLSL_PI } from '../../glsl-library';
 import { clamp } from '../../util';
-import type { Operator } from './registry';
+import { defineOperator } from './types';
 
-export const absOp = {
+export const absOp = defineOperator({
     arity: 1,
     kind: 'transform',
     label: 'abs',
@@ -10,9 +10,9 @@ export const absOp = {
     evaluate: ({ args }) => clamp(Math.abs(args.value ?? 0.5) * 2 - 1),
     toGLSL: ({ args }) => `clamp(abs(${args.value ?? 0.5}) * 2.0 - 1.0, -1.0, 1.0)`,
     toMathString: ({ args }) => `(2·|${args.value ?? 0.5}| − 1)`,
-} as const satisfies Operator;
+});
 
-export const sqrtOp = {
+export const sqrtOp = defineOperator({
     arity: 1,
     kind: 'transform',
     label: 'sqrt',
@@ -20,9 +20,9 @@ export const sqrtOp = {
     evaluate: ({ args }) => clamp(Math.sqrt(Math.abs(args.value ?? 0.5) + 1e-10)),
     toGLSL: ({ args }) => `sqrt(abs(${args.value ?? 0.5}) + 1e-10)`,
     toMathString: ({ args }) => `sqrt(|${args.value ?? 0.5}|)`,
-} as const satisfies Operator;
+});
 
-export const expOp = {
+export const expOp = defineOperator({
     arity: 1,
     kind: 'transform',
     label: 'exp',
@@ -38,9 +38,9 @@ export const expOp = {
         return `(((exp(${inner}) - 0.36787944117) / 2.35040238729) * 2.0 - 1.0)`;
     },
     toMathString: ({ args }) => `normalized_e^(${args.value ?? 0.5})`,
-} as const satisfies Operator;
+});
 
-export const logOp = {
+export const logOp = defineOperator({
     arity: 1,
     kind: 'transform',
     label: 'log',
@@ -52,9 +52,9 @@ export const logOp = {
     },
     toGLSL: ({ args }) => `((log(abs(${args.value ?? 0.5}) + 1.0) / 0.69314718056) * 2.0 - 1.0)`,
     toMathString: ({ args }) => `normalized_log(${args.value ?? 0.5})`,
-} as const satisfies Operator;
+});
 
-export const fractOp = {
+export const fractOp = defineOperator({
     arity: 1,
     kind: 'transform',
     label: 'fract',
@@ -63,9 +63,9 @@ export const fractOp = {
         clamp(((args.value ?? 0.5) - Math.floor(args.value ?? 0.5)) * 2.0 - 1.0),
     toGLSL: ({ args }) => `(fract(${args.value ?? 0.5}) * 2.0 - 1.0)`,
     toMathString: ({ args }) => `fract(${args.value ?? 0.5})`,
-} as const satisfies Operator;
+});
 
-export const sinOp = {
+export const sinOp = defineOperator({
     arity: 1,
     kind: 'transform',
     label: 'sin',
@@ -73,9 +73,9 @@ export const sinOp = {
     evaluate: ({ args }) => clamp(Math.sin(Math.PI * (args.value ?? 0.5))),
     toGLSL: ({ args }) => `sin(${GLSL_PI} * (${args.value ?? 0.5}))`,
     toMathString: ({ args }) => `sin(π·${args.value ?? 0.5})`,
-} as const satisfies Operator;
+});
 
-export const cosOp = {
+export const cosOp = defineOperator({
     arity: 1,
     kind: 'transform',
     label: 'cos',
@@ -83,20 +83,20 @@ export const cosOp = {
     evaluate: ({ args }) => clamp(Math.cos(Math.PI * (args.value ?? 0.5))),
     toGLSL: ({ args }) => `cos(${GLSL_PI} * (${args.value ?? 0.5}))`,
     toMathString: ({ args }) => `cos(π·${args.value ?? 0.5})`,
-} as const satisfies Operator;
+});
 
-export const oscOp = {
+export const oscOp = defineOperator({
     arity: 1,
     kind: 'transform',
     label: 'osc/t',
     argNames: ['value'],
     // Oscillates the input slowly over time within a perfect [-1, 1] bounds
     evaluate: ({ args, ctx }) => Math.sin((args.value ?? 0.5) + ctx.t * 0.5),
-    toGLSL: ({ args }) => `sin(${args.value} + u_clockTime * 0.5)`,
+    toGLSL: ({ args }) => `sin(${args.value ?? 0.5} + u_clockTime * 0.5)`,
     toMathString: ({ args }) => `osc(${args.value})`,
-} as const satisfies Operator;
+});
 
-export const shiftOp = {
+export const shiftOp = defineOperator({
     arity: 1,
     kind: 'transform',
     label: 'shift/t',
@@ -110,4 +110,4 @@ export const shiftOp = {
     },
     toGLSL: ({ args }) => `(mod(${args.value} + u_clockTime * 0.2 + 1.0, 2.0) - 1.0)`,
     toMathString: ({ args }) => `shift(${args.value})`,
-} as const satisfies Operator;
+});
