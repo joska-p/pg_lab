@@ -15,9 +15,9 @@ function packageJson(name: string): string {
             private: true,
             type: 'module',
             scripts: {
-                dev: 'vp dev --host',
+                dev: 'vp dev',
                 build: 'tsc -b && vp build',
-                check: 'vp check',
+                lint: 'vp lint',
                 preview: 'vp preview',
             },
             dependencies: {
@@ -77,10 +77,10 @@ export default defineConfig({
                 exclude: Features.LightDark,
             },
         }),
+        react(),
         babel({
             presets: [reactCompilerPreset()],
         }),
-        react(),
     ]),
 });`;
 

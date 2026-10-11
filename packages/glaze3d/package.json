@@ -11,7 +11,7 @@
         "./controls": "./src/controls/index.ts"
     },
     "scripts": {
-        "check": "vp check"
+        "lint": "vp lint"
     },
     "devDependencies": {
         "@types/node": "catalog:",

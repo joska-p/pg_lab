@@ -192,7 +192,6 @@ export class Renderer {
         camera.updateMatrixWorld();
         const gl = this.gl;
         gl.clearColor(this.clearColor[0], this.clearColor[1], this.clearColor[2], this.clearAlpha);
-        // eslint-disable-next-line no-bitwise -- WebGL clear mask combines buffer bits.
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         const { meshes, ambient, directional } = this.collect(scene, camera);

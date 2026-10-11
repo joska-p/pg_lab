@@ -13,9 +13,9 @@ export default defineConfig({
                 exclude: Features.LightDark,
             },
         }),
+        react(),
         babel({
             presets: [reactCompilerPreset()],
         }),
-        react(),
     ]),
 });

@@ -5,9 +5,9 @@ import { lazyPlugins } from 'vite-plus';
 
 export default defineConfig({
     plugins: lazyPlugins(() => [
+        react(),
         babel({
             presets: [reactCompilerPreset()],
         }),
-        react(),
     ]),
 });

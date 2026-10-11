@@ -9,9 +9,9 @@
         "./Controls": "./src/components/Controls.tsx"
     },
     "scripts": {
-        "dev": "vp dev --host",
+        "dev": "vp dev",
         "build": "tsc -b && vp build",
-        "check": "vp check",
+        "lint": "vp lint",
         "preview": "vp preview",
         "randomart": "tsx src/core/node/cli.ts"
     },

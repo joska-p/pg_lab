@@ -47,7 +47,7 @@
         "./react/useNodeResource": "./src/react/useNodeResource.ts"
     },
     "scripts": {
-        "check": "vp check"
+        "lint": "vp lint"
     },
     "devDependencies": {
         "@rolldown/plugin-babel": "catalog:",
