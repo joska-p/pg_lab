@@ -2,11 +2,15 @@ import { compileProgram, FULLSCREEN_TRIANGLE } from './compileProgram';
 import { setUniforms } from './setUniforms';
 import type { CompiledShaderProgram, UniformEntry, UniformValue } from './types';
 
+/** Called once, when the program is destroyed — lets an owner (the surface) stop tracking it. */
+export type ProgramDestroyHook = (program: Program) => void;
+
 /** A compiled program; call `destroy()` to release its GPU resources. */
 export class Program {
     readonly #gl: WebGL2RenderingContext;
     readonly #fragmentSource: string;
     readonly #vertexSource: string;
+    readonly #onDestroy: ProgramDestroyHook | undefined;
     #compiled: CompiledShaderProgram;
     #vao: WebGLVertexArrayObject | null;
     #nextTextureUnit = 0;
@@ -16,10 +20,12 @@ export class Program {
         gl: WebGL2RenderingContext,
         fragmentSource: string,
         vertexSource: string = FULLSCREEN_TRIANGLE,
+        onDestroy?: ProgramDestroyHook,
     ) {
         this.#gl = gl;
         this.#fragmentSource = fragmentSource;
         this.#vertexSource = vertexSource;
+        this.#onDestroy = onDestroy;
         this.#compiled = compileProgram(gl, fragmentSource, vertexSource);
         this.#vao = gl.createVertexArray();
     }
@@ -65,6 +71,7 @@ export class Program {
         this.#vao = this.#gl.createVertexArray();
     }
 
+    /** Idempotent: releases GPU resources and notifies the owner exactly once. */
     destroy(): void {
         if (this.#destroyed) {
             return;
@@ -78,6 +85,7 @@ export class Program {
         }
 
         this.#vao = null;
+        this.#onDestroy?.(this);
     }
 }
 
@@ -85,6 +93,7 @@ export function createProgram(
     gl: WebGL2RenderingContext,
     fragmentSource: string,
     vertexSource?: string,
+    onDestroy?: ProgramDestroyHook,
 ): Program {
-    return new Program(gl, fragmentSource, vertexSource);
+    return new Program(gl, fragmentSource, vertexSource, onDestroy);
 }

@@ -161,6 +161,22 @@ export class Clock {
         return this;
     }
 
+    /** Changes the loop length but keeps the progress, so the picture does not jump. */
+    setDuration(duration: DurationSeconds): this {
+        const state = this.#state;
+
+        if (state.kind !== 'timed') {
+            throw new Error('Glaze: setDuration requires a timed clock');
+        }
+
+        const progress = this.progress;
+
+        this.#state = { ...state, duration };
+        this.#time = createSeconds(progress * duration);
+
+        return this;
+    }
+
     update(delta: NonNegativeSeconds): this {
         if (!this.#isPlaying) {
             this.#deltaTime = ZERO_SECONDS;

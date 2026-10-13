@@ -9,6 +9,7 @@ import type { InteractionEvent, PanOptions, ZoomOptions } from '../core/gestureT
 import type { DevicePixelRatio } from '../core/render';
 import type { DurationSeconds, Seconds, TimeSpeed } from '../core/time';
 import type { CpuDraw, CpuSurface } from '../cpu/types';
+import type { ShaderError } from '../gpu/shader/ShaderError';
 import type { UniformValue } from '../gpu/shader/types';
 import type { GpuDraw, GpuSurface } from '../gpu/types';
 import type { InitialCamera } from './stackTypes';
@@ -36,6 +37,7 @@ export interface ClockStore {
     pause(): void;
     reset(): void;
     setSpeed(speed: TimeSpeed): void;
+    setDuration(duration: DurationSeconds): void;
     subscribe(fn: () => void): () => void;
     getSnapshot(): Seconds;
     getIsPlaying(): boolean;
@@ -114,6 +116,13 @@ export interface CpuCanvasProps extends CpuSurfaceOptions {
 export interface GpuCanvasProps extends GpuSurfaceOptions {
     /** Compiled on mount and recompiled whenever the source changes. */
     fragmentShader?: string;
+    /** Vertex shader; must use `gl_VertexID` (draws 3 vertices, no attributes). */
+    vertexShader?: string;
+    /**
+     * `ShaderError` when the driver refuses the new shader (the previous one stays live), `null`
+     * after a success.
+     */
+    onShaderError?: (error: ShaderError | null) => void;
     /** Computed from the surface before each frame's draw. */
     uniforms?: (surface: GpuSurface) => Record<string, UniformValue>;
     /**

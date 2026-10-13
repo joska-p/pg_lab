@@ -20,6 +20,7 @@ import {
 import { ShapeBatcher } from './batch/ShapeBatcher';
 import { createProgram, type Program } from './shader/Program';
 import { createStandardUniformValues } from './shader/setUniforms';
+import { catchShaderError } from './shader/ShaderError';
 import { parseColor } from './shapes/color';
 import {
     DEFAULT_FONT_FAMILY,
@@ -28,8 +29,7 @@ import {
     textUniforms,
 } from './shapes/TextRasterizer';
 import { createStateBuffer, type StateBuffer } from './StateBuffer';
-import type { GpuSurfaceConfig } from './types';
-
+import type { GpuSurfaceConfig, TryProgramResult } from './types';
 /**
  * WebGL2 surface sharing `CpuSurface`'s chainable, world-space drawing model. Context loss/restore
  * is handled internally.
@@ -52,6 +52,9 @@ export class GpuSurface {
     readonly #loop: FrameLoop;
     readonly #gl: WebGL2RenderingContext;
     readonly #programs = new Set<Program>();
+    readonly #forget = (program: Program): void => {
+        this.#programs.delete(program);
+    };
     readonly #buffers = new Set<StateBuffer>();
     readonly #batch: ShapeBatcher;
     #textRasterizer: TextRasterizer | null = null;
@@ -65,6 +68,7 @@ export class GpuSurface {
             alpha: true,
             antialias: true,
             premultipliedAlpha: true,
+            ...config.contextOptions,
         });
 
         if (!gl) {
@@ -110,11 +114,22 @@ export class GpuSurface {
 
     /** Creates a program owned by this surface: destroyed with it, recompiled on context restore. */
     createProgram(fragmentSource: string, vertexSource?: string): Program {
-        const program = createProgram(this.#gl, fragmentSource, vertexSource);
+        const program = createProgram(this.#gl, fragmentSource, vertexSource, this.#forget);
 
         this.#programs.add(program);
 
         return program;
+    }
+
+    /** Like `createProgram`, but driver error is a value. */
+    tryCreateProgram(fragmentSource: string, vertexSource?: string): TryProgramResult {
+        const attempt = catchShaderError(() => this.createProgram(fragmentSource, vertexSource));
+
+        if (!attempt.ok) {
+            return { ok: false, error: attempt.error };
+        }
+
+        return { ok: true, program: attempt.value };
     }
 
     /** Creates a StateBuffer owned by this surface: destroyed with it, recreated on context restore. */

@@ -41,6 +41,10 @@ export function createClockStore(clock: Clock): ClockStore {
             clock.setSpeed(speed);
             observable.notify();
         },
+        setDuration(duration: DurationSeconds) {
+            clock.setDuration(duration);
+            observable.notify();
+        },
         subscribe: (fn: () => void) => observable.subscribe(fn),
         getSnapshot: () => clock.time,
         getIsPlaying: () => clock.isPlaying,
@@ -62,6 +66,7 @@ export function createNullClockStore(): ClockStore {
         pause: noop,
         reset: noop,
         setSpeed: noopWithArg,
+        setDuration: noopWithArg,
         subscribe: () => noop,
         getSnapshot: () => createSeconds(0),
         getIsPlaying: () => false,

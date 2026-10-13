@@ -28,6 +28,7 @@
         "./gpu/batch/ShapeBatcher": "./src/gpu/batch/ShapeBatcher.ts",
         "./gpu/batch/geometry": "./src/gpu/batch/geometry.ts",
         "./gpu/batch/types": "./src/gpu/batch/types.ts",
+        "./gpu/shader/ShaderError": "./src/gpu/shader/ShaderError.ts",
         "./gpu/shader/Program": "./src/gpu/shader/Program.ts",
         "./gpu/shader/compileProgram": "./src/gpu/shader/compileProgram.ts",
         "./gpu/shader/setUniforms": "./src/gpu/shader/setUniforms.ts",
