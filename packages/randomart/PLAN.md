@@ -22,13 +22,13 @@ qu'aucune app n'utilise).
 - **Randomart** : squelette React (`src/App.tsx`, `Scene`, `Controls`, `appStore`).
   **MP1·S1 terminé** : arborescence `src/core/*` et `src/renderer/`, `shared` local (`Brand`, `assertFinite`),
   module `random` (`Seed`, `createSeed`, `randomSeed`, `Rng`, `createRng` mulberry32, `next`/`int`/`weighted`).
-  Tests unitaires configurés et verts (`vp -C packages/randomart test`).
+  **MP1·S2 terminé** : chaîne pure minimale (`catalog` terminaux/arith/trigo/logique, `expression` nœuds immuables validés + métriques, `grammar` contraintes/règles 1-8/minSize/`staticGrammar`/`animatedGrammar`, `generator` budget réel/déterminisme/`GENERATOR_VERSION`). 55 tests unitaires verts avec snapshots sur seeds fixes.
 - **Infra** : `strict: true` activé dans `tsconfig.app` (voir friction 10). Tests opérationnels via `vp test`.
 - **Plan** : temps via `Clock`/`ClockStore` ; compilateur scindé ; tests navigateur reportés.
 
 ## Prochaine action
 
-**MP1·S2** — La chaîne pure minimale (`catalog`, `expression`, `grammar`, `generator`). Tests : invariants + snapshot sur seeds fixes.
+**MP1·S3** — Rendu sur glaze, shader écrit à la main. Prouver le GPU avant le compilateur (`fragmentShader` + `onShaderError`, contrat `vUv` -> `v_p`, phase).
 
 ## Comment utiliser ce plan
 
@@ -103,12 +103,11 @@ remplacera proprement ensuite._
   Arborescence : `src/core/{shared,random,catalog,expression,grammar,generator,compiler}` + `src/renderer/`.
   `shared` local (`Brand`, `assertFinite`). `Seed`, `createRng` (mulberry32), `next`/`int`/`weighted`.
   Tests : déterminisme, plages, rejets. Tests unitaires passants via `vp -C packages/randomart test`.
-- **S2 — La chaîne pure minimale.** `catalog` (terminaux, arithmétique, trigo, logique ;
+- **S2 — La chaîne pure minimale.** ✅ **terminé.** `catalog` (terminaux, arithmétique, trigo, logique ;
   **sans `warp`** ni portées `inner`), `expression` (modèle immuable + `createNode`), `grammar`
   (forme + `staticGrammar`), `generator` (budget réel, ordre de consommation,
   `GENERATOR_VERSION`). Attention : `minSize(d+1)` se calcule avec la plus petite arité du
   **vocabulaire**, pas celle de l'opérateur choisi. Tests : invariants + snapshot sur seeds fixes.
-  Peut se scinder en deux séances.
 - **S3 — Rendu sur glaze, shader écrit à la main.** Prouver le GPU avant le compilateur, via
   `fragmentShader` + `onShaderError` (dégradé `x`/`y`). Fixer le **contrat d'entrée** :
   le compilateur émet `in vec2 vUv; out vec4 o_color;` et, **au début de `main`**,

@@ -1,2 +1,1 @@
-// Generator module - deterministic expression generation from grammar and seed
-export {};
+export { GENERATOR_VERSION, generate } from './generator.ts';

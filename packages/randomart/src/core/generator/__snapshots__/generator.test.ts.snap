@@ -1,0 +1,897 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generator > reproducibility snapshots on fixed seeds 1`] = `
+{
+  "b": {
+    "inputs": [
+      {
+        "inputs": [
+          {
+            "inputs": [
+              {
+                "inputs": [
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [
+                          {
+                            "inputs": [],
+                            "op": "y",
+                            "params": [],
+                          },
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "x",
+                                "params": [],
+                              },
+                              {
+                                "inputs": [],
+                                "op": "const",
+                                "params": [
+                                  -0.988,
+                                ],
+                              },
+                            ],
+                            "op": "mul",
+                            "params": [],
+                          },
+                        ],
+                        "op": "min",
+                        "params": [],
+                      },
+                    ],
+                    "op": "abs",
+                    "params": [],
+                  },
+                ],
+                "op": "sqr",
+                "params": [],
+              },
+            ],
+            "op": "cos",
+            "params": [],
+          },
+          {
+            "inputs": [
+              {
+                "inputs": [
+                  {
+                    "inputs": [],
+                    "op": "x",
+                    "params": [],
+                  },
+                ],
+                "op": "abs",
+                "params": [],
+              },
+            ],
+            "op": "cos",
+            "params": [],
+          },
+        ],
+        "op": "gt",
+        "params": [],
+      },
+      {
+        "inputs": [
+          {
+            "inputs": [
+              {
+                "inputs": [],
+                "op": "y",
+                "params": [],
+              },
+              {
+                "inputs": [],
+                "op": "y",
+                "params": [],
+              },
+            ],
+            "op": "div",
+            "params": [],
+          },
+          {
+            "inputs": [
+              {
+                "inputs": [],
+                "op": "y",
+                "params": [],
+              },
+              {
+                "inputs": [
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [],
+                        "op": "x",
+                        "params": [],
+                      },
+                      {
+                        "inputs": [],
+                        "op": "x",
+                        "params": [],
+                      },
+                    ],
+                    "op": "div",
+                    "params": [],
+                  },
+                  {
+                    "inputs": [],
+                    "op": "x",
+                    "params": [],
+                  },
+                ],
+                "op": "add",
+                "params": [],
+              },
+            ],
+            "op": "mul",
+            "params": [],
+          },
+        ],
+        "op": "gt",
+        "params": [],
+      },
+    ],
+    "op": "gt",
+    "params": [],
+  },
+  "g": {
+    "inputs": [
+      {
+        "inputs": [
+          {
+            "inputs": [],
+            "op": "const",
+            "params": [
+              -0.516,
+            ],
+          },
+          {
+            "inputs": [],
+            "op": "x",
+            "params": [],
+          },
+        ],
+        "op": "min",
+        "params": [],
+      },
+      {
+        "inputs": [
+          {
+            "inputs": [
+              {
+                "inputs": [],
+                "op": "x",
+                "params": [],
+              },
+              {
+                "inputs": [],
+                "op": "y",
+                "params": [],
+              },
+            ],
+            "op": "add",
+            "params": [],
+          },
+          {
+            "inputs": [
+              {
+                "inputs": [
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [
+                          {
+                            "inputs": [],
+                            "op": "x",
+                            "params": [],
+                          },
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "x",
+                                "params": [],
+                              },
+                            ],
+                            "op": "neg",
+                            "params": [],
+                          },
+                        ],
+                        "op": "add",
+                        "params": [],
+                      },
+                      {
+                        "inputs": [],
+                        "op": "const",
+                        "params": [
+                          -0.343,
+                        ],
+                      },
+                    ],
+                    "op": "max",
+                    "params": [],
+                  },
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "x",
+                                "params": [],
+                              },
+                              {
+                                "inputs": [],
+                                "op": "x",
+                                "params": [],
+                              },
+                            ],
+                            "op": "div",
+                            "params": [],
+                          },
+                          {
+                            "inputs": [],
+                            "op": "x",
+                            "params": [],
+                          },
+                        ],
+                        "op": "max",
+                        "params": [],
+                      },
+                      {
+                        "inputs": [
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "y",
+                                "params": [],
+                              },
+                              {
+                                "inputs": [],
+                                "op": "y",
+                                "params": [],
+                              },
+                            ],
+                            "op": "mul",
+                            "params": [],
+                          },
+                          {
+                            "inputs": [],
+                            "op": "y",
+                            "params": [],
+                          },
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "x",
+                                "params": [],
+                              },
+                            ],
+                            "op": "neg",
+                            "params": [],
+                          },
+                        ],
+                        "op": "mix",
+                        "params": [],
+                      },
+                    ],
+                    "op": "div",
+                    "params": [],
+                  },
+                ],
+                "op": "mul",
+                "params": [],
+              },
+            ],
+            "op": "neg",
+            "params": [],
+          },
+        ],
+        "op": "div",
+        "params": [],
+      },
+    ],
+    "op": "mul",
+    "params": [],
+  },
+  "r": {
+    "inputs": [
+      {
+        "inputs": [
+          {
+            "inputs": [
+              {
+                "inputs": [],
+                "op": "const",
+                "params": [
+                  -0.065,
+                ],
+              },
+              {
+                "inputs": [
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "y",
+                                "params": [],
+                              },
+                              {
+                                "inputs": [],
+                                "op": "x",
+                                "params": [],
+                              },
+                            ],
+                            "op": "mul",
+                            "params": [],
+                          },
+                        ],
+                        "op": "sqr",
+                        "params": [],
+                      },
+                    ],
+                    "op": "sin",
+                    "params": [],
+                  },
+                ],
+                "op": "neg",
+                "params": [],
+              },
+            ],
+            "op": "div",
+            "params": [],
+          },
+        ],
+        "op": "abs",
+        "params": [],
+      },
+      {
+        "inputs": [
+          {
+            "inputs": [],
+            "op": "y",
+            "params": [],
+          },
+          {
+            "inputs": [
+              {
+                "inputs": [],
+                "op": "x",
+                "params": [],
+              },
+              {
+                "inputs": [
+                  {
+                    "inputs": [],
+                    "op": "x",
+                    "params": [],
+                  },
+                ],
+                "op": "sqr",
+                "params": [],
+              },
+            ],
+            "op": "min",
+            "params": [],
+          },
+        ],
+        "op": "add",
+        "params": [],
+      },
+    ],
+    "op": "div",
+    "params": [],
+  },
+}
+`;
+
+exports[`generator > reproducibility snapshots on fixed seeds 2`] = `
+{
+  "b": {
+    "inputs": [
+      {
+        "inputs": [
+          {
+            "inputs": [
+              {
+                "inputs": [],
+                "op": "y",
+                "params": [],
+              },
+              {
+                "inputs": [],
+                "op": "const",
+                "params": [
+                  -0.778,
+                ],
+              },
+              {
+                "inputs": [
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "y",
+                                "params": [],
+                              },
+                            ],
+                            "op": "sin",
+                            "params": [],
+                          },
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "y",
+                                "params": [],
+                              },
+                              {
+                                "inputs": [],
+                                "op": "y",
+                                "params": [],
+                              },
+                            ],
+                            "op": "add",
+                            "params": [],
+                          },
+                        ],
+                        "op": "mul",
+                        "params": [],
+                      },
+                      {
+                        "inputs": [
+                          {
+                            "inputs": [],
+                            "op": "x",
+                            "params": [],
+                          },
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "x",
+                                "params": [],
+                              },
+                            ],
+                            "op": "cos",
+                            "params": [],
+                          },
+                        ],
+                        "op": "gt",
+                        "params": [],
+                      },
+                    ],
+                    "op": "max",
+                    "params": [],
+                  },
+                ],
+                "op": "abs",
+                "params": [],
+              },
+            ],
+            "op": "mix",
+            "params": [],
+          },
+        ],
+        "op": "sqr",
+        "params": [],
+      },
+      {
+        "inputs": [
+          {
+            "inputs": [],
+            "op": "const",
+            "params": [
+              0.991,
+            ],
+          },
+          {
+            "inputs": [
+              {
+                "inputs": [],
+                "op": "y",
+                "params": [],
+              },
+              {
+                "inputs": [
+                  {
+                    "inputs": [],
+                    "op": "x",
+                    "params": [],
+                  },
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [],
+                        "op": "y",
+                        "params": [],
+                      },
+                      {
+                        "inputs": [],
+                        "op": "x",
+                        "params": [],
+                      },
+                    ],
+                    "op": "max",
+                    "params": [],
+                  },
+                  {
+                    "inputs": [],
+                    "op": "x",
+                    "params": [],
+                  },
+                ],
+                "op": "mix",
+                "params": [],
+              },
+              {
+                "inputs": [
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [],
+                        "op": "y",
+                        "params": [],
+                      },
+                      {
+                        "inputs": [],
+                        "op": "x",
+                        "params": [],
+                      },
+                    ],
+                    "op": "mul",
+                    "params": [],
+                  },
+                  {
+                    "inputs": [],
+                    "op": "y",
+                    "params": [],
+                  },
+                ],
+                "op": "gt",
+                "params": [],
+              },
+            ],
+            "op": "select",
+            "params": [],
+          },
+          {
+            "inputs": [],
+            "op": "y",
+            "params": [],
+          },
+        ],
+        "op": "select",
+        "params": [],
+      },
+    ],
+    "op": "add",
+    "params": [],
+  },
+  "g": {
+    "inputs": [
+      {
+        "inputs": [
+          {
+            "inputs": [
+              {
+                "inputs": [
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "y",
+                                "params": [],
+                              },
+                              {
+                                "inputs": [],
+                                "op": "y",
+                                "params": [],
+                              },
+                            ],
+                            "op": "add",
+                            "params": [],
+                          },
+                          {
+                            "inputs": [],
+                            "op": "x",
+                            "params": [],
+                          },
+                        ],
+                        "op": "gt",
+                        "params": [],
+                      },
+                      {
+                        "inputs": [],
+                        "op": "y",
+                        "params": [],
+                      },
+                    ],
+                    "op": "gt",
+                    "params": [],
+                  },
+                ],
+                "op": "cos",
+                "params": [],
+              },
+            ],
+            "op": "neg",
+            "params": [],
+          },
+        ],
+        "op": "sin",
+        "params": [],
+      },
+    ],
+    "op": "neg",
+    "params": [],
+  },
+  "r": {
+    "inputs": [
+      {
+        "inputs": [
+          {
+            "inputs": [],
+            "op": "y",
+            "params": [],
+          },
+          {
+            "inputs": [
+              {
+                "inputs": [
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "y",
+                                "params": [],
+                              },
+                            ],
+                            "op": "sin",
+                            "params": [],
+                          },
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "x",
+                                "params": [],
+                              },
+                              {
+                                "inputs": [],
+                                "op": "y",
+                                "params": [],
+                              },
+                            ],
+                            "op": "mul",
+                            "params": [],
+                          },
+                        ],
+                        "op": "gt",
+                        "params": [],
+                      },
+                    ],
+                    "op": "neg",
+                    "params": [],
+                  },
+                ],
+                "op": "cos",
+                "params": [],
+              },
+            ],
+            "op": "sqr",
+            "params": [],
+          },
+        ],
+        "op": "max",
+        "params": [],
+      },
+      {
+        "inputs": [
+          {
+            "inputs": [
+              {
+                "inputs": [
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [],
+                        "op": "x",
+                        "params": [],
+                      },
+                    ],
+                    "op": "neg",
+                    "params": [],
+                  },
+                ],
+                "op": "cos",
+                "params": [],
+              },
+              {
+                "inputs": [
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [
+                          {
+                            "inputs": [],
+                            "op": "x",
+                            "params": [],
+                          },
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "y",
+                                "params": [],
+                              },
+                            ],
+                            "op": "abs",
+                            "params": [],
+                          },
+                        ],
+                        "op": "mul",
+                        "params": [],
+                      },
+                    ],
+                    "op": "abs",
+                    "params": [],
+                  },
+                ],
+                "op": "sin",
+                "params": [],
+              },
+            ],
+            "op": "gt",
+            "params": [],
+          },
+        ],
+        "op": "neg",
+        "params": [],
+      },
+      {
+        "inputs": [
+          {
+            "inputs": [
+              {
+                "inputs": [
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [],
+                        "op": "x",
+                        "params": [],
+                      },
+                    ],
+                    "op": "cos",
+                    "params": [],
+                  },
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "y",
+                                "params": [],
+                              },
+                            ],
+                            "op": "cos",
+                            "params": [],
+                          },
+                        ],
+                        "op": "abs",
+                        "params": [],
+                      },
+                    ],
+                    "op": "neg",
+                    "params": [],
+                  },
+                ],
+                "op": "add",
+                "params": [],
+              },
+              {
+                "inputs": [
+                  {
+                    "inputs": [],
+                    "op": "x",
+                    "params": [],
+                  },
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "const",
+                                "params": [
+                                  0.113,
+                                ],
+                              },
+                            ],
+                            "op": "abs",
+                            "params": [],
+                          },
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "x",
+                                "params": [],
+                              },
+                            ],
+                            "op": "sin",
+                            "params": [],
+                          },
+                        ],
+                        "op": "mul",
+                        "params": [],
+                      },
+                      {
+                        "inputs": [
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "op": "x",
+                                "params": [],
+                              },
+                            ],
+                            "op": "cos",
+                            "params": [],
+                          },
+                        ],
+                        "op": "sqr",
+                        "params": [],
+                      },
+                    ],
+                    "op": "max",
+                    "params": [],
+                  },
+                ],
+                "op": "mul",
+                "params": [],
+              },
+            ],
+            "op": "gt",
+            "params": [],
+          },
+        ],
+        "op": "abs",
+        "params": [],
+      },
+    ],
+    "op": "mix",
+    "params": [],
+  },
+}
+`;
