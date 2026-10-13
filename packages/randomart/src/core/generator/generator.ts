@@ -33,7 +33,15 @@ export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expres
         }
 
         // 2. Sort candidates alphabetically by name
-        candidates.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+        candidates.sort((a, b) => {
+            if (a.name < b.name) {
+                return -1;
+            }
+            if (a.name > b.name) {
+                return 1;
+            }
+            return 0;
+        });
 
         // 3. Draw candidate operator
         const op = rng.weighted(candidates, (candidate) => grammar.weights[candidate.name]);
