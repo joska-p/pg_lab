@@ -1,5 +1,11 @@
 import { RandomArtCanvas } from '../renderer';
-import { setClockStore, setShaderError, useDuration, useFragmentShader } from '../stores/appStore';
+import {
+    setCanvas,
+    setClockStore,
+    setShaderError,
+    useDuration,
+    useFragmentShader,
+} from '../stores/appStore';
 
 export function Scene() {
     const fragmentShader = useFragmentShader();
@@ -11,6 +17,7 @@ export function Scene() {
             duration={duration}
             onShaderError={setShaderError}
             onClockStore={setClockStore}
+            onMount={(surface) => setCanvas(surface.canvas)}
         />
     );
 }

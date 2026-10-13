@@ -1,4 +1,4 @@
-import type { DurationSeconds } from '@repo/glaze/core/time';
+import { createDurationSeconds, type DurationSeconds } from '@repo/glaze/core/time';
 import type { ShaderError } from '@repo/glaze/gpu/shader/ShaderError';
 import { createNullClockStore } from '@repo/glaze/react/clockStore';
 import type { ClockStore } from '@repo/glaze/react/types';
@@ -8,21 +8,28 @@ import { createDefaultCatalog } from '../core/catalog/index.ts';
 import { compile, type CompiledShader } from '../core/compiler/index.ts';
 import type { Expression } from '../core/expression/index.ts';
 import { generate } from '../core/generator/index.ts';
-import { staticGrammar } from '../core/grammar/index.ts';
+import { animatedGrammar, staticGrammar } from '../core/grammar/index.ts';
 import { createSeed, randomSeed, type Seed } from '../core/random/index.ts';
 import { DEFAULT_LOOP_DURATION } from '../renderer/contract';
 
 type Theme = 'light' | 'dark' | 'system';
+export type GrammarMode = 'static' | 'animated';
 
 const catalog = createDefaultCatalog();
-const grammar = staticGrammar(catalog);
 
+function buildGrammar(mode: GrammarMode) {
+    return mode === 'animated' ? animatedGrammar(catalog) : staticGrammar(catalog);
+}
+
+const initialMode: GrammarMode = 'animated';
+const initialGrammar = buildGrammar(initialMode);
 const initialSeed = createSeed(42);
-const initialExpression = generate(catalog, grammar, initialSeed);
+const initialExpression = generate(catalog, initialGrammar, initialSeed);
 const initialCompiled = compile(catalog, initialExpression);
 
 interface AppStoreState {
     theme: Theme;
+    grammarMode: GrammarMode;
     clockStore: ClockStore;
     shaderError: ShaderError | null;
     duration: DurationSeconds;
@@ -30,12 +37,14 @@ interface AppStoreState {
     expression: Expression;
     compiledShader: CompiledShader;
     fragmentShader: string;
+    canvas: HTMLCanvasElement | null;
 }
 
 const nullClockStore = createNullClockStore();
 
 const store = create<AppStoreState>(() => ({
     theme: 'dark',
+    grammarMode: initialMode,
     clockStore: nullClockStore,
     shaderError: null,
     duration: DEFAULT_LOOP_DURATION,
@@ -43,6 +52,7 @@ const store = create<AppStoreState>(() => ({
     expression: initialExpression,
     compiledShader: initialCompiled,
     fragmentShader: initialCompiled.source,
+    canvas: null,
 }));
 
 export function useTheme(): Theme {
@@ -51,6 +61,14 @@ export function useTheme(): Theme {
 
 export function setTheme(theme: Theme): void {
     store.setState({ theme });
+}
+
+export function useGrammarMode(): GrammarMode {
+    return store((s) => s.grammarMode);
+}
+
+export function setGrammarMode(grammarMode: GrammarMode): void {
+    store.setState({ grammarMode });
 }
 
 export function useClockStore(): ClockStore {
@@ -77,7 +95,9 @@ export function useDuration(): DurationSeconds {
     return store((s) => s.duration);
 }
 
+/** Updates the loop duration in the store and in the live clockStore (preserves progress). */
 export function setDuration(duration: DurationSeconds): void {
+    store.getState().clockStore.setDuration(duration);
     store.setState({ duration });
 }
 
@@ -101,7 +121,17 @@ export function setFragmentShader(fragmentShader: string): void {
     store.setState({ fragmentShader });
 }
 
+export function useCanvas(): HTMLCanvasElement | null {
+    return store((s) => s.canvas);
+}
+
+export function setCanvas(canvas: HTMLCanvasElement): void {
+    store.setState({ canvas });
+}
+
 export function regenerate(nextSeed: Seed = randomSeed()): void {
+    const { grammarMode } = store.getState();
+    const grammar = buildGrammar(grammarMode);
     const expression = generate(catalog, grammar, nextSeed);
     const compiledShader = compile(catalog, expression);
     store.setState({
@@ -110,4 +140,34 @@ export function regenerate(nextSeed: Seed = randomSeed()): void {
         compiledShader,
         fragmentShader: compiledShader.source,
     });
+}
+
+/** Exports the current canvas as a PNG blob. Requires preserveDrawingBuffer: true. */
+export async function exportPng(): Promise<void> {
+    const { canvas } = store.getState();
+    if (!canvas) {
+        return;
+    }
+
+    const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob((b) => resolve(b), 'image/png');
+    });
+
+    if (!blob) {
+        return;
+    }
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `randomart-${Date.now()}.png`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+/** Parses a raw string into a valid DurationSeconds (clamps to [1, 60]). */
+export function parseDurationInput(raw: string): DurationSeconds {
+    const n = parseFloat(raw);
+    const clamped = Number.isFinite(n) ? Math.min(60, Math.max(1, n)) : 8;
+    return createDurationSeconds(clamped);
 }

@@ -1,5 +1,6 @@
 import type { DurationSeconds } from '@repo/glaze/core/time';
 import type { ShaderError } from '@repo/glaze/gpu/shader/ShaderError';
+import type { GpuSurface } from '@repo/glaze/gpu/types';
 import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
 import type { ClockStore } from '@repo/glaze/react/types';
 import type { CSSProperties } from 'react';
@@ -20,6 +21,8 @@ export interface RandomArtCanvasProps {
     onShaderError?: (error: ShaderError | null) => void;
     /** Callback connecting the clock store to the UI store. */
     onClockStore?: (clockStore: ClockStore) => void;
+    /** Called once on mount — use to capture surface.canvas for export. */
+    onMount?: (surface: GpuSurface) => void;
     className?: string;
     style?: CSSProperties;
 }
@@ -33,6 +36,7 @@ export function RandomArtCanvas({
     duration = DEFAULT_LOOP_DURATION,
     onShaderError,
     onClockStore,
+    onMount,
     className,
     style,
 }: RandomArtCanvasProps) {
@@ -50,6 +54,7 @@ export function RandomArtCanvas({
             })}
             onShaderError={onShaderError}
             onClockStore={onClockStore}
+            onMount={onMount}
             canvasInteractions={{ pan: false, zoom: false }}
             className={className}
             style={style}
