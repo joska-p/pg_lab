@@ -37,7 +37,3 @@ Both share a common architecture including a frame loop, camera controller, and 
 - [p5.js](https://p5js.org/)
 - [Three.js](https://threejs.org/)
 - [React Three Fiber](https://r3f.docs.pmnd.rs/)
-
----
-
-_Part of the [Creative Playground](https://joska-p.github.io/playground). Technical API reference generated at `/docs/api/glaze/`._
