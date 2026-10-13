@@ -233,11 +233,17 @@ export function createCatalog(config: {
         return Object.freeze(result);
     }
 
+    const allDeps = Object.freeze([...(config.dependencies ?? [])]);
+    function getDependencies(): readonly ShaderDependency[] {
+        return allDeps;
+    }
+
     return Object.freeze({
         operator,
         operators,
         terminals: getTerminals,
         withOutput,
+        dependencies: getDependencies,
         dependencyClosure,
     });
 }
@@ -249,6 +255,12 @@ export function createDefaultCatalog(): Catalog {
         kind: 'uniform',
         name: 'u_phase',
         glslType: 'float',
+    });
+
+    const raFold2 = defineDependency({
+        kind: 'function',
+        name: 'ra_fold2',
+        code: 'vec2 ra_fold2(vec2 v) { return abs(mod(v + 3.0, 4.0) - 2.0) - 1.0; }',
     });
 
     const x = defineOperator({
@@ -398,6 +410,16 @@ export function createDefaultCatalog(): Catalog {
         glsl: ([c, a, b]) => `(${c}>0.0 ? ${a} : ${b})`,
     });
 
+    const warp = defineOperator({
+        name: 'warp',
+        family: 'transform',
+        inputs: [{ type: 'float' }, { type: 'float' }, { type: 'float', scope: 'inner' }],
+        output: 'float',
+        requires: ['ra_fold2'],
+        innerCoords: ([dx, dy], _params, ctx) => `ra_fold2(${ctx.p}+0.5*vec2(${dx},${dy}))`,
+        glsl: ([, , f]) => f,
+    });
+
     return createCatalog({
         operators: [
             x,
@@ -418,7 +440,8 @@ export function createDefaultCatalog(): Catalog {
             cos,
             gt,
             select,
+            warp,
         ],
-        dependencies: [uPhase],
+        dependencies: [uPhase, raFold2],
     });
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { createCatalog, createDefaultCatalog, defineOperator } from '../catalog/index.ts';
 import { createExpression, createNode } from '../expression/index.ts';
-import { lower, probeMultiplicities } from './lower.ts';
+import { lower, probeInnerMultiplicities, probeMultiplicities } from './lower.ts';
 
 describe('lower (MP3·S1)', () => {
     const catalog = createDefaultCatalog();
@@ -43,13 +43,7 @@ describe('lower (MP3·S1)', () => {
             });
             const customCat = createCatalog({
                 operators: [...catalog.operators(), tripleOp],
-                dependencies: [
-                    {
-                        kind: 'uniform',
-                        name: 'u_phase',
-                        glslType: 'float',
-                    },
-                ],
+                dependencies: [...(catalog.dependencies ? catalog.dependencies() : [])],
             });
             expect(probeMultiplicities(customCat, 'triple_use', [])).toEqual([3]);
         });
@@ -212,6 +206,127 @@ describe('lower (MP3·S1)', () => {
             // - child of add(sin(x), x): +1
             // Total = 2
             expect(result.usages[0]).toBe(2);
+        });
+    });
+
+    describe('probeInnerMultiplicities (MP3·S3)', () => {
+        it('returns empty array for operators without inner inputs or innerCoords', () => {
+            expect(probeInnerMultiplicities(catalog, 'x', [])).toEqual([]);
+            expect(probeInnerMultiplicities(catalog, 'add', [])).toEqual([]);
+            expect(probeInnerMultiplicities(catalog, 'const', [0.5])).toEqual([]);
+        });
+
+        it('detects multiplicities for warp current inputs', () => {
+            // warp has 2 current inputs (dx, dy), both used once in innerCoords
+            expect(probeInnerMultiplicities(catalog, 'warp', [])).toEqual([1, 1]);
+        });
+    });
+
+    describe('coordinate contexts and interning (MP3·S3 §5.1, §8.3)', () => {
+        it('lowers warp node into a child context c1', () => {
+            const dx = createNode(catalog, 'const', [], [0.1]);
+            const dy = createNode(catalog, 'const', [], [0.2]);
+            const x = createNode(catalog, 'x');
+            const warpNode = createNode(catalog, 'warp', [dx, dy, x]);
+            const expr = createExpression(warpNode, dx, dy);
+
+            const result = lower(catalog, expr);
+
+            expect(result.contexts).toHaveLength(1);
+            expect(result.contexts[0].name).toBe('c1');
+            expect(result.contexts[0].parentName).toBe('root');
+            expect(result.contexts[0].op).toBe('warp');
+
+            // x inside warp is evaluated in c1
+            const innerX = result.vertices.find((v) => v.op === 'x');
+            expect(innerX).toBeDefined();
+            expect(innerX?.context).toBe('c1');
+        });
+
+        it('deduplicates identical contexts across channels (interning)', () => {
+            const dx = createNode(catalog, 'const', [], [0.1]);
+            const dy = createNode(catalog, 'const', [], [0.2]);
+            const x = createNode(catalog, 'x');
+            const y = createNode(catalog, 'y');
+            const warp1 = createNode(catalog, 'warp', [dx, dy, x]);
+            const warp2 = createNode(catalog, 'warp', [dx, dy, y]);
+            const expr = createExpression(warp1, warp2, dx);
+
+            const result = lower(catalog, expr);
+
+            // Exactly ONE context created because (parent, warp, params, [dx, dy]) is identical
+            expect(result.contexts).toHaveLength(1);
+            expect(result.contexts[0].name).toBe('c1');
+        });
+
+        it('§8.3 produces two vertices for same terminal in different contexts', () => {
+            const dx1 = createNode(catalog, 'const', [], [0.1]);
+            const dy1 = createNode(catalog, 'const', [], [0.2]);
+            const dx2 = createNode(catalog, 'const', [], [0.3]);
+            const dy2 = createNode(catalog, 'const', [], [0.4]);
+            const x = createNode(catalog, 'x');
+
+            const warp1 = createNode(catalog, 'warp', [dx1, dy1, x]);
+            const warp2 = createNode(catalog, 'warp', [dx2, dy2, x]);
+            const expr = createExpression(warp1, warp2, x);
+
+            const result = lower(catalog, expr);
+
+            // Two distinct contexts
+            expect(result.contexts).toHaveLength(2);
+            expect(result.contexts.map((c) => c.name)).toEqual(['c1', 'c2']);
+
+            // x in c1, x in c2, and x in root are 3 separate vertices!
+            const xVertices = result.vertices.filter((v) => v.op === 'x');
+            expect(xVertices).toHaveLength(3);
+            expect(xVertices.map((v) => v.context).sort()).toEqual(['c1', 'c2', 'root']);
+        });
+
+        it('preserves topological order between vertices and contexts in program', () => {
+            const dx = createNode(catalog, 'const', [], [0.1]);
+            const dy = createNode(catalog, 'const', [], [0.2]);
+            const x = createNode(catalog, 'x');
+            const warpNode = createNode(catalog, 'warp', [dx, dy, x]);
+            const expr = createExpression(warpNode, dx, dy);
+
+            const result = lower(catalog, expr);
+
+            // In program: dx & dy vertices come before context c1, which comes before x in c1, which comes before warp
+            const dxIdx = result.program.findIndex(
+                (item) => item.kind === 'vertex' && item.vertex.op === 'const',
+            );
+            const c1Idx = result.program.findIndex((item) => item.kind === 'context');
+            const xIdx = result.program.findIndex(
+                (item) => item.kind === 'vertex' && item.vertex.op === 'x',
+            );
+            const warpIdx = result.program.findIndex(
+                (item) => item.kind === 'vertex' && item.vertex.op === 'warp',
+            );
+
+            expect(dxIdx).toBeLessThan(c1Idx);
+            expect(c1Idx).toBeLessThan(xIdx);
+            expect(xIdx).toBeLessThan(warpIdx);
+        });
+
+        it('accumulates mc usages on current inputs when context is created, but not on reuse', () => {
+            const dx = createNode(catalog, 'const', [], [0.1]);
+            const dy = createNode(catalog, 'const', [], [0.2]);
+            const x = createNode(catalog, 'x');
+            const y = createNode(catalog, 'y');
+            const warp1 = createNode(catalog, 'warp', [dx, dy, x]);
+            const warp2 = createNode(catalog, 'warp', [dx, dy, y]);
+            const zero = createNode(catalog, 'const', [], [0]);
+            const expr = createExpression(warp1, warp2, zero);
+
+            const result = lower(catalog, expr);
+
+            // dx and dy vertices
+            // Used by context c1 (mc = [1, 1])
+            // When warp2 reuses context c1, mc is NOT added again.
+            const dxVertex = result.vertices.find((v) => v.params[0] === 0.1)!;
+            const dyVertex = result.vertices.find((v) => v.params[0] === 0.2)!;
+            expect(result.usages[dxVertex.id]).toBe(1);
+            expect(result.usages[dyVertex.id]).toBe(1);
         });
     });
 });

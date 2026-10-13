@@ -162,7 +162,7 @@ describe('createCatalog', () => {
 describe('createDefaultCatalog', () => {
     it('creates standard operators and default dependency', () => {
         const catalog = createDefaultCatalog();
-        expect(catalog.operators().length).toBe(18);
+        expect(catalog.operators().length).toBe(19);
         expect(
             catalog
                 .terminals()
@@ -173,6 +173,8 @@ describe('createDefaultCatalog', () => {
         expect(catalog.operator('add').inputs.length).toBe(2);
         expect(catalog.operator('mix').inputs.length).toBe(3);
         expect(catalog.operator('select').inputs.length).toBe(3);
+        expect(catalog.operator('warp').family).toBe('transform');
+        expect(catalog.operator('warp').requires).toEqual(['ra_fold2']);
         expect(() => catalog.operator('unknown')).toThrow(/Unknown operator/);
     });
 });

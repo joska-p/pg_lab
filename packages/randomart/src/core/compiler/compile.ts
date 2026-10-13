@@ -77,7 +77,7 @@ export function compile(
             nodes: totalNodes,
             vertices: lowerResult.vertices.length,
             variables: emitResult.varCount,
-            contexts: 1,
+            contexts: 1 + lowerResult.contexts.length,
             sourceLength: source.length,
         },
     };

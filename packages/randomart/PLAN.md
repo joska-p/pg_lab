@@ -27,12 +27,13 @@ qu'aucune app n'utilise).
   **MP1·S4 terminé** : compilateur naïf dans `src/core/compiler/` (`compile`, `isAtom`, `isEnclosedInParens`, `wrapInput`, `MAX_SOURCE_LENGTH = 200_000`, politique `none`), préambule GLSL conforme au contrat S3 (`precision highp float; in vec2 vUv; out vec4 o_color; uniform float u_phase; const float PI = ...; vec2 v_p = vUv * 2.0 - 1.0;`), conversion `[-1, 1]` vers `[0, 1]` avec clamp final. Chaîne complète branchée dans l'UI (`appStore` initialise une œuvre via `generate` + `staticGrammar`, shader compilé injecté dans `Scene`, bouton Regenerate dans `Controls` avec affichage de la seed et des nœuds). 84 tests unitaires randomart verts (237 tests monorepo).
   **MP1·S5 terminé** : `tsin`/`tcos` déjà dans le catalogue, `animatedGrammar` utilisé par défaut dans `appStore`. Contrôles play/pause/reset reliés au `ClockStore`. Durée de boucle réglable via input (clamp `[1, 60]` s), `setDuration` synchronisé avec le clockStore live (progression conservée). Bouton toggle `🎞 Animated` / `🖼 Static`. Export PNG via `canvas.toBlob` (fiable grâce à `preserveDrawingBuffer: true`), canvas capturé dans l'appStore via `onMount`. Erreurs shader affichées dans le panneau. 84 tests unitaires verts (inchangés — logique purement UI).
   **MP3·S1 + S2 terminé** : compilateur modulaire (`lower.ts`, `emit.ts`, `format.ts`, `preamble.ts`, `compile.ts`). Abaissement sans contextes : sondage de multiplicité (`probeMultiplicities`), hash-consing (D22), comptage des usages (D29). Émission : politiques `none`, `shared`, `all`, gestion des atomes, formatage des littéraux (`formatGlslFloat`), préambule avec fermeture des dépendances ordonnée, garde-fou `MAX_SOURCE_LENGTH`. 41 tests unitaires compilateur verts (dont 14 dans `lower.test.ts`), 108 tests randomart verts (261 tests monorepo).
+  **MP3·S3 terminé** : contextes de coordonnées internés et `warp`. `ra_fold2` et `warp` dans le catalogue par défaut (19 opérateurs). Sondage des entrées de coordonnées (`probeInnerMultiplicities`). Abaissement avec internement des contextes (`ContextDef`), ordonnancement topologique strict `program`, comptage des usages `mc` à la création du contexte. Émission GLSL des contextes `vec2 c<n> = ...;`, résolution de `p` pour les nœuds internes et transformateurs imbriqués. Prise en compte dans `stats.contexts`. 53 tests unitaires compilateur verts (21 dans `lower.test.ts`, 32 dans `compiler.test.ts`), 120 tests randomart verts (273 tests monorepo).
 - **Infra** : `strict: true` activé dans `tsconfig.app` (voir friction 10). Tests opérationnels via `vp test`.
-- **Plan** : temps via `Clock`/`ClockStore` ; compilateur scindé ; tests navigateur reportés.
+- **Plan** : temps via `Clock`/`ClockStore` ; compilateur modulaire complet avec contextes ; tests navigateur reportés.
 
 ## Prochaine action
 
-**MP3·S3 ou MP2** — MP3·S3 : Contextes internés et `warp` (`innerCoords`, `ra_fold2`). Ou MP2·S1 : durcissement de `catalog` (validations `defineOperator`/`createCatalog` + sondage des entrées).
+**MP3·S4 ou MP2** — MP3·S4 : Mesures et fuzzing pur du compilateur sans GPU (comparaison des politiques `none`/`shared`/`all`). Ou MP2 : Durcissement du cœur (S2 `expression`, S3 `grammar`).
 
 ## Comment utiliser ce plan
 
@@ -151,9 +152,9 @@ _Le cœur conceptuel le plus dense, **pris en quatre temps, du plus simple au pl
 - **S2 — Émission.** ✅ **terminé.** Atomes, littéraux, parenthésage, politiques `none`/`shared`/`all`,
   préambule (fermeture de dépendances), `compile()`, garde-fou `MAX_SOURCE_LENGTH`.
   Tests §8 (1, 2, 4–7).
-- **S3 — Contextes et `warp`.** Contextes de coordonnées internés, `innerCoords`, `ra_fold2`,
-  `warp` dans le catalogue. Transformateur fictif pour les tests (§8 : 3). C'est le plus gros
-  risque : il arrive seulement quand le reste est stable.
+- **S3 — Contextes et `warp`.** ✅ **terminé.** Contextes de coordonnées internés, `innerCoords`, `ra_fold2`,
+  `warp` dans le catalogue (`catalog.ts`), sondage `probeInnerMultiplicities`, émission `vec2 c<n>`,
+  interconnexion des contextes imbriqués. Tests §8 (1, 3).
 - **S4 — Mesures.** Comparer les politiques sur de vraies expressions (source, sommets,
   variables, temps de compilation) pour éclairer le défaut. Fuzz « pur » (sans GPU) sur des
   milliers d'expressions.

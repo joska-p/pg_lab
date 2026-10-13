@@ -53,5 +53,6 @@ export interface Catalog {
     readonly operators: () => readonly OperatorDef[];
     readonly terminals: () => readonly OperatorDef[];
     readonly withOutput: (type: ValueType) => readonly OperatorDef[];
+    readonly dependencies?: () => readonly ShaderDependency[];
     readonly dependencyClosure: (names: readonly string[]) => readonly ShaderDependency[];
 }

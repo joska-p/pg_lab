@@ -7,7 +7,7 @@
 
 import type { Catalog } from '../catalog/index.ts';
 import { isAtom, wrapInput } from './format.ts';
-import type { LowerResult, Vertex } from './lower.ts';
+import { type ContextDef, type LowerResult, ROOT_CTX, type Vertex } from './lower.ts';
 import type { SharingPolicy } from './types.ts';
 
 // ---------------------------------------------------------------------------
@@ -17,11 +17,11 @@ import type { SharingPolicy } from './types.ts';
 export interface EmitResult {
     /** GLSL statement lines to place inside main() (before the final rgb assembly). */
     readonly lines: readonly string[];
-    /** Number of GLSL variables emitted (stat). */
+    /** Number of GLSL variables emitted (stat, excluding coordinate contexts). */
     readonly varCount: number;
     /** Text representation of the three channel roots [r, g, b] (may be inline or var name). */
     readonly channelTexts: readonly [string, string, string];
-    /** Set of dependency names used across all vertices. */
+    /** Set of dependency names used across all vertices and contexts. */
     readonly usedDeps: ReadonlySet<string>;
 }
 
@@ -70,12 +70,12 @@ function shouldHaveVariable(
 // ---------------------------------------------------------------------------
 
 /**
- * Emits GLSL statements for each vertex in topological order. Returns the lines, variable count,
- * channel root texts, and used dependencies.
+ * Emits GLSL statements for each context and vertex in topological program order. Returns the
+ * lines, variable count, channel root texts, and used dependencies.
  */
 export function emit(
     catalog: Catalog,
-    { vertices, usages, roots }: LowerResult,
+    { program, vertices, usages, roots }: LowerResult,
     policy: SharingPolicy,
 ): EmitResult {
     const lines: string[] = [];
@@ -84,15 +84,34 @@ export function emit(
     const usedDeps = new Set<string>();
     let varCount = 0;
 
-    // Context name for root (no warp in MP3·S1+S2)
-    const ROOT_P = 'v_p';
+    function emitContext(ctx: ContextDef): void {
+        const { name, parentName, op, params, currentInputIds, requires } = ctx;
+        const opDef = catalog.operator(op);
 
-    for (const vertex of vertices) {
-        emitVertex(vertex);
+        for (const req of requires) {
+            usedDeps.add(req);
+        }
+        if (opDef.requires) {
+            for (const req of opDef.requires) {
+                usedDeps.add(req);
+            }
+        }
+
+        const parentGlslP = parentName === ROOT_CTX ? 'v_p' : parentName;
+        const currentInputTexts = currentInputIds.map((childId) =>
+            inputText(childId, varNames, inlineTexts),
+        );
+
+        if (typeof opDef.innerCoords !== 'function') {
+            throw new Error(`Operator "${op}" is missing innerCoords definition`);
+        }
+
+        const coordsText = opDef.innerCoords(currentInputTexts, params, { p: parentGlslP });
+        lines.push(`  vec2 ${name} = ${coordsText};`);
     }
 
     function emitVertex(vertex: Vertex): void {
-        const { id, op, params, inputIds, requires } = vertex;
+        const { id, op, params, inputIds, context, requires } = vertex;
         const opDef = catalog.operator(op);
 
         // Collect dependencies
@@ -108,8 +127,8 @@ export function emit(
         // Build input texts for this vertex's glsl call
         const inputTexts = inputIds.map((childId) => inputText(childId, varNames, inlineTexts));
 
-        // Compute raw GLSL text for this vertex
-        const rawText = opDef.glsl(inputTexts, params, { p: ROOT_P });
+        const glslP = context === ROOT_CTX ? 'v_p' : context;
+        const rawText = opDef.glsl(inputTexts, params, { p: glslP });
 
         // Decide variable assignment
         if (shouldHaveVariable(policy, usages, id, rawText)) {
@@ -119,6 +138,20 @@ export function emit(
             varCount++;
         } else {
             inlineTexts.set(id, rawText);
+        }
+    }
+
+    if (program) {
+        for (const item of program) {
+            if (item.kind === 'context') {
+                emitContext(item.context);
+            } else {
+                emitVertex(item.vertex);
+            }
+        }
+    } else {
+        for (const vertex of vertices) {
+            emitVertex(vertex);
         }
     }
 

@@ -205,14 +205,7 @@ describe('compiler', () => {
 
             const customCatalog = createCatalog({
                 operators: [...catalog.operators(), noiseOp],
-                dependencies: [
-                    defineDependency({
-                        kind: 'uniform',
-                        name: 'u_phase',
-                        glslType: 'float',
-                    }),
-                    helperFn,
-                ],
+                dependencies: [...(catalog.dependencies ? catalog.dependencies() : []), helperFn],
             });
 
             const noiseNode = createNode(customCatalog, 'custom_noise');
@@ -238,13 +231,7 @@ describe('compiler', () => {
 
             const testCatalog = createCatalog({
                 operators: [...catalog.operators(), longGlslOp],
-                dependencies: [
-                    defineDependency({
-                        kind: 'uniform',
-                        name: 'u_phase',
-                        glslType: 'float',
-                    }),
-                ],
+                dependencies: [...(catalog.dependencies ? catalog.dependencies() : [])],
             });
 
             const hugeNode = createNode(testCatalog, 'huge_op');
@@ -391,6 +378,121 @@ describe('compiler', () => {
             // sinX computation appears only once
             const sinCount = (compiled.source.match(/sin\(PI\*v_p\.x\)/g) ?? []).length;
             expect(sinCount).toBe(1);
+        });
+
+        // ── MP3·S3: Contexts & warp ──────────────────────────────────────────
+
+        it('§8.1/§8.3 compiles warp transformer and produces valid shader contract', () => {
+            const dx = createNode(catalog, 'const', [], [0.25]);
+            const dy = createNode(catalog, 'const', [], [-0.5]);
+            const x = createNode(catalog, 'x');
+            const warpNode = createNode(catalog, 'warp', [dx, dy, x]);
+            const y = createNode(catalog, 'y');
+            const expr = createExpression(warpNode, y, y);
+
+            const compiled = compile(catalog, expr);
+
+            // Valid GLSL
+            const validation = validateShaderContract(compiled.source);
+            expect(validation.valid).toBe(true);
+
+            // Preamble contains ra_fold2 function
+            expect(compiled.source).toContain('vec2 ra_fold2(vec2 v)');
+
+            // Coordinate context declaration inside main()
+            expect(compiled.source).toMatch(
+                /vec2 c1 = ra_fold2\(v_p\+0\.5\*vec2\(0\.25,\(-0\.5\)\)\);/,
+            );
+
+            // Inner x evaluates to c1.x
+            expect(compiled.source).toContain('c1.x');
+
+            // stats: root + c1 = 2 contexts
+            expect(compiled.stats.contexts).toBe(2);
+        });
+
+        it('§8.3 two identical transforms in different channels create only 1 context', () => {
+            const dx = createNode(catalog, 'const', [], [0.1]);
+            const dy = createNode(catalog, 'const', [], [0.2]);
+            const x = createNode(catalog, 'x');
+            const y = createNode(catalog, 'y');
+            const warp1 = createNode(catalog, 'warp', [dx, dy, x]);
+            const warp2 = createNode(catalog, 'warp', [dx, dy, y]);
+            const expr = createExpression(warp1, warp2, x);
+
+            const compiled = compile(catalog, expr);
+
+            // Exactly 2 contexts (root + 1 shared child context)
+            expect(compiled.stats.contexts).toBe(2);
+
+            // c1 declared exactly once
+            const c1Matches = compiled.source.match(/vec2 c1 =/g);
+            expect(c1Matches).toHaveLength(1);
+            expect(compiled.source).not.toContain('vec2 c2 =');
+        });
+
+        it('§8.3 different transforms create multiple contexts', () => {
+            const dx1 = createNode(catalog, 'const', [], [0.1]);
+            const dy1 = createNode(catalog, 'const', [], [0.2]);
+            const dx2 = createNode(catalog, 'const', [], [0.3]);
+            const dy2 = createNode(catalog, 'const', [], [0.4]);
+            const x = createNode(catalog, 'x');
+            const warp1 = createNode(catalog, 'warp', [dx1, dy1, x]);
+            const warp2 = createNode(catalog, 'warp', [dx2, dy2, x]);
+            const expr = createExpression(warp1, warp2, x);
+
+            const compiled = compile(catalog, expr);
+
+            // 3 contexts: root + c1 + c2
+            expect(compiled.stats.contexts).toBe(3);
+            expect(compiled.source).toContain('vec2 c1 =');
+            expect(compiled.source).toContain('vec2 c2 =');
+        });
+
+        it('compiles nested warp transformations with chained coordinate contexts', () => {
+            const dx1 = createNode(catalog, 'const', [], [0.1]);
+            const dy1 = createNode(catalog, 'const', [], [0.2]);
+            const dx2 = createNode(catalog, 'const', [], [0.3]);
+            const dy2 = createNode(catalog, 'const', [], [0.4]);
+            const x = createNode(catalog, 'x');
+
+            // warp1(dx1, dy1, warp2(dx2, dy2, x))
+            const innerWarp = createNode(catalog, 'warp', [dx2, dy2, x]);
+            const outerWarp = createNode(catalog, 'warp', [dx1, dy1, innerWarp]);
+            const y = createNode(catalog, 'y');
+            const expr = createExpression(outerWarp, y, y);
+
+            const compiled = compile(catalog, expr);
+
+            const validation = validateShaderContract(compiled.source);
+            expect(validation.valid).toBe(true);
+
+            expect(compiled.stats.contexts).toBe(3);
+            // c1 depends on v_p
+            expect(compiled.source).toMatch(/vec2 c1 = ra_fold2\(v_p\+/);
+            // c2 depends on c1
+            expect(compiled.source).toMatch(/vec2 c2 = ra_fold2\(c1\+/);
+            // innermost x uses c2.x
+            expect(compiled.source).toContain('c2.x');
+        });
+
+        it('compiles warp expressions under all sharing policies (none, shared, all)', () => {
+            const dx = createNode(catalog, 'const', [], [0.1]);
+            const dy = createNode(catalog, 'const', [], [0.2]);
+            const x = createNode(catalog, 'x');
+            const sinX = createNode(catalog, 'sin', [x]);
+            const warpNode = createNode(catalog, 'warp', [dx, dy, sinX]);
+            const expr = createExpression(warpNode, warpNode, dx);
+
+            for (const policy of ['none', 'shared', 'all'] as const) {
+                const compiled = compile(catalog, expr, { sharing: policy });
+                const validation = validateShaderContract(compiled.source);
+                expect(validation.valid).toBe(true);
+
+                // Context c1 is ALWAYS emitted regardless of policy (spec §5.2)
+                expect(compiled.source).toContain('vec2 c1 =');
+                expect(compiled.stats.contexts).toBe(2);
+            }
         });
     });
 });
