@@ -92,6 +92,7 @@ export interface CpuSurfaceOptions extends SurfaceOptionsBase {}
 export interface GpuSurfaceOptions extends SurfaceOptionsBase {
     clock?: Clock;
     clockOptions?: ClockOptions;
+    contextOptions?: WebGLContextAttributes;
 }
 
 // ---------------------------------------------------------------------------

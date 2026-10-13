@@ -1,5 +1,16 @@
-import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
+import { RandomArtCanvas } from '../renderer';
+import { setClockStore, setShaderError, useDuration, useFragmentShader } from '../stores/appStore';
 
 export function Scene() {
-    return <GpuCanvas />;
+    const fragmentShader = useFragmentShader();
+    const duration = useDuration();
+
+    return (
+        <RandomArtCanvas
+            fragmentShader={fragmentShader}
+            duration={duration}
+            onShaderError={setShaderError}
+            onClockStore={setClockStore}
+        />
+    );
 }

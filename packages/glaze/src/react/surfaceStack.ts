@@ -127,6 +127,7 @@ export function createGpuStack(
         dpr,
         clock,
         clockOptions,
+        contextOptions,
         frameLoopOptions,
     }: GpuSurfaceOptions,
     getGestures: () => Gesture<GpuSurface>[],
@@ -144,6 +145,7 @@ export function createGpuStack(
             dpr: resolvedDpr,
             clock,
             clockOptions,
+            contextOptions,
             frameLoopOptions,
         }),
     );

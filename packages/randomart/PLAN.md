@@ -23,12 +23,13 @@ qu'aucune app n'utilise).
   **MP1·S1 terminé** : arborescence `src/core/*` et `src/renderer/`, `shared` local (`Brand`, `assertFinite`),
   module `random` (`Seed`, `createSeed`, `randomSeed`, `Rng`, `createRng` mulberry32, `next`/`int`/`weighted`).
   **MP1·S2 terminé** : chaîne pure minimale (`catalog` terminaux/arith/trigo/logique, `expression` nœuds immuables validés + métriques, `grammar` contraintes/règles 1-8/minSize/`staticGrammar`/`animatedGrammar`, `generator` budget réel/déterminisme/`GENERATOR_VERSION`). 55 tests unitaires verts avec snapshots sur seeds fixes.
+  **MP1·S3 terminé** : adaptateur renderer (`RandomArtCanvas`, `contract`), contrat GLSL fixé (`in vec2 vUv`, `out vec4 o_color`, `vec2 v_p = vUv * 2.0 - 1.0;`), shader de test à la main dégradé `x`/`y`/`u_phase`, temps bouclé 8s (`u_phase = progress % 1`), store UI relié à `ClockStore` et `onShaderError`, `contextOptions` transmis via glaze. 67 tests unitaires randomart verts (220 tests monorepo).
 - **Infra** : `strict: true` activé dans `tsconfig.app` (voir friction 10). Tests opérationnels via `vp test`.
 - **Plan** : temps via `Clock`/`ClockStore` ; compilateur scindé ; tests navigateur reportés.
 
 ## Prochaine action
 
-**MP1·S3** — Rendu sur glaze, shader écrit à la main. Prouver le GPU avant le compilateur (`fragmentShader` + `onShaderError`, contrat `vUv` -> `v_p`, phase).
+**MP1·S4** — Compilateur naïf + branchement. Compilation inline des trois arbres, préambule minimal (`PI`, `u_phase`, `vUv`). Brancher generate → compile → `GpuCanvas` ; erreur affichée, image précédente conservée. Première image à l'écran.
 
 ## Comment utiliser ce plan
 
@@ -108,7 +109,7 @@ remplacera proprement ensuite._
   (forme + `staticGrammar`), `generator` (budget réel, ordre de consommation,
   `GENERATOR_VERSION`). Attention : `minSize(d+1)` se calcule avec la plus petite arité du
   **vocabulaire**, pas celle de l'opérateur choisi. Tests : invariants + snapshot sur seeds fixes.
-- **S3 — Rendu sur glaze, shader écrit à la main.** Prouver le GPU avant le compilateur, via
+- **S3 — Rendu sur glaze, shader écrit à la main.** ✅ **terminé.** Prouver le GPU avant le compilateur, via
   `fragmentShader` + `onShaderError` (dégradé `x`/`y`). Fixer le **contrat d'entrée** :
   le compilateur émet `in vec2 vUv; out vec4 o_color;` et, **au début de `main`**,
   `vec2 v_p = vUv * 2.0 - 1.0;` (les formules du catalogue utilisent `v_p`, inchangées ; `y`
