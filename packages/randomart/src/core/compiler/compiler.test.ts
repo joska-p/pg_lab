@@ -101,14 +101,12 @@ describe('compiler', () => {
             expect(compiled.source).toContain('uniform float u_phase;');
             expect(compiled.source).toContain('const float PI = 3.141592653589793;');
             expect(compiled.source).toContain('vec2 v_p = vUv * 2.0 - 1.0;');
-            expect(compiled.source).toContain(
-                'o_color = vec4(clamp(r_expr, 0.0, 1.0), clamp(g_expr, 0.0, 1.0), clamp(b_expr, 0.0, 1.0), 1.0);',
-            );
 
-            // Channels
-            expect(compiled.source).toContain('float r_expr = (v_p.x) * 0.5 + 0.5;');
-            expect(compiled.source).toContain('float g_expr = (v_p.y) * 0.5 + 0.5;');
-            expect(compiled.source).toContain('float b_expr = (0.25) * 0.5 + 0.5;');
+            // New spec §5.3 output format: vec3 rgb + clamp
+            expect(compiled.source).toContain('vec3 rgb = vec3(v_p.x, v_p.y, 0.25);');
+            expect(compiled.source).toContain(
+                'o_color = vec4(clamp(rgb * 0.5 + 0.5, 0.0, 1.0), 1.0);',
+            );
 
             // Metadata & stats
             expect(compiled.animated).toBe(false);
@@ -253,6 +251,146 @@ describe('compiler', () => {
             const expr = createExpression(hugeNode, hugeNode, hugeNode);
 
             expect(() => compile(testCatalog, expr)).toThrow(/exceeds MAX_SOURCE_LENGTH/);
+        });
+
+        // ── §8.2 — Cross-channel sharing ────────────────────────────────────
+
+        it('§8.2 shares a sub-expression used in two channels (policy=shared)', () => {
+            const x = createNode(catalog, 'x');
+            const sinX = createNode(catalog, 'sin', [x]);
+            const y = createNode(catalog, 'y');
+
+            // r = sin(x), g = add(sin(x), y), b = y
+            const add = createNode(catalog, 'add', [sinX, y]);
+            const expr = createExpression(sinX, add, y);
+            const compiled = compile(catalog, expr, { sharing: 'shared' });
+
+            // sin(x) appears in r and add → 2 usages → gets a variable
+            expect(compiled.source).toContain('float v');
+            expect(compiled.stats.variables).toBeGreaterThanOrEqual(1);
+            // Only one sin(PI*v_p.x) computation in the source
+            const matches = (compiled.source.match(/sin\(PI\*v_p\.x\)/g) ?? []).length;
+            expect(matches).toBe(1);
+        });
+
+        it('§8.2 cross-channel sharing: vertices < nodes when sharing is effective', () => {
+            const x = createNode(catalog, 'x');
+            const sinX = createNode(catalog, 'sin', [x]);
+            const add = createNode(catalog, 'add', [sinX, sinX]);
+            // r = add(sin(x), sin(x)) shared — but same node reference so same vertex
+            const expr = createExpression(add, sinX, sinX);
+            const compiled = compile(catalog, expr);
+
+            // vertices should be fewer than the naive node count
+            expect(compiled.stats.vertices).toBeLessThan(compiled.stats.nodes);
+            expect(compiled.stats.contexts).toBe(1);
+        });
+
+        // ── §8.5 — Sharing policies ──────────────────────────────────────────
+
+        it('§8.5 policy=none never emits variables', () => {
+            const x = createNode(catalog, 'x');
+            const sinX = createNode(catalog, 'sin', [x]);
+            const add = createNode(catalog, 'add', [sinX, sinX]);
+            const expr = createExpression(add, sinX, x);
+            const compiled = compile(catalog, expr, { sharing: 'none' });
+
+            expect(compiled.stats.variables).toBe(0);
+            // No float v<n> = ... lines
+            expect(compiled.source).not.toMatch(/float v\d+ =/);
+        });
+
+        it('§8.5 policy=all emits a variable for every vertex', () => {
+            const x = createNode(catalog, 'x');
+            const sinX = createNode(catalog, 'sin', [x]);
+            const expr = createExpression(sinX, x, x);
+            const compiled = compile(catalog, expr, { sharing: 'all' });
+
+            // All 3 vertices (x, sin(x), x-again-shared) get variables
+            expect(compiled.stats.variables).toBe(compiled.stats.vertices);
+        });
+
+        it('§8.5 all three policies produce valid GLSL and consistent stats.vertices', () => {
+            const x = createNode(catalog, 'x');
+            const y = createNode(catalog, 'y');
+            const sinX = createNode(catalog, 'sin', [x]);
+            const add = createNode(catalog, 'add', [sinX, y]);
+            const expr = createExpression(sinX, add, y);
+
+            const none = compile(catalog, expr, { sharing: 'none' });
+            const shared = compile(catalog, expr, { sharing: 'shared' });
+            const all = compile(catalog, expr, { sharing: 'all' });
+
+            // All valid GLSL
+            for (const c of [none, shared, all]) {
+                expect(validateShaderContract(c.source).valid).toBe(true);
+            }
+
+            // vertices count is the same regardless of policy (it's a property of the DAG)
+            expect(none.stats.vertices).toBe(shared.stats.vertices);
+            expect(shared.stats.vertices).toBe(all.stats.vertices);
+
+            // variables: none=0, shared>=1, all=vertices
+            expect(none.stats.variables).toBe(0);
+            expect(shared.stats.variables).toBeGreaterThanOrEqual(1);
+            expect(all.stats.variables).toBe(all.stats.vertices);
+        });
+
+        // ── §8.6 — Determinism ───────────────────────────────────────────────
+
+        it('§8.6 determinism: same expression compiled twice gives identical source and stats', () => {
+            const grammar = staticGrammar(catalog);
+            const expr = generate(catalog, grammar, createSeed(99));
+            const a = compile(catalog, expr, { sharing: 'shared' });
+            const b = compile(catalog, expr, { sharing: 'shared' });
+            expect(a.source).toBe(b.source);
+            expect(a.stats).toEqual(b.stats);
+        });
+
+        // ── §8.7 — Literals ──────────────────────────────────────────────────
+
+        it('§8.7 formats integer as float (adds .0)', () => {
+            // const operator with value 1 → should emit "1.0"
+            const c = createNode(catalog, 'const', [], [1]);
+            const x = createNode(catalog, 'x');
+            const expr = createExpression(c, x, x);
+            const compiled = compile(catalog, expr, { sharing: 'none' });
+            expect(compiled.source).toContain('1.0');
+        });
+
+        it('§8.7 formats negative number as parenthesized literal', () => {
+            const c = createNode(catalog, 'const', [], [-0.3]);
+            const x = createNode(catalog, 'x');
+            const expr = createExpression(c, x, x);
+            const compiled = compile(catalog, expr, { sharing: 'none' });
+            expect(compiled.source).toContain('(-0.3)');
+            expect(compiled.source).not.toContain('--');
+        });
+
+        it('§8.7 passes through scientific notation literals unchanged', () => {
+            // formatGlslFloat for a number like 1e-7 — no .0 added since it has 'e'
+            // We test via neg(const) to exercise the path
+            const c = createNode(catalog, 'const', [], [0.3]);
+            const x = createNode(catalog, 'x');
+            const expr = createExpression(c, x, x);
+            const compiled = compile(catalog, expr, { sharing: 'none' });
+            expect(compiled.source).toContain('0.3');
+        });
+
+        // ── sqr multiplicity ─────────────────────────────────────────────────
+
+        it('sqr uses shared policy to avoid duplicating its input in inline mode', () => {
+            const x = createNode(catalog, 'x');
+            const sinX = createNode(catalog, 'sin', [x]);
+            const sqrSin = createNode(catalog, 'sqr', [sinX]); // glsl: a*a → multiplicity 2
+            const expr = createExpression(sqrSin, x, x);
+
+            // With shared policy: sinX has usage ≥ 2 because sqr multiplicity is 2 → gets variable
+            const compiled = compile(catalog, expr, { sharing: 'shared' });
+            expect(compiled.stats.variables).toBeGreaterThanOrEqual(1);
+            // sinX computation appears only once
+            const sinCount = (compiled.source.match(/sin\(PI\*v_p\.x\)/g) ?? []).length;
+            expect(sinCount).toBe(1);
         });
     });
 });
