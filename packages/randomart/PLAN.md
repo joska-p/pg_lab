@@ -24,12 +24,13 @@ qu'aucune app n'utilise).
   module `random` (`Seed`, `createSeed`, `randomSeed`, `Rng`, `createRng` mulberry32, `next`/`int`/`weighted`).
   **MP1·S2 terminé** : chaîne pure minimale (`catalog` terminaux/arith/trigo/logique, `expression` nœuds immuables validés + métriques, `grammar` contraintes/règles 1-8/minSize/`staticGrammar`/`animatedGrammar`, `generator` budget réel/déterminisme/`GENERATOR_VERSION`). 55 tests unitaires verts avec snapshots sur seeds fixes.
   **MP1·S3 terminé** : adaptateur renderer (`RandomArtCanvas`, `contract`), contrat GLSL fixé (`in vec2 vUv`, `out vec4 o_color`, `vec2 v_p = vUv * 2.0 - 1.0;`), shader de test à la main dégradé `x`/`y`/`u_phase`, temps bouclé 8s (`u_phase = progress % 1`), store UI relié à `ClockStore` et `onShaderError`, `contextOptions` transmis via glaze. 67 tests unitaires randomart verts (220 tests monorepo).
+  **MP1·S4 terminé** : compilateur naïf dans `src/core/compiler/` (`compile`, `isAtom`, `isEnclosedInParens`, `wrapInput`, `MAX_SOURCE_LENGTH = 200_000`, politique `none`), préambule GLSL conforme au contrat S3 (`precision highp float; in vec2 vUv; out vec4 o_color; uniform float u_phase; const float PI = ...; vec2 v_p = vUv * 2.0 - 1.0;`), conversion `[-1, 1]` vers `[0, 1]` avec clamp final. Chaîne complète branchée dans l'UI (`appStore` initialise une œuvre via `generate` + `staticGrammar`, shader compilé injecté dans `Scene`, bouton Regenerate dans `Controls` avec affichage de la seed et des nœuds). 84 tests unitaires randomart verts (237 tests monorepo).
 - **Infra** : `strict: true` activé dans `tsconfig.app` (voir friction 10). Tests opérationnels via `vp test`.
 - **Plan** : temps via `Clock`/`ClockStore` ; compilateur scindé ; tests navigateur reportés.
 
 ## Prochaine action
 
-**MP1·S4** — Compilateur naïf + branchement. Compilation inline des trois arbres, préambule minimal (`PI`, `u_phase`, `vUv`). Brancher generate → compile → `GpuCanvas` ; erreur affichée, image précédente conservée. Première image à l'écran.
+**MP1·S5** — Animer et jouer. `tsin`/`tcos`, play/pause/reset via `ClockStore`, durée de boucle réglable (`setDuration`), seed, erreurs affichées, export PNG (`toBlob` : fiable grâce à `preserveDrawingBuffer`). Noter les frictions réelles.
 
 ## Comment utiliser ce plan
 

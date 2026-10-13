@@ -5,12 +5,21 @@ import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
 import { useSyncExternalStore } from 'react';
 
-import { useClockStore, useHasClockStore, useShaderError } from '../stores/appStore';
+import {
+    regenerate,
+    useClockStore,
+    useCompiledShader,
+    useHasClockStore,
+    useSeed,
+    useShaderError,
+} from '../stores/appStore';
 
 export function Controls() {
     const clockStore = useClockStore();
     const hasClockStore = useHasClockStore();
     const shaderError = useShaderError();
+    const seed = useSeed();
+    const compiledShader = useCompiledShader();
 
     const isPlaying = useSyncExternalStore(
         (onStoreChange) => clockStore.subscribe(onStoreChange),
@@ -20,6 +29,21 @@ export function Controls() {
     return (
         <ControlSection title="randomart">
             <Stack gap="3">
+                <ControlField label="Artwork">
+                    <Stack gap="2">
+                        <Button
+                            onClick={() => {
+                                regenerate();
+                            }}
+                        >
+                            Regenerate
+                        </Button>
+                        <Text variant="muted">
+                            Seed: {seed} • {compiledShader.stats.nodes} nodes
+                        </Text>
+                    </Stack>
+                </ControlField>
+
                 <ControlField label="Playback">
                     <Stack direction="horizontal" gap="2">
                         <Button
@@ -52,7 +76,9 @@ export function Controls() {
                 ) : (
                     <ControlField label="Shader Status">
                         <Text variant="muted">
-                            Test shader active (x/y gradient + animated phase)
+                            {compiledShader.animated
+                                ? 'Animated shader active'
+                                : 'Static shader active'}
                         </Text>
                     </ControlField>
                 )}
