@@ -17,12 +17,12 @@ interface MockOptions {
 
 /** Minimal WebGL2 mock: enough for compile/link/destroy; model: StateBuffer.test.ts. */
 function createMockGl(options: MockOptions = {}) {
-    const failingType =
-        options.failCompile === 'vertex'
-            ? VERTEX_SHADER
-            : options.failCompile === 'fragment'
-              ? FRAGMENT_SHADER
-              : null;
+    let failingType: number | null = null;
+    if (options.failCompile === 'vertex') {
+        failingType = VERTEX_SHADER;
+    } else if (options.failCompile === 'fragment') {
+        failingType = FRAGMENT_SHADER;
+    }
 
     return {
         VERTEX_SHADER,
