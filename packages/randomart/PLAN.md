@@ -19,15 +19,16 @@ qu'aucune app n'utilise).
 - **Glaze** : **MP0 terminé.** `ShaderError` + `tryCreateProgram`, fuite des programmes corrigée,
   `GpuCanvas` qui garde le dernier bon programme (`onShaderError`, `vertexShader`),
   `contextOptions`, `Clock.setDuration`. Tests verts, apps existantes non régressées.
-- **Randomart** : squelette React uniquement (`src/App.tsx`, `Scene`, `Controls`, `appStore`).
-  `Scene` rend un `GpuCanvas` vide. Aucun module du cœur.
-- **Infra** : `strict: true` activé dans `tsconfig.app` (voir friction 10). Aucune infra de test
-  côté randomart (`vp test` = Vitest, à configurer ; glaze en a déjà).
+- **Randomart** : squelette React (`src/App.tsx`, `Scene`, `Controls`, `appStore`).
+  **MP1·S1 terminé** : arborescence `src/core/*` et `src/renderer/`, `shared` local (`Brand`, `assertFinite`),
+  module `random` (`Seed`, `createSeed`, `randomSeed`, `Rng`, `createRng` mulberry32, `next`/`int`/`weighted`).
+  Tests unitaires configurés et verts (`vp -C packages/randomart test`).
+- **Infra** : `strict: true` activé dans `tsconfig.app` (voir friction 10). Tests opérationnels via `vp test`.
 - **Plan** : temps via `Clock`/`ClockStore` ; compilateur scindé ; tests navigateur reportés.
 
 ## Prochaine action
 
-**MP1·S1** — dans randomart : infra de test (`vp test`), `shared` local, module `random`.
+**MP1·S2** — La chaîne pure minimale (`catalog`, `expression`, `grammar`, `generator`). Tests : invariants + snapshot sur seeds fixes.
 
 ## Comment utiliser ce plan
 
@@ -98,10 +99,10 @@ remplacera proprement ensuite._
 | `catalog`                                              | gardé, complété (validations, `dependencyClosure`)               |
 | compilateur naïf (inline, sans contextes)              | **remplacé** par le compilateur complet (MP3) — vaut `none`      |
 
-- **S1 — Infra + `shared` + `random`.** Activer `vp test` (bloc `test` de `vite.config.ts`,
-  premier test qui passe). Arborescence : `src/core/{shared,random,catalog,expression,grammar,
-  generator,compiler}` + `src/renderer/`. `shared` local (`Brand`, `assertFinite`). `Seed`,
-  `createRng` (mulberry32), `next`/`int`/`weighted`. Tests : déterminisme, plages, rejets.
+- **S1 — Infra + `shared` + `random`.** ✅ **terminé.**
+  Arborescence : `src/core/{shared,random,catalog,expression,grammar,generator,compiler}` + `src/renderer/`.
+  `shared` local (`Brand`, `assertFinite`). `Seed`, `createRng` (mulberry32), `next`/`int`/`weighted`.
+  Tests : déterminisme, plages, rejets. Tests unitaires passants via `vp -C packages/randomart test`.
 - **S2 — La chaîne pure minimale.** `catalog` (terminaux, arithmétique, trigo, logique ;
   **sans `warp`** ni portées `inner`), `expression` (modèle immuable + `createNode`), `grammar`
   (forme + `staticGrammar`), `generator` (budget réel, ordre de consommation,
