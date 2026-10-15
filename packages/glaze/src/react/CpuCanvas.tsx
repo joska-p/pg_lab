@@ -1,9 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
-import type { CpuSurface } from '../cpu/types';
 import { createInteractionAdapter } from './interactions';
 import { createCpuStack } from './surfaceStack';
 import type { CpuCanvasProps } from './types';
+import { useLatest } from './useLatest';
 import { useNodeResource } from './useNodeResource';
 
 export function CpuCanvas({
@@ -14,33 +14,34 @@ export function CpuCanvas({
     style,
     ...surfaceOptions
 }: CpuCanvasProps) {
-    const gestures = createInteractionAdapter(canvasInteractions);
-    const gesturesRef = useRef(gestures);
+    const gesturesRef = useLatest(createInteractionAdapter(canvasInteractions));
+    const onMountRef = useLatest(onMount);
+    const onFrameRef = useLatest(onFrame);
 
     const { ref: canvasRef, resource: stack } = useNodeResource((canvas: HTMLCanvasElement) =>
         createCpuStack(canvas, surfaceOptions, () => gesturesRef.current),
     );
 
-    // ── Mount Effect ──
-    const mountedSurfaceRef = useRef<CpuSurface | null>(null);
-
     useEffect(() => {
-        if (!stack || mountedSurfaceRef.current === stack.surface) {
+        if (!stack) {
             return;
         }
 
-        mountedSurfaceRef.current = stack.surface;
-        onMount?.(stack.surface);
+        onMountRef.current?.(stack.surface);
     }, [onMount, stack]);
 
     // ── Frame Loop Effect ──
+    const needsFrameLoop = onFrame !== undefined;
+
     useEffect(() => {
-        if (!stack || !onFrame) {
+        if (!stack || !needsFrameLoop) {
             return;
         }
 
-        return stack.surface.onFrame(onFrame);
-    }, [onFrame, stack]);
+        return stack.surface.onFrame((frame) => {
+            onFrameRef.current?.(frame);
+        });
+    }, [onFrameRef, stack, needsFrameLoop]);
 
     return (
         <canvas
