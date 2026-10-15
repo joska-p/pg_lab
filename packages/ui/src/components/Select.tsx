@@ -2,7 +2,6 @@ import * as stylex from '@stylexjs/stylex';
 import { useId } from 'react';
 
 import { wellStyles } from '../recipes/fields';
-import { interactionStyles } from '../recipes/interactions';
 import { fieldText } from '../recipes/typography';
 import { interaction, layout, space } from '../tokens/const.stylex';
 import type { LayoutStyle } from '../types';
@@ -114,7 +113,6 @@ export function Select<T extends string>({
                         styles.select,
                         fieldText.value,
                         ...wellStyles({ invalid, disabled }),
-                        interactionStyles({ disabled }),
                     )}
                 >
                     {placeholder ? (

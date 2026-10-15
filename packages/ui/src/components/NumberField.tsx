@@ -2,7 +2,6 @@ import * as stylex from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
 import { wellStyles } from '../recipes/fields';
-import { interactionStyles } from '../recipes/interactions';
 import { fieldText } from '../recipes/typography';
 import { interaction, space } from '../tokens/const.stylex';
 import type { LayoutStyle } from '../types';
@@ -120,11 +119,7 @@ export function NumberField({
                 disabled={disabled}
                 aria-invalid={isInvalid || undefined}
                 aria-describedby={message ? messageId : undefined}
-                {...stylex.props(
-                    fieldText.value,
-                    ...wellStyles({ invalid: isInvalid, disabled }),
-                    interactionStyles({ disabled }),
-                )}
+                {...stylex.props(fieldText.value, ...wellStyles({ invalid: isInvalid, disabled }))}
             />
 
             {message && (

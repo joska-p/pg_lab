@@ -2,7 +2,6 @@ import * as stylex from '@stylexjs/stylex';
 import { useId } from 'react';
 
 import { wellStyles } from '../recipes/fields';
-import { interactionStyles } from '../recipes/interactions';
 import { fieldText } from '../recipes/typography';
 import { interaction, space } from '../tokens/const.stylex';
 import type { LayoutStyle } from '../types';
@@ -68,11 +67,7 @@ export function TextInput({
                 disabled={disabled}
                 aria-invalid={invalid || undefined}
                 aria-describedby={errorMessage ? messageId : undefined}
-                {...stylex.props(
-                    fieldText.value,
-                    ...wellStyles({ invalid, disabled }),
-                    interactionStyles({ disabled }),
-                )}
+                {...stylex.props(fieldText.value, ...wellStyles({ invalid, disabled }))}
             />
 
             {errorMessage ? (

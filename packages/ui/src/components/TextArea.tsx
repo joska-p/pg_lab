@@ -2,7 +2,6 @@ import * as stylex from '@stylexjs/stylex';
 import { useId } from 'react';
 
 import { wellStyles } from '../recipes/fields';
-import { interactionStyles } from '../recipes/interactions';
 import { fieldText } from '../recipes/typography';
 import { interaction, space } from '../tokens/const.stylex';
 import type { LayoutStyle } from '../types';
@@ -76,7 +75,6 @@ export function TextArea({
                     fieldText.value,
                     styles.textarea,
                     ...wellStyles({ invalid, disabled }),
-                    interactionStyles({ disabled }),
                 )}
             />
 
