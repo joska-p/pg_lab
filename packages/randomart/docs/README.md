@@ -28,7 +28,7 @@ Contraintes que cette spec devra respecter :
 
 - L'UI possède la boucle d'animation, l'état lecture/pause, la taille du canvas (pixel ratio compris) et la réduction de résolution quand l'animation ne tient pas la cadence (renderer §7, D36).
 - `setShader` renvoie un résultat : l'UI affiche l'erreur et garde l'image précédente (D27).
-- « Animer » = ajouter `tsin` et `tcos` au vocabulaire (`animatedGrammar`), pas un mode (D11, D34).
+- « Animer » n'est plus une affaire de grammaire : `tsin` et `tcos` font partie du vocabulaire par défaut (`defaultGrammar`), et l'animation relève de la lecture (horloge Play/Pause). Pas de mode Static/Animated (D11, D34).
 - L'inspecteur affiche l'expression en notation fonctionnelle automatique ; l'aperçu d'un sous-arbre ignore la déformation de ses ancêtres, à signaler (compilateur §9).
 - La seed vient de `randomSeed()` côté UI ; le cœur n'appelle jamais `Math.random` (D19).
 

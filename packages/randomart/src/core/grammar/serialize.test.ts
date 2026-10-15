@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../catalog/index.ts';
 import { describeGrammar } from './describe.ts';
-import { animatedGrammar, createGrammar, staticGrammar } from './grammar.ts';
+import { createGrammar, defaultGrammar } from './grammar.ts';
 import {
     deserializeGrammar,
     MAX_GRAMMAR_FILE_LENGTH,
@@ -15,7 +15,7 @@ const catalog = createDefaultCatalog();
 
 describe('grammar serialization', () => {
     it('round-trips a grammar', () => {
-        const grammar = animatedGrammar(catalog);
+        const grammar = defaultGrammar(catalog);
         const restored = deserializeGrammar(catalog, serializeGrammar(grammar));
 
         expect(serializeGrammar(restored)).toEqual(serializeGrammar(grammar));
@@ -62,20 +62,20 @@ describe('grammar serialization', () => {
 
 describe('grammar file', () => {
     it('round-trips through text', () => {
-        const grammar = staticGrammar(catalog);
+        const grammar = defaultGrammar(catalog);
         const restored = parseGrammarFile(catalog, serializeGrammarFile(grammar));
 
         expect(serializeGrammar(restored)).toEqual(serializeGrammar(grammar));
     });
 
     it('writes format, version, grammar in that order', () => {
-        const text = serializeGrammarFile(staticGrammar(catalog));
+        const text = serializeGrammarFile(defaultGrammar(catalog));
 
         expect(Object.keys(JSON.parse(text))).toEqual(['format', 'version', 'grammar']);
     });
 
     it('rejects wrong format, wrong version and invalid JSON', () => {
-        const base = JSON.parse(serializeGrammarFile(staticGrammar(catalog)));
+        const base = JSON.parse(serializeGrammarFile(defaultGrammar(catalog)));
 
         expect(() =>
             parseGrammarFile(catalog, JSON.stringify({ ...base, format: 'other' })),
@@ -87,7 +87,7 @@ describe('grammar file', () => {
     });
 
     it('rejects unknown top-level fields', () => {
-        const base = JSON.parse(serializeGrammarFile(staticGrammar(catalog)));
+        const base = JSON.parse(serializeGrammarFile(defaultGrammar(catalog)));
 
         expect(() => parseGrammarFile(catalog, JSON.stringify({ ...base, extra: 1 }))).toThrow(
             /file\.extra: unknown field/,
@@ -103,8 +103,13 @@ describe('grammar file', () => {
 
 describe('describeGrammar', () => {
     it('detects time terminals', () => {
-        expect(describeGrammar(catalog, staticGrammar(catalog)).hasTime).toBe(false);
-        expect(describeGrammar(catalog, animatedGrammar(catalog)).hasTime).toBe(true);
+        const withoutTime = createGrammar(catalog, {
+            weights: { x: 1, y: 1, add: 1 },
+            constraints: { minDepth: 1, maxDepth: 4, maxNodes: 20 },
+        });
+
+        expect(describeGrammar(catalog, withoutTime).hasTime).toBe(false);
+        expect(describeGrammar(catalog, defaultGrammar(catalog)).hasTime).toBe(true);
     });
 
     it('reports zero growth for a terminal-only grammar', () => {

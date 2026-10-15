@@ -9,7 +9,7 @@ import {
 } from '../catalog/index.ts';
 import { createExpression, createNode } from '../expression/index.ts';
 import { generate } from '../generator/index.ts';
-import { staticGrammar } from '../grammar/index.ts';
+import { defaultGrammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';
 import { compile, isAtom, isEnclosedInParens, wrapInput } from './compiler.ts';
 import { MAX_SOURCE_LENGTH } from './types.ts';
@@ -174,8 +174,8 @@ describe('compiler', () => {
             expect(compile1.stats).toEqual(compile2.stats);
         });
 
-        it('integrates with generate and staticGrammar', () => {
-            const grammar = staticGrammar(catalog);
+        it('integrates with generate and defaultGrammar', () => {
+            const grammar = defaultGrammar(catalog);
             const seed = createSeed(42);
             const expr = generate(catalog, grammar, seed);
 
@@ -326,7 +326,7 @@ describe('compiler', () => {
         // ── §8.6 — Determinism ───────────────────────────────────────────────
 
         it('§8.6 determinism: same expression compiled twice gives identical source and stats', () => {
-            const grammar = staticGrammar(catalog);
+            const grammar = defaultGrammar(catalog);
             const expr = generate(catalog, grammar, createSeed(99));
             const a = compile(catalog, expr, { sharing: 'shared' });
             const b = compile(catalog, expr, { sharing: 'shared' });

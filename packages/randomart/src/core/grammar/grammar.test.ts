@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../catalog/index.ts';
-import { animatedGrammar, createGrammar, minSize, staticGrammar } from './index.ts';
+import { createGrammar, defaultGrammar, minSize } from './index.ts';
 
 describe('grammar: minSize', () => {
     const catalog = createDefaultCatalog();
@@ -123,18 +123,19 @@ describe('grammar: createGrammar validations', () => {
     });
 });
 
-describe('grammar: staticGrammar & animatedGrammar', () => {
+describe('grammar: defaultGrammar', () => {
     const catalog = createDefaultCatalog();
 
-    it('creates a valid staticGrammar', () => {
-        const g = staticGrammar(catalog);
+    it('builds the default vocabulary', () => {
+        const g = defaultGrammar(catalog);
         expect(g.weights.x).toBe(3);
         expect(g.weights.y).toBe(3);
         expect(g.weights.const).toBe(1);
-        expect(g.weights.tsin).toBeUndefined();
-        expect(g.weights.tcos).toBeUndefined();
+        expect(g.weights.tsin).toBe(1);
+        expect(g.weights.tcos).toBe(1);
         expect(g.weights.mix).toBe(0.5);
         expect(g.weights.select).toBe(0.5);
+        expect(g.weights.warp).toBe(0.5);
         expect(g.constraints).toEqual({
             minDepth: 3,
             maxDepth: 8,
@@ -142,9 +143,11 @@ describe('grammar: staticGrammar & animatedGrammar', () => {
         });
     });
 
-    it('creates a valid animatedGrammar with tsin and tcos', () => {
-        const g = animatedGrammar(catalog);
-        expect(g.weights.tsin).toBe(1);
-        expect(g.weights.tcos).toBe(1);
+    it('covers the whole catalog', () => {
+        const g = defaultGrammar(catalog);
+
+        for (const op of catalog.operators()) {
+            expect(g.weights[op.name]).toBeDefined();
+        }
     });
 });

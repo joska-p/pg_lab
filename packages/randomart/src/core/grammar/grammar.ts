@@ -124,7 +124,13 @@ export function createGrammar(
     }) as Grammar;
 }
 
-export function staticGrammar(catalog: Catalog): Grammar {
+/**
+ * The default vocabulary: the whole catalog, with spatial terminals favoured and the expensive
+ * combinators down-weighted. Time terminals (`tsin`, `tcos`) are ordinary members of the catalog,
+ * so there is no separate "animated" preset: one seed gives one expression, and animation is a
+ * matter of playback.
+ */
+export function defaultGrammar(catalog: Catalog): Grammar {
     const weights: Record<string, number> = {
         x: 3,
         y: 3,
@@ -135,14 +141,8 @@ export function staticGrammar(catalog: Catalog): Grammar {
         if (op.name === 'x' || op.name === 'y' || op.name === 'const') {
             continue;
         }
-        if (op.name === 'tsin' || op.name === 'tcos') {
-            continue;
-        }
-        if (op.name === 'select' || op.name === 'mix' || op.name === 'warp') {
-            weights[op.name] = 0.5;
-        } else {
-            weights[op.name] = 1;
-        }
+        weights[op.name] =
+            op.name === 'select' || op.name === 'mix' || op.name === 'warp' ? 0.5 : 1;
     }
 
     return createGrammar(catalog, {
@@ -152,19 +152,5 @@ export function staticGrammar(catalog: Catalog): Grammar {
             maxDepth: 8,
             maxNodes: 60,
         },
-    });
-}
-
-export function animatedGrammar(catalog: Catalog): Grammar {
-    const staticG = staticGrammar(catalog);
-    const weights: Record<string, number> = {
-        ...staticG.weights,
-        tsin: 1,
-        tcos: 1,
-    };
-
-    return createGrammar(catalog, {
-        weights,
-        constraints: staticG.constraints,
     });
 }

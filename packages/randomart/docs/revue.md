@@ -34,7 +34,7 @@ Deux passes : cohérence entre documents, puis adversariale sur chaque invariant
 | WebGL2, pas d'évaluateur CPU              | Confirmés (D21, D9)                                              |
 | `minDepth` = « aucune feuille avant »     | Conservé, coût documenté, valeur 2 ou 3 conseillée (D32)         |
 | `warp` en v1                              | Oui, poids 0.5 (D34)                                             |
-| Grammaire par défaut                      | `staticGrammar` ; `animatedGrammar` en préréglage (D34)          |
+| Grammaire par défaut                      | `defaultGrammar`, terminaux de temps compris (D34)               |
 | Constante dans `[-1, 1]`                  | Oui                                                              |
 | Canaux indépendants, `maxNodes` par canal | Oui en v1 (D39)                                                  |
 | Images unies                              | Autorisées ; `x` et `y` protégés à la randomisation (D39)        |

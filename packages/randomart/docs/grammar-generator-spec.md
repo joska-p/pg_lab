@@ -105,17 +105,16 @@ Format :
 
 Les clés de `weights` sont écrites dans l'ordre alphabétique, pour que deux grammaires égales donnent le même texte. `deserializeGrammar` valide à travers `createGrammar`.
 
-### Grammaire de départ
+### Grammaire par défaut
 
-Deux préréglages, **à calibrer en jouant** (D34) :
+Une seule grammaire de départ, **à calibrer en jouant** (D34) :
 
 - Contraintes : `minDepth: 3`, `maxDepth: 8`, `maxNodes: 60`.
 - `x: 3`, `y: 3`, `const: 1`.
-- Tous les autres opérateurs du catalogue sauf `tsin` et `tcos` : poids `1`, sauf `select`, `mix` et `warp` à `0.5`.
-- **`staticGrammar`** : exactement cela. C'est le défaut de l'UI.
-- **`animatedGrammar`** : `staticGrammar` plus `tsin: 1` et `tcos: 1`.
+- Tous les autres opérateurs du catalogue : poids `1`, sauf `select`, `mix` et `warp` à `0.5`.
+- **`defaultGrammar`** : exactement cela. C'est le défaut de l'UI.
 
-Sans `tsin` ni `tcos`, l'image est statique. Une UI peut proposer « animer » comme l'ajout de ces deux opérateurs au vocabulaire.
+`tsin` et `tcos` font partie du catalogue comme n'importe quel autre opérateur : il n'y a plus de préréglage « animé » distinct. L'animation relève de la lecture (horloge Play/Pause), pas de la grammaire.
 
 ## 5. Taille minimale et faisabilité
 
@@ -238,15 +237,14 @@ random/
   rng.ts             // createRng (mulberry32)
   index.ts
 grammar/
-  types.ts           // Grammar, Constraints, limites dures
-  create.ts          // createGrammar, minSize, faisabilité
+  types.ts           // Grammar, Constraints, MIN_WEIGHT/MAX_WEIGHT, MAX_DEPTH/MAX_NODES
+  grammar.ts         // createGrammar, minSize, faisabilité, defaultGrammar
+  describe.ts        // describeGrammar (résumé d'une grammaire)
   serialize.ts       // serializeGrammar, deserializeGrammar
-  randomize.ts       // randomizeWeights, randomizeVocabulary, randomizeGrammar
-  default.ts         // staticGrammar, animatedGrammar, DEFAULT_KEEP
-  limits.ts          // MIN_WEIGHT, MAX_WEIGHT, MAX_DEPTH, MAX_NODES
+  randomize.ts       // DEFAULT_KEEP, randomizeWeights, randomizeVocabulary, randomizeGrammar
   index.ts
 generator/
-  generate.ts        // generate, GENERATOR_VERSION
+  generator.ts       // generate, GENERATOR_VERSION
   index.ts
 ```
 

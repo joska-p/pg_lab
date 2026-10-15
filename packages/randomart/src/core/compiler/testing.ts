@@ -5,7 +5,7 @@
 
 import type { Catalog } from '../catalog/index.ts';
 import type { Node } from '../expression/index.ts';
-import { animatedGrammar, randomizeGrammar, staticGrammar } from '../grammar/index.ts';
+import { defaultGrammar, randomizeGrammar } from '../grammar/index.ts';
 import type { Grammar } from '../grammar/index.ts';
 import { createRng, createSeed } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
@@ -111,28 +111,25 @@ export interface FuzzCase {
 }
 
 /**
- * Deterministic cases mixing the two presets and randomized grammars (wider operator mix, deeper
- * trees), so the fuzz covers more than the default vocabulary.
+ * Deterministic cases mixing the default grammar and randomized grammars (wider operator mix,
+ * deeper trees), so the fuzz covers more than the default vocabulary.
  */
 export function buildFuzzCases(catalog: Catalog, count: number): FuzzCase[] {
     const cases: FuzzCase[] = [];
 
     for (let i = 0; i < count; i++) {
         const seed = createSeed(i * 7919 + 1);
-        const kind = i % 3;
+        const kind = i % 2;
         let grammar: Grammar;
         let label: string;
 
         if (kind === 0) {
-            grammar = staticGrammar(catalog);
-            label = `static#${i}`;
-        } else if (kind === 1) {
-            grammar = animatedGrammar(catalog);
-            label = `animated#${i}`;
+            grammar = defaultGrammar(catalog);
+            label = `default#${i}`;
         } else {
             grammar = randomizeGrammar(
                 catalog,
-                animatedGrammar(catalog),
+                defaultGrammar(catalog),
                 createRng(createSeed(i + 1)),
             );
             label = `random#${i}`;

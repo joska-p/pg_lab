@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../catalog/index.ts';
 import { generate } from '../generator/index.ts';
-import { animatedGrammar } from '../grammar/index.ts';
+import { defaultGrammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';
 import {
     createExpression,
@@ -82,7 +82,7 @@ describe('addresses, walk, getNode', () => {
 
     it('finds every walked node again with getNode', () => {
         const seed = createSeed(42);
-        const generated = generate(catalog, animatedGrammar(catalog), seed);
+        const generated = generate(catalog, defaultGrammar(catalog), seed);
         let count = 0;
 
         walk(generated, (node, address) => {

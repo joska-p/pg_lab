@@ -31,7 +31,7 @@ Toute nouvelle image passe par **un seul point d'écriture** (`commit`) : géné
 
 - **Nouvelle image** : la seed change, la grammaire reste.
 - **Nouveaux poids / nouveau vocabulaire / nouvelle grammaire** : la grammaire change (`randomize*`), **la seed reste**, pour comparer l'effet sur une même seed.
-- **Réinitialiser** : retour au préréglage `animatedGrammar`, même seed.
+- **Réinitialiser** : retour à la grammaire par défaut (`defaultGrammar`), même seed.
 - **Historique** : restaurer une entrée régénère l'image depuis `(seed, grammar)` sans créer de nouvelle entrée.
 - **Fichiers** : export/import d'une grammaire (JSON versionné) ; export PNG du canvas.
 

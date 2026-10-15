@@ -1,5 +1,5 @@
 export { describeGrammar, type GrammarSummary } from './describe.ts';
-export { animatedGrammar, createGrammar, minSize, staticGrammar } from './grammar.ts';
+export { defaultGrammar, createGrammar, minSize } from './grammar.ts';
 export {
     DEFAULT_KEEP,
     randomizeGrammar,

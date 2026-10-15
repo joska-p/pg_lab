@@ -12,7 +12,7 @@ import { createExpression } from '../core/expression/index.ts';
 import type { Address, Expression, Node } from '../core/expression/index.ts';
 import { generate } from '../core/generator/index.ts';
 import {
-    animatedGrammar,
+    defaultGrammar,
     describeGrammar,
     parseGrammarFile,
     randomizeGrammar,
@@ -41,7 +41,7 @@ const catalog = createDefaultCatalog();
 
 // Time terminals are always in the default vocabulary: one seed = one expression = one shader.
 // Animation is a matter of playback (Play/Pause on the clock), not of grammar.
-const initialGrammar = animatedGrammar(catalog);
+const initialGrammar = defaultGrammar(catalog);
 const initialSeed = createSeed(42);
 const initialExpression = generate(catalog, initialGrammar, initialSeed);
 const initialCompiled = compile(catalog, initialExpression);
@@ -285,9 +285,9 @@ export function newGrammar(): void {
     exploreGrammar((grammar, rng) => randomizeGrammar(catalog, grammar, rng));
 }
 
-/** Back to the default preset, same seed. */
+/** Back to the default grammar, same seed. */
 export function resetGrammar(): void {
-    commit(animatedGrammar(catalog), store.getState().seed);
+    commit(defaultGrammar(catalog), store.getState().seed);
 }
 
 export function restoreEntry(id: number): void {

@@ -16,7 +16,7 @@ Principes : cœur TypeScript pur (pas de DOM, pas de GPU) ; rendu = adaptateur m
 **Fait**
 
 - **Glaze (MP0)** : `ShaderError`, `tryCreateProgram`, fuite des programmes corrigée, `GpuCanvas` garde le dernier bon programme (`onShaderError`, `vertexShader`), `contextOptions`, `Clock.setDuration`.
-- **Cœur randomart** : `random` (mulberry32), `catalog` (19 opérateurs, `warp`, `ra_fold2`, `u_phase`, validations, `dependencyClosure`), `expression` (nœuds immuables, `depth`, `nodeCount`), `grammar` (`createGrammar` avec les 8 règles, `minSize`, `staticGrammar`, `animatedGrammar`), `generator` (budget, déterminisme, `GENERATOR_VERSION`, snapshots).
+- **Cœur randomart** : `random` (mulberry32), `catalog` (19 opérateurs, `warp`, `ra_fold2`, `u_phase`, validations, `dependencyClosure`), `expression` (nœuds immuables, `depth`, `nodeCount`), `grammar` (`createGrammar` avec les 8 règles, `minSize`, `defaultGrammar`), `generator` (budget, déterminisme, `GENERATOR_VERSION`, snapshots).
 - **Compilateur complet** : `lower` (sondage de multiplicité, hash-consing, contextes internés), `emit` (politiques `none`/`shared`/`all`, atomes, littéraux), `preamble`, `compile`, `MAX_SOURCE_LENGTH`.
 - **UI** : `appStore` (Zustand), `Controls` (Regenerate, Static/Animated, Play/Pause/Reset, durée de boucle, Export PNG, erreur shader), `Scene` + `RandomArtCanvas`.
 - **Corrigé depuis la revue** : gestes figés de `CpuCanvas`, interactions de bouton sur les champs de saisie, couleur d'erreur de `ColorField`.
@@ -77,7 +77,7 @@ Une image statique ou en pause redessine 60 fois par seconde pour rien.
 
 Remplace en grande partie les tests navigateur reportés (friction 1).
 
-- **D1 — Fuzz pur.** 1000 expressions (`staticGrammar` et `animatedGrammar`) × 3 politiques : parenthèses équilibrées, pas de `--`, chaque `v<n>` et `c<n>` déclaré avant usage, source ≤ `MAX_SOURCE_LENGTH`, `validateShaderContract` valide, stats cohérentes.
+- **D1 — Fuzz pur.** 1000 expressions (`defaultGrammar` et grammaires randomisées) × 3 politiques : parenthèses équilibrées, pas de `--`, chaque `v<n>` et `c<n>` déclaré avant usage, source ≤ `MAX_SOURCE_LENGTH`, `validateShaderContract` valide, stats cohérentes.
 - **D2 — `emit.test.ts` dédié.** Décisions de variable par politique, ordre de programme, dépendances collectées.
 - **D3 — Validation glslang en CI.** Script qui préfixe `#version 300 es` (glaze l'ajoute à l'exécution), compile le fragment avec `glslangValidator` (ou une version wasm) pour le fuzz. Couvre « le pilote accepte le shader » pour la syntaxe et les types, pas les caprices des pilotes.
 - **D4 — Mesures de partage** (ex-MP3·S4) : comparer `none`/`shared`/`all` sur le même fuzz (longueur, sommets, variables, temps de `compile`) pour éclairer le défaut.
@@ -124,7 +124,7 @@ G : à la demande
 6. **Calibration** : valeurs de départ arbitraires (lot H).
 7. **Aperçu de sous-expression** : ignore la déformation des ancêtres, à afficher dans l'UI.
 8. **Taille de rendu = taille du canvas** jusqu'au lot G.
-9. **Un seul shader** (tranché) : plus de mode Static/Animated, qui produisait deux expressions différentes pour une même seed. La grammaire par défaut inclut `tsin`/`tcos` ; l'animation relève de la lecture (horloge en pause à la phase 0). La grammaire passera dans le store au lot B1 pour composer avec la randomisation. Conséquence assumée : à la phase 0, `tsin` vaut 0 et `tcos` vaut 1, et les terminaux de temps (2/9 du poids des terminaux) diluent un peu `x` et `y` par rapport à `staticGrammar`.
+9. **Un seul shader** (tranché) : plus de mode Static/Animated, qui produisait deux expressions différentes pour une même seed. La grammaire par défaut inclut `tsin`/`tcos` ; l'animation relève de la lecture (horloge en pause à la phase 0). La grammaire passera dans le store au lot B1 pour composer avec la randomisation. Conséquence assumée : à la phase 0, `tsin` vaut 0 et `tcos` vaut 1, et les terminaux de temps (2/9 du poids des terminaux) diluent un peu `x` et `y` par rapport à l'ancienne `staticGrammar`.
 10. **Échecs de génération/compilation dans l'UI** (nouveau) : `regenerate` peut en théorie lever (`MAX_SOURCE_LENGTH`) ; chaque action doit conserver l'état précédent et afficher l'erreur.
 
 ## Docs à amender (au fil de l'eau)

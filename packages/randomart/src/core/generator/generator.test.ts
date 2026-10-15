@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import { createDefaultCatalog } from '../catalog/index.ts';
 import { depth, nodeCount } from '../expression/index.ts';
 import type { Node } from '../expression/index.ts';
-import { createGrammar, staticGrammar } from '../grammar/index.ts';
+import { createGrammar, defaultGrammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';
 import { GENERATOR_VERSION, generate } from './index.ts';
 
@@ -43,7 +43,7 @@ describe('generator', () => {
     });
 
     it('generates expressions satisfying all grammar invariants across various seeds', () => {
-        const grammar = staticGrammar(catalog);
+        const grammar = defaultGrammar(catalog);
         const allowedOps = new Set(Object.keys(grammar.weights));
         const testSeeds = [createSeed(1), createSeed(42), createSeed(999), createSeed(314159)];
 
@@ -104,7 +104,7 @@ describe('generator', () => {
     });
 
     it('is strictly deterministic: same seed produces identical expression', () => {
-        const grammar = staticGrammar(catalog);
+        const grammar = defaultGrammar(catalog);
         const seed = createSeed(1337);
 
         const expr1 = generate(catalog, grammar, seed);
@@ -114,7 +114,7 @@ describe('generator', () => {
     });
 
     it('different seeds produce different expressions', () => {
-        const grammar = staticGrammar(catalog);
+        const grammar = defaultGrammar(catalog);
         const expr1 = generate(catalog, grammar, createSeed(1));
         const expr2 = generate(catalog, grammar, createSeed(2));
 
@@ -122,7 +122,7 @@ describe('generator', () => {
     });
 
     it('reproducibility snapshots on fixed seeds', () => {
-        const grammar = staticGrammar(catalog);
+        const grammar = defaultGrammar(catalog);
 
         const exprSeed0 = generate(catalog, grammar, createSeed(0));
         const exprSeed42 = generate(catalog, grammar, createSeed(42));
