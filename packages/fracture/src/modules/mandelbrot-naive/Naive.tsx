@@ -10,7 +10,8 @@ import { assemble } from '../../shaders/assemble';
 import lightingChunk from '../../shaders/chunks/lighting.glsl?raw';
 import oklchChunk from '../../shaders/chunks/oklch.glsl?raw';
 import naiveBody from './naive.glsl?raw';
-import { cameraRig, useParams, type FractalParams } from './store';
+import { cameraRig, useParams } from './store';
+import type { FractalParams } from './store';
 
 const naiveShader = assemble(oklchChunk, lightingChunk, naiveBody);
 

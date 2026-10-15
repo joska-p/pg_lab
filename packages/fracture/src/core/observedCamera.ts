@@ -1,10 +1,8 @@
-import { createCamera, type Camera } from '@repo/glaze/core/Camera';
+import { createCamera } from '@repo/glaze/core/Camera';
+import type { Camera } from '@repo/glaze/core/Camera';
 import { createCameraControls } from '@repo/glaze/core/CameraControls';
-import {
-    createZoomFactor,
-    DEFAULT_ZOOM_BOUNDS,
-    type CameraControls,
-} from '@repo/glaze/core/cameraTypes';
+import { createZoomFactor, DEFAULT_ZOOM_BOUNDS } from '@repo/glaze/core/cameraTypes';
+import type { CameraControls } from '@repo/glaze/core/cameraTypes';
 
 /**
  * Camera rig owned by one experiment module (D4): the glaze `Camera` stays the single source of

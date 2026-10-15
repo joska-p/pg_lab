@@ -12,7 +12,8 @@ import {
 } from '../config';
 import type { Creature } from '../creature/registry';
 import { createGrid, seedGrid } from '../grid';
-import { rules, type Rule } from '../rules/registry';
+import { rules } from '../rules/registry';
+import type { Rule } from '../rules/registry';
 
 export interface SimulationOptions {
     rows?: number;

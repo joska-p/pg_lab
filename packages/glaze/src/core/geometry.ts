@@ -1,4 +1,5 @@
-import { assertFinite, type Brand } from './brands';
+import { assertFinite } from './brands';
+import type { Brand } from './brands';
 
 export interface Point2D {
     x: number;

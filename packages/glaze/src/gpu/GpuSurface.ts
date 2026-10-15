@@ -1,24 +1,21 @@
-import { defaultCamera, type Camera } from '../core/Camera';
-import { createClock, type Clock } from '../core/Clock';
+import { defaultCamera } from '../core/Camera';
+import type { Camera } from '../core/Camera';
+import { createClock } from '../core/Clock';
+import type { Clock } from '../core/Clock';
 import { FrameLoop } from '../core/FrameLoop';
 import type { FrameStep } from '../core/frameTypes';
-import { toScreenPoint, type Point2D, type ScreenPoint, type WorldPoint } from '../core/geometry';
-import { createInputStore, type InputStore } from '../core/InputStore';
-import {
-    createCssColor,
-    createDevicePixelRatio,
-    type CssColor,
-    type DevicePixelRatio,
-} from '../core/render';
+import { toScreenPoint } from '../core/geometry';
+import type { Point2D, ScreenPoint, WorldPoint } from '../core/geometry';
+import { createInputStore } from '../core/InputStore';
+import type { InputStore } from '../core/InputStore';
+import { createCssColor, createDevicePixelRatio } from '../core/render';
+import type { CssColor, DevicePixelRatio } from '../core/render';
 import type { Circle, DrawStyle, Rectangle, Segment, TextStyle } from '../core/shapes';
-import {
-    createNonNegativeSeconds,
-    createSeconds,
-    type NonNegativeSeconds,
-    type Seconds,
-} from '../core/time';
+import { createNonNegativeSeconds, createSeconds } from '../core/time';
+import type { NonNegativeSeconds, Seconds } from '../core/time';
 import { ShapeBatcher } from './batch/ShapeBatcher';
-import { createProgram, type Program } from './shader/Program';
+import { createProgram } from './shader/Program';
+import type { Program } from './shader/Program';
 import { createStandardUniformValues } from './shader/setUniforms';
 import { catchShaderError } from './shader/ShaderError';
 import { parseColor } from './shapes/color';
@@ -28,7 +25,8 @@ import {
     textFragmentSource,
     textUniforms,
 } from './shapes/TextRasterizer';
-import { createStateBuffer, type StateBuffer } from './StateBuffer';
+import { createStateBuffer } from './StateBuffer';
+import type { StateBuffer } from './StateBuffer';
 import type { GpuSurfaceConfig, TryProgramResult } from './types';
 /**
  * WebGL2 surface sharing `CpuSurface`'s chainable, world-space drawing model. Context loss/restore

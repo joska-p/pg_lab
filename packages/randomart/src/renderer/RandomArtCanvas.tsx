@@ -3,7 +3,8 @@ import type { ShaderError } from '@repo/glaze/gpu/shader/ShaderError';
 import type { GpuSurface } from '@repo/glaze/gpu/types';
 import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
 import type { ClockStore } from '@repo/glaze/react/types';
-import { useRef, type CSSProperties } from 'react';
+import { useRef } from 'react';
+import type { CSSProperties } from 'react';
 
 import {
     calculatePhase,
@@ -11,7 +12,8 @@ import {
     DEFAULT_LOOP_DURATION,
     HANDWRITTEN_TEST_SHADER,
 } from './contract';
-import { needsRender, type RenderKey } from './renderGate';
+import { needsRender } from './renderGate';
+import type { RenderKey } from './renderGate';
 
 export interface RandomArtCanvasProps {
     /** Fragment shader source code adhering to randomart's GLSL contract. */

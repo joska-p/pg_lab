@@ -1,4 +1,5 @@
-import { assertStrictlyPositive, type Brand } from './brands';
+import { assertStrictlyPositive } from './brands';
+import type { Brand } from './brands';
 import type { CameraControls } from './cameraTypes';
 import type { ScreenPoint } from './geometry';
 import type { InputStore } from './InputStore';

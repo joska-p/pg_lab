@@ -1,5 +1,6 @@
 import type { PerspectiveCamera } from '../core/camera';
-import { AmbientLight, DirectionalLight, Mesh, type Object3D } from '../core/object3d';
+import { AmbientLight, DirectionalLight, Mesh } from '../core/object3d';
+import type { Object3D } from '../core/object3d';
 import type { Geometry } from '../geometry/geometry';
 import { PhongMaterial, ShaderMaterial } from '../material/phong';
 import { Mat4 } from '../math/mat4';

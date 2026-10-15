@@ -1,4 +1,5 @@
-import { createDurationSeconds, type DurationSeconds } from '@repo/glaze/core/time';
+import { createDurationSeconds } from '@repo/glaze/core/time';
+import type { DurationSeconds } from '@repo/glaze/core/time';
 
 /** Contract snippet: vertex-to-fragment UV coordinate input. */
 export const GLSL_IN_UV = 'in vec2 vUv;';

@@ -1,4 +1,4 @@
-import type { ShellBackground } from '@repo/ui/components/ShellWrapper';
+import type { ShellBackground } from '@repo/ui/recipes/shellBackground';
 import { create } from 'zustand';
 
 import type { ExperimentKey } from '../experiments';

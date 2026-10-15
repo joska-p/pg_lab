@@ -28,7 +28,7 @@ export function CpuCanvas({
         }
 
         onMountRef.current?.(stack.surface);
-    }, [onMount, stack]);
+    }, [onMountRef, stack]);
 
     // ── Frame Loop Effect ──
     const needsFrameLoop = onFrame !== undefined;

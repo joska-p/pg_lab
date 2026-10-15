@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { isPerfEnabled, perfSnapshot, type PerfSnapshot } from '../lib/perf';
+import { isPerfEnabled, perfSnapshot } from '../lib/perf';
+import type { PerfSnapshot } from '../lib/perf';
 
 // Dev-only baseline HUD (same recipe as mol-demo PerfHud). Polls the shared
 // perf counters at 2 Hz — no per-frame React work, zero cost when disabled.

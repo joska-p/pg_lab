@@ -1,4 +1,5 @@
-import { createCssColor, type CssColor } from '@repo/glaze/core/render';
+import { createCssColor } from '@repo/glaze/core/render';
+import type { CssColor } from '@repo/glaze/core/render';
 
 export const SPEED_MIN_MS = 50;
 export const SPEED_MAX_MS = 1000;

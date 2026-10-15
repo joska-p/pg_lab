@@ -1,8 +1,7 @@
 import { Button } from '@repo/ui/components/Button';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Slider } from '@repo/ui/components/Slider';
-import { borderWidth, radius, space, motion } from '@repo/ui/tokens/const.stylex';
-import { typography } from '@repo/ui/tokens/const.stylex';
+import { borderWidth, radius, space, motion, typography } from '@repo/ui/tokens/const.stylex';
 import { colors } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useRef, useState } from 'react';

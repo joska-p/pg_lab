@@ -7,7 +7,8 @@
 
 import type { Catalog } from '../catalog/index.ts';
 import { isAtom, wrapInput } from './format.ts';
-import { type ContextDef, type LowerResult, ROOT_CTX, type Vertex } from './lower.ts';
+import { ROOT_CTX } from './lower.ts';
+import type { ContextDef, LowerResult, Vertex } from './lower.ts';
 import type { SharingPolicy } from './types.ts';
 
 // ---------------------------------------------------------------------------

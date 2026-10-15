@@ -1,13 +1,9 @@
-import babel from '@rolldown/plugin-babel';
-import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { defineConfig } from 'vite-plus';
-import { lazyPlugins } from 'vite-plus';
+
+import { reactPlugins } from '../../tooling/vite/react.ts';
+import { sharedViteConfig } from '../../tooling/vite/shared.ts';
 
 export default defineConfig({
-    plugins: lazyPlugins(() => [
-        react(),
-        babel({
-            presets: [reactCompilerPreset()],
-        }),
-    ]),
+    ...sharedViteConfig,
+    plugins: reactPlugins({ stylex: false }),
 });

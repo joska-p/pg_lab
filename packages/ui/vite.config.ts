@@ -1,21 +1,9 @@
-import babel from '@rolldown/plugin-babel';
-import stylex from '@stylexjs/unplugin';
-import react, { reactCompilerPreset } from '@vitejs/plugin-react';
-import { Features } from 'lightningcss';
-import { defineConfig, lazyPlugins } from 'vite-plus';
+import { defineConfig } from 'vite-plus';
+
+import { reactPlugins } from '../../tooling/vite/react.ts';
+import { sharedViteConfig } from '../../tooling/vite/shared.ts';
 
 export default defineConfig({
-    plugins: lazyPlugins(() => [
-        stylex.vite({
-            dev: true,
-            useCSSLayers: true,
-            lightningcssOptions: {
-                exclude: Features.LightDark,
-            },
-        }),
-        react(),
-        babel({
-            presets: [reactCompilerPreset()],
-        }),
-    ]),
+    ...sharedViteConfig,
+    plugins: reactPlugins(),
 });

@@ -1,14 +1,16 @@
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Select } from '@repo/ui/components/Select';
-import { backgrounds, type ShellBackground } from '@repo/ui/components/ShellWrapper';
-import { useTheme, type Theme } from '@repo/ui/hooks/useTheme';
+import { useTheme } from '@repo/ui/hooks/useTheme';
+import type { Theme } from '@repo/ui/hooks/useTheme';
+import { shellBackground } from '@repo/ui/recipes/shellBackground';
+import type { ShellBackground } from '@repo/ui/recipes/shellBackground';
 
 import { setShellBackground, useShellBackground } from '../../stores/appStore';
 
 const shellBackgroundOptions: {
     value: ShellBackground;
     label: string;
-}[] = Object.keys(backgrounds).map((value) => ({
+}[] = Object.keys(shellBackground).map((value) => ({
     value: value as ShellBackground,
     label: value,
 }));
@@ -32,7 +34,7 @@ export function Controls() {
             <Select
                 label="Background"
                 value={shellBackground}
-                onValueChange={(val) => setShellBackground(val as ShellBackground)}
+                onValueChange={(val: ShellBackground) => setShellBackground(val)}
                 options={shellBackgroundOptions}
             />
         </ControlSection>

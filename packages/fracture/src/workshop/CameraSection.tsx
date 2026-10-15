@@ -7,7 +7,8 @@ import { useState, useSyncExternalStore } from 'react';
 import { cameraToComplex, complexToCamera } from '../core/camera';
 import { computeMaxIterations } from '../core/iterationPolicy';
 import type { CameraRig } from '../core/observedCamera';
-import { CURATED_PRESETS, type CameraPreset } from '../core/presets';
+import { CURATED_PRESETS } from '../core/presets';
+import type { CameraPreset } from '../core/presets';
 
 interface CameraSectionProps {
     rig: CameraRig;

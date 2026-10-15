@@ -1,5 +1,6 @@
 import type { Clock } from '../core/Clock';
-import { createSeconds, type DurationSeconds, type Seconds, type TimeSpeed } from '../core/time';
+import { createSeconds } from '../core/time';
+import type { DurationSeconds, Seconds, TimeSpeed } from '../core/time';
 import { createObservable } from './observable';
 import type { ClockStore } from './types';
 

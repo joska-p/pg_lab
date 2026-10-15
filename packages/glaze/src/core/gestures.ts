@@ -1,14 +1,13 @@
 import type { Point2D } from './geometry';
 import { toScreenPoint } from './geometry';
-import {
-    DEFAULT_WHEEL_SPEED,
-    createWheelSpeed,
-    type Gesture,
-    type InputRouterOptions,
-    type InteractionEvent,
-    type PanOptions,
-    type WheelSpeed,
-    type ZoomOptions,
+import { DEFAULT_WHEEL_SPEED, createWheelSpeed } from './gestureTypes';
+import type {
+    Gesture,
+    InputRouterOptions,
+    InteractionEvent,
+    PanOptions,
+    WheelSpeed,
+    ZoomOptions,
 } from './gestureTypes';
 
 /** Pans on button drag; pure decision logic — activation is reported, capture happens upstream. */

@@ -1,25 +1,27 @@
-import { createDurationSeconds, type DurationSeconds } from '@repo/glaze/core/time';
+import { createDurationSeconds } from '@repo/glaze/core/time';
+import type { DurationSeconds } from '@repo/glaze/core/time';
 import type { ShaderError } from '@repo/glaze/gpu/shader/ShaderError';
 import { createNullClockStore } from '@repo/glaze/react/clockStore';
 import type { ClockStore } from '@repo/glaze/react/types';
 import { create } from 'zustand';
 
 import { createDefaultCatalog } from '../core/catalog/index.ts';
-import { compile, type CompiledShader } from '../core/compiler/index.ts';
+import { compile } from '../core/compiler/index.ts';
+import type { CompiledShader } from '../core/compiler/index.ts';
 import type { Expression } from '../core/expression/index.ts';
 import { generate } from '../core/generator/index.ts';
 import {
     animatedGrammar,
     describeGrammar,
-    type Grammar,
-    type GrammarSummary,
     parseGrammarFile,
     randomizeGrammar,
     randomizeVocabulary,
     randomizeWeights,
     serializeGrammarFile,
 } from '../core/grammar/index.ts';
-import { createRng, createSeed, randomSeed, type Rng, type Seed } from '../core/random/index.ts';
+import type { Grammar, GrammarSummary } from '../core/grammar/index.ts';
+import { createRng, createSeed, randomSeed } from '../core/random/index.ts';
+import type { Rng, Seed } from '../core/random/index.ts';
 import { DEFAULT_LOOP_DURATION } from '../renderer/contract';
 
 type Theme = 'light' | 'dark' | 'system';

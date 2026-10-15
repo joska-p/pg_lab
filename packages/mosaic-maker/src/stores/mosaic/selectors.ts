@@ -1,5 +1,6 @@
 import type { TileSet, Palette } from '../../core/constants';
-import { mosaicStore, type TileInstance } from './store';
+import { mosaicStore } from './store';
+import type { TileInstance } from './store';
 
 export function useCurrentPalette(): Palette {
     return mosaicStore((s) => s.currentPalette);

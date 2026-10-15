@@ -1,7 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { TILE_REGISTRY, type Shape } from '../core/tile-registry';
+import { TILE_REGISTRY } from '../core/tile-registry';
+import type { Shape } from '../core/tile-registry';
 
 const styles = stylex.create({
     base: {

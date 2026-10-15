@@ -5,11 +5,15 @@
     "type": "module",
     "scripts": {
         "ready": "vp check && vp run -r test && vp run -r build",
-        "dev": "vp run website#dev",
+        "dev": "vp dev",
         "prepare": "vp config"
     },
     "devDependencies": {
+        "@rolldown/plugin-babel": "catalog:",
+        "@stylexjs/unplugin": "catalog:",
         "@types/node": "catalog:",
+        "@vitejs/plugin-react": "catalog:",
+        "lightningcss": "catalog:",
         "vite-plus": "catalog:"
     },
     "devEngines": {

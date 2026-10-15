@@ -1,5 +1,6 @@
 import type { Camera } from '../../core/Camera';
-import { createLineSegment, createNormalizedVec2, type Point2D } from '../../core/geometry';
+import { createLineSegment, createNormalizedVec2 } from '../../core/geometry';
+import type { Point2D } from '../../core/geometry';
 import type { Circle, DrawStyle, Rectangle, Segment } from '../../core/shapes';
 import { colorArray } from '../shapes/color';
 import {

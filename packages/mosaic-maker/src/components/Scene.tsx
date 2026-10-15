@@ -1,8 +1,13 @@
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useRef } from 'react';
 
-import { CSS_VARS, initialGapSize, initialRotations, initialTileSize } from '../core/constants';
-import { initialPalette } from '../core/constants';
+import {
+    CSS_VARS,
+    initialGapSize,
+    initialRotations,
+    initialTileSize,
+    initialPalette,
+} from '../core/constants';
 import { regenerateTiles, initPalettes, setRef } from '../stores/mosaic/actions';
 import { useTiles } from '../stores/mosaic/selectors';
 import { Tile } from './Tile';

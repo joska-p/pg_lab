@@ -1,4 +1,5 @@
-import { assertFinite, assertStrictlyPositive, type Brand } from './brands';
+import { assertFinite, assertStrictlyPositive } from './brands';
+import type { Brand } from './brands';
 import type { Point2D } from './geometry';
 
 export type ZoomFactor = Brand<number, 'ZoomFactor'>;

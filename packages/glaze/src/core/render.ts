@@ -1,4 +1,5 @@
-import { assertStrictlyPositive, type Brand } from './brands';
+import { assertStrictlyPositive } from './brands';
+import type { Brand } from './brands';
 
 export type CssColor = Brand<string, 'CssColor'>;
 export type PositiveNumber = Brand<number, 'PositiveNumber'>;

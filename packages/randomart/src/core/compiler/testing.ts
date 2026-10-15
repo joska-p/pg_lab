@@ -5,13 +5,10 @@
 
 import type { Catalog } from '../catalog/index.ts';
 import type { Node } from '../expression/index.ts';
-import {
-    animatedGrammar,
-    type Grammar,
-    randomizeGrammar,
-    staticGrammar,
-} from '../grammar/index.ts';
-import { createRng, createSeed, type Seed } from '../random/index.ts';
+import { animatedGrammar, randomizeGrammar, staticGrammar } from '../grammar/index.ts';
+import type { Grammar } from '../grammar/index.ts';
+import { createRng, createSeed } from '../random/index.ts';
+import type { Seed } from '../random/index.ts';
 
 /**
  * Structural problems of an emitted fragment shader (empty array = fine). Not a GLSL parser: it

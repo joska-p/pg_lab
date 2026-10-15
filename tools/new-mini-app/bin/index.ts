@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { runTemplateCLI, type Template } from 'bingo';
+import { runTemplateCLI } from 'bingo';
+import type { Template } from 'bingo';
 
 import template from '../src/template.ts';
 

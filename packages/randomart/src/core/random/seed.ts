@@ -1,4 +1,5 @@
-import { assertFinite, type Brand } from '../shared/index.ts';
+import { assertFinite } from '../shared/index.ts';
+import type { Brand } from '../shared/index.ts';
 
 export type Seed = Brand<number, 'Seed'>;
 

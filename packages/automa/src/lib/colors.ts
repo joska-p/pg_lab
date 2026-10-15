@@ -1,4 +1,5 @@
-import { createCssColor, type CssColor } from '@repo/glaze/core/render';
+import { createCssColor } from '@repo/glaze/core/render';
+import type { CssColor } from '@repo/glaze/core/render';
 import { parseColor } from '@repo/glaze/gpu/shapes/color';
 
 import { MAX_STATE_COUNT } from './constants';

@@ -4,7 +4,8 @@ import { Text } from '@repo/ui/components/Text';
 
 import { computeMaxIterations } from '../../core/iterationPolicy';
 import { CameraSection } from '../../workshop/CameraSection';
-import { cameraRig, setParam, useParams, type FractalParams, type ParamKey } from './store';
+import { cameraRig, setParam, useParams } from './store';
+import type { FractalParams, ParamKey } from './store';
 
 interface ParamSlider {
     label: string;

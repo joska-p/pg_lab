@@ -1,6 +1,5 @@
 import { interactionStyles } from '@repo/ui/recipes/interactions';
-import { radius, space } from '@repo/ui/tokens/const.stylex';
-import { typography } from '@repo/ui/tokens/const.stylex';
+import { radius, space, typography } from '@repo/ui/tokens/const.stylex';
 import { colors } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
 

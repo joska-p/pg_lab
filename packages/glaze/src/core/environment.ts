@@ -1,4 +1,5 @@
-import { createDevicePixelRatio, type DevicePixelRatio } from './render';
+import { createDevicePixelRatio } from './render';
+import type { DevicePixelRatio } from './render';
 
 /**
  * Shell capability: reads the device pixel ratio without crashing under SSR/Node. Falls back to 1

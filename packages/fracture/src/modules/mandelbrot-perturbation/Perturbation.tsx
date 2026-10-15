@@ -1,16 +1,15 @@
 import type { UniformValue } from '@repo/glaze/gpu/shader/types';
 import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
-import { useEffect, useRef, type RefObject } from 'react';
+import { useEffect, useRef } from 'react';
+import type { RefObject } from 'react';
 
 import { ZOOM_WHEEL_SPEED, WORLD_SCALE } from '../../core/camera';
 import { splitDouble } from '../../core/doubleSplit';
 import { computeMaxIterations } from '../../core/iterationPolicy';
-import { createOrbitTextures, type OrbitTextures } from '../../core/orbitTextures';
-import {
-    computeReferenceOrbit,
-    computeSecondaryOrbit,
-    type ReferenceOrbit,
-} from '../../core/referenceOrbit';
+import { createOrbitTextures } from '../../core/orbitTextures';
+import type { OrbitTextures } from '../../core/orbitTextures';
+import { computeReferenceOrbit, computeSecondaryOrbit } from '../../core/referenceOrbit';
+import type { ReferenceOrbit } from '../../core/referenceOrbit';
 import { useDemandRender } from '../../lib/demandRender';
 import { isPerfEnabled, perfLoopEnter, perfLoopExit, recordFractalFrame } from '../../lib/perf';
 import { assemble } from '../../shaders/assemble';
@@ -18,13 +17,8 @@ import dsArithmeticChunk from '../../shaders/chunks/ds-arithmetic.glsl?raw';
 import lightingChunk from '../../shaders/chunks/lighting.glsl?raw';
 import oklchChunk from '../../shaders/chunks/oklch.glsl?raw';
 import perturbationBody from './perturbation.glsl?raw';
-import {
-    cameraRig,
-    setPerturbationSurface,
-    useParams,
-    usePerturbationSurface,
-    type FractalParams,
-} from './store';
+import { cameraRig, setPerturbationSurface, useParams, usePerturbationSurface } from './store';
+import type { FractalParams } from './store';
 
 const perturbationShader = assemble(dsArithmeticChunk, oklchChunk, lightingChunk, perturbationBody);
 

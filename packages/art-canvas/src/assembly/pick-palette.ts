@@ -1,4 +1,5 @@
-import { PALETTE_REGISTRY, type PalettePreset, type PalettePresetName } from '../palettes/registry';
+import { PALETTE_REGISTRY } from '../palettes/registry';
+import type { PalettePreset, PalettePresetName } from '../palettes/registry';
 import { applyMood } from './apply-mood';
 import type { Mood } from './moods';
 import type { SeededRandom } from './seeded-random';

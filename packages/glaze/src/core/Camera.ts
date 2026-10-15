@@ -1,6 +1,8 @@
 import { assertFinite } from './brands';
-import { createZoomFactor, type ZoomFactor } from './cameraTypes';
-import { toScreenPoint, toWorldPoint, type ScreenPoint, type WorldPoint } from './geometry';
+import { createZoomFactor } from './cameraTypes';
+import type { ZoomFactor } from './cameraTypes';
+import { toScreenPoint, toWorldPoint } from './geometry';
+import type { ScreenPoint, WorldPoint } from './geometry';
 
 /** Passive state — it never mutates itself; panning and zooming live in `CameraControls`. */
 export class Camera {

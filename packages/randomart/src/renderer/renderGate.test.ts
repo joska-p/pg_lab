@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { needsRender, type RenderKey } from './renderGate';
+import { needsRender } from './renderGate';
+import type { RenderKey } from './renderGate';
 
 const base: RenderKey = { phase: 0.25, width: 640, height: 480, dpr: 2, animated: true };
 

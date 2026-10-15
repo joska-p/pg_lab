@@ -1,13 +1,7 @@
 import type { Catalog, OperatorDef } from '../catalog/index.ts';
 import { assertFinite } from '../shared/index.ts';
-import {
-    type Constraints,
-    type Grammar,
-    MAX_DEPTH,
-    MAX_NODES,
-    MAX_WEIGHT,
-    MIN_WEIGHT,
-} from './types.ts';
+import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types.ts';
+import type { Constraints, Grammar } from './types.ts';
 
 export function minSize(
     d: number,

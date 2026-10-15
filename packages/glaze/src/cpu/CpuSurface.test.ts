@@ -3,7 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { createCamera } from '../core/Camera';
 import { createZoomFactor } from '../core/cameraTypes';
 import { createCssColor, createDevicePixelRatio } from '../core/render';
-import { createCpuSurface, type CpuSurface } from './CpuSurface';
+import { createCpuSurface } from './CpuSurface';
+import type { CpuSurface } from './CpuSurface';
 
 function createMockCanvas(context: CanvasRenderingContext2D): HTMLCanvasElement {
     return {

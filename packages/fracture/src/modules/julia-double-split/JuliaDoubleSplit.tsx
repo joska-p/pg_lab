@@ -12,7 +12,8 @@ import dsArithmeticChunk from '../../shaders/chunks/ds-arithmetic.glsl?raw';
 import lightingChunk from '../../shaders/chunks/lighting.glsl?raw';
 import oklchChunk from '../../shaders/chunks/oklch.glsl?raw';
 import juliaBody from './julia.glsl?raw';
-import { cameraRig, useParams, type FractalParams } from './store';
+import { cameraRig, useParams } from './store';
+import type { FractalParams } from './store';
 
 const juliaDoubleSplitShader = assemble(dsArithmeticChunk, oklchChunk, lightingChunk, juliaBody);
 

@@ -1,5 +1,7 @@
-import { createBufferDimension, createStateData, type StateData } from '../core/render';
-import { createProgram, type Program } from './shader/Program';
+import { createBufferDimension, createStateData } from '../core/render';
+import type { StateData } from '../core/render';
+import { createProgram } from './shader/Program';
+import type { Program } from './shader/Program';
 import type { UniformValue } from './shader/types';
 
 /** Ping-pong render targets; `swap()` exchanges the read and write roles. */

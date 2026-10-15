@@ -1,4 +1,5 @@
-import { assertFinite, assertStrictlyPositive, type Brand } from './brands';
+import { assertFinite, assertStrictlyPositive } from './brands';
+import type { Brand } from './brands';
 
 export type DurationSeconds = Brand<number, 'DurationSeconds'>;
 export type TimeSpeed = Brand<number, 'TimeSpeed'>;

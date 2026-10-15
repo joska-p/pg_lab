@@ -1,7 +1,10 @@
 import type { Catalog, OperatorDef } from '../catalog/index.ts';
-import { createExpression, createNode, type Expression, type Node } from '../expression/index.ts';
-import { type Grammar, minSize } from '../grammar/index.ts';
-import { createRng, type Seed } from '../random/index.ts';
+import { createExpression, createNode } from '../expression/index.ts';
+import type { Expression, Node } from '../expression/index.ts';
+import { minSize } from '../grammar/index.ts';
+import type { Grammar } from '../grammar/index.ts';
+import { createRng } from '../random/index.ts';
+import type { Seed } from '../random/index.ts';
 
 export const GENERATOR_VERSION = 1;
 

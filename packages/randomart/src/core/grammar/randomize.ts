@@ -1,14 +1,8 @@
 import type { Catalog, OperatorDef } from '../catalog/index.ts';
 import type { Rng } from '../random/index.ts';
 import { createGrammar, minSize } from './grammar.ts';
-import {
-    type Constraints,
-    type Grammar,
-    MAX_DEPTH,
-    MAX_NODES,
-    MAX_WEIGHT,
-    MIN_WEIGHT,
-} from './types.ts';
+import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types.ts';
+import type { Constraints, Grammar } from './types.ts';
 
 /** Operators that `randomizeVocabulary` never removes: avoids flat, coordinate-free images (D39). */
 export const DEFAULT_KEEP: readonly string[] = ['x', 'y'];

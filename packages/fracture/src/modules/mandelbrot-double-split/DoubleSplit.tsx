@@ -12,7 +12,8 @@ import dsArithmeticChunk from '../../shaders/chunks/ds-arithmetic.glsl?raw';
 import lightingChunk from '../../shaders/chunks/lighting.glsl?raw';
 import oklchChunk from '../../shaders/chunks/oklch.glsl?raw';
 import doubleSplitBody from './double-split.glsl?raw';
-import { cameraRig, useParams, type FractalParams } from './store';
+import { cameraRig, useParams } from './store';
+import type { FractalParams } from './store';
 
 const doubleSplitShader = assemble(dsArithmeticChunk, oklchChunk, lightingChunk, doubleSplitBody);
 

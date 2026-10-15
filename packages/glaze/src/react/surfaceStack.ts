@@ -1,4 +1,5 @@
-import { createCamera, type Camera } from '../core/Camera';
+import { createCamera } from '../core/Camera';
+import type { Camera } from '../core/Camera';
 import { createCameraControls } from '../core/CameraControls';
 import type { CameraControls } from '../core/cameraTypes';
 import { createZoomFactor } from '../core/cameraTypes';

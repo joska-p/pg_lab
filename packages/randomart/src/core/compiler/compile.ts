@@ -7,11 +7,13 @@
  */
 
 import type { Catalog } from '../catalog/index.ts';
-import { nodeCount, type Expression } from '../expression/index.ts';
+import { nodeCount } from '../expression/index.ts';
+import type { Expression } from '../expression/index.ts';
 import { emit } from './emit.ts';
 import { lower } from './lower.ts';
 import { buildPreamble } from './preamble.ts';
-import { type CompiledShader, type CompileOptions, MAX_SOURCE_LENGTH } from './types.ts';
+import { MAX_SOURCE_LENGTH } from './types.ts';
+import type { CompiledShader, CompileOptions } from './types.ts';
 
 /**
  * Compiles a randomart Expression into a complete GLSL ES 3.00 fragment shader.
