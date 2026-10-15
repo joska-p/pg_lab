@@ -15,6 +15,7 @@ export default defineConfig({
     staged: {
         '*': 'vp check --fix',
     },
+    test: { isolate: false },
     fmt: {
         tabWidth: 4,
         singleQuote: true,
