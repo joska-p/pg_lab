@@ -15,13 +15,19 @@ export function App() {
                 <ExperimentShell
                     panel={
                         <Stack gap="6">
-                            <Controls />
-                            <Inspector />
+                            <ErrorBoundary showStack={import.meta.env.DEV}>
+                                <Controls />
+                            </ErrorBoundary>
+                            <ErrorBoundary showStack={import.meta.env.DEV}>
+                                <Inspector />
+                            </ErrorBoundary>
                         </Stack>
                     }
                 >
                     <Stage label="randomart">
-                        <Scene />
+                        <ErrorBoundary showStack={import.meta.env.DEV}>
+                            <Scene />
+                        </ErrorBoundary>
                     </Stage>
                 </ExperimentShell>
             </ErrorBoundary>
