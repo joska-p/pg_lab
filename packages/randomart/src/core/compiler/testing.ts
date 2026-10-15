@@ -5,7 +5,7 @@
 
 import type { Catalog } from '../catalog/index.ts';
 import type { Node } from '../expression/index.ts';
-import { defaultGrammar, randomizeGrammar } from '../grammar/index.ts';
+import { defaultGrammar, randomizeWeights } from '../grammar/index.ts';
 import type { Grammar } from '../grammar/index.ts';
 import { createRng, createSeed } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
@@ -127,7 +127,7 @@ export function buildFuzzCases(catalog: Catalog, count: number): FuzzCase[] {
             grammar = defaultGrammar(catalog);
             label = `default#${i}`;
         } else {
-            grammar = randomizeGrammar(
+            grammar = randomizeWeights(
                 catalog,
                 defaultGrammar(catalog),
                 createRng(createSeed(i + 1)),

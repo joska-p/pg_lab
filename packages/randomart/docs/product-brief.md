@@ -42,12 +42,11 @@ Une grammaire peut être fixe, partiellement randomisée ou entièrement randomi
 
 Je la considère comme une fonctionnalité importante, parce que j'explorerai plus les grammaires que les seeds.
 
-| Opération             | Ce qui change        | Ce qui reste                      |
-| --------------------- | -------------------- | --------------------------------- |
-| Nouvelle image        | la seed              | la grammaire                      |
-| Nouvelle distribution | les poids            | le vocabulaire et les contraintes |
-| Nouveau vocabulaire   | le vocabulaire       | les contraintes                   |
-| Nouvelle grammaire    | plusieurs dimensions | la validité                       |
+| Opération             | Ce qui change                           | Ce qui reste       |
+| --------------------- | --------------------------------------- | ------------------ |
+| Nouvelle image        | la seed                                 | la grammaire       |
+| Nouvelle distribution | les poids (un poids de 0 = hors vocab.) | les contraintes    |
+| Contraintes           | minDepth, maxDepth, maxNodes            | les poids, la seed |
 
 Deux boucles d'exploration :
 

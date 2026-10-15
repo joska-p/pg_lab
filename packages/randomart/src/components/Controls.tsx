@@ -1,6 +1,7 @@
 import { Button } from '@repo/ui/components/Button';
 import { ControlField } from '@repo/ui/components/ControlField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
+import { NumberField } from '@repo/ui/components/NumberField';
 import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
 import { useSyncExternalStore } from 'react';
@@ -10,12 +11,11 @@ import {
     exportPng,
     importGrammarFile,
     newDistribution,
-    newGrammar,
     newImage,
-    newVocabulary,
     parseDurationInput,
     resetGrammar,
     restoreEntry,
+    setConstraints,
     setDuration,
     useActionError,
     useCanvas,
@@ -23,6 +23,7 @@ import {
     useCompiledShader,
     useCurrentId,
     useDuration,
+    useGrammar,
     useGrammarSummary,
     useHasClockStore,
     useHistory,
@@ -31,14 +32,15 @@ import {
 } from '../stores/appStore';
 
 export function Controls() {
+    const summary = useGrammarSummary();
+    const history = useHistory();
+    const grammar = useGrammar();
     const clockStore = useClockStore();
     const hasClockStore = useHasClockStore();
     const shaderError = useShaderError();
     const actionError = useActionError();
     const seed = useSeed();
     const compiledShader = useCompiledShader();
-    const summary = useGrammarSummary();
-    const history = useHistory();
     const currentId = useCurrentId();
     const duration = useDuration();
     const canvas = useCanvas();
@@ -83,22 +85,6 @@ export function Controls() {
                             </Button>
                             <Button
                                 onClick={() => {
-                                    newVocabulary();
-                                }}
-                            >
-                                New vocabulary
-                            </Button>
-                            <Button
-                                onClick={() => {
-                                    newGrammar();
-                                }}
-                            >
-                                New grammar
-                            </Button>
-                        </Stack>
-                        <Stack direction="horizontal" gap="2">
-                            <Button
-                                onClick={() => {
                                     resetGrammar();
                                 }}
                             >
@@ -111,25 +97,60 @@ export function Controls() {
                             >
                                 Export
                             </Button>
+                            <input
+                                type="file"
+                                accept=".json,application/json"
+                                onChange={(e) => {
+                                    const file = e.currentTarget.files?.[0];
+
+                                    e.currentTarget.value = '';
+
+                                    if (file) {
+                                        void importGrammarFile(file);
+                                    }
+                                }}
+                            />
                         </Stack>
-                        <input
-                            type="file"
-                            accept=".json,application/json"
-                            onChange={(e) => {
-                                const file = e.currentTarget.files?.[0];
-
-                                e.currentTarget.value = '';
-
-                                if (file) {
-                                    void importGrammarFile(file);
-                                }
-                            }}
-                        />
                         <Text variant="muted">
                             {summary.operators} operators • terminals{' '}
                             {Math.round(summary.terminalShare * 100)}% • growth{' '}
                             {summary.growth.toFixed(2)} • {summary.hasTime ? 'time ✓' : 'no time'}
                         </Text>
+                        <Stack direction="horizontal" gap="2">
+                            <NumberField
+                                label="minDepth"
+                                min={1}
+                                max={16}
+                                value={grammar.constraints.minDepth}
+                                onValueChange={(value) => {
+                                    setConstraints({
+                                        minDepth: Number.isFinite(value) ? value : 1,
+                                    });
+                                }}
+                            />
+                            <NumberField
+                                label="maxDepth"
+                                min={1}
+                                max={16}
+                                value={grammar.constraints.maxDepth}
+                                onValueChange={(value) => {
+                                    setConstraints({
+                                        maxDepth: Number.isFinite(value) ? value : 1,
+                                    });
+                                }}
+                            />
+                            <NumberField
+                                label="maxNodes"
+                                min={1}
+                                max={400}
+                                value={grammar.constraints.maxNodes}
+                                onValueChange={(value) => {
+                                    setConstraints({
+                                        maxNodes: Number.isFinite(value) ? value : 1,
+                                    });
+                                }}
+                            />
+                        </Stack>
                     </Stack>
                 </ControlField>
 

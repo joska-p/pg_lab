@@ -1,6 +1,6 @@
 # Spec — Grammaire, générateur et aléatoire
 
-Version de travail 0.2. Termes définis dans `glossary.md`, décisions dans `architecture.md`, opérateurs dans `catalog-spec.md`, expressions dans `expression-spec.md`.
+Version de travail 0.3. Termes définis dans `glossary.md`, décisions dans `architecture.md`, opérateurs dans `catalog-spec.md`, expressions dans `expression-spec.md`.
 
 ## 1. Responsabilités
 
@@ -63,7 +63,7 @@ type Grammar = Brand<
 >;
 ```
 
-- **Vocabulaire** = les noms présents dans `weights`. Il n'y a pas de poids 0 : un opérateur absent n'est pas dans le vocabulaire.
+- **Vocabulaire** = les opérateurs de poids **strictement positif**. Un poids de 0 (ou une clé absente) veut dire « hors vocabulaire » : l'opérateur n'est jamais tiré. Un poids de 0 est le seul moyen de sortir un opérateur, et l'UI peut garder la même liste d'opérateurs quel que soit l'état (D40).
 - La **profondeur** d'une feuille seule est 1 (comme dans `expression-spec.md`).
 - **`minDepth`** (D18, D32) : aucune feuille avant cette profondeur. Ce n'est **pas** « l'arbre atteint au moins cette profondeur » : toutes les branches doivent descendre jusque-là. Le coût est la taille minimale de §5 : avec des opérateurs binaires seuls, `minDepth = 4` impose 15 nœuds par canal. Une valeur de 2 ou 3 est recommandée.
 - Les contraintes s'appliquent à **chacun des trois canaux** : chaque canal est un arbre généré séparément.
@@ -77,13 +77,13 @@ createGrammar(catalog, { weights, constraints }): Grammar
 Erreur si :
 
 1. un nom n'existe pas dans le catalogue ;
-2. un poids n'est pas fini ou sort de `[MIN_WEIGHT, MAX_WEIGHT] = [0.01, 100]` (D33) ;
-3. le vocabulaire ne contient aucun terminal ;
-4. une entrée d'un opérateur du vocabulaire attend un type pour lequel il n'y a aucun terminal (en v1, un terminal `float` suffit puisque tout est `float`) ;
+2. un poids n'est pas fini ou sort de `[MIN_WEIGHT, MAX_WEIGHT] = [0, 100]` (D33) ;
+3. le vocabulaire ne contient aucun terminal (poids > 0) ;
+4. une entrée d'un opérateur **actif** (poids > 0) attend un type pour lequel il n'y a aucun terminal actif (en v1, un terminal `float` suffit puisque tout est `float`) ;
 5. `1 ≤ minDepth ≤ maxDepth` n'est pas respecté ;
-6. `minDepth > 1` et le vocabulaire ne contient aucun opérateur non terminal ;
+6. `minDepth > 1` et le vocabulaire ne contient aucun opérateur non terminal actif ;
 7. `maxDepth` ou `maxNodes` dépasse les **limites dures** : `maxDepth ≤ 16`, `maxNodes ≤ 400` (un shader plus gros n'est plus raisonnable) ;
-8. `maxNodes` est inférieur à la **taille minimale** d'un arbre faisable (§5).
+8. `maxNodes` est inférieur à la **taille minimale** d'un arbre faisable avec les opérateurs actifs (§5).
 
 Les règles 3 à 8 sont la « contrainte de validité » dont parlait le brief.
 
@@ -103,7 +103,7 @@ Format :
 }
 ```
 
-Les clés de `weights` sont écrites dans l'ordre alphabétique, pour que deux grammaires égales donnent le même texte. `deserializeGrammar` valide à travers `createGrammar`.
+Les clés de `weights` sont écrites dans l'ordre alphabétique, pour que deux grammaires égales donnent le même texte. Un poids de `0` (opérateur hors vocabulaire) est une valeur légitime ; une clé absente est traitée comme `0`. `deserializeGrammar` valide à travers `createGrammar`.
 
 ### Grammaire par défaut
 
@@ -118,7 +118,7 @@ Une seule grammaire de départ, **à calibrer en jouant** (D34) :
 
 ## 5. Taille minimale et faisabilité
 
-Avec la règle de profondeur (§6), aucune feuille ne peut apparaître avant `minDepth`. Cela impose une taille minimale. Soit `k` la plus petite arité parmi les opérateurs non terminaux du vocabulaire. Pour un nœud à la profondeur `d` :
+Avec la règle de profondeur (§6), aucune feuille ne peut apparaître avant `minDepth`. Cela impose une taille minimale. Soit `k` la plus petite arité parmi les opérateurs non terminaux **actifs** du vocabulaire. Pour un nœud à la profondeur `d` :
 
 ```
 minSize(d) = 1                         si d ≥ minDepth      (un terminal suffit)
@@ -188,46 +188,40 @@ Pour deviner la taille des arbres entre ces bornes, une règle approximative : s
 
 ## 7. Randomiser une grammaire
 
-Toutes ces fonctions sont **pures** (une grammaire en entrée, une nouvelle en sortie) et **déterministes** pour un `Rng` donné. Elles correspondent aux quatre opérations du glossaire.
+Les contraintes appartiennent à l'UI (D41) : elles sont éditées à la main, jamais randomisées. La seule opération aléatoire est `randomizeWeights`, une fonction **pure** (une grammaire en entrée, une nouvelle en sortie) et **déterministe** pour un `Rng` donné.
 
 | Opération             | Fonction                                               |
 | --------------------- | ------------------------------------------------------ |
 | Nouvelle image        | _(pas une opération de grammaire : on change la seed)_ |
 | Nouvelle distribution | `randomizeWeights`                                     |
-| Nouveau vocabulaire   | `randomizeVocabulary`                                  |
-| Nouvelle grammaire    | `randomizeGrammar`                                     |
 
-### `randomizeWeights(catalog, grammar, rng, options?)`
+Les contraintes sont inchangées. Deux passes sur les opérateurs, dans l'ordre alphabétique des noms :
 
-Le vocabulaire et les contraintes sont inchangés. Chaque poids est multiplié par un facteur tiré de façon log-uniforme dans `[1/spread, spread]`.
+1. **Échelle** — chaque poids actif est multiplié par un facteur log-uniforme dans `[1/spread, spread]`.
+2. **Bascule** — avec une probabilité `changeRate`, un opérateur actif passe à `0` (hors vocabulaire) et un opérateur à `0` revient à `1`.
+
+La remise à l'échelle du partage des terminaux, la réparation puis l'arrondi suivent.
 
 Options :
 
-- `spread` (défaut `4`) : l'amplitude du changement.
-- `preserveTerminalShare` (défaut `true`) : après tirage, les poids des terminaux sont remis à l'échelle pour que leur **part du poids total** reste celle d'avant. La taille attendue des arbres reste ainsi stable et on explore le « caractère » sans changer l'échelle des images. En le mettant à `false`, les poids varient librement, y compris la taille des arbres.
+- `spread` (défaut `4`) : l'amplitude de l'échelle.
+- `changeRate` (défaut `0.3`) : la probabilité de bascule d'un opérateur. `0` fige le vocabulaire.
+- `preserveTerminalShare` (défaut `true`) : après tirage, les poids des terminaux **vivants** sont remis à l'échelle pour que leur **part du poids total** reste celle d'avant. La taille attendue des arbres reste ainsi stable et on explore le « caractère » sans changer l'échelle des images. À `false`, les poids varient librement, y compris la taille des arbres.
+- `keep` (défaut `DEFAULT_KEEP = ['x', 'y']`) : opérateurs jamais éteints, pour éviter les images unies (D39). Passer `[]` pour désactiver.
 
-**Détails de déterminisme** (D33) : les poids sont traités dans l'ordre alphabétique des noms, avec un appel à `rng.next()` par poids, facteur `exp((2u − 1) × ln(spread))`. Après remise à l'échelle des terminaux, chaque poids est arrondi à 3 décimales puis ramené dans `[MIN_WEIGHT, MAX_WEIGHT]` ; la part des terminaux est donc conservée à l'arrondi près. Si la grammaire n'a aucun non terminal, il n'y a rien à remettre à l'échelle.
+**Détails de déterminisme** (D33) : les noms sont traités dans l'ordre alphabétique, avec un appel à `rng.next()` par nom et par passe. Le facteur d'échelle vaut `exp((2u − 1) × ln(spread))`. Un poids vivant est arrondi à 3 décimales puis ramené dans `[0.001, MAX_WEIGHT]` : un poids positif ne devient jamais `0` par arrondi, le zéro reste réservé au sens « hors vocabulaire ». Un poids `0` reste `0`.
 
-### `randomizeVocabulary(catalog, grammar, rng, options?)`
+### Réparation
 
-Les contraintes sont inchangées ; les opérateurs qui restent gardent leur poids.
+Après la bascule, le vocabulaire doit rester utilisable avec les contraintes **fixées**. On répare sans toucher aux contraintes :
 
-- Chaque opérateur du catalogue **change d'état** (entre dans le vocabulaire ou en sort) avec une probabilité `changeRate` (défaut `0.3`).
-- Un opérateur qui entre reçoit le poids `1`.
-- Les noms listés dans `keep` ne sortent jamais. Défaut : `DEFAULT_KEEP = ['x', 'y']` (ceux présents dans le catalogue), pour éviter les images unies (D39). Passer `[]` pour désactiver.
-- Les opérateurs du catalogue sont parcourus dans l'ordre alphabétique, avec un appel à `rng.next()` par opérateur. Un choix « au hasard » dans la réparation utilise `rng.int` sur la liste triée par nom.
-- **Réparation** : si le vocabulaire n'a plus de terminal, on en ajoute un au hasard ; si `minDepth > 1` et qu'il n'y a plus de non terminal, on en ajoute un.
-
-### `randomizeGrammar(catalog, grammar, rng, options?)`
-
-Compose les opérations ci-dessus et peut aussi faire varier les contraintes.
-
-- `dimensions` : `{ vocabulary, weights, constraints }`, chacune activable (défaut : les trois).
-- Ordre fixe : vocabulaire, puis poids, puis contraintes (chaque étape consomme son propre flux, dans cet ordre).
-- Contraintes : `minDepth` varie de ±1 et `maxDepth` de ±2, `maxNodes` de ±50 %, le tout ramené dans les limites dures.
-- **Réparation des contraintes** : si la grammaire n'est pas faisable, on augmente `maxNodes` jusqu'à `minSize(1)` (dans la limite dure) ; si ce n'est pas assez, on baisse `minDepth` jusqu'à ce que ça le soit. `minDepth = 1` est toujours faisable, donc la réparation termine.
+- si plus aucun terminal n'est actif, on en réactive un au hasard (`rng.int` sur la liste triée par nom) ;
+- si `minDepth > 1` et qu'aucun non terminal n'est actif, on en réactive un ;
+- si la grammaire n'est pas faisable (`minSize(1) > maxNodes`), on réactive des non terminaux d'arité strictement plus petite, ce qui fait baisser `minSize`. `minDepth = 1` étant toujours faisable, un candidat existe tant que la grammaire d'entrée l'était.
 
 Le résultat passe toujours `createGrammar`.
+
+**Contraintes.** L'UI les édite et `fitConstraints(ops, constraints)` les garde valides : entiers dans les limites dures, `1 ≤ minDepth ≤ maxDepth`, et faisabilité (`minSize(1) ≤ maxNodes`, sinon `maxNodes` monte puis `minDepth` descend jusqu'à 1). C'est le pendant, côté UI, de la réparation côté randomisation.
 
 ## 8. Organisation du code
 
@@ -238,10 +232,10 @@ random/
   index.ts
 grammar/
   types.ts           // Grammar, Constraints, MIN_WEIGHT/MAX_WEIGHT, MAX_DEPTH/MAX_NODES
-  grammar.ts         // createGrammar, minSize, faisabilité, defaultGrammar
+  grammar.ts         // createGrammar, minSize, activeOperators, fitConstraints, defaultGrammar
   describe.ts        // describeGrammar (résumé d'une grammaire)
   serialize.ts       // serializeGrammar, deserializeGrammar
-  randomize.ts       // DEFAULT_KEEP, randomizeWeights, randomizeVocabulary, randomizeGrammar
+  randomize.ts       // DEFAULT_KEEP, randomizeWeights
   index.ts
 generator/
   generator.ts       // generate, GENERATOR_VERSION
@@ -261,7 +255,8 @@ generator/
 4. Chacune des erreurs de la §4 est levée avec un message clair.
 5. Aller-retour de sérialisation.
 6. `minSize` sur des exemples calculés à la main (dont le cas unaire).
-7. `randomize*` : sur beaucoup de seeds et de grammaires, le résultat est **toujours** valide ; `preserveTerminalShare` conserve bien la part des terminaux ; `keep` est respecté.
+7. `randomizeWeights` : sur beaucoup de seeds et de grammaires (dont des contraintes serrées), le résultat est **toujours** valide et le générateur ne lève jamais ; `preserveTerminalShare` conserve bien la part des terminaux ; `keep` est respecté. Un poids de `0` n'est jamais tiré, et un poids vivant ne tombe jamais à `0` par arrondi.
+   7 bis. `fitConstraints` : quelles que soient les valeurs saisies (non entières, hors limites, incohérentes, infaisables), renvoie des contraintes qui passent `createGrammar`.
 
 **generator**
 
@@ -270,7 +265,7 @@ generator/
 10. **Cas limites** : un vocabulaire réduit à un terminal ; `minDepth = maxDepth` ; `maxNodes` exactement égal à la taille minimale.
 11. Statistique : sur une grammaire à un seul niveau, la fréquence de chaque terminal correspond à ses poids.
 12. **Budget** : test exhaustif sur de petites grammaires (arités 1 à 3, `minDepth` et `maxDepth` jusqu'à 5, `maxNodes` de `minSize(1)` à `minSize(1) + 10`) : la génération ne lève jamais d'erreur et respecte `maxNodes`.
-13. **Poids** : après de nombreuses randomisations successives, tous les poids restent dans `[0.01, 100]`.
+13. **Poids** : après de nombreuses randomisations successives, tous les poids restent dans `[0, 100]` ; chaque grammaire produite garde au moins un terminal vivant.
 
 ## 10. Décisions prises
 
@@ -279,4 +274,5 @@ generator/
 - **`maxNodes` par canal**, pour la simplicité. Le shader a donc au plus 3 × 400 nœuds. À revoir si le coût dépend surtout du total.
 - **Répartition du budget** : le partage équitable de `libre` peut très légèrement favoriser les derniers enfants. À observer sur de vraies images avant de corriger.
 - **Poids par défaut** : à calibrer en jouant (§4).
+- **Un seul randomiseur** : poids et vocabulaire font un (un poids de 0 veut dire hors vocabulaire). Les contraintes ne sont pas randomisées ; l'UI les édite et `fitConstraints` les garde valides (D40, D41).
 - **Comparer des grammaires** : v2, avec `grammarKey` sur le modèle de `nodeKey` (D37).

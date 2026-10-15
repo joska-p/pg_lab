@@ -1,14 +1,12 @@
 export { describeGrammar, type GrammarSummary } from './describe.ts';
-export { defaultGrammar, createGrammar, minSize } from './grammar.ts';
 export {
-    DEFAULT_KEEP,
-    randomizeGrammar,
-    randomizeVocabulary,
-    randomizeWeights,
-    type RandomizeGrammarOptions,
-    type RandomizeVocabularyOptions,
-    type RandomizeWeightsOptions,
-} from './randomize.ts';
+    activeOperators,
+    createGrammar,
+    defaultGrammar,
+    fitConstraints,
+    minSize,
+} from './grammar.ts';
+export { DEFAULT_KEEP, randomizeWeights, type RandomizeWeightsOptions } from './randomize.ts';
 export {
     deserializeGrammar,
     GRAMMAR_FILE_FORMAT,

@@ -46,10 +46,18 @@ describe('grammar: createGrammar validations', () => {
         ).toThrow(/does not exist in catalog/);
     });
 
-    it('rejects weights outside [0.01, 100]', () => {
+    it('accepts weight 0 (off) and rejects negatives or > 100', () => {
+        const catalog = createDefaultCatalog();
+        expect(
+            createGrammar(catalog, {
+                weights: { x: 0, y: 0, const: 1 },
+                constraints: { minDepth: 1, maxDepth: 4, maxNodes: 20 },
+            }),
+        ).toBeTruthy();
+
         expect(() =>
             createGrammar(catalog, {
-                weights: { x: 0.005 },
+                weights: { x: -1e-9 },
                 constraints: { minDepth: 1, maxDepth: 4, maxNodes: 20 },
             }),
         ).toThrow(/must be within/);
@@ -62,10 +70,11 @@ describe('grammar: createGrammar validations', () => {
         ).toThrow(/must be within/);
     });
 
-    it('rejects vocabulary without terminals', () => {
+    it('rejects vocabulary without active terminals', () => {
+        const catalog = createDefaultCatalog();
         expect(() =>
             createGrammar(catalog, {
-                weights: { add: 1 },
+                weights: { add: 1, mul: 0, x: 0, y: 0, const: 0 },
                 constraints: { minDepth: 1, maxDepth: 4, maxNodes: 20 },
             }),
         ).toThrow(/must contain at least one terminal/);
@@ -87,10 +96,11 @@ describe('grammar: createGrammar validations', () => {
         ).toThrow(/1 <= minDepth <= maxDepth/);
     });
 
-    it('rejects minDepth > 1 without non-terminals', () => {
+    it('rejects minDepth > 1 without active non-terminals', () => {
+        const catalog = createDefaultCatalog();
         expect(() =>
             createGrammar(catalog, {
-                weights: { x: 1, y: 1 },
+                weights: { x: 1, y: 1, add: 0, mul: 0 },
                 constraints: { minDepth: 2, maxDepth: 4, maxNodes: 20 },
             }),
         ).toThrow(/contains no non-terminal/);

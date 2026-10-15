@@ -10,9 +10,9 @@ Un terme = un sens. Si un mot est utilisé autrement ailleurs dans le projet, c'
 
 **Catalogue** — La liste de tous les opérateurs (et dépendances) que le projet connaît.
 
-**Vocabulaire** — Le sous-ensemble du catalogue qu'une grammaire a le droit d'utiliser. Il inclut les terminaux : sans terminaux de temps, l'image est statique.
+**Vocabulaire** — L'ensemble des opérateurs du catalogue qu'une grammaire a le droit d'utiliser, c'est-à-dire ceux d'un poids strictement positif. Un opérateur de poids 0 est hors vocabulaire. Il inclut les terminaux : sans terminaux de temps, l'image est statique.
 
-**Poids** — Le nombre qui règle la fréquence relative à laquelle un opérateur du vocabulaire est choisi.
+**Poids** — Le nombre qui règle la fréquence relative à laquelle un opérateur est choisi. Un poids de 0 signifie « hors vocabulaire » : l'opérateur n'est jamais tiré.
 
 **Contraintes** — Les limites de forme de l'expression : profondeur minimale des feuilles (`minDepth`), profondeur maximale (`maxDepth`), nombre de nœuds maximal par canal (`maxNodes`).
 
@@ -84,12 +84,11 @@ Un terme = un sens. Si un mot est utilisé autrement ailleurs dans le projet, c'
 
 ## Les opérations d'exploration
 
-| Nom                       | Ce qui change                 | Ce qui reste                                                |
-| ------------------------- | ----------------------------- | ----------------------------------------------------------- |
-| **Nouvelle image**        | seed                          | grammaire                                                   |
-| **Nouvelle distribution** | poids                         | vocabulaire, contraintes                                    |
-| **Nouveau vocabulaire**   | vocabulaire                   | contraintes (poids recalculés pour les nouveaux opérateurs) |
-| **Nouvelle grammaire**    | plusieurs des trois à la fois | validité                                                    |
+| Nom                       | Ce qui change                | Ce qui reste      |
+| ------------------------- | ---------------------------- | ----------------- |
+| **Nouvelle image**        | seed                         | grammaire         |
+| **Nouvelle distribution** | poids (0 = hors vocabulaire) | contraintes, seed |
+| **Contraintes**           | minDepth/maxDepth/maxNodes   | poids, seed       |
 
 ## Termes volontairement exclus
 

@@ -12,15 +12,16 @@ import { createExpression } from '../core/expression/index.ts';
 import type { Address, Expression, Node } from '../core/expression/index.ts';
 import { generate } from '../core/generator/index.ts';
 import {
+    activeOperators,
+    createGrammar,
     defaultGrammar,
     describeGrammar,
+    fitConstraints,
     parseGrammarFile,
-    randomizeGrammar,
-    randomizeVocabulary,
     randomizeWeights,
     serializeGrammarFile,
 } from '../core/grammar/index.ts';
-import type { Grammar, GrammarSummary } from '../core/grammar/index.ts';
+import type { Constraints, Grammar, GrammarSummary } from '../core/grammar/index.ts';
 import { createRng, createSeed, randomSeed } from '../core/random/index.ts';
 import type { Rng, Seed } from '../core/random/index.ts';
 import { DEFAULT_LOOP_DURATION } from '../renderer/contract';
@@ -192,6 +193,10 @@ export function useGrammarSummary(): GrammarSummary {
     return store((s) => s.grammarSummary);
 }
 
+export function useGrammar(): Grammar {
+    return store((s) => s.grammar);
+}
+
 export function useHistory(): readonly HistoryEntry[] {
     return store((s) => s.history);
 }
@@ -270,19 +275,23 @@ function exploreGrammar(randomize: (grammar: Grammar, rng: Rng) => Grammar): voi
     }
 }
 
-/** "Nouvelle distribution": weights only. */
+/** "New weights": scaling and on/off, constraints unchanged. */
 export function newDistribution(): void {
     exploreGrammar((grammar, rng) => randomizeWeights(catalog, grammar, rng));
 }
 
-/** "Nouveau vocabulaire": operators in/out, constraints unchanged. */
-export function newVocabulary(): void {
-    exploreGrammar((grammar, rng) => randomizeVocabulary(catalog, grammar, rng));
-}
+/**
+ * Edits the constraints by hand (the UI owns them; they are never randomized). `fitConstraints`
+ * keeps them valid for the current vocabulary, so the sliders can never produce an error.
+ */
+export function setConstraints(partial: Partial<Constraints>): void {
+    const { grammar, seed } = store.getState();
+    const constraints = fitConstraints(activeOperators(catalog, grammar.weights), {
+        ...grammar.constraints,
+        ...partial,
+    });
 
-/** "Nouvelle grammaire": vocabulary, weights and constraints. */
-export function newGrammar(): void {
-    exploreGrammar((grammar, rng) => randomizeGrammar(catalog, grammar, rng));
+    commit(createGrammar(catalog, { weights: grammar.weights, constraints }), seed);
 }
 
 /** Back to the default grammar, same seed. */

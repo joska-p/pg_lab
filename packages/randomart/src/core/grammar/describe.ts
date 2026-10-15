@@ -26,6 +26,10 @@ export function describeGrammar(catalog: Catalog, grammar: Grammar): GrammarSumm
     let hasTime = false;
 
     for (const [name, weight] of Object.entries(grammar.weights)) {
+        if (weight <= 0) {
+            continue;
+        }
+
         const op = catalog.operator(name);
         const arity = op.inputs.length;
 

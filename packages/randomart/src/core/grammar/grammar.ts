@@ -1,7 +1,10 @@
-import type { Catalog, OperatorDef } from '../catalog/index.ts';
-import { assertFinite } from '../shared/index.ts';
-import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types.ts';
-import type { Constraints, Grammar } from './types.ts';
+import type { Catalog, OperatorDef } from '../catalog';
+import { assertFinite } from '../shared';
+import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types';
+import type { Constraints, Grammar } from './types';
+
+export const isTerminalOp = (op: OperatorDef): boolean => op.inputs.length === 0;
+export const isNonTerminalOp = (op: OperatorDef): boolean => op.inputs.length > 0;
 
 export function minSize(
     d: number,
@@ -17,6 +20,57 @@ export function minSize(
     }
     const k = Math.min(...nonTerminals.map((op) => op.inputs.length));
     return 1 + k * minSize(d + 1, minDepth, vocabularyOperators);
+}
+
+/**
+ * The vocabulary of a grammar: the operators it may draw, i.e. those with a strictly positive
+ * weight, by alphabetical name. A weight of 0 means the operator is off.
+ */
+export function activeOperators(
+    catalog: Catalog,
+    weights: Readonly<Record<string, number>>,
+): OperatorDef[] {
+    return Object.keys(weights)
+        .sort()
+        .map((name) => catalog.operator(name))
+        .filter((op) => weights[op.name] > 0);
+}
+
+/**
+ * Keeps constraints usable for a given vocabulary: integers within the hard limits, `1 ≤ minDepth ≤
+ * maxDepth`, and feasible (`minSize(1, minDepth) ≤ maxNodes`). Used by the UI, which edits
+ * constraints by hand instead of randomizing them. Lowering `maxNodes` first, then `minDepth` down
+ * to 1, always terminates since `minDepth = 1` is feasible.
+ */
+export function fitConstraints(
+    vocabularyOperators: readonly OperatorDef[],
+    constraints: Constraints,
+): Constraints {
+    const clampInt = (value: number, min: number, max: number): number =>
+        Number.isFinite(value) ? Math.min(max, Math.max(min, Math.round(value))) : min;
+
+    let minDepth = clampInt(constraints.minDepth, 1, MAX_DEPTH);
+    const maxDepth = clampInt(constraints.maxDepth, minDepth, MAX_DEPTH);
+
+    // The user may drag maxDepth below minDepth: keep maxDepth and bring minDepth along.
+    minDepth = Math.min(minDepth, maxDepth);
+
+    if (minDepth > 1 && !vocabularyOperators.some(isNonTerminalOp)) {
+        minDepth = 1;
+    }
+
+    let maxNodes = clampInt(constraints.maxNodes, 1, MAX_NODES);
+    const needed = (): number => minSize(1, minDepth, vocabularyOperators);
+
+    if (needed() > maxNodes) {
+        maxNodes = Math.min(MAX_NODES, needed());
+    }
+
+    while (minDepth > 1 && minSize(1, minDepth, vocabularyOperators) > maxNodes) {
+        minDepth--;
+    }
+
+    return { minDepth, maxDepth, maxNodes };
 }
 
 export function createGrammar(
@@ -54,14 +108,17 @@ export function createGrammar(
         }
     }
 
-    // Rule 3: Vocabulary contains at least one terminal
-    const terminals = vocabOps.filter((op) => op.inputs.length === 0);
+    // The vocabulary: what the generator may draw. A weight of 0 switches the operator off.
+    const vocabulary = vocabOps.filter((op) => weights[op.name] > 0);
+
+    // Rule 3: Vocabulary contains at least one active terminal
+    const terminals = vocabulary.filter(isTerminalOp);
     if (terminals.length === 0) {
         throw new Error('Grammar vocabulary must contain at least one terminal operator');
     }
 
-    // Rule 4: Every input type required by an operator has a matching terminal
-    for (const op of vocabOps) {
+    // Rule 4: Every input type required by an active operator has a matching active terminal
+    for (const op of vocabulary) {
         for (const input of op.inputs) {
             const hasMatchingTerminal = terminals.some((t) => t.output === input.type);
             if (!hasMatchingTerminal) {
@@ -85,8 +142,8 @@ export function createGrammar(
         );
     }
 
-    // Rule 6: If minDepth > 1, vocabulary must contain at least one non-terminal
-    const nonTerminals = vocabOps.filter((op) => op.inputs.length > 0);
+    // Rule 6: If minDepth > 1, vocabulary must contain at least one active non-terminal
+    const nonTerminals = vocabulary.filter(isNonTerminalOp);
     if (minDepth > 1 && nonTerminals.length === 0) {
         throw new Error(
             `minDepth is ${minDepth} (> 1) but vocabulary contains no non-terminal operators`,
@@ -104,8 +161,8 @@ export function createGrammar(
         throw new Error(`maxNodes (${maxNodes}) exceeds hard limit MAX_NODES (${MAX_NODES})`);
     }
 
-    // Rule 8: Feasibility check: minSize(1) <= maxNodes
-    const requiredMinSize = minSize(1, minDepth, vocabOps);
+    // Rule 8: Feasibility check: minSize(1) <= maxNodes, over the active vocabulary
+    const requiredMinSize = minSize(1, minDepth, vocabulary);
     if (maxNodes < requiredMinSize) {
         throw new Error(
             `Grammar is unfeasible: maxNodes (${maxNodes}) is less than minimum possible size (${requiredMinSize}) for minDepth ${minDepth}`,

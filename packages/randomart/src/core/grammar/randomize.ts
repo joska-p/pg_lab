@@ -1,11 +1,23 @@
 import type { Catalog, OperatorDef } from '../catalog/index.ts';
 import type { Rng } from '../random/index.ts';
-import { createGrammar, minSize } from './grammar.ts';
-import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types.ts';
-import type { Constraints, Grammar } from './types.ts';
+import {
+    activeOperators,
+    createGrammar,
+    isNonTerminalOp,
+    isTerminalOp,
+    minSize,
+} from './grammar.ts';
+import { MAX_WEIGHT } from './types.ts';
+import type { Grammar } from './types.ts';
 
-/** Operators that `randomizeVocabulary` never removes: avoids flat, coordinate-free images (D39). */
+/** Operators that `randomizeWeights` never switches off: avoids flat, coordinate-free images (D39). */
 export const DEFAULT_KEEP: readonly string[] = ['x', 'y'];
+
+/**
+ * Smallest strictly positive weight. A weight of exactly 0 means "off"; anything above it is a live
+ * weight, and this floor keeps rounding from silently switching an operator off.
+ */
+const MIN_ACTIVE_WEIGHT = 0.001;
 
 const clamp = (value: number, min: number, max: number): number =>
     Math.min(max, Math.max(min, value));
@@ -22,34 +34,46 @@ function byName(a: string, b: string): number {
     return 0;
 }
 
-const isTerminalOp = (op: OperatorDef): boolean => op.inputs.length === 0;
-const isNonTerminalOp = (op: OperatorDef): boolean => op.inputs.length > 0;
-
-function vocabularyOf(catalog: Catalog, weights: Readonly<Record<string, number>>): OperatorDef[] {
-    return Object.keys(weights).map((name) => catalog.operator(name));
+/** 0 stays 0; a positive weight is rounded to 3 decimals and never rounds down to 0. */
+function quantize(value: number): number {
+    if (value <= 0) {
+        return 0;
+    }
+    return clamp(round3(value), MIN_ACTIVE_WEIGHT, MAX_WEIGHT);
 }
 
-function isFeasible(
+function weightShare(
     catalog: Catalog,
     weights: Readonly<Record<string, number>>,
-    constraints: Constraints,
-): boolean {
-    const ops = vocabularyOf(catalog, weights);
-    return minSize(1, constraints.minDepth, ops) <= constraints.maxNodes;
+    terminal: boolean,
+): number {
+    let total = 0;
+
+    for (const [name, weight] of Object.entries(weights)) {
+        if (weight > 0 && isTerminalOp(catalog.operator(name)) === terminal) {
+            total += weight;
+        }
+    }
+
+    return total;
 }
 
-// ---------------------------------------------------------------------------
-// randomizeWeights — "nouvelle distribution"
-// ---------------------------------------------------------------------------
-
 export interface RandomizeWeightsOptions {
-    /** Amplitude: each weight is multiplied by a log-uniform factor in [1/spread, spread]. */
+    /** Amplitude: each active weight is multiplied by a log-uniform factor in [1/spread, spread]. */
     readonly spread?: number;
     /** Keeps the terminals' share of the total weight, so expected tree size stays stable. */
     readonly preserveTerminalShare?: boolean;
+    /** Probability that each operator toggles on/off (`rng.next() < changeRate`). 0 = vocab fixed. */
+    readonly changeRate?: number;
+    /** Operators that are never switched off. Pass `[]` to disable. Default: `DEFAULT_KEEP`. */
+    readonly keep?: readonly string[];
 }
 
-/** Vocabulary and constraints are unchanged; only the weights move. Always returns a valid grammar. */
+/**
+ * One exploration of the grammar: weights move, operators switch on and off (a weight of 0 means
+ * "not drawn"), constraints are unchanged. Both the scaling and the toggle consume one `rng.next()`
+ * per catalog operator, in alphabetical order. Always returns a valid grammar.
+ */
 export function randomizeWeights(
     catalog: Catalog,
     grammar: Grammar,
@@ -58,233 +82,136 @@ export function randomizeWeights(
 ): Grammar {
     const spread = options.spread ?? 4;
     const preserveTerminalShare = options.preserveTerminalShare ?? true;
+    const changeRate = options.changeRate ?? 0.3;
+    const keep = new Set(options.keep ?? DEFAULT_KEEP);
 
     if (!Number.isFinite(spread) || spread < 1) {
         throw new Error(`spread must be a finite number >= 1, received ${String(spread)}`);
+    }
+    if (!Number.isFinite(changeRate) || changeRate < 0 || changeRate > 1) {
+        throw new Error(`changeRate must be a finite number in [0, 1], received ${changeRate}`);
     }
 
     const logSpread = Math.log(spread);
     const names = Object.keys(grammar.weights).sort(byName);
     const scaled = new Map<string, number>();
-    let terminalBefore = 0;
-    let nonTerminalBefore = 0;
-    let terminalAfter = 0;
-    let nonTerminalAfter = 0;
 
-    // Alphabetical order, exactly one rng.next() per weight (D33).
+    // Pass 1 — alphabetical order, one rng.next() per operator: log-uniform scaling of live weights.
     for (const name of names) {
         const before = grammar.weights[name];
-        const after = before * Math.exp((2 * rng.next() - 1) * logSpread);
+        const factor = Math.exp((2 * rng.next() - 1) * logSpread);
 
-        scaled.set(name, after);
-
-        if (isTerminalOp(catalog.operator(name))) {
-            terminalBefore += before;
-            terminalAfter += after;
-        } else {
-            nonTerminalBefore += before;
-            nonTerminalAfter += after;
-        }
+        scaled.set(name, before > 0 ? before * factor : 0);
     }
 
-    // A valid grammar always has a terminal, so `share` is in (0, 1) as soon as a non-terminal exists.
-    let terminalScale = 1;
-
-    if (preserveTerminalShare && nonTerminalBefore > 0) {
-        const share = terminalBefore / (terminalBefore + nonTerminalBefore);
-
-        terminalScale = (share * nonTerminalAfter) / ((1 - share) * terminalAfter);
-    }
-
+    // Pass 2 — alphabetical order, one rng.next() per operator: switch off (live → 0) or on (0 → 1).
     const weights: Record<string, number> = {};
 
     for (const name of names) {
-        const factor = isTerminalOp(catalog.operator(name)) ? terminalScale : 1;
+        const before = grammar.weights[name];
+        const toggles = rng.next() < changeRate;
 
-        weights[name] = clamp(round3((scaled.get(name) ?? 0) * factor), MIN_WEIGHT, MAX_WEIGHT);
+        if (before > 0) {
+            weights[name] = toggles && !keep.has(name) ? 0 : (scaled.get(name) ?? before);
+        } else {
+            weights[name] = toggles ? 1 : 0;
+        }
     }
 
-    return createGrammar(catalog, { weights, constraints: grammar.constraints });
-}
+    repair(catalog, weights, grammar.constraints.minDepth, grammar.constraints.maxNodes, rng);
+    preserveTerminalShareOf(catalog, grammar, weights, preserveTerminalShare);
 
-// ---------------------------------------------------------------------------
-// randomizeVocabulary — "nouveau vocabulaire"
-// ---------------------------------------------------------------------------
+    const quantized: Record<string, number> = {};
 
-export interface RandomizeVocabularyOptions {
-    /** Probability that each catalog operator toggles in/out of the vocabulary. */
-    readonly changeRate?: number;
-    /** Operators that never leave the vocabulary. Pass `[]` to disable. */
-    readonly keep?: readonly string[];
+    for (const name of names) {
+        quantized[name] = quantize(weights[name]);
+    }
+
+    return createGrammar(catalog, { weights: quantized, constraints: grammar.constraints });
 }
 
 /**
- * Constraints are unchanged; surviving operators keep their weight, entering ones get 1. Repairs
- * the vocabulary (terminal, non-terminal, feasibility); if no repair is possible the input grammar
- * is returned unchanged rather than throwing.
+ * Makes the vocabulary usable with the (fixed) constraints: at least one active terminal, at least
+ * one active non-terminal when `minDepth > 1`, and feasibility (`minSize(1) ≤ maxNodes`).
+ * Feasibility is restored by bringing smaller-arity non-terminals back, which strictly lowers
+ * `minSize`.
  */
-export function randomizeVocabulary(
-    catalog: Catalog,
-    grammar: Grammar,
-    rng: Rng,
-    options: RandomizeVocabularyOptions = {},
-): Grammar {
-    const changeRate = options.changeRate ?? 0.3;
-    const keep = new Set(options.keep ?? DEFAULT_KEEP);
-    const weights: Record<string, number> = { ...grammar.weights };
-    const sorted = [...catalog.operators()].sort((a, b) => byName(a.name, b.name));
-
-    // Alphabetical order, exactly one rng.next() per catalog operator.
-    for (const op of sorted) {
-        if (rng.next() >= changeRate) {
-            continue;
-        }
-
-        if (op.name in weights) {
-            if (!keep.has(op.name)) {
-                delete weights[op.name];
-            }
-        } else {
-            weights[op.name] = 1;
-        }
-    }
-
-    repairVocabulary(catalog, weights, grammar.constraints, rng, sorted);
-
-    const ops = vocabularyOf(catalog, weights);
-    const usable =
-        ops.some(isTerminalOp) &&
-        (grammar.constraints.minDepth === 1 || ops.some(isNonTerminalOp)) &&
-        isFeasible(catalog, weights, grammar.constraints);
-
-    if (!usable) {
-        return grammar;
-    }
-
-    return createGrammar(catalog, { weights, constraints: grammar.constraints });
-}
-
-function repairVocabulary(
+function repair(
     catalog: Catalog,
     weights: Record<string, number>,
-    constraints: Constraints,
+    minDepth: number,
+    maxNodes: number,
     rng: Rng,
-    sorted: readonly OperatorDef[],
 ): void {
-    const terminals = sorted.filter(isTerminalOp);
+    const sorted = [...catalog.operators()].sort((a, b) => byName(a.name, b.name));
+    const active = (): OperatorDef[] => activeOperators(catalog, weights);
 
-    if (!vocabularyOf(catalog, weights).some(isTerminalOp) && terminals.length > 0) {
+    if (!active().some(isTerminalOp)) {
+        const terminals = sorted.filter(isTerminalOp);
         weights[terminals[rng.int(terminals.length)].name] = 1;
     }
 
-    if (constraints.minDepth <= 1) {
+    if (minDepth <= 1) {
         return;
     }
 
-    const nonTerminals = sorted.filter(isNonTerminalOp);
-
-    if (nonTerminals.length === 0) {
-        return;
-    }
-
-    if (!vocabularyOf(catalog, weights).some(isNonTerminalOp)) {
+    if (!active().some(isNonTerminalOp)) {
+        const nonTerminals = sorted.filter(isNonTerminalOp);
         weights[nonTerminals[rng.int(nonTerminals.length)].name] = 1;
     }
 
-    // Removing the low-arity operators raises minSize: bring the smallest one back if needed.
-    if (!isFeasible(catalog, weights, constraints)) {
-        const smallest = Math.min(...nonTerminals.map((op) => op.inputs.length));
-        const candidate = nonTerminals.find(
-            (op) => op.inputs.length === smallest && !(op.name in weights),
+    while (minSize(1, minDepth, active()) > maxNodes) {
+        const k = Math.min(
+            ...active()
+                .filter(isNonTerminalOp)
+                .map((op) => op.inputs.length),
+        );
+        const candidate = sorted.find(
+            (op) => isNonTerminalOp(op) && weights[op.name] <= 0 && op.inputs.length < k,
         );
 
-        if (candidate) {
-            weights[candidate.name] = 1;
+        if (!candidate) {
+            break; // The input grammar was already as small as it gets for these constraints.
         }
+
+        weights[candidate.name] = 1;
     }
-}
-
-// ---------------------------------------------------------------------------
-// randomizeGrammar — "nouvelle grammaire"
-// ---------------------------------------------------------------------------
-
-export interface RandomizeGrammarOptions {
-    /** Which dimensions vary; all three by default. */
-    readonly dimensions?: {
-        readonly vocabulary?: boolean;
-        readonly weights?: boolean;
-        readonly constraints?: boolean;
-    };
-    readonly vocabulary?: RandomizeVocabularyOptions;
-    readonly weights?: RandomizeWeightsOptions;
-}
-
-/** Fixed order: vocabulary, weights, constraints. The result always passes `createGrammar`. */
-export function randomizeGrammar(
-    catalog: Catalog,
-    grammar: Grammar,
-    rng: Rng,
-    options: RandomizeGrammarOptions = {},
-): Grammar {
-    const dimensions = options.dimensions ?? {};
-    let current = grammar;
-
-    if (dimensions.vocabulary ?? true) {
-        current = randomizeVocabulary(catalog, current, rng, options.vocabulary);
-    }
-
-    if (dimensions.weights ?? true) {
-        current = randomizeWeights(catalog, current, rng, options.weights);
-    }
-
-    if (dimensions.constraints ?? true) {
-        current = createGrammar(catalog, {
-            weights: current.weights,
-            constraints: randomizeConstraints(catalog, current, rng),
-        });
-    }
-
-    return current;
-}
-
-function randomizeConstraints(catalog: Catalog, grammar: Grammar, rng: Rng): Constraints {
-    // Integer in [-span, +span].
-    const delta = (span: number): number => Math.floor(rng.next() * (2 * span + 1)) - span;
-    const { minDepth, maxDepth, maxNodes } = grammar.constraints;
-
-    const nextMaxDepth = clamp(maxDepth + delta(2), 1, MAX_DEPTH);
-    const nextMinDepth = Math.min(Math.max(1, minDepth + delta(1)), nextMaxDepth);
-    // ±50 %
-    const nextMaxNodes = clamp(Math.round(maxNodes * (0.5 + rng.next())), 1, MAX_NODES);
-
-    return repairConstraints(vocabularyOf(catalog, grammar.weights), {
-        minDepth: nextMinDepth,
-        maxDepth: nextMaxDepth,
-        maxNodes: nextMaxNodes,
-    });
 }
 
 /**
- * Makes constraints feasible: raise maxNodes first, then lower minDepth (minDepth = 1 always
- * works).
+ * Scales the live terminal weights so their share of the total matches the input grammar's share.
+ * Called after `repair`, so a live terminal always exists when a non-terminal does.
  */
-function repairConstraints(ops: readonly OperatorDef[], constraints: Constraints): Constraints {
-    let { minDepth } = constraints;
-    let { maxNodes } = constraints;
-
-    if (!ops.some(isNonTerminalOp)) {
-        minDepth = 1;
+function preserveTerminalShareOf(
+    catalog: Catalog,
+    grammar: Grammar,
+    weights: Record<string, number>,
+    enabled: boolean,
+): void {
+    if (!enabled) {
+        return;
     }
 
-    const needed = minSize(1, minDepth, ops);
+    const terminalBefore = weightShare(catalog, grammar.weights, true);
+    const nonTerminalBefore = weightShare(catalog, grammar.weights, false);
 
-    if (needed > maxNodes) {
-        maxNodes = Math.min(MAX_NODES, needed);
+    if (nonTerminalBefore <= 0) {
+        return;
     }
 
-    while (minDepth > 1 && minSize(1, minDepth, ops) > maxNodes) {
-        minDepth--;
+    const terminalAfter = weightShare(catalog, weights, true);
+    const nonTerminalAfter = weightShare(catalog, weights, false);
+
+    if (terminalAfter <= 0 || nonTerminalAfter <= 0) {
+        return;
     }
 
-    return { minDepth, maxDepth: constraints.maxDepth, maxNodes };
+    const share = terminalBefore / (terminalBefore + nonTerminalBefore);
+    const terminalScale = (share * nonTerminalAfter) / ((1 - share) * terminalAfter);
+
+    for (const name of Object.keys(weights)) {
+        if (weights[name] > 0 && isTerminalOp(catalog.operator(name))) {
+            weights[name] *= terminalScale;
+        }
+    }
 }

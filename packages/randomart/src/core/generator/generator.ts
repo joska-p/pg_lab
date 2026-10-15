@@ -1,7 +1,7 @@
 import type { Catalog, OperatorDef } from '../catalog/index.ts';
 import { createExpression, createNode } from '../expression/index.ts';
 import type { Expression, Node } from '../expression/index.ts';
-import { minSize } from '../grammar/index.ts';
+import { activeOperators, minSize } from '../grammar/index.ts';
 import type { Grammar } from '../grammar/index.ts';
 import { createRng } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
@@ -12,9 +12,7 @@ export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expres
     const rng = createRng(seed);
     const { minDepth, maxDepth, maxNodes } = grammar.constraints;
 
-    const vocabOps: OperatorDef[] = Object.keys(grammar.weights).map((name) =>
-        catalog.operator(name),
-    );
+    const vocabOps: OperatorDef[] = activeOperators(catalog, grammar.weights);
 
     function generateNode(
         d: number,

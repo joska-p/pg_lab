@@ -5,7 +5,7 @@ import { generate } from '../generator/index.ts';
 import { createRng, createSeed } from '../random/index.ts';
 import { describeGrammar } from './describe.ts';
 import { defaultGrammar } from './grammar.ts';
-import { randomizeGrammar, randomizeVocabulary, randomizeWeights } from './randomize.ts';
+import { randomizeWeights } from './randomize.ts';
 import { serializeGrammar } from './serialize.ts';
 import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types.ts';
 
@@ -13,18 +13,21 @@ const catalog = createDefaultCatalog();
 const seeds = Array.from({ length: 200 }, (_, i) => createSeed(i));
 
 describe('randomizeWeights', () => {
-    it('keeps vocabulary and constraints, and stays within weight bounds', () => {
+    it('keeps constraints and weights within bounds; vocabulary becomes the positive-weight set', () => {
         const base = defaultGrammar(catalog);
 
         for (const seed of seeds) {
             const next = randomizeWeights(catalog, base, createRng(seed));
 
-            expect(Object.keys(next.weights)).toEqual(Object.keys(base.weights));
             expect(next.constraints).toEqual(base.constraints);
 
             for (const weight of Object.values(next.weights)) {
                 expect(weight).toBeGreaterThanOrEqual(MIN_WEIGHT);
                 expect(weight).toBeLessThanOrEqual(MAX_WEIGHT);
+            }
+
+            for (const op of catalog.operators()) {
+                expect(Object.hasOwn(next.weights, op.name)).toBe(true);
             }
         }
     });
@@ -60,47 +63,36 @@ describe('randomizeWeights', () => {
     });
 });
 
-describe('randomizeVocabulary', () => {
-    it('never removes x and y by default, even when everything toggles', () => {
-        const base = defaultGrammar(catalog);
+it('never switches x and y off by default, even when toggling aggressively', () => {
+    const base = defaultGrammar(catalog);
 
-        for (const seed of seeds.slice(0, 50)) {
-            const next = randomizeVocabulary(catalog, base, createRng(seed), { changeRate: 1 });
+    for (const seed of seeds.slice(0, 50)) {
+        const next = randomizeWeights(catalog, base, createRng(seed), { changeRate: 1 });
 
-            expect(next.weights.x).toBeDefined();
-            expect(next.weights.y).toBeDefined();
-        }
-    });
-
-    it('leaves the vocabulary unchanged with changeRate 0', () => {
-        const base = defaultGrammar(catalog);
-        const next = randomizeVocabulary(catalog, base, createRng(createSeed(3)), {
-            changeRate: 0,
-        });
-
-        expect(Object.keys(next.weights)).toEqual(Object.keys(base.weights));
-    });
-
-    it('repairs the vocabulary when keep is disabled (always a valid grammar)', () => {
-        const base = defaultGrammar(catalog);
-
-        for (const seed of seeds.slice(0, 100)) {
-            const next = randomizeVocabulary(catalog, base, createRng(seed), {
-                changeRate: 0.9,
-                keep: [],
-            });
-
-            expect(describeGrammar(catalog, next).terminalShare).toBeGreaterThan(0);
-        }
-    });
+        expect(next.weights.x).toBeGreaterThan(0);
+        expect(next.weights.y).toBeGreaterThan(0);
+    }
 });
 
-describe('randomizeGrammar', () => {
+it('can disable operators with changeRate 1 and keep=[]', () => {
+    const base = defaultGrammar(catalog);
+    const next = randomizeWeights(catalog, base, createRng(createSeed(3)), {
+        changeRate: 1,
+        keep: [],
+    });
+
+    // At least one active terminal remains.
+    const active = Object.entries(next.weights).filter(([, w]) => w > 0);
+    expect(active.length).toBeGreaterThan(0);
+    expect(active.some(([name]) => catalog.operator(name).inputs.length === 0)).toBe(true);
+});
+
+describe('randomizeWeights (grammar exploration)', () => {
     it('always returns a grammar the generator can use', () => {
         const base = defaultGrammar(catalog);
 
         for (const seed of seeds) {
-            const next = randomizeGrammar(catalog, base, createRng(seed));
+            const next = randomizeWeights(catalog, base, createRng(seed));
             const { minDepth, maxDepth, maxNodes } = next.constraints;
 
             expect(minDepth).toBeGreaterThanOrEqual(1);
@@ -116,7 +108,7 @@ describe('randomizeGrammar', () => {
         let current = defaultGrammar(catalog);
 
         for (let i = 0; i < 300; i++) {
-            current = randomizeGrammar(catalog, current, rng);
+            current = randomizeWeights(catalog, current, rng);
 
             for (const weight of Object.values(current.weights)) {
                 expect(weight).toBeGreaterThanOrEqual(MIN_WEIGHT);
@@ -127,20 +119,10 @@ describe('randomizeGrammar', () => {
         expect(() => generate(catalog, current, createSeed(1))).not.toThrow();
     });
 
-    it('respects disabled dimensions', () => {
-        const base = defaultGrammar(catalog);
-        const next = randomizeGrammar(catalog, base, createRng(createSeed(11)), {
-            dimensions: { vocabulary: false, constraints: false },
-        });
-
-        expect(Object.keys(next.weights)).toEqual(Object.keys(base.weights));
-        expect(next.constraints).toEqual(base.constraints);
-    });
-
     it('is deterministic for a given rng seed', () => {
         const base = defaultGrammar(catalog);
-        const a = randomizeGrammar(catalog, base, createRng(createSeed(99)));
-        const b = randomizeGrammar(catalog, base, createRng(createSeed(99)));
+        const a = randomizeWeights(catalog, base, createRng(createSeed(99)));
+        const b = randomizeWeights(catalog, base, createRng(createSeed(99)));
 
         expect(serializeGrammar(a)).toEqual(serializeGrammar(b));
     });
