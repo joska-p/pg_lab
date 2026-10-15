@@ -27,7 +27,7 @@ Principes : cœur TypeScript pur (pas de DOM, pas de GPU) ; rendu = adaptateur m
 
 ## Prochaine action
 
-**Lots C et D** : code fourni dans `lot-c-d/` (rendu paresseux, fuzz pur, tests d'`emit`, mesures, validation glslang), à intégrer puis à valider avec `vp check --fix` et `vp test`. Ensuite **lot E** (inspecter une expression : `nodeKey`, `walk`, formule lisible, vue arbre).
+**Lot E** : code fourni dans `lot-e/` (`nodeKey`, `walk`/`getNode`, formule lisible, inspecteur avec arbre et aperçu, spec explorer), à intégrer puis à valider avec `vp check --fix` et `vp test`. Ensuite **lot F** (persistance : sérialisation d'expression, `artwork`, provenance).
 
 ## Lots
 
@@ -87,6 +87,8 @@ Remplace en grande partie les tests navigateur reportés (friction 1).
 - **D4 — Mesures de partage** (ex-MP3·S4) : comparer `none`/`shared`/`all` sur le même fuzz (longueur, sommets, variables, temps de `compile`) pour éclairer le défaut.
 
 ### Lot E — Inspecter une expression
+
+_Code livré dans `lot-e/` (non exécuté). Écarts assumés : sélection au clic (le survol reste une question ouverte), formule générique sans cas particulier (`const(0.3)` et non `0.3`), l'aperçu a sa propre horloge figée à la phase 0. La spec explorer v0.1 est dans `lot-e/docs/explorer-spec.md`, à copier dans `docs/`._
 
 - `nodeKey`/`equals`, `usedOperators`, `getNode`, `walk` + `Address` (`expression-spec §5–6`).
 - Formule lisible en notation fonctionnelle automatique.

@@ -8,7 +8,8 @@ import { create } from 'zustand';
 import { createDefaultCatalog } from '../core/catalog/index.ts';
 import { compile } from '../core/compiler/index.ts';
 import type { CompiledShader } from '../core/compiler/index.ts';
-import type { Expression } from '../core/expression/index.ts';
+import { createExpression } from '../core/expression/index.ts';
+import type { Address, Expression, Node } from '../core/expression/index.ts';
 import { generate } from '../core/generator/index.ts';
 import {
     animatedGrammar,
@@ -69,6 +70,8 @@ interface AppStoreState {
     currentId: number;
     seed: Seed;
     expression: Expression;
+    /** Node picked in the inspector; reset whenever the expression changes. */
+    selected: Address | null;
     compiledShader: CompiledShader;
     fragmentShader: string;
     canvas: HTMLCanvasElement | null;
@@ -88,6 +91,7 @@ const store = create<AppStoreState>(() => ({
     currentId: initialEntry.id,
     seed: initialSeed,
     expression: initialExpression,
+    selected: null,
     compiledShader: initialCompiled,
     fragmentShader: initialCompiled.source,
     canvas: null,
@@ -145,6 +149,23 @@ export function useSeed(): Seed {
 
 export function useExpression(): Expression {
     return store((s) => s.expression);
+}
+
+export function useSelected(): Address | null {
+    return store((s) => s.selected);
+}
+
+export function selectNode(selected: Address | null): void {
+    store.setState({ selected });
+}
+
+/**
+ * Compiles one subtree on its own, in the root coordinate context, as a grayscale picture (`r = g =
+ * b = node`). Known limit: the deformation of the node's ancestors (e.g. `warp`) is not part of the
+ * preview.
+ */
+export function compileNodePreview(node: Node): CompiledShader {
+    return compile(catalog, createExpression(node, node, node));
 }
 
 export function useCompiledShader(): CompiledShader {
@@ -218,6 +239,7 @@ function commit(grammar: Grammar, seed: Seed, restoreId?: number): void {
             grammarSummary: describeGrammar(catalog, grammar),
             seed,
             expression,
+            selected: null,
             compiledShader,
             fragmentShader: compiledShader.source,
             history,

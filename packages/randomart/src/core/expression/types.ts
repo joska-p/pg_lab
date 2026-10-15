@@ -19,3 +19,9 @@ export type Expression = Brand<
     },
     'Expression'
 >;
+
+/** Points at a node: a channel plus the input indices to follow from its root (`[]` = the root). */
+export interface Address {
+    readonly channel: Channel;
+    readonly path: readonly number[];
+}

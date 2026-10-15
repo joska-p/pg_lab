@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite-plus';
 
-import { baseLint } from './tooling/lint/base.ts';
-import { nodeLint } from './tooling/lint/node.ts';
-import { reactLint } from './tooling/lint/react.ts';
+import { baseLint } from './tools/lint/base.ts';
+import { nodeLint } from './tools/lint/node.ts';
+import { reactLint } from './tools/lint/react.ts';
 
 const ignorePatterns = ['dist/**', '**/vendor/*.js', '.agents/**/*.{js,ts}'];
 
