@@ -1,4 +1,24 @@
+export { describeGrammar, type GrammarSummary } from './describe.ts';
 export { animatedGrammar, createGrammar, minSize, staticGrammar } from './grammar.ts';
+export {
+    DEFAULT_KEEP,
+    randomizeGrammar,
+    randomizeVocabulary,
+    randomizeWeights,
+    type RandomizeGrammarOptions,
+    type RandomizeVocabularyOptions,
+    type RandomizeWeightsOptions,
+} from './randomize.ts';
+export {
+    deserializeGrammar,
+    GRAMMAR_FILE_FORMAT,
+    GRAMMAR_FILE_VERSION,
+    type GrammarData,
+    MAX_GRAMMAR_FILE_LENGTH,
+    parseGrammarFile,
+    serializeGrammar,
+    serializeGrammarFile,
+} from './serialize.ts';
 export {
     type Constraints,
     type Grammar,
