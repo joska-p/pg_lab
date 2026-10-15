@@ -8,28 +8,24 @@ import { createDefaultCatalog } from '../core/catalog/index.ts';
 import { compile, type CompiledShader } from '../core/compiler/index.ts';
 import type { Expression } from '../core/expression/index.ts';
 import { generate } from '../core/generator/index.ts';
-import { animatedGrammar, staticGrammar } from '../core/grammar/index.ts';
+import { animatedGrammar } from '../core/grammar/index.ts';
 import { createSeed, randomSeed, type Seed } from '../core/random/index.ts';
 import { DEFAULT_LOOP_DURATION } from '../renderer/contract';
 
 type Theme = 'light' | 'dark' | 'system';
-export type GrammarMode = 'static' | 'animated';
 
 const catalog = createDefaultCatalog();
 
-function buildGrammar(mode: GrammarMode) {
-    return mode === 'animated' ? animatedGrammar(catalog) : staticGrammar(catalog);
-}
+// Une seule grammaire, avec les terminaux de temps : l'animation est une question de lecture
+// (Play/Pause sur l'horloge), pas de forme. Une seed donne donc toujours la même expression.
+const grammar = animatedGrammar(catalog);
 
-const initialMode: GrammarMode = 'animated';
-const initialGrammar = buildGrammar(initialMode);
 const initialSeed = createSeed(42);
-const initialExpression = generate(catalog, initialGrammar, initialSeed);
+const initialExpression = generate(catalog, grammar, initialSeed);
 const initialCompiled = compile(catalog, initialExpression);
 
 interface AppStoreState {
     theme: Theme;
-    grammarMode: GrammarMode;
     clockStore: ClockStore;
     shaderError: ShaderError | null;
     duration: DurationSeconds;
@@ -44,7 +40,6 @@ const nullClockStore = createNullClockStore();
 
 const store = create<AppStoreState>(() => ({
     theme: 'dark',
-    grammarMode: initialMode,
     clockStore: nullClockStore,
     shaderError: null,
     duration: DEFAULT_LOOP_DURATION,
@@ -61,16 +56,6 @@ export function useTheme(): Theme {
 
 export function setTheme(theme: Theme): void {
     store.setState({ theme });
-}
-
-export function useGrammarMode(): GrammarMode {
-    return store((s) => s.grammarMode);
-}
-
-export function setGrammarMode(grammarMode: GrammarMode): void {
-    store.setState({ grammarMode });
-    // Même seed : la bascule est réversible et l'image change tout de suite.
-    regenerate(store.getState().seed);
 }
 
 export function useClockStore(): ClockStore {
@@ -132,8 +117,6 @@ export function setCanvas(canvas: HTMLCanvasElement): void {
 }
 
 export function regenerate(nextSeed: Seed = randomSeed()): void {
-    const { grammarMode } = store.getState();
-    const grammar = buildGrammar(grammarMode);
     const expression = generate(catalog, grammar, nextSeed);
     const compiledShader = compile(catalog, expression);
     store.setState({

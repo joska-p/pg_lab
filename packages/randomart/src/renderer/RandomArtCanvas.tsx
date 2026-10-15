@@ -28,8 +28,8 @@ export interface RandomArtCanvasProps {
 }
 
 /**
- * Thin adapter around @repo/glaze GpuCanvas tailored for randomart. Configures timed clock looping,
- * WebGL context flags, and supplies `u_phase`.
+ * Thin adapter around @repo/glaze GpuCanvas tailored for randomart. Configures timed clock looping
+ * (paused at phase 0 until the user presses Play), WebGL context flags, and supplies `u_phase`.
  */
 export function RandomArtCanvas({
     fragmentShader = HANDWRITTEN_TEST_SHADER,
@@ -47,6 +47,7 @@ export function RandomArtCanvas({
                 mode: 'timed',
                 duration,
                 loop: true,
+                autoStart: false,
             }}
             contextOptions={DEFAULT_CONTEXT_OPTIONS}
             uniforms={(surface) => ({

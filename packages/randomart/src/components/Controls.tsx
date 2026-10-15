@@ -10,12 +10,10 @@ import {
     parseDurationInput,
     regenerate,
     setDuration,
-    setGrammarMode,
     useCanvas,
     useClockStore,
     useCompiledShader,
     useDuration,
-    useGrammarMode,
     useHasClockStore,
     useSeed,
     useShaderError,
@@ -28,13 +26,15 @@ export function Controls() {
     const seed = useSeed();
     const compiledShader = useCompiledShader();
     const duration = useDuration();
-    const grammarMode = useGrammarMode();
     const canvas = useCanvas();
 
     const isPlaying = useSyncExternalStore(
         (onStoreChange) => clockStore.subscribe(onStoreChange),
         () => clockStore.getIsPlaying(),
     );
+
+    // Sans terminal de temps (tsin/tcos), l'expression est fixe : il n'y a rien à animer.
+    const canAnimate = hasClockStore && compiledShader.animated;
 
     return (
         <ControlSection title="randomart">
@@ -49,15 +49,6 @@ export function Controls() {
                                 }}
                             >
                                 Regenerate
-                            </Button>
-                            <Button
-                                onClick={() => {
-                                    setGrammarMode(
-                                        grammarMode === 'animated' ? 'static' : 'animated',
-                                    );
-                                }}
-                            >
-                                {grammarMode === 'animated' ? '🎞 Animated' : '🖼 Static'}
                             </Button>
                         </Stack>
                         <Text variant="muted">
@@ -74,7 +65,7 @@ export function Controls() {
                                 onClick={() => {
                                     clockStore.togglePlay();
                                 }}
-                                disabled={!hasClockStore}
+                                disabled={!canAnimate}
                             >
                                 {isPlaying ? 'Pause' : 'Play'}
                             </Button>
@@ -82,7 +73,7 @@ export function Controls() {
                                 onClick={() => {
                                     clockStore.reset();
                                 }}
-                                disabled={!hasClockStore}
+                                disabled={!canAnimate}
                             >
                                 Reset
                             </Button>
@@ -129,8 +120,8 @@ export function Controls() {
                     <ControlField label="Shader Status">
                         <Text variant="muted">
                             {compiledShader.animated
-                                ? 'Animated shader active'
-                                : 'Static shader active'}
+                                ? 'Time-dependent expression: press Play'
+                                : 'No time operator: this image cannot animate'}
                         </Text>
                     </ControlField>
                 )}

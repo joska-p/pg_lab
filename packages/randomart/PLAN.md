@@ -37,7 +37,7 @@ L'ordre est une guidance. Chaque lot laisse le repo vert et commitable.
 
 Patches fournis (`revue-code.patch`, `revue-docs.patch`).
 
-- [ ] **Toggle Static/Animated** : `setGrammarMode` régénère avec la même seed (aujourd'hui il faut cliquer sur Regenerate). Provisoire : le lot B1 remplace le « mode » par une grammaire dans le store.
+- [ ] **Static/Animated supprimé** : un seul shader, Play lance l'animation (fichiers dans `single-shader/` : `appStore.tsx`, `Controls.tsx`, `RandomArtCanvas.tsx`). Remplace le correctif de `setGrammarMode` : ignorer ce hunk de `revue-code.patch` s'il n'est pas encore appliqué.
 - [ ] **`ShapeBatcher.#pushLine`** : tester `length === 0` avant `createLineSegment` (qui lève sur des extrémités confondues). Le `return` existant était du code mort.
 - [ ] **`createStandardUniformValues`** : retirer la ternaire tautologique sur `u_resolution`.
 - [ ] **`exportPng`** : différer `URL.revokeObjectURL`.
@@ -55,7 +55,7 @@ Note : l'initialisation d'`appStore` à l'import (seed 42, déterministe) ne peu
 
 ### Lot B — Explorer les grammaires (le cœur du brief)
 
-- **B1 — Grammaire dans le store.** Remplacer `grammarMode` par `grammar: Grammar` en état ; `staticGrammar`/`animatedGrammar` deviennent des préréglages. « Animer » = ajouter/retirer `tsin` et `tcos` de la grammaire **courante**, pas la réinitialiser (sinon l'animation écrase toute randomisation).
+- **B1 — Grammaire dans le store.** Remplacer la constante de grammaire d'`appStore` par `grammar: Grammar` en état, pour que la randomisation puisse la remplacer. Les terminaux de temps (`tsin`, `tcos`) restent **toujours** dans le vocabulaire par défaut : une seed = une expression = un shader. « Animer » n'est pas une propriété de la grammaire mais de la lecture (Play/Pause sur l'horloge, démarrée en pause à la phase 0). Un vocabulaire randomisé peut perdre les terminaux de temps : Play est alors désactivé (`compiledShader.animated`).
 - **B2 — `grammar/randomize.ts`.** `randomizeWeights`, `randomizeVocabulary`, `randomizeGrammar` selon `grammar-generator-spec §7` : fonctions pures, `Rng` en entrée, `DEFAULT_KEEP = ['x', 'y']`, réparations, poids dans `[0.01, 100]`. Tests §9 (7 et 13) : résultat toujours valide sur beaucoup de seeds, `preserveTerminalShare`, `keep` respecté.
 - **B3 — Actions de store et UI.** Quatre actions alignées sur le glossaire : nouvelle image (seed), nouvelle distribution, nouveau vocabulaire, nouvelle grammaire. Chaque action fait `generate` + `compile` dans un `try/catch` : en cas d'échec (`MAX_SOURCE_LENGTH`, bug), l'état précédent est conservé et l'erreur affichée. Boutons dans `Controls`.
 - **B4 — Historique.** Pile des N derniers `(seed, grammar)` avec retour en arrière en un clic. Premier outil pour « ne pas perdre ses découvertes ».
@@ -122,7 +122,7 @@ G : à la demande
 6. **Calibration** : valeurs de départ arbitraires (lot H).
 7. **Aperçu de sous-expression** : ignore la déformation des ancêtres, à afficher dans l'UI.
 8. **Taille de rendu = taille du canvas** jusqu'au lot G.
-9. **Grammaire dans le store** (nouveau) : un « mode » booléen ne compose pas avec la randomisation ; la grammaire est l'état, les modes sont des préréglages.
+9. **Un seul shader** (tranché) : plus de mode Static/Animated, qui produisait deux expressions différentes pour une même seed. La grammaire par défaut inclut `tsin`/`tcos` ; l'animation relève de la lecture (horloge en pause à la phase 0). La grammaire passera dans le store au lot B1 pour composer avec la randomisation. Conséquence assumée : à la phase 0, `tsin` vaut 0 et `tcos` vaut 1, et les terminaux de temps (2/9 du poids des terminaux) diluent un peu `x` et `y` par rapport à `staticGrammar`.
 10. **Échecs de génération/compilation dans l'UI** (nouveau) : `regenerate` peut en théorie lever (`MAX_SOURCE_LENGTH`) ; chaque action doit conserver l'état précédent et afficher l'erreur.
 
 ## Docs à amender (au fil de l'eau)
