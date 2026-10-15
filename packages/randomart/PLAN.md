@@ -27,7 +27,7 @@ Principes : cœur TypeScript pur (pas de DOM, pas de GPU) ; rendu = adaptateur m
 
 ## Prochaine action
 
-**Lot A** (une petite session), puis **Lot B** (le vrai prochain jalon produit).
+**Lots C et D** : code fourni dans `lot-c-d/` (rendu paresseux, fuzz pur, tests d'`emit`, mesures, validation glslang), à intégrer puis à valider avec `vp check --fix` et `vp test`. Ensuite **lot E** (inspecter une expression : `nodeKey`, `walk`, formule lisible, vue arbre).
 
 ## Lots
 
@@ -55,6 +55,8 @@ Note : l'initialisation d'`appStore` à l'import (seed 42, déterministe) ne peu
 
 ### Lot B — Explorer les grammaires (le cœur du brief)
 
+_Code livré dans `lot-b/` (non exécuté). Écarts assumés par rapport à la spec : `randomizeVocabulary` renvoie la grammaire d'entrée si aucune réparation ne la rend utilisable ; le fichier de grammaire vit dans `grammar/serialize.ts` (à déplacer dans `artwork` au lot F) ; les actions d'exploration gardent la seed._
+
 - **B1 — Grammaire dans le store.** Remplacer la constante de grammaire d'`appStore` par `grammar: Grammar` en état, pour que la randomisation puisse la remplacer. Les terminaux de temps (`tsin`, `tcos`) restent **toujours** dans le vocabulaire par défaut : une seed = une expression = un shader. « Animer » n'est pas une propriété de la grammaire mais de la lecture (Play/Pause sur l'horloge, démarrée en pause à la phase 0). Un vocabulaire randomisé peut perdre les terminaux de temps : Play est alors désactivé (`compiledShader.animated`).
 - **B2 — `grammar/randomize.ts`.** `randomizeWeights`, `randomizeVocabulary`, `randomizeGrammar` selon `grammar-generator-spec §7` : fonctions pures, `Rng` en entrée, `DEFAULT_KEEP = ['x', 'y']`, réparations, poids dans `[0.01, 100]`. Tests §9 (7 et 13) : résultat toujours valide sur beaucoup de seeds, `preserveTerminalShare`, `keep` respecté.
 - **B3 — Actions de store et UI.** Quatre actions alignées sur le glossaire : nouvelle image (seed), nouvelle distribution, nouveau vocabulaire, nouvelle grammaire. Chaque action fait `generate` + `compile` dans un `try/catch` : en cas d'échec (`MAX_SOURCE_LENGTH`, bug), l'état précédent est conservé et l'erreur affichée. Boutons dans `Controls`.
@@ -64,6 +66,8 @@ Note : l'initialisation d'`appStore` à l'import (seed 42, déterministe) ne peu
 
 ### Lot C — Rendu paresseux
 
+_Code livré dans `lot-c-d/` (non exécuté). Écart avec le plan initial : glaze change un peu (`GpuCanvas` dessine toujours une fois un programme jamais dessiné, pour éviter qu'un shader remplacé reste invisible derrière `shouldRender`), et `RandomArtCanvas` écoute `webglcontextrestored` pour redessiner. La décision pure est `needsRender` (`renderer/renderGate.ts`)._
+
 Une image statique ou en pause redessine 60 fois par seconde pour rien.
 
 - `RandomArtCanvas` passe `shouldRender` à `GpuCanvas` ; l'état rendu précédent `{ shader, phase, width, height }` est gardé dans une ref, et on ne redessine que si l'un change.
@@ -72,6 +76,8 @@ Une image statique ou en pause redessine 60 fois par seconde pour rien.
 - Si la logique devient lourde, extraire une fonction pure `needsRender(prev, next)` testable.
 
 ### Lot D — Garde-fous GLSL (sans navigateur)
+
+_Code livré dans `lot-c-d/` (non exécuté) : D1 (`fuzz.test.ts`, 300 cas × 3 politiques, réglable par `VITE_FUZZ_COUNT`), D2 (`emit.test.ts`), D3 (`dump.test.ts` + `scripts/validate-glsl.sh`), D4 (`measure.test.ts`, opt-in par `VITE_MEASURE=1`). Les helpers sont dans `compiler/testing.ts`, hors de l'index du compilateur._
 
 Remplace en grande partie les tests navigateur reportés (friction 1).
 

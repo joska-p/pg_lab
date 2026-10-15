@@ -682,6 +682,9 @@ importers:
       '@stylexjs/unplugin':
         specifier: 'catalog:'
         version: 0.19.1(unplugin@2.3.11)
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.19.0
       '@types/react':
         specifier: 'catalog:'
         version: 19.3.0

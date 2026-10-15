@@ -129,7 +129,9 @@ export interface GpuCanvasProps extends GpuSurfaceOptions {
     /**
      * Opt-in render gate evaluated before each frame's draw. Return false to skip `setUniforms` +
      * `renderProgram` for this frame (GPU stays idle); `onFrame` still runs. Defaults to always
-     * rendering (continuous mode). Lets static content (fractals, stills) sleep while mounted.
+     * rendering (continuous mode). Lets static content (fractals, stills) sleep while mounted. A
+     * program that has never been drawn is always drawn once, whatever this returns, so a freshly
+     * swapped shader can never stay invisible behind the gate.
      */
     shouldRender?: (surface: GpuSurface) => boolean;
     onFrame?: GpuDraw;

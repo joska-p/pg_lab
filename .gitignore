@@ -1,6 +1,7 @@
 _TMP/
 .direnv_home/
 .direnv/
+.shaders/
 
 # Logs
 logs
