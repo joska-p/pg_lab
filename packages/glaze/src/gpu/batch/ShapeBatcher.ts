@@ -445,15 +445,15 @@ export class ShapeBatcher {
         width: number,
         color: readonly [number, number, number, number],
     ): void {
-        const segment = createLineSegment(a, b);
-        const dx = segment.b.x - segment.a.x;
-        const dy = segment.b.y - segment.a.y;
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
         const length = Math.hypot(dx, dy);
 
         if (length === 0) {
             return;
         }
 
+        const segment = createLineSegment(a, b);
         const rawUx = dx / length;
         const rawUy = dy / length;
         const uxVec = createNormalizedVec2(rawUx, rawUy);

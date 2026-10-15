@@ -1,250 +1,141 @@
-# PLAN — Random Art (fil de travail multisession)
+# PLAN — Random Art
 
 Point d'entrée pour reprendre le travail. **Se met à jour à la fin de chaque session.**
+Les specs (`docs/`) sont un guide, pas un contrat. Ce plan fait foi sur l'état réel du code.
 
 ## But
 
-Un jouet personnel : un atelier d'art génératif où des expressions mathématiques produisent des
-images abstraites, fixes ou animées, qu'on peut explorer, comprendre et conserver.
-Le code doit rester **compréhensible** : chaque module une responsabilité, cœur TypeScript pur
-sans GPU ni DOM, rendu isolé dans un **adaptateur mince sur `@repo/glaze`**. Les docs (`docs/`)
-sont un **guide de travail**, pas une spec figée : la forme du projet s'adapte aux frictions
-rencontrées. **D36 est révisée** : on ne réécrit pas un renderer WebGL brut, on réutilise glaze,
-et glaze évolue pour répondre aux besoins réels de randomart (sans y ajouter de fonctionnalité
-qu'aucune app n'utilise).
+Un atelier d'art génératif pour jouer : des expressions mathématiques produisent des images abstraites, fixes ou animées, qu'on explore, comprend et conserve.
+
+Le brief dit : **« j'explorerai plus les grammaires que les seeds »**. Le plan est ordonné par cette phrase : ce qui permet d'explorer des grammaires passe avant ce qui mesure ou durcit.
+
+Principes : cœur TypeScript pur (pas de DOM, pas de GPU) ; rendu = adaptateur mince sur `@repo/glaze` (D36 révisée) ; glaze n'évolue que pour des besoins réels de randomart.
 
 ## État courant
 
-- **Doc** : complète et relue (specs v0.1–v0.3, décisions D1–D39, tests requis).
-- **Glaze** : **MP0 terminé.** `ShaderError` + `tryCreateProgram`, fuite des programmes corrigée,
-  `GpuCanvas` qui garde le dernier bon programme (`onShaderError`, `vertexShader`),
-  `contextOptions`, `Clock.setDuration`. Tests verts, apps existantes non régressées.
-- **Randomart** : squelette React (`src/App.tsx`, `Scene`, `Controls`, `appStore`).
-  **MP1·S1 terminé** : arborescence `src/core/*` et `src/renderer/`, `shared` local (`Brand`, `assertFinite`),
-  module `random` (`Seed`, `createSeed`, `randomSeed`, `Rng`, `createRng` mulberry32, `next`/`int`/`weighted`).
-  **MP1·S2 terminé** : chaîne pure minimale (`catalog` terminaux/arith/trigo/logique, `expression` nœuds immuables validés + métriques, `grammar` contraintes/règles 1-8/minSize/`staticGrammar`/`animatedGrammar`, `generator` budget réel/déterminisme/`GENERATOR_VERSION`). 55 tests unitaires verts avec snapshots sur seeds fixes.
-  **MP1·S3 terminé** : adaptateur renderer (`RandomArtCanvas`, `contract`), contrat GLSL fixé (`in vec2 vUv`, `out vec4 o_color`, `vec2 v_p = vUv * 2.0 - 1.0;`), shader de test à la main dégradé `x`/`y`/`u_phase`, temps bouclé 8s (`u_phase = progress % 1`), store UI relié à `ClockStore` et `onShaderError`, `contextOptions` transmis via glaze. 67 tests unitaires randomart verts (220 tests monorepo).
-  **MP1·S4 terminé** : compilateur naïf dans `src/core/compiler/` (`compile`, `isAtom`, `isEnclosedInParens`, `wrapInput`, `MAX_SOURCE_LENGTH = 200_000`, politique `none`), préambule GLSL conforme au contrat S3 (`precision highp float; in vec2 vUv; out vec4 o_color; uniform float u_phase; const float PI = ...; vec2 v_p = vUv * 2.0 - 1.0;`), conversion `[-1, 1]` vers `[0, 1]` avec clamp final. Chaîne complète branchée dans l'UI (`appStore` initialise une œuvre via `generate` + `staticGrammar`, shader compilé injecté dans `Scene`, bouton Regenerate dans `Controls` avec affichage de la seed et des nœuds). 84 tests unitaires randomart verts (237 tests monorepo).
-  **MP1·S5 terminé** : `tsin`/`tcos` déjà dans le catalogue, `animatedGrammar` utilisé par défaut dans `appStore`. Contrôles play/pause/reset reliés au `ClockStore`. Durée de boucle réglable via input (clamp `[1, 60]` s), `setDuration` synchronisé avec le clockStore live (progression conservée). Bouton toggle `🎞 Animated` / `🖼 Static`. Export PNG via `canvas.toBlob` (fiable grâce à `preserveDrawingBuffer: true`), canvas capturé dans l'appStore via `onMount`. Erreurs shader affichées dans le panneau. 84 tests unitaires verts (inchangés — logique purement UI).
-  **MP3·S1 + S2 terminé** : compilateur modulaire (`lower.ts`, `emit.ts`, `format.ts`, `preamble.ts`, `compile.ts`). Abaissement sans contextes : sondage de multiplicité (`probeMultiplicities`), hash-consing (D22), comptage des usages (D29). Émission : politiques `none`, `shared`, `all`, gestion des atomes, formatage des littéraux (`formatGlslFloat`), préambule avec fermeture des dépendances ordonnée, garde-fou `MAX_SOURCE_LENGTH`. 41 tests unitaires compilateur verts (dont 14 dans `lower.test.ts`), 108 tests randomart verts (261 tests monorepo).
-  **MP3·S3 terminé** : contextes de coordonnées internés et `warp`. `ra_fold2` et `warp` dans le catalogue par défaut (19 opérateurs). Sondage des entrées de coordonnées (`probeInnerMultiplicities`). Abaissement avec internement des contextes (`ContextDef`), ordonnancement topologique strict `program`, comptage des usages `mc` à la création du contexte. Émission GLSL des contextes `vec2 c<n> = ...;`, résolution de `p` pour les nœuds internes et transformateurs imbriqués. Prise en compte dans `stats.contexts`. 53 tests unitaires compilateur verts (21 dans `lower.test.ts`, 32 dans `compiler.test.ts`), 120 tests randomart verts (273 tests monorepo).
-- **Infra** : `strict: true` activé dans `tsconfig.app` (voir friction 10). Tests opérationnels via `vp test`.
-- **Plan** : temps via `Clock`/`ClockStore` ; compilateur modulaire complet avec contextes ; tests navigateur reportés.
+**Fait**
+
+- **Glaze (MP0)** : `ShaderError`, `tryCreateProgram`, fuite des programmes corrigée, `GpuCanvas` garde le dernier bon programme (`onShaderError`, `vertexShader`), `contextOptions`, `Clock.setDuration`.
+- **Cœur randomart** : `random` (mulberry32), `catalog` (19 opérateurs, `warp`, `ra_fold2`, `u_phase`, validations, `dependencyClosure`), `expression` (nœuds immuables, `depth`, `nodeCount`), `grammar` (`createGrammar` avec les 8 règles, `minSize`, `staticGrammar`, `animatedGrammar`), `generator` (budget, déterminisme, `GENERATOR_VERSION`, snapshots).
+- **Compilateur complet** : `lower` (sondage de multiplicité, hash-consing, contextes internés), `emit` (politiques `none`/`shared`/`all`, atomes, littéraux), `preamble`, `compile`, `MAX_SOURCE_LENGTH`.
+- **UI** : `appStore` (Zustand), `Controls` (Regenerate, Static/Animated, Play/Pause/Reset, durée de boucle, Export PNG, erreur shader), `Scene` + `RandomArtCanvas`.
+- **Corrigé depuis la revue** : gestes figés de `CpuCanvas`, interactions de bouton sur les champs de saisie, couleur d'erreur de `ColorField`.
+
+**Pas encore fait** : `randomize*`, sérialisation (expression, grammaire, œuvre), `nodeKey`/`equals`/`walk`, inspecteur, rendu paresseux, tests de `emit`, garde-fous GLSL au-delà des tests unitaires.
+
+**Tests** : tous verts au dernier plan connu (120 tests randomart, 273 monorepo). À reconfirmer après le lot A.
 
 ## Prochaine action
 
-**MP3·S4 ou MP2** — MP3·S4 : Mesures et fuzzing pur du compilateur sans GPU (comparaison des politiques `none`/`shared`/`all`). Ou MP2 : Durcissement du cœur (S2 `expression`, S3 `grammar`).
+**Lot A** (une petite session), puis **Lot B** (le vrai prochain jalon produit).
 
-## Comment utiliser ce plan
+## Lots
 
-- **Mini-projet (MP)** = un livrable cohérent, vérifiable (`vp check --fix` + `vp test` verts).
-- **Session** = une séance qui laisse le repo vert et commitable, et met à jour « État courant ».
-- L'ordre est une **guidance, pas un contrat** : MP et sessions peuvent être réordonnés, fusionnés,
-  scindés ou abandonnés.
-- **N'implémenter un morceau de spec que quand on en a besoin** (`nodeKey`, `serialize`,
-  `artwork`… viennent après la première image).
-- Les frictions rencontrées sont tranchées sur place et notées en bas.
+L'ordre est une guidance. Chaque lot laisse le repo vert et commitable.
 
-## Dépendances (qui doit précéder qui)
+### Lot A — Nettoyage issu de la revue
+
+Patches fournis (`revue-code.patch`, `revue-docs.patch`).
+
+- [ ] **Toggle Static/Animated** : `setGrammarMode` régénère avec la même seed (aujourd'hui il faut cliquer sur Regenerate). Provisoire : le lot B1 remplace le « mode » par une grammaire dans le store.
+- [ ] **`ShapeBatcher.#pushLine`** : tester `length === 0` avant `createLineSegment` (qui lève sur des extrémités confondues). Le `return` existant était du code mort.
+- [ ] **`createStandardUniformValues`** : retirer la ternaire tautologique sur `u_resolution`.
+- [ ] **`exportPng`** : différer `URL.revokeObjectURL`.
+- [ ] **`Catalog.dependencies`** : le rendre obligatoire, puis simplifier les tests :
+
+    ```sh
+    sed -i -E 's/\.\.\.\(catalog\.dependencies \? catalog\.dependencies\(\) : \[\]\)/...catalog.dependencies()/g' \
+      packages/randomart/src/core/compiler/*.test.ts
+    ```
+
+- [ ] **Docs** : `docs/README.md` (patch), puis les amendements de « Docs à amender » plus bas.
+- [ ] `vp check --fix` et `vp test` verts.
+
+Note : l'initialisation d'`appStore` à l'import (seed 42, déterministe) ne peut pas échouer autrement qu'en cas de bug, un test suffit. Le vrai risque est dans `regenerate` (voir B2).
+
+### Lot B — Explorer les grammaires (le cœur du brief)
+
+- **B1 — Grammaire dans le store.** Remplacer `grammarMode` par `grammar: Grammar` en état ; `staticGrammar`/`animatedGrammar` deviennent des préréglages. « Animer » = ajouter/retirer `tsin` et `tcos` de la grammaire **courante**, pas la réinitialiser (sinon l'animation écrase toute randomisation).
+- **B2 — `grammar/randomize.ts`.** `randomizeWeights`, `randomizeVocabulary`, `randomizeGrammar` selon `grammar-generator-spec §7` : fonctions pures, `Rng` en entrée, `DEFAULT_KEEP = ['x', 'y']`, réparations, poids dans `[0.01, 100]`. Tests §9 (7 et 13) : résultat toujours valide sur beaucoup de seeds, `preserveTerminalShare`, `keep` respecté.
+- **B3 — Actions de store et UI.** Quatre actions alignées sur le glossaire : nouvelle image (seed), nouvelle distribution, nouveau vocabulaire, nouvelle grammaire. Chaque action fait `generate` + `compile` dans un `try/catch` : en cas d'échec (`MAX_SOURCE_LENGTH`, bug), l'état précédent est conservé et l'erreur affichée. Boutons dans `Controls`.
+- **B4 — Historique.** Pile des N derniers `(seed, grammar)` avec retour en arrière en un clic. Premier outil pour « ne pas perdre ses découvertes ».
+- **B5 — Sérialisation de grammaire.** `serializeGrammar`/`deserializeGrammar` (déjà spécifiées) + export/import d'un fichier JSON versionné. C'est la sauvegarde des grammaires, sans attendre `artwork`.
+- **B6 — Indicateur de taille** (optionnel) : afficher `(1 − T) × a` (grammaire §6) pour deviner si les arbres vont grossir.
+
+### Lot C — Rendu paresseux
+
+Une image statique ou en pause redessine 60 fois par seconde pour rien.
+
+- `RandomArtCanvas` passe `shouldRender` à `GpuCanvas` ; l'état rendu précédent `{ shader, phase, width, height }` est gardé dans une ref, et on ne redessine que si l'un change.
+- `preserveDrawingBuffer: true` garde le contenu entre les frames, donc sauter un rendu est sûr, **sauf** après redimensionnement (changer `canvas.width` vide le buffer) et perte de contexte : c'est pour ça que la taille est dans la clé.
+- Vérifier à la main : image statique figée, pause, redimensionnement, changement de shader.
+- Si la logique devient lourde, extraire une fonction pure `needsRender(prev, next)` testable.
+
+### Lot D — Garde-fous GLSL (sans navigateur)
+
+Remplace en grande partie les tests navigateur reportés (friction 1).
+
+- **D1 — Fuzz pur.** 1000 expressions (`staticGrammar` et `animatedGrammar`) × 3 politiques : parenthèses équilibrées, pas de `--`, chaque `v<n>` et `c<n>` déclaré avant usage, source ≤ `MAX_SOURCE_LENGTH`, `validateShaderContract` valide, stats cohérentes.
+- **D2 — `emit.test.ts` dédié.** Décisions de variable par politique, ordre de programme, dépendances collectées.
+- **D3 — Validation glslang en CI.** Script qui préfixe `#version 300 es` (glaze l'ajoute à l'exécution), compile le fragment avec `glslangValidator` (ou une version wasm) pour le fuzz. Couvre « le pilote accepte le shader » pour la syntaxe et les types, pas les caprices des pilotes.
+- **D4 — Mesures de partage** (ex-MP3·S4) : comparer `none`/`shared`/`all` sur le même fuzz (longueur, sommets, variables, temps de `compile`) pour éclairer le défaut.
+
+### Lot E — Inspecter une expression
+
+- `nodeKey`/`equals`, `usedOperators`, `getNode`, `walk` + `Address` (`expression-spec §5–6`).
+- Formule lisible en notation fonctionnelle automatique.
+- Vue arbre, survol, aperçu d'une sous-expression compilée seule (**signaler** que l'aperçu ignore la déformation des ancêtres).
+- Spec explorer `docs/explorer-spec.md`, courte, écrite à ce moment-là avec le vécu des lots B et C.
+
+### Lot F — Persistance
+
+- `serialize`/`deserialize` d'expression avec limites d'import (5 000 nœuds, profondeur 64), erreurs avec adresse.
+- `artwork` : `createArtwork`, fichiers `.randomart.json`, bornes, champs inconnus refusés, `checkProvenance`.
+- Import/export d'œuvres dans l'UI.
+
+### Lot G — Glaze, rendu épaissi
+
+Seulement si le besoin se confirme en jouant. `RenderTarget` + `readPixels`, `Program.render(target?)`, résolution réduite pendant l'animation, export HD à taille arbitraire, tests navigateur (réévaluer alors la friction 1). Plus tard : compilation asynchrone, export par tuiles, post-traitement.
+
+### Lot H — Calibration (atelier ouvert)
+
+Poids par défaut, contraintes, durée de boucle, répartition du budget du générateur (préférence légère pour les derniers enfants). Sessions libres, déclenchées par une friction.
+
+## Dépendances
 
 ```
-glaze (MP0) ─────────────────────────────► rendu (MP1·S3)
-
-shared ──► random ──► grammar ──► generator ──┐
-   │              │                             ├─► compilateur ─► rendu ─► UI
-   └──────────────┴─► catalog ──► expression ──┘        │
-                                                     artwork
+A ──► B1 ──► B2 ──► B3 ──► B4
+              └──────────► B5
+C : indépendant (après A)
+D : indépendant (D4 après D1)
+E : après B (spec explorer) ; F : après E (nodeKey) pour provenance
+G : à la demande
 ```
 
-- `random`, `catalog`, `shared` sont indépendants du reste.
-- `artwork` est de la donnée pure, écrite à tout moment après `expression` + `grammar`.
+## Points de friction connus
 
----
+1. **Tests navigateur** : requis par D31 sur le papier, coûteux en pratique. Remplacés pour l'instant par le lot D ; à réévaluer au lot G.
+2. **Découpage de fichiers** : commencer simple, scinder sur friction réelle.
+3. **`shared`** : local à randomart tant qu'aucun autre projet n'en a besoin.
+4. **Glaze comme socle GPU** : entrée du fragment = `vUv` (conversion `v_p` au début de `main`) ; pas de `readPixels` en v1 (capture du canvas, `preserveDrawingBuffer`).
+5. **Phase** : `Clock` timed + loop de glaze via `ClockStore` ; `u_phase = calculatePhase(clock.progress)`. Remplace `phaseAt` de la spec renderer.
+6. **Calibration** : valeurs de départ arbitraires (lot H).
+7. **Aperçu de sous-expression** : ignore la déformation des ancêtres, à afficher dans l'UI.
+8. **Taille de rendu = taille du canvas** jusqu'au lot G.
+9. **Grammaire dans le store** (nouveau) : un « mode » booléen ne compose pas avec la randomisation ; la grammaire est l'état, les modes sont des préréglages.
+10. **Échecs de génération/compilation dans l'UI** (nouveau) : `regenerate` peut en théorie lever (`MAX_SOURCE_LENGTH`) ; chaque action doit conserver l'état précédent et afficher l'erreur.
 
-## MP0 — Glaze : usage sans friction ✅ terminé
+## Docs à amender (au fil de l'eau)
 
-_Petit et ciblé : uniquement ce qu'il faut pour qu'un shader aléatoire refusé par le pilote ne
-casse ni l'app ni la mémoire. Utile à toute app glaze qui recharge des shaders._
-
-- **S1 — Erreurs et cycle de vie des programmes.**
-    - `ShaderError extends Error` avec `stage: 'compile' | 'link'` et le journal du pilote, levée
-      par `compileProgram` (le message actuel est conservé : rien ne casse).
-    - `surface.tryCreateProgram(src, vertex?)` → `{ ok: true, program } | { ok: false, error }`.
-      N'attrape **que** `ShaderError` ; tout le reste (WebGL absent, bug) continue de lever.
-    - **Fuite** : `Program.destroy()` doit se retirer du `Set` de la surface (hook `onDestroy`
-      fourni à la création, ou `surface.destroyProgram(p)`). Aujourd'hui chaque shader reste
-      référencé, avec son source, jusqu'au `destroy` de la surface.
-    - Tests unitaires avec un mock GL (modèle : `StateBuffer.test.ts`) : échec compile, échec link,
-      erreur non-shader relancée, programme détruit retiré de la surface.
-- **S2 — `GpuCanvas` et options.**
-    - `GpuCanvas` compile le nouveau `fragmentShader` avec `tryCreateProgram` ; succès → swap puis
-      destruction de l'ancien ; échec → **l'ancien est conservé** et `onShaderError(error | null)`
-      est appelé (`null` après un succès).
-    - Prop `vertexShader` (transmise à `tryCreateProgram`). Documenter : le vertex doit utiliser
-      `gl_VertexID` (`Program.render` fait `drawArrays(TRIANGLES, 0, 3)` sans attributs).
-    - `contextOptions?: WebGLContextAttributes` dans `GpuSurfaceConfig` et `GpuCanvasProps`
-      (défauts actuels conservés). randomart : `antialias: false`, `preserveDrawingBuffer: true`.
-    - `Clock.setDuration(d)` (+ `ClockStore.setDuration`) : **conserve la progression**
-      (`time = progress × nouvelleDurée`), sinon l'image saute à chaque changement.
-    - Tests : conservation de la progression, swap/rollback de programme (logique pure extraite
-      si le test du composant est trop lourd).
-
-_Fin de MP0 : glaze fait tout ce dont randomart a besoin pour MP1. Rien de plus._
-
-## MP1 — Squelette vertical « première image »
-
-_La chaîne complète, mince mais réelle. On garde dès le départ ce qui coûte cher à corriger
-plus tard (déterminisme, `GENERATOR_VERSION`). On triche volontairement sur ce qui se
-remplacera proprement ensuite._
-
-| Élément du squelette                                   | Statut lors du durcissement                                      |
-| ------------------------------------------------------ | ---------------------------------------------------------------- |
-| `random`, `expression`, `generator`, `grammar` (forme) | **gardés** (complétés)                                           |
-| rendu (adaptateur sur glaze)                           | **gardé** : `GpuCanvas` + `Clock`/`ClockStore`, adaptateur mince |
-| `catalog`                                              | gardé, complété (validations, `dependencyClosure`)               |
-| compilateur naïf (inline, sans contextes)              | **remplacé** par le compilateur complet (MP3) — vaut `none`      |
-
-- **S1 — Infra + `shared` + `random`.** ✅ **terminé.**
-  Arborescence : `src/core/{shared,random,catalog,expression,grammar,generator,compiler}` + `src/renderer/`.
-  `shared` local (`Brand`, `assertFinite`). `Seed`, `createRng` (mulberry32), `next`/`int`/`weighted`.
-  Tests : déterminisme, plages, rejets. Tests unitaires passants via `vp -C packages/randomart test`.
-- **S2 — La chaîne pure minimale.** ✅ **terminé.** `catalog` (terminaux, arithmétique, trigo, logique ;
-  **sans `warp`** ni portées `inner`), `expression` (modèle immuable + `createNode`), `grammar`
-  (forme + `staticGrammar`), `generator` (budget réel, ordre de consommation,
-  `GENERATOR_VERSION`). Attention : `minSize(d+1)` se calcule avec la plus petite arité du
-  **vocabulaire**, pas celle de l'opérateur choisi. Tests : invariants + snapshot sur seeds fixes.
-- **S3 — Rendu sur glaze, shader écrit à la main.** ✅ **terminé.** Prouver le GPU avant le compilateur, via
-  `fragmentShader` + `onShaderError` (dégradé `x`/`y`). Fixer le **contrat d'entrée** :
-  le compilateur émet `in vec2 vUv; out vec4 o_color;` et, **au début de `main`**,
-  `vec2 v_p = vUv * 2.0 - 1.0;` (les formules du catalogue utilisent `v_p`, inchangées ; `y`
-  vers le haut est déjà garanti). Pas de `#version` dans le source : glaze l'ajoute.
-  Temps : `clockOptions = { mode: 'timed', duration, loop: true }`, `onClockStore` pour l'UI,
-  `u_phase = surface.clock.progress % 1` dans le callback `uniforms` (le `% 1` car `progress`
-  peut valoir 1 après un `seek` en fin de course ; le renderer exige `[0, 1)`).
-  Vérification visuelle de l'orientation (pas de test navigateur).
-- **S4 — Compilateur naïf + branchement.** Compilation inline des trois arbres, préambule
-  minimal (`PI`, `u_phase`, `vUv`). Brancher generate → compile → `GpuCanvas` ; erreur affichée,
-  image précédente conservée (gratuit grâce à MP0). **Première image à l'écran.**
-- **S5 — Animer et jouer.** `tsin`/`tcos`, play/pause/reset via `ClockStore`, durée de boucle
-  réglable (`setDuration`), seed, erreurs affichées, export PNG (`toBlob` : fiable grâce à
-  `preserveDrawingBuffer`). Noter les frictions réelles.
-
-_Fin de MP1 : on touche le jouet._
-
-## MP2 — Durcir le cœur
-
-_Compléter les modules purs avec validations, mesures et tests jusqu'aux specs, **au rythme des
-besoins**._
-
-- **S1 — `catalog` complet.** Validations de `defineOperator`/`createCatalog`,
-  `dependencyClosure`, sondage des entrées. (`warp` + `ra_fold2` attendent MP3·S3.)
-- **S2 — `expression` complet.** `nodeKey`/`equals`, metrics, `serialize`/`deserialize` + limites
-  d'import. Tests spec §9.
-- **S3 — `grammar` complet.** `createGrammar` (les 7 règles), `minSize`/faisabilité,
-  sérialisation, `randomize*` + réparations.
-
-## MP3 — Compilateur complet
-
-_Le cœur conceptuel le plus dense, **pris en quatre temps, du plus simple au plus risqué**._
-
-- **S1 — Abaissement sans contextes.** ✅ **terminé.** Sondage de multiplicité (D29), hash-consing (D22) dans le
-  seul contexte racine, comptage des usages, `stats`. Tests ciblés sur le graphe de sommets (`lower.test.ts`).
-- **S2 — Émission.** ✅ **terminé.** Atomes, littéraux, parenthésage, politiques `none`/`shared`/`all`,
-  préambule (fermeture de dépendances), `compile()`, garde-fou `MAX_SOURCE_LENGTH`.
-  Tests §8 (1, 2, 4–7).
-- **S3 — Contextes et `warp`.** ✅ **terminé.** Contextes de coordonnées internés, `innerCoords`, `ra_fold2`,
-  `warp` dans le catalogue (`catalog.ts`), sondage `probeInnerMultiplicities`, émission `vec2 c<n>`,
-  interconnexion des contextes imbriqués. Tests §8 (1, 3).
-- **S4 — Mesures.** Comparer les politiques sur de vraies expressions (source, sommets,
-  variables, temps de compilation) pour éclairer le défaut. Fuzz « pur » (sans GPU) sur des
-  milliers d'expressions.
-
-## MP4 — Glaze : rendu épaissi (rendu HD, export)
-
-_Ne démarre que si le besoin se confirme en jouant. Surtout du travail **dans glaze**, le
-renderer randomart reste mince par-dessus._
-
-- **S1 — Cibles de rendu.** `RenderTarget` générique (texture RGBA8 + FBO, `width`, `height`,
-  `resize`, `destroy`, `readPixels()` avec lignes retournées). `Program.render(target?)` :
-  viewport et `u_resolution` suivent la taille de la cible (aujourd'hui `viewport` = canvas).
-  `surface.renderProgramTo(program, target)`.
-- **S2 — Résolution et rendu à la demande.** `surface.setRenderScale(n)` (ou `dpr` mutable) pour
-  réduire la résolution quand l'animation ne tient pas la cadence ; `surface.invalidate()` (ou
-  flag `resized` dans `shouldRender`) pour qu'une image statique en veille survive à un
-  redimensionnement.
-- **S3 — Export HD et robustesse.** Export PNG à taille arbitraire via `RenderTarget` +
-  `readPixels`, limite de taille, passe finale (`contain`/fond, point d'insertion du
-  post-traitement), fuzz de rendu, **décision sur les tests navigateur** (voir friction 1).
-- **Plus tard** : compilation asynchrone (`KHR_parallel_shader_compile`), export par tuiles.
-
-## MP5 — Calibration et forme (atelier ouvert)
-
-_Sessions libres, déclenchées par une friction, jamais par obligation._
-
-Idées : calibrer poids/contraintes/`loopMs` par défaut en jouant (D34) ; mesurer le partage
-`none`/`shared`/`all` à l'écran (D23) ; observer la répartition du budget (derniers enfants) ;
-redécouper un module devenu illisible ; décider la « forme » de l'UI d'après MP1.
-
-## MP6 — Artwork (persistance)
-
-_Sauver et retrouver une œuvre. Donnée pure, indépendante du rendu._
-
-- **S1 — Format.** `createArtwork`, `RenderSettings`/`Provenance`, `serializeArtwork`/
-  `parseArtwork`, fichiers de grammaire, bornes, erreurs avec chemin du champ. Tests §8 (1–7, 9).
-- **S2 — Provenance.** `checkProvenance`. Tests §8 (8). (À fusionner avec S1 si court.)
-
-## MP7 — L'explorateur (UI complète)
-
-_La spec s'écrit maintenant, éclairée par le vécu du squelette — pas avant._
-
-- **S0 — Spec explorer v0.1.** `docs/explorer-spec.md`, courte, en respectant les contraintes du
-  README (l'UI possède le temps via `ClockStore`, erreur affichée + image conservée,
-  « animer » = ajouter `tsin`/`tcos`, seed via `randomSeed`, inspecteur = notation
-  fonctionnelle). Galerie/historique/randomisation restent des questions ouvertes.
-- **S1 — Inspection.** Vue arbre, adresses, survol, aperçu d'une sous-expression compilée seule
-  (**signaler** que l'aperçu ignore la déformation des ancêtres), stats du compilateur.
-- **S2 — Persistance dans l'UI.** Import/export d'œuvres et de grammaires, provenance, titre.
-- **S3 — Exploration.** `randomize*` dans l'UI, historique, calibration interactive.
-
----
-
-## Points de friction connus (à trancher en route)
-
-1. **Tests navigateur** : la doc les déclare requis (D31, pas d'évaluateur CPU), mais le coût
-   (`@vitest/browser-playwright`, Chromium headless, SwiftShader en CI) est lourd pour un jouet.
-   **Décision actuelle : reportés.** MP1 = vérification visuelle manuelle, plus les tests purs
-   (random, generator, snapshots du compilateur). À réévaluer en MP4·S3, avec au minimum un test
-   d'orientation, et le test de plage des opérateurs si on veut garder la garantie de D31.
-2. **Découpage de fichiers** : les specs proposent des arborescences détaillées qui contredisent
-   la convention du repo (un fichier par défaut). **Commencer simple, scinder sur friction
-   réelle.**
-3. **`shared`** : local à randomart d'abord ; package du monorepo seulement si un autre projet
-   en a besoin.
-4. **Glaze comme socle GPU (D36 révisée)** : on réutilise `GpuCanvas`/`GpuSurface`/`Program`/
-   `Clock`. Écarts avec la spec et leur résolution :
-   (a) entrée du fragment = `vUv`, pas `v_p` → `vec2 v_p = vUv*2.0-1.0;` au début de `main`
-   (spec compilateur §4 à amender) ;
-   (b) glaze jetait à la compile/link et détruisait l'ancien programme → **MP0** : `ShaderError`,
-   `tryCreateProgram`, `GpuCanvas` qui garde le dernier bon programme + `onShaderError` ;
-   (c) pas de `readPixels`/export HD → capture canvas en v1 (`preserveDrawingBuffer`), cibles de
-   rendu en **MP4**.
-5. **Phase / lecture** : **tranché** — `Clock` timed + loop de glaze, piloté par `ClockStore`
-   (play/pause/reset/vitesse). `u_phase = surface.clock.progress % 1` dans `uniforms`. Ajout
-   nécessaire : `Clock.setDuration` qui conserve la progression (MP0·S2). Remplace
-   `phaseAt(elapsedMs, periodMs)` de la spec renderer.
-6. **Calibration** (poids, contraintes, `loopMs`, politique de partage) : valeurs de départ
-   arbitraires, à ajuster en MP5 en jouant.
-7. **Limite connue** : l'aperçu d'une sous-expression ignore la déformation de ses ancêtres —
-   à afficher clairement dans l'UI (compilateur §9).
-8. **Taille de rendu vs canvas** : en MP1 le rendu se fait directement au canvas (taille CSS ×
-   dpr, équivalent de `stretch`). La `RenderSize` indépendante de la spec renderer n'arrive
-   qu'avec MP4.
-9. **Docs à amender** (au fil de l'eau, pas en bloc) : D36 (architecture), renderer-spec §13
-   et §7 (phase), compiler-spec §4 (contrat `vUv`).
+- `docs/README.md` : fait par `revue-docs.patch`.
+- `compiler-spec §4` : remplacer « l'entrée `in vec2 v_p;` … `[-1, 1]²` » par « l'entrée `in vec2 vUv;` (`[0, 1]²`, fournie par glaze) est convertie en tête de `main` par `vec2 v_p = vUv * 2.0 - 1.0;` ; `v_p` est dans `[-1, 1]²` ».
+- `compiler-spec §5.4` : pas de `#version` (glaze l'ajoute) ; `const float PI = 3.141592653589793;` au lieu de `#define PI` ; `u_phase` toujours déclaré ; `in vec2 vUv;` au lieu de `in vec2 v_p;`.
+- `compiler-spec §8` : « `warp` n'est pas encore dans le catalogue » est périmé.
+- `renderer-spec §7` et `§13`, `architecture D36` : marquer comme révisés (glaze, `Clock`).
 
 ## Rituel de fin de session
 
 1. `vp check --fix` et `vp test` verts.
-2. Mettre à jour « État courant » et « Prochaine action » en haut de ce fichier.
-3. Noter toute friction tranchée dans la liste ci-dessus (ou la créer).
+2. Mettre à jour « État courant » et « Prochaine action ».
+3. Noter toute friction tranchée dans la liste ci-dessus.
 4. Commit : le repo est la source de vérité, pas ce plan.

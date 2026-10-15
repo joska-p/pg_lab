@@ -121,7 +121,7 @@ export function createStandardUniformValues(
     time?: number,
     clockTime?: number,
 ): Record<string, UniformValue> {
-    const u_resolution = [width * dpr, width * dpr >= 0 ? height * dpr : 0]; // keep array
+    const u_resolution = [width * dpr, height * dpr];
     const mouseX = mouse === undefined || width <= 0 ? 0 : mouse.x / width;
     const mouseY = mouse === undefined || height <= 0 ? 1 : 1 - mouse.y / height;
     const u_mouse = [mouseX, mouseY];

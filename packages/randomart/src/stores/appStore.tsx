@@ -69,6 +69,8 @@ export function useGrammarMode(): GrammarMode {
 
 export function setGrammarMode(grammarMode: GrammarMode): void {
     store.setState({ grammarMode });
+    // Même seed : la bascule est réversible et l'image change tout de suite.
+    regenerate(store.getState().seed);
 }
 
 export function useClockStore(): ClockStore {
@@ -162,7 +164,10 @@ export async function exportPng(): Promise<void> {
     a.href = url;
     a.download = `randomart-${Date.now()}.png`;
     a.click();
-    URL.revokeObjectURL(url);
+    // Le téléchargement démarre après le retour de click() : on diffère la révocation.
+    window.setTimeout(() => {
+        URL.revokeObjectURL(url);
+    }, 1000);
 }
 
 /** Parses a raw string into a valid DurationSeconds (clamps to [1, 60]). */

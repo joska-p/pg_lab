@@ -1,0 +1,58 @@
+diff --git a/packages/randomart/src/stores/appStore.tsx b/packages/randomart/src/stores/appStore.tsx
+--- a/packages/randomart/src/stores/appStore.tsx
++++ b/packages/randomart/src/stores/appStore.tsx
+@@ -60,5 +60,7 @@
+ export function setGrammarMode(grammarMode: GrammarMode): void {
+     store.setState({ grammarMode });
++    // Même seed : la bascule est réversible et l'image change tout de suite.
++    regenerate(store.getState().seed);
+ }
+ 
+ export function useClockStore(): ClockStore {
+@@ -140,5 +142,8 @@
+     a.download = `randomart-${Date.now()}.png`;
+     a.click();
+-    URL.revokeObjectURL(url);
++    // Le téléchargement démarre après le retour de click() : on diffère la révocation.
++    window.setTimeout(() => {
++        URL.revokeObjectURL(url);
++    }, 1000);
+ }
+ 
+diff --git a/packages/glaze/src/gpu/batch/ShapeBatcher.ts b/packages/glaze/src/gpu/batch/ShapeBatcher.ts
+--- a/packages/glaze/src/gpu/batch/ShapeBatcher.ts
++++ b/packages/glaze/src/gpu/batch/ShapeBatcher.ts
+@@ -330,14 +330,14 @@
+     ): void {
+-        const segment = createLineSegment(a, b);
+-        const dx = segment.b.x - segment.a.x;
+-        const dy = segment.b.y - segment.a.y;
++        const dx = b.x - a.x;
++        const dy = b.y - a.y;
+         const length = Math.hypot(dx, dy);
+ 
+         if (length === 0) {
+             return;
+         }
+ 
++        const segment = createLineSegment(a, b);
+         const rawUx = dx / length;
+         const rawUy = dy / length;
+diff --git a/packages/glaze/src/gpu/shader/setUniforms.ts b/packages/glaze/src/gpu/shader/setUniforms.ts
+--- a/packages/glaze/src/gpu/shader/setUniforms.ts
++++ b/packages/glaze/src/gpu/shader/setUniforms.ts
+@@ -100,5 +100,5 @@
+ ): Record<string, UniformValue> {
+-    const u_resolution = [width * dpr, width * dpr >= 0 ? height * dpr : 0]; // keep array
++    const u_resolution = [width * dpr, height * dpr];
+     const mouseX = mouse === undefined || width <= 0 ? 0 : mouse.x / width;
+     const mouseY = mouse === undefined || height <= 0 ? 1 : 1 - mouse.y / height;
+diff --git a/packages/randomart/src/core/catalog/types.ts b/packages/randomart/src/core/catalog/types.ts
+--- a/packages/randomart/src/core/catalog/types.ts
++++ b/packages/randomart/src/core/catalog/types.ts
+@@ -55,5 +55,5 @@
+     readonly withOutput: (type: ValueType) => readonly OperatorDef[];
+-    readonly dependencies?: () => readonly ShaderDependency[];
++    readonly dependencies: () => readonly ShaderDependency[];
+     readonly dependencyClosure: (names: readonly string[]) => readonly ShaderDependency[];
+ }
