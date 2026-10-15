@@ -39,7 +39,8 @@ export function GpuCanvas({
     uniforms,
     /**
      * Fonction qui répond "oui" ou "non" : doit-on dessiner cette image ? Sert à économiser du
-     * travail. Si absente, on dessine toujours.
+     * travail. Si absente, on dessine toujours. Un programme jamais dessiné l'est toujours une
+     * fois, quelle que soit la réponse.
      */
     shouldRender,
     /**
@@ -92,6 +93,11 @@ export function GpuCanvas({
     // Le shader actuellement utilisé pour dessiner (null tant qu'il n'y en a pas).
     const programRef = useRef<Program | null>(null);
 
+    // Le dernier programme réellement dessiné. Sert à `shouldRender` : un programme qui vient d'être
+    // installé doit apparaître même si `shouldRender` répond "non", sinon un shader remplacé pourrait
+    // rester invisible derrière la porte (l'image affichée serait celle de l'ancien programme).
+    const renderedProgramRef = useRef<Program | null>(null);
+
     // ─────────────────────────────────────────────────────────────
     // 3. Nettoyage du shader quand la surface change
     // ─────────────────────────────────────────────────────────────
@@ -107,6 +113,7 @@ export function GpuCanvas({
         return () => {
             programRef.current?.destroy();
             programRef.current = null;
+            renderedProgramRef.current = null;
         };
     }, [stack]);
 
@@ -160,10 +167,16 @@ export function GpuCanvas({
             const program = programRef.current;
             const shouldRender = shouldRenderRef.current;
 
-            // On dessine seulement s'il y a un shader ET que `shouldRender` est d'accord (ou absent).
-            if (program && (!shouldRender || shouldRender(frame))) {
-                program.setUniforms(uniformsRef.current?.(frame) ?? {});
-                frame.renderProgram(program);
+            if (program) {
+                // `shouldRender` est évaluée à chaque image (elle peut tenir un état), mais un
+                // programme jamais dessiné l'emporte toujours sur sa réponse.
+                const wanted = shouldRender ? shouldRender(frame) : true;
+
+                if (wanted || program !== renderedProgramRef.current) {
+                    program.setUniforms(uniformsRef.current?.(frame) ?? {});
+                    frame.renderProgram(program);
+                    renderedProgramRef.current = program;
+                }
             }
 
             onFrameRef.current?.(frame);
