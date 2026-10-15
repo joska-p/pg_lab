@@ -12,11 +12,11 @@ import { createExpression } from '../core/expression/index.ts';
 import type { Address, Expression, Node } from '../core/expression/index.ts';
 import { generate } from '../core/generator/index.ts';
 import {
-    activeOperators,
     createGrammar,
     defaultGrammar,
     describeGrammar,
     fitConstraints,
+    getVocabulary,
     parseGrammarFile,
     randomizeWeights,
     serializeGrammarFile,
@@ -286,7 +286,7 @@ export function newDistribution(): void {
  */
 export function setConstraints(partial: Partial<Constraints>): void {
     const { grammar, seed } = store.getState();
-    const constraints = fitConstraints(activeOperators(catalog, grammar.weights), {
+    const constraints = fitConstraints(getVocabulary(catalog, grammar.weights), {
         ...grammar.constraints,
         ...partial,
     });

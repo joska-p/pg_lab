@@ -3,37 +3,37 @@ import { assertFinite } from '../shared';
 import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types';
 import type { Constraints, Grammar } from './types';
 
-export const isTerminalOp = (op: OperatorDef): boolean => op.inputs.length === 0;
-export const isNonTerminalOp = (op: OperatorDef): boolean => op.inputs.length > 0;
+export const isTerminalOperator = (operator: OperatorDef): boolean => operator.inputs.length === 0;
+export const isNonTerminalOperator = (operator: OperatorDef): boolean => operator.inputs.length > 0;
 
 export function minSize(
-    d: number,
+    currentDepth: number,
     minDepth: number,
-    vocabularyOperators: readonly OperatorDef[],
+    operators: readonly OperatorDef[],
 ): number {
-    if (d >= minDepth) {
+    if (currentDepth >= minDepth) {
         return 1;
     }
-    const nonTerminals = vocabularyOperators.filter((op) => op.inputs.length > 0);
+    const nonTerminals = operators.filter((operator) => operator.inputs.length > 0);
     if (nonTerminals.length === 0) {
         return 1;
     }
-    const k = Math.min(...nonTerminals.map((op) => op.inputs.length));
-    return 1 + k * minSize(d + 1, minDepth, vocabularyOperators);
+    const k = Math.min(...nonTerminals.map((operator) => operator.inputs.length));
+    return 1 + k * minSize(currentDepth + 1, minDepth, operators);
 }
 
 /**
  * The vocabulary of a grammar: the operators it may draw, i.e. those with a strictly positive
  * weight, by alphabetical name. A weight of 0 means the operator is off.
  */
-export function activeOperators(
+export function getVocabulary(
     catalog: Catalog,
     weights: Readonly<Record<string, number>>,
 ): OperatorDef[] {
     return Object.keys(weights)
         .sort()
         .map((name) => catalog.operator(name))
-        .filter((op) => weights[op.name] > 0);
+        .filter((operator) => weights[operator.name] > 0);
 }
 
 /**
@@ -43,7 +43,7 @@ export function activeOperators(
  * to 1, always terminates since `minDepth = 1` is feasible.
  */
 export function fitConstraints(
-    vocabularyOperators: readonly OperatorDef[],
+    operators: readonly OperatorDef[],
     constraints: Constraints,
 ): Constraints {
     const clampInt = (value: number, min: number, max: number): number =>
@@ -55,18 +55,18 @@ export function fitConstraints(
     // The user may drag maxDepth below minDepth: keep maxDepth and bring minDepth along.
     minDepth = Math.min(minDepth, maxDepth);
 
-    if (minDepth > 1 && !vocabularyOperators.some(isNonTerminalOp)) {
+    if (minDepth > 1 && !operators.some(isNonTerminalOperator)) {
         minDepth = 1;
     }
 
     let maxNodes = clampInt(constraints.maxNodes, 1, MAX_NODES);
-    const needed = (): number => minSize(1, minDepth, vocabularyOperators);
+    const needed = (): number => minSize(1, minDepth, operators);
 
     if (needed() > maxNodes) {
         maxNodes = Math.min(MAX_NODES, needed());
     }
 
-    while (minDepth > 1 && minSize(1, minDepth, vocabularyOperators) > maxNodes) {
+    while (minDepth > 1 && minSize(1, minDepth, operators) > maxNodes) {
         minDepth--;
     }
 
@@ -83,16 +83,16 @@ export function createGrammar(
         readonly constraints: Constraints;
     },
 ): Grammar {
-    const opNames = Object.keys(weights);
-    if (opNames.length === 0) {
+    const operatorNames = Object.keys(weights);
+    if (operatorNames.length === 0) {
         throw new Error('Grammar weights must not be empty');
     }
 
     // Rule 1: Every operator exists in catalog
-    const vocabOps: OperatorDef[] = [];
-    for (const name of opNames) {
+    const operators: OperatorDef[] = [];
+    for (const name of operatorNames) {
         try {
-            vocabOps.push(catalog.operator(name));
+            operators.push(catalog.operator(name));
         } catch {
             throw new Error(`Operator "${name}" does not exist in catalog`);
         }
@@ -109,21 +109,21 @@ export function createGrammar(
     }
 
     // The vocabulary: what the generator may draw. A weight of 0 switches the operator off.
-    const vocabulary = vocabOps.filter((op) => weights[op.name] > 0);
+    const vocabulary = operators.filter((operator) => weights[operator.name] > 0);
 
     // Rule 3: Vocabulary contains at least one active terminal
-    const terminals = vocabulary.filter(isTerminalOp);
+    const terminals = vocabulary.filter(isTerminalOperator);
     if (terminals.length === 0) {
         throw new Error('Grammar vocabulary must contain at least one terminal operator');
     }
 
     // Rule 4: Every input type required by an active operator has a matching active terminal
-    for (const op of vocabulary) {
-        for (const input of op.inputs) {
+    for (const operator of vocabulary) {
+        for (const input of operator.inputs) {
             const hasMatchingTerminal = terminals.some((t) => t.output === input.type);
             if (!hasMatchingTerminal) {
                 throw new Error(
-                    `Operator "${op.name}" requires input type "${input.type}", but no terminal in vocabulary produces it`,
+                    `Operator "${operator.name}" requires input type "${input.type}", but no terminal in vocabulary produces it`,
                 );
             }
         }
@@ -143,7 +143,7 @@ export function createGrammar(
     }
 
     // Rule 6: If minDepth > 1, vocabulary must contain at least one active non-terminal
-    const nonTerminals = vocabulary.filter(isNonTerminalOp);
+    const nonTerminals = vocabulary.filter(isNonTerminalOperator);
     if (minDepth > 1 && nonTerminals.length === 0) {
         throw new Error(
             `minDepth is ${minDepth} (> 1) but vocabulary contains no non-terminal operators`,
@@ -171,7 +171,7 @@ export function createGrammar(
 
     // Freeze and sort weights deterministically
     const sortedWeights: Record<string, number> = {};
-    for (const name of [...opNames].sort()) {
+    for (const name of [...operatorNames].sort()) {
         sortedWeights[name] = weights[name];
     }
 
@@ -194,12 +194,14 @@ export function defaultGrammar(catalog: Catalog): Grammar {
         const: 1,
     };
 
-    for (const op of catalog.operators()) {
-        if (op.name === 'x' || op.name === 'y' || op.name === 'const') {
+    for (const operator of catalog.operators()) {
+        if (operator.name === 'x' || operator.name === 'y' || operator.name === 'const') {
             continue;
         }
-        weights[op.name] =
-            op.name === 'select' || op.name === 'mix' || op.name === 'warp' ? 0.5 : 1;
+        weights[operator.name] =
+            operator.name === 'select' || operator.name === 'mix' || operator.name === 'warp'
+                ? 0.5
+                : 1;
     }
 
     return createGrammar(catalog, {

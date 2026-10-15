@@ -3,7 +3,7 @@ import type { Grammar } from './types.ts';
 
 export interface GrammarSummary {
     /** Vocabulary size. */
-    readonly operators: number;
+    readonly vocabularySize: number;
     /** Share of the total weight that goes to terminals, in (0, 1]. */
     readonly terminalShare: number;
     /** Weight-averaged arity of the non-terminals (0 if there are none). */
@@ -19,7 +19,7 @@ export interface GrammarSummary {
 
 /** Indicator only (grammar-spec §6), not a rule: lets the UI hint at the "character" of a grammar. */
 export function describeGrammar(catalog: Catalog, grammar: Grammar): GrammarSummary {
-    let operators = 0;
+    let vocabularySize = 0;
     let terminalWeight = 0;
     let nonTerminalWeight = 0;
     let arityWeighted = 0;
@@ -30,12 +30,12 @@ export function describeGrammar(catalog: Catalog, grammar: Grammar): GrammarSumm
             continue;
         }
 
-        const op = catalog.operator(name);
-        const arity = op.inputs.length;
+        const operator = catalog.operator(name);
+        const arity = operator.inputs.length;
 
-        operators++;
+        vocabularySize++;
 
-        if (op.requires?.includes('u_phase')) {
+        if (operator.requires?.includes('u_phase')) {
             hasTime = true;
         }
 
@@ -52,7 +52,7 @@ export function describeGrammar(catalog: Catalog, grammar: Grammar): GrammarSumm
     const meanArity = nonTerminalWeight > 0 ? arityWeighted / nonTerminalWeight : 0;
 
     return {
-        operators,
+        vocabularySize,
         terminalShare,
         meanArity,
         growth: (1 - terminalShare) * meanArity,

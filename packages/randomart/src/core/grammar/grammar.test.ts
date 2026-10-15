@@ -7,29 +7,29 @@ describe('grammar: minSize', () => {
     const catalog = createDefaultCatalog();
 
     it('calculates minSize correctly for binary only non-terminals', () => {
-        const binaryOps = [catalog.operator('add')];
+        const binaryOperators = [catalog.operator('add')];
         // minDepth = 4, k = 2
-        // d=4: 1
-        // d=3: 1 + 2*1 = 3
-        // d=2: 1 + 2*3 = 7
-        // d=1: 1 + 2*7 = 15
-        expect(minSize(4, 4, binaryOps)).toBe(1);
-        expect(minSize(3, 4, binaryOps)).toBe(3);
-        expect(minSize(2, 4, binaryOps)).toBe(7);
-        expect(minSize(1, 4, binaryOps)).toBe(15);
+        // currentDepth=4: 1
+        // currentDepth=3: 1 + 2*1 = 3
+        // currentDepth=2: 1 + 2*3 = 7
+        // currentDepth=1: 1 + 2*7 = 15
+        expect(minSize(4, 4, binaryOperators)).toBe(1);
+        expect(minSize(3, 4, binaryOperators)).toBe(3);
+        expect(minSize(2, 4, binaryOperators)).toBe(7);
+        expect(minSize(1, 4, binaryOperators)).toBe(15);
     });
 
     it('calculates minSize correctly when unary non-terminal is available', () => {
-        const unaryAndBinary = [catalog.operator('neg'), catalog.operator('add')];
+        const unaryAndBinaryOperators = [catalog.operator('neg'), catalog.operator('add')];
         // minDepth = 4, k = 1
-        // d=4: 1
-        // d=3: 1 + 1*1 = 2
-        // d=2: 1 + 1*2 = 3
-        // d=1: 1 + 1*3 = 4
-        expect(minSize(1, 4, unaryAndBinary)).toBe(4);
+        // currentDepth=4: 1
+        // currentDepth=3: 1 + 1*1 = 2
+        // currentDepth=2: 1 + 1*2 = 3
+        // currentDepth=1: 1 + 1*3 = 4
+        expect(minSize(1, 4, unaryAndBinaryOperators)).toBe(4);
     });
 
-    it('returns 1 when d >= minDepth', () => {
+    it('returns 1 when currentDepth >= minDepth', () => {
         expect(minSize(5, 3, [catalog.operator('add')])).toBe(1);
     });
 });
@@ -156,8 +156,8 @@ describe('grammar: defaultGrammar', () => {
     it('covers the whole catalog', () => {
         const g = defaultGrammar(catalog);
 
-        for (const op of catalog.operators()) {
-            expect(g.weights[op.name]).toBeDefined();
+        for (const operator of catalog.operators()) {
+            expect(g.weights[operator.name]).toBeDefined();
         }
     });
 });

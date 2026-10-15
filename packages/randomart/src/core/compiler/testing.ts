@@ -101,7 +101,7 @@ export function checkShaderStructure(source: string): string[] {
 
 /** True when the tree contains one of the given operators. */
 export function usesOperator(node: Node, names: ReadonlySet<string>): boolean {
-    return names.has(node.op) || node.inputs.some((child) => usesOperator(child, names));
+    return names.has(node.operatorName) || node.inputs.some((child) => usesOperator(child, names));
 }
 
 export interface FuzzCase {

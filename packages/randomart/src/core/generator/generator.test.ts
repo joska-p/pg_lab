@@ -12,16 +12,16 @@ function checkNodeInvariants(
     currentDepth: number,
     minDepth: number,
     maxDepth: number,
-    allowedOps: ReadonlySet<string>,
+    allowedOperators: ReadonlySet<string>,
 ): void {
-    expect(allowedOps.has(node.op)).toBe(true);
+    expect(allowedOperators.has(node.operatorName)).toBe(true);
     if (node.inputs.length === 0) {
         expect(currentDepth).toBeGreaterThanOrEqual(minDepth);
         expect(currentDepth).toBeLessThanOrEqual(maxDepth);
     } else {
         expect(currentDepth).toBeLessThan(maxDepth);
         for (const child of node.inputs) {
-            checkNodeInvariants(child, currentDepth + 1, minDepth, maxDepth, allowedOps);
+            checkNodeInvariants(child, currentDepth + 1, minDepth, maxDepth, allowedOperators);
         }
     }
 
@@ -44,7 +44,7 @@ describe('generator', () => {
 
     it('generates expressions satisfying all grammar invariants across various seeds', () => {
         const grammar = defaultGrammar(catalog);
-        const allowedOps = new Set(Object.keys(grammar.weights));
+        const allowedOperators = new Set(Object.keys(grammar.weights));
         const testSeeds = [createSeed(1), createSeed(42), createSeed(999), createSeed(314159)];
 
         for (const seed of testSeeds) {
@@ -58,7 +58,7 @@ describe('generator', () => {
                     1,
                     grammar.constraints.minDepth,
                     grammar.constraints.maxDepth,
-                    allowedOps,
+                    allowedOperators,
                 );
             }
         }
@@ -71,9 +71,9 @@ describe('generator', () => {
         });
 
         const expr = generate(catalog, grammar, createSeed(123));
-        expect(expr.r.op).toBe('x');
-        expect(expr.g.op).toBe('x');
-        expect(expr.b.op).toBe('x');
+        expect(expr.r.operatorName).toBe('x');
+        expect(expr.g.operatorName).toBe('x');
+        expect(expr.b.operatorName).toBe('x');
         expect(nodeCount(expr)).toBe(3);
     });
 

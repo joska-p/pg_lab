@@ -86,14 +86,14 @@ export function emit(
     let varCount = 0;
 
     function emitContext(ctx: ContextDef): void {
-        const { name, parentName, op, params, currentInputIds, requires } = ctx;
-        const opDef = catalog.operator(op);
+        const { name, parentName, operatorName, params, currentInputIds, requires } = ctx;
+        const operator = catalog.operator(operatorName);
 
         for (const req of requires) {
             usedDeps.add(req);
         }
-        if (opDef.requires) {
-            for (const req of opDef.requires) {
+        if (operator.requires) {
+            for (const req of operator.requires) {
                 usedDeps.add(req);
             }
         }
@@ -103,24 +103,24 @@ export function emit(
             inputText(childId, varNames, inlineTexts),
         );
 
-        if (typeof opDef.innerCoords !== 'function') {
-            throw new Error(`Operator "${op}" is missing innerCoords definition`);
+        if (typeof operator.innerCoords !== 'function') {
+            throw new Error(`Operator "${operatorName}" is missing innerCoords definition`);
         }
 
-        const coordsText = opDef.innerCoords(currentInputTexts, params, { p: parentGlslP });
+        const coordsText = operator.innerCoords(currentInputTexts, params, { p: parentGlslP });
         lines.push(`  vec2 ${name} = ${coordsText};`);
     }
 
     function emitVertex(vertex: Vertex): void {
-        const { id, op, params, inputIds, context, requires } = vertex;
-        const opDef = catalog.operator(op);
+        const { id, operatorName, params, inputIds, context, requires } = vertex;
+        const operator = catalog.operator(operatorName);
 
         // Collect dependencies
         for (const req of requires) {
             usedDeps.add(req);
         }
-        if (opDef.requires) {
-            for (const req of opDef.requires) {
+        if (operator.requires) {
+            for (const req of operator.requires) {
                 usedDeps.add(req);
             }
         }
@@ -129,7 +129,7 @@ export function emit(
         const inputTexts = inputIds.map((childId) => inputText(childId, varNames, inlineTexts));
 
         const glslP = context === ROOT_CTX ? 'v_p' : context;
-        const rawText = opDef.glsl(inputTexts, params, { p: glslP });
+        const rawText = operator.glsl(inputTexts, params, { p: glslP });
 
         // Decide variable assignment
         if (shouldHaveVariable(policy, usages, id, rawText)) {

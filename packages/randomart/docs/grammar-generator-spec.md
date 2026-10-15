@@ -221,7 +221,7 @@ Après la bascule, le vocabulaire doit rester utilisable avec les contraintes **
 
 Le résultat passe toujours `createGrammar`.
 
-**Contraintes.** L'UI les édite et `fitConstraints(ops, constraints)` les garde valides : entiers dans les limites dures, `1 ≤ minDepth ≤ maxDepth`, et faisabilité (`minSize(1) ≤ maxNodes`, sinon `maxNodes` monte puis `minDepth` descend jusqu'à 1). C'est le pendant, côté UI, de la réparation côté randomisation.
+**Contraintes.** L'UI les édite et `fitConstraints(operators, constraints)` les garde valides : entiers dans les limites dures, `1 ≤ minDepth ≤ maxDepth`, et faisabilité (`minSize(1) ≤ maxNodes`, sinon `maxNodes` monte puis `minDepth` descend jusqu'à 1). C'est le pendant, côté UI, de la réparation côté randomisation.
 
 ## 8. Organisation du code
 
@@ -232,7 +232,7 @@ random/
   index.ts
 grammar/
   types.ts           // Grammar, Constraints, MIN_WEIGHT/MAX_WEIGHT, MAX_DEPTH/MAX_NODES
-  grammar.ts         // createGrammar, minSize, activeOperators, fitConstraints, defaultGrammar
+  grammar.ts         // createGrammar, minSize, getVocabulary, fitConstraints, defaultGrammar
   describe.ts        // describeGrammar (résumé d'une grammaire)
   serialize.ts       // serializeGrammar, deserializeGrammar
   randomize.ts       // DEFAULT_KEEP, randomizeWeights

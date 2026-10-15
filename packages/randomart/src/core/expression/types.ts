@@ -4,7 +4,7 @@ export type Channel = 'r' | 'g' | 'b';
 
 export type Node = Brand<
     {
-        readonly op: string;
+        readonly operatorName: string;
         readonly params: readonly number[];
         readonly inputs: readonly Node[];
     },

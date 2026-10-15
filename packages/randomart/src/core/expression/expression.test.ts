@@ -8,7 +8,7 @@ describe('expression: createNode & createExpression', () => {
 
     it('creates terminal node and freezes it', () => {
         const xNode = createNode(catalog, 'x');
-        expect(xNode.op).toBe('x');
+        expect(xNode.operatorName).toBe('x');
         expect(xNode.inputs).toEqual([]);
         expect(xNode.params).toEqual([]);
         expect(Object.isFrozen(xNode)).toBe(true);

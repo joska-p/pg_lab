@@ -50,7 +50,7 @@ export function usedOperators(expression: Expression): ReadonlySet<string> {
     const names = new Set<string>();
 
     walk(expression, (node) => {
-        names.add(node.op);
+        names.add(node.operatorName);
     });
 
     return names;

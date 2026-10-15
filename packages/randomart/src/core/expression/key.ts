@@ -9,9 +9,10 @@ export function formatNumber(value: number): string {
 const keyCache = new WeakMap<Node, string>();
 
 /**
- * Canonical, deterministic key: `op[p1,p2](key1,key2,…)`, e.g. `add[](x[](),const[0.3]())`. Two
- * nodes have the same key if and only if they have the same operator, parameters and inputs. The
- * key says "same subtree" only: it carries no coordinate context (the compiler adds that).
+ * Canonical, deterministic key: `operatorName[p1,p2](key1,key2,…)`, e.g.
+ * `add[](x[](),const[0.3]())`. Two nodes have the same key if and only if they have the same
+ * operator, parameters and inputs. The key says "same subtree" only: it carries no coordinate
+ * context (the compiler adds that).
  */
 export function nodeKey(node: Node): string {
     const cached = keyCache.get(node);
@@ -22,7 +23,7 @@ export function nodeKey(node: Node): string {
 
     const params = node.params.map(formatNumber).join(',');
     const inputs = node.inputs.map(nodeKey).join(',');
-    const key = `${node.op}[${params}](${inputs})`;
+    const key = `${node.operatorName}[${params}](${inputs})`;
 
     keyCache.set(node, key);
 

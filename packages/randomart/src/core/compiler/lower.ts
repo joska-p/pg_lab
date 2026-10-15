@@ -12,12 +12,15 @@ import type { Expression, Node } from '../expression/index.ts';
 // Types
 // ---------------------------------------------------------------------------
 
-/** A vertex in the lowered DAG. Created once per unique (context, op, params, inputIds) key. */
+/**
+ * A vertex in the lowered DAG. Created once per unique (context, operatorName, params, inputIds)
+ * key.
+ */
 export interface Vertex {
     /** Stable sequential id, assigned in topological order (children before parents). */
     readonly id: number;
     /** Operator name. */
-    readonly op: string;
+    readonly operatorName: string;
     /** Operator params. */
     readonly params: readonly number[];
     /** Ids of child vertices, in input order. */
@@ -37,7 +40,7 @@ export interface ContextDef {
     /** Parent context name: 'root' or 'c1', ... */
     readonly parentName: string;
     /** Operator that generated this context (e.g. 'warp'). */
-    readonly op: string;
+    readonly operatorName: string;
     /** Parameters of the operator. */
     readonly params: readonly number[];
     /** Vertex ids of 'current' inputs that compute the coordinates. */
@@ -83,41 +86,41 @@ function countOccurrences(haystack: string, needle: string): number {
 
 /**
  * Returns mg[i] = number of times input i appears in the operator's glsl output. Called once per
- * (op, params) combination; result is stable.
+ * (operatorName, params) combination; result is stable.
  */
 export function probeMultiplicities(
     catalog: Catalog,
-    opName: string,
+    operatorName: string,
     params: readonly number[],
 ): number[] {
-    const op = catalog.operator(opName);
-    if (op.inputs.length === 0) {
+    const operator = catalog.operator(operatorName);
+    if (operator.inputs.length === 0) {
         return [];
     }
-    const sentinels = op.inputs.map((_, i) => `@${i}@`);
-    const result = op.glsl(sentinels, params, { p: '@p@' });
+    const sentinels = operator.inputs.map((_, i) => `@${i}@`);
+    const result = operator.glsl(sentinels, params, { p: '@p@' });
     return sentinels.map((s) => countOccurrences(result, s));
 }
 
 /**
  * Returns mc[i] = number of times current input i appears in operator's innerCoords output. Called
- * once per (op, params) combination when op has inner inputs.
+ * once per (operatorName, params) combination when the operator has inner inputs.
  */
 export function probeInnerMultiplicities(
     catalog: Catalog,
-    opName: string,
+    operatorName: string,
     params: readonly number[],
 ): number[] {
-    const op = catalog.operator(opName);
-    if (typeof op.innerCoords !== 'function') {
+    const operator = catalog.operator(operatorName);
+    if (typeof operator.innerCoords !== 'function') {
         return [];
     }
-    const currentInputs = op.inputs.filter((i) => i.scope !== 'inner');
+    const currentInputs = operator.inputs.filter((i) => i.scope !== 'inner');
     if (currentInputs.length === 0) {
         return [];
     }
     const sentinels = currentInputs.map((_, i) => `@c${i}@`);
-    const result = op.innerCoords(sentinels, params, { p: '@p@' });
+    const result = operator.innerCoords(sentinels, params, { p: '@p@' });
     return sentinels.map((s) => countOccurrences(result, s));
 }
 
@@ -138,9 +141,9 @@ export function lower(catalog: Catalog, expression: Expression): LowerResult {
     let nextContextId = 1;
 
     function lowerNode(node: Node, contextName: string): number {
-        const { op, params, inputs } = node;
-        const opDef = catalog.operator(op);
-        const hasInner = opDef.inputs.some((i) => i.scope === 'inner');
+        const { operatorName, params, inputs } = node;
+        const operator = catalog.operator(operatorName);
+        const hasInner = operator.inputs.some((i) => i.scope === 'inner');
 
         const paramsStr = params.join(',');
 
@@ -150,14 +153,14 @@ export function lower(catalog: Catalog, expression: Expression): LowerResult {
 
         // 1. Lower 'current' inputs in the current context
         for (let i = 0; i < inputs.length; i++) {
-            if (opDef.inputs[i].scope !== 'inner') {
+            if (operator.inputs[i].scope !== 'inner') {
                 currentInputIds.push(lowerNode(inputs[i], contextName));
             }
         }
 
         // 2. If operator has inner inputs, intern/create coordinate context
         if (hasInner) {
-            const contextKey = `${contextName}|${op}[${paramsStr}](${currentInputIds.join(',')})`;
+            const contextKey = `${contextName}|${operatorName}[${paramsStr}](${currentInputIds.join(',')})`;
             if (contextMap.has(contextKey)) {
                 childContextName = contextMap.get(contextKey)!;
             } else {
@@ -166,7 +169,7 @@ export function lower(catalog: Catalog, expression: Expression): LowerResult {
                 contextMap.set(contextKey, childContextName);
 
                 // Accumulate mc usages for current inputs on context creation
-                const mc = probeInnerMultiplicities(catalog, op, params);
+                const mc = probeInnerMultiplicities(catalog, operatorName, params);
                 for (let j = 0; j < currentInputIds.length; j++) {
                     const inputId = currentInputIds[j];
                     usages[inputId] = (usages[inputId] ?? 0) + (mc[j] ?? 1);
@@ -176,10 +179,10 @@ export function lower(catalog: Catalog, expression: Expression): LowerResult {
                     id: ctxId,
                     name: childContextName,
                     parentName: contextName,
-                    op,
+                    operatorName,
                     params,
                     currentInputIds: Object.freeze([...currentInputIds]),
-                    requires: opDef.requires ? [...opDef.requires] : [],
+                    requires: operator.requires ? [...operator.requires] : [],
                 };
                 contexts.push(contextDef);
                 program.push({ kind: 'context', context: contextDef });
@@ -187,7 +190,7 @@ export function lower(catalog: Catalog, expression: Expression): LowerResult {
 
             // Lower 'inner' inputs in the new/interned context
             for (let i = 0; i < inputs.length; i++) {
-                if (opDef.inputs[i].scope === 'inner') {
+                if (operator.inputs[i].scope === 'inner') {
                     innerInputIds.push(lowerNode(inputs[i], childContextName));
                 }
             }
@@ -198,7 +201,7 @@ export function lower(catalog: Catalog, expression: Expression): LowerResult {
         let innerIdx = 0;
         const allInputIds: number[] = [];
         for (let i = 0; i < inputs.length; i++) {
-            if (opDef.inputs[i].scope === 'inner') {
+            if (operator.inputs[i].scope === 'inner') {
                 allInputIds.push(innerInputIds[innerIdx++]);
             } else {
                 allInputIds.push(currentInputIds[currentIdx++]);
@@ -206,14 +209,14 @@ export function lower(catalog: Catalog, expression: Expression): LowerResult {
         }
 
         // 4. Hash-cons / deduplicate vertex
-        const vertexKey = `${contextName}|${op}[${paramsStr}](${allInputIds.join(',')})`;
+        const vertexKey = `${contextName}|${operatorName}[${paramsStr}](${allInputIds.join(',')})`;
         if (vertexMap.has(vertexKey)) {
             return vertexMap.get(vertexKey)!;
         }
 
         // Create new vertex
         const id = nextVertexId++;
-        const mg = probeMultiplicities(catalog, op, params);
+        const mg = probeMultiplicities(catalog, operatorName, params);
 
         // Accumulate mg usages for children
         for (let i = 0; i < allInputIds.length; i++) {
@@ -223,11 +226,11 @@ export function lower(catalog: Catalog, expression: Expression): LowerResult {
 
         const vertex: Vertex = {
             id,
-            op,
+            operatorName,
             params,
             inputIds: Object.freeze(allInputIds),
             context: contextName,
-            requires: opDef.requires ? [...opDef.requires] : [],
+            requires: operator.requires ? [...operator.requires] : [],
         };
         vertices.push(vertex);
         usages[id] = usages[id] ?? 0;

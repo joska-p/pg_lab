@@ -194,7 +194,7 @@ describe('compiler', () => {
                 code: 'float ra_custom_noise(vec2 p) { return sin(p.x * 10.0); }',
             });
 
-            const noiseOp = defineOperator({
+            const noiseOperator = defineOperator({
                 name: 'custom_noise',
                 family: 'terminal',
                 inputs: [],
@@ -204,7 +204,7 @@ describe('compiler', () => {
             });
 
             const customCatalog = createCatalog({
-                operators: [...catalog.operators(), noiseOp],
+                operators: [...catalog.operators(), noiseOperator],
                 dependencies: [...(catalog.dependencies ? catalog.dependencies() : []), helperFn],
             });
 
@@ -221,7 +221,7 @@ describe('compiler', () => {
 
         it('throws an error if source length exceeds MAX_SOURCE_LENGTH', () => {
             // Build a synthetic node whose emitted code exceeds MAX_SOURCE_LENGTH
-            const longGlslOp = defineOperator({
+            const longGlslOperator = defineOperator({
                 name: 'huge_op',
                 family: 'terminal',
                 inputs: [],
@@ -230,7 +230,7 @@ describe('compiler', () => {
             });
 
             const testCatalog = createCatalog({
-                operators: [...catalog.operators(), longGlslOp],
+                operators: [...catalog.operators(), longGlslOperator],
                 dependencies: [...(catalog.dependencies ? catalog.dependencies() : [])],
             });
 

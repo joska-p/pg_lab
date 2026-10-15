@@ -26,8 +26,8 @@ describe('randomizeWeights', () => {
                 expect(weight).toBeLessThanOrEqual(MAX_WEIGHT);
             }
 
-            for (const op of catalog.operators()) {
-                expect(Object.hasOwn(next.weights, op.name)).toBe(true);
+            for (const operator of catalog.operators()) {
+                expect(Object.hasOwn(next.weights, operator.name)).toBe(true);
             }
         }
     });

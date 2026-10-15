@@ -1,9 +1,9 @@
 export { describeGrammar, type GrammarSummary } from './describe.ts';
 export {
-    activeOperators,
     createGrammar,
     defaultGrammar,
     fitConstraints,
+    getVocabulary,
     minSize,
 } from './grammar.ts';
 export { DEFAULT_KEEP, randomizeWeights, type RandomizeWeightsOptions } from './randomize.ts';

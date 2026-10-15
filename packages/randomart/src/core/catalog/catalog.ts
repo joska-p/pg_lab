@@ -86,11 +86,11 @@ export function createCatalog(config: {
     readonly dependencies?: readonly ShaderDependency[];
 }): Catalog {
     const operatorMap = new Map<string, OperatorDef>();
-    for (const op of config.operators) {
-        if (operatorMap.has(op.name)) {
-            throw new Error(`Duplicate operator name: "${op.name}"`);
+    for (const operator of config.operators) {
+        if (operatorMap.has(operator.name)) {
+            throw new Error(`Duplicate operator name: "${operator.name}"`);
         }
-        operatorMap.set(op.name, op);
+        operatorMap.set(operator.name, operator);
     }
 
     const dependencyMap = new Map<string, ShaderDependency>();
@@ -101,7 +101,7 @@ export function createCatalog(config: {
         dependencyMap.set(dep.name, dep);
     }
 
-    const terminals = config.operators.filter((op) => op.inputs.length === 0);
+    const terminals = config.operators.filter((operator) => operator.inputs.length === 0);
     if (terminals.length === 0) {
         throw new Error(
             'Catalog must contain at least one terminal operator (inputs.length === 0)',
@@ -109,10 +109,10 @@ export function createCatalog(config: {
     }
 
     // Verify all requires in operators and dependencies
-    for (const op of config.operators) {
-        for (const req of op.requires ?? []) {
+    for (const operator of config.operators) {
+        for (const req of operator.requires ?? []) {
             if (!dependencyMap.has(req)) {
-                throw new Error(`Operator "${op.name}" requires unknown dependency "${req}"`);
+                throw new Error(`Operator "${operator.name}" requires unknown dependency "${req}"`);
             }
         }
     }
@@ -157,26 +157,26 @@ export function createCatalog(config: {
     }
 
     // Probe operator inputs
-    for (const op of config.operators) {
-        if (op.inputs.length === 0) {
+    for (const operator of config.operators) {
+        if (operator.inputs.length === 0) {
             continue;
         }
 
-        const sentinels = op.inputs.map((_, i) => `@in${i}@`);
-        const dummyParams = (op.params ?? []).map((p) => p.min);
-        const glslResult = op.glsl(sentinels, dummyParams, { p: '@p@' });
+        const sentinels = operator.inputs.map((_, i) => `@in${i}@`);
+        const dummyParams = (operator.params ?? []).map((p) => p.min);
+        const glslResult = operator.glsl(sentinels, dummyParams, { p: '@p@' });
 
-        const currentSentinels = sentinels.filter((_, i) => op.inputs[i].scope !== 'inner');
+        const currentSentinels = sentinels.filter((_, i) => operator.inputs[i].scope !== 'inner');
         const innerResult =
-            typeof op.innerCoords === 'function'
-                ? op.innerCoords(currentSentinels, dummyParams, { p: '@p@' })
+            typeof operator.innerCoords === 'function'
+                ? operator.innerCoords(currentSentinels, dummyParams, { p: '@p@' })
                 : '';
 
-        for (let i = 0; i < op.inputs.length; i++) {
+        for (let i = 0; i < operator.inputs.length; i++) {
             const sentinel = `@in${i}@`;
             if (!glslResult.includes(sentinel) && !innerResult.includes(sentinel)) {
                 throw new Error(
-                    `Operator "${op.name}": input at index ${i} is never used in glsl or innerCoords`,
+                    `Operator "${operator.name}": input at index ${i} is never used in glsl or innerCoords`,
                 );
             }
         }
@@ -202,7 +202,7 @@ export function createCatalog(config: {
     }
 
     function withOutput(type: ValueType): readonly OperatorDef[] {
-        return allOperators.filter((op) => op.output === type);
+        return allOperators.filter((operator) => operator.output === type);
     }
 
     function dependencyClosure(names: readonly string[]): readonly ShaderDependency[] {
@@ -279,7 +279,7 @@ export function createDefaultCatalog(): Catalog {
         glsl: (_in, _p, ctx) => `${ctx.p}.y`,
     });
 
-    const constOp = defineOperator({
+    const constOperator = defineOperator({
         name: 'const',
         family: 'terminal',
         inputs: [],
@@ -424,7 +424,7 @@ export function createDefaultCatalog(): Catalog {
         operators: [
             x,
             y,
-            constOp,
+            constOperator,
             tsin,
             tcos,
             neg,

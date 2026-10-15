@@ -112,7 +112,7 @@ export function Controls() {
                             />
                         </Stack>
                         <Text variant="muted">
-                            {summary.operators} operators • terminals{' '}
+                            {summary.vocabularySize} operators • terminals{' '}
                             {Math.round(summary.terminalShare * 100)}% • growth{' '}
                             {summary.growth.toFixed(2)} • {summary.hasTime ? 'time ✓' : 'no time'}
                         </Text>

@@ -20,7 +20,7 @@ Il dépend uniquement du catalogue (pour valider). Il ne sait rien de la grammai
 ```ts
 type Node = Brand<
     {
-        readonly op: string; // nom de l'opérateur
+        readonly operatorName: string; // nom de l'opérateur
         readonly params: readonly number[]; // valeurs propres au nœud (ex. la constante)
         readonly inputs: readonly Node[]; // sous-expressions, dans l'ordre des entrées de l'opérateur
     },
@@ -50,7 +50,7 @@ Les nœuds sont gelés (`Object.freeze`). Le même nœud peut être référencé
 ## 4. Construction et validation
 
 ```ts
-createNode(catalog, op, inputs, params?): Node
+createNode(catalog, operatorName, inputs, params?): Node
 createExpression(r, g, b): Expression
 ```
 
@@ -82,7 +82,7 @@ equals(a, b): boolean        // nodeKey(a) === nodeKey(b)
 La clé est canonique et déterministe :
 
 ```
-op[p1,p2](clé1,clé2,…)
+operatorName[p1,p2](clé1,clé2,…)
 ```
 
 Par exemple `add[](x[](),const[0.3]())`. Les nombres utilisent leur écriture JavaScript la plus courte qui se relit exactement, donc deux valeurs identiques donnent toujours la même clé. `createNode` normalise `-0` en `0`. Le format est non ambigu parce que les noms d'opérateurs respectent `^[a-z][a-z0-9_]*$` (catalogue §5).

@@ -34,7 +34,7 @@ describe('lower (MP3·S1)', () => {
         });
 
         it('detects arbitrary multiplicities for custom operators', () => {
-            const tripleOp = defineOperator({
+            const tripleOperator = defineOperator({
                 name: 'triple_use',
                 family: 'arithmetic',
                 inputs: [{ type: 'float' }],
@@ -42,7 +42,7 @@ describe('lower (MP3·S1)', () => {
                 glsl: (inputs) => `(${inputs[0]} * ${inputs[0]} + ${inputs[0]})`,
             });
             const customCat = createCatalog({
-                operators: [...catalog.operators(), tripleOp],
+                operators: [...catalog.operators(), tripleOperator],
                 dependencies: [...(catalog.dependencies ? catalog.dependencies() : [])],
             });
             expect(probeMultiplicities(customCat, 'triple_use', [])).toEqual([3]);
@@ -77,7 +77,7 @@ describe('lower (MP3·S1)', () => {
             expect(Object.isFrozen(result.usages)).toBe(true);
             expect(result.roots).toEqual([0, 0, 0]);
             expect(result.vertices.length).toBe(1);
-            expect(result.vertices[0].op).toBe('x');
+            expect(result.vertices[0].operatorName).toBe('x');
             expect(result.vertices[0].context).toBe('root');
         });
     });
@@ -235,10 +235,10 @@ describe('lower (MP3·S1)', () => {
             expect(result.contexts).toHaveLength(1);
             expect(result.contexts[0].name).toBe('c1');
             expect(result.contexts[0].parentName).toBe('root');
-            expect(result.contexts[0].op).toBe('warp');
+            expect(result.contexts[0].operatorName).toBe('warp');
 
             // x inside warp is evaluated in c1
-            const innerX = result.vertices.find((v) => v.op === 'x');
+            const innerX = result.vertices.find((v) => v.operatorName === 'x');
             expect(innerX).toBeDefined();
             expect(innerX?.context).toBe('c1');
         });
@@ -277,7 +277,7 @@ describe('lower (MP3·S1)', () => {
             expect(result.contexts.map((c) => c.name)).toEqual(['c1', 'c2']);
 
             // x in c1, x in c2, and x in root are 3 separate vertices!
-            const xVertices = result.vertices.filter((v) => v.op === 'x');
+            const xVertices = result.vertices.filter((v) => v.operatorName === 'x');
             expect(xVertices).toHaveLength(3);
             expect(xVertices.map((v) => v.context).sort()).toEqual(['c1', 'c2', 'root']);
         });
@@ -293,14 +293,14 @@ describe('lower (MP3·S1)', () => {
 
             // In program: dx & dy vertices come before context c1, which comes before x in c1, which comes before warp
             const dxIdx = result.program.findIndex(
-                (item) => item.kind === 'vertex' && item.vertex.op === 'const',
+                (item) => item.kind === 'vertex' && item.vertex.operatorName === 'const',
             );
             const c1Idx = result.program.findIndex((item) => item.kind === 'context');
             const xIdx = result.program.findIndex(
-                (item) => item.kind === 'vertex' && item.vertex.op === 'x',
+                (item) => item.kind === 'vertex' && item.vertex.operatorName === 'x',
             );
             const warpIdx = result.program.findIndex(
-                (item) => item.kind === 'vertex' && item.vertex.op === 'warp',
+                (item) => item.kind === 'vertex' && item.vertex.operatorName === 'warp',
             );
 
             expect(dxIdx).toBeLessThan(c1Idx);

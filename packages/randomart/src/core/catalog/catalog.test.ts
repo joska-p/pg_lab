@@ -83,14 +83,14 @@ describe('defineOperator & defineDependency validation', () => {
 
 describe('createCatalog', () => {
     it('rejects catalog without terminals', () => {
-        const op = defineOperator({
+        const operator = defineOperator({
             name: 'unary',
             family: 'test',
             inputs: [{ type: 'float' }],
             output: 'float',
             glsl: ([a]) => `-${a}`,
         });
-        expect(() => createCatalog({ operators: [op] })).toThrow(/at least one terminal/);
+        expect(() => createCatalog({ operators: [operator] })).toThrow(/at least one terminal/);
     });
 
     it('rejects duplicate operator names', () => {
@@ -119,14 +119,14 @@ describe('createCatalog', () => {
             output: 'float',
             glsl: () => '1.0',
         });
-        const badOp = defineOperator({
+        const badOperator = defineOperator({
             name: 'bad',
             family: 'test',
             inputs: [{ type: 'float' }, { type: 'float' }],
             output: 'float',
             glsl: ([a]) => a, // b is omitted!
         });
-        expect(() => createCatalog({ operators: [term, badOp] })).toThrow(/is never used/);
+        expect(() => createCatalog({ operators: [term, badOperator] })).toThrow(/is never used/);
     });
 
     it('resolves dependency closure in topological order', () => {

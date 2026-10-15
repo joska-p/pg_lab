@@ -4,52 +4,52 @@ import type { Expression, Node } from './types.ts';
 
 export function createNode(
     catalog: Catalog,
-    op: string,
+    operatorName: string,
     inputs: readonly Node[] = [],
     params: readonly number[] = [],
 ): Node {
-    const opDef = catalog.operator(op);
+    const operator = catalog.operator(operatorName);
 
-    if (inputs.length !== opDef.inputs.length) {
+    if (inputs.length !== operator.inputs.length) {
         throw new Error(
-            `Operator "${op}" expects ${opDef.inputs.length} inputs, received ${inputs.length}`,
+            `Operator "${operatorName}" expects ${operator.inputs.length} inputs, received ${inputs.length}`,
         );
     }
 
-    const expectedParams = opDef.params ?? [];
+    const expectedParams = operator.params ?? [];
     if (params.length !== expectedParams.length) {
         throw new Error(
-            `Operator "${op}" expects ${expectedParams.length} params, received ${params.length}`,
+            `Operator "${operatorName}" expects ${expectedParams.length} params, received ${params.length}`,
         );
     }
 
     const normalizedParams: number[] = [];
     for (let i = 0; i < params.length; i++) {
         const val = params[i];
-        assertFinite(val, `Param ${expectedParams[i].name} of operator "${op}"`);
+        assertFinite(val, `Param ${expectedParams[i].name} of operator "${operatorName}"`);
         if (val < expectedParams[i].min || val > expectedParams[i].max) {
             throw new Error(
-                `Param "${expectedParams[i].name}" of operator "${op}" out of range: ${val} not in [${expectedParams[i].min}, ${expectedParams[i].max}]`,
+                `Param "${expectedParams[i].name}" of operator "${operatorName}" out of range: ${val} not in [${expectedParams[i].min}, ${expectedParams[i].max}]`,
             );
         }
         normalizedParams.push(Object.is(val, -0) || val === 0 ? 0 : val);
     }
 
     return Object.freeze({
-        op,
+        operatorName,
         params: Object.freeze(normalizedParams),
         inputs: Object.freeze([...inputs]),
     }) as Node;
 }
 
 export function createExpression(r: Node, g: Node, b: Node): Expression {
-    if (!r || typeof r.op !== 'string') {
+    if (!r || typeof r.operatorName !== 'string') {
         throw new Error('Channel "r" must be a valid Node');
     }
-    if (!g || typeof g.op !== 'string') {
+    if (!g || typeof g.operatorName !== 'string') {
         throw new Error('Channel "g" must be a valid Node');
     }
-    if (!b || typeof b.op !== 'string') {
+    if (!b || typeof b.operatorName !== 'string') {
         throw new Error('Channel "b" must be a valid Node');
     }
 
@@ -77,9 +77,9 @@ export function depth(node: Node): number {
     }
     let maxChildDepth = 0;
     for (const child of node.inputs) {
-        const d = depth(child);
-        if (d > maxChildDepth) {
-            maxChildDepth = d;
+        const childDepth = depth(child);
+        if (childDepth > maxChildDepth) {
+            maxChildDepth = childDepth;
         }
     }
     return 1 + maxChildDepth;

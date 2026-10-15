@@ -119,7 +119,7 @@ describe('describeGrammar', () => {
         });
         const summary = describeGrammar(catalog, grammar);
 
-        expect(summary.operators).toBe(2);
+        expect(summary.vocabularySize).toBe(2);
         expect(summary.terminalShare).toBe(1);
         expect(summary.meanArity).toBe(0);
         expect(summary.growth).toBe(0);

@@ -1,10 +1,10 @@
 import type { Catalog, OperatorDef } from '../catalog/index.ts';
 import type { Rng } from '../random/index.ts';
 import {
-    activeOperators,
     createGrammar,
-    isNonTerminalOp,
-    isTerminalOp,
+    getVocabulary,
+    isNonTerminalOperator,
+    isTerminalOperator,
     minSize,
 } from './grammar.ts';
 import { MAX_WEIGHT } from './types.ts';
@@ -50,7 +50,7 @@ function weightShare(
     let total = 0;
 
     for (const [name, weight] of Object.entries(weights)) {
-        if (weight > 0 && isTerminalOp(catalog.operator(name)) === terminal) {
+        if (weight > 0 && isTerminalOperator(catalog.operator(name)) === terminal) {
             total += weight;
         }
     }
@@ -144,10 +144,10 @@ function repair(
     rng: Rng,
 ): void {
     const sorted = [...catalog.operators()].sort((a, b) => byName(a.name, b.name));
-    const active = (): OperatorDef[] => activeOperators(catalog, weights);
+    const vocabulary = (): OperatorDef[] => getVocabulary(catalog, weights);
 
-    if (!active().some(isTerminalOp)) {
-        const terminals = sorted.filter(isTerminalOp);
+    if (!vocabulary().some(isTerminalOperator)) {
+        const terminals = sorted.filter(isTerminalOperator);
         weights[terminals[rng.int(terminals.length)].name] = 1;
     }
 
@@ -155,19 +155,22 @@ function repair(
         return;
     }
 
-    if (!active().some(isNonTerminalOp)) {
-        const nonTerminals = sorted.filter(isNonTerminalOp);
+    if (!vocabulary().some(isNonTerminalOperator)) {
+        const nonTerminals = sorted.filter(isNonTerminalOperator);
         weights[nonTerminals[rng.int(nonTerminals.length)].name] = 1;
     }
 
-    while (minSize(1, minDepth, active()) > maxNodes) {
+    while (minSize(1, minDepth, vocabulary()) > maxNodes) {
         const k = Math.min(
-            ...active()
-                .filter(isNonTerminalOp)
-                .map((op) => op.inputs.length),
+            ...vocabulary()
+                .filter(isNonTerminalOperator)
+                .map((operator) => operator.inputs.length),
         );
         const candidate = sorted.find(
-            (op) => isNonTerminalOp(op) && weights[op.name] <= 0 && op.inputs.length < k,
+            (operator) =>
+                isNonTerminalOperator(operator) &&
+                weights[operator.name] <= 0 &&
+                operator.inputs.length < k,
         );
 
         if (!candidate) {
@@ -210,7 +213,7 @@ function preserveTerminalShareOf(
     const terminalScale = (share * nonTerminalAfter) / ((1 - share) * terminalAfter);
 
     for (const name of Object.keys(weights)) {
-        if (weights[name] > 0 && isTerminalOp(catalog.operator(name))) {
+        if (weights[name] > 0 && isTerminalOperator(catalog.operator(name))) {
             weights[name] *= terminalScale;
         }
     }
