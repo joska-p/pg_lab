@@ -3,7 +3,6 @@ import { ControlField } from '@repo/ui/components/ControlField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
-import { useMemo } from 'react';
 import type { CSSProperties } from 'react';
 
 import {
@@ -110,11 +109,7 @@ export function Inspector() {
     const selected = useSelected();
     const selectedNode = resolveNode(expression, selected);
     const selectedKey = selected === null ? null : formatAddress(selected);
-
-    const preview = useMemo(
-        () => (selectedNode === null ? null : compileNodePreview(selectedNode)),
-        [selectedNode],
-    );
+    const preview = selectedNode === null ? null : compileNodePreview(selectedNode);
 
     const { stats } = compiled;
 
