@@ -1,6 +1,6 @@
 # Random Art — documentation de conception
 
-État : **specs v0.2/v0.3, relues et corrigées** (revue de cohérence et revue adversariale, voir `revue.md`). Aucune ligne de code n'existe encore. Le prochain jalon est un prototype vertical : catalogue → générateur → compilateur → renderer, avec les tests requis.
+État : **specs v0.2/v0.3, relues et corrigées** (voir `revue.md`). Le code existe : l'avancement réel et les écarts avec ces specs (rendu sur `@repo/glaze`, contrat `vUv`, phase via `Clock`) sont suivis dans `../PLAN.md`, qui fait foi.
 
 Décisions confirmées : **WebGL2** (GLSL ES 3.00) et **pas d'évaluateur CPU**.
 
