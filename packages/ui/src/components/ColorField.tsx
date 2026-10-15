@@ -107,7 +107,7 @@ export function ColorField({
                     aria-describedby={errorMessage ? messageId : undefined}
                     {...stylex.props(
                         surfaceStyles({
-                            color: invalid ? 'orange' : 'neutral',
+                            color: invalid ? 'error' : 'neutral',
                             background: 'soft',
                             border: 'strong',
                             radius: 'none',
