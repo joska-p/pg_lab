@@ -213,6 +213,46 @@ export function Controls() {
                             </Stack>
                         </ControlField>
 
+                        {/* ── Playback ── */}
+                        <ControlField label="Playback">
+                            <Stack gap="2">
+                                <Stack direction="horizontal" gap="2">
+                                    <Button
+                                        onClick={() => {
+                                            clockStore.togglePlay();
+                                        }}
+                                        disabled={!canAnimate}
+                                    >
+                                        {isPlaying ? 'Pause' : 'Play'}
+                                    </Button>
+                                    <Button
+                                        onClick={() => {
+                                            clockStore.reset();
+                                        }}
+                                        disabled={!canAnimate}
+                                    >
+                                        Reset
+                                    </Button>
+                                </Stack>
+                                <Stack direction="horizontal" gap="2">
+                                    <Text variant="muted">Loop duration (s):</Text>
+                                    {/* One concept, one bound set: the artwork render bounds
+                              ([0.5, 120] s — findings F19/F20 unified). */}
+                                    <input
+                                        type="number"
+                                        min={MIN_LOOP_MS / 1000}
+                                        max={MAX_LOOP_MS / 1000}
+                                        step={0.5}
+                                        defaultValue={duration}
+                                        style={{ width: '4rem' }}
+                                        onChange={(e) => {
+                                            setDuration(parseDurationInput(e.currentTarget.value));
+                                        }}
+                                    />
+                                </Stack>
+                            </Stack>
+                        </ControlField>
+
                         {/* ── Grammar ── */}
                         <ControlField label="Grammar">
                             <Stack gap="2">
@@ -309,46 +349,6 @@ export function Controls() {
                                         {entry.seed} · {entry.nodes}
                                     </Button>
                                 ))}
-                            </Stack>
-                        </ControlField>
-
-                        {/* ── Playback ── */}
-                        <ControlField label="Playback">
-                            <Stack gap="2">
-                                <Stack direction="horizontal" gap="2">
-                                    <Button
-                                        onClick={() => {
-                                            clockStore.togglePlay();
-                                        }}
-                                        disabled={!canAnimate}
-                                    >
-                                        {isPlaying ? 'Pause' : 'Play'}
-                                    </Button>
-                                    <Button
-                                        onClick={() => {
-                                            clockStore.reset();
-                                        }}
-                                        disabled={!canAnimate}
-                                    >
-                                        Reset
-                                    </Button>
-                                </Stack>
-                                <Stack direction="horizontal" gap="2">
-                                    <Text variant="muted">Loop duration (s):</Text>
-                                    {/* One concept, one bound set: the artwork render bounds
-                                        ([0.5, 120] s — findings F19/F20 unified). */}
-                                    <input
-                                        type="number"
-                                        min={MIN_LOOP_MS / 1000}
-                                        max={MAX_LOOP_MS / 1000}
-                                        step={0.5}
-                                        defaultValue={duration}
-                                        style={{ width: '4rem' }}
-                                        onChange={(e) => {
-                                            setDuration(parseDurationInput(e.currentTarget.value));
-                                        }}
-                                    />
-                                </Stack>
                             </Stack>
                         </ControlField>
 
