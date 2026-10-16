@@ -1,13 +1,20 @@
+import { ControlField } from '@repo/ui/components/ControlField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
-import { Readout } from '@repo/ui/components/Readout';
 import { Stack } from '@repo/ui/components/Stack';
+import type { CSSProperties } from 'react';
 
 import { formatFormula } from '../core/expression/index.ts';
 import type { Channel } from '../core/expression/index.ts';
 import { useExpression } from '../stores/appStore';
 
 const CHANNELS: readonly Channel[] = ['r', 'g', 'b'];
+
+const formulaStyle: CSSProperties = {
+    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+    fontSize: '0.75rem',
+    overflowWrap: 'anywhere',
+};
 
 /**
  * The expression, one line per channel: the compiled formula is the reference for understanding an
@@ -23,11 +30,9 @@ export function Inspector() {
             <ControlSection title="expression">
                 <Stack gap="3">
                     {CHANNELS.map((channel) => (
-                        <Readout
-                            key={channel}
-                            label={channel.toUpperCase()}
-                            value={formatFormula(expression[channel])}
-                        />
+                        <ControlField key={channel} label={`Channel ${channel}`}>
+                            <div style={formulaStyle}>{formatFormula(expression[channel])}</div>
+                        </ControlField>
                     ))}
                 </Stack>
             </ControlSection>

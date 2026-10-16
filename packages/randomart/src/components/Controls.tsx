@@ -11,13 +11,7 @@ import { useSyncExternalStore } from 'react';
 import type { ProvenanceCheck } from '../core/artwork/index.ts';
 import { MAX_LOOP_MS, MIN_LOOP_MS } from '../core/artwork/index.ts';
 import type { Operator, OperatorGroup } from '../core/catalog/index.ts';
-import {
-    isLastTerminal,
-    MAX_DEPTH,
-    MAX_NODES,
-    MAX_WEIGHT,
-    MIN_ACTIVE_WEIGHT,
-} from '../core/grammar/index.ts';
+import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT } from '../core/grammar/index.ts';
 import {
     catalog,
     exportArtworkFile,
@@ -76,20 +70,13 @@ const GROUP_LABELS: Record<OperatorGroup, string> = {
  * One row, one operator: the checkbox and the weight are _the same piece of state_ — a weight of 0
  * means off. There is no separate "enabled" flag anywhere: `weight > 0` is the vocabulary, and this
  * row is the manual twin of `randomizeWeights` (both write `grammar.weights`, single SSOT).
- *
- * `lastTerminal` is derived, not stored (`isLastTerminal`): the last active terminal cannot be
- * switched off — `createGrammar` would refuse it — so its checkbox is locked and its weight floor
- * stays positive. The UI spares a gesture with no valid outcome; the invariant itself stays in the
- * core.
  */
 function OperatorRow({
     operator,
     weight,
-    lastTerminal,
 }: {
     readonly operator: Operator;
     readonly weight: number;
-    readonly lastTerminal: boolean;
 }) {
     const enabled = weight > 0;
 
@@ -98,8 +85,6 @@ function OperatorRow({
             <Checkbox
                 label={operator.name}
                 checked={enabled}
-                disabled={lastTerminal}
-                title={lastTerminal ? 'The vocabulary needs at least one terminal' : undefined}
                 onCheckedChange={(checked) => {
                     // Checked on: enters at weight 1 (neutral value, same convention as the
                     // randomizer's repair); checked off: weight 0.
@@ -107,7 +92,7 @@ function OperatorRow({
                 }}
             />
             <NumberField
-                min={lastTerminal ? MIN_ACTIVE_WEIGHT : 0}
+                min={0}
                 max={MAX_WEIGHT}
                 step={0.1}
                 value={weight}
@@ -122,10 +107,9 @@ function OperatorRow({
 
 /**
  * The manual face of the grammar: which operators exist (checkbox) and how much they weigh
- * (weight). Editing quantities are repaired in the store (`setOperatorWeight`); the last active
- * terminal is locked in the UI (`isLastTerminal`). What is content — an empty terminal set — still
- * belongs to `createGrammar`, and would surface through the error status if the UI ever let it
- * through (F22: the invariant lives in the core, the UI only declines a gesture it knows is void).
+ * (weight). Editing quantities are repaired in the store (`setOperatorWeight`); what is content —
+ * e.g. switching off the last terminal — is refused by the core and reported in the error status
+ * (F22: the invariant lives in `createGrammar`, not here).
  */
 function Vocabulary() {
     const grammar = useGrammar();
@@ -150,11 +134,6 @@ function Vocabulary() {
                                     key={operator.name}
                                     operator={operator}
                                     weight={grammar.weights[operator.name] ?? 0}
-                                    lastTerminal={isLastTerminal(
-                                        catalog,
-                                        grammar.weights,
-                                        operator.name,
-                                    )}
                                 />
                             ))}
                         </Stack>
@@ -210,46 +189,6 @@ export function Controls() {
                                 <Text variant="muted">
                                     Seed: {seed} • {compiledShader.stats.nodes} nodes
                                 </Text>
-                            </Stack>
-                        </ControlField>
-
-                        {/* ── Playback ── */}
-                        <ControlField label="Playback">
-                            <Stack gap="2">
-                                <Stack direction="horizontal" gap="2">
-                                    <Button
-                                        onClick={() => {
-                                            clockStore.togglePlay();
-                                        }}
-                                        disabled={!canAnimate}
-                                    >
-                                        {isPlaying ? 'Pause' : 'Play'}
-                                    </Button>
-                                    <Button
-                                        onClick={() => {
-                                            clockStore.reset();
-                                        }}
-                                        disabled={!canAnimate}
-                                    >
-                                        Reset
-                                    </Button>
-                                </Stack>
-                                <Stack direction="horizontal" gap="2">
-                                    <Text variant="muted">Loop duration (s):</Text>
-                                    {/* One concept, one bound set: the artwork render bounds
-                              ([0.5, 120] s — findings F19/F20 unified). */}
-                                    <input
-                                        type="number"
-                                        min={MIN_LOOP_MS / 1000}
-                                        max={MAX_LOOP_MS / 1000}
-                                        step={0.5}
-                                        defaultValue={duration}
-                                        style={{ width: '4rem' }}
-                                        onChange={(e) => {
-                                            setDuration(parseDurationInput(e.currentTarget.value));
-                                        }}
-                                    />
-                                </Stack>
                             </Stack>
                         </ControlField>
 
@@ -349,6 +288,46 @@ export function Controls() {
                                         {entry.seed} · {entry.nodes}
                                     </Button>
                                 ))}
+                            </Stack>
+                        </ControlField>
+
+                        {/* ── Playback ── */}
+                        <ControlField label="Playback">
+                            <Stack gap="2">
+                                <Stack direction="horizontal" gap="2">
+                                    <Button
+                                        onClick={() => {
+                                            clockStore.togglePlay();
+                                        }}
+                                        disabled={!canAnimate}
+                                    >
+                                        {isPlaying ? 'Pause' : 'Play'}
+                                    </Button>
+                                    <Button
+                                        onClick={() => {
+                                            clockStore.reset();
+                                        }}
+                                        disabled={!canAnimate}
+                                    >
+                                        Reset
+                                    </Button>
+                                </Stack>
+                                <Stack direction="horizontal" gap="2">
+                                    <Text variant="muted">Loop duration (s):</Text>
+                                    {/* One concept, one bound set: the artwork render bounds
+                                        ([0.5, 120] s — findings F19/F20 unified). */}
+                                    <input
+                                        type="number"
+                                        min={MIN_LOOP_MS / 1000}
+                                        max={MAX_LOOP_MS / 1000}
+                                        step={0.5}
+                                        defaultValue={duration}
+                                        style={{ width: '4rem' }}
+                                        onChange={(e) => {
+                                            setDuration(parseDurationInput(e.currentTarget.value));
+                                        }}
+                                    />
+                                </Stack>
                             </Stack>
                         </ControlField>
 
