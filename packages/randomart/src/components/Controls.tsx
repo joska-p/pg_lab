@@ -1,4 +1,5 @@
 import { Button } from '@repo/ui/components/Button';
+import { Checkbox } from '@repo/ui/components/Checkbox';
 import { ControlField } from '@repo/ui/components/ControlField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
@@ -9,8 +10,10 @@ import { useSyncExternalStore } from 'react';
 
 import type { ProvenanceCheck } from '../core/artwork/index.ts';
 import { MAX_LOOP_MS, MIN_LOOP_MS } from '../core/artwork/index.ts';
-import { MAX_DEPTH, MAX_NODES } from '../core/grammar/index.ts';
+import type { Operator, OperatorGroup } from '../core/catalog/index.ts';
+import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT } from '../core/grammar/index.ts';
 import {
+    catalog,
     exportArtworkFile,
     exportGrammarFile,
     exportPng,
@@ -23,6 +26,7 @@ import {
     restoreEntry,
     setConstraints,
     setDuration,
+    setOperatorWeight,
     useActionError,
     useCanvas,
     useClockStore,
@@ -45,6 +49,104 @@ const PROVENANCE_LABELS: Record<ProvenanceCheck, string> = {
     differs: 'Not regenerable: the expression was edited after generation',
     'version-mismatch': 'Not replayable: made with another version of the generator',
 };
+
+const GROUP_ORDER: readonly OperatorGroup[] = [
+    'terminal',
+    'arithmetic',
+    'trigonometry',
+    'logic',
+    'transform',
+];
+
+const GROUP_LABELS: Record<OperatorGroup, string> = {
+    terminal: 'Terminals',
+    arithmetic: 'Arithmetic',
+    trigonometry: 'Trigonometry',
+    logic: 'Logic',
+    transform: 'Transforms',
+};
+
+/**
+ * One row, one operator: the checkbox and the weight are _the same piece of state_ — a weight of 0
+ * means off. There is no separate "enabled" flag anywhere: `weight > 0` is the vocabulary, and this
+ * row is the manual twin of `randomizeWeights` (both write `grammar.weights`, single SSOT).
+ */
+function OperatorRow({
+    operator,
+    weight,
+}: {
+    readonly operator: Operator;
+    readonly weight: number;
+}) {
+    const enabled = weight > 0;
+
+    return (
+        <Stack direction="horizontal" gap="2" justify="between">
+            <Checkbox
+                label={operator.name}
+                checked={enabled}
+                onCheckedChange={(checked) => {
+                    // Checked on: enters at weight 1 (neutral value, same convention as the
+                    // randomizer's repair); checked off: weight 0.
+                    setOperatorWeight(operator.name, checked ? 1 : 0);
+                }}
+            />
+            <NumberField
+                min={0}
+                max={MAX_WEIGHT}
+                step={0.1}
+                value={weight}
+                disabled={!enabled}
+                onValueChange={(value) => {
+                    setOperatorWeight(operator.name, value);
+                }}
+            />
+        </Stack>
+    );
+}
+
+/**
+ * The manual face of the grammar: which operators exist (checkbox) and how much they weigh
+ * (weight). Editing quantities are repaired in the store (`setOperatorWeight`); what is content —
+ * e.g. switching off the last terminal — is refused by the core and reported in the error status
+ * (F22: the invariant lives in `createGrammar`, not here).
+ */
+function Vocabulary() {
+    const grammar = useGrammar();
+
+    return (
+        <ControlField label="Vocabulary">
+            <Stack gap="3">
+                {GROUP_ORDER.map((group) => {
+                    const operators = catalog
+                        .operators()
+                        .filter((operator) => operator.group === group);
+
+                    if (operators.length === 0) {
+                        return null;
+                    }
+
+                    return (
+                        <Stack key={group} gap="1">
+                            <Text variant="muted">{GROUP_LABELS[group]}</Text>
+                            {operators.map((operator) => (
+                                <OperatorRow
+                                    key={operator.name}
+                                    operator={operator}
+                                    weight={grammar.weights[operator.name] ?? 0}
+                                />
+                            ))}
+                        </Stack>
+                    );
+                })}
+                <Text variant="muted">
+                    Unchecked = weight 0 = never drawn. &quot;New weights&quot; redistributes the
+                    weights inside the checked selection, it never toggles operators.
+                </Text>
+            </Stack>
+        </ControlField>
+    );
+}
 
 export function Controls() {
     const summary = useGrammarSummary();
@@ -168,6 +270,9 @@ export function Controls() {
                                 </Stack>
                             </Stack>
                         </ControlField>
+
+                        {/* ── Vocabulary (manual grammar, one SSOT with the randomizer) ── */}
+                        <Vocabulary />
 
                         {/* ── History ── */}
                         <ControlField label="History">

@@ -22,8 +22,7 @@ import type { Artwork, ProvenanceCheck } from '../core/artwork/index.ts';
 import { createDefaultCatalog } from '../core/catalog/index.ts';
 import { compile } from '../core/compiler/index.ts';
 import type { CompiledShader } from '../core/compiler/index.ts';
-import { createExpression } from '../core/expression/index.ts';
-import type { Address, Expression, Node } from '../core/expression/index.ts';
+import type { Expression } from '../core/expression/index.ts';
 import { generate, GENERATOR_VERSION } from '../core/generator/index.ts';
 import {
     createGrammar,
@@ -31,6 +30,7 @@ import {
     describeGrammar,
     fitConstraints,
     getVocabulary,
+    MAX_WEIGHT,
     randomizeWeights,
 } from '../core/grammar/index.ts';
 import type { ConstraintsInput, Grammar, GrammarSummary } from '../core/grammar/index.ts';
@@ -55,7 +55,11 @@ export interface HistoryEntry {
 
 const HISTORY_LIMIT = 30;
 
-const catalog = createDefaultCatalog();
+/**
+ * The app-wide catalog: `Operator` instances probe their multiplicities once, at construction, so
+ * every consumer must share this single instance.
+ */
+export const catalog = createDefaultCatalog();
 
 // Time terminals are always in the default vocabulary: one seed = one expression = one shader.
 // Animation is a matter of playback (Play/Pause on the clock), not of grammar.
@@ -72,8 +76,11 @@ const initialEntry: HistoryEntry = {
 
 let nextEntryId = 1;
 
-/** Id of the history entry created by the current run of constraint edits, if any. */
-let constraintEditId: number | null = null;
+/**
+ * Id of the history entry created by the current run of grammar edits (constraints, weights), if
+ * any.
+ */
+let grammarEditId: number | null = null;
 
 interface AppStoreState {
     clockStore: ClockStore;
@@ -92,8 +99,6 @@ interface AppStoreState {
     expression: Expression;
     /** Provenance status of the current artwork ("matches" unless it was imported). */
     provenanceCheck: ProvenanceCheck;
-    /** Node picked in the inspector; reset whenever the expression changes. */
-    selected: Address | null;
     compiledShader: CompiledShader;
     canvas: HTMLCanvasElement | null;
 }
@@ -112,7 +117,6 @@ const store = create<AppStoreState>(() => ({
     seed: initialSeed,
     expression: initialExpression,
     provenanceCheck: 'matches',
-    selected: null,
     compiledShader: initialCompiled,
     canvas: null,
 }));
@@ -165,23 +169,6 @@ export function useExpression(): Expression {
 
 export function useProvenanceCheck(): ProvenanceCheck {
     return store((s) => s.provenanceCheck);
-}
-
-export function useSelected(): Address | null {
-    return store((s) => s.selected);
-}
-
-export function selectNode(selected: Address | null): void {
-    store.setState({ selected });
-}
-
-/**
- * Compiles one subtree on its own, in the root coordinate context, as a grayscale picture (`r = g =
- * b = node`). Known limit: the deformation of the node's ancestors (e.g. `warp`) is not part of the
- * preview.
- */
-export function compileNodePreview(node: Node): CompiledShader {
-    return compile(catalog, createExpression(node, node, node));
 }
 
 export function useCompiledShader(): CompiledShader {
@@ -243,17 +230,17 @@ function commit(grammar: Grammar, seed: Seed, restoreId?: number, coalesce = fal
                 nodes: compiledShader.stats.nodes,
             };
 
-            const replaces = coalesce && constraintEditId === state.currentId;
+            const replaces = coalesce && grammarEditId === state.currentId;
             const kept = replaces
                 ? history.filter((candidate) => candidate.id !== state.currentId)
                 : history;
 
             history = [entry, ...kept].slice(0, HISTORY_LIMIT);
             currentId = entry.id;
-            constraintEditId = coalesce ? entry.id : null;
+            grammarEditId = coalesce ? entry.id : null;
         } else {
             currentId = restoreId;
-            constraintEditId = null;
+            grammarEditId = null;
         }
 
         store.setState({
@@ -262,7 +249,6 @@ function commit(grammar: Grammar, seed: Seed, restoreId?: number, coalesce = fal
             seed,
             expression,
             provenanceCheck: 'matches',
-            selected: null,
             compiledShader,
             history,
             currentId,
@@ -292,9 +278,13 @@ function exploreGrammar(randomize: (grammar: Grammar, rng: Rng) => Grammar): voi
     }
 }
 
-/** "New weights": scaling and on/off, constraints unchanged. */
+/**
+ * "New weights": redistribution only, the vocabulary is frozen (changeRate 0). Which operators are
+ * on is the manual panel's call (`weight > 0`, one SSOT); this gesture explores _inside_ that
+ * selection — it never activates or deactivates an operator. Constraints are unchanged.
+ */
 export function newDistribution(): void {
-    exploreGrammar((grammar, rng) => randomizeWeights(catalog, grammar, rng));
+    exploreGrammar((grammar, rng) => randomizeWeights(catalog, grammar, rng, { changeRate: 0 }));
 }
 
 /**
@@ -341,6 +331,40 @@ export function setConstraints(partial: Partial<ConstraintsInput>): void {
     );
 }
 
+/**
+ * Manual weight edit from the vocabulary panel: `weight = 0` switches the operator off, a positive
+ * weight switches it on. This is the _second writer_ of `grammar.weights` beside the randomizer —
+ * there is deliberately no separate "enabled" state: `weight > 0` is the single source of truth for
+ * the vocabulary (`getVocabulary`, findings on SSOT).
+ *
+ * Throw-vs-repair policy (shared/index.ts): a finite edit is an editing quantity — rounded to 3
+ * decimals and clamped into [0, MAX_WEIGHT]; a non-finite edit is garbage, not an intent, and is
+ * dropped (F21: the field keeps its value instead of an invented one). What is _content_ stays in
+ * `createGrammar` and surfaces through `commit`'s all-or-nothing error — e.g. switching off the
+ * last terminal is refused (F22: the invariant lives in the core, not in the UI).
+ */
+export function setOperatorWeight(name: string, rawWeight: number): void {
+    if (!Number.isFinite(rawWeight)) {
+        return;
+    }
+
+    const weight = Math.min(MAX_WEIGHT, Math.max(0, Math.round(rawWeight * 1000) / 1000));
+    const { grammar, seed } = store.getState();
+
+    try {
+        const next = createGrammar(catalog, {
+            weights: { ...grammar.weights, [name]: weight },
+            constraints: grammar.constraints,
+        });
+
+        // Coalesced, like constraint edits: a run of tweaks is one history entry, not one per
+        // keystroke.
+        commit(next, seed, undefined, true);
+    } catch (error) {
+        setActionError(error);
+    }
+}
+
 /** Back to the default grammar, same seed. */
 export function resetGrammar(): void {
     commit(defaultGrammar(catalog), store.getState().seed);
@@ -364,7 +388,6 @@ function restoreImportedEntry(entry: HistoryEntry): void {
             seed: entry.seed,
             expression,
             provenanceCheck: entry.provenanceCheck ?? 'differs',
-            selected: null,
             compiledShader: compile(catalog, expression),
             currentId: entry.id,
             actionError: null,
@@ -435,7 +458,6 @@ function publishArtwork(artwork: Artwork): void {
         seed,
         expression,
         provenanceCheck,
-        selected: null,
         compiledShader,
         history: [entry, ...state.history].slice(0, HISTORY_LIMIT),
         currentId: entry.id,
