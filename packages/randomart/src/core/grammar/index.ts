@@ -6,6 +6,7 @@ export {
     defaultGrammar,
     fitConstraints,
     getVocabulary,
+    isLastTerminal,
     minSize,
 } from './grammar.ts';
 export { DEFAULT_KEEP, randomizeWeights, type RandomizeWeightsOptions } from './randomize.ts';
@@ -16,5 +17,6 @@ export {
     MAX_DEPTH,
     MAX_NODES,
     MAX_WEIGHT,
+    MIN_ACTIVE_WEIGHT,
     MIN_WEIGHT,
 } from './types.ts';

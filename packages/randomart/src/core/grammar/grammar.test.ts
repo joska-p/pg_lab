@@ -6,6 +6,7 @@ import {
     createGrammar,
     DEFAULT_CONSTRAINTS,
     defaultGrammar,
+    isLastTerminal,
     minSize,
 } from './index.ts';
 
@@ -244,5 +245,46 @@ describe('grammar: defaultGrammar', () => {
         for (const operator of catalog.operators()) {
             expect(g.weights[operator.name]).toBeDefined();
         }
+    });
+});
+
+describe('grammar: isLastTerminal', () => {
+    const catalog = createDefaultCatalog();
+    const terminals = catalog.operators().filter((operator) => operator.isTerminal);
+
+    it('is false while several terminals are active', () => {
+        const { weights } = defaultGrammar(catalog);
+
+        for (const terminal of terminals) {
+            expect(isLastTerminal(catalog, weights, terminal.name)).toBe(false);
+        }
+    });
+
+    it('is true for the only active terminal, and false for an inactive one', () => {
+        const weights: Record<string, number> = { ...defaultGrammar(catalog).weights };
+
+        for (const terminal of terminals) {
+            weights[terminal.name] = terminal.name === 'x' ? 1 : 0;
+        }
+
+        expect(isLastTerminal(catalog, weights, 'x')).toBe(true);
+        // A terminal that is off is not "the last terminal": there is nothing to switch off.
+        expect(isLastTerminal(catalog, weights, 'y')).toBe(false);
+    });
+
+    it('tracks exactly what createGrammar refuses when emptying the terminals', () => {
+        const weights: Record<string, number> = { ...defaultGrammar(catalog).weights };
+
+        for (const terminal of terminals) {
+            weights[terminal.name] = terminal.name === 'x' ? 1 : 0;
+        }
+
+        expect(isLastTerminal(catalog, weights, 'x')).toBe(true);
+        expect(() =>
+            createGrammar(catalog, {
+                weights: { ...weights, x: 0 },
+                constraints: DEFAULT_CONSTRAINTS,
+            }),
+        ).toThrow(/at least one terminal/);
     });
 });

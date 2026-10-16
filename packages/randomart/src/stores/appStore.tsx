@@ -340,8 +340,9 @@ export function setConstraints(partial: Partial<ConstraintsInput>): void {
  * Throw-vs-repair policy (shared/index.ts): a finite edit is an editing quantity — rounded to 3
  * decimals and clamped into [0, MAX_WEIGHT]; a non-finite edit is garbage, not an intent, and is
  * dropped (F21: the field keeps its value instead of an invented one). What is _content_ stays in
- * `createGrammar` and surfaces through `commit`'s all-or-nothing error — e.g. switching off the
- * last terminal is refused (F22: the invariant lives in the core, not in the UI).
+ * `createGrammar` — switching off the last terminal is refused there (F22: the invariant lives in
+ * the core). The panel locks that control upfront via `isLastTerminal`, a derived reading of the
+ * weights, so the refusal is normally unreachable from the UI.
  */
 export function setOperatorWeight(name: string, rawWeight: number): void {
     if (!Number.isFinite(rawWeight)) {

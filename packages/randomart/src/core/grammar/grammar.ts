@@ -37,6 +37,26 @@ export function getVocabulary(
 }
 
 /**
+ * True when switching `name` off would empty the terminals — i.e. it is the only active terminal
+ * left, so `createGrammar` would refuse the gesture (rule 3: structure with no canonical repair).
+ *
+ * A derived reading of `weights`, never a stored flag: the UI uses it to disable a control that has
+ * no valid outcome (the invariant itself stays in `createGrammar`). An operator that is already off
+ * is not "the last terminal": there is nothing to switch off.
+ */
+export function isLastTerminal(
+    catalog: Catalog,
+    weights: Readonly<Record<string, number>>,
+    name: string,
+): boolean {
+    if ((weights[name] ?? 0) <= 0) {
+        return false;
+    }
+
+    return getVocabulary(catalog, weights).filter(isTerminalOperator).length === 1;
+}
+
+/**
  * The missing-field fallback shape (findings F12): a non-finite constraint value is garbage, not an
  * intent, so it takes these defaults — the `defaultGrammar` shape, a finite and feasible baseline
  * for the stock catalog. `defaultGrammar` itself uses them (one value set, one meaning).
