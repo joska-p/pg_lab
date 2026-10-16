@@ -16,8 +16,12 @@ describe('Seed', () => {
     });
 
     it('rejects numbers outside the 32-bit range', () => {
-        expect(() => createSeed(-1)).toThrow(/between 0 and/);
-        expect(() => createSeed(MAX_SEED + 1)).toThrow(/between 0 and/);
+        expect(() => createSeed(-1)).toThrow(
+            'Randomart: seed must be an integer in [0, 4294967295], received -1',
+        );
+        expect(() => createSeed(MAX_SEED + 1)).toThrow(
+            'Randomart: seed must be an integer in [0, 4294967295], received 4294967296',
+        );
     });
 
     it('generates random seeds within valid range', () => {
@@ -80,10 +84,14 @@ describe('Rng (mulberry32)', () => {
     it('rejects invalid maxExclusive for int()', () => {
         const rng = createRng(createSeed(123));
 
-        expect(() => rng.int(0)).toThrow(/integer > 0/);
-        expect(() => rng.int(-5)).toThrow(/integer > 0/);
-        expect(() => rng.int(2.5)).toThrow(/integer > 0/);
-        expect(() => rng.int(Number.NaN)).toThrow(/finite/);
+        expect(() => rng.int(0)).toThrow('Randomart: maxExclusive must be >= 1, received 0');
+        expect(() => rng.int(-5)).toThrow('Randomart: maxExclusive must be >= 1, received -5');
+        expect(() => rng.int(2.5)).toThrow(
+            'Randomart: maxExclusive must be an integer, received 2.5',
+        );
+        expect(() => rng.int(Number.NaN)).toThrow(
+            'Randomart: maxExclusive must be a finite number, received NaN',
+        );
     });
 
     describe('weighted', () => {
@@ -128,10 +136,10 @@ describe('Rng (mulberry32)', () => {
         it('rejects negative or non-finite weights', () => {
             const rng = createRng(createSeed(1));
             expect(() => rng.weighted(['a', 'b'], (x) => (x === 'a' ? 1 : -1))).toThrow(
-                /non-negative/,
+                'Randomart: weight of item at index 1 must not be negative, received -1',
             );
             expect(() => rng.weighted(['a', 'b'], (x) => (x === 'a' ? 1 : Number.NaN))).toThrow(
-                /finite/,
+                'Randomart: weight of item at index 1 must be a finite number, received NaN',
             );
         });
 

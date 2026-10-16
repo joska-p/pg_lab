@@ -1,5 +1,5 @@
 export {
-    calculatePhase,
+    createPhase,
     DEFAULT_CONTEXT_OPTIONS,
     DEFAULT_LOOP_DURATION,
     GLSL_COORD_INIT,
@@ -8,4 +8,5 @@ export {
     HANDWRITTEN_TEST_SHADER,
     validateShaderContract,
 } from './contract';
+export type { Phase } from './contract';
 export { RandomArtCanvas, type RandomArtCanvasProps } from './RandomArtCanvas';

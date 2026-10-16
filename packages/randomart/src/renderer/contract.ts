@@ -1,6 +1,9 @@
 import { createDurationSeconds } from '@repo/glaze/core/time';
 import type { DurationSeconds } from '@repo/glaze/core/time';
 
+import { assertFinite } from '../core/shared/index.ts';
+import type { Brand } from '../core/shared/index.ts';
+
 /** Contract snippet: vertex-to-fragment UV coordinate input. */
 export const GLSL_IN_UV = 'in vec2 vUv;';
 
@@ -23,13 +26,28 @@ export const DEFAULT_CONTEXT_OPTIONS: WebGLContextAttributes = {
 };
 
 /**
- * Computes the normalized animation phase in [0, 1) from the clock progress. Guarantees strictly
- * [0, 1) even when progress equals 1.0 at loop boundaries or after seek.
+ * Normalized loop phase in [0, 1). The brand carries the wrapping guarantee: `createPhase` is the
+ * only way to a `Phase`, so nothing outside can inject 0.9999… or a stale 1.0 into `RenderKey` or
+ * the `u_phase` uniform.
+ *
+ * Naming note (findings F02): the `Phase` literal belongs to randomart — glaze has no phase brand
+ * and its `Clock.progress` stays a raw number over [0, 1] inclusive (findings F26).
  */
-export function calculatePhase(progress: number): number {
+export type Phase = Brand<number, 'Phase'>;
+
+/**
+ * Normalizes the clock progress [0, 1] into the loop phase [0, 1): wraps out-of-range values
+ * (negative, > 1) and folds the inclusive 1.0 boundary back to 0.
+ */
+export function createPhase(progress: number): Phase {
+    // `Clock.progress` is finite by construction (seconds over a strictly positive duration —
+    // glaze `createDurationSeconds`). The assert documents that precondition rather than letting a
+    // NaN propagate into the uniforms and the render gate (F08).
+    assertFinite(progress, 'clock progress');
+
     const wrapped = ((progress % 1) + 1) % 1;
-    // Guard against floating point rounding edge cases where wrapped might evaluate to 1
-    return wrapped >= 1 ? 0 : wrapped;
+    // Guard against floating point rounding edge cases where wrapped might evaluate to 1.
+    return (wrapped >= 1 ? 0 : wrapped) as Phase;
 }
 
 /**

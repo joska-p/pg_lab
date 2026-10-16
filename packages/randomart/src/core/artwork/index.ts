@@ -1,4 +1,4 @@
-export { createArtwork } from './create.ts';
+export { createArtwork, createRenderSettings } from './create.ts';
 export { checkProvenance, type ProvenanceCheck } from './provenance.ts';
 export {
     ARTWORK_FILE_FORMAT,
@@ -17,7 +17,13 @@ export {
     serializeGrammarFile,
     deserializeGrammar,
 } from './serialize.ts';
-export type { Artwork, ArtworkInput, Provenance, RenderSettings } from './types.ts';
+export type {
+    Artwork,
+    ArtworkInput,
+    Provenance,
+    RenderSettings,
+    RenderSettingsInput,
+} from './types.ts';
 export {
     DEFAULT_LOOP_MS,
     DEFAULT_RENDER_HEIGHT,

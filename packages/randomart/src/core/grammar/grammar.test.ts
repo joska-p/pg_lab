@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../catalog/index.ts';
-import { createGrammar, defaultGrammar, minSize } from './index.ts';
+import { createConstraints, createGrammar, defaultGrammar, minSize } from './index.ts';
 
 describe('grammar: minSize', () => {
     const catalog = createDefaultCatalog();
@@ -46,8 +46,7 @@ describe('grammar: createGrammar validations', () => {
         ).toThrow(/does not exist in catalog/);
     });
 
-    it('accepts weight 0 (off) and rejects negatives or > 100', () => {
-        const catalog = createDefaultCatalog();
+    it('accepts weight 0 (off) and rejects negative or > 100 weights', () => {
         expect(
             createGrammar(catalog, {
                 weights: { x: 0, y: 0, const: 1 },
@@ -60,14 +59,32 @@ describe('grammar: createGrammar validations', () => {
                 weights: { x: -1e-9 },
                 constraints: { minDepth: 1, maxDepth: 4, maxNodes: 20 },
             }),
-        ).toThrow(/must be within/);
+        ).toThrow('Randomart: weight of operator "x" (-1e-9) must be within [0, 100]');
 
         expect(() =>
             createGrammar(catalog, {
                 weights: { x: 101 },
                 constraints: { minDepth: 1, maxDepth: 4, maxNodes: 20 },
             }),
-        ).toThrow(/must be within/);
+        ).toThrow('Randomart: weight of operator "x" (101) must be within [0, 100]');
+    });
+
+    it('rejects non-finite weights', () => {
+        expect(() =>
+            createGrammar(catalog, {
+                weights: { x: Number.NaN },
+                constraints: { minDepth: 1, maxDepth: 4, maxNodes: 20 },
+            }),
+        ).toThrow('Randomart: weight of operator "x" must be a finite number, received NaN');
+    });
+
+    it('rejects empty weights', () => {
+        expect(() =>
+            createGrammar(catalog, {
+                weights: {},
+                constraints: { minDepth: 1, maxDepth: 4, maxNodes: 20 },
+            }),
+        ).toThrow('Randomart: grammar weights must not be empty');
     });
 
     it('rejects vocabulary without active terminals', () => {
@@ -86,14 +103,14 @@ describe('grammar: createGrammar validations', () => {
                 weights: { x: 1 },
                 constraints: { minDepth: 5, maxDepth: 3, maxNodes: 20 },
             }),
-        ).toThrow(/1 <= minDepth <= maxDepth/);
+        ).toThrow('Randomart: constraints.minDepth (5) must not exceed constraints.maxDepth (3)');
 
         expect(() =>
             createGrammar(catalog, {
                 weights: { x: 1 },
                 constraints: { minDepth: 0, maxDepth: 3, maxNodes: 20 },
             }),
-        ).toThrow(/1 <= minDepth <= maxDepth/);
+        ).toThrow('Randomart: constraints.minDepth must be an integer in [1, 16], received 0');
     });
 
     it('rejects minDepth > 1 without active non-terminals', () => {
@@ -112,14 +129,14 @@ describe('grammar: createGrammar validations', () => {
                 weights: { x: 1 },
                 constraints: { minDepth: 1, maxDepth: 17, maxNodes: 20 },
             }),
-        ).toThrow(/exceeds hard limit MAX_DEPTH/);
+        ).toThrow('Randomart: constraints.maxDepth must be an integer in [1, 16], received 17');
 
         expect(() =>
             createGrammar(catalog, {
                 weights: { x: 1 },
                 constraints: { minDepth: 1, maxDepth: 10, maxNodes: 401 },
             }),
-        ).toThrow(/exceeds hard limit MAX_NODES/);
+        ).toThrow('Randomart: constraints.maxNodes must be an integer in [1, 400], received 401');
     });
 
     it('rejects unfeasible maxNodes lower than minSize(1)', () => {
@@ -130,6 +147,42 @@ describe('grammar: createGrammar validations', () => {
                 constraints: { minDepth: 4, maxDepth: 6, maxNodes: 14 },
             }),
         ).toThrow(/unfeasible/);
+    });
+});
+
+describe('grammar: createConstraints', () => {
+    it('brands and freezes valid constraints', () => {
+        const constraints = createConstraints({ minDepth: 2, maxDepth: 8, maxNodes: 60 });
+
+        expect(constraints).toEqual({ minDepth: 2, maxDepth: 8, maxNodes: 60 });
+        expect(Object.isFrozen(constraints)).toBe(true);
+    });
+
+    it('rejects out-of-range bounds', () => {
+        expect(() => createConstraints({ minDepth: 0, maxDepth: 8, maxNodes: 60 })).toThrow(
+            'Randomart: constraints.minDepth must be an integer in [1, 16], received 0',
+        );
+        expect(() => createConstraints({ minDepth: 1, maxDepth: 17, maxNodes: 60 })).toThrow(
+            'Randomart: constraints.maxDepth must be an integer in [1, 16], received 17',
+        );
+        expect(() => createConstraints({ minDepth: 1, maxDepth: 8, maxNodes: 0 })).toThrow(
+            'Randomart: constraints.maxNodes must be an integer in [1, 400], received 0',
+        );
+    });
+
+    it('rejects integer/finite violations', () => {
+        expect(() => createConstraints({ minDepth: 1.5, maxDepth: 8, maxNodes: 60 })).toThrow(
+            'Randomart: constraints.minDepth must be an integer, received 1.5',
+        );
+        expect(() => createConstraints({ minDepth: 1, maxDepth: 8, maxNodes: Number.NaN })).toThrow(
+            'Randomart: constraints.maxNodes must be a finite number, received NaN',
+        );
+    });
+
+    it('rejects minDepth above maxDepth after both are in range', () => {
+        expect(() => createConstraints({ minDepth: 5, maxDepth: 3, maxNodes: 60 })).toThrow(
+            'Randomart: constraints.minDepth (5) must not exceed constraints.maxDepth (3)',
+        );
     });
 });
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import {
-    calculatePhase,
+    createPhase,
     DEFAULT_CONTEXT_OPTIONS,
     DEFAULT_LOOP_DURATION,
     GLSL_COORD_INIT,
@@ -12,27 +12,33 @@ import {
 } from './contract';
 
 describe('renderer / contract & helpers', () => {
-    describe('calculatePhase', () => {
+    describe('createPhase', () => {
         it('maps progress values strictly into [0, 1)', () => {
-            expect(calculatePhase(0)).toBe(0);
-            expect(calculatePhase(0.25)).toBe(0.25);
-            expect(calculatePhase(0.5)).toBe(0.5);
-            expect(calculatePhase(0.75)).toBe(0.75);
-            // 1.0 wraps back to 0
-            expect(calculatePhase(1)).toBe(0);
+            expect(createPhase(0)).toBe(0);
+            expect(createPhase(0.25)).toBe(0.25);
+            expect(createPhase(0.5)).toBe(0.5);
+            expect(createPhase(0.75)).toBe(0.75);
+            // 1.0 wraps back to 0 (Clock.progress is [0, 1] inclusive — finding F26)
+            expect(createPhase(1)).toBe(0);
             // Values beyond 1 wrap properly
-            expect(calculatePhase(1.25)).toBeCloseTo(0.25);
-            expect(calculatePhase(2.0)).toBe(0);
+            expect(createPhase(1.25)).toBeCloseTo(0.25);
+            expect(createPhase(2.0)).toBe(0);
         });
 
         it('handles negative progress values gracefully', () => {
-            expect(calculatePhase(-0.25)).toBeCloseTo(0.75);
-            expect(calculatePhase(-1)).toBe(0);
+            expect(createPhase(-0.25)).toBeCloseTo(0.75);
+            expect(createPhase(-1)).toBe(0);
         });
 
         it('never returns >= 1 even with edge cases', () => {
-            expect(calculatePhase(0.9999999999999999)).toBeLessThan(1);
-            expect(calculatePhase(0.9999999999999999)).toBeGreaterThanOrEqual(0);
+            expect(createPhase(0.9999999999999999)).toBeLessThan(1);
+            expect(createPhase(0.9999999999999999)).toBeGreaterThanOrEqual(0);
+        });
+
+        it('rejects a non-finite progress (F08: fail loudly, do not propagate a NaN)', () => {
+            expect(() => createPhase(Number.NaN)).toThrow(
+                'Randomart: clock progress must be a finite number, received NaN',
+            );
         });
     });
 

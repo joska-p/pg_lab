@@ -1,11 +1,17 @@
-/** What the last drawn frame depended on. */
+import type { CanvasDimension, DevicePixelRatio } from '@repo/glaze/core/render';
+
+import type { Phase } from './contract';
+
+/**
+ * What the last drawn frame depended on. Every field is a validated brand: the phase in [0, 1)
+ * comes from `createPhase`, the CSS dimensions from `createCanvasDimension` (glaze) and the DPR is
+ * carried from the surface untouched instead of being widened back to `number` (findings F06/F07).
+ */
 export interface RenderKey {
-    /** Normalized loop phase in [0, 1). */
-    readonly phase: number;
-    /** CSS pixels. */
-    readonly width: number;
-    readonly height: number;
-    readonly dpr: number;
+    readonly phase: Phase;
+    readonly width: CanvasDimension;
+    readonly height: CanvasDimension;
+    readonly dpr: DevicePixelRatio;
     /** True when the shader reads `u_phase`, so a phase change alters the picture. */
     readonly animated: boolean;
 }

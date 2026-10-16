@@ -1,4 +1,4 @@
-import { assertFinite } from '../shared/index.ts';
+import { assertFinite, assertInteger } from '../shared/index.ts';
 import type { Seed } from './seed.ts';
 
 export interface Rng {
@@ -19,10 +19,12 @@ export function createRng(seed: Seed): Rng {
     }
 
     function int(maxExclusive: number): number {
-        assertFinite(maxExclusive, 'maxExclusive');
+        assertInteger(maxExclusive, 'maxExclusive');
 
-        if (!Number.isInteger(maxExclusive) || maxExclusive <= 0) {
-            throw new Error(`maxExclusive must be an integer > 0, received ${maxExclusive}`);
+        if (maxExclusive < 1) {
+            throw new Error(
+                `Randomart: maxExclusive must be >= 1, received ${String(maxExclusive)}`,
+            );
         }
 
         return Math.floor(next() * maxExclusive);
@@ -30,7 +32,7 @@ export function createRng(seed: Seed): Rng {
 
     function weighted<T>(items: readonly T[], weightOf: (item: T) => number): T {
         if (items.length === 0) {
-            throw new Error('weighted: items list must not be empty');
+            throw new Error('Randomart: weighted: the items list must not be empty');
         }
 
         let total = 0;
@@ -39,14 +41,16 @@ export function createRng(seed: Seed): Rng {
             assertFinite(weight, `weight of item at index ${i}`);
             if (weight < 0) {
                 throw new Error(
-                    `weight of item at index ${i} must be non-negative, received ${weight}`,
+                    `Randomart: weight of item at index ${i} must not be negative, received ${weight}`,
                 );
             }
             total += weight;
         }
 
         if (total <= 0) {
-            throw new Error(`weighted: total weight must be strictly positive, received ${total}`);
+            throw new Error(
+                `Randomart: weighted: total weight must be strictly positive, received ${total}`,
+            );
         }
 
         const r = next() * total;

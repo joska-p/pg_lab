@@ -175,10 +175,14 @@ export function randomizeWeights(
     const keep = new Set(options.keep ?? DEFAULT_KEEP);
 
     if (!Number.isFinite(spread) || spread < 1) {
-        throw new Error(`spread must be a finite number >= 1, received ${String(spread)}`);
+        throw new Error(
+            `Randomart: spread must be a finite number >= 1, received ${String(spread)}`,
+        );
     }
     if (!Number.isFinite(changeRate) || changeRate < 0 || changeRate > 1) {
-        throw new Error(`changeRate must be a finite number in [0, 1], received ${changeRate}`);
+        throw new Error(
+            `Randomart: changeRate must be a finite number in [0, 1], received ${changeRate}`,
+        );
     }
 
     const logSpread = Math.log(spread);

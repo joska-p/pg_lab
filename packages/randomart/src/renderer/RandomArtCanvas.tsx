@@ -1,3 +1,4 @@
+import { createCanvasDimension } from '@repo/glaze/core/render';
 import type { DurationSeconds } from '@repo/glaze/core/time';
 import type { ShaderError } from '@repo/glaze/gpu/shader/ShaderError';
 import type { GpuSurface } from '@repo/glaze/gpu/types';
@@ -7,7 +8,7 @@ import { useRef } from 'react';
 import type { CSSProperties } from 'react';
 
 import {
-    calculatePhase,
+    createPhase,
     DEFAULT_CONTEXT_OPTIONS,
     DEFAULT_LOOP_DURATION,
     HANDWRITTEN_TEST_SHADER,
@@ -71,13 +72,18 @@ export function RandomArtCanvas({
             }}
             contextOptions={DEFAULT_CONTEXT_OPTIONS}
             uniforms={(surface) => ({
-                u_phase: calculatePhase(surface.clock.progress),
+                u_phase: createPhase(surface.clock.progress),
             })}
             shouldRender={(surface) => {
                 const key: RenderKey = {
-                    phase: calculatePhase(surface.clock.progress),
-                    width: surface.width,
-                    height: surface.height,
+                    phase: createPhase(surface.clock.progress),
+                    // Safe within a frame: glaze's `#resize()` runs before the frame subscribers
+                    // and clamps the CSS size to >= 1, so the brand invariant holds here (finding
+                    // F09). Never build these in an eager path (onMount, effects): the surface
+                    // dimensions are still 0 before the first frame.
+                    width: createCanvasDimension(surface.width),
+                    height: createCanvasDimension(surface.height),
+                    // Already a DevicePixelRatio glaze-side: carried, not de-branded (F07).
                     dpr: surface.dpr,
                     animated,
                 };

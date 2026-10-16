@@ -1,7 +1,7 @@
 import type { Catalog, Operator } from '../catalog';
-import { assertFinite } from '../shared';
+import { assertFinite, assertIntegerInRange } from '../shared/index.ts';
 import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types';
-import type { Constraints, Grammar } from './types';
+import type { Constraints, ConstraintsInput, Grammar } from './types';
 
 export const isTerminalOperator = (operator: Operator): boolean => operator.isTerminal;
 export const isNonTerminalOperator = (operator: Operator): boolean => !operator.isTerminal;
@@ -37,14 +37,35 @@ export function getVocabulary(
 }
 
 /**
+ * The only way to a `Constraints` brand (findings F10): the rules `createGrammar` checks in rule 4
+ * and rule 6, extracted so the validated type means exactly these bounds.
+ */
+export function createConstraints(constraints: ConstraintsInput): Constraints {
+    assertIntegerInRange(constraints.minDepth, 'constraints.minDepth', 1, MAX_DEPTH);
+    assertIntegerInRange(constraints.maxDepth, 'constraints.maxDepth', 1, MAX_DEPTH);
+    assertIntegerInRange(constraints.maxNodes, 'constraints.maxNodes', 1, MAX_NODES);
+
+    if (constraints.minDepth > constraints.maxDepth) {
+        throw new Error(
+            `Randomart: constraints.minDepth (${constraints.minDepth}) must not exceed constraints.maxDepth (${constraints.maxDepth})`,
+        );
+    }
+
+    return Object.freeze({ ...constraints }) as Constraints;
+}
+
+/**
  * Keeps constraints usable for a given vocabulary: integers within the hard limits, `1 ≤ minDepth ≤
  * maxDepth`, and feasible (`minSize(1, minDepth) ≤ maxNodes`). Used by the UI, which edits
  * constraints by hand instead of randomizing them. Lowering `maxNodes` first, then `minDepth` down
  * to 1, always terminates since `minDepth = 1` is feasible.
+ *
+ * Raw values in, validated constraints out — the `ZoomClamp` pattern (findings F11): whatever the
+ * garbage the UI or a JSON file feeds it, the returned brand is provably grammar-valid.
  */
 export function fitConstraints(
     operators: readonly Operator[],
-    constraints: Constraints,
+    constraints: ConstraintsInput,
 ): Constraints {
     const clampInt = (value: number, min: number, max: number): number =>
         Number.isFinite(value) ? Math.min(max, Math.max(min, Math.round(value))) : min;
@@ -68,22 +89,23 @@ export function fitConstraints(
         minDepth--;
     }
 
-    return { minDepth, maxDepth, maxNodes };
+    // `createConstraints` is the runtime proof that the clamp result satisfies the brand invariant.
+    return createConstraints({ minDepth, maxDepth, maxNodes });
 }
 
 export function createGrammar(
     catalog: Catalog,
     {
         weights,
-        constraints,
+        constraints: rawConstraints,
     }: {
         readonly weights: Readonly<Record<string, number>>;
-        readonly constraints: Constraints;
+        readonly constraints: ConstraintsInput;
     },
 ): Grammar {
     const operatorNames = Object.keys(weights);
     if (operatorNames.length === 0) {
-        throw new Error('Grammar weights must not be empty');
+        throw new Error('Randomart: grammar weights must not be empty');
     }
 
     // Rule 1: Every operator exists in catalog
@@ -92,16 +114,16 @@ export function createGrammar(
         try {
             operators.push(catalog.operator(name));
         } catch {
-            throw new Error(`Operator "${name}" does not exist in catalog`);
+            throw new Error(`Randomart: operator "${name}" does not exist in catalog`);
         }
     }
 
     // Rule 2: Weights are finite and within [MIN_WEIGHT, MAX_WEIGHT]
     for (const [name, weight] of Object.entries(weights)) {
-        assertFinite(weight, `Weight for operator "${name}"`);
+        assertFinite(weight, `weight of operator "${name}"`);
         if (weight < MIN_WEIGHT || weight > MAX_WEIGHT) {
             throw new Error(
-                `Weight for operator "${name}" (${weight}) must be within [${MIN_WEIGHT}, ${MAX_WEIGHT}]`,
+                `Randomart: weight of operator "${name}" (${weight}) must be within [${MIN_WEIGHT}, ${MAX_WEIGHT}]`,
             );
         }
     }
@@ -112,46 +134,30 @@ export function createGrammar(
     // Rule 3: Vocabulary contains at least one active terminal
     const terminals = vocabulary.filter(isTerminalOperator);
     if (terminals.length === 0) {
-        throw new Error('Grammar vocabulary must contain at least one terminal operator');
-    }
-
-    // Rule 4: 1 <= minDepth <= maxDepth
-    const { minDepth, maxDepth, maxNodes } = constraints;
-    if (
-        !Number.isInteger(minDepth) ||
-        !Number.isInteger(maxDepth) ||
-        minDepth < 1 ||
-        minDepth > maxDepth
-    ) {
         throw new Error(
-            `Constraints minDepth (${minDepth}) and maxDepth (${maxDepth}) must be integers satisfying 1 <= minDepth <= maxDepth`,
+            'Randomart: grammar vocabulary must contain at least one terminal operator',
         );
     }
 
+    // Rules 4 & 6 (constraint shape): validated here — raw constraints in, branded out — so a
+    // grammar always carries a validated `Constraints` (findings F10). The vocabulary rules (5)
+    // and feasibility (7) below stay grammar-level because they depend on the weights too.
+    const constraints = createConstraints(rawConstraints);
+
     // Rule 5: If minDepth > 1, vocabulary must contain at least one active non-terminal
+    const { minDepth, maxNodes } = constraints;
     const nonTerminals = vocabulary.filter(isNonTerminalOperator);
     if (minDepth > 1 && nonTerminals.length === 0) {
         throw new Error(
-            `minDepth is ${minDepth} (> 1) but vocabulary contains no non-terminal operators`,
+            `Randomart: minDepth is ${minDepth} (> 1) but vocabulary contains no non-terminal operators`,
         );
-    }
-
-    // Rule 6: Hard limits
-    if (!Number.isInteger(maxNodes) || maxNodes < 1) {
-        throw new Error(`Constraints maxNodes (${maxNodes}) must be an integer >= 1`);
-    }
-    if (maxDepth > MAX_DEPTH) {
-        throw new Error(`maxDepth (${maxDepth}) exceeds hard limit MAX_DEPTH (${MAX_DEPTH})`);
-    }
-    if (maxNodes > MAX_NODES) {
-        throw new Error(`maxNodes (${maxNodes}) exceeds hard limit MAX_NODES (${MAX_NODES})`);
     }
 
     // Rule 7: Feasibility check: minSize(1) <= maxNodes, over the active vocabulary
     const requiredMinSize = minSize(1, minDepth, vocabulary);
     if (maxNodes < requiredMinSize) {
         throw new Error(
-            `Grammar is unfeasible: maxNodes (${maxNodes}) is less than minimum possible size (${requiredMinSize}) for minDepth ${minDepth}`,
+            `Randomart: grammar is unfeasible — maxNodes (${maxNodes}) is less than the minimum possible size (${requiredMinSize}) for minDepth ${minDepth}`,
         );
     }
 
@@ -163,7 +169,8 @@ export function createGrammar(
 
     return Object.freeze({
         weights: Object.freeze(sortedWeights),
-        constraints: Object.freeze({ ...constraints }),
+        // Already frozen by createConstraints.
+        constraints,
     }) as Grammar;
 }
 

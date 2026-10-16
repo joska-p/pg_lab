@@ -2,11 +2,11 @@ import type { Catalog } from '../catalog/index.ts';
 import { deserialize, serialize } from '../expression/index.ts';
 import type { ExpressionData } from '../expression/index.ts';
 import { createGrammar } from '../grammar/index.ts';
-import type { Constraints, Grammar } from '../grammar/index.ts';
+import type { ConstraintsInput, Grammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
 import { createArtwork } from './create.ts';
-import type { Artwork, Provenance, RenderSettings } from './types.ts';
+import type { Artwork, Provenance, RenderSettingsInput } from './types.ts';
 
 export const ARTWORK_FILE_FORMAT = 'random-art';
 export const ARTWORK_FILE_VERSION = 1;
@@ -24,7 +24,7 @@ export const MAX_GRAMMAR_FILE_LENGTH = 1_000_000;
 
 export interface GrammarData {
     readonly weights: Readonly<Record<string, number>>;
-    readonly constraints: Constraints;
+    readonly constraints: ConstraintsInput;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -98,7 +98,7 @@ export function deserializeGrammar(catalog: Catalog, data: unknown, path = 'gram
         return value;
     };
 
-    const constraints: Constraints = {
+    const constraints: ConstraintsInput = {
         minDepth: readNumber('minDepth'),
         maxDepth: readNumber('maxDepth'),
         maxNodes: readNumber('maxNodes'),
@@ -169,11 +169,7 @@ export interface ArtworkData {
     readonly format: string;
     readonly version: number;
     readonly title?: string;
-    readonly render?: {
-        readonly width: number;
-        readonly height: number;
-        readonly loopMs: number;
-    };
+    readonly render?: RenderSettingsInput;
     readonly provenance?: {
         readonly generatorVersion: number;
         readonly seed: number;
@@ -211,7 +207,12 @@ export function serializeArtwork(artwork: Artwork): string {
     return `${JSON.stringify(data, null, 2)}\n`;
 }
 
-function readRender(data: unknown): RenderSettings {
+/**
+ * Shape-checks the `render` field of a file only: unlike `createRenderSettings`, the type still
+ * claims nothing (raw JSON numbers — findings F13). Bounds validation happens in `createArtwork`
+ * via `createRenderSettings`, whose messages already carry the `render.*` field path.
+ */
+function readRender(data: unknown): RenderSettingsInput {
     if (!isRecord(data)) {
         throw new Error('render: object expected');
     }
@@ -224,8 +225,6 @@ function readRender(data: unknown): RenderSettings {
         }
     }
 
-    // Types are checked above; createArtwork validates the bounds (integer sizes, finite loopMs)
-    // and its messages already carry the render.* field path.
     return {
         width: data.width as number,
         height: data.height as number,

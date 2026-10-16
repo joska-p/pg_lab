@@ -1,5 +1,5 @@
-import { assertFinite } from '../shared/index.ts';
-import type { Artwork, ArtworkInput, RenderSettings } from './types.ts';
+import { assertFinite, assertIntegerInRange } from '../shared/index.ts';
+import type { Artwork, ArtworkInput, RenderSettings, RenderSettingsInput } from './types.ts';
 import {
     DEFAULT_LOOP_MS,
     DEFAULT_RENDER_HEIGHT,
@@ -11,35 +11,27 @@ import {
     MIN_RENDER_SIZE,
 } from './types.ts';
 
-function assertInteger(value: number, label: string, min: number, max: number): void {
-    assertFinite(value, label);
-
-    if (!Number.isInteger(value)) {
-        throw new Error(`${label} must be an integer, received ${value}`);
-    }
-
-    if (value < min || value > max) {
-        throw new Error(`${label} must be between ${min} and ${max}, received ${value}`);
-    }
-}
-
-/** Reads and validates `render`; absent fields take the spec defaults (1024², 8000 ms — D36). */
-function readRender(render: ArtworkInput['render']): RenderSettings {
+/**
+ * The only way to a `RenderSettings` brand (findings F13): validates every field, absent fields
+ * take the spec defaults (1024², 8000 ms — D36). Accepts raw `Partial<RenderSettingsInput>` so
+ * callers can hand in UI values or parsed JSON.
+ */
+export function createRenderSettings(render?: Partial<RenderSettingsInput>): RenderSettings {
     const width = render?.width ?? DEFAULT_RENDER_WIDTH;
     const height = render?.height ?? DEFAULT_RENDER_HEIGHT;
     const loopMs = render?.loopMs ?? DEFAULT_LOOP_MS;
 
-    assertInteger(width, 'render.width', MIN_RENDER_SIZE, MAX_RENDER_SIZE);
-    assertInteger(height, 'render.height', MIN_RENDER_SIZE, MAX_RENDER_SIZE);
+    assertIntegerInRange(width, 'render.width', MIN_RENDER_SIZE, MAX_RENDER_SIZE);
+    assertIntegerInRange(height, 'render.height', MIN_RENDER_SIZE, MAX_RENDER_SIZE);
     assertFinite(loopMs, 'render.loopMs');
 
     if (loopMs < MIN_LOOP_MS || loopMs > MAX_LOOP_MS) {
         throw new Error(
-            `render.loopMs must be between ${MIN_LOOP_MS} and ${MAX_LOOP_MS}, received ${loopMs}`,
+            `Randomart: render.loopMs must be between ${MIN_LOOP_MS} and ${MAX_LOOP_MS}, received ${String(loopMs)}`,
         );
     }
 
-    return { width, height, loopMs };
+    return Object.freeze({ width, height, loopMs }) as RenderSettings;
 }
 
 /**
@@ -50,24 +42,24 @@ export function createArtwork(input: ArtworkInput): Artwork {
     const { expression, provenance, title } = input;
 
     if (!expression || typeof expression.r?.operatorName !== 'string') {
-        throw new Error('expression must be a valid Expression');
+        throw new Error('Randomart: expression must be a valid Expression');
     }
 
     if (title !== undefined) {
         if (typeof title !== 'string') {
-            throw new Error('title must be a string');
+            throw new Error('Randomart: title must be a string');
         }
 
         if (title.length < 1 || title.length > MAX_TITLE_LENGTH) {
-            throw new Error(`title must be 1 to ${MAX_TITLE_LENGTH} characters long`);
+            throw new Error(`Randomart: title must be 1 to ${MAX_TITLE_LENGTH} characters long`);
         }
     }
 
-    const render = readRender(input.render);
+    const render = createRenderSettings(input.render);
 
     return Object.freeze({
         expression,
-        render: Object.freeze(render),
+        render,
         ...(provenance !== undefined ? { provenance } : {}),
         ...(title !== undefined ? { title } : {}),
     }) as Artwork;

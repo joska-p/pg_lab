@@ -30,7 +30,7 @@ import {
     getVocabulary,
     randomizeWeights,
 } from '../core/grammar/index.ts';
-import type { Constraints, Grammar, GrammarSummary } from '../core/grammar/index.ts';
+import type { ConstraintsInput, Grammar, GrammarSummary } from '../core/grammar/index.ts';
 import { createRng, createSeed, randomSeed } from '../core/random/index.ts';
 import type { Rng, Seed } from '../core/random/index.ts';
 import { DEFAULT_LOOP_DURATION } from '../renderer/contract';
@@ -298,11 +298,11 @@ export function newDistribution(): void {
  * Edits the constraints by hand (the UI owns them; they are never randomized). `fitConstraints`
  * keeps them valid for the current vocabulary, so the sliders can never produce an error.
  */
-export function setConstraints(partial: Partial<Constraints>): void {
+export function setConstraints(partial: Partial<ConstraintsInput>): void {
     const { grammar, seed } = store.getState();
-    const merged: Constraints = { ...grammar.constraints, ...partial };
+    const merged: ConstraintsInput = { ...grammar.constraints, ...partial };
     // Raising minDepth past maxDepth drags maxDepth along; the opposite is fitConstraints' job.
-    const wanted: Constraints =
+    const wanted: ConstraintsInput =
         partial.minDepth !== undefined &&
         partial.maxDepth === undefined &&
         merged.minDepth > merged.maxDepth

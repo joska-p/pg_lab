@@ -1,5 +1,6 @@
 export { describeGrammar, type GrammarSummary } from './describe.ts';
 export {
+    createConstraints,
     createGrammar,
     defaultGrammar,
     fitConstraints,
@@ -9,6 +10,7 @@ export {
 export { DEFAULT_KEEP, randomizeWeights, type RandomizeWeightsOptions } from './randomize.ts';
 export {
     type Constraints,
+    type ConstraintsInput,
     type Grammar,
     MAX_DEPTH,
     MAX_NODES,

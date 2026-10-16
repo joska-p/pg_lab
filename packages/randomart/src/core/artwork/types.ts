@@ -3,12 +3,21 @@ import type { Grammar } from '../grammar/index.ts';
 import type { Seed } from '../random/index.ts';
 import type { Brand } from '../shared/index.ts';
 
-/** Output canvas settings the renderer reads from the artwork. */
-export interface RenderSettings {
-    readonly width: number; // integer, 1..MAX_RENDER_SIZE
-    readonly height: number; // integer, 1..MAX_RENDER_SIZE
-    readonly loopMs: number; // finite, MIN_LOOP_MS..MAX_LOOP_MS
+/**
+ * Raw render settings as callers may write them: partial UI input, parsed JSON files. Carries no
+ * guarantee — validating is the job of `createRenderSettings` (findings F13).
+ */
+export interface RenderSettingsInput {
+    readonly width: number;
+    readonly height: number;
+    readonly loopMs: number;
 }
+
+/**
+ * Validated render settings: dimensions are integers in [1, MAX_RENDER_SIZE], loopMs is a finite
+ * number in [MIN_LOOP_MS, MAX_LOOP_MS]. Reachable only through `createRenderSettings`.
+ */
+export type RenderSettings = Brand<RenderSettingsInput, 'RenderSettings'>;
 
 /** Informative origin of the artwork: the expression is the reference (D1). */
 export interface Provenance {
@@ -19,7 +28,7 @@ export interface Provenance {
 
 export interface ArtworkInput {
     readonly expression: Expression;
-    readonly render?: Partial<RenderSettings>;
+    readonly render?: Partial<RenderSettingsInput>;
     readonly provenance?: Provenance;
     readonly title?: string;
 }

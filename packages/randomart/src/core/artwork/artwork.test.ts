@@ -5,7 +5,7 @@ import { createExpression, createNode, nodeKey } from '../expression/index.ts';
 import { generate, GENERATOR_VERSION } from '../generator/index.ts';
 import { defaultGrammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';
-import { createArtwork } from './create.ts';
+import { createArtwork, createRenderSettings } from './create.ts';
 import { checkProvenance } from './provenance.ts';
 import {
     parseArtwork,
@@ -95,6 +95,35 @@ describe('artwork: createArtwork', () => {
         expect(() => createArtwork({ expression, title: '' })).toThrow(/title/);
         expect(() => createArtwork({ expression, title: 'x'.repeat(201) })).toThrow(/title/);
         expect(() => createArtwork({ expression, title: 'Vagues' })).not.toThrow();
+    });
+});
+
+describe('artwork: createRenderSettings', () => {
+    it('applies the spec defaults (1024², 8000 ms — D36) and freezes the result', () => {
+        const settings = createRenderSettings();
+
+        expect(settings).toEqual({ width: 1024, height: 1024, loopMs: 8000 });
+        expect(Object.isFrozen(settings)).toBe(true);
+    });
+
+    it('brings absent fields back to the defaults individually', () => {
+        expect(createRenderSettings({ width: 2_048 })).toEqual({
+            width: 2_048,
+            height: 1024,
+            loopMs: 8000,
+        });
+    });
+
+    it('rejects violations with the `Randomart:` prefix (F13: the type claims, the factory proves)', () => {
+        expect(() => createRenderSettings({ width: 0 })).toThrow(
+            'Randomart: render.width must be an integer in [1, 8192], received 0',
+        );
+        expect(() => createRenderSettings({ height: 8193 })).toThrow(
+            'Randomart: render.height must be an integer in [1, 8192], received 8193',
+        );
+        expect(() => createRenderSettings({ loopMs: 499 })).toThrow(
+            'Randomart: render.loopMs must be between 500 and 120000, received 499',
+        );
     });
 });
 
