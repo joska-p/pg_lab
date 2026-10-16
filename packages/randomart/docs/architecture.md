@@ -99,7 +99,7 @@ C'est une étape du **renderer**, pas du catalogue ni du générateur. Le render
 | D8  | Pas de métrique de complexité en v1 : profondeur max et nombre de nœuds max seulement.                                                                                                                                                                                     |
 | D9  | **Pas d'évaluateur CPU.** Le GLSL est la seule sémantique.                                                                                                                                                                                                                 |
 | D10 | Booléens par convention : `+1` vrai, `-1` faux. Pas de type `bool`.                                                                                                                                                                                                        |
-| D11 | Le **temps fait partie du modèle** : terminaux `tsin` / `tcos` sur une phase qui boucle. L'animation est une propriété de la grammaire.                                                                                                                                    |
+| D11 | Le **temps fait partie du modèle** : terminaux `tsin` / `tcos` sur une phase qui boucle. L'animation relève de la lecture (horloge Play/Pause), pas de la grammaire (D34).                                                                                                 |
 | D12 | Le **post-traitement** est une passe du renderer, après l'expression.                                                                                                                                                                                                      |
 | D13 | Préambule et dépendances : un champ optionnel `requires`, résolu par le compilateur. Pas de `kind` d'opérateur.                                                                                                                                                            |
 | D14 | Transformateurs de coordonnées : portée par entrée (`inner`) et contexte de coordonnées dans le compilateur, **prévus dans les specs dès la v1**. Les coordonnées internes doivent rester dans `[-1, 1]²`.                                                                 |
@@ -139,7 +139,7 @@ C'est une étape du **renderer**, pas du catalogue ni du générateur. Le render
 4. `compiler-spec.md` — fait (v0.2).
 5. `renderer-spec.md` — fait (v0.2).
 6. `artwork-spec.md` — fait (v0.1).
-7. Explorer (UI) — à écrire (contraintes à respecter listées dans le README).
+7. Explorer (UI) — fait (v0.1, `explorer-spec.md`).
 
 ## Jalons
 

@@ -43,7 +43,7 @@ describe('lower (MP3·S1)', () => {
             });
             const customCat = createCatalog({
                 operators: [...catalog.operators(), tripleOperator],
-                dependencies: [...(catalog.dependencies ? catalog.dependencies() : [])],
+                dependencies: [...catalog.dependencies()],
             });
             expect(probeMultiplicities(customCat, 'triple_use', [])).toEqual([3]);
         });

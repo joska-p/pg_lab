@@ -26,8 +26,6 @@ import { createRng, createSeed, randomSeed } from '../core/random/index.ts';
 import type { Rng, Seed } from '../core/random/index.ts';
 import { DEFAULT_LOOP_DURATION } from '../renderer/contract';
 
-type Theme = 'light' | 'dark' | 'system';
-
 /** One explored state: enough to get the exact same image back (same generator version). */
 export interface HistoryEntry {
     readonly id: number;
@@ -55,8 +53,10 @@ const initialEntry: HistoryEntry = {
 
 let nextEntryId = 1;
 
+/** Id of the history entry created by the current run of constraint edits, if any. */
+let constraintEditId: number | null = null;
+
 interface AppStoreState {
-    theme: Theme;
     clockStore: ClockStore;
     shaderError: ShaderError | null;
     /**
@@ -74,14 +74,12 @@ interface AppStoreState {
     /** Node picked in the inspector; reset whenever the expression changes. */
     selected: Address | null;
     compiledShader: CompiledShader;
-    fragmentShader: string;
     canvas: HTMLCanvasElement | null;
 }
 
 const nullClockStore = createNullClockStore();
 
 const store = create<AppStoreState>(() => ({
-    theme: 'dark',
     clockStore: nullClockStore,
     shaderError: null,
     actionError: null,
@@ -94,21 +92,12 @@ const store = create<AppStoreState>(() => ({
     expression: initialExpression,
     selected: null,
     compiledShader: initialCompiled,
-    fragmentShader: initialCompiled.source,
     canvas: null,
 }));
 
 // ---------------------------------------------------------------------------
 // Simple state accessors
 // ---------------------------------------------------------------------------
-
-export function useTheme(): Theme {
-    return store((s) => s.theme);
-}
-
-export function setTheme(theme: Theme): void {
-    store.setState({ theme });
-}
 
 export function useClockStore(): ClockStore {
     return store((s) => s.clockStore);
@@ -173,14 +162,6 @@ export function useCompiledShader(): CompiledShader {
     return store((s) => s.compiledShader);
 }
 
-export function useFragmentShader(): string {
-    return store((s) => s.fragmentShader);
-}
-
-export function setFragmentShader(fragmentShader: string): void {
-    store.setState({ fragmentShader });
-}
-
 export function useCanvas(): HTMLCanvasElement | null {
     return store((s) => s.canvas);
 }
@@ -217,12 +198,15 @@ function setActionError(error: unknown): void {
  * The single write point for "a new image": generate → compile → publish, all or nothing. On
  * failure (compiler guard, bug, bad import) the previous state is kept and the error is shown.
  * Without `restoreId` a new history entry is recorded; with it, the entry is simply re-selected.
+ * With `coalesce`, consecutive calls (typing in a constraint field) replace each other's entry
+ * instead of flooding the history.
  */
-function commit(grammar: Grammar, seed: Seed, restoreId?: number): void {
+function commit(grammar: Grammar, seed: Seed, restoreId?: number, coalesce = false): void {
     try {
         const expression = generate(catalog, grammar, seed);
         const compiledShader = compile(catalog, expression);
-        let { history } = store.getState();
+        const state = store.getState();
+        let { history } = state;
         let currentId: number;
 
         if (restoreId === undefined) {
@@ -233,10 +217,17 @@ function commit(grammar: Grammar, seed: Seed, restoreId?: number): void {
                 nodes: compiledShader.stats.nodes,
             };
 
-            history = [entry, ...history].slice(0, HISTORY_LIMIT);
+            const replaces = coalesce && constraintEditId === state.currentId;
+            const kept = replaces
+                ? history.filter((candidate) => candidate.id !== state.currentId)
+                : history;
+
+            history = [entry, ...kept].slice(0, HISTORY_LIMIT);
             currentId = entry.id;
+            constraintEditId = coalesce ? entry.id : null;
         } else {
             currentId = restoreId;
+            constraintEditId = null;
         }
 
         store.setState({
@@ -246,7 +237,6 @@ function commit(grammar: Grammar, seed: Seed, restoreId?: number): void {
             expression,
             selected: null,
             compiledShader,
-            fragmentShader: compiledShader.source,
             history,
             currentId,
             actionError: null,
@@ -286,12 +276,23 @@ export function newDistribution(): void {
  */
 export function setConstraints(partial: Partial<Constraints>): void {
     const { grammar, seed } = store.getState();
-    const constraints = fitConstraints(getVocabulary(catalog, grammar.weights), {
-        ...grammar.constraints,
-        ...partial,
-    });
+    const merged: Constraints = { ...grammar.constraints, ...partial };
+    // Raising minDepth past maxDepth drags maxDepth along; the opposite is fitConstraints' job.
+    const wanted: Constraints =
+        partial.minDepth !== undefined &&
+        partial.maxDepth === undefined &&
+        merged.minDepth > merged.maxDepth
+            ? { ...merged, maxDepth: merged.minDepth }
+            : merged;
+    const constraints = fitConstraints(getVocabulary(catalog, grammar.weights), wanted);
 
-    commit(createGrammar(catalog, { weights: grammar.weights, constraints }), seed);
+    // Coalesced: typing "12" in a field is one history entry, not two.
+    commit(
+        createGrammar(catalog, { weights: grammar.weights, constraints }),
+        seed,
+        undefined,
+        true,
+    );
 }
 
 /** Back to the default grammar, same seed. */

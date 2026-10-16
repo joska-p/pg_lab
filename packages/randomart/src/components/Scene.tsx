@@ -5,17 +5,15 @@ import {
     setShaderError,
     useCompiledShader,
     useDuration,
-    useFragmentShader,
 } from '../stores/appStore';
 
 export function Scene() {
-    const fragmentShader = useFragmentShader();
     const compiledShader = useCompiledShader();
     const duration = useDuration();
 
     return (
         <RandomArtCanvas
-            fragmentShader={fragmentShader}
+            fragmentShader={compiledShader.source}
             animated={compiledShader.animated}
             duration={duration}
             onShaderError={setShaderError}

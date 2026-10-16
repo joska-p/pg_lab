@@ -52,7 +52,7 @@ compile(catalog, expression, options?): CompiledShader
 
 Le renderer possède le vertex shader. Le compilateur, lui, ne produit que le fragment shader, et suppose que :
 
-- l'entrée `in vec2 v_p;` contient les coordonnées du pixel, **déjà dans `[-1, 1]²`**, avec `x` vers la droite et `y` vers le **haut** de l'image. Sur une image non carrée, `[-1, 1]²` est simplement étiré sur toute l'image ; les bandes éventuelles à l'affichage relèvent de la passe finale du renderer (voir `renderer-spec.md`) ;
+- l'entrée `in vec2 vUv;` (`[0, 1]²`, fournie par glaze) est convertie en tête de `main` par `vec2 v_p = vUv * 2.0 - 1.0;` ; `v_p` contient les coordonnées du pixel, dans `[-1, 1]²`, avec `x` vers la droite et `y` vers le **haut** de l'image. Sur une image non carrée, `[-1, 1]²` est simplement étiré sur toute l'image ; les bandes éventuelles à l'affichage relèvent de la passe finale du renderer (voir `renderer-spec.md`) ;
 - la sortie est `out vec4 o_color;` ;
 - les uniforms listés dans `CompiledShader.uniforms` sont fournis par le renderer (en v1 : `u_phase`, dans `[0, 1)`).
 
@@ -143,11 +143,11 @@ Le `clamp` ne masque pas le contrat `[-1, 1]` des opérateurs (testé par ailleu
 
 Dans cet ordre :
 
-1. `#version 300 es`
-2. `precision highp float;`
-3. `#define PI 3.14159265359`
-4. la **fermeture des dépendances** (`catalog.dependencyClosure`) des opérateurs utilisés (`usedOperators` de l'expression, puis leur `requires`). Chaque uniform donne `uniform float <nom>;`, chaque fonction son code ; les doublons sont déjà supprimés et l'ordre garantit qu'une fonction vient après celles dont elle dépend ;
-5. `in vec2 v_p;` et `out vec4 o_color;`.
+1. `precision highp float;` (pas de `#version` : glaze l'ajoute à l'exécution)
+2. `in vec2 vUv;` et `out vec4 o_color;`
+3. `uniform float u_phase;` (toujours déclaré), puis les autres uniforms de la fermeture des dépendances
+4. `const float PI = 3.141592653589793;`
+5. le code des fonctions de la **fermeture des dépendances** (`catalog.dependencyClosure`) des opérateurs utilisés, sans doublon et dans l'ordre de dépendance
 
 Une dépendance que personne n'utilise n'est jamais émise.
 
@@ -158,14 +158,18 @@ Expression : `r = sin(x)`, `g = add(sin(x), y)`, `b = tsin`.
 Identifiants dans l'ordre de création : `x` = 0, `sin(x)` = 1, `y` = 2, `add` = 3, `tsin` = 4. `sin(x)` a 2 usages (la racine `r` et `add`) : c'est un sommet partagé, donc une variable. `tsin` n'a qu'un usage et reste en ligne.
 
 ```glsl
-#version 300 es
 precision highp float;
-#define PI 3.14159265359
-uniform float u_phase;
-in vec2 v_p;
+
+in vec2 vUv;
 out vec4 o_color;
 
+uniform float u_phase;
+
+const float PI = 3.141592653589793;
+
 void main() {
+  vec2 v_p = vUv * 2.0 - 1.0;
+
   float v1 = sin(PI*v_p.x);
   vec3 rgb = vec3(v1, (v1+v_p.y)*0.5, sin(2.0*PI*u_phase));
   o_color = vec4(clamp(rgb * 0.5 + 0.5, 0.0, 1.0), 1.0);
@@ -202,7 +206,7 @@ Chaque fichier a une seule tâche, et `compile.ts` ne fait qu'enchaîner : `lowe
 
 ## 8. Tests
 
-Les tests utilisent un **catalogue de test** qui contient, en plus des opérateurs réels, un transformateur fictif (portée `inner`, `innerCoords`, une dépendance) : `warp` n'est pas encore dans le catalogue.
+Les tests utilisent le catalogue par défaut, `warp` compris (transformateur réel : portée `inner`, `innerCoords`, dépendance `ra_fold2`).
 
 1. **Instantanés** du GLSL pour des expressions écrites à la main : un terminal seul, une sous-expression partagée, une constante négative sous `neg`, un transformateur.
 2. **Partage entre canaux** : une même sous-expression dans `r` et `g` produit une seule variable.

@@ -16,15 +16,14 @@ Décisions confirmées : **WebGL2** (GLSL ES 3.00) et **pas d'évaluateur CPU**.
     4. `compiler-spec.md` (v0.2) — expression → fragment shader GLSL
     5. `renderer-spec.md` (v0.2) — exécution WebGL2, affichage, export
     6. `artwork-spec.md` (v0.1) — format d'œuvre et de grammaire, import/export
-5. `revue.md` — ce qui a été trouvé et décidé lors de la relecture.
+5. `explorer-spec.md` (v0.1) — l'UI telle que construite.
+6. `revue.md` — ce qui a été trouvé et décidé lors de la relecture.
 
 `idea-bank.md` est une réserve d'idées : **pas une source de vérité**.
 
-## À écrire
+## Explorer (UI)
 
-- Spec de l'**explorer (UI)** : galerie, inspection, historique, état (Zustand).
-
-Contraintes que cette spec devra respecter :
+Spec écrite : `explorer-spec.md` (v0.1). Contraintes qu'elle respecte :
 
 - L'UI possède la boucle d'animation, l'état lecture/pause, la taille du canvas (pixel ratio compris) et la réduction de résolution quand l'animation ne tient pas la cadence (renderer §7, D36).
 - `setShader` renvoie un résultat : l'UI affiche l'erreur et garde l'image précédente (D27).

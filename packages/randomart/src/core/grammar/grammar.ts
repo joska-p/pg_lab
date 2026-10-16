@@ -49,11 +49,9 @@ export function fitConstraints(
     const clampInt = (value: number, min: number, max: number): number =>
         Number.isFinite(value) ? Math.min(max, Math.max(min, Math.round(value))) : min;
 
-    let minDepth = clampInt(constraints.minDepth, 1, MAX_DEPTH);
-    const maxDepth = clampInt(constraints.maxDepth, minDepth, MAX_DEPTH);
-
-    // The user may drag maxDepth below minDepth: keep maxDepth and bring minDepth along.
-    minDepth = Math.min(minDepth, maxDepth);
+    const maxDepth = clampInt(constraints.maxDepth, 1, MAX_DEPTH);
+    // maxDepth wins: dragging it below minDepth brings minDepth along.
+    let minDepth = Math.min(clampInt(constraints.minDepth, 1, MAX_DEPTH), maxDepth);
 
     if (minDepth > 1 && !operators.some(isNonTerminalOperator)) {
         minDepth = 1;

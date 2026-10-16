@@ -164,7 +164,7 @@ expression/
 
 ## 10. Décisions prises
 
-- **Formule lisible.** En v1, l'inspecteur affiche une notation fonctionnelle générée automatiquement à partir des noms (`add(sin(x), 0.3)`). Un champ `display` sur `OperatorDef` (`(a+b)/2`, `sin(πa)`) viendra en v2, quand l'UI en aura besoin.
+- **Formule lisible.** En v1, l'inspecteur affiche une notation fonctionnelle générée automatiquement à partir des noms (`add(sin(x), const(0.3))`). Un champ `display` sur `OperatorDef` (`(a+b)/2`, `sin(πa)`) viendra en v2, quand l'UI en aura besoin.
 - **Arrondi des paramètres.** Le **générateur** arrondit à 3 décimales (grammaire §6) ; le modèle n'arrondit rien.
 - **Édition.** `replaceNode(expression, address, node)` (renvoie une nouvelle expression) suffira plus tard ; non spécifié maintenant.
 - **Limites d'import.** 5 000 nœuds et profondeur 64 (D35), à ajuster à l'usage.

@@ -205,7 +205,7 @@ describe('compiler', () => {
 
             const customCatalog = createCatalog({
                 operators: [...catalog.operators(), noiseOperator],
-                dependencies: [...(catalog.dependencies ? catalog.dependencies() : []), helperFn],
+                dependencies: [...catalog.dependencies(), helperFn],
             });
 
             const noiseNode = createNode(customCatalog, 'custom_noise');
@@ -231,7 +231,7 @@ describe('compiler', () => {
 
             const testCatalog = createCatalog({
                 operators: [...catalog.operators(), longGlslOperator],
-                dependencies: [...(catalog.dependencies ? catalog.dependencies() : [])],
+                dependencies: [...catalog.dependencies()],
             });
 
             const hugeNode = createNode(testCatalog, 'huge_op');
