@@ -3,6 +3,7 @@
 High-performance Monorepo powered by **Vite+** and **React 19**.
 
 - `vp check --fix` : Format, lint, and type-check. Docs are local at `node_modules/vite-plus/docs`.
+- `vp -C <path> <command>` : Run commands in a specific package. (ex: `vp -C packages/randomart check`)
 
 ## Guidelines & Flow
 

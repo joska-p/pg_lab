@@ -26,15 +26,17 @@ Principes : cœur TypeScript pur (pas de DOM, pas de GPU) ; rendu = adaptateur m
 - **Lot E** : fait (inspecteur, `docs/explorer-spec.md`).
 - **Revue de code** : `fitConstraints` corrigé (maxDepth l'emporte) et testé ; l'édition de contraintes ne crée plus qu'une entrée d'historique par série de modifications ; état mort d'`appStore` retiré.
 - **Refonte du catalogue** : `catalog.ts` (447 lignes, définition et validation mélangées) remplacé par un **registre statique** de specs (`operators/*.ts`, `dependencies.ts`) et deux classes : `Operator` (spec instanciée ; sonde les multiplicités **une fois**, à la construction) et `Catalog` (registre + fermeture des dépendances). Supprimés : `name` dans la spec (la clé du registre fait foi), `family` (→ `group`), `inputs: InputDef[]` (→ listes nommées `inputs` + `inner`), `output`, `ValueType`, `withOutput`, `cost`, `createCatalog`, `defineDependency`. Renommés : `innerCoords` → `coords`, `scope` par entrée → `inner`. Les `args` et `params` sont nommés (`args.a`, `args.dx`). Le compilateur ne sonde plus (`probeMultiplicities` / `probeInnerMultiplicities` supprimés ; `lower` réassemble `[...inputs, ...inner]`). `formatGlslFloat` déplacé dans `catalog/format.ts`.
+- **Ménage post-plan** (commits `34fa6c7`, `292e540`) : règle `no-use-before-define` activée et définitions réordonnées ; `Inspector` passé dans `Controls` (l'`ErrorBoundary` englobe alors tout le panneau).
+- **Lot F** (persistance) : `expression/serialize.ts` (`serialize`/`deserialize`, limites `MAX_IMPORT_NODES` = 5 000 et `MAX_IMPORT_DEPTH` = 64, profondeur vérifiée **avant** de construire les nœuds, erreurs avec adresse type `g.in[1]`) ; module `artwork/` (`types`, `create`, `serialize`, `provenance`) : `createArtwork` (bornes `render` et `title`, défauts 1024² / 8 000 ms), fichiers `.randomart.json` (`serializeArtwork`/`parseArtwork`, ~1 Mo, champs inconnus refusés avec leur chemin), `checkProvenance` (`none` / `matches` / `differs` / `version-mismatch` par `nodeKey` des trois canaux). Les fonctions de fichier de grammaire ont **déménagé** de `grammar/serialize.ts` vers `artwork/serialize.ts`. UI : `appStore` a `provenanceCheck` en état, `HistoryEntry` porte `expression` + `provenanceCheck` pour les imports (restauration **sans régénérer**, l'expression est la référence — D1), `publishArtwork` (taille de rendu ignorée — friction 8 ; `loopMs` adopté dans les bornes de l'UI [1, 60] s), export/import d'œuvre dans `Controls` (statut de provenance affiché).
 
-**Pas encore fait** : sérialisation d'expression, `artwork`, provenance (lot F) ; lots G et H.
+**Pas encore fait** : beaucoup G et H. Trancher `math` (voir « Prochaine action »).
 
-**Tests** : rejoués verts après la refonte (`vp check --fix` : 388 fichiers, 0 erreur ; `vpr -r test` : 181 passés, 2 ignorés ; fuzzing 300 cas × 3 politiques).
+**Tests** : verts après le lot F (`vp check` : 491 fichiers, 0 erreur ; `vpr -r test` : 205 passés, 2 ignorés ; fuzzing 300 cas × 3 politiques).
 
 ## Prochaine action
 
 1. **Formule lisible (`math`).** Le catalogue expose un champ `math` par opérateur (maintenu à la main, exercé par un test, pas encore consommé par l'inspecteur, qui affiche `formatFormula`). Trancher : le **dériver** de `glsl` / `coords`, ou le brancher tel quel dans l'inspecteur. Session dédiée.
-2. **Lot F** (persistance : sérialisation d'expression, `artwork`, provenance).
+2. **Jouer avec le lot F** avant d'épaissir le rendu : importer/exporter des vraies œuvres, vérifier que le statut de provenance dit vrai, décider si le titre mérite un champ dans l'UI (actuellement conservé, jamais saisi).
 
 ## Dette connue (petite, non bloquante)
 
@@ -47,9 +49,9 @@ Principes : cœur TypeScript pur (pas de DOM, pas de GPU) ; rendu = adaptateur m
 
 ## Lots
 
-L'ordre est une guidance. Chaque lot laisse le repo vert et commitable. Lots A à E : voir « Fait » ci-dessus.
+L'ordre est une guidance. Chaque lot laisse le repo vert et commitable. Lots A à F : voir « Fait » ci-dessus.
 
-### Lot F — Persistance
+### Lot F — Persistance (fait)
 
 - `serialize`/`deserialize` d'expression avec limites d'import (5 000 nœuds, profondeur 64), erreurs avec adresse.
 - `artwork` : `createArtwork`, fichiers `.randomart.json`, bornes, champs inconnus refusés, `checkProvenance`.
@@ -67,8 +69,7 @@ Poids par défaut, contraintes, durée de boucle, répartition du budget du gén
 ## Dépendances
 
 ```
-A..E : faits
-F : après E (nodeKey) pour provenance
+A..F : faits
 G : à la demande
 H : libre
 ```

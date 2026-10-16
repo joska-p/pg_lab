@@ -7,9 +7,12 @@ import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
 import { useSyncExternalStore } from 'react';
 
+import type { ProvenanceCheck } from '../core/artwork/index.ts';
 import {
+    exportArtworkFile,
     exportGrammarFile,
     exportPng,
+    importArtworkFile,
     importGrammarFile,
     newDistribution,
     newImage,
@@ -28,10 +31,18 @@ import {
     useGrammarSummary,
     useHasClockStore,
     useHistory,
+    useProvenanceCheck,
     useSeed,
     useShaderError,
 } from '../stores/appStore';
 import { Inspector } from './Inspector';
+
+const PROVENANCE_LABELS: Record<ProvenanceCheck, string> = {
+    none: 'No provenance: this artwork was made or edited by hand',
+    matches: 'Regenerable: the seed replays the original grammar',
+    differs: 'Not regenerable: the expression was edited after generation',
+    'version-mismatch': 'Not replayable: made with another version of the generator',
+};
 
 export function Controls() {
     const summary = useGrammarSummary();
@@ -46,6 +57,7 @@ export function Controls() {
     const currentId = useCurrentId();
     const duration = useDuration();
     const canvas = useCanvas();
+    const provenanceCheck = useProvenanceCheck();
 
     const isPlaying = useSyncExternalStore(
         (onStoreChange) => clockStore.subscribe(onStoreChange),
@@ -211,6 +223,35 @@ export function Controls() {
                                         }}
                                     />
                                 </Stack>
+                            </Stack>
+                        </ControlField>
+
+                        {/* ── Artwork ── */}
+                        <ControlField label="Artwork">
+                            <Stack gap="2">
+                                <Stack direction="horizontal" gap="2">
+                                    <Button
+                                        onClick={() => {
+                                            exportArtworkFile();
+                                        }}
+                                    >
+                                        Export
+                                    </Button>
+                                    <input
+                                        type="file"
+                                        accept=".json,application/json"
+                                        onChange={(e) => {
+                                            const file = e.currentTarget.files?.[0];
+
+                                            e.currentTarget.value = '';
+
+                                            if (file) {
+                                                void importArtworkFile(file);
+                                            }
+                                        }}
+                                    />
+                                </Stack>
+                                <Text variant="muted">{PROVENANCE_LABELS[provenanceCheck]}</Text>
                             </Stack>
                         </ControlField>
 

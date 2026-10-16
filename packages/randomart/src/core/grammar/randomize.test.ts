@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vite-plus/test';
 
+import { serializeGrammar } from '../artwork/index.ts';
 import { createDefaultCatalog } from '../catalog/index.ts';
 import { generate } from '../generator/index.ts';
 import { createRng, createSeed } from '../random/index.ts';
 import { describeGrammar } from './describe.ts';
 import { defaultGrammar } from './grammar.ts';
 import { randomizeWeights } from './randomize.ts';
-import { serializeGrammar } from './serialize.ts';
 import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types.ts';
 
 const catalog = createDefaultCatalog();

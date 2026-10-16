@@ -32,8 +32,8 @@ Toute nouvelle image passe par **un seul point d'écriture** (`commit`) : géné
 - **Nouvelle image** : la seed change, la grammaire reste.
 - **Nouveaux poids / nouveau vocabulaire / nouvelle grammaire** : la grammaire change (`randomize*`), **la seed reste**, pour comparer l'effet sur une même seed.
 - **Réinitialiser** : retour à la grammaire par défaut (`defaultGrammar`), même seed.
-- **Historique** : restaurer une entrée régénère l'image depuis `(seed, grammar)` sans créer de nouvelle entrée.
-- **Fichiers** : export/import d'une grammaire (JSON versionné) ; export PNG du canvas.
+- **Historique** : restaurer une entrée régénère l'image depuis `(seed, grammar)` sans créer de nouvelle entrée ; une œuvre importée garde son expression (D1) et se restaure sans régénérer.
+- **Fichiers** : export/import d'une grammaire (JSON versionné) ; export/import d'une œuvre (`.randomart.json`) avec statut de provenance affiché ; export PNG du canvas.
 
 ## 5. Inspecteur
 
@@ -47,4 +47,4 @@ Toute nouvelle image passe par **un seul point d'écriture** (`commit`) : géné
 - Survol d'un nœud pour prévisualiser sans cliquer.
 - Aperçu synchronisé sur la phase de l'image principale (demande de partager la phase sans partager l'horloge, qui est mise à jour par chaque surface).
 - Comparaison côte à côte de deux grammaires (v2, `grammarKey`).
-- Persistance d'une œuvre complète (lot F).
+- Édition libre de l'expression (le fichier d'œuvre la transporte déjà) ; champ titre dans l'UI.
