@@ -70,6 +70,14 @@ export class WorkerPool<TTask, TResult> {
         return new Promise<TResult>((resolve, reject) => {
             entry.busy = true;
 
+            const controller = new AbortController();
+
+            const cleanup = () => {
+                controller.abort();
+                entry.busy = false;
+                this.drainQueue();
+            };
+
             const onMessage = (event: MessageEvent) => {
                 cleanup();
                 const result = this.config.deserialize(event);
@@ -86,15 +94,8 @@ export class WorkerPool<TTask, TResult> {
                 reject(new Error(event.message || 'Unknown worker error'));
             };
 
-            const cleanup = () => {
-                entry.worker.removeEventListener('message', onMessage);
-                entry.worker.removeEventListener('error', onError);
-                entry.busy = false;
-                this.drainQueue();
-            };
-
-            entry.worker.addEventListener('message', onMessage);
-            entry.worker.addEventListener('error', onError);
+            entry.worker.addEventListener('message', onMessage, { signal: controller.signal });
+            entry.worker.addEventListener('error', onError, { signal: controller.signal });
 
             if (transfer && transfer.length > 0) {
                 entry.worker.postMessage(message, transfer);

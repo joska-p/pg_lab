@@ -20,6 +20,17 @@ const ALIVE_COLOR_FALLBACK = createCssColor('#d97706');
 
 // ── Engine lifecycle ──
 
+export function destroySimulation(): void {
+    const { engine } = automaStore.getState();
+
+    if (!engine) {
+        return;
+    }
+
+    engine.destroy();
+    automaStore.setState({ engine: null });
+}
+
 export function initSimulation(surface: GpuSurface): void {
     destroySimulation();
 
@@ -38,17 +49,6 @@ export function initSimulation(surface: GpuSurface): void {
     });
 
     automaStore.setState({ engine });
-}
-
-export function destroySimulation(): void {
-    const { engine } = automaStore.getState();
-
-    if (!engine) {
-        return;
-    }
-
-    engine.destroy();
-    automaStore.setState({ engine: null });
 }
 
 // ── Playback ──
@@ -103,6 +103,18 @@ export function placeCreature(column: number, row: number, id: CreatureId): void
 
 // ── Rules & palette ──
 
+function recomputeDerivedColors(): void {
+    const { ruleId, stateColors } = automaStore.getState();
+
+    automaStore.setState({
+        stateColors: computeDerivedColors(
+            rules[ruleId].stateCount,
+            stateColors[0] ?? DEAD_COLOR_FALLBACK,
+            stateColors[1] ?? ALIVE_COLOR_FALLBACK,
+        ),
+    });
+}
+
 export function setRule(id: RuleId): void {
     automaStore.getState().engine?.setRule(rules[id]);
     automaStore.setState({ ruleId: id });
@@ -115,18 +127,6 @@ export function setStateColor(index: number, color: CssColor): void {
         const alive = index === 1 ? color : (state.stateColors[1] ?? ALIVE_COLOR_FALLBACK);
 
         return { stateColors: computeDerivedColors(rules[state.ruleId].stateCount, dead, alive) };
-    });
-}
-
-function recomputeDerivedColors(): void {
-    const { ruleId, stateColors } = automaStore.getState();
-
-    automaStore.setState({
-        stateColors: computeDerivedColors(
-            rules[ruleId].stateCount,
-            stateColors[0] ?? DEAD_COLOR_FALLBACK,
-            stateColors[1] ?? ALIVE_COLOR_FALLBACK,
-        ),
     });
 }
 

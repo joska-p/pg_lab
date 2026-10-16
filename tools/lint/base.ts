@@ -19,6 +19,7 @@ export const baseLint = {
         // ─────────────────────────────────────────────
 
         'oxc/branches-sharing-code': 'error',
+        'no-use-before-define': ['error', { functions: true, classes: true, variables: true }],
 
         // ─────────────────────────────────────────────
         // Modules / architecture

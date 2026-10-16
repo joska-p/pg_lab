@@ -70,67 +70,6 @@ export interface RandomizeWeightsOptions {
 }
 
 /**
- * One exploration of the grammar: weights move, operators switch on and off (a weight of 0 means
- * "not drawn"), constraints are unchanged. Both the scaling and the toggle consume one `rng.next()`
- * per catalog operator, in alphabetical order. Always returns a valid grammar.
- */
-export function randomizeWeights(
-    catalog: Catalog,
-    grammar: Grammar,
-    rng: Rng,
-    options: RandomizeWeightsOptions = {},
-): Grammar {
-    const spread = options.spread ?? 4;
-    const preserveTerminalShare = options.preserveTerminalShare ?? true;
-    const changeRate = options.changeRate ?? 0.3;
-    const keep = new Set(options.keep ?? DEFAULT_KEEP);
-
-    if (!Number.isFinite(spread) || spread < 1) {
-        throw new Error(`spread must be a finite number >= 1, received ${String(spread)}`);
-    }
-    if (!Number.isFinite(changeRate) || changeRate < 0 || changeRate > 1) {
-        throw new Error(`changeRate must be a finite number in [0, 1], received ${changeRate}`);
-    }
-
-    const logSpread = Math.log(spread);
-    const names = Object.keys(grammar.weights).sort(byName);
-    const scaled = new Map<string, number>();
-
-    // Pass 1 — alphabetical order, one rng.next() per operator: log-uniform scaling of live weights.
-    for (const name of names) {
-        const before = grammar.weights[name];
-        const factor = Math.exp((2 * rng.next() - 1) * logSpread);
-
-        scaled.set(name, before > 0 ? before * factor : 0);
-    }
-
-    // Pass 2 — alphabetical order, one rng.next() per operator: switch off (live → 0) or on (0 → 1).
-    const weights: Record<string, number> = {};
-
-    for (const name of names) {
-        const before = grammar.weights[name];
-        const toggles = rng.next() < changeRate;
-
-        if (before > 0) {
-            weights[name] = toggles && !keep.has(name) ? 0 : (scaled.get(name) ?? before);
-        } else {
-            weights[name] = toggles ? 1 : 0;
-        }
-    }
-
-    repair(catalog, weights, grammar.constraints.minDepth, grammar.constraints.maxNodes, rng);
-    preserveTerminalShareOf(catalog, grammar, weights, preserveTerminalShare);
-
-    const quantized: Record<string, number> = {};
-
-    for (const name of names) {
-        quantized[name] = quantize(weights[name]);
-    }
-
-    return createGrammar(catalog, { weights: quantized, constraints: grammar.constraints });
-}
-
-/**
  * Makes the vocabulary usable with the (fixed) constraints: at least one active terminal, at least
  * one active non-terminal when `minDepth > 1`, and feasibility (`minSize(1) ≤ maxNodes`).
  * Feasibility is restored by bringing smaller-arity non-terminals back, which strictly lowers
@@ -217,4 +156,65 @@ function preserveTerminalShareOf(
             weights[name] *= terminalScale;
         }
     }
+}
+
+/**
+ * One exploration of the grammar: weights move, operators switch on and off (a weight of 0 means
+ * "not drawn"), constraints are unchanged. Both the scaling and the toggle consume one `rng.next()`
+ * per catalog operator, in alphabetical order. Always returns a valid grammar.
+ */
+export function randomizeWeights(
+    catalog: Catalog,
+    grammar: Grammar,
+    rng: Rng,
+    options: RandomizeWeightsOptions = {},
+): Grammar {
+    const spread = options.spread ?? 4;
+    const preserveTerminalShare = options.preserveTerminalShare ?? true;
+    const changeRate = options.changeRate ?? 0.3;
+    const keep = new Set(options.keep ?? DEFAULT_KEEP);
+
+    if (!Number.isFinite(spread) || spread < 1) {
+        throw new Error(`spread must be a finite number >= 1, received ${String(spread)}`);
+    }
+    if (!Number.isFinite(changeRate) || changeRate < 0 || changeRate > 1) {
+        throw new Error(`changeRate must be a finite number in [0, 1], received ${changeRate}`);
+    }
+
+    const logSpread = Math.log(spread);
+    const names = Object.keys(grammar.weights).sort(byName);
+    const scaled = new Map<string, number>();
+
+    // Pass 1 — alphabetical order, one rng.next() per operator: log-uniform scaling of live weights.
+    for (const name of names) {
+        const before = grammar.weights[name];
+        const factor = Math.exp((2 * rng.next() - 1) * logSpread);
+
+        scaled.set(name, before > 0 ? before * factor : 0);
+    }
+
+    // Pass 2 — alphabetical order, one rng.next() per operator: switch off (live → 0) or on (0 → 1).
+    const weights: Record<string, number> = {};
+
+    for (const name of names) {
+        const before = grammar.weights[name];
+        const toggles = rng.next() < changeRate;
+
+        if (before > 0) {
+            weights[name] = toggles && !keep.has(name) ? 0 : (scaled.get(name) ?? before);
+        } else {
+            weights[name] = toggles ? 1 : 0;
+        }
+    }
+
+    repair(catalog, weights, grammar.constraints.minDepth, grammar.constraints.maxNodes, rng);
+    preserveTerminalShareOf(catalog, grammar, weights, preserveTerminalShare);
+
+    const quantized: Record<string, number> = {};
+
+    for (const name of names) {
+        quantized[name] = quantize(weights[name]);
+    }
+
+    return createGrammar(catalog, { weights: quantized, constraints: grammar.constraints });
 }

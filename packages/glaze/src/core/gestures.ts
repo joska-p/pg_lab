@@ -11,6 +11,15 @@ import type {
 } from './gestureTypes';
 
 /** Pans on button drag; pure decision logic — activation is reported, capture happens upstream. */
+function matchesButton(button: number, filter?: number | number[]): boolean {
+    if (filter === undefined) {
+        return true;
+    }
+
+    return Array.isArray(filter) ? filter.includes(button) : filter === button;
+}
+
+/** Pans on button drag; pure decision logic — activation is reported, capture happens upstream. */
 export class PanGesture<TSurface> {
     active = false;
     readonly #button: number | number[] | undefined;
@@ -73,14 +82,6 @@ export class ZoomGesture<TSurface> {
 
 export function createZoomGesture<TSurface>(options: ZoomOptions = {}): ZoomGesture<TSurface> {
     return new ZoomGesture<TSurface>(options);
-}
-
-function matchesButton(button: number, filter?: number | number[]): boolean {
-    if (filter === undefined) {
-        return true;
-    }
-
-    return Array.isArray(filter) ? filter.includes(button) : filter === button;
 }
 
 /** The acting edge of the capture policy: a claimed `pointerdown` pins events to the canvas. */
