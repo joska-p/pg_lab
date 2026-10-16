@@ -1,24 +1,24 @@
-import type { Catalog, OperatorDef } from '../catalog';
+import type { Catalog, Operator } from '../catalog';
 import { assertFinite } from '../shared';
 import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types';
 import type { Constraints, Grammar } from './types';
 
-export const isTerminalOperator = (operator: OperatorDef): boolean => operator.inputs.length === 0;
-export const isNonTerminalOperator = (operator: OperatorDef): boolean => operator.inputs.length > 0;
+export const isTerminalOperator = (operator: Operator): boolean => operator.isTerminal;
+export const isNonTerminalOperator = (operator: Operator): boolean => !operator.isTerminal;
 
 export function minSize(
     currentDepth: number,
     minDepth: number,
-    operators: readonly OperatorDef[],
+    operators: readonly Operator[],
 ): number {
     if (currentDepth >= minDepth) {
         return 1;
     }
-    const nonTerminals = operators.filter((operator) => operator.inputs.length > 0);
+    const nonTerminals = operators.filter(isNonTerminalOperator);
     if (nonTerminals.length === 0) {
         return 1;
     }
-    const k = Math.min(...nonTerminals.map((operator) => operator.inputs.length));
+    const k = Math.min(...nonTerminals.map((operator) => operator.arity));
     return 1 + k * minSize(currentDepth + 1, minDepth, operators);
 }
 
@@ -29,7 +29,7 @@ export function minSize(
 export function getVocabulary(
     catalog: Catalog,
     weights: Readonly<Record<string, number>>,
-): OperatorDef[] {
+): Operator[] {
     return Object.keys(weights)
         .sort()
         .map((name) => catalog.operator(name))
@@ -43,7 +43,7 @@ export function getVocabulary(
  * to 1, always terminates since `minDepth = 1` is feasible.
  */
 export function fitConstraints(
-    operators: readonly OperatorDef[],
+    operators: readonly Operator[],
     constraints: Constraints,
 ): Constraints {
     const clampInt = (value: number, min: number, max: number): number =>
@@ -87,7 +87,7 @@ export function createGrammar(
     }
 
     // Rule 1: Every operator exists in catalog
-    const operators: OperatorDef[] = [];
+    const operators: Operator[] = [];
     for (const name of operatorNames) {
         try {
             operators.push(catalog.operator(name));
@@ -115,19 +115,7 @@ export function createGrammar(
         throw new Error('Grammar vocabulary must contain at least one terminal operator');
     }
 
-    // Rule 4: Every input type required by an active operator has a matching active terminal
-    for (const operator of vocabulary) {
-        for (const input of operator.inputs) {
-            const hasMatchingTerminal = terminals.some((t) => t.output === input.type);
-            if (!hasMatchingTerminal) {
-                throw new Error(
-                    `Operator "${operator.name}" requires input type "${input.type}", but no terminal in vocabulary produces it`,
-                );
-            }
-        }
-    }
-
-    // Rule 5: 1 <= minDepth <= maxDepth
+    // Rule 4: 1 <= minDepth <= maxDepth
     const { minDepth, maxDepth, maxNodes } = constraints;
     if (
         !Number.isInteger(minDepth) ||
@@ -140,7 +128,7 @@ export function createGrammar(
         );
     }
 
-    // Rule 6: If minDepth > 1, vocabulary must contain at least one active non-terminal
+    // Rule 5: If minDepth > 1, vocabulary must contain at least one active non-terminal
     const nonTerminals = vocabulary.filter(isNonTerminalOperator);
     if (minDepth > 1 && nonTerminals.length === 0) {
         throw new Error(
@@ -148,7 +136,7 @@ export function createGrammar(
         );
     }
 
-    // Rule 7: Hard limits
+    // Rule 6: Hard limits
     if (!Number.isInteger(maxNodes) || maxNodes < 1) {
         throw new Error(`Constraints maxNodes (${maxNodes}) must be an integer >= 1`);
     }
@@ -159,7 +147,7 @@ export function createGrammar(
         throw new Error(`maxNodes (${maxNodes}) exceeds hard limit MAX_NODES (${MAX_NODES})`);
     }
 
-    // Rule 8: Feasibility check: minSize(1) <= maxNodes, over the active vocabulary
+    // Rule 7: Feasibility check: minSize(1) <= maxNodes, over the active vocabulary
     const requiredMinSize = minSize(1, minDepth, vocabulary);
     if (maxNodes < requiredMinSize) {
         throw new Error(

@@ -92,10 +92,8 @@ export function emit(
         for (const req of requires) {
             usedDeps.add(req);
         }
-        if (operator.requires) {
-            for (const req of operator.requires) {
-                usedDeps.add(req);
-            }
+        for (const req of operator.requires) {
+            usedDeps.add(req);
         }
 
         const parentGlslP = parentName === ROOT_CTX ? 'v_p' : parentName;
@@ -103,11 +101,7 @@ export function emit(
             inputText(childId, varNames, inlineTexts),
         );
 
-        if (typeof operator.innerCoords !== 'function') {
-            throw new Error(`Operator "${operatorName}" is missing innerCoords definition`);
-        }
-
-        const coordsText = operator.innerCoords(currentInputTexts, params, { p: parentGlslP });
+        const coordsText = operator.coords(currentInputTexts, params, parentGlslP);
         lines.push(`  vec2 ${name} = ${coordsText};`);
     }
 
@@ -119,17 +113,15 @@ export function emit(
         for (const req of requires) {
             usedDeps.add(req);
         }
-        if (operator.requires) {
-            for (const req of operator.requires) {
-                usedDeps.add(req);
-            }
+        for (const req of operator.requires) {
+            usedDeps.add(req);
         }
 
         // Build input texts for this vertex's glsl call
         const inputTexts = inputIds.map((childId) => inputText(childId, varNames, inlineTexts));
 
         const glslP = context === ROOT_CTX ? 'v_p' : context;
-        const rawText = operator.glsl(inputTexts, params, { p: glslP });
+        const rawText = operator.glsl(inputTexts, params, glslP);
 
         // Decide variable assignment
         if (shouldHaveVariable(policy, usages, id, rawText)) {

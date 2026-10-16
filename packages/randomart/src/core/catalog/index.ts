@@ -1,16 +1,10 @@
-export {
-    createCatalog,
-    createDefaultCatalog,
-    defineDependency,
-    defineOperator,
-    formatGlslFloat,
-} from './catalog.ts';
-export type {
-    Catalog,
-    GlslContext,
-    InputDef,
-    OperatorDef,
-    ParamDef,
-    ShaderDependency,
-    ValueType,
-} from './types.ts';
+export { Catalog, createDefaultCatalog } from './Catalog.ts';
+export type { ShaderDependency } from './Catalog.ts';
+export { DEPENDENCIES } from './dependencies.ts';
+export type { DependencyId, DependencySpec } from './dependencies.ts';
+export { formatGlslFloat } from './format.ts';
+export { Operator } from './operators/Operator.ts';
+export { OPERATOR_SPECS } from './operators/registry.ts';
+export type { OperatorId } from './operators/registry.ts';
+export { defineOperator } from './operators/types.ts';
+export type { OperatorGroup, OperatorSpec, ParamRange } from './operators/types.ts';

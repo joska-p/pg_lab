@@ -25,18 +25,21 @@ Principes : cœur TypeScript pur (pas de DOM, pas de GPU) ; rendu = adaptateur m
 - **Lot D** : fait (`fuzz.test`, `emit.test`, `dump.test` + `scripts/validate-glsl.sh`, `measure.test`).
 - **Lot E** : fait (inspecteur, `docs/explorer-spec.md`).
 - **Revue de code** : `fitConstraints` corrigé (maxDepth l'emporte) et testé ; l'édition de contraintes ne crée plus qu'une entrée d'historique par série de modifications ; état mort d'`appStore` retiré.
+- **Refonte du catalogue** : `catalog.ts` (447 lignes, définition et validation mélangées) remplacé par un **registre statique** de specs (`operators/*.ts`, `dependencies.ts`) et deux classes : `Operator` (spec instanciée ; sonde les multiplicités **une fois**, à la construction) et `Catalog` (registre + fermeture des dépendances). Supprimés : `name` dans la spec (la clé du registre fait foi), `family` (→ `group`), `inputs: InputDef[]` (→ listes nommées `inputs` + `inner`), `output`, `ValueType`, `withOutput`, `cost`, `createCatalog`, `defineDependency`. Renommés : `innerCoords` → `coords`, `scope` par entrée → `inner`. Les `args` et `params` sont nommés (`args.a`, `args.dx`). Le compilateur ne sonde plus (`probeMultiplicities` / `probeInnerMultiplicities` supprimés ; `lower` réassemble `[...inputs, ...inner]`). `formatGlslFloat` déplacé dans `catalog/format.ts`.
 
 **Pas encore fait** : sérialisation d'expression, `artwork`, provenance (lot F) ; lots G et H.
 
-**Tests** : non rejoués depuis ce nettoyage. À reconfirmer (`vp check --fix`, `vp test`).
+**Tests** : rejoués verts après la refonte (`vp check --fix` : 388 fichiers, 0 erreur ; `vpr -r test` : 181 passés, 2 ignorés ; fuzzing 300 cas × 3 politiques).
 
 ## Prochaine action
 
-1. Valider le nettoyage : `vp check --fix`, `vp test`, relire `git diff`, commit.
+1. **Formule lisible (`math`).** Le catalogue expose un champ `math` par opérateur (maintenu à la main, exercé par un test, pas encore consommé par l'inspecteur, qui affiche `formatFormula`). Trancher : le **dériver** de `glsl` / `coords`, ou le brancher tel quel dans l'inspecteur. Session dédiée.
 2. **Lot F** (persistance : sérialisation d'expression, `artwork`, provenance).
 
 ## Dette connue (petite, non bloquante)
 
+- **`math`** : dupliqué à la main à côté de `glsl` ; peut dériver. À dériver ou supprimer (voir « Prochaine action »).
+- **Poids typés** : `Grammar.weights` est `Readonly<Record<string, number>>`. Le registre étant statique, `Partial<Record<OperatorId, number>>` rendrait `defaultGrammar` exhaustif. Différé.
 - `ShapeBatcher.compileProgram` ne supprime pas ses shaders après le link, et fuit le vertex shader si le fragment échoue.
 - `compiler/compile.ts` : en-tête obsolète (« no inner/warp contexts ») ; `compiler/compiler.ts` (couche de compatibilité) est devenu inutile.
 - `Inspector` appelle `compileNodePreview` pendant le rendu sans `try/catch`.

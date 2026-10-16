@@ -1,6 +1,6 @@
 # Spec — Compilateur GLSL
 
-Version de travail 0.2. Termes définis dans `glossary.md`, décisions dans `architecture.md`, opérateurs et dépendances dans `catalog-spec.md`, expressions dans `expression-spec.md`.
+Version de travail 0.3. Termes définis dans `glossary.md`, décisions dans `architecture.md`, opérateurs et dépendances dans `catalog-spec.md`, expressions dans `expression-spec.md`.
 
 ## 1. Responsabilité
 
@@ -17,7 +17,7 @@ Il ne dessine rien et ne connaît ni la grammaire, ni l'UI, ni la persistance. I
 - **Pur et déterministe.** Mêmes entrées → même texte, caractère pour caractère (les noms de variables sont numérotés de façon stable). C'est ce qui permet les tests d'instantanés sans GPU.
 - **Le texte GLSL est la sémantique.** Le compilateur ne réécrit pas les formules des opérateurs ; il les assemble.
 - **Le partage est une optimisation, pas une règle.** Il se règle par une politique et se mesure (§6).
-- **Aucune connaissance d'un opérateur précis.** Il lit les champs du catalogue (`glsl`, `requires`, `scope`, `innerCoords`), jamais le nom d'un opérateur.
+- **Aucune connaissance d'un opérateur précis.** Il lit les capacités déclarées que l'`Operator` expose (`glsl`, `coords`, `requires`), jamais le nom d'un opérateur.
 
 ## 3. Interface
 
@@ -60,13 +60,13 @@ Le shader cible **GLSL ES 3.00** (`#version 300 es`, WebGL2), avec `precision hi
 
 ## 5. Algorithme
 
-Trois temps : **sonder** les opérateurs et **abaisser** l'expression en un graphe de _sommets_, **compter** les usages, puis **émettre** le texte en décidant au passage quels sommets reçoivent une variable.
+Deux temps : **abaisser** l'expression en un graphe de _sommets_ (les multiplicités sont déjà mesurées par le catalogue, §5.0), **compter** les usages, puis **émettre** le texte en décidant au passage quels sommets reçoivent une variable.
 
-### 5.0 Sondage (multiplicité)
+### 5.0 Multiplicité (mesurée par le catalogue, pas ici)
 
-Pour chaque nœud, le compilateur appelle `glsl` avec des **sentinelles** à la place des entrées (`@0@`, `@1@`, … ; le contexte est `{p: '@p@'}`) et avec les paramètres réels du nœud. Le nombre d'occurrences de `@i@` dans le résultat est la multiplicité `mg[i]` de l'entrée `i` dans `glsl`. Pour un opérateur à entrées `inner`, il fait de même avec `innerCoords` sur les entrées `current` : multiplicité `mc[i]`.
+Le compilateur ne sonde plus : c'est l'`Operator` qui l'a fait **une fois, à sa construction** (catalogue §4–5), en appelant `glsl` et `coords` avec des **sentinelles** à la place des entrées (`@0@`, `@1@`, … ; contexte `p = '@p@'`) et les **paramètres à leur minimum**. Le nombre d'occurrences de `@i@` dans le résultat donne la multiplicité de l'entrée `i` : `multiplicity(i)` dans `glsl`, `coordsMultiplicity(i)` dans `coords` (entrées `inputs` seulement). Comme la sonde utilise le minimum des paramètres, une multiplicité ne doit pas dépendre de leur valeur — ce que le catalogue vérifie par un test (catalogue §9).
 
-C'est ce qui rend le partage correct : dans `sqr(a)` (`a*a`), l'entrée `a` n'est référencée qu'une fois par l'arbre mais **écrite deux fois** dans le texte. Sans sondage, `a` serait écrit en ligne deux fois, et une chaîne de `sqr` ferait croître le texte comme `2^profondeur` (D29). Le catalogue garantit que chaque entrée apparaît au moins une fois (catalogue §5).
+C'est ce qui rend le partage correct : dans `sqr(a)` (`a*a`), l'entrée `a` n'est référencée qu'une fois par l'arbre mais **écrite deux fois** dans le texte. Sans ces multiplicités, `a` serait écrit en ligne deux fois, et une chaîne de `sqr` ferait croître le texte comme `2^profondeur` (D29). Le catalogue garantit que chaque entrée apparaît au moins une fois (catalogue §5).
 
 ### 5.1 Abaissement (lowering)
 
@@ -76,12 +76,12 @@ Un **contexte** est un `vec2` de coordonnées. Le contexte racine s'appelle `v_p
 
 ```
 lower(nœud, contexte c) → identifiant de sommet
-  1. Pour chaque entrée de portée 'current' : id_i = lower(enfant_i, c)
-  2. Si l'opérateur a des entrées de portée 'inner' :
-       clé de contexte = (c, opérateur, paramètres, [id des entrées 'current'])
+  1. Pour chaque entrée `inputs` : id_i = lower(enfant_i, c)
+  2. Si l'opérateur a des entrées `inner` :
+       clé de contexte = (c, opérateur, paramètres, [id des entrées `inputs`])
        c' = contexte interné pour cette clé
-       si c' vient d'être créé : usages[id_i] += mc[i] pour chaque entrée 'current'
-       pour chaque entrée de portée 'inner' : id_i = lower(enfant_i, c')
+       si c' vient d'être créé : usages[id_i] += mc[i] pour chaque entrée `inputs`
+       pour chaque entrée `inner` : id_i = lower(enfant_i, c')
   3. clé = « c | opérateur[paramètres](id_1, id_2, …) »
      Si la clé existe dans la table → renvoyer son sommet existant.
      Sinon créer un sommet, usages[id_i] += mg[i] pour chaque entrée, l'ajouter à la table, le renvoyer.
@@ -92,7 +92,7 @@ Après les trois canaux, `usages[racine] += 1` pour chaque canal dont c'est la r
 Points importants :
 
 - **La clé d'un sommet contient son contexte.** `sin(x)` dans deux contextes différents donne deux sommets ; dans le même contexte, un seul, même s'il apparaît dans plusieurs canaux ou à plusieurs endroits.
-- **Les contextes sont internés** : deux transformateurs qui ont le même contexte parent, le même opérateur, les mêmes paramètres et les mêmes entrées `current` créent **un seul** contexte, donc leurs entrées `inner` peuvent se partager.
+- **Les contextes sont internés** : deux transformateurs qui ont le même contexte parent, le même opérateur, les mêmes paramètres et les mêmes entrées `inputs` créent **un seul** contexte, donc leurs entrées `inner` peuvent se partager.
 - La clé utilise les **identifiants de sommets** des entrées (pas le texte des sous-arbres).
 - Les **usages** d'un sommet comptent ses occurrences dans le texte des autres sommets (multiplicité `mg`), dans les coordonnées des contextes (multiplicité `mc`, comptée **une fois par contexte créé**, pas à chaque référence) et une par canal racine. Une référence répétée vers un sommet déjà existant ajoute les usages de son nouveau parent, pas les siens.
 - Seuls les sommets atteignables depuis les trois racines sont créés.
@@ -121,14 +121,14 @@ Savoir si un texte est un atome demande de connaître ce texte, qui dépend des 
 On parcourt le programme dans l'ordre. Le texte d'un sommet est :
 
 - le **nom de sa variable** si elle en a une (`v<id>`) ;
-- sinon le résultat de `glsl(textes des entrées, paramètres, {p: nom du contexte})`.
+- sinon le résultat de `operator.glsl(textes des entrées, paramètres, nom du contexte)`.
 
 Règles de texte :
 
 - **Parenthésage.** Tout texte en ligne qui n'est pas un atome est entouré de parenthèses quand il sert d'entrée à un autre opérateur. Cela évite les erreurs de précédence, et un cas particulier de GLSL : `-` suivi d'une constante négative donnerait `--0.3`, qui est un décrément invalide ; avec les parenthèses on obtient `-(-0.3)`.
 - **Littéraux.** Un nombre est écrit avec sa représentation JavaScript la plus courte, avec `.0` ajouté s'il n'a ni point ni exposant (`1e-7` est un littéral GLSL ES 3.00 valide tel quel). Un nombre négatif est entouré de parenthèses. Exemples : `1` → `1.0`, `0.3` → `0.3`, `-0.3` → `(-0.3)`.
 - **Variable** : `float v<id> = <texte brut>;`.
-- **Contexte** : `vec2 c<n> = <innerCoords(entrées 'current', paramètres, {p: contexte parent})>;`.
+- **Contexte** : `vec2 c<n> = <operator.coords(entrées inputs, paramètres, contexte parent)>;`.
 
 Fin de `main` : on assemble les trois canaux et on convertit de `[-1, 1]` vers `[0, 1]` :
 
@@ -193,20 +193,19 @@ Le partage n'est pas toujours favorable : trop de variables peuvent augmenter la
 ```
 compiler/
   types.ts        // SharingPolicy, CompileOptions, CompiledShader
-  lower.ts        // abaissement : valeurs, contextes, table
-  plan.ts         // sondage des opérateurs, multiplicités, usages
+  lower.ts        // abaissement : sommets, contextes internés, usages (multiplicités)
   emit.ts         // programme → lignes GLSL, décision de variable (atomes, politique)
-  format.ts       // littéraux, parenthésage, noms
+  format.ts       // littéraux, parenthésage, atomes
   preamble.ts     // préambule
   compile.ts      // assemble le tout
   index.ts
 ```
 
-Chaque fichier a une seule tâche, et `compile.ts` ne fait qu'enchaîner : `lower` → `plan` → `emit` → préambule.
+Chaque fichier a une seule tâche, et `compile.ts` ne fait qu'enchaîner : `lower` → `emit` → préambule.
 
 ## 8. Tests
 
-Les tests utilisent le catalogue par défaut, `warp` compris (transformateur réel : portée `inner`, `innerCoords`, dépendance `ra_fold2`).
+Les tests utilisent le catalogue par défaut, `warp` compris (transformateur réel : entrée `inner`, `coords`, dépendance `ra_fold2`).
 
 1. **Instantanés** du GLSL pour des expressions écrites à la main : un terminal seul, une sous-expression partagée, une constante négative sous `neg`, un transformateur.
 2. **Partage entre canaux** : une même sous-expression dans `r` et `g` produit une seule variable.

@@ -4,7 +4,9 @@ Un terme = un sens. Si un mot est utilisé autrement ailleurs dans le projet, c'
 
 ## Les objets
 
-**Opérateur** — Une opération mathématique unitaire (`sin`, `add`, `select`…). Il a un nom, des entrées typées, une sortie typée et un code GLSL.
+**Opérateur** — Une opération mathématique (`sin`, `add`, `select`…). Il a un nom (la clé du catalogue), un groupe, des entrées nommées, des paramètres et un code GLSL.
+
+**Groupe** — La famille d'affichage d'un opérateur (`terminal`, `arithmetic`, `trigonometry`, `logic`, `transform`). Purement présentationnel : le compilateur ne s'en sert pas.
 
 **Terminal** — Un opérateur sans entrée : `x`, `y`, une constante, `tsin`, `tcos`. Il termine une branche de l'expression.
 
@@ -56,7 +58,7 @@ Un terme = un sens. Si un mot est utilisé autrement ailleurs dans le projet, c'
 
 **Sommet** — Dans le compilateur, un calcul distinct du graphe obtenu après partage : identifié par son contexte, son opérateur, ses paramètres et ses entrées. Remplace l'usage du mot « valeur » dans le compilateur.
 
-**Multiplicité (d'une entrée)** — Le nombre de fois où le GLSL d'un opérateur écrit une de ses entrées. Le compilateur la mesure par sondage (D29) ; elle sert à compter les usages d'un sommet.
+**Multiplicité (d'une entrée)** — Le nombre de fois où le GLSL d'un opérateur écrit une de ses entrées. Le **catalogue** la mesure par sondage, une fois, à la construction de l'`Operator` (D29) ; elle sert à compter les usages d'un sommet.
 
 **Atome** — Un texte GLSL qui ne vaut jamais une variable : un identifiant, un littéral (négatif entre parenthèses compris) ou un accès de composante (`v_p.x`, `0.3`, `(-0.3)`, `u_phase`). `sin(2.0*PI*u_phase)` n'est **pas** un atome.
 

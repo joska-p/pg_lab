@@ -1,4 +1,4 @@
-import type { Catalog, OperatorDef } from '../catalog/index.ts';
+import type { Catalog, Operator } from '../catalog/index.ts';
 import type { Rng } from '../random/index.ts';
 import {
     createGrammar,
@@ -144,7 +144,7 @@ function repair(
     rng: Rng,
 ): void {
     const sorted = [...catalog.operators()].sort((a, b) => byName(a.name, b.name));
-    const vocabulary = (): OperatorDef[] => getVocabulary(catalog, weights);
+    const vocabulary = (): Operator[] => getVocabulary(catalog, weights);
 
     if (!vocabulary().some(isTerminalOperator)) {
         const terminals = sorted.filter(isTerminalOperator);
@@ -164,13 +164,13 @@ function repair(
         const k = Math.min(
             ...vocabulary()
                 .filter(isNonTerminalOperator)
-                .map((operator) => operator.inputs.length),
+                .map((operator) => operator.arity),
         );
         const candidate = sorted.find(
             (operator) =>
                 isNonTerminalOperator(operator) &&
                 weights[operator.name] <= 0 &&
-                operator.inputs.length < k,
+                operator.arity < k,
         );
 
         if (!candidate) {

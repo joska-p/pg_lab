@@ -1,6 +1,6 @@
 # Random Art — documentation de conception
 
-État : **specs v0.2/v0.3, relues et corrigées** (voir `revue.md`). Le code existe : l'avancement réel et les écarts avec ces specs (rendu sur `@repo/glaze`, contrat `vUv`, phase via `Clock`) sont suivis dans `../PLAN.md`, qui fait foi.
+État : **specs v0.3/v0.4, relues et corrigées** (voir `revue.md`). Le code existe : l'avancement réel et les écarts avec ces specs (rendu sur `@repo/glaze`, contrat `vUv`, phase via `Clock`) sont suivis dans `../PLAN.md`, qui fait foi.
 
 Décisions confirmées : **WebGL2** (GLSL ES 3.00) et **pas d'évaluateur CPU**.
 
@@ -8,12 +8,12 @@ Décisions confirmées : **WebGL2** (GLSL ES 3.00) et **pas d'évaluateur CPU**.
 
 1. `product-brief.md` — l'intention.
 2. `glossary.md` — le vocabulaire, à lire en second : toutes les specs en dépendent.
-3. `architecture.md` — les modules, les responsabilités, les **décisions D1 à D39**.
+3. `architecture.md` — les modules, les responsabilités, les **décisions D1 à D42**.
 4. Les specs de module, dans l'ordre de dépendance :
-    1. `catalog-spec.md` (v0.3) — opérateurs et dépendances shader
-    2. `expression-spec.md` (v0.2) — le modèle d'expression
-    3. `grammar-generator-spec.md` (v0.2) — grammaire, générateur, aléatoire
-    4. `compiler-spec.md` (v0.2) — expression → fragment shader GLSL
+    1. `catalog-spec.md` (v0.4) — opérateurs et dépendances shader
+    2. `expression-spec.md` (v0.3) — le modèle d'expression
+    3. `grammar-generator-spec.md` (v0.4) — grammaire, générateur, aléatoire
+    4. `compiler-spec.md` (v0.3) — expression → fragment shader GLSL
     5. `renderer-spec.md` (v0.2) — exécution WebGL2, affichage, export
     6. `artwork-spec.md` (v0.1) — format d'œuvre et de grammaire, import/export
 5. `explorer-spec.md` (v0.1) — l'UI telle que construite.
@@ -36,7 +36,7 @@ Spec écrite : `explorer-spec.md` (v0.1). Contraintes qu'elle respecte :
 - Un seul type de valeur : `float`, dans `[-1, 1]` **par construction des formules**, à quelques ULP près. Le GLSL est la sémantique (D5, D9, D31).
 - Une expression = **trois arbres** (r, g, b), fonctions de `(x, y, t)`. Le temps est dans le modèle : `tsin` / `tcos` sur une phase qui boucle (D6, D11).
 - Une grammaire = poids par opérateur (bornés) + contraintes. Une grammaire invalide n'existe pas, et le générateur ne peut pas échouer sur une grammaire valide, preuve à l'appui (D17, D18, D33).
-- Capacités d'opérateurs optionnelles (`requires`, portée `inner`), pas de `kind` ; `warp` est le premier transformateur (D13, D14, D34).
+- Capacités d'opérateurs optionnelles (`requires`, entrées `inner`), pas de `kind` ; `warp` est le premier transformateur (D13, D14, D34). Le catalogue est un registre statique de specs, tenu par les types (D42).
 - Le compilateur partage les sous-expressions par hash-consing avec contextes internés, et compte les usages selon la **multiplicité** réelle des entrées (D22, D29).
 - Reproductibilité non critique ; l'expression exportée est la référence (D1).
 
@@ -47,7 +47,7 @@ Sans GPU : instantanés du GLSL, catalogue, générateur, déterminisme, artwork
 ## Questions encore ouvertes (aucune ne bloque la v1)
 
 - Harmonique entière sur `tsin` / `tcos` (v2).
-- Champ `display` pour la formule lisible (v2).
+- Formule lisible : le champ `math` existe (maintenu à la main) ; le dériver de `glsl` / `coords`, ou le garder ? (session dédiée)
 - Mesure du partage (`none` / `shared` / `all`) sur de vraies expressions.
 - Calibrage des poids par défaut et des bornes de `loopMs` / de taille, en jouant.
 - Répartition du budget du générateur : légère préférence pour les derniers enfants, à observer.

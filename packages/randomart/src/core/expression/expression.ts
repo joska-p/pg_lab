@@ -10,13 +10,13 @@ export function createNode(
 ): Node {
     const operator = catalog.operator(operatorName);
 
-    if (inputs.length !== operator.inputs.length) {
+    if (inputs.length !== operator.arity) {
         throw new Error(
-            `Operator "${operatorName}" expects ${operator.inputs.length} inputs, received ${inputs.length}`,
+            `Operator "${operatorName}" expects ${operator.arity} inputs, received ${inputs.length}`,
         );
     }
 
-    const expectedParams = operator.params ?? [];
+    const expectedParams = operator.params;
     if (params.length !== expectedParams.length) {
         throw new Error(
             `Operator "${operatorName}" expects ${expectedParams.length} params, received ${params.length}`,

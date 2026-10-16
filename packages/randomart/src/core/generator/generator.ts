@@ -1,4 +1,4 @@
-import type { Catalog, OperatorDef } from '../catalog/index.ts';
+import type { Catalog, Operator } from '../catalog/index.ts';
 import { createExpression, createNode } from '../expression/index.ts';
 import type { Expression, Node } from '../expression/index.ts';
 import { getVocabulary, minSize } from '../grammar/index.ts';
@@ -12,7 +12,7 @@ export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expres
     const rng = createRng(seed);
     const { minDepth, maxDepth, maxNodes } = grammar.constraints;
 
-    const vocabulary: OperatorDef[] = getVocabulary(catalog, grammar.weights);
+    const vocabulary: Operator[] = getVocabulary(catalog, grammar.weights);
 
     function generateNode(
         currentDepth: number,
@@ -20,7 +20,7 @@ export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expres
     ): { readonly node: Node; readonly size: number } {
         // 1. Candidates
         const candidates = vocabulary.filter((operator) => {
-            const k = operator.inputs.length;
+            const k = operator.arity;
             if (k === 0) {
                 return currentDepth >= minDepth;
             }
@@ -52,19 +52,17 @@ export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expres
 
         // 4. Draw parameters
         const paramValues: number[] = [];
-        if (operator.params) {
-            for (const param of operator.params) {
-                const u = rng.next();
-                const raw = param.min + u * (param.max - param.min);
-                const rounded = Math.round(raw * 1000) / 1000;
-                const clamped = Math.min(param.max, Math.max(param.min, rounded));
-                const normalized = Object.is(clamped, -0) || clamped === 0 ? 0 : clamped;
-                paramValues.push(normalized);
-            }
+        for (const param of operator.params) {
+            const u = rng.next();
+            const raw = param.min + u * (param.max - param.min);
+            const rounded = Math.round(raw * 1000) / 1000;
+            const clamped = Math.min(param.max, Math.max(param.min, rounded));
+            const normalized = Object.is(clamped, -0) || clamped === 0 ? 0 : clamped;
+            paramValues.push(normalized);
         }
 
         // 5. Children
-        const k = operator.inputs.length;
+        const k = operator.arity;
         const childNodes: Node[] = [];
         let totalChildSize = 0;
 

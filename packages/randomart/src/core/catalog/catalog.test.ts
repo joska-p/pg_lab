@@ -1,12 +1,23 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import {
-    createCatalog,
+    Catalog,
     createDefaultCatalog,
-    defineDependency,
-    defineOperator,
+    DEPENDENCIES,
     formatGlslFloat,
+    Operator,
+    OPERATOR_SPECS,
 } from './index.ts';
+import type { DependencySpec, OperatorSpec } from './index.ts';
+
+const countIn = (haystack: string, needle: string): number => haystack.split(needle).length - 1;
+
+const terminal = (code: string): OperatorSpec => ({
+    label: 'Test terminal',
+    group: 'terminal',
+    glsl: () => code,
+    math: () => code,
+});
 
 describe('formatGlslFloat', () => {
     it('formats positive integers with .0', () => {
@@ -24,157 +35,206 @@ describe('formatGlslFloat', () => {
     });
 });
 
-describe('defineOperator & defineDependency validation', () => {
-    it('rejects operator with invalid name', () => {
-        expect(() =>
-            defineOperator({
-                name: 'BadName',
-                family: 'test',
-                inputs: [],
-                output: 'float',
-                glsl: () => '0.0',
-            }),
-        ).toThrow(/Invalid operator name/);
+describe('registry', () => {
+    it('operator ids are lowercase identifiers', () => {
+        for (const id of Object.keys(OPERATOR_SPECS)) {
+            expect(id).toMatch(/^[a-z][a-z0-9_]*$/);
+        }
     });
 
-    it('rejects operator with min >= max in params', () => {
-        expect(() =>
-            defineOperator({
-                name: 'bad_param',
-                family: 'test',
-                inputs: [],
-                output: 'float',
-                params: [{ name: 'v', min: 1, max: 0 }],
-                glsl: () => '0.0',
-            }),
-        ).toThrow(/invalid range/);
+    it('dependency ids follow u_* / ra_*, and functions declare their own name', () => {
+        for (const [id, dep] of Object.entries(DEPENDENCIES)) {
+            expect(id).toMatch(dep.kind === 'uniform' ? /^u_[A-Za-z0-9_]+$/ : /^ra_[A-Za-z0-9_]+$/);
+            expect(id).not.toContain('__');
+            if (dep.kind === 'function') {
+                expect(dep.code).toContain(`${id}(`);
+            }
+        }
     });
 
-    it('rejects operator with inner scope without innerCoords', () => {
-        expect(() =>
-            defineOperator({
-                name: 'bad_inner',
-                family: 'test',
-                inputs: [{ type: 'float', scope: 'inner' }],
-                output: 'float',
-                glsl: ([a]) => a,
-            }),
-        ).toThrow(/inner inputs but no innerCoords/);
+    it('every `requires` resolves, with no cycle', () => {
+        const catalog = createDefaultCatalog();
+
+        for (const operator of catalog.operators()) {
+            expect(() => catalog.dependencyClosure(operator.requires)).not.toThrow();
+        }
+
+        // Stronger than the operators alone: a dependency nothing uses is still checked.
+        for (const dependency of catalog.dependencies()) {
+            expect(() => catalog.dependencyClosure([dependency.name])).not.toThrow();
+        }
     });
 
-    it('rejects dependency with invalid name convention', () => {
-        expect(() =>
-            defineDependency({
-                kind: 'uniform',
-                name: 'phase',
-                glslType: 'float',
-            }),
-        ).toThrow(/Invalid uniform dependency name/);
-
-        expect(() =>
-            defineDependency({
-                kind: 'function',
-                name: 'fold',
-                code: '...',
-            }),
-        ).toThrow(/Invalid function dependency name/);
+    it('param ranges are non-empty', () => {
+        for (const operator of createDefaultCatalog().operators()) {
+            for (const param of operator.params) {
+                expect(param.min).toBeLessThan(param.max);
+            }
+        }
     });
 });
 
-describe('createCatalog', () => {
-    it('rejects catalog without terminals', () => {
-        const operator = defineOperator({
-            name: 'unary',
-            family: 'test',
-            inputs: [{ type: 'float' }],
-            output: 'float',
-            glsl: ([a]) => `-${a}`,
-        });
-        expect(() => createCatalog({ operators: [operator] })).toThrow(/at least one terminal/);
+describe('Operator', () => {
+    it('probes multiplicities once, at construction', () => {
+        const catalog = createDefaultCatalog();
+
+        expect(catalog.operator('sqr').multiplicity(0)).toBe(2);
+        expect(catalog.operator('warp').multiplicity(0)).toBe(0);
+        expect(catalog.operator('warp').coordsMultiplicity(0)).toBe(1);
+        expect(catalog.operators()).toHaveLength(Object.keys(OPERATOR_SPECS).length);
     });
 
-    it('rejects duplicate operator names', () => {
-        const term1 = defineOperator({
-            name: 'term',
-            family: 'test',
-            inputs: [],
-            output: 'float',
-            glsl: () => '1.0',
-        });
-        const term2 = defineOperator({
-            name: 'term',
-            family: 'test',
-            inputs: [],
-            output: 'float',
-            glsl: () => '2.0',
-        });
-        expect(() => createCatalog({ operators: [term1, term2] })).toThrow(/Duplicate operator/);
+    it('rejects an unused input', () => {
+        expect(
+            () =>
+                new Operator('bad', {
+                    label: 'Bad',
+                    group: 'arithmetic',
+                    inputs: ['a', 'b'],
+                    glsl: ({ args: { a } }) => a,
+                    math: () => '',
+                }),
+        ).toThrow(/never used/);
     });
 
-    it('rejects operator when an input is unused', () => {
-        const term = defineOperator({
-            name: 't',
-            family: 'test',
-            inputs: [],
-            output: 'float',
-            glsl: () => '1.0',
-        });
-        const badOperator = defineOperator({
-            name: 'bad',
-            family: 'test',
-            inputs: [{ type: 'float' }, { type: 'float' }],
-            output: 'float',
-            glsl: ([a]) => a, // b is omitted!
-        });
-        expect(() => createCatalog({ operators: [term, badOperator] })).toThrow(/is never used/);
+    it('rejects `inner` without `coords`, and `coords` without `inner`', () => {
+        expect(
+            () =>
+                new Operator('bad_inner', {
+                    label: 'Bad inner',
+                    group: 'transform',
+                    inner: ['f'],
+                    glsl: ({ args: { f } }) => f,
+                    math: () => '',
+                }),
+        ).toThrow(/`inner` and `coords` go together/);
+
+        expect(
+            () =>
+                new Operator('bad_coords', {
+                    label: 'Bad coords',
+                    group: 'transform',
+                    coords: ({ p }) => p,
+                    glsl: () => '0.0',
+                    math: () => '',
+                }),
+        ).toThrow(/`inner` and `coords` go together/);
+    });
+
+    it('probes multiplicities independently of param values', () => {
+        const catalog = createDefaultCatalog();
+
+        for (const operator of catalog.operators()) {
+            const sentinels = operator.inputNames.map((_, i) => `@${i}@`);
+            const samples: number[][] = [];
+
+            if (operator.params.length === 0) {
+                samples.push([]);
+            } else {
+                samples.push(operator.params.map((param) => param.min));
+                samples.push(operator.params.map((param) => param.max));
+                samples.push(operator.params.map((param) => (param.min + param.max) / 2));
+            }
+
+            for (const params of samples) {
+                const glslText = operator.glsl(sentinels, params, '@p@');
+                expect(sentinels.map((sentinel) => countIn(glslText, sentinel))).toEqual(
+                    sentinels.map((_, i) => operator.multiplicity(i)),
+                );
+
+                if (operator.hasInner) {
+                    const currentSentinels = sentinels.slice(0, operator.currentCount);
+                    const coordsText = operator.coords(currentSentinels, params, '@p@');
+                    expect(
+                        currentSentinels.map((sentinel) => countIn(coordsText, sentinel)),
+                    ).toEqual(currentSentinels.map((_, i) => operator.coordsMultiplicity(i)));
+                }
+            }
+        }
+    });
+
+    it('exposes a readable label, group, arity and math formula', () => {
+        const catalog = createDefaultCatalog();
+        const square = catalog.operator('sqr');
+
+        expect(square.label).toBe('Square');
+        expect(square.group).toBe('arithmetic');
+        expect(square.arity).toBe(1);
+        expect(square.isTerminal).toBe(false);
+        expect(square.math(['x'], [])).toBe('x²');
+        expect(catalog.operator('x').isTerminal).toBe(true);
+    });
+});
+
+describe('Catalog', () => {
+    it('throws on an unknown operator', () => {
+        expect(() => createDefaultCatalog().operator('unknown')).toThrow(/Unknown operator/);
     });
 
     it('resolves dependency closure in topological order', () => {
-        const depA = defineDependency({
-            kind: 'function',
-            name: 'ra_a',
-            code: 'float ra_a() { return 1.0; }',
-        });
-        const depB = defineDependency({
-            kind: 'function',
-            name: 'ra_b',
-            code: 'float ra_b() { return ra_a(); }',
-            requires: ['ra_a'],
-        });
-        const term = defineOperator({
-            name: 't',
-            family: 'test',
-            inputs: [],
-            output: 'float',
-            glsl: () => '1.0',
-        });
+        const dependencies = {
+            ra_a: { kind: 'function', code: 'float ra_a() { return 1.0; }' },
+            ra_b: {
+                kind: 'function',
+                code: 'float ra_b() { return ra_a(); }',
+                requires: ['ra_a'],
+            },
+        } satisfies Record<string, DependencySpec>;
 
-        const catalog = createCatalog({
-            operators: [term],
-            dependencies: [depA, depB],
-        });
+        const catalog = new Catalog({ t: terminal('1.0') }, dependencies);
 
-        const closure = catalog.dependencyClosure(['ra_b']);
-        expect(closure.map((d) => d.name)).toEqual(['ra_a', 'ra_b']);
+        expect(catalog.dependencyClosure(['ra_b']).map((d) => d.name)).toEqual(['ra_a', 'ra_b']);
+    });
+
+    it('throws on a dependency cycle', () => {
+        const dependencies = {
+            ra_a: {
+                kind: 'function',
+                code: 'float ra_a() { return ra_b(); }',
+                requires: ['ra_b'],
+            },
+            ra_b: {
+                kind: 'function',
+                code: 'float ra_b() { return ra_a(); }',
+                requires: ['ra_a'],
+            },
+        } satisfies Record<string, DependencySpec>;
+
+        const catalog = new Catalog({ t: terminal('1.0') }, dependencies);
+
+        expect(() => catalog.dependencyClosure(['ra_a'])).toThrow(/Dependency cycle/);
+    });
+
+    it('accepts a custom catalog without touching the default registry', () => {
+        const triple: OperatorSpec = {
+            label: 'Triple use',
+            group: 'arithmetic',
+            inputs: ['a'],
+            glsl: ({ args: { a } }) => `(${a} * ${a} + ${a})`,
+            math: ({ args: { a } }) => a,
+        };
+
+        const catalog = new Catalog({ t: terminal('1.0'), triple }, DEPENDENCIES);
+
+        expect(catalog.operator('triple').multiplicity(0)).toBe(3);
     });
 });
 
 describe('createDefaultCatalog', () => {
-    it('creates standard operators and default dependency', () => {
+    it('exposes the default vocabulary', () => {
         const catalog = createDefaultCatalog();
-        expect(catalog.operators().length).toBe(19);
+
         expect(
             catalog
                 .terminals()
                 .map((t) => t.name)
                 .sort(),
         ).toEqual(['const', 'tcos', 'tsin', 'x', 'y']);
-        expect(catalog.operator('x').family).toBe('terminal');
-        expect(catalog.operator('add').inputs.length).toBe(2);
-        expect(catalog.operator('mix').inputs.length).toBe(3);
-        expect(catalog.operator('select').inputs.length).toBe(3);
-        expect(catalog.operator('warp').family).toBe('transform');
+        expect(catalog.operator('x').group).toBe('terminal');
+        expect(catalog.operator('add').arity).toBe(2);
+        expect(catalog.operator('mix').arity).toBe(3);
+        expect(catalog.operator('select').arity).toBe(3);
+        expect(catalog.operator('warp').group).toBe('transform');
         expect(catalog.operator('warp').requires).toEqual(['ra_fold2']);
-        expect(() => catalog.operator('unknown')).toThrow(/Unknown operator/);
     });
 });

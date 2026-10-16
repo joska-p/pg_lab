@@ -1,53 +1,11 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createCatalog, createDefaultCatalog, defineOperator } from '../catalog/index.ts';
+import { createDefaultCatalog } from '../catalog/index.ts';
 import { createExpression, createNode } from '../expression/index.ts';
-import { lower, probeInnerMultiplicities, probeMultiplicities } from './lower.ts';
+import { lower } from './lower.ts';
 
 describe('lower (MP3·S1)', () => {
     const catalog = createDefaultCatalog();
-
-    describe('probeMultiplicities', () => {
-        it('returns empty array for terminal operators with 0 inputs', () => {
-            expect(probeMultiplicities(catalog, 'x', [])).toEqual([]);
-            expect(probeMultiplicities(catalog, 'y', [])).toEqual([]);
-            expect(probeMultiplicities(catalog, 'const', [0.5])).toEqual([]);
-        });
-
-        it('returns [1] for single-input operators with 1 occurrence in GLSL', () => {
-            expect(probeMultiplicities(catalog, 'sin', [])).toEqual([1]);
-            expect(probeMultiplicities(catalog, 'cos', [])).toEqual([1]);
-            expect(probeMultiplicities(catalog, 'neg', [])).toEqual([1]);
-            expect(probeMultiplicities(catalog, 'abs', [])).toEqual([1]);
-        });
-
-        it('returns [1, 1] for binary operators', () => {
-            expect(probeMultiplicities(catalog, 'add', [])).toEqual([1, 1]);
-            expect(probeMultiplicities(catalog, 'mul', [])).toEqual([1, 1]);
-            expect(probeMultiplicities(catalog, 'min', [])).toEqual([1, 1]);
-            expect(probeMultiplicities(catalog, 'max', [])).toEqual([1, 1]);
-        });
-
-        it('detects multiple occurrences: sqr has multiplicity 2 on its single input', () => {
-            // sqr is defined as a * a, so input 0 appears twice
-            expect(probeMultiplicities(catalog, 'sqr', [])).toEqual([2]);
-        });
-
-        it('detects arbitrary multiplicities for custom operators', () => {
-            const tripleOperator = defineOperator({
-                name: 'triple_use',
-                family: 'arithmetic',
-                inputs: [{ type: 'float' }],
-                output: 'float',
-                glsl: (inputs) => `(${inputs[0]} * ${inputs[0]} + ${inputs[0]})`,
-            });
-            const customCat = createCatalog({
-                operators: [...catalog.operators(), tripleOperator],
-                dependencies: [...catalog.dependencies()],
-            });
-            expect(probeMultiplicities(customCat, 'triple_use', [])).toEqual([3]);
-        });
-    });
 
     describe('topological ordering and structure', () => {
         it('assigns ids in strict topological order (children before parents)', () => {
@@ -206,19 +164,6 @@ describe('lower (MP3·S1)', () => {
             // - child of add(sin(x), x): +1
             // Total = 2
             expect(result.usages[0]).toBe(2);
-        });
-    });
-
-    describe('probeInnerMultiplicities (MP3·S3)', () => {
-        it('returns empty array for operators without inner inputs or innerCoords', () => {
-            expect(probeInnerMultiplicities(catalog, 'x', [])).toEqual([]);
-            expect(probeInnerMultiplicities(catalog, 'add', [])).toEqual([]);
-            expect(probeInnerMultiplicities(catalog, 'const', [0.5])).toEqual([]);
-        });
-
-        it('detects multiplicities for warp current inputs', () => {
-            // warp has 2 current inputs (dx, dy), both used once in innerCoords
-            expect(probeInnerMultiplicities(catalog, 'warp', [])).toEqual([1, 1]);
         });
     });
 

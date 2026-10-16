@@ -31,11 +31,11 @@ export function describeGrammar(catalog: Catalog, grammar: Grammar): GrammarSumm
         }
 
         const operator = catalog.operator(name);
-        const arity = operator.inputs.length;
+        const arity = operator.arity;
 
         vocabularySize++;
 
-        if (operator.requires?.includes('u_phase')) {
+        if (operator.requires.includes('u_phase')) {
             hasTime = true;
         }
 

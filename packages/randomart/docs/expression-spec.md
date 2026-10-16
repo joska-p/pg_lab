@@ -1,6 +1,6 @@
 # Spec — Modèle d'expression
 
-Version de travail 0.2. Termes définis dans `glossary.md`, décisions dans `architecture.md`, opérateurs dans `catalog-spec.md`.
+Version de travail 0.3. Termes définis dans `glossary.md`, décisions dans `architecture.md`, opérateurs dans `catalog-spec.md`.
 
 ## 1. Responsabilité
 
@@ -58,7 +58,6 @@ createExpression(r, g, b): Expression
 
 - l'opérateur n'existe pas dans le catalogue ;
 - le nombre d'entrées ne correspond pas à l'arité de l'opérateur ;
-- le type d'une entrée ne correspond pas à son `InputDef` (en v1 : tout est `float`, donc toujours vrai, mais la vérification existe pour l'arrivée d'autres types) ;
 - le nombre de paramètres ne correspond pas à `params` de l'opérateur ;
 - un paramètre n'est pas fini ou sort de `[min, max]`.
 
@@ -164,7 +163,7 @@ expression/
 
 ## 10. Décisions prises
 
-- **Formule lisible.** En v1, l'inspecteur affiche une notation fonctionnelle générée automatiquement à partir des noms (`add(sin(x), const(0.3))`). Un champ `display` sur `OperatorDef` (`(a+b)/2`, `sin(πa)`) viendra en v2, quand l'UI en aura besoin.
+- **Formule lisible.** En v1, l'inspecteur affiche une notation fonctionnelle **dérivée** de l'expression, à partir des noms d'opérateurs (`add(sin(x), const(0.3))`). Le catalogue expose en plus un champ `math` par opérateur (`(a+b)/2`, `sin(πa)`), **maintenu à la main** pour l'instant et pas encore branché dans l'UI. Question ouverte (session dédiée) : le **dériver** de `glsl` / `coords` (une seule source de vérité), ou le garder tel quel.
 - **Arrondi des paramètres.** Le **générateur** arrondit à 3 décimales (grammaire §6) ; le modèle n'arrondit rien.
 - **Édition.** `replaceNode(expression, address, node)` (renvoie une nouvelle expression) suffira plus tard ; non spécifié maintenant.
 - **Limites d'import.** 5 000 nœuds et profondeur 64 (D35), à ajuster à l'usage.

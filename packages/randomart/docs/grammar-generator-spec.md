@@ -1,6 +1,6 @@
 # Spec — Grammaire, générateur et aléatoire
 
-Version de travail 0.3. Termes définis dans `glossary.md`, décisions dans `architecture.md`, opérateurs dans `catalog-spec.md`, expressions dans `expression-spec.md`.
+Version de travail 0.4. Termes définis dans `glossary.md`, décisions dans `architecture.md`, opérateurs dans `catalog-spec.md`, expressions dans `expression-spec.md`.
 
 ## 1. Responsabilités
 
@@ -79,13 +79,12 @@ Erreur si :
 1. un nom n'existe pas dans le catalogue ;
 2. un poids n'est pas fini ou sort de `[MIN_WEIGHT, MAX_WEIGHT] = [0, 100]` (D33) ;
 3. le vocabulaire ne contient aucun terminal (poids > 0) ;
-4. une entrée d'un opérateur **actif** (poids > 0) attend un type pour lequel il n'y a aucun terminal actif (en v1, un terminal `float` suffit puisque tout est `float`) ;
-5. `1 ≤ minDepth ≤ maxDepth` n'est pas respecté ;
-6. `minDepth > 1` et le vocabulaire ne contient aucun opérateur non terminal actif ;
-7. `maxDepth` ou `maxNodes` dépasse les **limites dures** : `maxDepth ≤ 16`, `maxNodes ≤ 400` (un shader plus gros n'est plus raisonnable) ;
-8. `maxNodes` est inférieur à la **taille minimale** d'un arbre faisable avec les opérateurs actifs (§5).
+4. `1 ≤ minDepth ≤ maxDepth` n'est pas respecté ;
+5. `minDepth > 1` et le vocabulaire ne contient aucun opérateur non terminal actif ;
+6. `maxDepth` ou `maxNodes` dépasse les **limites dures** : `maxDepth ≤ 16`, `maxNodes ≤ 400` (un shader plus gros n'est plus raisonnable) ;
+7. `maxNodes` est inférieur à la **taille minimale** d'un arbre faisable avec les opérateurs actifs (§5).
 
-Les règles 3 à 8 sont la « contrainte de validité » dont parlait le brief.
+Les règles 3 à 7 sont la « contrainte de validité » dont parlait le brief. (L'ancienne règle « une entrée attend un type sans terminal actif » a disparu : il n'y a plus de types dans le catalogue.)
 
 ### Sérialisation
 
@@ -146,7 +145,7 @@ Entrées : la profondeur `d` du nœud (la racine a `d = 1`) et son **budget** `B
 
 Invariant : `B ≥ minSize(d)`.
 
-1. **Candidats.** Les opérateurs du vocabulaire dont le type de sortie convient à ce qu'on cherche, avec :
+1. **Candidats.** Les opérateurs du vocabulaire, avec :
     - un **terminal** n'est candidat que si `d ≥ minDepth` ;
     - un **non terminal** d'arité `k` n'est candidat que si `d < maxDepth` **et** `1 + k × minSize(d + 1) ≤ B`.
 2. **Tri.** Les candidats sont triés par **nom** (ordre alphabétique) pour que le résultat ne dépende pas de l'ordre d'insertion.
@@ -166,7 +165,7 @@ Il fait partie de `GENERATOR_VERSION`. Pour chaque nœud : (1) **un** appel pour
 
 - Si `d < minDepth`, l'opérateur non terminal d'arité `k` minimale est toujours un candidat (`1 + k × minSize(d + 1) = minSize(d) ≤ B`).
 - Si `d ≥ minDepth`, un terminal est toujours candidat (il en existe un dans le vocabulaire, règle 3).
-- À `d = maxDepth`, on est forcément en `d ≥ minDepth` (règle 5) : il ne reste que des terminaux, et un terminal suffit.
+- À `d = maxDepth`, on est forcément en `d ≥ minDepth` (règle 4) : il ne reste que des terminaux, et un terminal suffit.
 - Le budget donné à chaque enfant respecte l'invariant `B ≥ minSize`, par construction.
 
 ### Preuve du partage du budget

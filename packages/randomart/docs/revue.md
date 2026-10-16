@@ -52,3 +52,20 @@ Deux passes : cohérence entre documents, puis adversariale sur chaque invariant
 - Un seul `product-brief.md` ; l'ancien nom `product.brief.md` disparaît. README et `idea-bank.md` n'évoquent plus d'évaluateur CPU actif.
 - Références personnelles (« ta librairie », « tes `createFontSize` ») neutralisées.
 - Versions mises à jour : catalogue 0.3, expression 0.2, grammaire 0.2, compilateur 0.2, renderer 0.2, artwork 0.1.
+
+## E. Refonte du catalogue (code, puis specs)
+
+Le catalogue a été réécrit (registre statique de specs + classes `Operator` / `Catalog`) **sans changer la sémantique** : le GLSL émis, l'ordre topologique et les instantanés sont identiques (fuzzing 300 cas × 3 politiques au vert). Les specs ont été alignées sur le code :
+
+| Ce qui a changé                                                                                                                                | Où                                 |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| `OperatorDef` → `OperatorSpec` : nom = clé, `family` → `group`, `inputs`/`inner` nommés, `innerCoords` → `coords`, `math` au lieu de `display` | catalogue §3–§5 ; glossaire        |
+| `defineOperator` / `defineDependency` / `createCatalog` → `defineOperator` / `defineDependencies` / `Catalog`                                  | catalogue §5, §7                   |
+| Validation de forme par les **types** et les **tests** ; runtime réduit aux invariants pas chers                                               | catalogue §5, §9 ; D42             |
+| Multiplicités sondées par le catalogue, à la construction de l'`Operator` (le compilateur ne sonde plus)                                       | D29 ; compilateur §5.0 ; glossaire |
+| Règle de grammaire « type sans terminal actif » supprimée (plus de types) ; règles renumérotées                                                | grammaire §4                       |
+| `ValueType` / `output` / `withOutput` / `cost` supprimés                                                                                       | catalogue §3, §5                   |
+
+**Formule lisible (`math`)** : le champ existe (maintenu à la main), pas encore branché dans l'inspecteur. Le dériver de `glsl` / `coords` ou le garder est une **question ouverte** (expression §10, `../PLAN.md`).
+
+Versions mises à jour : catalogue 0.4, expression 0.3, grammaire 0.4, compilateur 0.3.

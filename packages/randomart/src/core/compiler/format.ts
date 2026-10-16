@@ -5,7 +5,7 @@
  * - FormatGlslFloat: number → valid GLSL ES 3.00 literal (re-exported from catalog).
  */
 
-export { formatGlslFloat } from '../catalog/catalog.ts';
+export { formatGlslFloat } from '../catalog/format.ts';
 
 const IDENTIFIER_OR_MEMBER = /^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?$/;
 const POSITIVE_NUMBER = /^\d+(\.\d+)?([eE][+-]?\d+)?$/;

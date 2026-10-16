@@ -1,12 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { validateShaderContract } from '../../renderer/contract.ts';
-import {
-    createCatalog,
-    createDefaultCatalog,
-    defineDependency,
-    defineOperator,
-} from '../catalog/index.ts';
+import { Catalog, createDefaultCatalog, DEPENDENCIES, OPERATOR_SPECS } from '../catalog/index.ts';
+import type { DependencySpec, OperatorSpec } from '../catalog/index.ts';
 import { createExpression, createNode } from '../expression/index.ts';
 import { generate } from '../generator/index.ts';
 import { defaultGrammar } from '../grammar/index.ts';
@@ -188,25 +184,26 @@ describe('compiler', () => {
         });
 
         it('emits function dependencies if present in catalog closure', () => {
-            const helperFn = defineDependency({
-                kind: 'function',
-                name: 'ra_custom_noise',
-                code: 'float ra_custom_noise(vec2 p) { return sin(p.x * 10.0); }',
-            });
+            const customDeps = {
+                ...DEPENDENCIES,
+                ra_custom_noise: {
+                    kind: 'function',
+                    code: 'float ra_custom_noise(vec2 p) { return sin(p.x * 10.0); }',
+                },
+            } satisfies Record<string, DependencySpec>;
 
-            const noiseOperator = defineOperator({
-                name: 'custom_noise',
-                family: 'terminal',
-                inputs: [],
-                output: 'float',
+            const noiseOperator: OperatorSpec = {
+                label: 'Noise',
+                group: 'terminal',
                 requires: ['ra_custom_noise'],
-                glsl: (_in, _p, ctx) => `ra_custom_noise(${ctx.p})`,
-            });
+                glsl: ({ p }) => `ra_custom_noise(${p})`,
+                math: () => 'noise(p)',
+            };
 
-            const customCatalog = createCatalog({
-                operators: [...catalog.operators(), noiseOperator],
-                dependencies: [...catalog.dependencies(), helperFn],
-            });
+            const customCatalog = new Catalog(
+                { ...OPERATOR_SPECS, custom_noise: noiseOperator },
+                customDeps,
+            );
 
             const noiseNode = createNode(customCatalog, 'custom_noise');
             const x = createNode(customCatalog, 'x');
@@ -221,18 +218,17 @@ describe('compiler', () => {
 
         it('throws an error if source length exceeds MAX_SOURCE_LENGTH', () => {
             // Build a synthetic node whose emitted code exceeds MAX_SOURCE_LENGTH
-            const longGlslOperator = defineOperator({
-                name: 'huge_op',
-                family: 'terminal',
-                inputs: [],
-                output: 'float',
+            const hugeOperator: OperatorSpec = {
+                label: 'Huge',
+                group: 'terminal',
                 glsl: () => `${'1.0 + '.repeat(Math.ceil(MAX_SOURCE_LENGTH / 6))}1.0`,
-            });
+                math: () => 'huge',
+            };
 
-            const testCatalog = createCatalog({
-                operators: [...catalog.operators(), longGlslOperator],
-                dependencies: [...catalog.dependencies()],
-            });
+            const testCatalog = new Catalog(
+                { ...OPERATOR_SPECS, huge_op: hugeOperator },
+                DEPENDENCIES,
+            );
 
             const hugeNode = createNode(testCatalog, 'huge_op');
             const expr = createExpression(hugeNode, hugeNode, hugeNode);

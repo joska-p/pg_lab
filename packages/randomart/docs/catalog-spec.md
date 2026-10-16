@@ -1,6 +1,6 @@
 # Spec — Catalogue
 
-Version de travail 0.3. Termes définis dans `glossary.md`, décisions dans `architecture.md`.
+Version de travail 0.4. Termes définis dans `glossary.md`, décisions dans `architecture.md`.
 
 ## 1. Responsabilité
 
@@ -15,83 +15,84 @@ Le catalogue **déclare** les opérateurs et les dépendances shader, et permet 
 
 ## 3. Types
 
-```ts
-type ValueType = 'float'; // v1 : un seul type, dans [-1, 1] par contrat
-```
+Il n'y a **pas** de type de valeur dans le catalogue : la v1 est `float` partout, et la plage `[-1, 1]` est un **contrat** vérifié par la construction des formules et par un test en navigateur (§9). Aucun champ `output` ni `ValueType` : le jour où un `vec3` arrivera, la forme des définitions évoluera (les entrées et paramètres sont déjà nommés).
 
-La plage `[-1, 1]` est un **contrat du catalogue**, vérifié par la construction des formules et par un test en navigateur (§9). `ValueType` existe pour qu'un `vec3` puisse être ajouté plus tard sans changer la forme des définitions.
+```ts
+type OperatorGroup = 'terminal' | 'arithmetic' | 'trigonometry' | 'logic' | 'transform';
+
+type ParamRange = { readonly min: number; readonly max: number };
+```
 
 ## 4. Définitions
 
 ### Opérateur
 
+Une spec est une **donnée** : un groupe, des paramètres nommés, des entrées nommées et trois constructeurs de texte. Les noms de paramètres (`P`), d'entrées `inputs` (`I`) et d'entrées `inner` (`N`) sont **inférés du littéral** par `defineOperator`, donc `args.a`, `args.dx`, `params.value` sont typés dans les constructeurs.
+
 ```ts
-type InputDef = {
-    type: ValueType;
-    scope?: 'current' | 'inner'; // défaut : 'current'
-};
+type Named<K extends string, V> = Readonly<Record<K, V>>;
 
-type ParamDef = {
-    name: string; // "value"
-    min: number;
-    max: number;
-};
+interface OperatorSpec<
+    P extends string = string, // noms des paramètres
+    I extends string = string, // noms des entrées `inputs`
+    N extends string = string, // noms des entrées `inner`
+    D extends string = string, // ids de dépendances autorisés dans `requires`
+> {
+    readonly label: string; // nom affiché (ex. « Square »)
+    readonly group: OperatorGroup; // famille d'affichage
+    readonly params?: Named<P, ParamRange>; // ex. la constante a un paramètre `value`
+    readonly inputs?: readonly I[]; // entrées du contexte courant
+    readonly inner?: readonly N[]; // entrées du contexte créé par `coords` (après `inputs`)
+    readonly requires?: readonly D[]; // ids de dépendances (§ ci-dessous)
 
-type GlslContext = {
-    p: string; // nom GLSL du vec2 de coordonnées courant : "v_p" (racine) ou "c1", "c2"…
-};
+    // requis si et seulement si `inner` est déclaré ; ne reçoit QUE les entrées `inputs`
+    coords?(c: { p: string; args: Named<I, string>; params: Named<P, number> }): string;
 
-type OperatorDef = {
-    name: string; // unique, ex. "sin"
-    family: string; // "terminal" | "arithmetic" | "trigonometry" | "logic" | ...
-    inputs: readonly InputDef[]; // [] pour un terminal
-    output: ValueType;
-    params?: readonly ParamDef[]; // ex. la constante a un paramètre "value"
-    requires?: readonly string[]; // noms de dépendances (§ ci-dessous)
-    innerCoords?: (
-        inputs: readonly string[],
-        params: readonly number[],
-        ctx: GlslContext,
-    ) => string;
-    // requis si une entrée a scope 'inner' ; reçoit UNIQUEMENT les entrées
-    // 'current' (dans l'ordre), car les entrées 'inner' en dépendent ;
-    // renvoie une expression GLSL vec2
-    glsl: (inputs: readonly string[], params: readonly number[], ctx: GlslContext) => string;
-    cost?: number; // optionnel, réservé
-};
+    // reçoit toutes les entrées (`inputs` puis `inner`) et le contexte de coordonnées
+    glsl(c: { p: string; args: Named<I | N, string>; params: Named<P, number> }): string;
+
+    // formule lisible pour l'inspecteur
+    math(c: { args: Named<I | N, string>; params: Named<P, number> }): string;
+}
 ```
 
 Remarques :
 
-- **Arité** = `inputs.length`. **Terminal** = arité 0.
+- **Le nom est la clé.** Un opérateur ne porte pas son nom : c'est sa clé dans le registre (`x`, `sin`…). Elle respecte `^[a-z][a-z0-9_]*$` (vérifié par un test, §9). `label` est le nom affiché.
+- **Arité** = `inputs.length + inner.length`. **Terminal** = arité 0.
+- **Ordre positionnel** : le nœud et le compilateur lisent les entrées dans l'ordre `[...inputs, ...inner]` (`inner` toujours en dernier). Dans la spec, on les **nomme** (`args.a`, `args.dx`, `args.f`) : pas d'indices.
 - `glsl` renvoie une _expression_ GLSL à partir des expressions GLSL de ses entrées et du contexte. Le compilateur décide s'il faut les stocker dans des variables.
-- `params` sont les valeurs propres à un nœud (la constante), tirées par le générateur dans `[min, max]`.
-- **Contexte de coordonnées** : un terminal comme `x` écrit `` `${ctx.p}.x` ``, jamais `p.x` en dur.
-- **Entrées de `glsl`** : `glsl` reçoit les textes de **toutes** les entrées, dans l'ordre déclaré (`current` et `inner` mêlées). `innerCoords` ne reçoit que les entrées `current`.
-- **Multiplicité** : un opérateur peut écrire une même entrée plusieurs fois (`sqr` : `a*a`). Le compilateur le mesure en sondant `glsl` et `innerCoords` avec des sentinelles (D29) ; rien à déclarer. Chaque entrée doit apparaître **au moins une fois** dans `glsl` ou `innerCoords` (vérifié à la création du catalogue).
-- **Portée `inner`** : les entrées `inner` sont compilées dans un nouveau contexte dont les coordonnées sont données par `innerCoords`. Les entrées `current` (qui servent à calculer ces coordonnées) restent dans le contexte courant.
-- **Règle** : `innerCoords` doit renvoyer des coordonnées dans `[-1, 1]²`, sinon les terminaux `x` et `y` de l'intérieur casseraient le contrat. On replie l'espace avec la fonction auxiliaire `ra_fold2` (voir ci-dessous).
+- `params` sont les valeurs propres à un nœud (la constante), tirées par le générateur dans `[min, max]`, nommées (`params.value`).
+- **Contexte de coordonnées** : un terminal comme `x` écrit `` `${c.p}.x` ``, jamais `p.x` en dur.
+- **`coords`** (ex-`innerCoords`) : requis si une entrée `inner` existe, **interdit** sinon (vérifié à la construction de l'`Operator`). Il reçoit **uniquement** les entrées `inputs`, car les entrées `inner` en dépendent ; il renvoie une expression GLSL `vec2`.
+- **Multiplicité** : un opérateur peut écrire une même entrée plusieurs fois (`sqr` : `a*a`). L'`Operator` la mesure **une fois, à sa construction**, en sondant `glsl` et `coords` avec des sentinelles (D29) ; rien à déclarer. Chaque entrée doit apparaître **au moins une fois** dans `glsl` ou `coords` (vérifié à la construction).
+- **Portée `inner`** : les entrées `inner` sont compilées dans un nouveau contexte dont les coordonnées sont données par `coords`. Les entrées `inputs` (qui servent à calculer ces coordonnées) restent dans le contexte courant.
+- **Règle** : `coords` doit renvoyer des coordonnées dans `[-1, 1]²`, sinon les terminaux `x` et `y` de l'intérieur casseraient le contrat. On replie l'espace avec la fonction auxiliaire `ra_fold2` (voir ci-dessous).
+- **`math`** : formule lisible (`(a + b) / 2`, `sin(πa)`) pour l'inspecteur. Maintenue à la main pour l'instant ; sa **dérivation** (plutôt qu'un second texte à garder cohérent avec `glsl`) est une question ouverte (`expression-spec.md` §10).
 
 ### Dépendance
 
 ```ts
-type ShaderDependency =
-    | { kind: 'function'; name: string; code: string; requires?: readonly string[] }
-    | { kind: 'uniform'; name: string; glslType: 'float' };
+type DependencySpec<Id extends string = string> =
+    | { kind: 'function'; code: string; requires?: readonly Id[] }
+    | { kind: 'uniform'; glslType: 'float' };
 ```
 
 - Une **fonction** apporte du code GLSL au préambule. Elle peut en requérir d'autres.
 - Un **uniform** est déclaré dans le préambule, et le renderer doit le fournir.
-- **Noms (D30)** : un uniform s'appelle `u_<nom>`, une fonction `ra_<nom>`. Les noms respectent `^[A-Za-z][A-Za-z0-9_]*$`, sans `__`. Ainsi aucune collision avec `v<n>`, `c<n>`, `v_p`, `o_color`, `main`, `PI` ni avec les mots-clés et fonctions prédéfinies du GLSL.
+- **Le nom est la clé** (pas de champ `name`) : `u_phase`, `ra_fold2`. **Noms (D30)** : un uniform s'appelle `u_<nom>`, une fonction `ra_<nom>`. Les noms respectent `^[A-Za-z][A-Za-z0-9_]*$`, sans `__`. Ainsi aucune collision avec `v<n>`, `c<n>`, `v_p`, `o_color`, `main`, `PI` ni avec les mots-clés et fonctions prédéfinies du GLSL. Le `code` d'une fonction déclare lui-même son nom GLSL (il doit le contenir ; vérifié par un test).
+- **`requires` est lié au registre.** Le registre est déclaré via un helper local `defineDependencies`, qui contraint les `requires` aux clés **du même objet** : une faute de frappe dans un `requires` échoue à la compilation TypeScript, pas au runtime.
 - Le préambule de base, toujours émis, contient `#define PI 3.14159265359`.
 
 Exemple :
 
 ```ts
-defineDependency({
-    kind: 'function',
-    name: 'ra_fold2',
-    code: 'vec2 ra_fold2(vec2 v) { return abs(mod(v + 3.0, 4.0) - 2.0) - 1.0; }',
+const DEPENDENCIES = defineDependencies({
+    u_phase: { kind: 'uniform', glslType: 'float' },
+    ra_fold2: {
+        kind: 'function',
+        code: 'vec2 ra_fold2(vec2 v) { return abs(mod(v + 3.0, 4.0) - 2.0) - 1.0; }',
+    },
 });
 ```
 
@@ -100,47 +101,80 @@ defineDependency({
 ## 5. Création et registre
 
 ```ts
-defineOperator(def): OperatorDef
-defineDependency(dep): ShaderDependency
-createCatalog({ operators, dependencies }): Catalog
+// operators/types.ts — identité typée, n'infère que des types
+defineOperator(spec): OperatorSpec<P, I, N, DependencyId>
+
+// dependencies.ts — identité, lie les `requires` aux clés du registre
+defineDependencies({ ... }): { ... }
+
+// Catalog.ts
+new Catalog(operators, dependencies): Catalog
+createDefaultCatalog(): Catalog
 ```
 
-`defineOperator` lève une erreur si :
+`defineOperator` **infère** `P`, `I`, `N` du littéral (donc `args.a` et `params.value` sont typés) et fixe `D = DependencyId`. Il ne valide rien au runtime.
 
-- le nom ne respecte pas `^[a-z][a-z0-9_]*$` (il apparaît dans les clés canoniques et dans les fichiers) ;
-- `glsl` manque ;
-- un `ParamDef` a `min >= max` ;
-- une entrée a `scope: 'inner'` sans `innerCoords`, ou l'inverse.
+Ce qui lève une erreur **au runtime**, à la construction de l'`Operator` (donc du `Catalog`) — les seuls invariants « pas chers » :
 
-`createCatalog` lève une erreur si :
+- une entrée `inner` sans `coords`, ou `coords` sans entrée `inner` ;
+- une entrée jamais écrite dans `glsl` ni `coords`.
 
-- deux opérateurs ou deux dépendances ont le même nom ;
-- un `requires` référence une dépendance inconnue ;
-- les dépendances forment un cycle ;
-- aucun terminal n'existe ;
-- un nom de dépendance ne respecte pas la convention de §4 (`u_*` pour un uniform, `ra_*` pour une fonction). Pour une fonction, `name` est le nom GLSL de la fonction ;
-- une entrée n'apparaît ni dans `glsl` ni dans `innerCoords` : le catalogue sonde chaque opérateur avec des sentinelles et les paramètres à `min` ;
+Ce qui est vérifié **par les tests** (et, pour la plupart, déjà garanti par les types) :
+
+- les clés d'opérateurs respectent `^[a-z][a-z0-9_]*$` ;
+- les ids de dépendances suivent `u_*` / `ra_*`, sans `__`, et le `code` d'une fonction contient son nom ;
+- chaque `requires` résout, sans cycle ; la fermeture de **chaque** dépendance du registre est résoluble (même celles que personne n'utilise) ;
+- chaque `ParamRange` est non vide (`min < max`) ;
+- la multiplicité d'une entrée ne dépend pas des paramètres (sondée à `min`, `max` et au milieu) ;
+- le catalogue contient au moins un terminal.
+
+L'**`Operator`** est la spec instanciée, telle que la consomment le générateur, le compilateur et l'UI :
 
 ```ts
-type Catalog = {
-    operator(name: string): OperatorDef; // erreur si inconnu
-    operators(): readonly OperatorDef[];
-    terminals(): readonly OperatorDef[]; // arité 0
-    withOutput(type: ValueType): readonly OperatorDef[];
-    dependencyClosure(names: readonly string[]): readonly ShaderDependency[];
-    // fermeture transitive, sans doublon, triée
+type Operator = {
+    readonly name: string;
+    readonly label: string;
+    readonly group: OperatorGroup;
+    readonly params: readonly { name: string; min: number; max: number }[];
+    readonly inputNames: readonly string[]; // [...inputs, ...inner]
+    readonly currentCount: number; // nombre d'entrées `inputs`
+    readonly requires: readonly string[];
+
+    readonly arity: number;
+    readonly isTerminal: boolean;
+    readonly hasInner: boolean;
+
+    scopeOf(index: number): 'current' | 'inner';
+    multiplicity(index: number): number; // occurrences dans `glsl`
+    coordsMultiplicity(index: number): number; // occurrences dans `coords` (entrées `inputs`)
+    glsl(inputs: readonly string[], params: readonly number[], p: string): string;
+    coords(inputs: readonly string[], params: readonly number[], p: string): string;
+    math(inputs: readonly string[], params: readonly number[]): string;
 };
 ```
 
-Le générateur utilise `terminals`, `operators` et `withOutput`. Le compilateur utilise `dependencyClosure`.
+Le **`Catalog`** :
 
-`createDefaultCatalog(): Catalog` (dans `catalog/index.ts`) assemble les opérateurs et dépendances de départ ; c'est le seul endroit qui les liste. Les autres modules reçoivent le catalogue en paramètre.
+```ts
+type Catalog = {
+    operator(name: string): Operator; // erreur si inconnu
+    operators(): readonly Operator[];
+    terminals(): readonly Operator[]; // arité 0
+    dependencies(): readonly ShaderDependency[];
+    dependencyClosure(ids: readonly string[]): readonly ShaderDependency[];
+    // fermeture transitive, sans doublon, dépendances d'abord
+};
+```
+
+Les listes (`operators`, `terminals`, `dependencies`) sont calculées une fois, gelées. `withOutput` a disparu (un seul type de valeur). Le générateur utilise `operator`, `operators` et `terminals` ; le compilateur utilise `operator` et `dependencyClosure`.
+
+`createDefaultCatalog()` (dans `catalog/Catalog.ts`, ré-exporté par `catalog/index.ts`) assemble `OPERATOR_SPECS` et `DEPENDENCIES` ; c'est le seul endroit qui les liste. Les autres modules reçoivent le catalogue en paramètre.
 
 ## 6. Opérateurs de départ
 
 Toutes les formules gardent le résultat dans `[-1, 1]`. Dans la colonne GLSL, `p` désigne le contexte de coordonnées courant.
 
-| Nom      | Famille      | Entrées           | Formule                        | GLSL                  |
+| Nom      | Groupe       | Entrées           | Formule                        | GLSL                  |
 | -------- | ------------ | ----------------- | ------------------------------ | --------------------- |
 | `x`      | terminal     | —                 | coordonnée x                   | `p.x`                 |
 | `y`      | terminal     | —                 | coordonnée y                   | `p.y`                 |
@@ -194,25 +228,26 @@ Ces opérateurs créent des **bords nets**. En animation, ils produisent des bas
 
 ### Transformateur de départ : `warp` (v1)
 
-| Nom               | Description                                                       | Mécanisme                                                 |
-| ----------------- | ----------------------------------------------------------------- | --------------------------------------------------------- |
-| `warp(dx, dy, f)` | Évalue `f` aux coordonnées déplacées `ra_fold2(p + 0.5·(dx, dy))` | portée `inner` + `innerCoords` + `requires: ['ra_fold2']` |
+| Nom               | Description                                                       | Mécanisme                                            |
+| ----------------- | ----------------------------------------------------------------- | ---------------------------------------------------- |
+| `warp(dx, dy, f)` | Évalue `f` aux coordonnées déplacées `ra_fold2(p + 0.5·(dx, dy))` | entrée `inner` + `coords` + `requires: ['ra_fold2']` |
 
 ```ts
 defineOperator({
-    name: 'warp',
-    family: 'transform',
-    inputs: [{ type: 'float' }, { type: 'float' }, { type: 'float', scope: 'inner' }],
-    output: 'float',
+    label: 'Warp',
+    group: 'transform',
+    inputs: ['dx', 'dy'], // contexte courant
+    inner: ['f'], // contexte déplacé, toujours en dernier
     requires: ['ra_fold2'],
-    innerCoords: ([dx, dy], _params, ctx) => `ra_fold2(${ctx.p}+0.5*vec2(${dx},${dy}))`,
-    glsl: ([, , f]) => f,
+    coords: ({ p, args: { dx, dy } }) => `ra_fold2(${p}+0.5*vec2(${dx},${dy}))`,
+    glsl: ({ args: { f } }) => f,
+    math: ({ args: { dx, dy, f } }) => `warp(${dx}, ${dy}; ${f})`,
 });
 ```
 
 `glsl` renvoie le texte de l'entrée `inner` : le résultat de `warp` _est_ la valeur de `f` calculée aux coordonnées déformées. Comme `dx` et `dy` valent au plus 1 en valeur absolue, `p + 0.5·(dx, dy)` reste dans `[-1.5, 1.5]²`, que `ra_fold2` replie dans `[-1, 1]²` : le contrat de D14 tient.
 
-**Le contrat `innerCoords` suffit pour les autres transformateurs** (vérifié sur le papier) : une rotation d'angle `π·a` s'écrit `ra_fold2(mat2(cos(PI*a),sin(PI*a),-sin(PI*a),cos(PI*a))*p)`, un zoom `ra_fold2(p*(1.0+a))`. Dans les deux cas, toutes les informations viennent de `p` et des entrées `current`. La multiplicité de `a` (4 pour la rotation) est mesurée par le compilateur, qui donne une variable à `a`.
+**Le contrat `coords` suffit pour les autres transformateurs** (vérifié sur le papier) : une rotation d'angle `π·a` s'écrit `ra_fold2(mat2(cos(PI*a),sin(PI*a),-sin(PI*a),cos(PI*a))*p)`, un zoom `ra_fold2(p*(1.0+a))`. Dans les deux cas, toutes les informations viennent de `p` et des entrées `inputs`. La multiplicité de `a` (4 pour la rotation) est mesurée par l'`Operator`, qui donne une variable à `a`.
 
 `warp` est inclus dans la v1 : le mécanisme doit être validé par un vrai opérateur, et le fuzzing du compilateur le couvre. Poids par défaut `0.5`, car des `warp` imbriqués rendent les images très complexes.
 
@@ -226,22 +261,22 @@ defineOperator({
 
 ```
 catalog/
-  types.ts              // ValueType, InputDef, ParamDef, OperatorDef, ShaderDependency
-  define.ts             // defineOperator, defineDependency
-  catalog.ts            // createCatalog
+  format.ts             // formatGlslFloat (littéraux GLSL)
+  dependencies.ts       // DependencySpec, defineDependencies, DEPENDENCIES, DependencyId
+  Catalog.ts            // Catalog, createDefaultCatalog
   operators/
+    types.ts            // OperatorGroup, ParamRange, OperatorSpec, defineOperator
+    Operator.ts         // Operator : spec instanciée + sondage des multiplicités
     terminals.ts        // x, y, const, tsin, tcos
     arithmetic.ts       // neg, abs, sqr, add, mul, div, min, max, mix
     trigonometry.ts     // sin, cos
     logic.ts            // gt, select
-    index.ts            // assemble la liste complète
-  dependencies/
-    uniforms.ts         // u_phase
-    helpers.ts          // ra_fold2 (et plus tard ra_hash22, ra_noise2d)
-    index.ts
+    transforms.ts       // warp (et plus tard rotation, zoom)
+    registry.ts         // OPERATOR_SPECS, OperatorId
+  index.ts
 ```
 
-Chaque fichier n'exporte que des `defineOperator(...)` ou `defineDependency(...)`. Aucune logique de génération ou de rendu n'y entre.
+Chaque fichier de `operators/` (sauf `types.ts`, `Operator.ts` et `registry.ts`) n'exporte que des `defineOperator(...)`. Aucune logique de génération ou de rendu n'y entre.
 
 ## 8. Animation
 
@@ -253,11 +288,10 @@ Chaque fichier n'exporte que des `defineOperator(...)` ou `defineDependency(...)
 
 ## 9. Tests
 
-1. **Catalogue** : noms uniques, définitions valides, dépendances résolues, pas de cycle, au moins un terminal.
-2. **Définitions invalides** : `defineOperator` et `createCatalog` rejettent chaque cas listé en §5.
+1. **Registre** : clés d'opérateurs (`^[a-z][a-z0-9_]*$`) ; ids de dépendances (`u_*` / `ra_*`, sans `__`, le `code` d'une fonction contient son nom) ; chaque `requires` résout sans cycle ; la fermeture de **chaque** dépendance du registre est résoluble ; chaque `ParamRange` est non vide ; au moins un terminal.
+2. **`Operator`** : rejette une entrée jamais utilisée ; rejette `inner` sans `coords` et l'inverse ; la **multiplicité ne dépend pas des paramètres** (sondée à `min`, `max` et au milieu) ; `sqr` a une multiplicité de 2, `warp` une `coordsMultiplicity` de 1 pour `dx`.
 3. **Fermeture des dépendances** : `dependencyClosure` renvoie la fermeture transitive, sans doublon, dans un ordre où chaque dépendance précède celles qui l'utilisent.
 4. **Plage (navigateur, requis)** : un shader de test applique chaque opérateur (y compris à travers `ra_fold2` pour `warp`) à des entrées contenant `-1`, `0`, `1`, `±1e-7` et des valeurs aléatoires. Il n'écrit pas la valeur (qu'un RGBA8 écrêterait) mais un **indicateur de violation** : sortie non finie (`isnan`, `isinf`) ou hors `[-1 - 1e-6, 1 + 1e-6]`. Le test lit l'indicateur. C'est une vérification de la promesse, pas une comparaison à une référence.
-5. **Sondage** : pour chaque opérateur, chaque entrée apparaît au moins une fois dans `glsl` ou `innerCoords` ; la multiplicité de `sqr` est 2, celle de `add` est 1 par entrée.
 
 ## 10. Décisions prises et questions restantes
 
@@ -271,5 +305,5 @@ Décidé (v0.3) :
 
 Restant ouvert (pas bloquant pour la v1) :
 
-- Un paramètre d'harmonique entière sur `tsin` / `tcos` (`sin(2π·k·phase)`) pour que les canaux bougent à des vitesses différentes tout en bouclant. Il demande des paramètres entiers dans `ParamDef` (`integer?: true`). Repoussé en v2.
-- Un champ `display` sur `OperatorDef` pour la formule lisible (v2, voir `expression-spec.md`).
+- Un paramètre d'harmonique entière sur `tsin` / `tcos` (`sin(2π·k·phase)`) pour que les canaux bougent à des vitesses différentes tout en bouclant. Il demande des paramètres entiers dans `ParamRange` (`integer?: true`). Repoussé en v2.
+- **Formule lisible (`math`)** : le champ existe (maintenu à la main). Faut-il le **dériver** de `glsl` / `coords`, ou le garder tel quel ? Voir `expression-spec.md` §10.
