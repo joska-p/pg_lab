@@ -1,65 +1,84 @@
-# Handoff — branded types dans randomart (glaze → randomart)
+# Handoff — politique throw vs repair + dissolution de la doc (randomart)
 
 ## Contexte
 
-Session précedente : audit du système de types garantis de glaze (`Brand<T, B>` + factories
-`createX()` qui valident avant de caster) et évaluation de son application à `packages/randomart`.
-Aucun code modifié ; tous les constats sont écrits dans
-`packages/randomart/docs/findings.md` (IDs stables F01–F30, à citer dans les commits).
+Session précédente (1) : branded types façon glaze, commités en `b866126` — 222 tests verts.
+Décisions d'implémentation et IDs F01–F30 : `packages/randomart/docs/findings.md` **§7** (à
+lire en premier). Ce qui existe : `Brand` re-exporté de glaze (`src/core/shared/index.ts`,
+préfixe de messages `Randomart:`), `Phase`/`createPhase` (ex-`calculatePhase`),
+`RenderKey` entièrement brandé, `Constraints = Brand<ConstraintsInput, 'Constraints'>`
+(`createConstraints`, `fitConstraints` = slot ZoomClamp, brut → brandé), `RenderSettings`
+idem (`createRenderSettings`).
 
-randomart a déjà `Brand`/`assertFinite` (copie locale, F01) et des types brandés validés
-(`Seed`, `Node`, `Expression`, `Grammar`, `Artwork`). Les vrais trous : invariants portés par
-des fonctions retournant des primitives (`calculatePhase` → F08), garanties perdues aux
-frontières (`RenderKey.dpr` dé-brande un `DevicePixelRatio` amont → F07), et types utilisés
-comme entrée brute ET sortie validée (`Constraints` F10, `RenderSettings` F13).
+Session précédente (2), juste après : **le nettoyage de doc est fait**. La doc de conception
+(`packages/randomart/docs/*.md`) est **dépréciée** — décision tranchée par l'utilisateur :
+sa doctrine est absorbée **dans les commentaires du code**, au fur et à mesure des
+modifications. `docs/README.md` porte la bannière ; `revue.md` est supprimé ; les passages
+des specs qui mentaient sur les types (`Constraints`, `RenderSettings`, `calculatePhase`)
+ont été corrigés chirurgicalement. `PLAN.md` fait foi sur l'état ; `findings.md` sur le
+système de types.
 
-## Objectif
+## Objectif — politique « réparer plutôt que throw »
 
-Phase 1 — centraliser les helpers dans `src/core/shared/index.ts`
-(`assertStrictlyPositive`, `assertInteger`, une convention de messages — trancher le
-préfixe d'erreur, F03) ; introduire `Phase` sur `calculatePhase` (F08) ; typer `RenderKey`
-avec les marques glaze `CanvasDimension`/`DevicePixelRatio` (F06, F07).
+Observation (utilisateur) : `createConstraints` throw sur `minDepth > maxDepth` alors que
+réparer est peut-être plus adapté (p. ex. les rendre égales). Étendre l'audit à **toutes les
+factories / points d'entrée** de randomart, pas seulement `Constraints`.
 
-Phase 2 — séparer type d'entrée brute et type validé pour `Constraints` (F10, F11) et
-`RenderSettings` (F13). Question de design ouverte dans findings §4 : brander la structure
-(`Brand<{…}, 'Constraints'>` + type `*Input` brut, à l'image de `Grammar`) vs simple scission
-input/output. `fitConstraints` doit retourner le type « validé » — c'est l'équivalent
-`ZoomClamp` (F11).
+Pistes de sites (non exhaustif) :
+- `src/core/grammar/grammar.ts` — `createConstraints` (`minDepth > maxDepth`),
+  `createGrammar` règles 3/5/7 (vocabulaire sans terminal / sans non-terminal / infaisable),
+  `fitConstraints` (répare déjà tout — voir F12 : NaN → min silencieux, à questionner).
+- `src/core/random/seed.ts` (`createSeed` throw hors [0, 2³²−1]), `rng.ts` (`int`,
+  `weighted`).
+- `src/core/artwork/create.ts` — `createRenderSettings` (bornes), `createArtwork` (titre,
+  expression « duck-typed »).
+- Pairages corrélés notés dans findings : F21 (double validation UI, fallback `1` arbitraire
+  dans `Controls.tsx`), F22 (règle minDepth/maxDepth dans `appStore` *en plus* de
+  `fitConstraints`), F19 (deux jeux de bornes pour la durée de boucle).
 
-Hors scope (décidé) : brander `rng.int`, `Channel`, `Address`, valeurs internes sans
-problème de frontière réel (checklist conventions §14).
+Frame de travail (à confirmer ou infirmer en tranchant) : les invariants de configuration /
+erreurs de programmation throw (`ZoomBounds` côté glaze) ; les données runtime / UI se
+réparent via une fonction de clamp dédiée qui rend du brandé (`ZoomClamp`). Être **explicite
+site par site** : un tableau site → throw | repair (et comment) rédigé avant de coder, avec
+les arguments dans le commentaire du site concerné — pas dans un document séparé
+(dissolution de la doc ci-dessous).
 
-## Contrainte clé
+Pièges : si `createConstraints` répare, `createGrammar` reste correct (les règles 5/7
+peuvent devenir des repairs — par exemple faire monter `maxNodes` vers `minSize`, comme le
+fait `fitConstraints`) ; les tests actuels attendent des throw → ils seront réécrits
+(consigne permanente : on ne déforme pas les types/intégrations pour satisfaire les tests
+existants) ; rien ne throw par frame sans décision (F09b) ; `Clock.progress` ∈ [0, 1]
+inclusif (F26).
 
-Les tests existants ne sont PAS une contrainte : on les réécrit (`shared.test.ts`,
-`random.test.ts`, `renderGate.test.ts`, `renderer.test.ts`, `fitConstraints.test.ts`,
-`artwork.test.ts`, `grammar.test.ts`, `expression.test.ts`…). Ne pas déformer les types
-pour faire passer les assertions actuelles.
+## Règle à appliquer dans le même temps (dissolution de la doc)
 
-## Pièges (findings §5)
+Chaque fois qu'un invariant documenté dans une spec `docs/*.md` est modifié, précisé ou
+tranché par l'implémentation, le déplacer **dans les commentaires du code** correspondants,
+et ne pas s'appuyer sur la spec. Ne pas écrire de nouveau document de conception.
+`findings.md` est la dernière exception — et il s'effacera aussi quand son contenu aura été
+intégré au code.
 
-- `surface.width/height` vaut 0 jusqu'au premier `#frameStep` ; `createCanvasDimension` est
-  sûr dans `shouldRender` mais pas dans `onMount` (F09).
-- `Clock.progress` est `[0, 1]` inclusif : `createPhase` doit normaliser `1.0 → 0` (F26).
-- Rien ne doit throw par frame sans décision explicite (`shouldRender`/`uniforms`, F09b).
-- Les marques ne sont distinguées que par leur littéral string, pas par le package (F02).
-- Si `Constraints`/`RenderSettings` deviennent brandés, tous les sites d'entrée passent au
-  type brut (`createGrammar` callers, `ArtworkInput.render`, `deserializeGrammar`,
-  `readRender`) — `Partial<Branded>` ne fonctionne pas.
+## Hors scope
+
+Brander `rng.int`, `Channel`, `Address` (décision prise, checklist §14) ; F14/F15
+(marque-vs-duck-typing dans `createExpression`/`nodeCount`) restent hors du champ.
 
 ## Lecture à faire avant de coder
-
-1. `packages/randomart/docs/findings.md` (F01–F30, §4 direction, §5 pièges, §6 file map).
-2. `codex/docs/conventions/08-decisions-and-checklist.md` §14.
-3. Référence glaze : `packages/glaze/src/core/brands.ts`, `render.ts`, `time.ts`,
-   `cameraTypes.ts` (`ZoomClamp`, `CameraPatch`).
+1. `packages/randomart/docs/findings.md` §7 (état exact), F12/F19/F21/F22/F09b.
+2. `packages/randomart/PLAN.md` — « État courant », « Prochaine action », frictions.
+3. `codex/docs/conventions/08-decisions-and-checklist.md` §13 (règles de décision) et §14,
+   rubrique Errors (« Is the failure model honest? », « Could an invalid state be prevented
+   rather than detected later? »).
+4. Équivalent glaze : `packages/glaze/src/core/cameraTypes.ts` (`createZoomBounds` throw,
+   `createZoomClamp` répare), `src/core/brands.ts`, `src/core/render.ts`.
 
 ## Vérification
-
-`vp check --fix` (racine) puis `vp -C packages/randomart test`. Langue : anglais pour le
-code et les docs (findings.md l'est déjà), français pour les discussions.
+`vp check --fix` (racine) puis `vp -C packages/randomart test`. Langue : français pour la
+discussion, anglais pour le code et les commentaires.
 
 ## État
 
-Rien n'est cassé, rien n'est commencé : la session s'est close à l'écriture du fichier de
-findings. Commencer directement par phase 1.
+Rien n'est commencé sur l'objectif. Le répertoire est vert, commit de nettoyage doc juste
+après `b866126` (celui de cette session). Une session peut suffire : audit (tableau) →
+décision → implémentation → tests réécrits → commit + mise à jour « État courant » du
+`PLAN.md` (rituel de fin de session).

@@ -28,15 +28,18 @@ Principes : cœur TypeScript pur (pas de DOM, pas de GPU) ; rendu = adaptateur m
 - **Refonte du catalogue** : `catalog.ts` (447 lignes, définition et validation mélangées) remplacé par un **registre statique** de specs (`operators/*.ts`, `dependencies.ts`) et deux classes : `Operator` (spec instanciée ; sonde les multiplicités **une fois**, à la construction) et `Catalog` (registre + fermeture des dépendances). Supprimés : `name` dans la spec (la clé du registre fait foi), `family` (→ `group`), `inputs: InputDef[]` (→ listes nommées `inputs` + `inner`), `output`, `ValueType`, `withOutput`, `cost`, `createCatalog`, `defineDependency`. Renommés : `innerCoords` → `coords`, `scope` par entrée → `inner`. Les `args` et `params` sont nommés (`args.a`, `args.dx`). Le compilateur ne sonde plus (`probeMultiplicities` / `probeInnerMultiplicities` supprimés ; `lower` réassemble `[...inputs, ...inner]`). `formatGlslFloat` déplacé dans `catalog/format.ts`.
 - **Ménage post-plan** (commits `34fa6c7`, `292e540`) : règle `no-use-before-define` activée et définitions réordonnées ; `Inspector` passé dans `Controls` (l'`ErrorBoundary` englobe alors tout le panneau).
 - **Lot F** (persistance) : `expression/serialize.ts` (`serialize`/`deserialize`, limites `MAX_IMPORT_NODES` = 5 000 et `MAX_IMPORT_DEPTH` = 64, profondeur vérifiée **avant** de construire les nœuds, erreurs avec adresse type `g.in[1]`) ; module `artwork/` (`types`, `create`, `serialize`, `provenance`) : `createArtwork` (bornes `render` et `title`, défauts 1024² / 8 000 ms), fichiers `.randomart.json` (`serializeArtwork`/`parseArtwork`, ~1 Mo, champs inconnus refusés avec leur chemin), `checkProvenance` (`none` / `matches` / `differs` / `version-mismatch` par `nodeKey` des trois canaux). Les fonctions de fichier de grammaire ont **déménagé** de `grammar/serialize.ts` vers `artwork/serialize.ts`. UI : `appStore` a `provenanceCheck` en état, `HistoryEntry` porte `expression` + `provenanceCheck` pour les imports (restauration **sans régénérer**, l'expression est la référence — D1), `publishArtwork` (taille de rendu ignorée — friction 8 ; `loopMs` adopté dans les bornes de l'UI [1, 60] s), export/import d'œuvre dans `Controls` (statut de provenance affiché).
+- **Types brandés (système glaze)**, commit `b866126` : `Brand` vient de glaze (une seule source) ; helpers centralisés dans `shared` (`assertStrictlyPositive`, `assertInteger`, `assertIntegerInRange`, préfixe `Randomart:`) ; `Phase` + `createPhase` (ex-`calculatePhase`) ; `RenderKey` entièrement brandé ; `Constraints` / `RenderSettings` brandés (`ConstraintsInput` / `RenderSettingsInput` bruts en entrée, `createConstraints` / `createRenderSettings` façon ZoomClamp). Détails et IDs : `docs/findings.md` §7.
 
-**Pas encore fait** : beaucoup G et H. Trancher `math` (voir « Prochaine action »).
+**Pas encore fait** : lots G et H. Trancher `math` (voir « Prochaine action »).
 
-**Tests** : verts après le lot F (`vp check` : 491 fichiers, 0 erreur ; `vpr -r test` : 205 passés, 2 ignorés ; fuzzing 300 cas × 3 politiques).
+**Tests** : verts (222 passés, `vp check` : 396 fichiers, 0 erreur).
 
 ## Prochaine action
 
-1. **Formule lisible (`math`).** Le catalogue expose un champ `math` par opérateur (maintenu à la main, exercé par un test, pas encore consommé par l'inspecteur, qui affiche `formatFormula`). Trancher : le **dériver** de `glsl` / `coords`, ou le brancher tel quel dans l'inspecteur. Session dédiée.
-2. **Jouer avec le lot F** avant d'épaissir le rendu : importer/exporter des vraies œuvres, vérifier que le statut de provenance dit vrai, décider si le titre mérite un champ dans l'UI (actuellement conservé, jamais saisi).
+Voir `handoff.md` — deux axes, dans l'ordre :
+
+1. **Nettoyage doc** (fait pour l'essentiel le 2026-10-16) : specs de conception **dépréciées** — leur doctrine est absorbée progressivement dans les commentaires du code (voir `docs/README.md`). À chaque modification d'un invariant documenté dans une spec, le déplacer dans le code, pas dans la spec.
+2. **Politique throw vs repair** : audit des factories (`createConstraints`, `createGrammar`, `createSeed`, `createRenderSettings`, `rng.*`) — certaines erreurs méritent une réparation à la `fitConstraints`/ZoomClamp plutôt qu'un throw ; trancher une règle par catégorie, l'écrire dans le code, réécrire les tests.
 
 ## Dette connue (petite, non bloquante)
 
@@ -80,7 +83,7 @@ H : libre
 2. **Découpage de fichiers** : commencer simple, scinder sur friction réelle.
 3. **`shared`** : local à randomart tant qu'aucun autre projet n'en a besoin.
 4. **Glaze comme socle GPU** : entrée du fragment = `vUv` (conversion `v_p` au début de `main`) ; pas de `readPixels` en v1 (capture du canvas, `preserveDrawingBuffer`).
-5. **Phase** : `Clock` timed + loop de glaze via `ClockStore` ; `u_phase = calculatePhase(clock.progress)`. Remplace `phaseAt` de la spec renderer.
+5. **Phase** : `Clock` timed + loop de glaze via `ClockStore` ; `u_phase = createPhase(clock.progress)` (marque `Phase`). Remplace `phaseAt` de la spec renderer.
 6. **Calibration** : valeurs de départ arbitraires (lot H).
 7. **Aperçu de sous-expression** : ignore la déformation des ancêtres, affiché dans l'UI.
 8. **Taille de rendu = taille du canvas** jusqu'au lot G.

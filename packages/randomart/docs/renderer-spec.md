@@ -1,6 +1,6 @@
 # Spec — Renderer
 
-> **Révisée (D36 révisée).** Cette spec décrit un renderer WebGL2 autonome (`createRenderer`, `readPixels`, `phaseAt`…) qui n'existe pas. Le rendu est fait par `RandomArtCanvas`, adaptateur mince sur `@repo/glaze` (`GpuCanvas`) : entrée `vUv`, phase = `calculatePhase(clock.progress)` via `Clock`/`ClockStore`, rendu paresseux par `needsRender`, export PNG par capture du canvas (`preserveDrawingBuffer`). Les conventions d'image (§3) et la robustesse (§9) restent un guide ; le reste est une cible pour le lot G.
+> **Révisée (D36 révisée).** Cette spec décrit un renderer WebGL2 autonome (`createRenderer`, `readPixels`, `phaseAt`…) qui n'existe pas. Le rendu est fait par `RandomArtCanvas`, adaptateur mince sur `@repo/glaze` (`GpuCanvas`) : entrée `vUv`, phase = `createPhase(clock.progress)` (marque `Phase`, ex-`calculatePhase`), rendu paresseux par `needsRender` sur une `RenderKey` entièrement brandée (`Phase`, `CanvasDimension`, `DevicePixelRatio`), export PNG par capture du canvas (`preserveDrawingBuffer`). Les conventions d'image (§3) et la robustesse (§9) restent un guide ; le reste est une cible pour le lot G.
 
 Version de travail 0.2. Termes définis dans `glossary.md`, décisions dans `architecture.md`, interface avec le shader dans `compiler-spec.md`.
 

@@ -48,11 +48,13 @@ createRng(seed: Seed): Rng
 ### Forme
 
 ```ts
-type Constraints = {
+type ConstraintsInput = {
     readonly minDepth: number; // profondeur minimale de toute feuille
     readonly maxDepth: number; // profondeur maximale de l'arbre
     readonly maxNodes: number; // nombre de nœuds maximal, PAR CANAL
 };
+
+type Constraints = Brand<ConstraintsInput, 'Constraints'>; // validé par createConstraints
 
 type Grammar = Brand<
     {

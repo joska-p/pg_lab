@@ -18,11 +18,11 @@ Il dépend de `expression`, de `grammar` et, pour la vérification, de `generato
 ## 3. Types
 
 ```ts
-type RenderSettings = {
+type RenderSettings = Brand<{
   readonly width: number;      // entier, 1..8192
   readonly height: number;     // entier, 1..8192
   readonly loopMs: number;     // fini, 500..120000
-};
+}, 'RenderSettings'>;          // validé par createRenderSettings ; entrée brute = RenderSettingsInput
 
 type Provenance = {
   readonly grammar: Grammar;
