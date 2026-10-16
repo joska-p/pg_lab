@@ -8,8 +8,11 @@ import { create } from 'zustand';
 import {
     checkProvenance,
     createArtwork,
+    DEFAULT_LOOP_MS,
     DEFAULT_RENDER_HEIGHT,
     DEFAULT_RENDER_WIDTH,
+    MAX_LOOP_MS,
+    MIN_LOOP_MS,
     parseArtwork,
     parseGrammarFile,
     serializeArtwork,
@@ -300,15 +303,34 @@ export function newDistribution(): void {
  */
 export function setConstraints(partial: Partial<ConstraintsInput>): void {
     const { grammar, seed } = store.getState();
-    const merged: ConstraintsInput = { ...grammar.constraints, ...partial };
-    // Raising minDepth past maxDepth drags maxDepth along; the opposite is fitConstraints' job.
-    const wanted: ConstraintsInput =
-        partial.minDepth !== undefined &&
-        partial.maxDepth === undefined &&
-        merged.minDepth > merged.maxDepth
-            ? { ...merged, maxDepth: merged.minDepth }
-            : merged;
-    const constraints = fitConstraints(getVocabulary(catalog, grammar.weights), wanted);
+
+    // A partial edit that is not a finite number is simply not an edit: the field keeps its value
+    // (findings F21 — the old UI fallback `? value : 1` invented a value instead). Deliberate and
+    // paired with the fact that the raw value is rounded/clamped by the core repair (rounds 1.5 → 2).
+    const edited = (value: number | undefined): number | undefined =>
+        value !== undefined && Number.isFinite(value) ? value : undefined;
+    const editedMinDepth = edited(partial.minDepth);
+    const editedMaxDepth = edited(partial.maxDepth);
+    const editedMaxNodes = edited(partial.maxNodes);
+
+    const wanted: ConstraintsInput = {
+        minDepth: editedMinDepth ?? grammar.constraints.minDepth,
+        maxDepth: editedMaxDepth ?? grammar.constraints.maxDepth,
+        maxNodes: editedMaxNodes ?? grammar.constraints.maxNodes,
+    };
+
+    // Gesture preservation (findings F22): raising minDepth past maxDepth drags maxDepth along so
+    // the touched field visibly moves; the opposite direction is the core repair's canonical rule.
+    // This is an intent refinement, not an invariant — raising minDepth on its own would be
+    // resolved by `createConstraints` anyway (maxDepth wins).
+    const want: ConstraintsInput =
+        editedMinDepth !== undefined &&
+        editedMaxDepth === undefined &&
+        wanted.minDepth > wanted.maxDepth
+            ? { ...wanted, maxDepth: wanted.minDepth }
+            : wanted;
+
+    const constraints = fitConstraints(getVocabulary(catalog, grammar.weights), want);
 
     // Coalesced: typing "12" in a field is one history entry, not two.
     commit(
@@ -420,10 +442,12 @@ function publishArtwork(artwork: Artwork): void {
         actionError: null,
     });
 
-    const loopSeconds = Math.round(render.loopMs / 1000);
-
-    if (loopSeconds >= 1 && loopSeconds <= 60 && loopSeconds !== state.duration) {
-        setDuration(createDurationSeconds(loopSeconds));
+    // The file's loop duration is adopted unconditionally now (findings F19/F20): store duration
+    // and artwork share one bound set ([0.5, 120] s — the render bounds are the concept bounds),
+    // so no valid file value can be silently dropped by narrower UI bounds any more. `render` is a
+    // brand: its loopMs is a finite number within the bounds by construction.
+    if (render.loopMs / 1000 !== state.duration) {
+        setDuration(createDurationSeconds(render.loopMs / 1000));
     }
 }
 
@@ -504,10 +528,17 @@ export async function exportPng(): Promise<void> {
     downloadBlob(blob, `randomart-${Date.now()}.png`);
 }
 
-/** Parses a raw string into a valid DurationSeconds (clamps to [1, 60]). */
+/**
+ * Parses a raw string into a valid DurationSeconds — a repair entry with the _concept_ bounds
+ * (findings F19): the loop duration has one bound set, the artwork's render bounds, so the UI can
+ * now represent anything a file may carry (findings F20). A non-finite input is garbage, not an
+ * intent: it takes the concept default (8 s, the spec default — find D36).
+ */
 export function parseDurationInput(raw: string): DurationSeconds {
     const n = parseFloat(raw);
-    const clamped = Number.isFinite(n) ? Math.min(60, Math.max(1, n)) : 8;
+    const clamped = Number.isFinite(n)
+        ? Math.min(MAX_LOOP_MS / 1000, Math.max(MIN_LOOP_MS / 1000, n))
+        : DEFAULT_LOOP_MS / 1000;
 
     return createDurationSeconds(clamped);
 }

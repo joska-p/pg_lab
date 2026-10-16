@@ -49,6 +49,35 @@ describe('grammar serialization', () => {
         ).toThrow(/grammar\.extra: unknown field/);
     });
 
+    it('repairs broken constraints instead of refusing them (throw-vs-repair policy)', () => {
+        const grammar = deserializeGrammar(catalog, {
+            weights: { x: 1, add: 1 },
+            constraints: { minDepth: 5, maxDepth: 3, maxNodes: 14 },
+        });
+
+        expect(serializeGrammar(grammar).constraints).toEqual({
+            minDepth: 3,
+            maxDepth: 3,
+            maxNodes: 14,
+        });
+    });
+
+    it('refuses corrupted weights instead of clamping them (throw-vs-repair policy)', () => {
+        expect(() =>
+            deserializeGrammar(catalog, {
+                weights: { x: Number.NaN },
+                constraints: { minDepth: 1, maxDepth: 4, maxNodes: 10 },
+            }),
+        ).toThrow('Randomart: weight of operator "x" must be a finite number, received NaN');
+
+        expect(() =>
+            deserializeGrammar(catalog, {
+                weights: { x: 101 },
+                constraints: { minDepth: 1, maxDepth: 4, maxNodes: 10 },
+            }),
+        ).toThrow('Randomart: weight of operator "x" (101) must be within [0, 100]');
+    });
+
     it('relays createGrammar errors (unknown operator)', () => {
         expect(() =>
             deserializeGrammar(catalog, {

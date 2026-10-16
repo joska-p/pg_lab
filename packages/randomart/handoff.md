@@ -25,6 +25,7 @@ réparer est peut-être plus adapté (p. ex. les rendre égales). Étendre l'aud
 factories / points d'entrée** de randomart, pas seulement `Constraints`.
 
 Pistes de sites (non exhaustif) :
+
 - `src/core/grammar/grammar.ts` — `createConstraints` (`minDepth > maxDepth`),
   `createGrammar` règles 3/5/7 (vocabulaire sans terminal / sans non-terminal / infaisable),
   `fitConstraints` (répare déjà tout — voir F12 : NaN → min silencieux, à questionner).
@@ -33,7 +34,7 @@ Pistes de sites (non exhaustif) :
 - `src/core/artwork/create.ts` — `createRenderSettings` (bornes), `createArtwork` (titre,
   expression « duck-typed »).
 - Pairages corrélés notés dans findings : F21 (double validation UI, fallback `1` arbitraire
-  dans `Controls.tsx`), F22 (règle minDepth/maxDepth dans `appStore` *en plus* de
+  dans `Controls.tsx`), F22 (règle minDepth/maxDepth dans `appStore` _en plus_ de
   `fitConstraints`), F19 (deux jeux de bornes pour la durée de boucle).
 
 Frame de travail (à confirmer ou infirmer en tranchant) : les invariants de configuration /
@@ -64,6 +65,7 @@ Brander `rng.int`, `Channel`, `Address` (décision prise, checklist §14) ; F14/
 (marque-vs-duck-typing dans `createExpression`/`nodeCount`) restent hors du champ.
 
 ## Lecture à faire avant de coder
+
 1. `packages/randomart/docs/findings.md` §7 (état exact), F12/F19/F21/F22/F09b.
 2. `packages/randomart/PLAN.md` — « État courant », « Prochaine action », frictions.
 3. `codex/docs/conventions/08-decisions-and-checklist.md` §13 (règles de décision) et §14,
@@ -73,6 +75,7 @@ Brander `rng.int`, `Channel`, `Address` (décision prise, checklist §14) ; F14/
    `createZoomClamp` répare), `src/core/brands.ts`, `src/core/render.ts`.
 
 ## Vérification
+
 `vp check --fix` (racine) puis `vp -C packages/randomart test`. Langue : français pour la
 discussion, anglais pour le code et les commentaires.
 

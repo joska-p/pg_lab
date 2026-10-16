@@ -210,3 +210,49 @@ Not done on purpose (kept out of scope, see §4): F12 (`fitConstraints` NaN → 
 (`-0 → 0` normalization sites), F17/F18 (`rng.weighted` double pass, `int`'s inline validation
 kept — it now uses the shared helpers but stays unbranded), F19–F22 (UI bounds and store split),
 F14/F15 (brand duck-typing in `createExpression`/`createArtwork`/`nodeCount`).
+
+---
+
+## 8. Throw-vs-repair policy (2026-10-16, coded in the same session)
+
+Directive: audit every `create*` factory and entry point; classify each site **throw or repair**;
+write the justification in the site comment, never in a separate design doc (doc dissolution —
+`findings.md` is the last exception). The decision framework, now stated in the header of
+`src/core/shared/index.ts`:
+
+- **Identity / content / structure / type → repair would invent data → throw.** No canonical
+  repair exists for "which terminal to switch back on", "which operator a mistyped name maps to",
+  "which artwork a clamped seed replays".
+- **Editing quantities with an order (bounds, `minDepth ≤ maxDepth`) → canonical repair exists →
+  repair, never throw.** Untrusted sources (UI fields, JSON files) enter only through `fit*`
+  repair functions; `create*` factories keep their throws as the last detector for callers that
+  vouch for their values (the glaze `createZoomBounds` / `createZoomClamp` split).
+- **Non-finite quantity input (F12 resolved): garbage, not intent → concept default**, never
+  "NaN → min". Constraints: `DEFAULT_CONSTRAINTS` (`defaultGrammar`'s 3/8/60, now one shared
+  constant); duration: 8 s; render: 1024²/8000 ms.
+- **Per frame: never throw** (F09b unchanged; `createPhase` keeps its finite assert as a
+  document-signal of glaze's `Clock.progress ∈ [0, 1]` precondition).
+
+Decisions per site (all user-confirmed):
+
+| ID                                                                                    | Site                                             | Decision                                                                                                                                                                                                                                           |
+| ------------------------------------------------------------------------------------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F12, order rule                                                                       | `createConstraints`                              | **repair factory**: clamp + round per field, non-finite → `DEFAULT_CONSTRAINTS`, `minDepth > maxDepth` clamps minDepth down ("les rendre égales", maxDepth wins — conservative canonical rule shared with `fitConstraints`).                       |
+| F12                                                                                   | `fitConstraints`                                 | now rungs 2–3 on top of `createConstraints` (vocabulary yields → minDepth 1; maxNodes rises to `minSize`, then minDepth yields) — single repair ladder.                                                                                            |
+| rules 5/7                                                                             | `createGrammar`                                  | **repaired by construction**: raw constraints go through `fitConstraints` (aggregate constructor = where UI/file data arrives). A grammar can no longer reject on them.                                                                            |
+| rule 3 (no terminal), weights (empty, unknown operator, bounds, NaN)                  | `createGrammar`                                  | **throw kept** — content/structure; clamping garbage weights into "off"/saturate would silently rewrite the vocabulary (user chose refusal over clamp for files too).                                                                              |
+| Seed                                                                                  | `createSeed`                                     | **throw kept** — identity: a clamped seed is a different artwork; provenance must not lie.                                                                                                                                                         |
+| F17                                                                                   | `rng.weighted`                                   | fixed: single validated pass, accumulated pass reuses the stored weights (no more total-vs-accumulation divergence; `weightOf` called once per item).                                                                                              |
+| F18, empty/zero-total                                                                 | `rng.int`, `rng.weighted`                        | **throw kept** — internal callers vouch; "no card to draw" has no honest repair.                                                                                                                                                                   |
+| F13                                                                                   | `createRenderSettings` / new `fitRenderSettings` | factory keeps throws for vouched callers; `fitRenderSettings` (ZoomClamp analog, exported) clamps render quantities / defaults non-finite fields; `parseArtwork` routes files through it.                                                          |
+| title                                                                                 | `createArtwork`                                  | **repair**: empty → absent, overlong → truncated to `MAX_TITLE_LENGTH` (cosmetic metadata never refuses an artwork); non-string stays throw (type error).                                                                                          |
+| F21                                                                                   | `Controls` NumberFields                          | fallback `? value : 1` removed — raw value through; the store treats a non-finite edit as "not an edit" (field keeps its value).                                                                                                                   |
+| F22                                                                                   | `appStore.setConstraints`                        | drag-along kept, reclassified as an **intent gesture** (understood: raising minDepth drags maxDepth); the invariant now lives once in the core repair.                                                                                             |
+| F19/F20                                                                               | duration bounds                                  | **one concept, one bound set = the artwork render bounds [0.5, 120] s**: `parseDurationInput` clamps to them, `publishArtwork` adopts the file's loopMs unconditionally (the ≥ 60500 silent drop is gone), the playback `<input>` bounds come from |
+| `MIN_LOOP_MS`/`MAX_LOOP_MS` (the hard-coded 16/400 constants go away in the process). |
+
+Tests rewritten, not patched: `grammar` (repairs asserted per site: bounds, conflict "rendre
+égales", NaN defaults, rules 5/7 as repairs), `fitConstraints` (NaN → concept shape), `random`
+(+ weightOf-called-once), `artwork` (title repair, `fitRenderSettings`, file render clamp),
+`grammar-file` (constraint repair at import, weight corruption refused). F14/F15 still out of
+scope; F16 (−0) still open.

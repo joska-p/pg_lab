@@ -5,6 +5,12 @@ export type Seed = Brand<number, 'Seed'>;
 
 export const MAX_SEED = 0xffff_ffff; // 4294967295 (2^32 - 1)
 
+/**
+ * `Seed` is identity, not an editing quantity (throw-vs-repair policy in shared/index.ts): an
+ * out-of-range value throws instead of being clamped, because a repaired seed is a _different
+ * artwork_ — replaying it would silently falsify provenance. Corrupt files are refused honestly at
+ * their field path.
+ */
 export function createSeed(value: number): Seed {
     assertIntegerInRange(value, 'seed', 0, MAX_SEED);
 

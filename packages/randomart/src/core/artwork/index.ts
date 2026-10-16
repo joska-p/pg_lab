@@ -1,4 +1,4 @@
-export { createArtwork, createRenderSettings } from './create.ts';
+export { createArtwork, createRenderSettings, fitRenderSettings } from './create.ts';
 export { checkProvenance, type ProvenanceCheck } from './provenance.ts';
 export {
     ARTWORK_FILE_FORMAT,

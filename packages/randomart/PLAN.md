@@ -29,17 +29,18 @@ Principes : cœur TypeScript pur (pas de DOM, pas de GPU) ; rendu = adaptateur m
 - **Ménage post-plan** (commits `34fa6c7`, `292e540`) : règle `no-use-before-define` activée et définitions réordonnées ; `Inspector` passé dans `Controls` (l'`ErrorBoundary` englobe alors tout le panneau).
 - **Lot F** (persistance) : `expression/serialize.ts` (`serialize`/`deserialize`, limites `MAX_IMPORT_NODES` = 5 000 et `MAX_IMPORT_DEPTH` = 64, profondeur vérifiée **avant** de construire les nœuds, erreurs avec adresse type `g.in[1]`) ; module `artwork/` (`types`, `create`, `serialize`, `provenance`) : `createArtwork` (bornes `render` et `title`, défauts 1024² / 8 000 ms), fichiers `.randomart.json` (`serializeArtwork`/`parseArtwork`, ~1 Mo, champs inconnus refusés avec leur chemin), `checkProvenance` (`none` / `matches` / `differs` / `version-mismatch` par `nodeKey` des trois canaux). Les fonctions de fichier de grammaire ont **déménagé** de `grammar/serialize.ts` vers `artwork/serialize.ts`. UI : `appStore` a `provenanceCheck` en état, `HistoryEntry` porte `expression` + `provenanceCheck` pour les imports (restauration **sans régénérer**, l'expression est la référence — D1), `publishArtwork` (taille de rendu ignorée — friction 8 ; `loopMs` adopté dans les bornes de l'UI [1, 60] s), export/import d'œuvre dans `Controls` (statut de provenance affiché).
 - **Types brandés (système glaze)**, commit `b866126` : `Brand` vient de glaze (une seule source) ; helpers centralisés dans `shared` (`assertStrictlyPositive`, `assertInteger`, `assertIntegerInRange`, préfixe `Randomart:`) ; `Phase` + `createPhase` (ex-`calculatePhase`) ; `RenderKey` entièrement brandé ; `Constraints` / `RenderSettings` brandés (`ConstraintsInput` / `RenderSettingsInput` bruts en entrée, `createConstraints` / `createRenderSettings` façon ZoomClamp). Détails et IDs : `docs/findings.md` §7.
+- **Politique throw vs repair** (2026-10-16, décision documentée dans `shared/index.ts` + site par site dans les commentaires ; audité dans `findings.md` §8) : les identités/contenus/structures → throw (`createSeed`, poids, règle 3, `createRenderSettings` pour appelants vouched) ; les quantités d'édition → réparer via les `fit*` (`createConstraints` est maintenant une usine de réparation — clamp + round + « rendre égales » avec maxDepth qui gagne ; `createGrammar` délègue ses contraintes à `fitConstraints`, les règles 5/7 ne rejettent plus ; nouveau `fitRenderSettings` consommé par `parseArtwork`) ; non-fini → défaut du concept (F12 : plus de « NaN → min » ; `DEFAULT_CONSTRAINTS` 3/8/60 partagé avec `defaultGrammar`) ; titre réparé (vide → absent, trop long → tronqué) ; F17 réglé (`weighted` en une seule passe) ; F21 (fallback `1` de l'UI supprimé), F22 (le drag-along du store requalifié en geste d'intention, l'invariant vit au cœur) ; F19/F20 (une seule paire de bornes = celles de l'œuvre [0.5, 120] s, adoption inconditionnelle du `loopMs` du fichier, `<input>` aligné sur `MIN_LOOP_MS`/`MAX_LOOP_MS`).
 
 **Pas encore fait** : lots G et H. Trancher `math` (voir « Prochaine action »).
 
-**Tests** : verts (222 passés, `vp check` : 396 fichiers, 0 erreur).
+**Tests** : verts (227 passés, `vp check` : 0 erreur).
 
 ## Prochaine action
 
-Voir `handoff.md` — deux axes, dans l'ordre :
+Une session peut suffire, à choisir :
 
-1. **Nettoyage doc** (fait pour l'essentiel le 2026-10-16) : specs de conception **dépréciées** — leur doctrine est absorbée progressivement dans les commentaires du code (voir `docs/README.md`). À chaque modification d'un invariant documenté dans une spec, le déplacer dans le code, pas dans la spec.
-2. **Politique throw vs repair** : audit des factories (`createConstraints`, `createGrammar`, `createSeed`, `createRenderSettings`, `rng.*`) — certaines erreurs méritent une réparation à la `fitConstraints`/ZoomClamp plutôt qu'un throw ; trancher une règle par catégorie, l'écrire dans le code, réécrire les tests.
+1. **Trancher `math`** : dupliqué à la main à côté de `glsl` — dériver ou supprimer (dette listée plus bas).
+2. **Politique throw vs repair** : **fait le 2026-10-16** — politique tranchée dans `shared/index.ts`, site par site dans les commentaires, audit dans `findings.md` §8. Restes hors périmètre de l'audit : F14/F15 (marque vs duck-typing dans `createExpression`/`nodeCount`) et F16 (normalisation `−0 → 0`)/F30 (style de spécificateurs de module), petits nettoyages possibles au fil de l'eau.
 
 ## Dette connue (petite, non bloquante)
 
@@ -48,7 +49,7 @@ Voir `handoff.md` — deux axes, dans l'ordre :
 - `ShapeBatcher.compileProgram` ne supprime pas ses shaders après le link, et fuit le vertex shader si le fragment échoue.
 - `compiler/compile.ts` : en-tête obsolète (« no inner/warp contexts ») ; `compiler/compiler.ts` (couche de compatibilité) est devenu inutile.
 - `Inspector` appelle `compileNodePreview` pendant le rendu sans `try/catch`.
-- `Controls` : bornes 16 et 400 en dur (utiliser `MAX_DEPTH` / `MAX_NODES`) ; durée de boucle et import de fichier en `<input>` bruts au lieu de composants `ui`.
+- `Controls` : durée de boucle et import de fichier en `<input>` bruts au lieu de composants `ui` (les bornes numériques viennent maintenant des constantes du cœur — `MAX_DEPTH`/`MAX_NODES`/`MIN_LOOP_MS`/`MAX_LOOP_MS`).
 
 ## Lots
 

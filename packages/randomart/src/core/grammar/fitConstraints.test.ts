@@ -54,14 +54,14 @@ describe('fitConstraints', () => {
         ).toEqual({ minDepth: 1, maxDepth: 8, maxNodes: 10 });
     });
 
-    it('survives non-finite input', () => {
+    it('repairs non-finite input to the concept shape (findings F12: not "NaN → min")', () => {
         expect(
             fitConstraints(operators('binary'), {
                 minDepth: Number.NaN,
                 maxDepth: Number.POSITIVE_INFINITY,
                 maxNodes: Number.NaN,
             }),
-        ).toEqual({ minDepth: 1, maxDepth: 1, maxNodes: 1 });
+        ).toEqual({ minDepth: 3, maxDepth: 8, maxNodes: 60 });
     });
 
     it('always returns constraints that pass createGrammar (random input)', () => {

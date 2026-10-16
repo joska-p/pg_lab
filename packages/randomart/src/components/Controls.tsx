@@ -8,6 +8,8 @@ import { Text } from '@repo/ui/components/Text';
 import { useSyncExternalStore } from 'react';
 
 import type { ProvenanceCheck } from '../core/artwork/index.ts';
+import { MAX_LOOP_MS, MIN_LOOP_MS } from '../core/artwork/index.ts';
+import { MAX_DEPTH, MAX_NODES } from '../core/grammar/index.ts';
 import {
     exportArtworkFile,
     exportGrammarFile,
@@ -137,34 +139,30 @@ export function Controls() {
                                     <NumberField
                                         label="minDepth"
                                         min={1}
-                                        max={16}
+                                        max={MAX_DEPTH}
                                         value={grammar.constraints.minDepth}
                                         onValueChange={(value) => {
-                                            setConstraints({
-                                                minDepth: Number.isFinite(value) ? value : 1,
-                                            });
+                                            // Raw value through: the store ignores non-finite
+                                            // edits (F21) and the core repair clamps/rounds.
+                                            setConstraints({ minDepth: value });
                                         }}
                                     />
                                     <NumberField
                                         label="maxDepth"
                                         min={1}
-                                        max={16}
+                                        max={MAX_DEPTH}
                                         value={grammar.constraints.maxDepth}
                                         onValueChange={(value) => {
-                                            setConstraints({
-                                                maxDepth: Number.isFinite(value) ? value : 1,
-                                            });
+                                            setConstraints({ maxDepth: value });
                                         }}
                                     />
                                     <NumberField
                                         label="maxNodes"
                                         min={1}
-                                        max={400}
+                                        max={MAX_NODES}
                                         value={grammar.constraints.maxNodes}
                                         onValueChange={(value) => {
-                                            setConstraints({
-                                                maxNodes: Number.isFinite(value) ? value : 1,
-                                            });
+                                            setConstraints({ maxNodes: value });
                                         }}
                                     />
                                 </Stack>
@@ -211,11 +209,13 @@ export function Controls() {
                                 </Stack>
                                 <Stack direction="horizontal" gap="2">
                                     <Text variant="muted">Loop duration (s):</Text>
+                                    {/* One concept, one bound set: the artwork render bounds
+                                        ([0.5, 120] s — findings F19/F20 unified). */}
                                     <input
                                         type="number"
-                                        min={1}
-                                        max={60}
-                                        step={1}
+                                        min={MIN_LOOP_MS / 1000}
+                                        max={MAX_LOOP_MS / 1000}
+                                        step={0.5}
                                         defaultValue={duration}
                                         style={{ width: '4rem' }}
                                         onChange={(e) => {

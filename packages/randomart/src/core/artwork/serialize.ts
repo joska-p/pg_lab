@@ -5,7 +5,7 @@ import { createGrammar } from '../grammar/index.ts';
 import type { ConstraintsInput, Grammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
-import { createArtwork } from './create.ts';
+import { createArtwork, fitRenderSettings } from './create.ts';
 import type { Artwork, Provenance, RenderSettingsInput } from './types.ts';
 
 export const ARTWORK_FILE_FORMAT = 'random-art';
@@ -208,9 +208,9 @@ export function serializeArtwork(artwork: Artwork): string {
 }
 
 /**
- * Shape-checks the `render` field of a file only: unlike `createRenderSettings`, the type still
- * claims nothing (raw JSON numbers — findings F13). Bounds validation happens in `createArtwork`
- * via `createRenderSettings`, whose messages already carry the `render.*` field path.
+ * Shape-checks the `render` field of a file (unknown fields refused, numbers expected) — the raw
+ * JSON numbers are then _repaired_, not bounds-checked, by `fitRenderSettings` (throw-vs-repair
+ * policy in shared/index.ts: structure and types refuse, editing quantities clamp).
  */
 function readRender(data: unknown): RenderSettingsInput {
     if (!isRecord(data)) {
@@ -316,7 +316,12 @@ export function parseArtwork(catalog: Catalog, text: string): Artwork {
 
     return createArtwork({
         expression: deserialize(catalog, parsed.expression),
-        ...(parsed.render !== undefined ? { render: readRender(parsed.render) } : {}),
+        // Repair at the file boundary (structural junk — unknown fields, wrong types — still
+        // refuses, see readRender): out-of-bounds quantities clamp instead of rejecting the
+        // artwork (findings F13 — always a real artwork, even from a foreign file).
+        ...(parsed.render !== undefined
+            ? { render: fitRenderSettings(readRender(parsed.render)) }
+            : {}),
         ...(parsed.provenance !== undefined
             ? { provenance: readProvenance(catalog, parsed.provenance) }
             : {}),

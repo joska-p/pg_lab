@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../catalog/index.ts';
-import { createConstraints, createGrammar, defaultGrammar, minSize } from './index.ts';
+import {
+    createConstraints,
+    createGrammar,
+    DEFAULT_CONSTRAINTS,
+    defaultGrammar,
+    minSize,
+} from './index.ts';
 
 describe('grammar: minSize', () => {
     const catalog = createDefaultCatalog();
@@ -97,56 +103,57 @@ describe('grammar: createGrammar validations', () => {
         ).toThrow(/must contain at least one terminal/);
     });
 
-    it('rejects invalid depth bounds', () => {
-        expect(() =>
-            createGrammar(catalog, {
-                weights: { x: 1 },
-                constraints: { minDepth: 5, maxDepth: 3, maxNodes: 20 },
-            }),
-        ).toThrow('Randomart: constraints.minDepth (5) must not exceed constraints.maxDepth (3)');
+    it('repairs depth-bound violations instead of refusing them (throw-vs-repair policy)', () => {
+        // minDepth > maxDepth: the core repair clamps minDepth down (maxDepth wins), and without
+        // non-terminals minDepth falls back to 1 (rule 5 as repair).
+        const crossed = createGrammar(catalog, {
+            weights: { x: 1 },
+            constraints: { minDepth: 5, maxDepth: 3, maxNodes: 20 },
+        });
 
-        expect(() =>
+        expect(crossed.constraints).toEqual({ minDepth: 1, maxDepth: 3, maxNodes: 20 });
+
+        expect(
             createGrammar(catalog, {
                 weights: { x: 1 },
                 constraints: { minDepth: 0, maxDepth: 3, maxNodes: 20 },
-            }),
-        ).toThrow('Randomart: constraints.minDepth must be an integer in [1, 16], received 0');
+            }).constraints,
+        ).toEqual({ minDepth: 1, maxDepth: 3, maxNodes: 20 });
     });
 
-    it('rejects minDepth > 1 without active non-terminals', () => {
-        const catalog = createDefaultCatalog();
-        expect(() =>
-            createGrammar(catalog, {
-                weights: { x: 1, y: 1, add: 0, mul: 0 },
-                constraints: { minDepth: 2, maxDepth: 4, maxNodes: 20 },
-            }),
-        ).toThrow(/contains no non-terminal/);
-    });
-
-    it('rejects constraints exceeding hard limits', () => {
-        expect(() =>
+    it('repairs constraints exceeding the hard limits', () => {
+        expect(
             createGrammar(catalog, {
                 weights: { x: 1 },
                 constraints: { minDepth: 1, maxDepth: 17, maxNodes: 20 },
-            }),
-        ).toThrow('Randomart: constraints.maxDepth must be an integer in [1, 16], received 17');
+            }).constraints,
+        ).toEqual({ minDepth: 1, maxDepth: 16, maxNodes: 20 });
 
-        expect(() =>
+        expect(
             createGrammar(catalog, {
                 weights: { x: 1 },
                 constraints: { minDepth: 1, maxDepth: 10, maxNodes: 401 },
-            }),
-        ).toThrow('Randomart: constraints.maxNodes must be an integer in [1, 400], received 401');
+            }).constraints,
+        ).toEqual({ minDepth: 1, maxDepth: 10, maxNodes: 400 });
     });
 
-    it('rejects unfeasible maxNodes lower than minSize(1)', () => {
-        // minDepth 4 with binary operator only requires 15 nodes minimum
-        expect(() =>
+    it('repairs rule 5 (minDepth > 1 without active non-terminals) by yielding', () => {
+        expect(
+            createGrammar(catalog, {
+                weights: { x: 1, y: 1, add: 0, mul: 0 },
+                constraints: { minDepth: 2, maxDepth: 4, maxNodes: 20 },
+            }).constraints,
+        ).toEqual({ minDepth: 1, maxDepth: 4, maxNodes: 20 });
+    });
+
+    it('repairs unfeasible maxNodes by raising it to minSize(1) (rule 7 as repair)', () => {
+        // minDepth 4 with binary operator only requires 15 nodes minimum.
+        expect(
             createGrammar(catalog, {
                 weights: { x: 1, add: 1 },
                 constraints: { minDepth: 4, maxDepth: 6, maxNodes: 14 },
-            }),
-        ).toThrow(/unfeasible/);
+            }).constraints,
+        ).toEqual({ minDepth: 4, maxDepth: 6, maxNodes: 15 });
     });
 });
 
@@ -158,31 +165,56 @@ describe('grammar: createConstraints', () => {
         expect(Object.isFrozen(constraints)).toBe(true);
     });
 
-    it('rejects out-of-range bounds', () => {
-        expect(() => createConstraints({ minDepth: 0, maxDepth: 8, maxNodes: 60 })).toThrow(
-            'Randomart: constraints.minDepth must be an integer in [1, 16], received 0',
-        );
-        expect(() => createConstraints({ minDepth: 1, maxDepth: 17, maxNodes: 60 })).toThrow(
-            'Randomart: constraints.maxDepth must be an integer in [1, 16], received 17',
-        );
-        expect(() => createConstraints({ minDepth: 1, maxDepth: 8, maxNodes: 0 })).toThrow(
-            'Randomart: constraints.maxNodes must be an integer in [1, 400], received 0',
-        );
+    it('repairs broken constraints instead of refusing them (throw-vs-repair policy)', () => {
+        // Out-of-range bounds clamp to the hard limits…
+        expect(createConstraints({ minDepth: 0, maxDepth: 8, maxNodes: 60 })).toEqual({
+            minDepth: 1,
+            maxDepth: 8,
+            maxNodes: 60,
+        });
+        expect(createConstraints({ minDepth: 1, maxDepth: 17, maxNodes: 60 })).toEqual({
+            minDepth: 1,
+            maxDepth: 16,
+            maxNodes: 60,
+        });
+        expect(createConstraints({ minDepth: 1, maxDepth: 8, maxNodes: 0 })).toEqual({
+            minDepth: 1,
+            maxDepth: 8,
+            maxNodes: 1,
+        });
+
+        // … a conflict resolves "les rendre égales" with maxDepth winning…
+        expect(createConstraints({ minDepth: 5, maxDepth: 3, maxNodes: 60 })).toEqual({
+            minDepth: 3,
+            maxDepth: 3,
+            maxNodes: 60,
+        });
+
+        // … and finite garbage is rounded, not rejected.
+        expect(createConstraints({ minDepth: 1.5, maxDepth: 8, maxNodes: 60 })).toEqual({
+            minDepth: 2,
+            maxDepth: 8,
+            maxNodes: 60,
+        });
     });
 
-    it('rejects integer/finite violations', () => {
-        expect(() => createConstraints({ minDepth: 1.5, maxDepth: 8, maxNodes: 60 })).toThrow(
-            'Randomart: constraints.minDepth must be an integer, received 1.5',
-        );
-        expect(() => createConstraints({ minDepth: 1, maxDepth: 8, maxNodes: Number.NaN })).toThrow(
-            'Randomart: constraints.maxNodes must be a finite number, received NaN',
-        );
-    });
+    it('repairs non-finite values to the concept defaults (findings F12)', () => {
+        // Non-finite is garbage, not intent — and the fallback is per field: only the non-finite
+        // `maxNodes` falls back to its concept default; the given depths keep their values.
+        expect(createConstraints({ minDepth: 1, maxDepth: 8, maxNodes: Number.NaN })).toEqual({
+            minDepth: 1,
+            maxDepth: 8,
+            maxNodes: 60,
+        });
 
-    it('rejects minDepth above maxDepth after both are in range', () => {
-        expect(() => createConstraints({ minDepth: 5, maxDepth: 3, maxNodes: 60 })).toThrow(
-            'Randomart: constraints.minDepth (5) must not exceed constraints.maxDepth (3)',
-        );
+        // All non-finite: the shape collapses to the `defaultGrammar` one (DEFAULT_CONSTRAINTS).
+        expect(
+            createConstraints({
+                minDepth: Number.NaN,
+                maxDepth: Number.POSITIVE_INFINITY,
+                maxNodes: 60,
+            }),
+        ).toEqual(DEFAULT_CONSTRAINTS);
     });
 });
 

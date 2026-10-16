@@ -95,6 +95,19 @@ describe('Rng (mulberry32)', () => {
     });
 
     describe('weighted', () => {
+        it('calls weightOf exactly once per item (findings F17 fixed: single pass)', () => {
+            const rng = createRng(createSeed(1));
+
+            let calls = 0;
+
+            rng.weighted(['a', 'b', 'c'], () => {
+                calls++;
+                return 1;
+            });
+
+            expect(calls).toBe(3);
+        });
+
         it('consumes exactly one next() call even with a single item', () => {
             const rngA = createRng(createSeed(500));
             const rngB = createRng(createSeed(500));

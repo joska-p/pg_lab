@@ -5,7 +5,7 @@ import { createExpression, createNode, nodeKey } from '../expression/index.ts';
 import { generate, GENERATOR_VERSION } from '../generator/index.ts';
 import { defaultGrammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';
-import { createArtwork, createRenderSettings } from './create.ts';
+import { createArtwork, createRenderSettings, fitRenderSettings } from './create.ts';
 import { checkProvenance } from './provenance.ts';
 import {
     parseArtwork,
@@ -85,16 +85,18 @@ describe('artwork: createArtwork', () => {
         );
     });
 
-    it('rejects an empty or oversized title', () => {
+    it('repairs the title instead of refusing an artwork over it (throw-vs-repair policy)', () => {
         const expression = createExpression(
             createNode(catalog, 'x'),
             createNode(catalog, 'y'),
             createNode(catalog, 'tsin'),
         );
 
-        expect(() => createArtwork({ expression, title: '' })).toThrow(/title/);
-        expect(() => createArtwork({ expression, title: 'x'.repeat(201) })).toThrow(/title/);
-        expect(() => createArtwork({ expression, title: 'Vagues' })).not.toThrow();
+        // Cosmetic metadata: an empty title means "absent", an oversized one is truncated
+        // canonically (keep the first MAX_TITLE_LENGTH characters).
+        expect(createArtwork({ expression, title: '' }).title).toBeUndefined();
+        expect(createArtwork({ expression, title: 'x'.repeat(201) }).title).toHaveLength(200);
+        expect(createArtwork({ expression, title: 'Vagues' }).title).toBe('Vagues');
     });
 });
 
@@ -124,6 +126,34 @@ describe('artwork: createRenderSettings', () => {
         expect(() => createRenderSettings({ loopMs: 499 })).toThrow(
             'Randomart: render.loopMs must be between 500 and 120000, received 499',
         );
+    });
+});
+
+describe('artwork: fitRenderSettings', () => {
+    it('repairs out-of-bounds render values by clamping them into the concept bounds', () => {
+        expect(fitRenderSettings({ width: 0, height: 9_999, loopMs: 10 })).toEqual({
+            width: 1,
+            height: 8_192,
+            loopMs: 500,
+        });
+        expect(fitRenderSettings({ loopMs: 130_000 })).toEqual({
+            width: 1_024,
+            height: 1_024,
+            loopMs: 120_000,
+        });
+    });
+
+    it('routes non-finite fields to the concept defaults (findings F12: not "min"/"max")', () => {
+        expect(fitRenderSettings({ width: Number.NaN, loopMs: Number.NaN })).toEqual({
+            width: 1_024,
+            height: 1_024,
+            loopMs: 8_000,
+        });
+        expect(fitRenderSettings()).toEqual({
+            width: 1_024,
+            height: 1_024,
+            loopMs: 8_000,
+        });
     });
 });
 
@@ -214,6 +244,18 @@ describe('artwork: files', () => {
                 }),
             ),
         ).toThrow(/provenance\.grammar\.extra: unknown field/);
+    });
+
+    it('repairs out-of-bounds render values instead of refusing the artwork (throw-vs-repair)', () => {
+        const { data } = fixture();
+        const corrupt = JSON.parse(
+            JSON.stringify({ ...data, render: { ...data.render, width: 99_999, loopMs: 300_000 } }),
+        );
+
+        const repaired = parseArtwork(catalog, JSON.stringify(corrupt));
+
+        expect(repaired.render.width).toBe(8_192);
+        expect(repaired.render.loopMs).toBe(120_000);
     });
 
     it('relays deserialize errors with their expression address', () => {

@@ -5,7 +5,8 @@ import type { Brand } from '../shared/index.ts';
 
 /**
  * Raw render settings as callers may write them: partial UI input, parsed JSON files. Carries no
- * guarantee — validating is the job of `createRenderSettings` (findings F13).
+ * guarantee — `createRenderSettings` repairs-checks it, `fitRenderSettings` repairs it (findings
+ * F13; throw-vs-repair policy in shared/index.ts).
  */
 export interface RenderSettingsInput {
     readonly width: number;
@@ -15,7 +16,8 @@ export interface RenderSettingsInput {
 
 /**
  * Validated render settings: dimensions are integers in [1, MAX_RENDER_SIZE], loopMs is a finite
- * number in [MIN_LOOP_MS, MAX_LOOP_MS]. Reachable only through `createRenderSettings`.
+ * number in [MIN_LOOP_MS, MAX_LOOP_MS]. Reachable only through `createRenderSettings` (vouched
+ * callers) or `fitRenderSettings` (repairs file input — the `ZoomClamp` analog).
  */
 export type RenderSettings = Brand<RenderSettingsInput, 'RenderSettings'>;
 

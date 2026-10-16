@@ -1,5 +1,5 @@
 import type { Catalog, Operator } from '../catalog';
-import { assertFinite, assertIntegerInRange } from '../shared/index.ts';
+import { assertFinite } from '../shared/index.ts';
 import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types';
 import type { Constraints, ConstraintsInput, Grammar } from './types';
 
@@ -37,48 +37,70 @@ export function getVocabulary(
 }
 
 /**
- * The only way to a `Constraints` brand (findings F10): the rules `createGrammar` checks in rule 4
- * and rule 6, extracted so the validated type means exactly these bounds.
+ * The missing-field fallback shape (findings F12): a non-finite constraint value is garbage, not an
+ * intent, so it takes these defaults — the `defaultGrammar` shape, a finite and feasible baseline
+ * for the stock catalog. `defaultGrammar` itself uses them (one value set, one meaning).
  */
-export function createConstraints(constraints: ConstraintsInput): Constraints {
-    assertIntegerInRange(constraints.minDepth, 'constraints.minDepth', 1, MAX_DEPTH);
-    assertIntegerInRange(constraints.maxDepth, 'constraints.maxDepth', 1, MAX_DEPTH);
-    assertIntegerInRange(constraints.maxNodes, 'constraints.maxNodes', 1, MAX_NODES);
+export const DEFAULT_CONSTRAINTS: ConstraintsInput = { minDepth: 3, maxDepth: 8, maxNodes: 60 };
 
-    if (constraints.minDepth > constraints.maxDepth) {
-        throw new Error(
-            `Randomart: constraints.minDepth (${constraints.minDepth}) must not exceed constraints.maxDepth (${constraints.maxDepth})`,
-        );
-    }
-
-    return Object.freeze({ ...constraints }) as Constraints;
+/**
+ * Field-level repair for one bounded integer (throw-vs-repair policy in shared/index.ts): a finite
+ * value is rounded and clamped into [min, max]; a non-finite value is garbage, not an intent, and
+ * takes the fallback. (F12's old `NaN → min` here was neither an error nor a sensible default.)
+ */
+function clampInt(value: number, min: number, max: number, fallback: number): number {
+    return Number.isFinite(value) ? Math.min(max, Math.max(min, Math.round(value))) : fallback;
 }
 
 /**
- * Keeps constraints usable for a given vocabulary: integers within the hard limits, `1 ≤ minDepth ≤
- * maxDepth`, and feasible (`minSize(1, minDepth) ≤ maxNodes`). Used by the UI, which edits
- * constraints by hand instead of randomizing them. Lowering `maxNodes` first, then `minDepth` down
- * to 1, always terminates since `minDepth = 1` is feasible.
+ * The only way to a `Constraints` brand (findings F10) — and the shape-repair rung of the repair
+ * ladder: depth/node bounds are editing quantities, so out-of-range values are clamped (rounded),
+ * non-finite values take `DEFAULT_CONSTRAINTS`, and a `minDepth > maxDepth` conflict is resolved by
+ * clamping minDepth down: **maxDepth wins** ("les rendre égales", user decision 2026-10-16). No
+ * intent information reaches the core, so the conservative direction is canonical — the same rule
+ * `fitConstraints` uses; the UI's opposite drag-along (`appStore.setConstraints`) is an intent
+ * gesture layered on top, not an invariant to keep in sync.
+ */
+export function createConstraints(constraints: ConstraintsInput): Constraints {
+    const maxDepth = clampInt(constraints.maxDepth, 1, MAX_DEPTH, DEFAULT_CONSTRAINTS.maxDepth);
+    const maxNodes = clampInt(constraints.maxNodes, 1, MAX_NODES, DEFAULT_CONSTRAINTS.maxNodes);
+    const minDepth = Math.min(
+        clampInt(constraints.minDepth, 1, MAX_DEPTH, DEFAULT_CONSTRAINTS.minDepth),
+        maxDepth,
+    );
+
+    return Object.freeze({ minDepth, maxDepth, maxNodes }) as Constraints;
+}
+
+/**
+ * Keeps constraints usable for a given vocabulary — the `ZoomClamp` analog (findings F11): raw
+ * values in, validated brand out, whatever garbage the UI or a JSON file feeds it. Repair pipeline
+ * (throw-vs-repair policy in shared/index.ts):
  *
- * Raw values in, validated constraints out — the `ZoomClamp` pattern (findings F11): whatever the
- * garbage the UI or a JSON file feeds it, the returned brand is provably grammar-valid.
+ * 1. Shape repair (`createConstraints`): hard-limit clamp, rounding, `minDepth ≤ maxDepth`;
+ * 2. Depth beyond the vocabulary: with no non-terminal, `minDepth` always falls back to 1;
+ * 3. Feasibility: `maxNodes` is raised to `minSize(1, minDepth)` (capped at `MAX_NODES`), then
+ *    `minDepth` is lowered until it fits — at `minDepth = 1` every grammar is feasible, so the
+ *    pipeline always terminates and `createGrammar` cannot reject on rules 5 and 7.
  */
 export function fitConstraints(
     operators: readonly Operator[],
     constraints: ConstraintsInput,
 ): Constraints {
-    const clampInt = (value: number, min: number, max: number): number =>
-        Number.isFinite(value) ? Math.min(max, Math.max(min, Math.round(value))) : min;
+    // Rung 1: the shape repair — clamped, rounded, ordered.
+    const shape = createConstraints(constraints);
+    const maxDepth = shape.maxDepth;
+    let minDepth = shape.minDepth;
+    let maxNodes = shape.maxNodes;
 
-    const maxDepth = clampInt(constraints.maxDepth, 1, MAX_DEPTH);
-    // maxDepth wins: dragging it below minDepth brings minDepth along.
-    let minDepth = Math.min(clampInt(constraints.minDepth, 1, MAX_DEPTH), maxDepth);
-
+    // Rung 2: the vocabulary yields (rule 5 repair). Lowering `maxNodes` first, then `minDepth`
+    // down, always terminates since `minDepth = 1` is feasible.
     if (minDepth > 1 && !operators.some(isNonTerminalOperator)) {
         minDepth = 1;
     }
 
-    let maxNodes = clampInt(constraints.maxNodes, 1, MAX_NODES);
+    // Rung 3: feasibility (rule 7 repair) — maxNodes climbs to the needed minimum, then minDepth
+    // yields if even MAX_NODES is not enough.
     const needed = (): number => minSize(1, minDepth, operators);
 
     if (needed() > maxNodes) {
@@ -104,11 +126,14 @@ export function createGrammar(
     },
 ): Grammar {
     const operatorNames = Object.keys(weights);
+    // Weights are checked, never repaired (throw-vs-repair policy in shared/index.ts): a weight is
+    // content — clamping garbage into "off" or saturating at MAX_WEIGHT would silently rewrite the
+    // vocabulary. Corruption refuses honestly (UI error, import rejected with the field path).
     if (operatorNames.length === 0) {
         throw new Error('Randomart: grammar weights must not be empty');
     }
 
-    // Rule 1: Every operator exists in catalog
+    // Rule 1: Every operator exists in catalog (content: an unknown name has no canonical repair)
     const operators: Operator[] = [];
     for (const name of operatorNames) {
         try {
@@ -131,7 +156,8 @@ export function createGrammar(
     // The vocabulary: what the generator may draw. A weight of 0 switches the operator off.
     const vocabulary = operators.filter((operator) => weights[operator.name] > 0);
 
-    // Rule 3: Vocabulary contains at least one active terminal
+    // Rule 3: Vocabulary contains at least one active terminal — structure with no canonical
+    // repair (which terminal to switch back on would be invented content), so it throws.
     const terminals = vocabulary.filter(isTerminalOperator);
     if (terminals.length === 0) {
         throw new Error(
@@ -139,27 +165,13 @@ export function createGrammar(
         );
     }
 
-    // Rules 4 & 6 (constraint shape): validated here — raw constraints in, branded out — so a
-    // grammar always carries a validated `Constraints` (findings F10). The vocabulary rules (5)
-    // and feasibility (7) below stay grammar-level because they depend on the weights too.
-    const constraints = createConstraints(rawConstraints);
-
-    // Rule 5: If minDepth > 1, vocabulary must contain at least one active non-terminal
-    const { minDepth, maxNodes } = constraints;
-    const nonTerminals = vocabulary.filter(isNonTerminalOperator);
-    if (minDepth > 1 && nonTerminals.length === 0) {
-        throw new Error(
-            `Randomart: minDepth is ${minDepth} (> 1) but vocabulary contains no non-terminal operators`,
-        );
-    }
-
-    // Rule 7: Feasibility check: minSize(1) <= maxNodes, over the active vocabulary
-    const requiredMinSize = minSize(1, minDepth, vocabulary);
-    if (maxNodes < requiredMinSize) {
-        throw new Error(
-            `Randomart: grammar is unfeasible — maxNodes (${maxNodes}) is less than the minimum possible size (${requiredMinSize}) for minDepth ${minDepth}`,
-        );
-    }
+    // Rules 4-7 (constraints × vocabulary) are *repaired*, not checked (throw-vs-repair policy in
+    // shared/index.ts): the raw constraints go through `fitConstraints`, whose rungs resolve the
+    // hard-limit bounds, the ordering (minDepth ≤ maxDepth), the minDepth>1-without-non-terminal
+    // rule (5) and feasibility (7). Feeding broken constraints can no longer reject a grammar —
+    // this is the aggregate constructor, where UI and file data legitimately arrive (user
+    // decision 2026-10-16).
+    const constraints = fitConstraints(vocabulary, rawConstraints);
 
     // Freeze and sort weights deterministically
     const sortedWeights: Record<string, number> = {};
@@ -197,12 +209,5 @@ export function defaultGrammar(catalog: Catalog): Grammar {
                 : 1;
     }
 
-    return createGrammar(catalog, {
-        weights,
-        constraints: {
-            minDepth: 3,
-            maxDepth: 8,
-            maxNodes: 60,
-        },
-    });
+    return createGrammar(catalog, { weights, constraints: DEFAULT_CONSTRAINTS });
 }

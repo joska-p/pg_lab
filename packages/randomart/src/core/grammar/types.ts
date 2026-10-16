@@ -2,7 +2,8 @@ import type { Brand } from '../shared/index.ts';
 
 /**
  * Raw constraints as callers may write them: UI fields, hand-edited state, parsed JSON. Carries no
- * guarantee — validating is the job of `createConstraints` (findings F10).
+ * guarantee — `createConstraints` repairs it into the brand (throw-vs-repair policy in
+ * shared/index.ts), findings F10.
  */
 export interface ConstraintsInput {
     readonly minDepth: number;
@@ -12,9 +13,9 @@ export interface ConstraintsInput {
 
 /**
  * Validated constraints: finite integers with `1 <= minDepth <= maxDepth <= MAX_DEPTH` and `1 <=
- * maxNodes <= MAX_NODES`. Reachable only through `createConstraints`; feasibility for a given
- * vocabulary (a grammar-level rule) is carried by `Grammar` and proven by `fitConstraints`
- * returning this type (findings F11 — the `ZoomClamp` analog).
+ * maxNodes <= MAX_NODES`. Reachable only through `createConstraints` (the shape-repair rung) or
+ * `fitConstraints` (adds vocabulary feasibility — findings F11, the `ZoomClamp` analog); both
+ * repair rather than throw, so the brand is provably valid whatever the raw input was.
  */
 export type Constraints = Brand<ConstraintsInput, 'Constraints'>;
 

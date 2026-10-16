@@ -18,6 +18,26 @@ export type { Brand };
  * index 3`) when the field has no name.
  */
 
+/**
+ * Throw-vs-repair policy (tranche 2026-10-16, findings F12/F19–F22). The package sorts every bad
+ * input into one of two data kinds, and each site documents which one it guards:
+ *
+ * - **Identity, content, structure, type — repair would invent data:** throw. Stand-ins for "what did
+ *   the caller mean" do not exist (which terminal to switch back on, which operator a mistyped name
+ *   maps to, which artwork a clamped seed replays). Corruption is refused honestly (UI shows the
+ *   error, file import is rejected with the field path).
+ * - **Editing quantities with an order (bounds, pairs like `minDepth ≤ maxDepth`) — a canonical
+ *   repair exists:** repair, never throw. `fit*` functions clamp/round non-finite values to the
+ *   concept's default (a NaN is garbage, not an intent — findings F12) and are the _only_ entry
+ *   points for untrusted sources (UI fields, JSON files). `create*` factories keep their throws:
+ *   they are the last detector for callers that vouch for their values (core code, tests) — the
+ *   glaze `createZoomBounds` vs `createZoomClamp` split.
+ *
+ * One categorical exception, sourced from the checklist (§14 Errors): nothing throws on the
+ * per-frame path (`createPhase`, render gate) — a bad value there would spam every frame instead of
+ * failing once at a configuration boundary (findings F09b).
+ */
+
 export function assertFinite(value: number, label: string): void {
     if (!Number.isFinite(value)) {
         throw new Error(`Randomart: ${label} must be a finite number, received ${String(value)}`);

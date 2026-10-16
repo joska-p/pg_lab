@@ -2,6 +2,7 @@ export { describeGrammar, type GrammarSummary } from './describe.ts';
 export {
     createConstraints,
     createGrammar,
+    DEFAULT_CONSTRAINTS,
     defaultGrammar,
     fitConstraints,
     getVocabulary,
