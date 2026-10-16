@@ -1,6 +1,7 @@
 import { Button } from '@repo/ui/components/Button';
 import { ControlField } from '@repo/ui/components/ControlField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
+import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { NumberField } from '@repo/ui/components/NumberField';
 import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
@@ -30,6 +31,7 @@ import {
     useSeed,
     useShaderError,
 } from '../stores/appStore';
+import { Inspector } from './Inspector';
 
 export function Controls() {
     const summary = useGrammarSummary();
@@ -54,197 +56,204 @@ export function Controls() {
     const canAnimate = hasClockStore && compiledShader.animated;
 
     return (
-        <ControlSection title="randomart">
-            <Stack gap="3">
-                {/* ── Image ── */}
-                <ControlField label="Image">
-                    <Stack gap="2">
-                        <Button
-                            onClick={() => {
-                                newImage();
-                            }}
-                        >
-                            New image
-                        </Button>
-                        <Text variant="muted">
-                            Seed: {seed} • {compiledShader.stats.nodes} nodes
-                        </Text>
+        <ErrorBoundary showStack={import.meta.env.DEV}>
+            <Stack gap="6">
+                <ControlSection title="randomart">
+                    <Stack gap="3">
+                        {/* ── Image ── */}
+                        <ControlField label="Image">
+                            <Stack gap="2">
+                                <Button
+                                    onClick={() => {
+                                        newImage();
+                                    }}
+                                >
+                                    New image
+                                </Button>
+                                <Text variant="muted">
+                                    Seed: {seed} • {compiledShader.stats.nodes} nodes
+                                </Text>
+                            </Stack>
+                        </ControlField>
+
+                        {/* ── Grammar ── */}
+                        <ControlField label="Grammar">
+                            <Stack gap="2">
+                                <Stack direction="horizontal" gap="2">
+                                    <Button
+                                        onClick={() => {
+                                            newDistribution();
+                                        }}
+                                    >
+                                        New weights
+                                    </Button>
+                                    <Button
+                                        onClick={() => {
+                                            resetGrammar();
+                                        }}
+                                    >
+                                        Reset
+                                    </Button>
+                                    <Button
+                                        onClick={() => {
+                                            exportGrammarFile();
+                                        }}
+                                    >
+                                        Export
+                                    </Button>
+                                    <input
+                                        type="file"
+                                        accept=".json,application/json"
+                                        onChange={(e) => {
+                                            const file = e.currentTarget.files?.[0];
+
+                                            e.currentTarget.value = '';
+
+                                            if (file) {
+                                                void importGrammarFile(file);
+                                            }
+                                        }}
+                                    />
+                                </Stack>
+                                <Text variant="muted">
+                                    {summary.vocabularySize} operators • terminals{' '}
+                                    {Math.round(summary.terminalShare * 100)}% • growth{' '}
+                                    {summary.growth.toFixed(2)} •{' '}
+                                    {summary.hasTime ? 'time ✓' : 'no time'}
+                                </Text>
+                                <Stack direction="horizontal" gap="2">
+                                    <NumberField
+                                        label="minDepth"
+                                        min={1}
+                                        max={16}
+                                        value={grammar.constraints.minDepth}
+                                        onValueChange={(value) => {
+                                            setConstraints({
+                                                minDepth: Number.isFinite(value) ? value : 1,
+                                            });
+                                        }}
+                                    />
+                                    <NumberField
+                                        label="maxDepth"
+                                        min={1}
+                                        max={16}
+                                        value={grammar.constraints.maxDepth}
+                                        onValueChange={(value) => {
+                                            setConstraints({
+                                                maxDepth: Number.isFinite(value) ? value : 1,
+                                            });
+                                        }}
+                                    />
+                                    <NumberField
+                                        label="maxNodes"
+                                        min={1}
+                                        max={400}
+                                        value={grammar.constraints.maxNodes}
+                                        onValueChange={(value) => {
+                                            setConstraints({
+                                                maxNodes: Number.isFinite(value) ? value : 1,
+                                            });
+                                        }}
+                                    />
+                                </Stack>
+                            </Stack>
+                        </ControlField>
+
+                        {/* ── History ── */}
+                        <ControlField label="History">
+                            <Stack direction="horizontal" gap="2">
+                                {history.map((entry) => (
+                                    <Button
+                                        key={entry.id}
+                                        color={entry.id === currentId ? 'aqua' : 'neutral'}
+                                        onClick={() => {
+                                            restoreEntry(entry.id);
+                                        }}
+                                    >
+                                        {entry.seed} · {entry.nodes}
+                                    </Button>
+                                ))}
+                            </Stack>
+                        </ControlField>
+
+                        {/* ── Playback ── */}
+                        <ControlField label="Playback">
+                            <Stack gap="2">
+                                <Stack direction="horizontal" gap="2">
+                                    <Button
+                                        onClick={() => {
+                                            clockStore.togglePlay();
+                                        }}
+                                        disabled={!canAnimate}
+                                    >
+                                        {isPlaying ? 'Pause' : 'Play'}
+                                    </Button>
+                                    <Button
+                                        onClick={() => {
+                                            clockStore.reset();
+                                        }}
+                                        disabled={!canAnimate}
+                                    >
+                                        Reset
+                                    </Button>
+                                </Stack>
+                                <Stack direction="horizontal" gap="2">
+                                    <Text variant="muted">Loop duration (s):</Text>
+                                    <input
+                                        type="number"
+                                        min={1}
+                                        max={60}
+                                        step={1}
+                                        defaultValue={duration}
+                                        style={{ width: '4rem' }}
+                                        onChange={(e) => {
+                                            setDuration(parseDurationInput(e.currentTarget.value));
+                                        }}
+                                    />
+                                </Stack>
+                            </Stack>
+                        </ControlField>
+
+                        {/* ── Export ── */}
+                        <ControlField label="Export">
+                            <Button
+                                onClick={() => {
+                                    void exportPng();
+                                }}
+                                disabled={!canvas}
+                            >
+                                Export PNG
+                            </Button>
+                        </ControlField>
+
+                        {/* ── Status ── */}
+                        {actionError ? (
+                            <ControlField label="Error">
+                                <Text>{actionError}</Text>
+                            </ControlField>
+                        ) : null}
+                        {shaderError ? (
+                            <ControlField label="Shader Error">
+                                <Stack gap="1">
+                                    <Text>
+                                        [{shaderError.stage}] {shaderError.message}
+                                    </Text>
+                                </Stack>
+                            </ControlField>
+                        ) : (
+                            <ControlField label="Shader Status">
+                                <Text variant="muted">
+                                    {compiledShader.animated
+                                        ? 'Time-dependent expression: press Play'
+                                        : 'No time operator: this image cannot animate'}
+                                </Text>
+                            </ControlField>
+                        )}
                     </Stack>
-                </ControlField>
+                </ControlSection>
 
-                {/* ── Grammar ── */}
-                <ControlField label="Grammar">
-                    <Stack gap="2">
-                        <Stack direction="horizontal" gap="2">
-                            <Button
-                                onClick={() => {
-                                    newDistribution();
-                                }}
-                            >
-                                New weights
-                            </Button>
-                            <Button
-                                onClick={() => {
-                                    resetGrammar();
-                                }}
-                            >
-                                Reset
-                            </Button>
-                            <Button
-                                onClick={() => {
-                                    exportGrammarFile();
-                                }}
-                            >
-                                Export
-                            </Button>
-                            <input
-                                type="file"
-                                accept=".json,application/json"
-                                onChange={(e) => {
-                                    const file = e.currentTarget.files?.[0];
-
-                                    e.currentTarget.value = '';
-
-                                    if (file) {
-                                        void importGrammarFile(file);
-                                    }
-                                }}
-                            />
-                        </Stack>
-                        <Text variant="muted">
-                            {summary.vocabularySize} operators • terminals{' '}
-                            {Math.round(summary.terminalShare * 100)}% • growth{' '}
-                            {summary.growth.toFixed(2)} • {summary.hasTime ? 'time ✓' : 'no time'}
-                        </Text>
-                        <Stack direction="horizontal" gap="2">
-                            <NumberField
-                                label="minDepth"
-                                min={1}
-                                max={16}
-                                value={grammar.constraints.minDepth}
-                                onValueChange={(value) => {
-                                    setConstraints({
-                                        minDepth: Number.isFinite(value) ? value : 1,
-                                    });
-                                }}
-                            />
-                            <NumberField
-                                label="maxDepth"
-                                min={1}
-                                max={16}
-                                value={grammar.constraints.maxDepth}
-                                onValueChange={(value) => {
-                                    setConstraints({
-                                        maxDepth: Number.isFinite(value) ? value : 1,
-                                    });
-                                }}
-                            />
-                            <NumberField
-                                label="maxNodes"
-                                min={1}
-                                max={400}
-                                value={grammar.constraints.maxNodes}
-                                onValueChange={(value) => {
-                                    setConstraints({
-                                        maxNodes: Number.isFinite(value) ? value : 1,
-                                    });
-                                }}
-                            />
-                        </Stack>
-                    </Stack>
-                </ControlField>
-
-                {/* ── History ── */}
-                <ControlField label="History">
-                    <Stack direction="horizontal" gap="2">
-                        {history.map((entry) => (
-                            <Button
-                                key={entry.id}
-                                color={entry.id === currentId ? 'aqua' : 'neutral'}
-                                onClick={() => {
-                                    restoreEntry(entry.id);
-                                }}
-                            >
-                                {entry.seed} · {entry.nodes}
-                            </Button>
-                        ))}
-                    </Stack>
-                </ControlField>
-
-                {/* ── Playback ── */}
-                <ControlField label="Playback">
-                    <Stack gap="2">
-                        <Stack direction="horizontal" gap="2">
-                            <Button
-                                onClick={() => {
-                                    clockStore.togglePlay();
-                                }}
-                                disabled={!canAnimate}
-                            >
-                                {isPlaying ? 'Pause' : 'Play'}
-                            </Button>
-                            <Button
-                                onClick={() => {
-                                    clockStore.reset();
-                                }}
-                                disabled={!canAnimate}
-                            >
-                                Reset
-                            </Button>
-                        </Stack>
-                        <Stack direction="horizontal" gap="2">
-                            <Text variant="muted">Loop duration (s):</Text>
-                            <input
-                                type="number"
-                                min={1}
-                                max={60}
-                                step={1}
-                                defaultValue={duration}
-                                style={{ width: '4rem' }}
-                                onChange={(e) => {
-                                    setDuration(parseDurationInput(e.currentTarget.value));
-                                }}
-                            />
-                        </Stack>
-                    </Stack>
-                </ControlField>
-
-                {/* ── Export ── */}
-                <ControlField label="Export">
-                    <Button
-                        onClick={() => {
-                            void exportPng();
-                        }}
-                        disabled={!canvas}
-                    >
-                        Export PNG
-                    </Button>
-                </ControlField>
-
-                {/* ── Status ── */}
-                {actionError ? (
-                    <ControlField label="Error">
-                        <Text>{actionError}</Text>
-                    </ControlField>
-                ) : null}
-                {shaderError ? (
-                    <ControlField label="Shader Error">
-                        <Stack gap="1">
-                            <Text>
-                                [{shaderError.stage}] {shaderError.message}
-                            </Text>
-                        </Stack>
-                    </ControlField>
-                ) : (
-                    <ControlField label="Shader Status">
-                        <Text variant="muted">
-                            {compiledShader.animated
-                                ? 'Time-dependent expression: press Play'
-                                : 'No time operator: this image cannot animate'}
-                        </Text>
-                    </ControlField>
-                )}
+                <Inspector />
             </Stack>
-        </ControlSection>
+        </ErrorBoundary>
     );
 }

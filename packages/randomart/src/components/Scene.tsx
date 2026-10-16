@@ -1,3 +1,5 @@
+import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
+
 import { RandomArtCanvas } from '../renderer';
 import {
     setCanvas,
@@ -12,13 +14,15 @@ export function Scene() {
     const duration = useDuration();
 
     return (
-        <RandomArtCanvas
-            fragmentShader={compiledShader.source}
-            animated={compiledShader.animated}
-            duration={duration}
-            onShaderError={setShaderError}
-            onClockStore={setClockStore}
-            onMount={(surface) => setCanvas(surface.canvas)}
-        />
+        <ErrorBoundary showStack={import.meta.env.DEV}>
+            <RandomArtCanvas
+                fragmentShader={compiledShader.source}
+                animated={compiledShader.animated}
+                duration={duration}
+                onShaderError={setShaderError}
+                onClockStore={setClockStore}
+                onMount={(surface) => setCanvas(surface.canvas)}
+            />
+        </ErrorBoundary>
     );
 }
