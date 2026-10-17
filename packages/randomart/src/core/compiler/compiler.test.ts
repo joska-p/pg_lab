@@ -198,7 +198,6 @@ describe('compiler', () => {
                 group: 'terminal',
                 requires: ['ra_custom_noise'],
                 glsl: ({ p }) => `ra_custom_noise(${p})`,
-                math: () => 'noise(p)',
             };
 
             const customCatalog = new Catalog(
@@ -223,7 +222,6 @@ describe('compiler', () => {
                 label: 'Huge',
                 group: 'terminal',
                 glsl: () => `${'1.0 + '.repeat(Math.ceil(MAX_SOURCE_LENGTH / 6))}1.0`,
-                math: () => 'huge',
             };
 
             const testCatalog = new Catalog(

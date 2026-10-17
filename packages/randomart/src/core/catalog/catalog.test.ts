@@ -16,7 +16,6 @@ const terminal = (code: string): OperatorSpec => ({
     label: 'Test terminal',
     group: 'terminal',
     glsl: () => code,
-    math: () => code,
 });
 
 describe('formatGlslFloat', () => {
@@ -92,7 +91,6 @@ describe('Operator', () => {
                     group: 'arithmetic',
                     inputs: ['a', 'b'],
                     glsl: ({ args: { a } }) => a,
-                    math: () => '',
                 }),
         ).toThrow(/never used/);
     });
@@ -105,7 +103,6 @@ describe('Operator', () => {
                     group: 'transform',
                     inner: ['f'],
                     glsl: ({ args: { f } }) => f,
-                    math: () => '',
                 }),
         ).toThrow(/`inner` and `coords` go together/);
 
@@ -116,7 +113,6 @@ describe('Operator', () => {
                     group: 'transform',
                     coords: ({ p }) => p,
                     glsl: () => '0.0',
-                    math: () => '',
                 }),
         ).toThrow(/`inner` and `coords` go together/);
     });
@@ -153,7 +149,7 @@ describe('Operator', () => {
         }
     });
 
-    it('exposes a readable label, group, arity and math formula', () => {
+    it('exposes a readable label, group and arity', () => {
         const catalog = createDefaultCatalog();
         const square = catalog.operator('sqr');
 
@@ -161,7 +157,6 @@ describe('Operator', () => {
         expect(square.group).toBe('arithmetic');
         expect(square.arity).toBe(1);
         expect(square.isTerminal).toBe(false);
-        expect(square.math(['x'], [])).toBe('x²');
         expect(catalog.operator('x').isTerminal).toBe(true);
     });
 });
@@ -211,7 +206,6 @@ describe('Catalog', () => {
             group: 'arithmetic',
             inputs: ['a'],
             glsl: ({ args: { a } }) => `(${a} * ${a} + ${a})`,
-            math: ({ args: { a } }) => a,
         };
 
         const catalog = new Catalog({ t: terminal('1.0'), triple }, DEPENDENCIES);

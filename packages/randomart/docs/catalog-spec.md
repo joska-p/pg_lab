@@ -50,9 +50,6 @@ interface OperatorSpec<
 
     // reçoit toutes les entrées (`inputs` puis `inner`) et le contexte de coordonnées
     glsl(c: { p: string; args: Named<I | N, string>; params: Named<P, number> }): string;
-
-    // formule lisible pour l'inspecteur
-    math(c: { args: Named<I | N, string>; params: Named<P, number> }): string;
 }
 ```
 
@@ -68,7 +65,6 @@ Remarques :
 - **Multiplicité** : un opérateur peut écrire une même entrée plusieurs fois (`sqr` : `a*a`). L'`Operator` la mesure **une fois, à sa construction**, en sondant `glsl` et `coords` avec des sentinelles (D29) ; rien à déclarer. Chaque entrée doit apparaître **au moins une fois** dans `glsl` ou `coords` (vérifié à la construction).
 - **Portée `inner`** : les entrées `inner` sont compilées dans un nouveau contexte dont les coordonnées sont données par `coords`. Les entrées `inputs` (qui servent à calculer ces coordonnées) restent dans le contexte courant.
 - **Règle** : `coords` doit renvoyer des coordonnées dans `[-1, 1]²`, sinon les terminaux `x` et `y` de l'intérieur casseraient le contrat. On replie l'espace avec la fonction auxiliaire `ra_fold2` (voir ci-dessous).
-- **`math`** : formule lisible (`(a + b) / 2`, `sin(πa)`) pour l'inspecteur. Maintenue à la main pour l'instant ; sa **dérivation** (plutôt qu'un second texte à garder cohérent avec `glsl`) est une question ouverte (`expression-spec.md` §10).
 
 ### Dépendance
 
@@ -149,7 +145,6 @@ type Operator = {
     coordsMultiplicity(index: number): number; // occurrences dans `coords` (entrées `inputs`)
     glsl(inputs: readonly string[], params: readonly number[], p: string): string;
     coords(inputs: readonly string[], params: readonly number[], p: string): string;
-    math(inputs: readonly string[], params: readonly number[]): string;
 };
 ```
 
@@ -241,7 +236,6 @@ defineOperator({
     requires: ['ra_fold2'],
     coords: ({ p, args: { dx, dy } }) => `ra_fold2(${p}+0.5*vec2(${dx},${dy}))`,
     glsl: ({ args: { f } }) => f,
-    math: ({ args: { dx, dy, f } }) => `warp(${dx}, ${dy}; ${f})`,
 });
 ```
 
@@ -306,4 +300,3 @@ Décidé (v0.3) :
 Restant ouvert (pas bloquant pour la v1) :
 
 - Un paramètre d'harmonique entière sur `tsin` / `tcos` (`sin(2π·k·phase)`) pour que les canaux bougent à des vitesses différentes tout en bouclant. Il demande des paramètres entiers dans `ParamRange` (`integer?: true`). Repoussé en v2.
-- **Formule lisible (`math`)** : le champ existe (maintenu à la main). Faut-il le **dériver** de `glsl` / `coords`, ou le garder tel quel ? Voir `expression-spec.md` §10.

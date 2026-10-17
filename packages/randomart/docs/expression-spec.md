@@ -163,7 +163,7 @@ expression/
 
 ## 10. Décisions prises
 
-- **Formule lisible.** En v1, l'inspecteur affiche une notation fonctionnelle **dérivée** de l'expression, à partir des noms d'opérateurs (`add(sin(x), const(0.3))`). Le catalogue expose en plus un champ `math` par opérateur (`(a+b)/2`, `sin(πa)`), **maintenu à la main** pour l'instant et pas encore branché dans l'UI. Question ouverte (session dédiée) : le **dériver** de `glsl` / `coords` (une seule source de vérité), ou le garder tel quel.
+- **Formule lisible.** L'inspecteur affiche une notation fonctionnelle **dérivée** de l'expression, à partir des noms d'opérateurs (`add(sin(x), const(0.3))`). Aucun texte lisible n'est maintenu par opérateur : `glsl` est la seule source de vérité, la formule est reconstruite depuis l'arbre.
 - **Arrondi des paramètres.** Le **générateur** arrondit à 3 décimales (grammaire §6) ; le modèle n'arrondit rien.
 - **Édition.** `replaceNode(expression, address, node)` (renvoie une nouvelle expression) suffira plus tard ; non spécifié maintenant.
 - **Limites d'import.** 5 000 nœuds et profondeur 64 (D35), à ajuster à l'usage.

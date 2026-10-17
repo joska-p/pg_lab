@@ -109,13 +109,6 @@ export class Operator {
         });
     }
 
-    math(inputs: readonly string[], params: readonly number[]): string {
-        return this.#spec.math({
-            args: zip(this.inputNames, inputs),
-            params: zip(this.#paramNames(), params),
-        });
-    }
-
     #paramNames(): string[] {
         return this.params.map((param) => param.name);
     }

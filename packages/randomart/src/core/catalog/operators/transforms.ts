@@ -9,6 +9,5 @@ export const transforms = {
         requires: ['ra_fold2'],
         coords: ({ p, args: { dx, dy } }) => `ra_fold2(${p}+0.5*vec2(${dx},${dy}))`,
         glsl: ({ args: { f } }) => f,
-        math: ({ args: { dx, dy, f } }) => `warp(${dx}, ${dy}; ${f})`,
     }),
 };

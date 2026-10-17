@@ -10,7 +10,7 @@ export interface ParamRange {
 type Named<K extends string, V> = Readonly<Record<K, V>>;
 
 /**
- * A registry entry: pure data plus the three text builders. `P`, `I`, `N` are inferred from the
+ * A registry entry: pure data plus the two text builders. `P`, `I`, `N` are inferred from the
  * literal by `defineOperator`, so `args` and `params` are precisely typed inside the builders; `D`
  * is the set of dependency ids `requires` may name.
  */
@@ -33,8 +33,6 @@ export interface OperatorSpec<
     /** New coordinates for `inner` inputs; receives the `inputs` only. */
     coords?(c: { p: string; args: Named<I, string>; params: Named<P, number> }): string;
     glsl(c: { p: string; args: Named<I | N, string>; params: Named<P, number> }): string;
-    /** Readable formula for the inspector. */
-    math(c: { args: Named<I | N, string>; params: Named<P, number> }): string;
 }
 
 /** Identity helper: infers `P`, `I`, `N` from the literal so `args` is precisely typed. */
