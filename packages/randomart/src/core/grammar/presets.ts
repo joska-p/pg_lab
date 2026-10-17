@@ -15,9 +15,9 @@ export interface GrammarPreset {
 /**
  * Canonical text of a grammar for identity comparison. Weights are already sorted by
  * `createGrammar`, constraints and channels have a fixed key order, so equal grammars give equal
- * text. Used to tell which built-in recipe (if any) the current grammar is.
+ * text. Used to tell which built-in recipe (if any) the current grammar is, or as a cache key.
  */
-function signature(grammar: Grammar): string {
+export function grammarSignature(grammar: Grammar): string {
     return JSON.stringify({
         weights: grammar.weights,
         constraints: grammar.constraints,
@@ -77,7 +77,7 @@ export function presetIdOf(
     presets: readonly GrammarPreset[],
     grammar: Grammar,
 ): string | undefined {
-    const text = signature(grammar);
+    const text = grammarSignature(grammar);
 
-    return presets.find((preset) => signature(preset.grammar) === text)?.id;
+    return presets.find((preset) => grammarSignature(preset.grammar) === text)?.id;
 }

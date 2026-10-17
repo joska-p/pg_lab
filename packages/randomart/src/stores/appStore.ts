@@ -494,7 +494,7 @@ function downloadBlob(blob: Blob, filename: string): void {
  * ignored (friction 8: render size = canvas size until lot G); the loop duration is adopted when
  * the UI bounds allow it.
  */
-function publishArtwork(artwork: Artwork): void {
+export function publishArtwork(artwork: Artwork): void {
     const { expression, provenance, render } = artwork;
     const state = store.getState();
     const grammar = provenance?.grammar ?? state.grammar;
@@ -529,6 +529,16 @@ function publishArtwork(artwork: Artwork): void {
     if (render.loopMs / 1000 !== state.duration) {
         setDuration(createDurationSeconds(render.loopMs / 1000));
     }
+}
+
+/** Opens a gallery cell (grammar + seed) in Lab mode as an artwork. */
+export function openCellInLab(grammar: Grammar, seed: Seed): void {
+    const artwork = createArtwork({
+        expression: generate(catalog, grammar, seed),
+        provenance: { grammar, seed, generatorVersion: GENERATOR_VERSION },
+    });
+    publishArtwork(artwork);
+    setMode('lab');
 }
 
 /** Exports the current grammar as a versioned JSON file. */

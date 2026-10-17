@@ -1,0 +1,156 @@
+import { GENERATOR_VERSION } from '../generator/index.ts';
+import type { Grammar } from '../grammar/index.ts';
+import type { Seed } from '../random/index.ts';
+import { isNotebookRating, NOTEBOOK_FILE_FORMAT, NOTEBOOK_FILE_VERSION } from './types.ts';
+import type {
+    Notebook,
+    NotebookBatch,
+    NotebookCandidate,
+    NotebookRating,
+    NotebookRecipe,
+} from './types.ts';
+
+let nextLocalId = 1;
+
+/** Generates a unique, readable string identifier with a prefix. */
+export function generateNotebookId(prefix: string): string {
+    const time = Date.now().toString(36);
+    const counter = (nextLocalId++).toString(36);
+    const random = Math.random().toString(36).slice(2, 6);
+    return `${prefix}_${time}_${counter}_${random}`;
+}
+
+export interface CandidateInput {
+    readonly id?: string;
+    readonly grammar: Grammar;
+    readonly seeds: readonly Seed[];
+    readonly rating?: NotebookRating;
+    readonly note?: string;
+}
+
+export function createCandidate(input: CandidateInput): NotebookCandidate {
+    if (input.rating !== undefined && !isNotebookRating(input.rating)) {
+        throw new Error(`rating must be an integer between 0 and 5, received ${input.rating}`);
+    }
+
+    return {
+        id: input.id ?? generateNotebookId('cand'),
+        grammar: input.grammar,
+        seeds: [...input.seeds],
+        ...(input.rating !== undefined ? { rating: input.rating } : {}),
+        ...(input.note !== undefined ? { note: input.note } : {}),
+    };
+}
+
+export interface BatchInput {
+    readonly id?: string;
+    readonly createdAt?: string;
+    readonly parentIds?: readonly string[];
+    readonly candidates: readonly NotebookCandidate[];
+}
+
+export function createBatch(input: BatchInput): NotebookBatch {
+    return {
+        id: input.id ?? generateNotebookId('batch'),
+        createdAt: input.createdAt ?? new Date().toISOString(),
+        ...(input.parentIds && input.parentIds.length > 0
+            ? { parentIds: [...input.parentIds] }
+            : {}),
+        candidates: [...input.candidates],
+    };
+}
+
+export interface RecipeInput {
+    readonly id?: string;
+    readonly label: string;
+    readonly description?: string;
+    readonly grammar: Grammar;
+    readonly createdAt?: string;
+    readonly candidateId?: string;
+}
+
+export function createRecipe(input: RecipeInput): NotebookRecipe {
+    return {
+        id: input.id ?? generateNotebookId('recipe'),
+        label: input.label,
+        description: input.description ?? '',
+        grammar: input.grammar,
+        createdAt: input.createdAt ?? new Date().toISOString(),
+        ...(input.candidateId !== undefined ? { candidateId: input.candidateId } : {}),
+    };
+}
+
+export interface NotebookInput {
+    readonly generatorVersion?: number;
+    readonly batches?: readonly NotebookBatch[];
+    readonly recipes?: readonly NotebookRecipe[];
+}
+
+export function createNotebook(input?: NotebookInput): Notebook {
+    return {
+        format: NOTEBOOK_FILE_FORMAT,
+        version: NOTEBOOK_FILE_VERSION,
+        generatorVersion: input?.generatorVersion ?? GENERATOR_VERSION,
+        batches: input?.batches ? [...input.batches] : [],
+        recipes: input?.recipes ? [...input.recipes] : [],
+    };
+}
+
+/** Updates a candidate's rating in a batch, returning an immutable copy of the batch. */
+export function updateCandidateRating(
+    batch: NotebookBatch,
+    candidateId: string,
+    rating: NotebookRating | undefined,
+): NotebookBatch {
+    if (rating !== undefined && !isNotebookRating(rating)) {
+        throw new Error(`rating must be an integer between 0 and 5, received ${rating}`);
+    }
+
+    return {
+        ...batch,
+        candidates: batch.candidates.map((candidate) => {
+            if (candidate.id !== candidateId) {
+                return candidate;
+            }
+            const copy = { ...candidate };
+            if (rating === undefined) {
+                delete copy.rating;
+            } else {
+                copy.rating = rating;
+            }
+            return copy;
+        }),
+    };
+}
+
+/** Updates a candidate's rating across the notebook. */
+export function rateNotebookCandidate(
+    notebook: Notebook,
+    candidateId: string,
+    rating: NotebookRating | undefined,
+): Notebook {
+    return {
+        ...notebook,
+        batches: notebook.batches.map((batch) =>
+            batch.candidates.some((c) => c.id === candidateId)
+                ? updateCandidateRating(batch, candidateId, rating)
+                : batch,
+        ),
+    };
+}
+
+/** Appends a new batch to a notebook. */
+export function addBatchToNotebook(notebook: Notebook, batch: NotebookBatch): Notebook {
+    return {
+        ...notebook,
+        batches: [batch, ...notebook.batches],
+    };
+}
+
+/** Promotes a candidate or adds a recipe to the notebook. */
+export function addRecipeToNotebook(notebook: Notebook, recipe: NotebookRecipe): Notebook {
+    return {
+        ...notebook,
+        recipes: [...notebook.recipes, recipe],
+    };
+}

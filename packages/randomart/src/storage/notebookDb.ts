@@ -1,0 +1,144 @@
+import type { Catalog } from '../core/catalog/index.ts';
+import { parseNotebook, serializeNotebookData } from '../core/notebook/index.ts';
+import type { Notebook } from '../core/notebook/index.ts';
+
+const DB_NAME = 'randomart-db';
+const DB_VERSION = 1;
+const NOTEBOOK_STORE = 'notebook';
+const VIGNETTES_STORE = 'vignettes';
+const CURRENT_NOTEBOOK_KEY = 'current_notebook';
+
+function hasIndexedDb(): boolean {
+    return typeof indexedDB !== 'undefined';
+}
+
+function openDatabase(): Promise<IDBDatabase | null> {
+    if (!hasIndexedDb()) {
+        return Promise.resolve(null);
+    }
+
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+        request.onupgradeneeded = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains(NOTEBOOK_STORE)) {
+                db.createObjectStore(NOTEBOOK_STORE);
+            }
+            if (!db.objectStoreNames.contains(VIGNETTES_STORE)) {
+                db.createObjectStore(VIGNETTES_STORE);
+            }
+        };
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+/** Persists the current notebook state to IndexedDB. */
+export async function saveNotebookToDb(notebook: Notebook): Promise<void> {
+    const db = await openDatabase();
+    if (!db) {
+        return;
+    }
+
+    const serialized = serializeNotebookData(notebook);
+
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(NOTEBOOK_STORE, 'readwrite');
+        const store = tx.objectStore(NOTEBOOK_STORE);
+        const req = store.put(serialized, CURRENT_NOTEBOOK_KEY);
+
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+    });
+}
+
+/** Loads the persisted notebook state from IndexedDB if present. */
+export async function loadNotebookFromDb(catalog: Catalog): Promise<Notebook | null> {
+    const db = await openDatabase();
+    if (!db) {
+        return null;
+    }
+
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(NOTEBOOK_STORE, 'readonly');
+        const store = tx.objectStore(NOTEBOOK_STORE);
+        const req = store.get(CURRENT_NOTEBOOK_KEY);
+
+        req.onsuccess = () => {
+            if (!req.result) {
+                resolve(null);
+                return;
+            }
+            try {
+                const text = JSON.stringify(req.result);
+                const notebook = parseNotebook(catalog, text);
+                resolve(notebook);
+            } catch {
+                resolve(null);
+            }
+        };
+        req.onerror = () => reject(req.error);
+    });
+}
+
+export interface CachedVignette {
+    readonly width: number;
+    readonly height: number;
+    readonly data: Uint8ClampedArray;
+}
+
+/** Caches a rendered vignette by its cache key. */
+export async function cacheVignette(key: string, vignette: CachedVignette): Promise<void> {
+    const db = await openDatabase();
+    if (!db) {
+        return;
+    }
+
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(VIGNETTES_STORE, 'readwrite');
+        const store = tx.objectStore(VIGNETTES_STORE);
+        const req = store.put(
+            {
+                width: vignette.width,
+                height: vignette.height,
+                data: vignette.data.buffer,
+            },
+            key,
+        );
+
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+    });
+}
+
+/** Retrieves a cached vignette by key if available. */
+export async function getCachedVignette(key: string): Promise<CachedVignette | null> {
+    const db = await openDatabase();
+    if (!db) {
+        return null;
+    }
+
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(VIGNETTES_STORE, 'readonly');
+        const store = tx.objectStore(VIGNETTES_STORE);
+        const req = store.get(key);
+
+        req.onsuccess = () => {
+            const result = req.result as
+                | { width: number; height: number; data: ArrayBuffer }
+                | undefined;
+            if (!result) {
+                resolve(null);
+                return;
+            }
+            resolve({
+                width: result.width,
+                height: result.height,
+                data: new Uint8ClampedArray(result.data),
+            });
+        };
+        req.onerror = () => reject(req.error);
+    });
+}
