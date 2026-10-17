@@ -222,13 +222,15 @@ describe('grammar: createConstraints', () => {
 describe('grammar: defaultGrammar', () => {
     const catalog = createDefaultCatalog();
 
-    it('builds the default vocabulary', () => {
+    it('builds the default vocabulary (calibrated for structure, lot H)', () => {
         const g = defaultGrammar(catalog);
-        expect(g.weights.x).toBe(3);
-        expect(g.weights.y).toBe(3);
-        expect(g.weights.const).toBe(1);
-        expect(g.weights.tsin).toBe(1);
-        expect(g.weights.tcos).toBe(1);
+        expect(g.weights.x).toBe(4);
+        expect(g.weights.y).toBe(4);
+        expect(g.weights.max).toBe(2);
+        expect(g.weights.min).toBe(1.5);
+        expect(g.weights.const).toBe(0.5);
+        expect(g.weights.tsin).toBe(0.5);
+        expect(g.weights.tcos).toBe(0.5);
         expect(g.weights.mix).toBe(0.5);
         expect(g.weights.select).toBe(0.5);
         expect(g.weights.warp).toBe(0.5);

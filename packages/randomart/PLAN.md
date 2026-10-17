@@ -38,15 +38,26 @@ Principes : cœur TypeScript pur (pas de DOM, pas de GPU) ; rendu = adaptateur m
 - **Ménage de fin de revue** : `compiler/compiler.ts` (couche de compatibilité morte) supprimé, l'import de `compiler.test.ts` recâblé sur `compile.ts` + `format.ts` ; en-têtes « spec § » obsolètes retirés (`lower`, `emit`, `compile`, `preamble`, `format`) ; `emit` n'utilise plus d'assertion non-nulle (`!`) mais lève une erreur explicite si un vertex n'a ni variable ni texte.
 
 - **`math` supprimé** (2026-10-17) : le champ `math` (formule lisible maintenue à la main par opérateur, à côté de `glsl`) n'avait **aucun consommateur** — l'`Inspector` n'affiche que `formatFormula` (notation fonctionnelle dérivée de l'arbre). Retiré de `OperatorSpec`/`defineOperator`, de `Operator` (méthode `math`), des 5 fichiers d'opérateurs, des tests et des docs (`catalog-spec.md`, `expression-spec.md` §10). SSOT : `glsl` ; la formule lisible reste **dérivée**, jamais un second texte à maintenir.
+- **Lot H — calibration des poids par défaut** (2026-10-17) : `defaultGrammar` recalibré pour la structure (x/y 4, max 2, min 1.5 ; const/add/gt/tsin/tcos 0.5 ; mul 0.75 ; select/mix/warp 0.5 ; le reste 1). **Prémisse du plan corrigée** : « la palette sature quand le champ sort de `[-1, 1]` » est **faux** — le champ est borné à `[-1, 1]` par construction (chaque opérateur préserve la plage ; le `clamp` final de `compile.ts` est donc **mort**), et un remap monotone (`tanh`/échelle) ne peut pas créer de structure sur un champ constant. Les aplats viennent d'un champ **constant** produit par les opérateurs saturants (`tsin`/`tcos` — constantes spatiales, `0`/`1` à la phase 0, qui annulent des sous-arbres `mul` —, `gt`, `add`, `const`). Effet mesuré sur le corpus fuzz : aplatissement local moyen 59 % → 41 %, aplats quasi uniformes 42 % → 19 %. Snapshot du générateur mis à jour.
 
-**Pas encore fait** : lots G et H.
+**Pas encore fait** : lot G (rendu épaissi, à la demande) ; reste du lot H (contraintes, durée de boucle, budget du générateur) ; **nouvel épic « galerie + recettes »** (voir « Prochaine action »).
 
-**Tests** : verts (242 passés, 2 sautés — `measure`/`dump`, opt-in ; `vp check` : 0 erreur) ; 900 shaders validés par `glslangValidator` (`scripts/validate-glsl.sh`).
+**Tests** : verts (242 passés, 9 sautés — `measure`/`dump` + les deux sondes de champ, opt-in ; `vp check` : 0 erreur) ; 900 shaders validés par `glslangValidator` (`scripts/validate-glsl.sh`).
 
 ## Prochaine action
 
-1. **Calibrer le champ (lot H)** : la palette **sature** quand le champ sort de `[-1, 1]` (aplats rouges/magenta). Piste : normaliser le champ avant la palette (échelle ou `tanh`) pour occuper toute la rampe. À trancher en jouant, pas avant.
-2. **Politique throw vs repair** : **fait le 2026-10-16** — politique tranchée dans `shared/index.ts`, site par site dans les commentaires, audit dans `findings.md` §8. Restes hors périmètre de l'audit : F14/F15 (marque vs duck-typing dans `createExpression`/`nodeCount`) et F16 (normalisation `−0 → 0`)/F30 (style de spécificateurs de module). Les trouvailles différées comme « à réécrire » (F1 historique, F2 export HD/AA, F9 double-fit, F10 blocage vite) restent hors périmètre.
+1. **Conceptualiser l'épic « galerie + recettes »** (décision utilisateur 2026-10-17, **à cadrer dans une session dédiée — rien commencé**) : un moyen de générer des lots d'images (planches-contact) soi-même — dans l'app et/ou via un script —, de les **classer** (notation manuelle et/ou métrique automatique), puis d'en **déduire de bonnes recettes** (grammaires) — une boucle d'apprentissage légère (« mini réseau de neurones ») qui ajuste les poids/contraintes vers les images jugées bonnes. Points à trancher en conceptualisation : lieu du rendu (in-app GPU vs évaluateur CPU Node — ce dernier duplique la sémantique des opérateurs), modèle d'apprentissage (bandit/évolution vs petit modèle), format de stockage des lots et des notes. Matière première existante : les deux sondes jetables ci-dessous.
+2. **Reste du lot H** : contraintes par défaut, durée de boucle, répartition du budget du générateur.
+3. **Politique throw vs repair** : **fait le 2026-10-16** — politique tranchée dans `shared/index.ts`, site par site dans les commentaires, audit dans `findings.md` §8. Restes hors périmètre : F14/F15, F16/F30 ; trouvailles différées (F1, F2, F9, F10) hors périmètre.
+
+## Sondes jetables (non commitées)
+
+Deux fichiers de mesure **non suivis**, laissés pour la prochaine session (matière première de l'épic ci-dessus) :
+
+- `src/core/compiler/fieldDist.measure.test.ts` — évaluateur CPU du champ + métriques (plage, aplatissement local, corrélation opérateur↔aplat, comparaison de jeux de poids). `VITE_MEASURE=1 vp test fieldDist`.
+- `src/core/compiler/fieldRender.measure.test.ts` — même évaluateur + encodeur PNG minimal, pour écrire des planches-contact dans `/tmp/opencode/field/`. `VITE_MEASURE=1 vp test fieldRender`.
+
+Dette intrinsèque : l'évaluateur **réimplémente à la main** la sémantique des opérateurs (le même risque de dérive que l'ex-`math`). À remplacer par une source unique (sémantique évaluable → GLSL) ou à assumer, lors de la conceptualisation.
 
 ## Dette connue (petite, non bloquante)
 
@@ -54,7 +65,7 @@ Principes : cœur TypeScript pur (pas de DOM, pas de GPU) ; rendu = adaptateur m
 - **`randomizeWeights` : chemin de bascule dormant** : l'UI ne l'appelle plus qu'avec `changeRate: 0` (vocabulaire gelé) ; le toggle aléatoire et `DEFAULT_KEEP` (D39) ne vivent plus que dans le cœur et ses tests. Conservés pour un éventuel geste « grammaire pleine au hasard ».
 - `ShapeBatcher.compileProgram` ne supprime pas ses shaders après le link, et fuit le vertex shader si le fragment échoue.
 - `Controls` : durée de boucle et import de fichier en `<input>` bruts au lieu de composants `ui` (les bornes numériques viennent maintenant des constantes du cœur — `MAX_DEPTH`/`MAX_NODES`/`MIN_LOOP_MS`/`MAX_LOOP_MS`).
-- **Palette saturante** : la rampe `spectrum` (et les autres) borne le champ à `[-1, 1]` avant la palette ; un champ hors bornes donne un aplat. Voir « Prochaine action » 2.
+- **`clamp` final mort** : `compile.ts` écrit `clamp(field*0.5 + 0.5, 0, 1)` pour le mode corrélé, mais le champ est borné à `[-1, 1]` par construction — le clamp ne se déclenche jamais. Conservé (assurance bon marché) ou à retirer, à trancher.
 
 ## Lots
 
@@ -80,7 +91,8 @@ Poids par défaut, contraintes, durée de boucle, répartition du budget du gén
 ```
 A..F : faits
 G : à la demande
-H : libre
+H : en cours (poids calibrés ; contraintes / durée / budget restants)
+I (galerie + recettes) : à conceptualiser
 ```
 
 ## Points de friction connus

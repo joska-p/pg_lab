@@ -234,10 +234,20 @@ export function createGrammar(
 }
 
 /**
- * The default vocabulary: the whole catalog, with spatial terminals favoured and the expensive
- * combinators down-weighted. Time terminals (`tsin`, `tcos`) are ordinary members of the catalog,
- * so there is no separate "animated" preset: one seed gives one expression, and animation is a
- * matter of playback.
+ * The default vocabulary: the whole catalog, weighted for _structure_. Time terminals (`tsin`,
+ * `tcos`) are ordinary members of the catalog, so there is no separate "animated" preset: one seed
+ * gives one expression, and animation is a matter of playback.
+ *
+ * These weights come from a calibration session (lot H, 2026-10-17). The field of a generated
+ * expression is provably bounded to `[-1, 1]` (every operator preserves the range), and the
+ * correlated palette maps it linearly, so the only thing that flattens an image into an aplat is a
+ * _constant_ field — not the palette and not a final clamp (that clamp is dead). Measuring local
+ * flatness against operator presence showed which operators structure the field and which flatten
+ * it: `x`/`y`/`max` create variation, while the time terminals (`tsin`/`tcos` — the same value
+ * everywhere at a given phase, and exactly `0`/`1` at phase 0, which zeroes whole `mul` subtrees),
+ * `gt`, `add` and `const` dominate subtrees with a single value. Up-weighting the first and pushing
+ * the second to the background roughly halves the share of near-uniform stills (measured on the
+ * fuzz corpus: mean local flatness 59% → 41%, near-uniform "aplats" 42% → 19%).
  *
  * Its colour model is `DEFAULT_COLOR` (one field through a palette), the _curated_ default — the
  * model that actually yields readable images. `createGrammar` alone would fall back to the plain
@@ -245,19 +255,28 @@ export function createGrammar(
  */
 export function defaultGrammar(catalog: Catalog): Grammar {
     const weights: Record<string, number> = {
-        x: 3,
-        y: 3,
-        const: 1,
+        // Spatial anchors: always vary across the image.
+        x: 4,
+        y: 4,
+        // Structure makers.
+        max: 2,
+        min: 1.5,
+        // Flatteners: still in the vocabulary, pushed to the background.
+        const: 0.5,
+        add: 0.5,
+        gt: 0.5,
+        tsin: 0.5,
+        tcos: 0.5,
+        mul: 0.75,
+        // Expensive combinators, as before.
+        select: 0.5,
+        mix: 0.5,
+        warp: 0.5,
     };
 
+    // Every other catalog operator gets the neutral weight 1.
     for (const operator of catalog.operators()) {
-        if (operator.name === 'x' || operator.name === 'y' || operator.name === 'const') {
-            continue;
-        }
-        weights[operator.name] =
-            operator.name === 'select' || operator.name === 'mix' || operator.name === 'warp'
-                ? 0.5
-                : 1;
+        weights[operator.name] ??= 1;
     }
 
     return createGrammar(catalog, {
