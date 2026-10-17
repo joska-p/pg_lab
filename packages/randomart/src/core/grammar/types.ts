@@ -1,3 +1,4 @@
+import type { OperatorId } from '../catalog/index.ts';
 import type { ColorModel } from '../color/index.ts';
 import type { Brand } from '../shared/index.ts';
 
@@ -20,9 +21,17 @@ export interface ConstraintsInput {
  */
 export type Constraints = Brand<ConstraintsInput, 'Constraints'>;
 
+/**
+ * Weights keyed by operator id, so the static registry makes a mistyped name a compile error
+ * (`defaultGrammar` is protected this way). Partial: an absent operator is simply off — only the
+ * vocabulary an author chose is present. Values stay raw numbers; validation lives in
+ * `createGrammar` (throw-vs-repair policy in shared/index.ts).
+ */
+export type GrammarWeights = Readonly<Partial<Record<OperatorId, number>>>;
+
 export type Grammar = Brand<
     {
-        readonly weights: Readonly<Record<string, number>>;
+        readonly weights: GrammarWeights;
         readonly constraints: Constraints;
         /** How the generated tree(s) become colour (see `../color`). Always present. */
         readonly color: ColorModel;

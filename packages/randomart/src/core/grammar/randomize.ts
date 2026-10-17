@@ -6,6 +6,7 @@ import {
     isNonTerminalOperator,
     isTerminalOperator,
     minSize,
+    weightOf,
 } from './grammar.ts';
 import { MAX_WEIGHT, MIN_ACTIVE_WEIGHT } from './types.ts';
 import type { Grammar } from './types.ts';
@@ -38,13 +39,17 @@ function quantize(value: number): number {
 
 function weightShare(
     catalog: Catalog,
-    weights: Readonly<Record<string, number>>,
+    weights: Readonly<Record<string, number | undefined>>,
     terminal: boolean,
 ): number {
     let total = 0;
 
     for (const [name, weight] of Object.entries(weights)) {
-        if (weight > 0 && isTerminalOperator(catalog.operator(name)) === terminal) {
+        if (
+            weight !== undefined &&
+            weight > 0 &&
+            isTerminalOperator(catalog.operator(name)) === terminal
+        ) {
             total += weight;
         }
     }
@@ -185,7 +190,7 @@ export function randomizeWeights(
 
     // Pass 1 — alphabetical order, one rng.next() per operator: log-uniform scaling of live weights.
     for (const name of names) {
-        const before = grammar.weights[name];
+        const before = weightOf(grammar.weights, name);
         const factor = Math.exp((2 * rng.next() - 1) * logSpread);
 
         scaled.set(name, before > 0 ? before * factor : 0);
@@ -195,7 +200,7 @@ export function randomizeWeights(
     const weights: Record<string, number> = {};
 
     for (const name of names) {
-        const before = grammar.weights[name];
+        const before = weightOf(grammar.weights, name);
         const toggles = rng.next() < changeRate;
 
         if (before > 0) {

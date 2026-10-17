@@ -3,7 +3,7 @@ import { isPaletteId, UNRELATED_COLOR } from '../color/index.ts';
 import type { ColorModel } from '../color/index.ts';
 import { deserialize, serialize } from '../expression/index.ts';
 import type { ExpressionData } from '../expression/index.ts';
-import { createGrammar } from '../grammar/index.ts';
+import { createGrammar, weightOf } from '../grammar/index.ts';
 import type { ConstraintsInput, Grammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
@@ -51,7 +51,7 @@ export function serializeGrammar(grammar: Grammar): GrammarData {
     const weights: Record<string, number> = {};
 
     for (const name of Object.keys(grammar.weights).sort()) {
-        weights[name] = grammar.weights[name];
+        weights[name] = weightOf(grammar.weights, name);
     }
 
     const { minDepth, maxDepth, maxNodes } = grammar.constraints;

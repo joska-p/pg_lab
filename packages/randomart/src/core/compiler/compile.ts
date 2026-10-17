@@ -69,9 +69,15 @@ export function compile(
 
     if (color.kind === 'correlated') {
         // The three roots are the same field; the palette is the only place colour is decided.
+        // The `clamp` is provably dead: every catalog operator preserves `[-1, 1]` when its inputs
+        // do (`x`/`y`/`tsin`/`tcos`/`const` are in range, `add` averages, `mul`/`div`/`sqr`/`abs`/
+        // `min`/`max`/`mix`/`sin`/`cos`/`gt`/`select`/`warp` and `ra_fold2` stay in range), so
+        // `field * 0.5 + 0.5` is already in `[0, 1]`. Kept as cheap boundary assurance (the
+        // compiler takes any catalog), not as a correcting transform.
         mainLines.push(`  float t = clamp(${rText} * 0.5 + 0.5, 0.0, 1.0);`);
         mainLines.push('  o_color = vec4(ra_pal(t), 1.0);');
     } else {
+        // Same dead `clamp` argument as above, for the legacy three-channel model.
         mainLines.push(`  vec3 rgb = vec3(${rText}, ${gText}, ${bText});`);
         mainLines.push('  o_color = vec4(clamp(rgb * 0.5 + 0.5, 0.0, 1.0), 1.0);');
     }

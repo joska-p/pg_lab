@@ -26,7 +26,7 @@ export function describeGrammar(catalog: Catalog, grammar: Grammar): GrammarSumm
     let hasTime = false;
 
     for (const [name, weight] of Object.entries(grammar.weights)) {
-        if (weight <= 0) {
+        if (weight === undefined || weight <= 0) {
             continue;
         }
 

@@ -1,4 +1,4 @@
-import type { Catalog, Operator } from '../catalog';
+import type { Catalog, Operator, OperatorId } from '../catalog';
 import { DEFAULT_COLOR, isPaletteId, UNRELATED_COLOR } from '../color/index.ts';
 import type { ColorModel } from '../color/index.ts';
 import { assertFinite } from '../shared/index.ts';
@@ -7,6 +7,18 @@ import type { Constraints, ConstraintsInput, Grammar } from './types';
 
 export const isTerminalOperator = (operator: Operator): boolean => operator.isTerminal;
 export const isNonTerminalOperator = (operator: Operator): boolean => !operator.isTerminal;
+
+/**
+ * Reads a weight by name with the grammar's own convention: an absent entry (or an explicit
+ * `undefined`) means "off", i.e. 0. The single reader every consumer shares, so `GrammarWeights`
+ * (partial, id-keyed) never has to be narrowed ad hoc.
+ */
+export function weightOf(
+    weights: Readonly<Record<string, number | undefined>>,
+    name: string,
+): number {
+    return weights[name] ?? 0;
+}
 
 export function minSize(
     currentDepth: number,
@@ -30,12 +42,12 @@ export function minSize(
  */
 export function getVocabulary(
     catalog: Catalog,
-    weights: Readonly<Record<string, number>>,
+    weights: Readonly<Record<string, number | undefined>>,
 ): Operator[] {
     return Object.keys(weights)
         .sort()
         .map((name) => catalog.operator(name))
-        .filter((operator) => weights[operator.name] > 0);
+        .filter((operator) => weightOf(weights, operator.name) > 0);
 }
 
 /**
@@ -48,10 +60,10 @@ export function getVocabulary(
  */
 export function isLastTerminal(
     catalog: Catalog,
-    weights: Readonly<Record<string, number>>,
+    weights: Readonly<Record<string, number | undefined>>,
     name: string,
 ): boolean {
-    if ((weights[name] ?? 0) <= 0) {
+    if (weightOf(weights, name) <= 0) {
         return false;
     }
 
@@ -166,7 +178,7 @@ export function createGrammar(
         constraints: rawConstraints,
         color: rawColor = UNRELATED_COLOR,
     }: {
-        readonly weights: Readonly<Record<string, number>>;
+        readonly weights: Readonly<Record<string, number | undefined>>;
         readonly constraints: ConstraintsInput;
         readonly color?: ColorModel;
     },
@@ -191,6 +203,10 @@ export function createGrammar(
 
     // Rule 2: Weights are finite and within [MIN_WEIGHT, MAX_WEIGHT]
     for (const [name, weight] of Object.entries(weights)) {
+        if (weight === undefined) {
+            continue; // An absent weight means "off": the key carries no value to validate.
+        }
+
         assertFinite(weight, `weight of operator "${name}"`);
         if (weight < MIN_WEIGHT || weight > MAX_WEIGHT) {
             throw new Error(
@@ -200,7 +216,7 @@ export function createGrammar(
     }
 
     // The vocabulary: what the generator may draw. A weight of 0 switches the operator off.
-    const vocabulary = operators.filter((operator) => weights[operator.name] > 0);
+    const vocabulary = operators.filter((operator) => weightOf(weights, operator.name) > 0);
 
     // Rule 3: Vocabulary contains at least one active terminal — structure with no canonical
     // repair (which terminal to switch back on would be invented content), so it throws.
@@ -219,10 +235,11 @@ export function createGrammar(
     // decision 2026-10-16).
     const constraints = fitConstraints(vocabulary, rawConstraints);
 
-    // Freeze and sort weights deterministically
-    const sortedWeights: Record<string, number> = {};
+    // Freeze and sort weights deterministically. The names were validated against the catalog above,
+    // so narrowing the literal key type to `OperatorId` is sound.
+    const sortedWeights: Partial<Record<OperatorId, number>> = {};
     for (const name of [...operatorNames].sort()) {
-        sortedWeights[name] = weights[name];
+        sortedWeights[name as OperatorId] = weightOf(weights, name);
     }
 
     return Object.freeze({
@@ -254,7 +271,9 @@ export function createGrammar(
  * unrelated model (`UNRELATED_COLOR`).
  */
 export function defaultGrammar(catalog: Catalog): Grammar {
-    const weights: Record<string, number> = {
+    // Typed by `OperatorId`: a mistyped operator here is a compile error (the static registry is the
+    // source of truth), not a runtime import refusal.
+    const weights: Partial<Record<OperatorId, number>> = {
         // Spatial anchors: always vary across the image.
         x: 4,
         y: 4,
@@ -276,7 +295,7 @@ export function defaultGrammar(catalog: Catalog): Grammar {
 
     // Every other catalog operator gets the neutral weight 1.
     for (const operator of catalog.operators()) {
-        weights[operator.name] ??= 1;
+        weights[operator.name as OperatorId] ??= 1;
     }
 
     return createGrammar(catalog, {

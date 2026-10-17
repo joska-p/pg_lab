@@ -1,7 +1,7 @@
 import type { Catalog, Operator } from '../catalog/index.ts';
 import { createExpression, createNode } from '../expression/index.ts';
 import type { Expression, Node } from '../expression/index.ts';
-import { getVocabulary, minSize } from '../grammar/index.ts';
+import { getVocabulary, minSize, weightOf } from '../grammar/index.ts';
 import type { Grammar } from '../grammar/index.ts';
 import { createRng } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
@@ -48,7 +48,9 @@ export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expres
         });
 
         // 3. Draw candidate operator
-        const operator = rng.weighted(candidates, (candidate) => grammar.weights[candidate.name]);
+        const operator = rng.weighted(candidates, (candidate) =>
+            weightOf(grammar.weights, candidate.name),
+        );
 
         // 4. Draw parameters
         const paramValues: number[] = [];

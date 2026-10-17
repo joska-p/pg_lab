@@ -108,14 +108,20 @@ Les clés de `weights` sont écrites dans l'ordre alphabétique, pour que deux g
 
 ### Grammaire par défaut
 
-Une seule grammaire de départ, **à calibrer en jouant** (D34) :
+Une seule grammaire de départ, calibrée au lot H (D34) — snapshot dans `defaultGrammar` :
 
-- Contraintes : `minDepth: 3`, `maxDepth: 8`, `maxNodes: 60`.
-- `x: 3`, `y: 3`, `const: 1`.
-- Tous les autres opérateurs du catalogue : poids `1`, sauf `select`, `mix` et `warp` à `0.5`.
+- Contraintes : `minDepth: 3`, `maxDepth: 8`, `maxNodes: 60`. Mesure sur 5 000 seeds : arbre corrélé
+  de 17,7 nœuds en moyenne (p95 39, p99 49, max 60) et de profondeur 6,3 (p95 8 = `maxDepth`) ;
+  `maxDepth` est la vraie borne structurelle (43 % des arbres l'atteignent), `maxNodes` un plafond
+  de sûreté presque jamais atteint.
+- Poids, calibrés pour la structure (variance du champ) : `x`/`y` 4 ; `max` 2 ; `min` 1,5 ; `mul`
+  0,75 ; les aplatisseurs `const`/`add`/`gt`/`tsin`/`tcos` à 0,5 ; les combinators coûteux `select`/
+  `mix`/`warp` à 0,5 ; tout le reste du catalogue à 1.
+- Modèle de couleur : `correlated` via la palette `spectrum` (un seul champ → palette), le modèle
+  qui produit des images lisibles.
 - **`defaultGrammar`** : exactement cela. C'est le défaut de l'UI.
 
-`tsin` et `tcos` font partie du catalogue comme n'importe quel autre opérateur : il n'y a plus de préréglage « animé » distinct. L'animation relève de la lecture (horloge Play/Pause), pas de la grammaire.
+`tsin` et `tcos` font partie du catalogue comme n'importe quel autre opérateur : il n'y a plus de préréglage « animé » distinct. L'animation relève de la lecture (horloge Play/Pause), pas de la grammaire. La durée de boucle (`DEFAULT_LOOP_MS = 8000`) est purement esthétique : `tsin`/`tcos` étant exactement périodiques en `u_phase`, toute durée boucle proprement.
 
 ## 5. Taille minimale et faisabilité
 
@@ -273,7 +279,7 @@ generator/
 - **Canaux indépendants** en v1. Un mode niveaux de gris ou des canaux corrélés viendra plus tard.
 - **Images unies** : une grammaire sans `x` ni `y` est valide (D39). On les évite par `DEFAULT_KEEP` à la randomisation, pas par une règle de validité.
 - **`maxNodes` par canal**, pour la simplicité. Le shader a donc au plus 3 × 400 nœuds. À revoir si le coût dépend surtout du total.
-- **Répartition du budget** : le partage équitable de `libre` peut très légèrement favoriser les derniers enfants. À observer sur de vraies images avant de corriger.
-- **Poids par défaut** : à calibrer en jouant (§4).
+- **Répartition du budget** : le partage `m + floor(libre / (k − i))` laisse le reste au dernier enfant. Observé sur 5 000 seeds (sonde `budget.measure.test.ts`) : part moyenne du second enfant 0,509 contre 0,491 pour le premier, et le second n'est le plus grand que dans 35 % des nœuds binaires. Biais ≤ 2 % — aucune correction.
+- **Poids par défaut** : calibrés au lot H (voir §4).
 - **Un seul randomiseur** : poids et vocabulaire font un (un poids de 0 veut dire hors vocabulaire). Les contraintes ne sont pas randomisées ; l'UI les édite et `fitConstraints` les garde valides (D40, D41).
 - **Comparer des grammaires** : v2, avec `grammarKey` sur le modèle de `nodeKey` (D37).

@@ -82,7 +82,7 @@ it('can disable operators with changeRate 1 and keep=[]', () => {
     });
 
     // At least one active terminal remains.
-    const active = Object.entries(next.weights).filter(([, w]) => w > 0);
+    const active = Object.entries(next.weights).filter(([, w]) => (w ?? 0) > 0);
     expect(active.length).toBeGreaterThan(0);
     expect(active.some(([name]) => catalog.operator(name).isTerminal)).toBe(true);
 });

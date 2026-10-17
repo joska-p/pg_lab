@@ -10,6 +10,19 @@ import {
     minSize,
 } from './index.ts';
 
+/** Copies a grammar's partial weights into a mutable full record, absent entries becoming 0. */
+function mutableWeights(grammar: {
+    weights: Readonly<Record<string, number | undefined>>;
+}): Record<string, number> {
+    const weights: Record<string, number> = {};
+
+    for (const [name, weight] of Object.entries(grammar.weights)) {
+        weights[name] = weight ?? 0;
+    }
+
+    return weights;
+}
+
 describe('grammar: minSize', () => {
     const catalog = createDefaultCatalog();
 
@@ -245,7 +258,7 @@ describe('grammar: defaultGrammar', () => {
         const g = defaultGrammar(catalog);
 
         for (const operator of catalog.operators()) {
-            expect(g.weights[operator.name]).toBeDefined();
+            expect(Object.hasOwn(g.weights, operator.name)).toBe(true);
         }
     });
 });
@@ -263,7 +276,7 @@ describe('grammar: isLastTerminal', () => {
     });
 
     it('is true for the only active terminal, and false for an inactive one', () => {
-        const weights: Record<string, number> = { ...defaultGrammar(catalog).weights };
+        const weights = mutableWeights(defaultGrammar(catalog));
 
         for (const terminal of terminals) {
             weights[terminal.name] = terminal.name === 'x' ? 1 : 0;
@@ -275,7 +288,7 @@ describe('grammar: isLastTerminal', () => {
     });
 
     it('tracks exactly what createGrammar refuses when emptying the terminals', () => {
-        const weights: Record<string, number> = { ...defaultGrammar(catalog).weights };
+        const weights = mutableWeights(defaultGrammar(catalog));
 
         for (const terminal of terminals) {
             weights[terminal.name] = terminal.name === 'x' ? 1 : 0;

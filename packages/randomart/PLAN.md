@@ -39,33 +39,42 @@ Principes : cœur TypeScript pur (pas de DOM, pas de GPU) ; rendu = adaptateur m
 
 - **`math` supprimé** (2026-10-17) : le champ `math` (formule lisible maintenue à la main par opérateur, à côté de `glsl`) n'avait **aucun consommateur** — l'`Inspector` n'affiche que `formatFormula` (notation fonctionnelle dérivée de l'arbre). Retiré de `OperatorSpec`/`defineOperator`, de `Operator` (méthode `math`), des 5 fichiers d'opérateurs, des tests et des docs (`catalog-spec.md`, `expression-spec.md` §10). SSOT : `glsl` ; la formule lisible reste **dérivée**, jamais un second texte à maintenir.
 - **Lot H — calibration des poids par défaut** (2026-10-17) : `defaultGrammar` recalibré pour la structure (x/y 4, max 2, min 1.5 ; const/add/gt/tsin/tcos 0.5 ; mul 0.75 ; select/mix/warp 0.5 ; le reste 1). **Prémisse du plan corrigée** : « la palette sature quand le champ sort de `[-1, 1]` » est **faux** — le champ est borné à `[-1, 1]` par construction (chaque opérateur préserve la plage ; le `clamp` final de `compile.ts` est donc **mort**), et un remap monotone (`tanh`/échelle) ne peut pas créer de structure sur un champ constant. Les aplats viennent d'un champ **constant** produit par les opérateurs saturants (`tsin`/`tcos` — constantes spatiales, `0`/`1` à la phase 0, qui annulent des sous-arbres `mul` —, `gt`, `add`, `const`). Effet mesuré sur le corpus fuzz : aplatissement local moyen 59 % → 41 %, aplats quasi uniformes 42 % → 19 %. Snapshot du générateur mis à jour.
+- **Lot H clos — contraintes, budget, durée** (2026-10-17, mesure via la sonde `budget.measure.test.ts`, 5 000 seeds) : **aucun changement de valeur**, la mesure justifie les défauts.
+    - _Budget_ : le partage `m + floor(libre/(k−i))` favorise le dernier enfant d'au plus 2 % (part moyenne du 2ᵉ enfant 0,509 vs 0,491 ; il est le plus grand dans 35 % des nœuds binaires). Correction inutile — banale et coûteuse.
+    - _Contraintes_ (`3/8/60`) : arbre corrélé de 17,7 nœuds (p95 39, p99 49) et profondeur 6,3 (p95 8). `maxDepth` est la vraie borne (43 % des arbres l'atteignent) ; `maxNodes` un plafond de sûreté presque jamais touché. Les valeurs restent.
+    - _Durée de boucle_ (`DEFAULT_LOOP_MS = 8000`) : `tsin`/`tcos` sont exactement périodiques en `u_phase`, donc toute durée boucle proprement — c'est une préférence de lecture, bornée `[500, 120000]` ms et exposée dans l'UI.
+- **Dette soldée** (2026-10-17) :
+    - _Poids typés_ : `Grammar.weights` est `GrammarWeights = Readonly<Partial<Record<OperatorId, number>>>` (registre statique → une faute de nom est une erreur de compilation, `defaultGrammar` protégé) ; lecture unique via `weightOf` (absent = 0), plus de `Record<string, number>` ad hoc.
+    - _Fuite `ShapeBatcher.compileProgram`_ (glaze) : supprime les deux shaders après le link et libère le vertex shader si le fragment échoue — même motif que `shader/compileProgram`.
+    - _`clamp` final **conservé** et documenté_ (tranché) : il est prouvé mort par le contrat des opérateurs, mais sert de garde bon marché au bord du rendu (le compilateur accepte n'importe quel catalogue).
 
-**Pas encore fait** : lot G (rendu épaissi, à la demande) ; reste du lot H (contraintes, durée de boucle, budget du générateur) ; **nouvel épic « galerie + recettes »** (voir « Prochaine action »).
+**Pas encore fait** : lot G (rendu épaissi, à la demande) ; **nouvel épic « galerie + recettes »** (voir « Prochaine action »). Le **lot H est clos** (poids, contraintes, durée et budget mesurés).
 
-**Tests** : verts (242 passés, 9 sautés — `measure`/`dump` + les deux sondes de champ, opt-in ; `vp check` : 0 erreur) ; 900 shaders validés par `glslangValidator` (`scripts/validate-glsl.sh`).
+**Tests** : verts (242 passés, 10 sautés — `measure`/`dump` + les trois sondes de champ/budget, opt-in ; `vp check` : 0 erreur) ; 900 shaders validés par `glslangValidator` (`scripts/validate-glsl.sh`).
 
 ## Prochaine action
 
-1. **Conceptualiser l'épic « galerie + recettes »** (décision utilisateur 2026-10-17, **à cadrer dans une session dédiée — rien commencé**) : un moyen de générer des lots d'images (planches-contact) soi-même — dans l'app et/ou via un script —, de les **classer** (notation manuelle et/ou métrique automatique), puis d'en **déduire de bonnes recettes** (grammaires) — une boucle d'apprentissage légère (« mini réseau de neurones ») qui ajuste les poids/contraintes vers les images jugées bonnes. Points à trancher en conceptualisation : lieu du rendu (in-app GPU vs évaluateur CPU Node — ce dernier duplique la sémantique des opérateurs), modèle d'apprentissage (bandit/évolution vs petit modèle), format de stockage des lots et des notes. Matière première existante : les deux sondes jetables ci-dessous.
-2. **Reste du lot H** : contraintes par défaut, durée de boucle, répartition du budget du générateur.
-3. **Politique throw vs repair** : **fait le 2026-10-16** — politique tranchée dans `shared/index.ts`, site par site dans les commentaires, audit dans `findings.md` §8. Restes hors périmètre : F14/F15, F16/F30 ; trouvailles différées (F1, F2, F9, F10) hors périmètre.
+1. **Conceptualiser l'épic « galerie + recettes »** (décision utilisateur 2026-10-17, **à cadrer dans une session dédiée — rien commencé**) : un moyen de générer des lots d'images (planches-contact) soi-même — dans l'app et/ou via un script —, de les **classer** (notation manuelle et/ou métrique automatique), puis d'en **déduire de bonnes recettes** (grammaires) — une boucle d'apprentissage légère (« mini réseau de neurones ») qui ajuste les poids/contraintes vers les images jugées bonnes. Points à trancher en conceptualisation : lieu du rendu (in-app GPU vs évaluateur CPU Node — ce dernier duplique la sémantique des opérateurs), modèle d'apprentissage (bandit/évolution vs petit modèle), format de stockage des lots et des notes. Matière première existante : les trois sondes jetables ci-dessous.
+2. **Politique throw vs repair** : **fait le 2026-10-16** — politique tranchée dans `shared/index.ts`, site par site dans les commentaires, audit dans `findings.md` §8. Restes hors périmètre : F14/F15, F16/F30 ; trouvailles différées (F1, F2, F9, F10) hors périmètre.
 
 ## Sondes jetables (non commitées)
 
-Deux fichiers de mesure **non suivis**, laissés pour la prochaine session (matière première de l'épic ci-dessus) :
+Trois fichiers de mesure **non suivis**, laissés pour la prochaine session (matière première de l'épic ci-dessus) :
 
-- `src/core/compiler/fieldDist.measure.test.ts` — évaluateur CPU du champ + métriques (plage, aplatissement local, corrélation opérateur↔aplat, comparaison de jeux de poids). `VITE_MEASURE=1 vp test fieldDist`.
-- `src/core/compiler/fieldRender.measure.test.ts` — même évaluateur + encodeur PNG minimal, pour écrire des planches-contact dans `/tmp/opencode/field/`. `VITE_MEASURE=1 vp test fieldRender`.
+- `src/core/compiler/fieldDist.measure.test.ts` — évaluateur CPU du champ + métriques (plage, aplatissement local, corrélation opérateur↔aplat, comparaison de jeux de poids). `VITE_MEASURE=1 vp test fieldDist --disableConsoleIntercept`.
+- `src/core/compiler/fieldRender.measure.test.ts` — même évaluateur + encodeur PNG minimal, pour écrire des planches-contact dans `/tmp/opencode/field/`. `VITE_MEASURE=1 vp test fieldRender --disableConsoleIntercept`.
+- `src/core/generator/budget.measure.test.ts` — stats d'arbre (taille, profondeur, taux d'atteinte de `maxDepth`/`maxNodes`) et biais du partage de budget par index d'enfant. `VITE_MEASURE=1 vp test budget --disableConsoleIntercept`.
+
+(`--disableConsoleIntercept` : sans lui, Vite+ avale les `console.log` des tests.)
 
 Dette intrinsèque : l'évaluateur **réimplémente à la main** la sémantique des opérateurs (le même risque de dérive que l'ex-`math`). À remplacer par une source unique (sémantique évaluable → GLSL) ou à assumer, lors de la conceptualisation.
 
 ## Dette connue (petite, non bloquante)
 
-- **Poids typés** : `Grammar.weights` est `Readonly<Record<string, number>>`. Le registre étant statique, `Partial<Record<OperatorId, number>>` rendrait `defaultGrammar` exhaustif. Différé.
 - **`randomizeWeights` : chemin de bascule dormant** : l'UI ne l'appelle plus qu'avec `changeRate: 0` (vocabulaire gelé) ; le toggle aléatoire et `DEFAULT_KEEP` (D39) ne vivent plus que dans le cœur et ses tests. Conservés pour un éventuel geste « grammaire pleine au hasard ».
-- `ShapeBatcher.compileProgram` ne supprime pas ses shaders après le link, et fuit le vertex shader si le fragment échoue.
-- `Controls` : durée de boucle et import de fichier en `<input>` bruts au lieu de composants `ui` (les bornes numériques viennent maintenant des constantes du cœur — `MAX_DEPTH`/`MAX_NODES`/`MIN_LOOP_MS`/`MAX_LOOP_MS`).
-- **`clamp` final mort** : `compile.ts` écrit `clamp(field*0.5 + 0.5, 0, 1)` pour le mode corrélé, mais le champ est borné à `[-1, 1]` par construction — le clamp ne se déclenche jamais. Conservé (assurance bon marché) ou à retirer, à trancher.
+- `Controls` : durée de boucle et import de fichier en `<input>` bruts au lieu de composants `ui` (les bornes numériques viennent maintenant des constantes du cœur — `MAX_DEPTH`/`MAX_NODES`/`MIN_LOOP_MS`/`MAX_LOOP_MS`). Laissé de côté : churn UI probablement remplacé par l'épic galerie.
+
+_(Soldés le 2026-10-17 : poids typés, fuite `ShapeBatcher`, `clamp` final — voir « Fait ».)_
 
 ## Lots
 
@@ -82,16 +91,16 @@ L'ordre est une guidance. Chaque lot laisse le repo vert et commitable. Lots A �
 
 Seulement si le besoin se confirme en jouant. `RenderTarget` + `readPixels`, `Program.render(target?)`, résolution réduite pendant l'animation, export HD à taille arbitraire, tests navigateur (réévaluer alors la friction 1). Plus tard : compilation asynchrone, export par tuiles, post-traitement.
 
-### Lot H — Calibration (atelier ouvert)
+### Lot H — Calibration (fait)
 
-Poids par défaut, contraintes, durée de boucle, répartition du budget du générateur (préférence légère pour les derniers enfants). Sessions libres, déclenchées par une friction.
+Poids par défaut, contraintes, durée de boucle, répartition du budget du générateur. Calibré au lot H (mesure via sonde) : poids recalibrés pour la structure, contraintes et durée conservées (mesure à l'appui), partage du budget conservé (biais ≤ 2 %).
 
 ## Dépendances
 
 ```
 A..F : faits
 G : à la demande
-H : en cours (poids calibrés ; contraintes / durée / budget restants)
+H : fait (poids, contraintes, durée, budget mesurés)
 I (galerie + recettes) : à conceptualiser
 ```
 
@@ -102,7 +111,7 @@ I (galerie + recettes) : à conceptualiser
 3. **`shared`** : local à randomart tant qu'aucun autre projet n'en a besoin.
 4. **Glaze comme socle GPU** : entrée du fragment = `vUv` (conversion `v_p` au début de `main`) ; pas de `readPixels` en v1 (capture du canvas, `preserveDrawingBuffer`).
 5. **Phase** : `Clock` timed + loop de glaze via `ClockStore` ; `u_phase = createPhase(clock.progress)` (marque `Phase`). Remplace `phaseAt` de la spec renderer.
-6. **Calibration** : valeurs de départ arbitraires (lot H).
+6. **Calibration** : valeurs de départ arbitraires (lot H). Tranché au lot H : poids calibrés à la mesure, contraintes et durée mesurées et conservées.
 7. **Aperçu de sous-expression** : ignore la déformation des ancêtres, affiché dans l'UI.
 8. **Taille de rendu = taille du canvas** jusqu'au lot G.
 9. **Un seul shader** (tranché) : plus de mode Static/Animated. La grammaire par défaut inclut `tsin`/`tcos` ; l'animation relève de la lecture (horloge en pause à la phase 0). À la phase 0, `tsin` vaut 0 et `tcos` vaut 1, et les terminaux de temps diluent un peu `x` et `y`.

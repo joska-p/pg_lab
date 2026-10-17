@@ -15,7 +15,7 @@ import { MAX_LOOP_MS, MIN_LOOP_MS } from '../core/artwork/index.ts';
 import type { Operator, OperatorGroup } from '../core/catalog/index.ts';
 import { PALETTES, PALETTE_IDS } from '../core/color/index.ts';
 import type { PaletteId } from '../core/color/index.ts';
-import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT } from '../core/grammar/index.ts';
+import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, weightOf } from '../core/grammar/index.ts';
 import {
     catalog,
     exportArtworkFile,
@@ -138,7 +138,7 @@ function Vocabulary() {
                                 <OperatorRow
                                     key={operator.name}
                                     operator={operator}
-                                    weight={grammar.weights[operator.name] ?? 0}
+                                    weight={weightOf(grammar.weights, operator.name)}
                                 />
                             ))}
                         </Stack>
