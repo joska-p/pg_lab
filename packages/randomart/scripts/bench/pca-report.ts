@@ -1,8 +1,8 @@
-// Usage: node scripts/lab/pca-report.ts dataset scripts/lab/features.json [--only structure|color] [--std]
+// Usage: node scripts/bench/pca-report.ts dataset scripts/bench/features.json [--only structure|color] [--std]
 import { readFileSync, writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 
-import { correlation, pca } from '../../src/lab/pca.ts';
+import { correlation, pca } from '../../src/core/analysis/pca.ts';
 import { loadDataset } from './dataset.ts';
 
 const COLOR = new Set([
@@ -19,13 +19,13 @@ const { values, positionals } = parseArgs({
     options: {
         only: { type: 'string' },
         std: { type: 'boolean', default: false },
-        out: { type: 'string', default: 'scripts/lab/pca.json' },
+        out: { type: 'string', default: 'scripts/bench/pca.json' },
     },
 });
 
 const dataset = loadDataset(positionals[0] ?? 'dataset');
 const features = JSON.parse(
-    readFileSync(positionals[1] ?? 'scripts/lab/features.json', 'utf8'),
+    readFileSync(positionals[1] ?? 'scripts/bench/features.json', 'utf8'),
 ) as {
     names: string[];
     rows: { grammar: number; mean: number[]; std: number[] }[];

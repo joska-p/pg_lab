@@ -1,8 +1,0 @@
-#!/usr/bin/env zsh
-# Regenerates the committed lab artefacts (scripts/lab/sheet.png, features.json, pca.json) from
-# randomart's dataset. Run from packages/randomart: sh scripts/lab/auto
-node scripts/lab/contact-sheet.ts dataset --rows 12 &&
-    node scripts/lab/features.ts dataset &&
-    node scripts/lab/pca-report.ts dataset scripts/lab/features.json &&
-    node scripts/lab/pca-report.ts dataset scripts/lab/features.json --only structure &&
-    node scripts/lab/pca-report.ts dataset scripts/lab/features.json --only color

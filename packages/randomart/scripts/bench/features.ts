@@ -1,13 +1,13 @@
-// Usage: node scripts/lab/features.ts dataset --out scripts/lab/features.json
+// Usage: node scripts/bench/features.ts dataset --out scripts/bench/features.json
 import { writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 
-import { describeImage } from '../../src/lab/descriptors.ts';
+import { describeImage } from '../../src/core/analysis/descriptors.ts';
 import { loadDataset } from './dataset.ts';
 
 const { values, positionals } = parseArgs({
     allowPositionals: true,
-    options: { out: { type: 'string', default: 'scripts/lab/features.json' } },
+    options: { out: { type: 'string', default: 'scripts/bench/features.json' } },
 });
 
 const dataset = loadDataset(positionals[0] ?? 'dataset');

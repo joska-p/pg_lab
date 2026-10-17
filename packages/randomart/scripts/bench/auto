@@ -1,0 +1,8 @@
+#!/usr/bin/env zsh
+# Regenerates the committed bench artefacts (scripts/bench/sheet.png, features.json, pca.json) from
+# randomart's dataset. Run from packages/randomart: sh scripts/bench/auto
+node scripts/bench/contact-sheet.ts dataset --rows 12 &&
+    node scripts/bench/features.ts dataset &&
+    node scripts/bench/pca-report.ts dataset scripts/bench/features.json &&
+    node scripts/bench/pca-report.ts dataset scripts/bench/features.json --only structure &&
+    node scripts/bench/pca-report.ts dataset scripts/bench/features.json --only color

@@ -1,5 +1,5 @@
-// Usage: node scripts/lab/contact-sheet.ts dataset --out scripts/lab/sheet.png --grammars 3,17,42,8
-//    or: node scripts/lab/contact-sheet.ts dataset --start 0 --rows 12
+// Usage: node scripts/bench/contact-sheet.ts dataset --out scripts/bench/sheet.png --grammars 3,17,42,8
+//    or: node scripts/bench/contact-sheet.ts dataset --start 0 --rows 12
 import { writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 
@@ -9,7 +9,7 @@ import { encodePng } from './png.ts';
 const { values, positionals } = parseArgs({
     allowPositionals: true,
     options: {
-        out: { type: 'string', default: 'scripts/lab/sheet.png' },
+        out: { type: 'string', default: 'scripts/bench/sheet.png' },
         rows: { type: 'string', default: '12' },
         start: { type: 'string', default: '0' },
         grammars: { type: 'string' },

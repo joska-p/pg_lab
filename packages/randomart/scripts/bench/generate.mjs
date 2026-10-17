@@ -1,5 +1,5 @@
 // Needs the dev server running (`vp dev`) in another terminal.
-// Usage: node scripts/generate-dataset.mjs --count 100 --seeds 16 --size 128 --out dataset
+// Usage: node scripts/bench/generate.mjs --count 100 --seeds 16 --size 128 --out dataset
 import { closeSync, mkdirSync, openSync, writeFileSync, writeSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -37,11 +37,11 @@ const browser = await chromium.launch({
 const page = await browser.newPage();
 
 page.on('pageerror', (error) => console.error('[page]', error.message));
-await page.goto(`${values.url}/dataset.html`);
-await page.waitForFunction(() => window.datasetApi !== undefined, null, { timeout: 30_000 });
+await page.goto(`${values.url}/bench.html`);
+await page.waitForFunction(() => window.benchApi !== undefined, null, { timeout: 30_000 });
 
 const sampled = await page.evaluate(
-    ([n, options]) => window.datasetApi.sample(n, options),
+    ([n, options]) => window.benchApi.sample(n, options),
     [count, { baseSeed, seedsPerGrammar }],
 );
 
@@ -52,7 +52,7 @@ const started = Date.now();
 
 for (const [index, { grammar, seeds }] of sampled.items.entries()) {
     const result = await page.evaluate(
-        ([g, s, px]) => window.datasetApi.renderGrammar(g, s, px),
+        ([g, s, px]) => window.benchApi.renderGrammar(g, s, px),
         [grammar, seeds, size],
     );
 
