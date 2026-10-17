@@ -16,7 +16,8 @@ import { buildFuzzCases } from './testing.ts';
  *
  *     VITE_MEASURE=1 vp test fieldDist
  *
- * The evaluator mirrors the operator `glsl` by hand (throwaway: this is a probe, not shipped code).
+ * The evaluator mirrors the operator `glsl` by hand (an opt-in probe, committed with the lot J
+ * work; the CPU re-implementation of the operator semantics is the probe's known debt).
  */
 const enabled = import.meta.env.VITE_MEASURE === '1';
 const GRID = 128;

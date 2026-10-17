@@ -14,7 +14,8 @@ import { createSeed } from '../random/index.ts';
  *
  *     VITE_MEASURE=1 vp test budget
  *
- * Throwaway: not committed, no assertions, mirrors the fieldDist/fieldRender probes.
+ * Opt-in probe (committed, runs only under `VITE_MEASURE=1`), no assertions, mirrors the
+ * fieldDist/fieldRender probes.
  */
 const enabled = import.meta.env.VITE_MEASURE === '1';
 const CASES = Number(import.meta.env.VITE_FUZZ_COUNT ?? 5000);
