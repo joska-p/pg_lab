@@ -1,7 +1,15 @@
+import type { ColorModel } from '../color/index.ts';
+
 export type SharingPolicy = 'shared' | 'all' | 'none';
 
 export interface CompileOptions {
     readonly sharing?: SharingPolicy;
+    /**
+     * How the three channels become colour. `unrelated` (default) writes the channels straight to
+     * RGB; `correlated` treats them as ONE field and samples a palette (the channel texts are
+     * identical — the generator reuses the same node). Defaults to `UNRELATED_COLOR`.
+     */
+    readonly color?: ColorModel;
 }
 
 export interface CompiledShaderUniform {

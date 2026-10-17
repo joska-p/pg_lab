@@ -32,7 +32,10 @@ describe('shader dump for glslangValidator', () => {
 
             for (const policy of POLICIES) {
                 try {
-                    const { source } = compile(catalog, expression, { sharing: policy });
+                    const { source } = compile(catalog, expression, {
+                        sharing: policy,
+                        color: grammar.color,
+                    });
 
                     writeFileSync(
                         path.join(directory, `${label.replace('#', '-')}-${policy}.frag`),

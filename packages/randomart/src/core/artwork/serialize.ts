@@ -1,4 +1,6 @@
 import type { Catalog } from '../catalog/index.ts';
+import { isPaletteId, UNRELATED_COLOR } from '../color/index.ts';
+import type { ColorModel } from '../color/index.ts';
 import { deserialize, serialize } from '../expression/index.ts';
 import type { ExpressionData } from '../expression/index.ts';
 import { createGrammar } from '../grammar/index.ts';
@@ -25,6 +27,7 @@ export const MAX_GRAMMAR_FILE_LENGTH = 1_000_000;
 export interface GrammarData {
     readonly weights: Readonly<Record<string, number>>;
     readonly constraints: ConstraintsInput;
+    readonly color: ColorModel;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -53,7 +56,38 @@ export function serializeGrammar(grammar: Grammar): GrammarData {
 
     const { minDepth, maxDepth, maxNodes } = grammar.constraints;
 
-    return { weights, constraints: { minDepth, maxDepth, maxNodes } };
+    return { weights, constraints: { minDepth, maxDepth, maxNodes }, color: grammar.color };
+}
+
+/**
+ * Reads the optional `color` field of a grammar object. Absent → `UNRELATED_COLOR` (a grammar
+ * written before the colour model existed, or built by hand without one); present but malformed →
+ * refuses with the field path (content, not an editing quantity — throw-vs-repair policy).
+ */
+function readColor(data: unknown, path: string): ColorModel {
+    if (data === undefined) {
+        return UNRELATED_COLOR;
+    }
+
+    if (!isRecord(data)) {
+        throw new Error(`${path}.color: object expected`);
+    }
+
+    if (data.kind === 'unrelated') {
+        return { kind: 'unrelated' };
+    }
+
+    if (data.kind === 'correlated') {
+        if (!isPaletteId(data.palette)) {
+            throw new Error(
+                `${path}.color.palette: unknown palette ${JSON.stringify(data.palette)}`,
+            );
+        }
+
+        return { kind: 'correlated', palette: data.palette };
+    }
+
+    throw new Error(`${path}.color.kind: unknown color model ${JSON.stringify(data.kind)}`);
 }
 
 /** Accepts unknown input and validates it through `createGrammar`; errors carry the field path. */
@@ -62,7 +96,7 @@ export function deserializeGrammar(catalog: Catalog, data: unknown, path = 'gram
         throw new Error(`${path}: object expected`);
     }
 
-    rejectUnknownKeys(data, ['weights', 'constraints'], path);
+    rejectUnknownKeys(data, ['weights', 'constraints', 'color'], path);
 
     const rawWeights = data.weights;
 
@@ -104,8 +138,12 @@ export function deserializeGrammar(catalog: Catalog, data: unknown, path = 'gram
         maxNodes: readNumber('maxNodes'),
     };
 
+    // Read before the try: a malformed colour carries its own clean field path, like the other
+    // structural reads above (only `createGrammar`'s own errors get the grammar-level prefix).
+    const color = readColor(data.color, path);
+
     try {
-        return createGrammar(catalog, { weights, constraints });
+        return createGrammar(catalog, { weights, constraints, color });
     } catch (error) {
         throw new Error(`${path}: ${error instanceof Error ? error.message : String(error)}`, {
             cause: error,

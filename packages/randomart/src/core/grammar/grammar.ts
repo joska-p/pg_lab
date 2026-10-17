@@ -1,4 +1,6 @@
 import type { Catalog, Operator } from '../catalog';
+import { DEFAULT_COLOR, isPaletteId, UNRELATED_COLOR } from '../color/index.ts';
+import type { ColorModel } from '../color/index.ts';
 import { assertFinite } from '../shared/index.ts';
 import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types';
 import type { Constraints, ConstraintsInput, Grammar } from './types';
@@ -135,14 +137,38 @@ export function fitConstraints(
     return createConstraints({ minDepth, maxDepth, maxNodes });
 }
 
+/**
+ * A colour model is content (it defines the image), so an unknown palette id has no canonical
+ * repair and refuses, like a bad weight (throw-vs-repair policy in shared/index.ts). A missing
+ * `color` field takes `UNRELATED_COLOR` — the plain three-channel model, the behaviour of a grammar
+ * built from parts without an explicit choice.
+ */
+function validateColor(color: ColorModel): ColorModel {
+    if (color.kind === 'unrelated') {
+        return { kind: 'unrelated' };
+    }
+
+    if (color.kind === 'correlated') {
+        if (!isPaletteId(color.palette)) {
+            throw new Error(`Randomart: unknown palette ${JSON.stringify(color.palette)}`);
+        }
+
+        return { kind: 'correlated', palette: color.palette };
+    }
+
+    throw new Error(`Randomart: unknown color model ${JSON.stringify(color)}`);
+}
+
 export function createGrammar(
     catalog: Catalog,
     {
         weights,
         constraints: rawConstraints,
+        color: rawColor = UNRELATED_COLOR,
     }: {
         readonly weights: Readonly<Record<string, number>>;
         readonly constraints: ConstraintsInput;
+        readonly color?: ColorModel;
     },
 ): Grammar {
     const operatorNames = Object.keys(weights);
@@ -203,6 +229,7 @@ export function createGrammar(
         weights: Object.freeze(sortedWeights),
         // Already frozen by createConstraints.
         constraints,
+        color: Object.freeze(validateColor(rawColor)),
     }) as Grammar;
 }
 
@@ -211,6 +238,10 @@ export function createGrammar(
  * combinators down-weighted. Time terminals (`tsin`, `tcos`) are ordinary members of the catalog,
  * so there is no separate "animated" preset: one seed gives one expression, and animation is a
  * matter of playback.
+ *
+ * Its colour model is `DEFAULT_COLOR` (one field through a palette), the _curated_ default — the
+ * model that actually yields readable images. `createGrammar` alone would fall back to the plain
+ * unrelated model (`UNRELATED_COLOR`).
  */
 export function defaultGrammar(catalog: Catalog): Grammar {
     const weights: Record<string, number> = {
@@ -229,5 +260,9 @@ export function defaultGrammar(catalog: Catalog): Grammar {
                 : 1;
     }
 
-    return createGrammar(catalog, { weights, constraints: DEFAULT_CONSTRAINTS });
+    return createGrammar(catalog, {
+        weights,
+        constraints: DEFAULT_CONSTRAINTS,
+        color: DEFAULT_COLOR,
+    });
 }

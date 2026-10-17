@@ -1,5 +1,5 @@
 /**
- * Lower.ts — DAG lowering pass (spec §5.0 + §5.1).
+ * Lower.ts — DAG lowering pass.
  *
  * Multiplicities are owned by `Operator` (probed once, at catalog construction), so lowering only
  * walks the three-channel expression into a shared DAG and interned coordinate contexts.

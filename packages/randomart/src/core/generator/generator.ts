@@ -6,7 +6,7 @@ import type { Grammar } from '../grammar/index.ts';
 import { createRng } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
 
-export const GENERATOR_VERSION = 1;
+export const GENERATOR_VERSION = 2;
 
 export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expression {
     const rng = createRng(seed);
@@ -85,6 +85,15 @@ export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expres
             node,
             size: 1 + totalChildSize,
         };
+    }
+
+    // Correlated colour: one field drives the three channels (through the palette at compile time),
+    // so they share their structure. The single node is reused for r/g/b — `lower` hash-conses it,
+    // so the three roots collapse to one vertex: no work is duplicated.
+    if (grammar.color.kind === 'correlated') {
+        const field = generateNode(1, maxNodes).node;
+
+        return createExpression(field, field, field);
     }
 
     const r = generateNode(1, maxNodes).node;

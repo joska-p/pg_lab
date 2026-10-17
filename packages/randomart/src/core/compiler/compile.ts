@@ -1,12 +1,12 @@
 /**
- * Compile.ts — Orchestration of the GLSL compilation pipeline (spec §5).
+ * Compile.ts — Orchestration of the GLSL compilation pipeline.
  *
  * Pipeline: lower → emit → buildPreamble → assemble source
- *
- * MP3·S1+S2: no inner/warp contexts. Single root context.
  */
 
 import type { Catalog } from '../catalog/index.ts';
+import { paletteGlsl, UNRELATED_COLOR } from '../color/index.ts';
+import type { ColorModel } from '../color/index.ts';
 import { nodeCount } from '../expression/index.ts';
 import type { Expression } from '../expression/index.ts';
 import { emit } from './emit.ts';
@@ -25,6 +25,10 @@ import type { CompiledShader, CompileOptions } from './types.ts';
  * - `out vec4 o_color;` as color output
  * - `uniform float u_phase;` always declared
  *
+ * In `correlated` colour mode the three roots are one field (the generator reuses the same node)
+ * and the final colour is a palette sampled at that field; in `unrelated` mode (default) the three
+ * channels are written to RGB directly.
+ *
  * @throws If the assembled source exceeds MAX_SOURCE_LENGTH.
  */
 export function compile(
@@ -33,6 +37,7 @@ export function compile(
     options?: CompileOptions,
 ): CompiledShader {
     const sharing = options?.sharing ?? 'shared';
+    const color: ColorModel = options?.color ?? UNRELATED_COLOR;
 
     // ── 1. Lowering ─────────────────────────────────────────────────────────
     const lowerResult = lower(catalog, expression);
@@ -41,7 +46,12 @@ export function compile(
     const emitResult = emit(catalog, lowerResult, sharing);
 
     // ── 3. Preamble ─────────────────────────────────────────────────────────
-    const { preambleLines, animated, uniforms } = buildPreamble(catalog, emitResult.usedDeps);
+    const extraFunctions = color.kind === 'correlated' ? [paletteGlsl(color.palette)] : [];
+    const { preambleLines, animated, uniforms } = buildPreamble(
+        catalog,
+        emitResult.usedDeps,
+        extraFunctions,
+    );
 
     // ── 4. Assemble source ───────────────────────────────────────────────────
     const [rText, gText, bText] = emitResult.channelTexts;
@@ -56,8 +66,16 @@ export function compile(
     }
 
     mainLines.push('');
-    mainLines.push(`  vec3 rgb = vec3(${rText}, ${gText}, ${bText});`);
-    mainLines.push('  o_color = vec4(clamp(rgb * 0.5 + 0.5, 0.0, 1.0), 1.0);');
+
+    if (color.kind === 'correlated') {
+        // The three roots are the same field; the palette is the only place colour is decided.
+        mainLines.push(`  float t = clamp(${rText} * 0.5 + 0.5, 0.0, 1.0);`);
+        mainLines.push('  o_color = vec4(ra_pal(t), 1.0);');
+    } else {
+        mainLines.push(`  vec3 rgb = vec3(${rText}, ${gText}, ${bText});`);
+        mainLines.push('  o_color = vec4(clamp(rgb * 0.5 + 0.5, 0.0, 1.0), 1.0);');
+    }
+
     mainLines.push('}');
 
     const source = [...preambleLines, '', ...mainLines].join('\n');

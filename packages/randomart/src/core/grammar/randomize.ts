@@ -214,5 +214,9 @@ export function randomizeWeights(
         quantized[name] = quantize(weights[name]);
     }
 
-    return createGrammar(catalog, { weights: quantized, constraints: grammar.constraints });
+    return createGrammar(catalog, {
+        weights: quantized,
+        constraints: grammar.constraints,
+        color: grammar.color,
+    });
 }

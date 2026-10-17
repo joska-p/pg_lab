@@ -1,5 +1,5 @@
 /**
- * Emit.ts — GLSL emission pass (spec §5.2 + §5.3).
+ * Emit.ts — GLSL emission pass.
  *
  * Walks the vertex program in topological order, decides which vertices get a named variable
  * according to the sharing policy, and emits the corresponding GLSL lines.
@@ -41,8 +41,15 @@ function inputText(
         // Variable names are atoms (identifiers); no wrapping needed.
         return varName;
     }
-    // Inline text: wrap if not atom/paren-enclosed (spec §5.3).
-    return wrapInput(inlineTexts.get(id)!);
+    // Inline text: wrap if not atom/paren-enclosed. A vertex is either named or inlined when it is
+    // emitted, so a missing text means the program order broke — fail loudly, never emit `undefined`.
+    const inline = inlineTexts.get(id);
+
+    if (inline === undefined) {
+        throw new Error(`Emit: vertex ${id} has neither a variable nor inline text`);
+    }
+
+    return wrapInput(inline);
 }
 
 /** Decides whether a vertex receives a named variable, according to the sharing policy. */

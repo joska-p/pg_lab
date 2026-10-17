@@ -20,6 +20,7 @@ import {
 } from '../core/artwork/index.ts';
 import type { Artwork, ProvenanceCheck } from '../core/artwork/index.ts';
 import { createDefaultCatalog } from '../core/catalog/index.ts';
+import type { ColorModel } from '../core/color/index.ts';
 import { compile } from '../core/compiler/index.ts';
 import type { CompiledShader } from '../core/compiler/index.ts';
 import type { Expression } from '../core/expression/index.ts';
@@ -66,7 +67,7 @@ export const catalog = createDefaultCatalog();
 const initialGrammar = defaultGrammar(catalog);
 const initialSeed = createSeed(42);
 const initialExpression = generate(catalog, initialGrammar, initialSeed);
-const initialCompiled = compile(catalog, initialExpression);
+const initialCompiled = compile(catalog, initialExpression, { color: initialGrammar.color });
 const initialEntry: HistoryEntry = {
     id: 0,
     seed: initialSeed,
@@ -217,7 +218,7 @@ function setActionError(error: unknown): void {
 function commit(grammar: Grammar, seed: Seed, restoreId?: number, coalesce = false): void {
     try {
         const expression = generate(catalog, grammar, seed);
-        const compiledShader = compile(catalog, expression);
+        const compiledShader = compile(catalog, expression, { color: grammar.color });
         const state = store.getState();
         let { history } = state;
         let currentId: number;
@@ -324,7 +325,7 @@ export function setConstraints(partial: Partial<ConstraintsInput>): void {
 
     // Coalesced: typing "12" in a field is one history entry, not two.
     commit(
-        createGrammar(catalog, { weights: grammar.weights, constraints }),
+        createGrammar(catalog, { weights: grammar.weights, constraints, color: grammar.color }),
         seed,
         undefined,
         true,
@@ -356,10 +357,33 @@ export function setOperatorWeight(name: string, rawWeight: number): void {
         const next = createGrammar(catalog, {
             weights: { ...grammar.weights, [name]: weight },
             constraints: grammar.constraints,
+            color: grammar.color,
         });
 
         // Coalesced, like constraint edits: a run of tweaks is one history entry, not one per
         // keystroke.
+        commit(next, seed, undefined, true);
+    } catch (error) {
+        setActionError(error);
+    }
+}
+
+/**
+ * Switches the colour model (unrelated ↔ correlated) or the palette. A colour choice is content
+ * (`createGrammar` refuses an unknown palette), so a bad id surfaces as `actionError` rather than
+ * being repaired. Coalesced like the other grammar edits: browsing palettes is one history entry,
+ * not one per click.
+ */
+export function setColorModel(color: ColorModel): void {
+    const { grammar, seed } = store.getState();
+
+    try {
+        const next = createGrammar(catalog, {
+            weights: grammar.weights,
+            constraints: grammar.constraints,
+            color,
+        });
+
         commit(next, seed, undefined, true);
     } catch (error) {
         setActionError(error);
@@ -389,7 +413,7 @@ function restoreImportedEntry(entry: HistoryEntry): void {
             seed: entry.seed,
             expression,
             provenanceCheck: entry.provenanceCheck ?? 'differs',
-            compiledShader: compile(catalog, expression),
+            compiledShader: compile(catalog, expression, { color: entry.grammar.color }),
             currentId: entry.id,
             actionError: null,
         });
@@ -439,10 +463,10 @@ function downloadBlob(blob: Blob, filename: string): void {
  */
 function publishArtwork(artwork: Artwork): void {
     const { expression, provenance, render } = artwork;
-    const compiledShader = compile(catalog, expression);
     const state = store.getState();
     const grammar = provenance?.grammar ?? state.grammar;
     const seed = provenance?.seed ?? state.seed;
+    const compiledShader = compile(catalog, expression, { color: grammar.color });
     const provenanceCheck = checkProvenance(catalog, artwork);
     const entry: HistoryEntry = {
         id: nextEntryId++,

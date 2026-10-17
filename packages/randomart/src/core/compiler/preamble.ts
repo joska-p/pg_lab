@@ -1,12 +1,9 @@
 /**
- * Preamble.ts — GLSL preamble builder (spec §5.4).
+ * Preamble.ts — GLSL preamble builder.
  *
- * Builds the preamble (precision, uniforms, PI constant, functions) and the main() header/footer,
- * preserving the renderer contract: `in vec2 vUv` + `vec2 v_p = vUv * 2.0 - 1.0;` in main().
- *
- * NOTE: The spec §5.4 mentions `in vec2 v_p` directly, but the randomart renderer contract
- * (established in S3/S4) uses `in vec2 vUv` + coordinate conversion inside main. We preserve that
- * contract here.
+ * Builds the preamble (precision, uniforms, PI constant, dependency functions) and the `main()`
+ * header/footer. It preserves the renderer contract: the fragment shader reads `in vec2 vUv` and
+ * derives `vec2 v_p = vUv * 2.0 - 1.0;` inside `main()`, rather than receiving `in vec2 v_p`.
  */
 
 import type { Catalog, ShaderDependency } from '../catalog/index.ts';
@@ -21,10 +18,15 @@ export interface PreambleResult {
 }
 
 /**
- * Builds the preamble lines from the set of used dependency names. Order: precision → blank →
- * vUv/o_color → blank → u_phase → extra uniforms → blank → PI → blank → functions
+ * Builds the preamble lines from the set of used dependency names, plus any caller-supplied GLSL
+ * function blocks (e.g. the palette). Order: precision → blank → vUv/o_color → blank → u_phase →
+ * extra uniforms → blank → PI → blank → dependency functions → extra functions.
  */
-export function buildPreamble(catalog: Catalog, usedDeps: ReadonlySet<string>): PreambleResult {
+export function buildPreamble(
+    catalog: Catalog,
+    usedDeps: ReadonlySet<string>,
+    extraFunctions: readonly string[] = [],
+): PreambleResult {
     const deps: readonly ShaderDependency[] = catalog.dependencyClosure([...usedDeps]);
 
     const uniformDeps = deps.filter(
@@ -61,12 +63,17 @@ export function buildPreamble(catalog: Catalog, usedDeps: ReadonlySet<string>): 
         }
     }
 
-    // All uniforms (including u_phase) for CompiledShader.uniforms
-    const uniforms = uniformDeps.map((d) => ({ name: d.name, glslType: d.glslType }));
+    if (extraFunctions.length > 0) {
+        lines.push('');
+        for (const fn of extraFunctions) {
+            lines.push(fn);
+        }
+    }
 
-    // u_phase is always in uniforms if it's in the dep closure; but renderer contract requires
-    // it always be declared. Add it to uniforms only if it actually appears in the closure.
-    // (The naïve compiler always reported it in uniforms when animated=true.)
+    // Uniforms reported to the renderer: exactly those in the dependency closure. `u_phase` is
+    // declared in every shader (renderer contract) but only listed here when an animated operator
+    // actually requires it, so `uniforms` stays a faithful description of what is read.
+    const uniforms = uniformDeps.map((d) => ({ name: d.name, glslType: d.glslType }));
 
     return {
         preambleLines: Object.freeze(lines),

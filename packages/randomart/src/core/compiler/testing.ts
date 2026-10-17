@@ -4,8 +4,10 @@
  */
 
 import type { Catalog } from '../catalog/index.ts';
+import { PALETTE_IDS, UNRELATED_COLOR } from '../color/index.ts';
+import type { ColorModel } from '../color/index.ts';
 import type { Node } from '../expression/index.ts';
-import { defaultGrammar, randomizeWeights } from '../grammar/index.ts';
+import { createGrammar, defaultGrammar, randomizeWeights } from '../grammar/index.ts';
 import type { Grammar } from '../grammar/index.ts';
 import { createRng, createSeed } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
@@ -112,26 +114,34 @@ export interface FuzzCase {
 
 /**
  * Deterministic cases mixing the default grammar and randomized grammars (wider operator mix,
- * deeper trees), so the fuzz covers more than the default vocabulary.
+ * deeper trees), and both colour models, so the fuzz covers more than the default vocabulary. Even
+ * `i` is `unrelated` (three independent channels), odd `i` is `correlated` (one field through a
+ * palette) — the two emission paths of `compile` are both exercised.
  */
 export function buildFuzzCases(catalog: Catalog, count: number): FuzzCase[] {
     const cases: FuzzCase[] = [];
+    const base = defaultGrammar(catalog);
 
     for (let i = 0; i < count; i++) {
         const seed = createSeed(i * 7919 + 1);
         const kind = i % 2;
+        const color: ColorModel =
+            i % 2 === 0
+                ? UNRELATED_COLOR
+                : { kind: 'correlated', palette: PALETTE_IDS[i % PALETTE_IDS.length] };
+        const colored = createGrammar(catalog, {
+            weights: base.weights,
+            constraints: base.constraints,
+            color,
+        });
         let grammar: Grammar;
         let label: string;
 
         if (kind === 0) {
-            grammar = defaultGrammar(catalog);
+            grammar = colored;
             label = `default#${i}`;
         } else {
-            grammar = randomizeWeights(
-                catalog,
-                defaultGrammar(catalog),
-                createRng(createSeed(i + 1)),
-            );
+            grammar = randomizeWeights(catalog, colored, createRng(createSeed(i + 1)));
             label = `random#${i}`;
         }
 

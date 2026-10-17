@@ -7,7 +7,8 @@ import { createExpression, createNode } from '../expression/index.ts';
 import { generate } from '../generator/index.ts';
 import { defaultGrammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';
-import { compile, isAtom, isEnclosedInParens, wrapInput } from './compiler.ts';
+import { compile } from './compile.ts';
+import { isAtom, isEnclosedInParens, wrapInput } from './format.ts';
 import { MAX_SOURCE_LENGTH } from './types.ts';
 
 describe('compiler', () => {

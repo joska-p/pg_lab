@@ -1,3 +1,4 @@
+import type { ColorModel } from '../color/index.ts';
 import type { Brand } from '../shared/index.ts';
 
 /**
@@ -23,6 +24,8 @@ export type Grammar = Brand<
     {
         readonly weights: Readonly<Record<string, number>>;
         readonly constraints: Constraints;
+        /** How the generated tree(s) become colour (see `../color`). Always present. */
+        readonly color: ColorModel;
     },
     'Grammar'
 >;

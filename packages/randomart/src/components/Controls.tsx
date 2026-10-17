@@ -4,6 +4,8 @@ import { ControlField } from '@repo/ui/components/ControlField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { NumberField } from '@repo/ui/components/NumberField';
+import { Segmented } from '@repo/ui/components/Segmented';
+import { Select } from '@repo/ui/components/Select';
 import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
 import { useSyncExternalStore } from 'react';
@@ -11,6 +13,8 @@ import { useSyncExternalStore } from 'react';
 import type { ProvenanceCheck } from '../core/artwork/index.ts';
 import { MAX_LOOP_MS, MIN_LOOP_MS } from '../core/artwork/index.ts';
 import type { Operator, OperatorGroup } from '../core/catalog/index.ts';
+import { PALETTES, PALETTE_IDS } from '../core/color/index.ts';
+import type { PaletteId } from '../core/color/index.ts';
 import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT } from '../core/grammar/index.ts';
 import {
     catalog,
@@ -24,6 +28,7 @@ import {
     parseDurationInput,
     resetGrammar,
     restoreEntry,
+    setColorModel,
     setConstraints,
     setDuration,
     setOperatorWeight,
@@ -268,6 +273,44 @@ export function Controls() {
                                         }}
                                     />
                                 </Stack>
+                            </Stack>
+                        </ControlField>
+
+                        {/* ── Colour: how the tree(s) become RGB (`../core/color`) ── */}
+                        <ControlField label="Colour">
+                            <Stack gap="2">
+                                <Segmented
+                                    value={grammar.color.kind}
+                                    onValueChange={(kind) =>
+                                        setColorModel(
+                                            kind === 'correlated'
+                                                ? { kind: 'correlated', palette: 'spectrum' }
+                                                : { kind: 'unrelated' },
+                                        )
+                                    }
+                                    options={[
+                                        { value: 'unrelated', label: 'Unrelated' },
+                                        { value: 'correlated', label: 'Correlated' },
+                                    ]}
+                                />
+                                {grammar.color.kind === 'correlated' ? (
+                                    <Select<PaletteId>
+                                        label="Palette"
+                                        value={grammar.color.palette}
+                                        options={PALETTE_IDS.map((id) => ({
+                                            value: id,
+                                            label: PALETTES[id].label,
+                                        }))}
+                                        onValueChange={(palette) =>
+                                            setColorModel({ kind: 'correlated', palette })
+                                        }
+                                    />
+                                ) : null}
+                                <Text variant="muted">
+                                    {grammar.color.kind === 'correlated'
+                                        ? 'One field through a palette: colour follows the shape.'
+                                        : 'Three independent channels: raw RGB, colour and shape drift apart.'}
+                                </Text>
                             </Stack>
                         </ControlField>
 

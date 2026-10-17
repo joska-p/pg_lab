@@ -1,7 +1,7 @@
 /**
  * Format.ts — GLSL text formatting utilities.
  *
- * - IsAtom / isEnclosedInParens / wrapInput: parenthesization helpers (spec §5.3).
+ * - IsAtom / isEnclosedInParens / wrapInput: parenthesization helpers.
  * - FormatGlslFloat: number → valid GLSL ES 3.00 literal (re-exported from catalog).
  */
 
