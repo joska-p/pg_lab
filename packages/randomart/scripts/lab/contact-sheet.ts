@@ -1,22 +1,22 @@
-// Usage: node scripts/contact-sheet.ts ../randomart/dataset --out sheet.png --grammars 3,17,42,8
-//    or: node scripts/contact-sheet.ts ../randomart/dataset --start 0 --rows 12
+// Usage: node scripts/lab/contact-sheet.ts dataset --out scripts/lab/sheet.png --grammars 3,17,42,8
+//    or: node scripts/lab/contact-sheet.ts dataset --start 0 --rows 12
 import { writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 
-import { loadDataset } from '../src/dataset.ts';
-import { encodePng } from '../src/png.ts';
+import { loadDataset } from './dataset.ts';
+import { encodePng } from './png.ts';
 
 const { values, positionals } = parseArgs({
     allowPositionals: true,
     options: {
-        out: { type: 'string', default: 'sheet.png' },
+        out: { type: 'string', default: 'scripts/lab/sheet.png' },
         rows: { type: 'string', default: '12' },
         start: { type: 'string', default: '0' },
         grammars: { type: 'string' },
     },
 });
 
-const dataset = loadDataset(positionals[0] ?? '../randomart/dataset');
+const dataset = loadDataset(positionals[0] ?? 'dataset');
 const { size, seedsPerGrammar } = dataset;
 const indices = values.grammars
     ? values.grammars.split(',').map(Number)

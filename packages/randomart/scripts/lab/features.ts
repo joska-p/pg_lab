@@ -1,16 +1,16 @@
-// Usage: node scripts/features.ts ../randomart/dataset --out features.json
+// Usage: node scripts/lab/features.ts dataset --out scripts/lab/features.json
 import { writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 
-import { loadDataset } from '../src/dataset.ts';
-import { describeImage } from '../src/descriptors.ts';
+import { describeImage } from '../../src/lab/descriptors.ts';
+import { loadDataset } from './dataset.ts';
 
 const { values, positionals } = parseArgs({
     allowPositionals: true,
-    options: { out: { type: 'string', default: 'features.json' } },
+    options: { out: { type: 'string', default: 'scripts/lab/features.json' } },
 });
 
-const dataset = loadDataset(positionals[0] ?? '../randomart/dataset');
+const dataset = loadDataset(positionals[0] ?? 'dataset');
 const rows: { grammar: number; valid: number; mean: number[]; std: number[] }[] = [];
 let names: string[] = [];
 

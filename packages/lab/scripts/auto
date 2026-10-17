@@ -1,2 +1,0 @@
-#!/usr/bin/env zsh
-node scripts/contact-sheet.ts ../randomart/dataset --out sheet.png --rows 12 && node scripts/features.ts ../randomart/dataset --out features.json && node scripts/pca-report.ts ../randomart/dataset features.json && node scripts/pca-report.ts ../randomart/dataset features.json --only structure && node scripts/pca-report.ts ../randomart/dataset features.json --only color

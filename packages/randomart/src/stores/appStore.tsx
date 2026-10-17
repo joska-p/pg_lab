@@ -32,6 +32,7 @@ import {
     fitConstraints,
     getVocabulary,
     MAX_WEIGHT,
+    randomGrammar,
     randomizeWeights,
 } from '../core/grammar/index.ts';
 import type { ConstraintsInput, Grammar, GrammarSummary } from '../core/grammar/index.ts';
@@ -393,6 +394,27 @@ export function setColorModel(color: ColorModel): void {
 /** Back to the default grammar, same seed. */
 export function resetGrammar(): void {
     commit(defaultGrammar(catalog), store.getState().seed);
+}
+
+/**
+ * Applies a grammar chosen in the UI (a built-in recipe), same seed — the play-mode twin of
+ * `newDistribution`: the grammar is a given, only the image is replayed.
+ */
+export function applyGrammar(grammar: Grammar): void {
+    commit(grammar, store.getState().seed);
+}
+
+/**
+ * "Shuffle": a fully random grammar — vocabulary, weights and constraints drawn at once
+ * (`randomGrammar`). The seed stays, so the new grammar is comparable to the previous one; the
+ * colour model follows the calibrated default so the result is usually readable.
+ */
+export function shuffleGrammar(): void {
+    try {
+        commit(randomGrammar(catalog, createRng(randomSeed())), store.getState().seed);
+    } catch (error) {
+        setActionError(error);
+    }
 }
 
 /**

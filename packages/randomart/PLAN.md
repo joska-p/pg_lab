@@ -48,13 +48,18 @@ Principes : cœur TypeScript pur (pas de DOM, pas de GPU) ; rendu = adaptateur m
     - _Fuite `ShapeBatcher.compileProgram`_ (glaze) : supprime les deux shaders après le link et libère le vertex shader si le fragment échoue — même motif que `shader/compileProgram`.
     - _`clamp` final **conservé** et documenté_ (tranché) : il est prouvé mort par le contrat des opérateurs, mais sert de garde bon marché au bord du rendu (le compilateur accepte n'importe quel catalogue).
 
+- **Deux modes + lab rapatrié** (2026-10-17, décisions utilisateur) :
+    - _Split play/lab_ : `Controls` devient un orchestrateur mince (bascule `Segmented` Play/Lab, état de vue **local** — conventions §3 —, défaut Play ; l'`ErrorBoundary` de panneau reste autour des deux modes). `play/PlayPanel` = le jouet (nouvelle image, shuffle de grammaire complète, select de recettes, Play/Pause, export PNG) ; `lab/LabPanel` = l'atelier actuel (vocabulaire, poids, contraintes, couleur, historique, fichiers, inspecteur), inchangé fonctionnellement.
+    - _Cœur_ : `randomGrammar` (vocabulaire + poids + contraintes tirés d'un coup, `includeTime` false pour les datasets phase 0) extrait dans `core/grammar/randomGrammar.ts` et **consommé par `sampleGrammars`** — une seule source pour le tirage, dataset inchangé (tests verts). `grammarPresets`/`presetIdOf` : recettes figées (Structure/Mono/Ember/Raw RGB) qui réutilisent les poids calibrés du défaut et ne changent que le **modèle de couleur** (qui fait partie de la grammaire) ; recettes provisoires, à remplacer par celles trouvées au lab. Store : `applyGrammar` (recette, même seed) et `shuffleGrammar` (grammaire complète, même seed).
+    - _Lab dans randomart_ : `@repo/lab` **supprimé** (retiré du lockfile). `descriptors`/`pca` (+ tests) dans `randomart/src/lab/` ; scripts Node (`dataset`, `png`, `contact-sheet`, `features`, `pca-report`, `auto`) et leurs artefacts (`features.json`, `pca.json`, `sheet.png`) dans `randomart/scripts/lab/` ; `tsconfig` inclut `scripts`. Sortie identique (vérifié : `features.json` regeneré == fichier commité, seule l'indentation du formateur diffère).
+
 **Pas encore fait** : lot G (rendu épaissi, à la demande) ; **nouvel épic « galerie + recettes »** (voir « Prochaine action »). Le **lot H est clos** (poids, contraintes, durée et budget mesurés).
 
 **Tests** : verts (242 passés, 10 sautés — `measure`/`dump` + les trois sondes de champ/budget, opt-in ; `vp check` : 0 erreur) ; 900 shaders validés par `glslangValidator` (`scripts/validate-glsl.sh`).
 
 ## Prochaine action
 
-1. **Conceptualiser l'épic « galerie + recettes »** (décision utilisateur 2026-10-17, **à cadrer dans une session dédiée — rien commencé**) : un moyen de générer des lots d'images (planches-contact) soi-même — dans l'app et/ou via un script —, de les **classer** (notation manuelle et/ou métrique automatique), puis d'en **déduire de bonnes recettes** (grammaires) — une boucle d'apprentissage légère (« mini réseau de neurones ») qui ajuste les poids/contraintes vers les images jugées bonnes. Points à trancher en conceptualisation : lieu du rendu (in-app GPU vs évaluateur CPU Node — ce dernier duplique la sémantique des opérateurs), modèle d'apprentissage (bandit/évolution vs petit modèle), format de stockage des lots et des notes. Matière première existante : les trois sondes jetables ci-dessous.
+1. **Conceptualiser l'épic « galerie + recettes »** (décision utilisateur 2026-10-17, **à cadrer dans une session dédiée — rien commencé**) : un moyen de générer des lots d'images (planches-contact) soi-même — dans l'app et/ou via un script —, de les **classer** (notation manuelle et/ou métrique automatique), puis d'en **déduire de bonnes recettes** (grammaires) — une boucle d'apprentissage légère (« mini réseau de neurones ») qui ajuste les poids/contraintes vers les images jugées bonnes. Points à trancher en conceptualisation : modèle d'apprentissage (bandit/évolution vs petit modèle), format de stockage des lots et des notes. Tranché le 2026-10-17 : l'analyse (descriptors, PCA) et le banc headless vivent désormais **dans randomart** (`src/lab/`, `scripts/lab/`) ; le rendu des lots sera **in-app GPU** (motif de `dataset/page.ts`), les scripts restant le banc hors-ligne. Matière première : `src/lab/`, `scripts/lab/`, et les trois sondes jetables ci-dessous.
 2. **Politique throw vs repair** : **fait le 2026-10-16** — politique tranchée dans `shared/index.ts`, site par site dans les commentaires, audit dans `findings.md` §8. Restes hors périmètre : F14/F15, F16/F30 ; trouvailles différées (F1, F2, F9, F10) hors périmètre.
 
 ## Sondes jetables (non commitées)
@@ -72,7 +77,7 @@ Dette intrinsèque : l'évaluateur **réimplémente à la main** la sémantique 
 ## Dette connue (petite, non bloquante)
 
 - **`randomizeWeights` : chemin de bascule dormant** : l'UI ne l'appelle plus qu'avec `changeRate: 0` (vocabulaire gelé) ; le toggle aléatoire et `DEFAULT_KEEP` (D39) ne vivent plus que dans le cœur et ses tests. Conservés pour un éventuel geste « grammaire pleine au hasard ».
-- `Controls` : durée de boucle et import de fichier en `<input>` bruts au lieu de composants `ui` (les bornes numériques viennent maintenant des constantes du cœur — `MAX_DEPTH`/`MAX_NODES`/`MIN_LOOP_MS`/`MAX_LOOP_MS`). Laissé de côté : churn UI probablement remplacé par l'épic galerie.
+- `LabPanel` : durée de boucle et import de fichier en `<input>` bruts au lieu de composants `ui` (les bornes numériques viennent maintenant des constantes du cœur — `MAX_DEPTH`/`MAX_NODES`/`MIN_LOOP_MS`/`MAX_LOOP_MS`). Laissé de côté : churn UI probablement remplacé par l'épic galerie.
 
 _(Soldés le 2026-10-17 : poids typés, fuite `ShapeBatcher`, `clamp` final — voir « Fait ».)_
 
@@ -101,7 +106,7 @@ Poids par défaut, contraintes, durée de boucle, répartition du budget du gén
 A..F : faits
 G : à la demande
 H : fait (poids, contraintes, durée, budget mesurés)
-I (galerie + recettes) : à conceptualiser
+I (galerie + recettes) : à conceptualiser (lab rapatrié dans `src/lab` + `scripts/lab`)
 ```
 
 ## Points de friction connus

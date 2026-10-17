@@ -1,9 +1,9 @@
-// Usage: node scripts/pca-report.ts ../randomart/dataset features.json [--only structure|color] [--std]
+// Usage: node scripts/lab/pca-report.ts dataset scripts/lab/features.json [--only structure|color] [--std]
 import { readFileSync, writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 
-import { loadDataset } from '../src/dataset.ts';
-import { correlation, pca } from '../src/pca.ts';
+import { correlation, pca } from '../../src/lab/pca.ts';
+import { loadDataset } from './dataset.ts';
 
 const COLOR = new Set([
     'meanSaturation',
@@ -19,12 +19,14 @@ const { values, positionals } = parseArgs({
     options: {
         only: { type: 'string' },
         std: { type: 'boolean', default: false },
-        out: { type: 'string', default: 'pca.json' },
+        out: { type: 'string', default: 'scripts/lab/pca.json' },
     },
 });
 
-const dataset = loadDataset(positionals[0] ?? '../randomart/dataset');
-const features = JSON.parse(readFileSync(positionals[1] ?? 'features.json', 'utf8')) as {
+const dataset = loadDataset(positionals[0] ?? 'dataset');
+const features = JSON.parse(
+    readFileSync(positionals[1] ?? 'scripts/lab/features.json', 'utf8'),
+) as {
     names: string[];
     rows: { grammar: number; mean: number[]; std: number[] }[];
 };

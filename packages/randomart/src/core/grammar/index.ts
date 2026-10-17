@@ -11,6 +11,8 @@ export {
     weightOf,
 } from './grammar.ts';
 export { DEFAULT_KEEP, randomizeWeights, type RandomizeWeightsOptions } from './randomize.ts';
+export { grammarPresets, presetIdOf, type GrammarPreset } from './presets.ts';
+export { randomGrammar, type RandomGrammarOptions } from './randomGrammar.ts';
 export {
     type Constraints,
     type ConstraintsInput,
