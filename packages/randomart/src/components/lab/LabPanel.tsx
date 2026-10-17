@@ -15,7 +15,6 @@ import { COLOR_SPACE_IDS, COLOR_SPACES, MIN_SHARE_DEPTH } from '../../core/color
 import type { ColorSpaceId } from '../../core/color/index.ts';
 import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, weightOf } from '../../core/grammar/index.ts';
 import {
-    catalog,
     exportArtworkFile,
     exportGrammarFile,
     exportPng,
@@ -44,6 +43,7 @@ import {
     useSeed,
     useShaderError,
 } from '../../stores/appStore';
+import { catalog } from '../../stores/catalogueStore.ts';
 import { Inspector } from '../Inspector';
 
 const PROVENANCE_LABELS: Record<ProvenanceCheck, string> = {

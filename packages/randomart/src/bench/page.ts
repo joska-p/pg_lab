@@ -1,74 +1,21 @@
-import { createDevicePixelRatio } from '@repo/glaze/core/render';
-import { createGpuSurface } from '@repo/glaze/gpu/GpuSurface';
-import type { GpuSurface } from '@repo/glaze/gpu/GpuSurface';
-
 import { deserializeGrammar, serializeGrammar } from '../core/artwork/index.ts';
 import type { GrammarData } from '../core/artwork/index.ts';
 import { createDefaultCatalog } from '../core/catalog/index.ts';
-import { compile } from '../core/compiler/index.ts';
-import { generate, GENERATOR_VERSION } from '../core/generator/index.ts';
+import { GENERATOR_VERSION } from '../core/generator/index.ts';
 import { sampleGrammars } from '../core/grammar/index.ts';
 import type { SampleOptions } from '../core/grammar/index.ts';
 import { createSeed } from '../core/random/index.ts';
-import { DEFAULT_CONTEXT_OPTIONS } from '../renderer/contract.ts';
+import { createBatchRenderer } from '../renderer/batch.ts';
 
 /**
- * Bench renderer page: the in-browser half of the offline bench. It owns every TypeScript step
- * (sampling, generation, compilation, GPU draw) and `scripts/bench/generate.mjs` only drives it
- * through `window.benchApi`. Images are drawn at phase 0 (`u_phase` is never set: the uniform
- * defaults to 0), one program at a time, on a single reused surface.
+ * Bench page: the in-browser half of the offline bench. It owns no rendering of its own any more —
+ * the GPU work lives in `src/renderer/batch.ts` (the same renderer the gallery uses). This file is
+ * only the wire adapter: a serialization boundary for `scripts/bench/generate.mjs`, which drives it
+ * through `window.benchApi`. Images are drawn at phase 0, one program at a time, on the renderer's
+ * single reused surface.
  */
 const catalog = createDefaultCatalog();
-
-interface Stage {
-    readonly size: number;
-    readonly canvas: HTMLCanvasElement;
-    readonly surface: GpuSurface;
-    readonly readback: CanvasRenderingContext2D;
-}
-
-let stage: Stage | null = null;
-
-function ensureStage(size: number): Stage {
-    if (stage?.size === size) {
-        return stage;
-    }
-
-    stage?.surface.destroy();
-    stage?.canvas.remove();
-
-    // The canvas must be in the DOM with an explicit CSS size *before* the surface exists:
-    // `GpuSurface` sizes its buffer from `clientWidth`, which is 0 for a detached canvas.
-    const canvas = document.createElement('canvas');
-
-    canvas.style.cssText = `display:block;width:${size}px;height:${size}px`;
-    document.body.append(canvas);
-
-    const surface = createGpuSurface({
-        canvas,
-        dpr: createDevicePixelRatio(1),
-        contextOptions: DEFAULT_CONTEXT_OPTIONS,
-    });
-
-    if (canvas.width !== size || canvas.height !== size) {
-        throw new Error(`Canvas is ${canvas.width}x${canvas.height}, expected ${size}x${size}`);
-    }
-
-    const readbackCanvas = document.createElement('canvas');
-
-    readbackCanvas.width = size;
-    readbackCanvas.height = size;
-
-    const readback = readbackCanvas.getContext('2d', { willReadFrequently: true });
-
-    if (!readback) {
-        throw new Error('2D readback context unavailable');
-    }
-
-    stage = { size, canvas, surface, readback };
-
-    return stage;
-}
+const renderer = createBatchRenderer(catalog);
 
 function bytesToBase64(bytes: Uint8Array): string {
     const CHUNK = 0x8000;
@@ -95,48 +42,28 @@ function renderGrammar(
     seeds: readonly number[],
     size: number,
 ): RenderedGrammar {
-    const { surface, canvas, readback } = ensureStage(size);
-    const grammar = deserializeGrammar(catalog, grammarData);
-    const pixelCount = size * size;
-    const rgb = new Uint8Array(seeds.length * pixelCount * 3);
+    const [batch] = renderer.render(
+        [{ grammar: deserializeGrammar(catalog, grammarData), seeds: seeds.map(createSeed) }],
+        size,
+    );
+
+    if (!batch) {
+        throw new Error('Batch renderer returned no batch for one request');
+    }
+
     const ok: boolean[] = [];
     const errors: (string | null)[] = [];
+    const rgb = new Uint8Array(seeds.length * size * size * 3);
+    const imageBytes = size * size * 3;
 
-    seeds.forEach((rawSeed, index) => {
-        try {
-            const expression = generate(catalog, grammar, createSeed(rawSeed));
-            const { source } = compile(catalog, expression, { channels: grammar.channels });
-            const attempt = surface.tryCreateProgram(source);
+    batch.cells.forEach((cell, index) => {
+        ok.push(cell.error === null);
+        errors.push(cell.error);
 
-            // A driver refusal is a normal outcome for a generated shader: record it, move on.
-            if (!attempt.ok) {
-                ok.push(false);
-                errors.push(attempt.error.message);
-
-                return;
-            }
-
-            try {
-                surface.renderProgram(attempt.program);
-                readback.drawImage(canvas, 0, 0);
-
-                const { data } = readback.getImageData(0, 0, size, size);
-                const base = index * pixelCount * 3;
-
-                for (let p = 0; p < pixelCount; p++) {
-                    rgb[base + p * 3] = data[p * 4];
-                    rgb[base + p * 3 + 1] = data[p * 4 + 1];
-                    rgb[base + p * 3 + 2] = data[p * 4 + 2];
-                }
-            } finally {
-                attempt.program.destroy();
-            }
-
-            ok.push(true);
-            errors.push(null);
-        } catch (error) {
-            ok.push(false);
-            errors.push(error instanceof Error ? error.message : String(error));
+        // A failed image stays all zeros: the dataset contract (`ok[]` flags them, the offline side
+        // never reads the pixels of a false cell).
+        if (cell.image) {
+            rgb.set(cell.image.rgb, index * imageBytes);
         }
     });
 

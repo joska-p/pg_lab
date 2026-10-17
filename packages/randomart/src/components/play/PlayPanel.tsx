@@ -9,7 +9,6 @@ import { useSyncExternalStore } from 'react';
 import { grammarPresets, presetIdOf } from '../../core/grammar/index.ts';
 import {
     applyGrammar,
-    catalog,
     exportPng,
     newImage,
     shuffleGrammar,
@@ -22,6 +21,7 @@ import {
     useSeed,
     useShaderError,
 } from '../../stores/appStore';
+import { catalog } from '../../stores/catalogueStore.ts';
 
 /**
  * The built-in recipes, computed once: `randomGrammar`/`grammarPresets` are pure and the catalog is

@@ -19,7 +19,6 @@ import {
     serializeGrammarFile,
 } from '../core/artwork/index.ts';
 import type { Artwork, ProvenanceCheck } from '../core/artwork/index.ts';
-import { createDefaultCatalog } from '../core/catalog/index.ts';
 import type { ChannelModel } from '../core/color/index.ts';
 import { compile } from '../core/compiler/index.ts';
 import type { CompiledShader } from '../core/compiler/index.ts';
@@ -38,8 +37,8 @@ import {
 import type { ConstraintsInput, Grammar, GrammarSummary } from '../core/grammar/index.ts';
 import { createRng, createSeed, randomSeed } from '../core/random/index.ts';
 import type { Rng, Seed } from '../core/random/index.ts';
-import { DEFAULT_LOOP_DURATION } from '../renderer/contract';
-
+import { DEFAULT_LOOP_DURATION } from '../renderer/contract.ts';
+import { catalog } from './catalogueStore.ts';
 /**
  * One explored state: enough to get the exact same image back. Generated entries replay from
  * `(grammar, seed)`; imported artworks keep their expression (it is the reference — D1).
@@ -56,12 +55,6 @@ export interface HistoryEntry {
 }
 
 const HISTORY_LIMIT = 30;
-
-/**
- * The app-wide catalog: `Operator` instances probe their multiplicities once, at construction, so
- * every consumer must share this single instance.
- */
-export const catalog = createDefaultCatalog();
 
 // Time terminals are always in the default vocabulary: one seed = one expression = one shader.
 // Animation is a matter of playback (Play/Pause on the clock), not of grammar.
@@ -84,7 +77,10 @@ let nextEntryId = 1;
  */
 let grammarEditId: number | null = null;
 
+export type Mode = 'play' | 'gallery' | 'lab';
+
 interface AppStoreState {
+    mode: Mode;
     clockStore: ClockStore;
     shaderError: ShaderError | null;
     /**
@@ -108,6 +104,7 @@ interface AppStoreState {
 const nullClockStore = createNullClockStore();
 
 const store = create<AppStoreState>(() => ({
+    mode: 'play',
     clockStore: nullClockStore,
     shaderError: null,
     actionError: null,
@@ -123,9 +120,13 @@ const store = create<AppStoreState>(() => ({
     canvas: null,
 }));
 
-// ---------------------------------------------------------------------------
-// Simple state accessors
-// ---------------------------------------------------------------------------
+export function useMode(): Mode {
+    return store((s) => s.mode);
+}
+
+export function setMode(mode: Mode): void {
+    store.setState({ mode });
+}
 
 export function useClockStore(): ClockStore {
     return store((s) => s.clockStore);

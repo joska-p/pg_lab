@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { serializeGrammar } from '../artwork/index.ts';
 import { createDefaultCatalog } from '../catalog/index.ts';
-import { RAW_CHANNELS } from '../color/index.ts';
+import { DEFAULT_CHANNELS, RAW_CHANNELS } from '../color/index.ts';
 import { generate } from '../generator/index.ts';
 import { getVocabulary, weightOf } from '../grammar/index.ts';
 import { sampleGrammars } from './sample.ts';
@@ -25,6 +25,12 @@ describe('sampleGrammars', () => {
             expect(weightOf(grammar.weights, 'tsin')).toBe(0);
             expect(weightOf(grammar.weights, 'tcos')).toBe(0);
             expect(grammar.channels).toEqual(RAW_CHANNELS);
+        }
+    });
+
+    it('honours a custom channel model (the gallery passes the app default)', () => {
+        for (const { grammar } of sampleGrammars(catalog, 20, { channels: DEFAULT_CHANNELS })) {
+            expect(grammar.channels).toEqual(DEFAULT_CHANNELS);
         }
     });
 
