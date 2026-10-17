@@ -25,3 +25,4 @@ dist-ssr
 
 # glslangValidator dump (scripts/validate-glsl.sh)
 .shaders
+dataset/

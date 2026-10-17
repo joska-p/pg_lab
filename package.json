@@ -14,6 +14,7 @@
         "@types/node": "catalog:",
         "@vitejs/plugin-react": "catalog:",
         "lightningcss": "catalog:",
+        "playwright-core": "catalog:",
         "vite-plus": "catalog:"
     },
     "devEngines": {
