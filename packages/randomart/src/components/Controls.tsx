@@ -5,24 +5,23 @@ import { Stack } from '@repo/ui/components/Stack';
 import { setMode, useMode } from '../stores/appStore';
 import type { Mode } from '../stores/appStore';
 import { GalleryPanel } from './gallery/GalleryPanel';
+import { HistoryPanel } from './history/HistoryPanel';
 import { LabPanel } from './lab/LabPanel';
-import { PlayPanel } from './play/PlayPanel';
 
 const MODE_OPTIONS = [
-    { value: 'play', label: 'Play' },
-    { value: 'gallery', label: 'Gallery' },
     { value: 'lab', label: 'Lab' },
+    { value: 'history', label: 'History' },
+    { value: 'gallery', label: 'Gallery' },
 ] as const satisfies readonly { value: Mode; label: string }[];
 
 /**
- * The panel orchestrator: one switch between the three faces of randomart.
+ * The panel orchestrator: one switch between the two faces of randomart.
  *
- * - **Play** (toy): the immediate gesture — generate, shuffle, pick a recipe, keep the image.
- * - **Gallery** (lots): draw a lot of candidate grammars, look at the contact sheet, spot the dead
- *   ones (loop 2: exploring grammars instead of seeds).
- * - **Lab** (tool): the grammar workshop — vocabulary, weights, constraints, history and files.
+ * - **Lab** (workshop): the unified creation and grammar workshop — presets, weights, constraints,
+ *   vocabulary, playback, history and artwork files.
+ * - **Gallery** (lots): draw candidate grammars and inspect contact sheets.
  *
- * The mode now lives in the store so the shell (`ExperimentShell`/`App`) can make the Stage switch
+ * The mode lives in the store so the shell (`ExperimentShell`/`App`) can make the Stage switch
  * between the live canvas and the gallery planche. The panel-level error boundary is kept around
  * all modes, so a failure in any of them leaves the stage intact.
  */
@@ -32,15 +31,10 @@ export function Controls() {
     return (
         <ErrorBoundary showStack={import.meta.env.DEV}>
             <Stack gap="6">
-                <Segmented<Mode>
-                    label="Mode"
-                    value={mode}
-                    options={MODE_OPTIONS}
-                    onValueChange={setMode}
-                />
-                {mode === 'play' ? <PlayPanel /> : null}
-                {mode === 'gallery' ? <GalleryPanel /> : null}
+                <Segmented<Mode> value={mode} options={MODE_OPTIONS} onValueChange={setMode} />
                 {mode === 'lab' ? <LabPanel /> : null}
+                {mode === 'history' ? <HistoryPanel /> : null}
+                {mode === 'gallery' ? <GalleryPanel /> : null}
             </Stack>
         </ErrorBoundary>
     );

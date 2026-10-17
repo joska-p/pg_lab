@@ -38,10 +38,18 @@ const justifyContent = stylex.create({
     evenly: { justifyContent: 'space-evenly' },
 });
 
+const alignItems = stylex.create({
+    start: { alignItems: 'flex-start' },
+    center: { alignItems: 'center' },
+    end: { alignItems: 'flex-end' },
+    stretch: { alignItems: 'stretch' },
+});
+
 interface StackProps extends Omit<React.ComponentProps<'div'>, 'style' | 'className'> {
     direction?: keyof typeof directions;
     gap?: keyof typeof gaps;
     justify?: keyof typeof justifyContent;
+    alignItem?: keyof typeof alignItems;
     children?: React.ReactNode;
     style?: StyleXStyles;
 }
@@ -50,6 +58,7 @@ export function Stack({
     direction = 'vertical',
     gap = '3',
     justify = 'start',
+    alignItem = 'stretch',
     children,
     style,
     ...props
@@ -62,6 +71,7 @@ export function Stack({
                 directions[direction],
                 gaps[gap],
                 justifyContent[justify],
+                alignItems[alignItem],
                 style,
             )}
         >

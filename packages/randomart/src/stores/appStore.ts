@@ -77,7 +77,7 @@ let nextEntryId = 1;
  */
 let grammarEditId: number | null = null;
 
-export type Mode = 'play' | 'gallery' | 'lab';
+export type Mode = 'gallery' | 'lab' | 'history';
 
 interface AppStoreState {
     mode: Mode;
@@ -104,7 +104,7 @@ interface AppStoreState {
 const nullClockStore = createNullClockStore();
 
 const store = create<AppStoreState>(() => ({
-    mode: 'play',
+    mode: 'lab',
     clockStore: nullClockStore,
     shaderError: null,
     actionError: null,
