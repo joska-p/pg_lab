@@ -99,10 +99,10 @@ describe('compiler', () => {
             expect(compiled.source).toContain('const float PI = 3.141592653589793;');
             expect(compiled.source).toContain('vec2 v_p = vUv * 2.0 - 1.0;');
 
-            // New spec §5.3 output format: vec3 rgb + clamp
-            expect(compiled.source).toContain('vec3 rgb = vec3(v_p.x, v_p.y, 0.25);');
+            // Single colour path: the triplet through the colour space's conversion (sRGB default).
+            expect(compiled.source).toContain('vec3 ra_srgb(vec3 raw)');
             expect(compiled.source).toContain(
-                'o_color = vec4(clamp(rgb * 0.5 + 0.5, 0.0, 1.0), 1.0);',
+                'o_color = vec4(ra_srgb(vec3(v_p.x, v_p.y, 0.25)), 1.0);',
             );
 
             // Metadata & stats

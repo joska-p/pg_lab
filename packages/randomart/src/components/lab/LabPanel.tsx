@@ -3,7 +3,6 @@ import { Checkbox } from '@repo/ui/components/Checkbox';
 import { ControlField } from '@repo/ui/components/ControlField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { NumberField } from '@repo/ui/components/NumberField';
-import { Segmented } from '@repo/ui/components/Segmented';
 import { Select } from '@repo/ui/components/Select';
 import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
@@ -12,8 +11,8 @@ import { useSyncExternalStore } from 'react';
 import type { ProvenanceCheck } from '../../core/artwork/index.ts';
 import { MAX_LOOP_MS, MIN_LOOP_MS } from '../../core/artwork/index.ts';
 import type { Operator, OperatorGroup } from '../../core/catalog/index.ts';
-import { PALETTES, PALETTE_IDS } from '../../core/color/index.ts';
-import type { PaletteId } from '../../core/color/index.ts';
+import { COLOR_SPACE_IDS, COLOR_SPACES, MIN_SHARE_DEPTH } from '../../core/color/index.ts';
+import type { ColorSpaceId } from '../../core/color/index.ts';
 import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, weightOf } from '../../core/grammar/index.ts';
 import {
     catalog,
@@ -27,7 +26,7 @@ import {
     parseDurationInput,
     resetGrammar,
     restoreEntry,
-    setColorModel,
+    setChannels,
     setConstraints,
     setDuration,
     setOperatorWeight,
@@ -278,40 +277,40 @@ export function LabPanel() {
                         </Stack>
                     </ControlField>
 
-                    {/* ── Colour: how the tree(s) become RGB (`../../core/color`) ── */}
-                    <ControlField label="Colour">
+                    {/* ── Channels: how the tree(s) become RGB (`../../core/color`) ── */}
+                    <ControlField label="Channels">
                         <Stack gap="2">
-                            <Segmented
-                                value={grammar.color.kind}
-                                onValueChange={(kind) =>
-                                    setColorModel(
-                                        kind === 'correlated'
-                                            ? { kind: 'correlated', palette: 'spectrum' }
-                                            : { kind: 'unrelated' },
-                                    )
+                            <Select<ColorSpaceId>
+                                label="Space"
+                                value={grammar.channels.space}
+                                options={COLOR_SPACE_IDS.map((id) => ({
+                                    value: id,
+                                    label: COLOR_SPACES[id].label,
+                                }))}
+                                onValueChange={(space) =>
+                                    setChannels({ ...grammar.channels, space })
                                 }
-                                options={[
-                                    { value: 'unrelated', label: 'Unrelated' },
-                                    { value: 'correlated', label: 'Correlated' },
-                                ]}
                             />
-                            {grammar.color.kind === 'correlated' ? (
-                                <Select<PaletteId>
-                                    label="Palette"
-                                    value={grammar.color.palette}
-                                    options={PALETTE_IDS.map((id) => ({
-                                        value: id,
-                                        label: PALETTES[id].label,
-                                    }))}
-                                    onValueChange={(palette) =>
-                                        setColorModel({ kind: 'correlated', palette })
-                                    }
-                                />
-                            ) : null}
+                            <NumberField
+                                label="shareDepth"
+                                min={MIN_SHARE_DEPTH}
+                                max={grammar.constraints.maxDepth}
+                                value={grammar.channels.shareDepth}
+                                onValueChange={(shareDepth) =>
+                                    // Raw value through: the store drops a non-finite edit (F21)
+                                    // and the core repair clamps/rounds into [0, maxDepth].
+                                    setChannels({ ...grammar.channels, shareDepth })
+                                }
+                            />
                             <Text variant="muted">
-                                {grammar.color.kind === 'correlated'
-                                    ? 'One field through a palette: colour follows the shape.'
-                                    : 'Three independent channels: raw RGB, colour and shape drift apart.'}
+                                {grammar.channels.shareDepth === 0
+                                    ? 'Three independent channels: raw RGB, colour and shape drift apart.'
+                                    : `Trunk shared on ${String(grammar.channels.shareDepth)} level(s): colour follows the shape.${
+                                          grammar.channels.shareDepth >=
+                                          grammar.constraints.maxDepth
+                                              ? ' Fully shared: greyscale structure.'
+                                              : ''
+                                      }`}
                             </Text>
                         </Stack>
                     </ControlField>

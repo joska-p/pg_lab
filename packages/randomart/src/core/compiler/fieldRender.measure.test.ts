@@ -77,7 +77,10 @@ const evalNode = (node: Node, p: P, phase: number): number => {
     }
 };
 
-// --- Palettes (mirror of color/index.ts) -----------------------------------
+// --- Contact-sheet colormaps ------------------------------------------------
+// Deliberately local: the core no longer ships palettes (channels are a colour space + a shared
+// trunk depth now). A contact sheet still needs *some* map from the raw field to RGB, so the probe
+// keeps its own.
 const clamp01 = (v: number): number => Math.min(1, Math.max(0, v));
 
 function cosine(a: number[], b: number[], c: number[], d: number[]) {
@@ -188,7 +191,7 @@ describe('field render', () => {
         return createGrammar(catalog, {
             weights,
             constraints: base.constraints,
-            color: base.color,
+            channels: base.channels,
         });
     };
 

@@ -18,7 +18,11 @@ Un terme = un sens. Si un mot est utilisé autrement ailleurs dans le projet, c'
 
 **Contraintes** — Les limites de forme de l'expression : profondeur minimale des feuilles (`minDepth`), profondeur maximale (`maxDepth`), nombre de nœuds maximal par canal (`maxNodes`).
 
-**Grammaire** — Vocabulaire + poids + contraintes. Elle définit un espace d'expressions possibles.
+**Grammaire** — Vocabulaire + poids + contraintes + canaux. Elle définit un espace d'expressions possibles.
+
+**Canaux** — Comment les trois arbres (rouge, vert, bleu) deviennent la couleur écrite par le shader. Deux axes orthogonaux : `space` (`srgb`, `oklch`, `oklab`, `hsl`) dit comment le triplet `(r, g, b)` est interprété avant sortie ; `shareDepth` dit jusqu'à quelle profondeur les trois canaux partagent leur structure — `0` = trois arbres indépendants, `≥ maxDepth` = un seul arbre (donc `r = g = b`). `shareDepth` est l'axe de corrélation : plus le tronc est profond, plus la couleur suit la forme.
+
+**Tronc (partagé)** — Les `shareDepth` premiers niveaux de l'expression : leur opérateur et leurs paramètres sont tirés **une fois**, donc les trois canaux y coïncident. Sous le tronc, chaque canal diverge sur les opérateurs et les paramètres.
 
 **Seed** — Un nombre qui choisit une expression précise à l'intérieur d'une grammaire.
 

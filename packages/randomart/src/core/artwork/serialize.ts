@@ -1,6 +1,6 @@
 import type { Catalog } from '../catalog/index.ts';
-import { isPaletteId, UNRELATED_COLOR } from '../color/index.ts';
-import type { ColorModel } from '../color/index.ts';
+import { isColorSpaceId } from '../color/index.ts';
+import type { ChannelModel } from '../color/index.ts';
 import { deserialize, serialize } from '../expression/index.ts';
 import type { ExpressionData } from '../expression/index.ts';
 import { createGrammar, weightOf } from '../grammar/index.ts';
@@ -27,7 +27,7 @@ export const MAX_GRAMMAR_FILE_LENGTH = 1_000_000;
 export interface GrammarData {
     readonly weights: Readonly<Record<string, number>>;
     readonly constraints: ConstraintsInput;
-    readonly color: ColorModel;
+    readonly channels: ChannelModel;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -56,38 +56,39 @@ export function serializeGrammar(grammar: Grammar): GrammarData {
 
     const { minDepth, maxDepth, maxNodes } = grammar.constraints;
 
-    return { weights, constraints: { minDepth, maxDepth, maxNodes }, color: grammar.color };
+    return { weights, constraints: { minDepth, maxDepth, maxNodes }, channels: grammar.channels };
 }
 
 /**
- * Reads the optional `color` field of a grammar object. Absent → `UNRELATED_COLOR` (a grammar
- * written before the colour model existed, or built by hand without one); present but malformed →
- * refuses with the field path (content, not an editing quantity — throw-vs-repair policy).
+ * Reads the optional `channels` field of a grammar object. Absent → `undefined`, i.e. the
+ * `RAW_CHANNELS` fallback of `createGrammar` (a grammar written before channels existed, or built
+ * by hand). Present but malformed → refuses with the field path. The colour space is content (an
+ * unknown id has no canonical repair), so it is checked here; `shareDepth` is an editing quantity,
+ * a plain number whose range `createGrammar` repairs (throw-vs-repair policy), so only its type is
+ * checked.
  */
-function readColor(data: unknown, path: string): ColorModel {
+function readChannels(data: unknown, path: string): ChannelModel | undefined {
     if (data === undefined) {
-        return UNRELATED_COLOR;
+        return undefined;
     }
 
     if (!isRecord(data)) {
-        throw new Error(`${path}.color: object expected`);
+        throw new Error(`${path}.channels: object expected`);
     }
 
-    if (data.kind === 'unrelated') {
-        return { kind: 'unrelated' };
+    rejectUnknownKeys(data, ['space', 'shareDepth'], `${path}.channels`);
+
+    if (!isColorSpaceId(data.space)) {
+        throw new Error(
+            `${path}.channels.space: unknown colour space ${JSON.stringify(data.space)}`,
+        );
     }
 
-    if (data.kind === 'correlated') {
-        if (!isPaletteId(data.palette)) {
-            throw new Error(
-                `${path}.color.palette: unknown palette ${JSON.stringify(data.palette)}`,
-            );
-        }
-
-        return { kind: 'correlated', palette: data.palette };
+    if (typeof data.shareDepth !== 'number') {
+        throw new Error(`${path}.channels.shareDepth: number expected`);
     }
 
-    throw new Error(`${path}.color.kind: unknown color model ${JSON.stringify(data.kind)}`);
+    return { space: data.space, shareDepth: data.shareDepth };
 }
 
 /** Accepts unknown input and validates it through `createGrammar`; errors carry the field path. */
@@ -96,7 +97,7 @@ export function deserializeGrammar(catalog: Catalog, data: unknown, path = 'gram
         throw new Error(`${path}: object expected`);
     }
 
-    rejectUnknownKeys(data, ['weights', 'constraints', 'color'], path);
+    rejectUnknownKeys(data, ['weights', 'constraints', 'channels'], path);
 
     const rawWeights = data.weights;
 
@@ -138,12 +139,12 @@ export function deserializeGrammar(catalog: Catalog, data: unknown, path = 'gram
         maxNodes: readNumber('maxNodes'),
     };
 
-    // Read before the try: a malformed colour carries its own clean field path, like the other
-    // structural reads above (only `createGrammar`'s own errors get the grammar-level prefix).
-    const color = readColor(data.color, path);
+    // Read before the try: a malformed channel model carries its own clean field path, like the
+    // other structural reads above (only `createGrammar`'s own errors get the grammar-level prefix).
+    const channels = readChannels(data.channels, path);
 
     try {
-        return createGrammar(catalog, { weights, constraints, color });
+        return createGrammar(catalog, { weights, constraints, channels });
     } catch (error) {
         throw new Error(`${path}: ${error instanceof Error ? error.message : String(error)}`, {
             cause: error,

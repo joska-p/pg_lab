@@ -222,6 +222,6 @@ export function randomizeWeights(
     return createGrammar(catalog, {
         weights: quantized,
         constraints: grammar.constraints,
-        color: grammar.color,
+        channels: grammar.channels,
     });
 }

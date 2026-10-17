@@ -34,7 +34,7 @@ describe('shader dump for glslangValidator', () => {
                 try {
                     const { source } = compile(catalog, expression, {
                         sharing: policy,
-                        color: grammar.color,
+                        channels: grammar.channels,
                     });
 
                     writeFileSync(

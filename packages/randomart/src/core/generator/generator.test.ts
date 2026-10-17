@@ -64,6 +64,35 @@ describe('generator', () => {
         }
     });
 
+    it('respects the invariants at every shared-trunk depth (0 … maxDepth)', () => {
+        const base = defaultGrammar(catalog);
+        const allowedOperators = new Set(Object.keys(base.weights));
+
+        for (let shareDepth = 0; shareDepth <= base.constraints.maxDepth; shareDepth++) {
+            const grammar = createGrammar(catalog, {
+                weights: base.weights,
+                constraints: base.constraints,
+                channels: { space: 'oklch', shareDepth },
+            });
+
+            for (const seed of [createSeed(1), createSeed(42), createSeed(1234)]) {
+                const expr = generate(catalog, grammar, seed);
+
+                for (const channel of [expr.r, expr.g, expr.b]) {
+                    expect(nodeCount(channel)).toBeLessThanOrEqual(grammar.constraints.maxNodes);
+                    expect(depth(channel)).toBeLessThanOrEqual(grammar.constraints.maxDepth);
+                    checkNodeInvariants(
+                        channel,
+                        1,
+                        grammar.constraints.minDepth,
+                        grammar.constraints.maxDepth,
+                        allowedOperators,
+                    );
+                }
+            }
+        }
+    });
+
     it('handles edge case: vocabulary with a single terminal', () => {
         const grammar = createGrammar(catalog, {
             weights: { x: 1 },

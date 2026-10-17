@@ -1,6 +1,6 @@
 import type { Catalog } from '../catalog/index.ts';
-import { UNRELATED_COLOR } from '../color/index.ts';
-import type { ColorModel } from '../color/index.ts';
+import { RAW_CHANNELS } from '../color/index.ts';
+import type { ChannelModel } from '../color/index.ts';
 import { createGrammar, defaultGrammar } from './grammar.ts';
 import type { Grammar } from './types.ts';
 
@@ -14,58 +14,60 @@ export interface GrammarPreset {
 
 /**
  * Canonical text of a grammar for identity comparison. Weights are already sorted by
- * `createGrammar`, constraints have a fixed key order, so equal grammars give equal text. Used to
- * tell which built-in recipe (if any) the current grammar is.
+ * `createGrammar`, constraints and channels have a fixed key order, so equal grammars give equal
+ * text. Used to tell which built-in recipe (if any) the current grammar is.
  */
 function signature(grammar: Grammar): string {
     return JSON.stringify({
         weights: grammar.weights,
         constraints: grammar.constraints,
-        color: grammar.color,
+        channels: grammar.channels,
     });
 }
 
 /**
  * The built-in recipes of the play mode. They all reuse the calibrated `defaultGrammar` weights and
- * differ in their colour model — colour is part of the grammar (it decides how the field becomes an
- * image), so this is a real recipe dimension, not a display option.
+ * differ in their channel model — how the triplet becomes colour (`space`) and how much structure
+ * the three channels share (`shareDepth`) are both part of the grammar, so this is a real recipe
+ * dimension, not a display option.
  *
  * These are provisional, hand-picked starting points: the recipes actually discovered by the lab
  * (contact sheets, rating, weight adjustment) will extend or replace this list.
  */
 export function grammarPresets(catalog: Catalog): readonly GrammarPreset[] {
     const base = defaultGrammar(catalog);
-    const withColor = (color: ColorModel): Grammar =>
+    const withChannels = (channels: ChannelModel): Grammar =>
         createGrammar(catalog, {
             weights: base.weights,
             constraints: base.constraints,
-            color,
+            channels,
         });
 
     return [
         {
             id: 'structure',
             label: 'Structure',
-            description: 'Calibrated default: one field through the spectrum palette.',
+            description: 'Calibrated default: a shallow shared trunk read as OKLCH.',
             grammar: base,
         },
         {
             id: 'mono',
             label: 'Mono',
-            description: 'The same field in greyscale: pure structure.',
-            grammar: withColor({ kind: 'correlated', palette: 'mono' }),
+            description: 'One fully shared tree: pure greyscale structure.',
+            // `shareDepth = maxDepth` means no channel ever diverges, so `r = g = b`.
+            grammar: withChannels({ space: 'oklch', shareDepth: base.constraints.maxDepth }),
         },
         {
-            id: 'ember',
-            label: 'Ember',
-            description: 'The same field through a warm palette.',
-            grammar: withColor({ kind: 'correlated', palette: 'ember' }),
+            id: 'oklab',
+            label: 'OKLab',
+            description: 'The same shared trunk in OKLab: flatter, more even colour.',
+            grammar: withChannels({ space: 'oklab', shareDepth: 2 }),
         },
         {
             id: 'rgb',
             label: 'Raw RGB',
-            description: 'Three independent channels: colour and shape drift apart.',
-            grammar: withColor(UNRELATED_COLOR),
+            description: 'Three independent channels in sRGB: colour and shape drift apart.',
+            grammar: withChannels(RAW_CHANNELS),
         },
     ];
 }

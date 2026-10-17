@@ -7,6 +7,8 @@
  */
 
 import type { Catalog, ShaderDependency } from '../catalog/index.ts';
+import { colorSpaceGlsl } from '../color/index.ts';
+import type { ColorSpaceId } from '../color/index.ts';
 
 export interface PreambleResult {
     /** Lines that go before void main(). */
@@ -18,14 +20,14 @@ export interface PreambleResult {
 }
 
 /**
- * Builds the preamble lines from the set of used dependency names, plus any caller-supplied GLSL
- * function blocks (e.g. the palette). Order: precision → blank → vUv/o_color → blank → u_phase →
- * extra uniforms → blank → PI → blank → dependency functions → extra functions.
+ * Builds the preamble lines from the set of used dependency names, plus the colour space's
+ * conversion function. Order: precision → blank → vUv/o_color → blank → u_phase → extra uniforms →
+ * blank → PI → blank → dependency functions → blank → colour space function.
  */
 export function buildPreamble(
     catalog: Catalog,
     usedDeps: ReadonlySet<string>,
-    extraFunctions: readonly string[] = [],
+    colorSpace: ColorSpaceId = 'srgb',
 ): PreambleResult {
     const deps: readonly ShaderDependency[] = catalog.dependencyClosure([...usedDeps]);
 
@@ -63,12 +65,7 @@ export function buildPreamble(
         }
     }
 
-    if (extraFunctions.length > 0) {
-        lines.push('');
-        for (const fn of extraFunctions) {
-            lines.push(fn);
-        }
-    }
+    lines.push('', colorSpaceGlsl(colorSpace));
 
     // Uniforms reported to the renderer: exactly those in the dependency closure. `u_phase` is
     // declared in every shader (renderer contract) but only listed here when an animated operator

@@ -130,14 +130,15 @@ Règles de texte :
 - **Variable** : `float v<id> = <texte brut>;`.
 - **Contexte** : `vec2 c<n> = <operator.coords(entrées inputs, paramètres, contexte parent)>;`.
 
-Fin de `main` : on assemble les trois canaux et on convertit de `[-1, 1]` vers `[0, 1]` :
+Fin de `main` : on assemble les trois canaux et on les passe à la conversion de l'espace de couleur, une seule fois. Il n'y a **qu'un seul chemin couleur** (pas de branche corrélé/non corrélé, lot J) :
 
 ```glsl
-vec3 rgb = vec3(<r>, <g>, <b>);
-o_color = vec4(clamp(rgb * 0.5 + 0.5, 0.0, 1.0), 1.0);
+o_color = vec4(<space>(vec3(<r>, <g>, <b>)), 1.0);
 ```
 
-Le `clamp` ne masque pas le contrat `[-1, 1]` des opérateurs (testé par ailleurs, D31) : il protège seulement des erreurs d'arrondi de quelques ULP.
+`<space>` est la fonction de l'espace courant (`ra_srgb`, `ra_oklch`, `ra_oklab`, `ra_hsl`), définie dans le préambule ; elle applique le remap du triplet brut (chaque composante dans `[-1, 1]`) vers les paramètres de l'espace, puis la conversion vers sRGB. Le `clamp` final ne masque pas le contrat `[-1, 1]` des opérateurs (testé par ailleurs, D31) : il protège seulement des erreurs d'arrondi de quelques ULP.
+
+La **profondeur du tronc partagé** (`channels.shareDepth`) ne concerne pas le compilateur : elle modèle la forme de l'expression, pas son émission.
 
 ### 5.4 Le préambule
 
@@ -148,6 +149,7 @@ Dans cet ordre :
 3. `uniform float u_phase;` (toujours déclaré), puis les autres uniforms de la fermeture des dépendances
 4. `const float PI = 3.141592653589793;`
 5. le code des fonctions de la **fermeture des dépendances** (`catalog.dependencyClosure`) des opérateurs utilisés, sans doublon et dans l'ordre de dépendance
+6. la fonction de conversion de l'**espace de couleur** courant (`colorSpaceGlsl`)
 
 Une dépendance que personne n'utilise n'est jamais émise.
 
@@ -167,12 +169,15 @@ uniform float u_phase;
 
 const float PI = 3.141592653589793;
 
+vec3 ra_srgb(vec3 raw) {
+    return clamp(raw * 0.5 + 0.5, 0.0, 1.0);
+}
+
 void main() {
   vec2 v_p = vUv * 2.0 - 1.0;
 
   float v1 = sin(PI*v_p.x);
-  vec3 rgb = vec3(v1, (v1+v_p.y)*0.5, sin(2.0*PI*u_phase));
-  o_color = vec4(clamp(rgb * 0.5 + 0.5, 0.0, 1.0), 1.0);
+  o_color = vec4(ra_srgb(vec3(v1, (v1+v_p.y)*0.5, sin(2.0*PI*u_phase))), 1.0);
 }
 ```
 

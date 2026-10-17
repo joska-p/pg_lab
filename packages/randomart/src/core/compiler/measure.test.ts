@@ -46,7 +46,7 @@ describe('sharing policy measurements', () => {
                 try {
                     const shader = compile(catalog, expression, {
                         sharing: policy,
-                        color: grammar.color,
+                        channels: grammar.channels,
                     });
 
                     times.push(performance.now() - start);

@@ -4,7 +4,7 @@ import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { Stack } from '@repo/ui/components/Stack';
 import type { CSSProperties } from 'react';
 
-import { PALETTES } from '../core/color/index.ts';
+import { COLOR_SPACES } from '../core/color/index.ts';
 import { formatFormula } from '../core/expression/index.ts';
 import type { Channel } from '../core/expression/index.ts';
 import { useExpression, useGrammar } from '../stores/appStore';
@@ -19,24 +19,27 @@ const formulaStyle: CSSProperties = {
 
 /**
  * The expression, one line per channel: the compiled formula is the reference for understanding an
- * image. In `correlated` mode the three channels are the same field, so it is shown once, with the
- * palette that colours it.
+ * image. When the trunk is shared down to `maxDepth` the three channels are one tree, so it is
+ * shown once, with the colour space that reads it.
  */
 export function Inspector() {
     const expression = useExpression();
     const grammar = useGrammar();
+    const { space, shareDepth } = grammar.channels;
+    const label = COLOR_SPACES[space].label;
+    const mono = shareDepth >= grammar.constraints.maxDepth;
 
     return (
         <ErrorBoundary showStack={import.meta.env.DEV}>
             <ControlSection title="expression">
                 <Stack gap="3">
-                    {grammar.color.kind === 'correlated' ? (
-                        <ControlField label={`Field → ${PALETTES[grammar.color.palette].label}`}>
+                    {mono ? (
+                        <ControlField label={`Field (${label})`}>
                             <div style={formulaStyle}>{formatFormula(expression.r)}</div>
                         </ControlField>
                     ) : (
                         CHANNELS.map((channel) => (
-                            <ControlField key={channel} label={`Channel ${channel}`}>
+                            <ControlField key={channel} label={`Channel ${channel} (${label})`}>
                                 <div style={formulaStyle}>{formatFormula(expression[channel])}</div>
                             </ControlField>
                         ))

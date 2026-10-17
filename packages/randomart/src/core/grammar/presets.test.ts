@@ -32,7 +32,7 @@ describe('grammarPresets', () => {
         const custom = createGrammar(catalog, {
             weights: { ...base.weights, x: 9 },
             constraints: base.constraints,
-            color: base.color,
+            channels: base.channels,
         });
 
         expect(presetIdOf(presets, custom)).toBeUndefined();

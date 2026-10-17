@@ -52,15 +52,23 @@ Principes : cœur TypeScript pur (pas de DOM, pas de GPU) ; rendu = adaptateur m
     - _Split play/lab_ : `Controls` devient un orchestrateur mince (bascule `Segmented` Play/Lab, état de vue **local** — conventions §3 —, défaut Play ; l'`ErrorBoundary` de panneau reste autour des deux modes). `play/PlayPanel` = le jouet (nouvelle image, shuffle de grammaire complète, select de recettes, Play/Pause, export PNG) ; `lab/LabPanel` = l'atelier actuel (vocabulaire, poids, contraintes, couleur, historique, fichiers, inspecteur), inchangé fonctionnellement.
     - _Cœur_ : `randomGrammar` (vocabulaire + poids + contraintes tirés d'un coup, `includeTime` false pour les datasets phase 0) extrait dans `core/grammar/randomGrammar.ts` et **consommé par `sampleGrammars`** — une seule source pour le tirage, dataset inchangé (tests verts). `grammarPresets`/`presetIdOf` : recettes figées (Structure/Mono/Ember/Raw RGB) qui réutilisent les poids calibrés du défaut et ne changent que le **modèle de couleur** (qui fait partie de la grammaire) ; recettes provisoires, à remplacer par celles trouvées au lab. Store : `applyGrammar` (recette, même seed) et `shuffleGrammar` (grammaire complète, même seed).
     - _Lab dans randomart_ : `@repo/lab` **supprimé** (retiré du lockfile). `descriptors`/`pca` (+ tests) dans `randomart/src/lab/` ; scripts Node (`dataset`, `png`, `contact-sheet`, `features`, `pca-report`, `auto`) et leurs artefacts (`features.json`, `pca.json`, `sheet.png`) dans `randomart/scripts/lab/` ; `tsconfig` inclut `scripts`. Sortie identique (vérifié : `features.json` regeneré == fichier commité, seule l'indentation du formateur diffère).
+- **Lot J — Channels** (2026-10-17, décision utilisateur) : un **seul pipeline couleur** à trois canaux remplace le modèle `correlated`/palette. Deux axes orthogonaux portés par la grammaire :
+    - `channels.space` (`srgb` | `oklch` | `oklab` | `hsl`) : interprétation du triplet `(r,g,b)` avant sortie, conversion appliquée **une fois** en fin de `main` (coût constant, pas de LUT). Chaque espace est émis en point d'entrée autonome `vec3 ra_<space>(vec3 raw)` (`colorSpaceGlsl`), porté depuis `_TMP/oldy/randomart/src/core/glsl-color-spaces.ts` (conversions + remaps). `space` est du **contenu** → throw si inconnu.
+    - `channels.shareDepth` : profondeur du **tronc partagé** entre les trois canaux. `0` = arbres indépendants (l'ex-`unrelated`) ; `≥ maxDepth` = un seul arbre → `r = g = b` **par identité** (les sous-arbres entièrement partagés renvoient le même objet nœud, `lower` hash-consolide). Sous le tronc, chaque canal diverge sur **opérateurs + paramètres**. C'est **l'axe de corrélation** (uncorrelated ↔ correlated). C'est une **quantité d'édition** → réparée (arrondi + clamp `[0, maxDepth]`, non-fini → défaut ; le store ignore une édition non finie, F21).
+    - Défauts : `DEFAULT_CHANNELS = { space: 'oklch', shareDepth: 2 }` (`defaultGrammar`) ; repli de `createGrammar` sur `RAW_CHANNELS = { space: 'srgb', shareDepth: 0 }` (le dataset garde le tirage historique). `GENERATOR_VERSION` → **3**.
+    - Supprimés : `color.kind`, `PALETTES`, `paletteGlsl`, `DEFAULT_COLOR`, la branche `correlated` du générateur, `extraFunctions` du préambule, les champs `palette` de sérialisation, le Select palette de l'UI. Renommés : `color` → `channels`, `ColorModel` → `ChannelModel`, `setColorModel` → `setChannels`. Recettes (`presets.ts`) refaites autour des canaux : **Structure** (oklch/2), **Mono** (oklch/maxDepth), **OKLab** (oklab/2), **Raw RGB** (RAW_CHANNELS).
+    - Mesure du tronc (500 seeds × 9 partages, `budget.measure` réutilisée) : partage 0 → 52,7 nœuds / 34,0 vertices ; 2 → 53,4 / 34,3 ; 8 → 13,0 / 13,0 (tout partagé). **Correction du plan** : le tronc n'est **pas** « gratuit » — il est **négligeable** au défaut (`shareDepth = 2`) et **économise** des vertices quand il absorbe tout (D43).
+    - Tests : modèle (`color.test.ts` : défauts, réparation, partage du générateur, compilation, sérialisation), invariants `generator.test.ts` (sur tous les `shareDepth`), snapshot régénéré, attentes de `compiler.test.ts` alignées ; fuzz/dump/mesure exercent les espaces.
 
-**Pas encore fait** : lot G (rendu épaissi, à la demande) ; **nouvel épic « galerie + recettes »** (voir « Prochaine action »). Le **lot H est clos** (poids, contraintes, durée et budget mesurés).
+**Pas encore fait** : lot G (rendu épaissi, à la demande) ; **nouvel épic « galerie + recettes »** (voir « Prochaine action »). Les **lots H et J sont clos**.
 
-**Tests** : verts (242 passés, 10 sautés — `measure`/`dump` + les trois sondes de champ/budget, opt-in ; `vp check` : 0 erreur) ; 900 shaders validés par `glslangValidator` (`scripts/validate-glsl.sh`).
+**Tests** : verts (273 passés, 10 sautés — `measure`/`dump` + les trois sondes de champ/budget, opt-in ; `vp check` : 0 erreur) ; 900 shaders validés par `glslangValidator` (`scripts/validate-glsl.sh`).
 
 ## Prochaine action
 
-1. **Conceptualiser l'épic « galerie + recettes »** (décision utilisateur 2026-10-17, **à cadrer dans une session dédiée — rien commencé**) : un moyen de générer des lots d'images (planches-contact) soi-même — dans l'app et/ou via un script —, de les **classer** (notation manuelle et/ou métrique automatique), puis d'en **déduire de bonnes recettes** (grammaires) — une boucle d'apprentissage légère (« mini réseau de neurones ») qui ajuste les poids/contraintes vers les images jugées bonnes. Points à trancher en conceptualisation : modèle d'apprentissage (bandit/évolution vs petit modèle), format de stockage des lots et des notes. Tranché le 2026-10-17 : l'analyse (descriptors, PCA) et le banc headless vivent désormais **dans randomart** (`src/lab/`, `scripts/lab/`) ; le rendu des lots sera **in-app GPU** (motif de `dataset/page.ts`), les scripts restant le banc hors-ligne. Matière première : `src/lab/`, `scripts/lab/`, et les trois sondes jetables ci-dessous.
-2. **Politique throw vs repair** : **fait le 2026-10-16** — politique tranchée dans `shared/index.ts`, site par site dans les commentaires, audit dans `findings.md` §8. Restes hors périmètre : F14/F15, F16/F30 ; trouvailles différées (F1, F2, F9, F10) hors périmètre.
+1. **Lot J — Channels** (couleur + partage de structure) : **fait** le 2026-10-17 (voir « Fait »). Un seul pipeline à trois canaux ; modèle `correlated`/palette supprimé.
+2. **Conceptualiser l'épic « galerie + recettes »** (décision utilisateur 2026-10-17, **à cadrer dans une session dédiée — rien commencé**) : un moyen de générer des lots d'images (planches-contact) soi-même — dans l'app et/ou via un script —, de les **classer** (notation manuelle et/ou métrique automatique), puis d'en **déduire de bonnes recettes** (grammaires) — une boucle d'apprentissage légère (« mini réseau de neurones ») qui ajuste les poids/contraintes vers les images jugées bonnes. Points à trancher en conceptualisation : modèle d'apprentissage (bandit/évolution vs petit modèle), format de stockage des lots et des notes. Tranché le 2026-10-17 : l'analyse (descriptors, PCA) et le banc headless vivent désormais **dans randomart** (`src/lab/`, `scripts/lab/`) ; le rendu des lots sera **in-app GPU** (motif de `dataset/page.ts`), les scripts restant le banc hors-ligne. Matière première : `src/lab/`, `scripts/lab/`, et les trois sondes jetables ci-dessous.
+3. **Politique throw vs repair** : **fait le 2026-10-16** — politique tranchée dans `shared/index.ts`, site par site dans les commentaires, audit dans `findings.md` §8. Restes hors périmètre : F14/F15, F16/F30 ; trouvailles différées (F1, F2, F9, F10) hors périmètre.
 
 ## Sondes jetables (non commitées)
 
@@ -100,6 +108,38 @@ Seulement si le besoin se confirme en jouant. `RenderTarget` + `readPixels`, `Pr
 
 Poids par défaut, contraintes, durée de boucle, répartition du budget du générateur. Calibré au lot H (mesure via sonde) : poids recalibrés pour la structure, contraintes et durée conservées (mesure à l'appui), partage du budget conservé (biais ≤ 2 %).
 
+### Lot J — Channels (couleur + partage de structure) — fait
+
+But : un **seul pipeline couleur** à trois canaux. Supprimer le modèle `correlated`/palette (`float → vec3`) au profit de deux axes orthogonaux portés par la grammaire :
+
+- `channels.space` : interprétation du triplet `(r,g,b)` avant sortie — `srgb` | `oklch` | `oklab` | `hsl`. Conversion appliquée **une fois** en fin de `main` (coût constant, indépendant de la taille de l'expression ; pas de LUT).
+- `channels.shareDepth` : profondeur du **tronc partagé** entre les trois canaux. `0` = arbres indépendants (le `unrelated` actuel) ; `≥ maxDepth` = un seul arbre → `r=g=b` (l'effet « mono » d'aujourd'hui, sans palette). C'est **l'axe de corrélation** (uncorrelated ↔ correlated).
+
+Décisions validées (2026-10-17) :
+
+- Supprimer `color.kind`, `PALETTES`, `paletteGlsl`, `DEFAULT_COLOR`, la branche `correlated` du générateur, le paramètre `extraFunctions` du préambule, les champs `palette` de sérialisation et le Select palette de l'UI.
+- Renommer `color` → `channels` dans la grammaire ; `ChannelModel = { space, shareDepth }`. Champ nommé **`shareDepth`** (tranché).
+- Sous le tronc, chaque canal diverge sur **opérateurs + paramètres** (couleur partout ; ne diverger que sur les valeurs laisserait des zones grises).
+- Espaces de couleur portés depuis `_TMP/oldy/randomart/src/core/glsl-color-spaces.ts` (fonctions de conversion + remaps : `L = clamp(x*0.5+0.5)`, `C = abs(y)*0.4`, `H = (z*0.5+0.5)*2π`, etc.).
+- Défauts : `space = 'oklch'`, `shareDepth = 2`.
+- Pas de rétro-compatibilité fichier requise.
+- Coût du tronc partagé **mesuré** (500 seeds × 9 partages) : négligeable au défaut (34,0 → 34,3 vertices du partage 0 au partage 2) et **gain** quand le tronc absorbe tout (partage 8 → 13,0). `lower.ts` hash-consolide en plus **entre canaux**.
+
+Interaction `shareDepth` / `minDepth` : tant que `shareDepth ≤ minDepth`, le tronc est pur opérateurs (pas de feuille précoce) ; au-delà il contient des feuilles → moins de couleur ; `≥ maxDepth` → `r=g=b`. Plage utile `0 … minDepth`.
+
+Jalons (chaque étape laisse `vp check` vert) :
+
+1. `core/color/` : `ChannelModel` + registre d'espaces (GLSL `vec3 → vec3` + remaps) ; palettes retirées.
+2. Générateur : `shareDepth` (squelette partagé, divergence opérateurs + params), budget et `minDepth` respectés par canal.
+3. Compilateur : branche unique ; injection des fonctions d'espace ; `o_color = vec4(<space>ToSrgb(vec3(r, g, b)), 1.0)`.
+4. Grammaire + sérialisation : champ `channels`, validation (`space ∈ set`, `shareDepth` entier réparé dans `[0, maxDepth]`).
+5. UI : Select espace + contrôle `shareDepth` ; Select palette retiré.
+6. Tests : snapshot par espace ; `r=g=b` si `shareDepth ≥ maxDepth` ; tronc hash-consé une seule fois ; fuzz/measure/dump mis à jour.
+
+Fichiers : `src/core/color/index.ts`, `src/core/generator/generator.ts`, `src/core/compiler/{compile,preamble,types}.ts`, `src/core/grammar/{types,grammar,presets}.ts`, `src/core/artwork/serialize.ts`, `src/core/compiler/testing.ts`, `src/components/{Controls,lab/LabPanel}.tsx`, `src/stores/appStore.tsx`.
+
+Référence : `_TMP/oldy/randomart/src/core/glsl-color-spaces.ts` (conversions + remaps) ; `tree.ts` / `prng.ts` de l'ancien (`createDualRng` / `createCorrelatedRng`) — attention : l'ancien « corrélé » n'est **pas** une palette, c'est un partage de flux RNG ; c'est l'idée d'origine de ce lot.
+
 ## Dépendances
 
 ```
@@ -107,6 +147,7 @@ A..F : faits
 G : à la demande
 H : fait (poids, contraintes, durée, budget mesurés)
 I (galerie + recettes) : à conceptualiser (lab rapatrié dans `src/lab` + `scripts/lab`)
+J (channels) : fait (un pipeline couleur, tronc partagé)
 ```
 
 ## Points de friction connus

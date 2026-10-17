@@ -30,7 +30,10 @@ describe(`compiler fuzz, pure (${FUZZ_COUNT} cases x 3 policies)`, () => {
                 try {
                     compiled.set(
                         policy,
-                        compile(catalog, expression, { sharing: policy, color: grammar.color }),
+                        compile(catalog, expression, {
+                            sharing: policy,
+                            channels: grammar.channels,
+                        }),
                     );
                 } catch (error) {
                     // Only `none` may legitimately blow the source guard (inlined multiplicities).
@@ -92,7 +95,7 @@ describe(`compiler fuzz, pure (${FUZZ_COUNT} cases x 3 policies)`, () => {
     it('is deterministic under the default policy', () => {
         for (const { grammar, seed } of cases.slice(0, 50)) {
             const expression = generate(catalog, grammar, seed);
-            const options = { color: grammar.color };
+            const options = { channels: grammar.channels };
 
             expect(compile(catalog, expression, options).source).toBe(
                 compile(catalog, expression, options).source,

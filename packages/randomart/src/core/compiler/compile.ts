@@ -5,8 +5,8 @@
  */
 
 import type { Catalog } from '../catalog/index.ts';
-import { paletteGlsl, UNRELATED_COLOR } from '../color/index.ts';
-import type { ColorModel } from '../color/index.ts';
+import { colorSpaceFunction, RAW_CHANNELS } from '../color/index.ts';
+import type { ChannelModel } from '../color/index.ts';
 import { nodeCount } from '../expression/index.ts';
 import type { Expression } from '../expression/index.ts';
 import { emit } from './emit.ts';
@@ -25,9 +25,10 @@ import type { CompiledShader, CompileOptions } from './types.ts';
  * - `out vec4 o_color;` as color output
  * - `uniform float u_phase;` always declared
  *
- * In `correlated` colour mode the three roots are one field (the generator reuses the same node)
- * and the final colour is a palette sampled at that field; in `unrelated` mode (default) the three
- * channels are written to RGB directly.
+ * There is a single colour path: whatever the channels' shape, `main` ends with the one conversion
+ * of the `(r, g, b)` triplet — `o_color = vec4(<space>(vec3(r, g, b)), 1.0);` — and the preamble
+ * carries that space's GLSL. `shareDepth` never reaches the compiler: it shapes the expression, not
+ * the emission.
  *
  * @throws If the assembled source exceeds MAX_SOURCE_LENGTH.
  */
@@ -37,7 +38,7 @@ export function compile(
     options?: CompileOptions,
 ): CompiledShader {
     const sharing = options?.sharing ?? 'shared';
-    const color: ColorModel = options?.color ?? UNRELATED_COLOR;
+    const channels: ChannelModel = options?.channels ?? RAW_CHANNELS;
 
     // ── 1. Lowering ─────────────────────────────────────────────────────────
     const lowerResult = lower(catalog, expression);
@@ -46,11 +47,10 @@ export function compile(
     const emitResult = emit(catalog, lowerResult, sharing);
 
     // ── 3. Preamble ─────────────────────────────────────────────────────────
-    const extraFunctions = color.kind === 'correlated' ? [paletteGlsl(color.palette)] : [];
     const { preambleLines, animated, uniforms } = buildPreamble(
         catalog,
         emitResult.usedDeps,
-        extraFunctions,
+        channels.space,
     );
 
     // ── 4. Assemble source ───────────────────────────────────────────────────
@@ -66,22 +66,11 @@ export function compile(
     }
 
     mainLines.push('');
-
-    if (color.kind === 'correlated') {
-        // The three roots are the same field; the palette is the only place colour is decided.
-        // The `clamp` is provably dead: every catalog operator preserves `[-1, 1]` when its inputs
-        // do (`x`/`y`/`tsin`/`tcos`/`const` are in range, `add` averages, `mul`/`div`/`sqr`/`abs`/
-        // `min`/`max`/`mix`/`sin`/`cos`/`gt`/`select`/`warp` and `ra_fold2` stay in range), so
-        // `field * 0.5 + 0.5` is already in `[0, 1]`. Kept as cheap boundary assurance (the
-        // compiler takes any catalog), not as a correcting transform.
-        mainLines.push(`  float t = clamp(${rText} * 0.5 + 0.5, 0.0, 1.0);`);
-        mainLines.push('  o_color = vec4(ra_pal(t), 1.0);');
-    } else {
-        // Same dead `clamp` argument as above, for the legacy three-channel model.
-        mainLines.push(`  vec3 rgb = vec3(${rText}, ${gText}, ${bText});`);
-        mainLines.push('  o_color = vec4(clamp(rgb * 0.5 + 0.5, 0.0, 1.0), 1.0);');
-    }
-
+    // The one colour decision: the triplet through the space's conversion (a plain remap for sRGB).
+    // The conversion's own `clamp` is boundary assurance, not a correcting transform.
+    mainLines.push(
+        `  o_color = vec4(${colorSpaceFunction(channels.space)}(vec3(${rText}, ${gText}, ${bText})), 1.0);`,
+    );
     mainLines.push('}');
 
     const source = [...preambleLines, '', ...mainLines].join('\n');

@@ -20,7 +20,7 @@ import {
 } from '../core/artwork/index.ts';
 import type { Artwork, ProvenanceCheck } from '../core/artwork/index.ts';
 import { createDefaultCatalog } from '../core/catalog/index.ts';
-import type { ColorModel } from '../core/color/index.ts';
+import type { ChannelModel } from '../core/color/index.ts';
 import { compile } from '../core/compiler/index.ts';
 import type { CompiledShader } from '../core/compiler/index.ts';
 import type { Expression } from '../core/expression/index.ts';
@@ -68,7 +68,7 @@ export const catalog = createDefaultCatalog();
 const initialGrammar = defaultGrammar(catalog);
 const initialSeed = createSeed(42);
 const initialExpression = generate(catalog, initialGrammar, initialSeed);
-const initialCompiled = compile(catalog, initialExpression, { color: initialGrammar.color });
+const initialCompiled = compile(catalog, initialExpression, { channels: initialGrammar.channels });
 const initialEntry: HistoryEntry = {
     id: 0,
     seed: initialSeed,
@@ -219,7 +219,7 @@ function setActionError(error: unknown): void {
 function commit(grammar: Grammar, seed: Seed, restoreId?: number, coalesce = false): void {
     try {
         const expression = generate(catalog, grammar, seed);
-        const compiledShader = compile(catalog, expression, { color: grammar.color });
+        const compiledShader = compile(catalog, expression, { channels: grammar.channels });
         const state = store.getState();
         let { history } = state;
         let currentId: number;
@@ -326,7 +326,11 @@ export function setConstraints(partial: Partial<ConstraintsInput>): void {
 
     // Coalesced: typing "12" in a field is one history entry, not two.
     commit(
-        createGrammar(catalog, { weights: grammar.weights, constraints, color: grammar.color }),
+        createGrammar(catalog, {
+            weights: grammar.weights,
+            constraints,
+            channels: grammar.channels,
+        }),
         seed,
         undefined,
         true,
@@ -358,7 +362,7 @@ export function setOperatorWeight(name: string, rawWeight: number): void {
         const next = createGrammar(catalog, {
             weights: { ...grammar.weights, [name]: weight },
             constraints: grammar.constraints,
-            color: grammar.color,
+            channels: grammar.channels,
         });
 
         // Coalesced, like constraint edits: a run of tweaks is one history entry, not one per
@@ -370,19 +374,25 @@ export function setOperatorWeight(name: string, rawWeight: number): void {
 }
 
 /**
- * Switches the colour model (unrelated ↔ correlated) or the palette. A colour choice is content
- * (`createGrammar` refuses an unknown palette), so a bad id surfaces as `actionError` rather than
- * being repaired. Coalesced like the other grammar edits: browsing palettes is one history entry,
- * not one per click.
+ * Sets the channel model (colour space and/or shared-trunk depth). The colour space is content
+ * (`createGrammar` refuses an unknown id), so a bad id surfaces as `actionError` rather than being
+ * repaired; `shareDepth` is an editing quantity, repaired there. Coalesced like the other grammar
+ * edits: browsing spaces is one history entry, not one per click.
+ *
+ * A non-finite `shareDepth` (a numeric field mid-edit, F21) keeps its current value instead of
+ * inventing one — the core still repairs whatever reaches it from a file.
  */
-export function setColorModel(color: ColorModel): void {
+export function setChannels(channels: ChannelModel): void {
     const { grammar, seed } = store.getState();
+    const shareDepth = Number.isFinite(channels.shareDepth)
+        ? channels.shareDepth
+        : grammar.channels.shareDepth;
 
     try {
         const next = createGrammar(catalog, {
             weights: grammar.weights,
             constraints: grammar.constraints,
-            color,
+            channels: { space: channels.space, shareDepth },
         });
 
         commit(next, seed, undefined, true);
@@ -435,7 +445,7 @@ function restoreImportedEntry(entry: HistoryEntry): void {
             seed: entry.seed,
             expression,
             provenanceCheck: entry.provenanceCheck ?? 'differs',
-            compiledShader: compile(catalog, expression, { color: entry.grammar.color }),
+            compiledShader: compile(catalog, expression, { channels: entry.grammar.channels }),
             currentId: entry.id,
             actionError: null,
         });
@@ -488,7 +498,7 @@ function publishArtwork(artwork: Artwork): void {
     const state = store.getState();
     const grammar = provenance?.grammar ?? state.grammar;
     const seed = provenance?.seed ?? state.seed;
-    const compiledShader = compile(catalog, expression, { color: grammar.color });
+    const compiledShader = compile(catalog, expression, { channels: grammar.channels });
     const provenanceCheck = checkProvenance(catalog, artwork);
     const entry: HistoryEntry = {
         id: nextEntryId++,

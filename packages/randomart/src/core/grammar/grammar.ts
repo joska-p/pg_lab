@@ -1,6 +1,12 @@
 import type { Catalog, Operator, OperatorId } from '../catalog';
-import { DEFAULT_COLOR, isPaletteId, UNRELATED_COLOR } from '../color/index.ts';
-import type { ColorModel } from '../color/index.ts';
+import {
+    DEFAULT_CHANNELS,
+    DEFAULT_SHARE_DEPTH,
+    isColorSpaceId,
+    MIN_SHARE_DEPTH,
+    RAW_CHANNELS,
+} from '../color/index.ts';
+import type { ChannelModel } from '../color/index.ts';
 import { assertFinite } from '../shared/index.ts';
 import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types';
 import type { Constraints, ConstraintsInput, Grammar } from './types';
@@ -150,25 +156,22 @@ export function fitConstraints(
 }
 
 /**
- * A colour model is content (it defines the image), so an unknown palette id has no canonical
- * repair and refuses, like a bad weight (throw-vs-repair policy in shared/index.ts). A missing
- * `color` field takes `UNRELATED_COLOR` — the plain three-channel model, the behaviour of a grammar
- * built from parts without an explicit choice.
+ * A colour space is content (it defines the image), so an unknown id has no canonical repair and
+ * refuses, like a bad weight (throw-vs-repair policy in shared/index.ts). `shareDepth` is an
+ * editing quantity, so it is _repaired_: rounded and clamped into `[0, maxDepth]` (a non-finite
+ * value takes `DEFAULT_SHARE_DEPTH`). `>= maxDepth` is a legitimate reading — one shared tree,
+ * hence `r = g = b`. A missing `channels` field takes `RAW_CHANNELS`: three independent channels in
+ * sRGB, the historical behaviour of a grammar built from parts without an explicit choice.
  */
-function validateColor(color: ColorModel): ColorModel {
-    if (color.kind === 'unrelated') {
-        return { kind: 'unrelated' };
+function validateChannels(channels: ChannelModel, maxDepth: number): ChannelModel {
+    if (!isColorSpaceId(channels.space)) {
+        throw new Error(`Randomart: unknown colour space ${JSON.stringify(channels.space)}`);
     }
 
-    if (color.kind === 'correlated') {
-        if (!isPaletteId(color.palette)) {
-            throw new Error(`Randomart: unknown palette ${JSON.stringify(color.palette)}`);
-        }
-
-        return { kind: 'correlated', palette: color.palette };
-    }
-
-    throw new Error(`Randomart: unknown color model ${JSON.stringify(color)}`);
+    return {
+        space: channels.space,
+        shareDepth: clampInt(channels.shareDepth, MIN_SHARE_DEPTH, maxDepth, DEFAULT_SHARE_DEPTH),
+    };
 }
 
 export function createGrammar(
@@ -176,11 +179,11 @@ export function createGrammar(
     {
         weights,
         constraints: rawConstraints,
-        color: rawColor = UNRELATED_COLOR,
+        channels: rawChannels = RAW_CHANNELS,
     }: {
         readonly weights: Readonly<Record<string, number | undefined>>;
         readonly constraints: ConstraintsInput;
-        readonly color?: ColorModel;
+        readonly channels?: ChannelModel;
     },
 ): Grammar {
     const operatorNames = Object.keys(weights);
@@ -246,7 +249,7 @@ export function createGrammar(
         weights: Object.freeze(sortedWeights),
         // Already frozen by createConstraints.
         constraints,
-        color: Object.freeze(validateColor(rawColor)),
+        channels: Object.freeze(validateChannels(rawChannels, constraints.maxDepth)),
     }) as Grammar;
 }
 
@@ -256,9 +259,9 @@ export function createGrammar(
  * gives one expression, and animation is a matter of playback.
  *
  * These weights come from a calibration session (lot H, 2026-10-17). The field of a generated
- * expression is provably bounded to `[-1, 1]` (every operator preserves the range), and the
- * correlated palette maps it linearly, so the only thing that flattens an image into an aplat is a
- * _constant_ field — not the palette and not a final clamp (that clamp is dead). Measuring local
+ * expression is provably bounded to `[-1, 1]` (every operator preserves the range), and every
+ * colour space maps it monotonically, so the only thing that flattens an image into an aplat is a
+ * _constant_ field — not the mapping and not a final clamp (that clamp is dead). Measuring local
  * flatness against operator presence showed which operators structure the field and which flatten
  * it: `x`/`y`/`max` create variation, while the time terminals (`tsin`/`tcos` — the same value
  * everywhere at a given phase, and exactly `0`/`1` at phase 0, which zeroes whole `mul` subtrees),
@@ -266,9 +269,9 @@ export function createGrammar(
  * the second to the background roughly halves the share of near-uniform stills (measured on the
  * fuzz corpus: mean local flatness 59% → 41%, near-uniform "aplats" 42% → 19%).
  *
- * Its colour model is `DEFAULT_COLOR` (one field through a palette), the _curated_ default — the
- * model that actually yields readable images. `createGrammar` alone would fall back to the plain
- * unrelated model (`UNRELATED_COLOR`).
+ * Its colour model is `DEFAULT_CHANNELS` (a trunk of depth 2 read as OKLCH), the _curated_ default
+ * — the model that actually yields readable images. `createGrammar` alone would fall back to the
+ * plain raw-sRGB model (`RAW_CHANNELS`, three independent channels).
  */
 export function defaultGrammar(catalog: Catalog): Grammar {
     // Typed by `OperatorId`: a mistyped operator here is a compile error (the static registry is the
@@ -301,6 +304,6 @@ export function defaultGrammar(catalog: Catalog): Grammar {
     return createGrammar(catalog, {
         weights,
         constraints: DEFAULT_CONSTRAINTS,
-        color: DEFAULT_COLOR,
+        channels: DEFAULT_CHANNELS,
     });
 }

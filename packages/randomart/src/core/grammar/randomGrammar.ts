@@ -1,6 +1,6 @@
 import type { Catalog } from '../catalog/index.ts';
-import { DEFAULT_COLOR } from '../color/index.ts';
-import type { ColorModel } from '../color/index.ts';
+import { DEFAULT_CHANNELS } from '../color/index.ts';
+import type { ChannelModel } from '../color/index.ts';
 import type { Rng } from '../random/index.ts';
 import { createGrammar } from './grammar.ts';
 import { randomizeWeights } from './randomize.ts';
@@ -18,8 +18,8 @@ export interface RandomGrammarOptions {
     readonly spread?: number;
     /** Probability that each operator toggles on/off. 0 = vocabulary frozen. */
     readonly changeRate?: number;
-    /** Colour model of the result. Default: `DEFAULT_COLOR` (one field through a palette). */
-    readonly color?: ColorModel;
+    /** Channel model of the result. Default: `DEFAULT_CHANNELS` (a shared trunk read as OKLCH). */
+    readonly channels?: ChannelModel;
     /** Keep `tsin`/`tcos` in the draw. Off for phase-0 datasets. Default: true. */
     readonly includeTime?: boolean;
 }
@@ -45,7 +45,12 @@ export function randomGrammar(
     rng: Rng,
     options: RandomGrammarOptions = {},
 ): Grammar {
-    const { spread = 8, changeRate = 0.3, color = DEFAULT_COLOR, includeTime = true } = options;
+    const {
+        spread = 8,
+        changeRate = 0.3,
+        channels = DEFAULT_CHANNELS,
+        includeTime = true,
+    } = options;
     const neutral: Record<string, number> = {};
 
     for (const operator of catalog.operators()) {
@@ -55,7 +60,7 @@ export function randomGrammar(
     const start = createGrammar(catalog, {
         weights: neutral,
         constraints: drawConstraints(rng),
-        color,
+        channels,
     });
     const randomized = randomizeWeights(catalog, start, rng, { spread, changeRate });
 
@@ -76,6 +81,6 @@ export function randomGrammar(
     return createGrammar(catalog, {
         weights,
         constraints: randomized.constraints,
-        color,
+        channels,
     });
 }

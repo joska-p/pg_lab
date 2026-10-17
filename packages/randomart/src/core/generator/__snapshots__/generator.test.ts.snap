@@ -13,93 +13,10 @@ exports[`generator > reproducibility snapshots on fixed seeds 1`] = `
                   {
                     "inputs": [
                       {
-                        "inputs": [],
-                        "operatorName": "x",
-                        "params": [],
-                      },
-                      {
-                        "inputs": [],
-                        "operatorName": "x",
-                        "params": [],
-                      },
-                      {
-                        "inputs": [],
-                        "operatorName": "x",
-                        "params": [],
-                      },
-                    ],
-                    "operatorName": "select",
-                    "params": [],
-                  },
-                  {
-                    "inputs": [
-                      {
-                        "inputs": [],
-                        "operatorName": "tcos",
-                        "params": [],
-                      },
-                    ],
-                    "operatorName": "neg",
-                    "params": [],
-                  },
-                ],
-                "operatorName": "div",
-                "params": [],
-              },
-              {
-                "inputs": [
-                  {
-                    "inputs": [
-                      {
-                        "inputs": [],
-                        "operatorName": "y",
-                        "params": [],
-                      },
-                    ],
-                    "operatorName": "cos",
-                    "params": [],
-                  },
-                  {
-                    "inputs": [
-                      {
-                        "inputs": [],
-                        "operatorName": "x",
-                        "params": [],
-                      },
-                      {
-                        "inputs": [],
-                        "operatorName": "x",
-                        "params": [],
-                      },
-                    ],
-                    "operatorName": "mul",
-                    "params": [],
-                  },
-                ],
-                "operatorName": "max",
-                "params": [],
-              },
-            ],
-            "operatorName": "max",
-            "params": [],
-          },
-        ],
-        "operatorName": "abs",
-        "params": [],
-      },
-      {
-        "inputs": [
-          {
-            "inputs": [
-              {
-                "inputs": [
-                  {
-                    "inputs": [
-                      {
                         "inputs": [
                           {
                             "inputs": [],
-                            "operatorName": "x",
+                            "operatorName": "y",
                             "params": [],
                           },
                           {
@@ -142,15 +59,11 @@ exports[`generator > reproducibility snapshots on fixed seeds 1`] = `
                       {
                         "inputs": [
                           {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "y",
-                                "params": [],
-                              },
+                            "inputs": [],
+                            "operatorName": "const",
+                            "params": [
+                              0.505,
                             ],
-                            "operatorName": "cos",
-                            "params": [],
                           },
                           {
                             "inputs": [
@@ -160,7 +73,7 @@ exports[`generator > reproducibility snapshots on fixed seeds 1`] = `
                                 "params": [],
                               },
                             ],
-                            "operatorName": "sin",
+                            "operatorName": "sqr",
                             "params": [],
                           },
                         ],
@@ -235,7 +148,99 @@ exports[`generator > reproducibility snapshots on fixed seeds 1`] = `
             "params": [],
           },
         ],
-        "operatorName": "sin",
+        "operatorName": "abs",
+        "params": [],
+      },
+      {
+        "inputs": [
+          {
+            "inputs": [
+              {
+                "inputs": [
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "operatorName": "y",
+                                "params": [],
+                              },
+                              {
+                                "inputs": [],
+                                "operatorName": "const",
+                                "params": [
+                                  -0.224,
+                                ],
+                              },
+                            ],
+                            "operatorName": "max",
+                            "params": [],
+                          },
+                          {
+                            "inputs": [],
+                            "operatorName": "y",
+                            "params": [],
+                          },
+                        ],
+                        "operatorName": "mul",
+                        "params": [],
+                      },
+                      {
+                        "inputs": [
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "operatorName": "tcos",
+                                "params": [],
+                              },
+                            ],
+                            "operatorName": "sin",
+                            "params": [],
+                          },
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "operatorName": "x",
+                                "params": [],
+                              },
+                            ],
+                            "operatorName": "abs",
+                            "params": [],
+                          },
+                          {
+                            "inputs": [
+                              {
+                                "inputs": [],
+                                "operatorName": "y",
+                                "params": [],
+                              },
+                            ],
+                            "operatorName": "abs",
+                            "params": [],
+                          },
+                        ],
+                        "operatorName": "select",
+                        "params": [],
+                      },
+                    ],
+                    "operatorName": "mul",
+                    "params": [],
+                  },
+                ],
+                "operatorName": "sqr",
+                "params": [],
+              },
+            ],
+            "operatorName": "sin",
+            "params": [],
+          },
+        ],
+        "operatorName": "neg",
         "params": [],
       },
     ],
@@ -247,80 +252,8 @@ exports[`generator > reproducibility snapshots on fixed seeds 1`] = `
       {
         "inputs": [
           {
-            "inputs": [
-              {
-                "inputs": [
-                  {
-                    "inputs": [
-                      {
-                        "inputs": [],
-                        "operatorName": "x",
-                        "params": [],
-                      },
-                      {
-                        "inputs": [],
-                        "operatorName": "x",
-                        "params": [],
-                      },
-                      {
-                        "inputs": [],
-                        "operatorName": "x",
-                        "params": [],
-                      },
-                    ],
-                    "operatorName": "select",
-                    "params": [],
-                  },
-                  {
-                    "inputs": [
-                      {
-                        "inputs": [],
-                        "operatorName": "tcos",
-                        "params": [],
-                      },
-                    ],
-                    "operatorName": "neg",
-                    "params": [],
-                  },
-                ],
-                "operatorName": "div",
-                "params": [],
-              },
-              {
-                "inputs": [
-                  {
-                    "inputs": [
-                      {
-                        "inputs": [],
-                        "operatorName": "y",
-                        "params": [],
-                      },
-                    ],
-                    "operatorName": "cos",
-                    "params": [],
-                  },
-                  {
-                    "inputs": [
-                      {
-                        "inputs": [],
-                        "operatorName": "x",
-                        "params": [],
-                      },
-                      {
-                        "inputs": [],
-                        "operatorName": "x",
-                        "params": [],
-                      },
-                    ],
-                    "operatorName": "mul",
-                    "params": [],
-                  },
-                ],
-                "operatorName": "max",
-                "params": [],
-              },
-            ],
-            "operatorName": "max",
+            "inputs": [],
+            "operatorName": "x",
             "params": [],
           },
         ],
@@ -330,152 +263,12 @@ exports[`generator > reproducibility snapshots on fixed seeds 1`] = `
       {
         "inputs": [
           {
-            "inputs": [
-              {
-                "inputs": [
-                  {
-                    "inputs": [
-                      {
-                        "inputs": [
-                          {
-                            "inputs": [],
-                            "operatorName": "x",
-                            "params": [],
-                          },
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "tcos",
-                                "params": [],
-                              },
-                              {
-                                "inputs": [],
-                                "operatorName": "y",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "min",
-                            "params": [],
-                          },
-                        ],
-                        "operatorName": "max",
-                        "params": [],
-                      },
-                    ],
-                    "operatorName": "cos",
-                    "params": [],
-                  },
-                ],
-                "operatorName": "sqr",
-                "params": [],
-              },
-              {
-                "inputs": [],
-                "operatorName": "y",
-                "params": [],
-              },
-              {
-                "inputs": [
-                  {
-                    "inputs": [
-                      {
-                        "inputs": [
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "y",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "cos",
-                            "params": [],
-                          },
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "x",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "sin",
-                            "params": [],
-                          },
-                        ],
-                        "operatorName": "min",
-                        "params": [],
-                      },
-                      {
-                        "inputs": [
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "x",
-                                "params": [],
-                              },
-                              {
-                                "inputs": [],
-                                "operatorName": "x",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "min",
-                            "params": [],
-                          },
-                        ],
-                        "operatorName": "cos",
-                        "params": [],
-                      },
-                      {
-                        "inputs": [
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "x",
-                                "params": [],
-                              },
-                              {
-                                "inputs": [],
-                                "operatorName": "y",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "div",
-                            "params": [],
-                          },
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "x",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "neg",
-                            "params": [],
-                          },
-                        ],
-                        "operatorName": "max",
-                        "params": [],
-                      },
-                    ],
-                    "operatorName": "select",
-                    "params": [],
-                  },
-                ],
-                "operatorName": "sqr",
-                "params": [],
-              },
-            ],
-            "operatorName": "warp",
+            "inputs": [],
+            "operatorName": "y",
             "params": [],
           },
         ],
-        "operatorName": "sin",
+        "operatorName": "neg",
         "params": [],
       },
     ],
@@ -570,152 +363,12 @@ exports[`generator > reproducibility snapshots on fixed seeds 1`] = `
       {
         "inputs": [
           {
-            "inputs": [
-              {
-                "inputs": [
-                  {
-                    "inputs": [
-                      {
-                        "inputs": [
-                          {
-                            "inputs": [],
-                            "operatorName": "x",
-                            "params": [],
-                          },
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "tcos",
-                                "params": [],
-                              },
-                              {
-                                "inputs": [],
-                                "operatorName": "y",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "min",
-                            "params": [],
-                          },
-                        ],
-                        "operatorName": "max",
-                        "params": [],
-                      },
-                    ],
-                    "operatorName": "cos",
-                    "params": [],
-                  },
-                ],
-                "operatorName": "sqr",
-                "params": [],
-              },
-              {
-                "inputs": [],
-                "operatorName": "y",
-                "params": [],
-              },
-              {
-                "inputs": [
-                  {
-                    "inputs": [
-                      {
-                        "inputs": [
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "y",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "cos",
-                            "params": [],
-                          },
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "x",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "sin",
-                            "params": [],
-                          },
-                        ],
-                        "operatorName": "min",
-                        "params": [],
-                      },
-                      {
-                        "inputs": [
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "x",
-                                "params": [],
-                              },
-                              {
-                                "inputs": [],
-                                "operatorName": "x",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "min",
-                            "params": [],
-                          },
-                        ],
-                        "operatorName": "cos",
-                        "params": [],
-                      },
-                      {
-                        "inputs": [
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "x",
-                                "params": [],
-                              },
-                              {
-                                "inputs": [],
-                                "operatorName": "y",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "div",
-                            "params": [],
-                          },
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "x",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "neg",
-                            "params": [],
-                          },
-                        ],
-                        "operatorName": "max",
-                        "params": [],
-                      },
-                    ],
-                    "operatorName": "select",
-                    "params": [],
-                  },
-                ],
-                "operatorName": "sqr",
-                "params": [],
-              },
-            ],
-            "operatorName": "warp",
+            "inputs": [],
+            "operatorName": "x",
             "params": [],
           },
         ],
-        "operatorName": "sin",
+        "operatorName": "neg",
         "params": [],
       },
     ],
@@ -732,21 +385,54 @@ exports[`generator > reproducibility snapshots on fixed seeds 2`] = `
       {
         "inputs": [
           {
-            "inputs": [],
-            "operatorName": "y",
+            "inputs": [
+              {
+                "inputs": [
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [],
+                        "operatorName": "y",
+                        "params": [],
+                      },
+                      {
+                        "inputs": [],
+                        "operatorName": "y",
+                        "params": [],
+                      },
+                    ],
+                    "operatorName": "max",
+                    "params": [],
+                  },
+                ],
+                "operatorName": "sin",
+                "params": [],
+              },
+              {
+                "inputs": [
+                  {
+                    "inputs": [],
+                    "operatorName": "x",
+                    "params": [],
+                  },
+                  {
+                    "inputs": [],
+                    "operatorName": "y",
+                    "params": [],
+                  },
+                  {
+                    "inputs": [],
+                    "operatorName": "y",
+                    "params": [],
+                  },
+                ],
+                "operatorName": "select",
+                "params": [],
+              },
+            ],
+            "operatorName": "div",
             "params": [],
           },
-          {
-            "inputs": [],
-            "operatorName": "x",
-            "params": [],
-          },
-        ],
-        "operatorName": "max",
-        "params": [],
-      },
-      {
-        "inputs": [
           {
             "inputs": [
               {
@@ -765,61 +451,40 @@ exports[`generator > reproducibility snapshots on fixed seeds 2`] = `
                             "operatorName": "x",
                             "params": [],
                           },
-                          {
-                            "inputs": [],
-                            "operatorName": "y",
-                            "params": [],
-                          },
-                          {
-                            "inputs": [],
-                            "operatorName": "y",
-                            "params": [],
-                          },
                         ],
-                        "operatorName": "select",
-                        "params": [],
-                      },
-                      {
-                        "inputs": [
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "x",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "neg",
-                            "params": [],
-                          },
-                          {
-                            "inputs": [],
-                            "operatorName": "x",
-                            "params": [],
-                          },
-                        ],
-                        "operatorName": "min",
+                        "operatorName": "sin",
                         "params": [],
                       },
                     ],
-                    "operatorName": "warp",
-                    "params": [],
-                  },
-                  {
-                    "inputs": [],
-                    "operatorName": "tsin",
+                    "operatorName": "div",
                     "params": [],
                   },
                 ],
-                "operatorName": "max",
+                "operatorName": "abs",
                 "params": [],
               },
             ],
-            "operatorName": "sin",
+            "operatorName": "sqr",
             "params": [],
           },
         ],
-        "operatorName": "cos",
+        "operatorName": "max",
+        "params": [],
+      },
+      {
+        "inputs": [
+          {
+            "inputs": [],
+            "operatorName": "y",
+            "params": [],
+          },
+          {
+            "inputs": [],
+            "operatorName": "y",
+            "params": [],
+          },
+        ],
+        "operatorName": "max",
         "params": [],
       },
       {
@@ -827,52 +492,23 @@ exports[`generator > reproducibility snapshots on fixed seeds 2`] = `
           {
             "inputs": [
               {
-                "inputs": [],
-                "operatorName": "y",
-                "params": [],
-              },
-              {
                 "inputs": [
-                  {
-                    "inputs": [],
-                    "operatorName": "tcos",
-                    "params": [],
-                  },
                   {
                     "inputs": [
                       {
                         "inputs": [
                           {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "x",
-                                "params": [],
-                              },
-                              {
-                                "inputs": [],
-                                "operatorName": "y",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "add",
+                            "inputs": [],
+                            "operatorName": "x",
                             "params": [],
                           },
                           {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "const",
-                                "params": [
-                                  -0.654,
-                                ],
-                              },
-                            ],
-                            "operatorName": "sqr",
+                            "inputs": [],
+                            "operatorName": "y",
                             "params": [],
                           },
                         ],
-                        "operatorName": "max",
+                        "operatorName": "min",
                         "params": [],
                       },
                     ],
@@ -880,7 +516,7 @@ exports[`generator > reproducibility snapshots on fixed seeds 2`] = `
                     "params": [],
                   },
                 ],
-                "operatorName": "add",
+                "operatorName": "cos",
                 "params": [],
               },
               {
@@ -889,11 +525,50 @@ exports[`generator > reproducibility snapshots on fixed seeds 2`] = `
                 "params": [],
               },
             ],
-            "operatorName": "select",
+            "operatorName": "div",
+            "params": [],
+          },
+          {
+            "inputs": [
+              {
+                "inputs": [],
+                "operatorName": "x",
+                "params": [],
+              },
+              {
+                "inputs": [
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [],
+                        "operatorName": "y",
+                        "params": [],
+                      },
+                    ],
+                    "operatorName": "sin",
+                    "params": [],
+                  },
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [],
+                        "operatorName": "y",
+                        "params": [],
+                      },
+                    ],
+                    "operatorName": "cos",
+                    "params": [],
+                  },
+                ],
+                "operatorName": "div",
+                "params": [],
+              },
+            ],
+            "operatorName": "max",
             "params": [],
           },
         ],
-        "operatorName": "abs",
+        "operatorName": "add",
         "params": [],
       },
     ],
@@ -906,7 +581,69 @@ exports[`generator > reproducibility snapshots on fixed seeds 2`] = `
         "inputs": [
           {
             "inputs": [],
-            "operatorName": "y",
+            "operatorName": "x",
+            "params": [],
+          },
+          {
+            "inputs": [
+              {
+                "inputs": [
+                  {
+                    "inputs": [],
+                    "operatorName": "y",
+                    "params": [],
+                  },
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [],
+                        "operatorName": "y",
+                        "params": [],
+                      },
+                      {
+                        "inputs": [],
+                        "operatorName": "const",
+                        "params": [
+                          -0.466,
+                        ],
+                      },
+                    ],
+                    "operatorName": "add",
+                    "params": [],
+                  },
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [],
+                        "operatorName": "x",
+                        "params": [],
+                      },
+                      {
+                        "inputs": [],
+                        "operatorName": "y",
+                        "params": [],
+                      },
+                    ],
+                    "operatorName": "add",
+                    "params": [],
+                  },
+                ],
+                "operatorName": "select",
+                "params": [],
+              },
+            ],
+            "operatorName": "abs",
+            "params": [],
+          },
+        ],
+        "operatorName": "max",
+        "params": [],
+      },
+      {
+        "inputs": [
+          {
+            "inputs": [],
+            "operatorName": "x",
             "params": [],
           },
           {
@@ -923,150 +660,21 @@ exports[`generator > reproducibility snapshots on fixed seeds 2`] = `
           {
             "inputs": [
               {
-                "inputs": [
-                  {
-                    "inputs": [
-                      {
-                        "inputs": [],
-                        "operatorName": "y",
-                        "params": [],
-                      },
-                      {
-                        "inputs": [
-                          {
-                            "inputs": [],
-                            "operatorName": "x",
-                            "params": [],
-                          },
-                          {
-                            "inputs": [],
-                            "operatorName": "y",
-                            "params": [],
-                          },
-                          {
-                            "inputs": [],
-                            "operatorName": "y",
-                            "params": [],
-                          },
-                        ],
-                        "operatorName": "select",
-                        "params": [],
-                      },
-                      {
-                        "inputs": [
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "x",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "neg",
-                            "params": [],
-                          },
-                          {
-                            "inputs": [],
-                            "operatorName": "x",
-                            "params": [],
-                          },
-                        ],
-                        "operatorName": "min",
-                        "params": [],
-                      },
-                    ],
-                    "operatorName": "warp",
-                    "params": [],
-                  },
-                  {
-                    "inputs": [],
-                    "operatorName": "tsin",
-                    "params": [],
-                  },
-                ],
-                "operatorName": "max",
+                "inputs": [],
+                "operatorName": "y",
                 "params": [],
               },
             ],
-            "operatorName": "sin",
+            "operatorName": "neg",
             "params": [],
           },
-        ],
-        "operatorName": "cos",
-        "params": [],
-      },
-      {
-        "inputs": [
           {
-            "inputs": [
-              {
-                "inputs": [],
-                "operatorName": "y",
-                "params": [],
-              },
-              {
-                "inputs": [
-                  {
-                    "inputs": [],
-                    "operatorName": "tcos",
-                    "params": [],
-                  },
-                  {
-                    "inputs": [
-                      {
-                        "inputs": [
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "x",
-                                "params": [],
-                              },
-                              {
-                                "inputs": [],
-                                "operatorName": "y",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "add",
-                            "params": [],
-                          },
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "const",
-                                "params": [
-                                  -0.654,
-                                ],
-                              },
-                            ],
-                            "operatorName": "sqr",
-                            "params": [],
-                          },
-                        ],
-                        "operatorName": "max",
-                        "params": [],
-                      },
-                    ],
-                    "operatorName": "abs",
-                    "params": [],
-                  },
-                ],
-                "operatorName": "add",
-                "params": [],
-              },
-              {
-                "inputs": [],
-                "operatorName": "y",
-                "params": [],
-              },
-            ],
-            "operatorName": "select",
+            "inputs": [],
+            "operatorName": "y",
             "params": [],
           },
         ],
-        "operatorName": "abs",
+        "operatorName": "add",
         "params": [],
       },
     ],
@@ -1083,8 +691,30 @@ exports[`generator > reproducibility snapshots on fixed seeds 2`] = `
             "params": [],
           },
           {
-            "inputs": [],
-            "operatorName": "x",
+            "inputs": [
+              {
+                "inputs": [
+                  {
+                    "inputs": [],
+                    "operatorName": "x",
+                    "params": [],
+                  },
+                  {
+                    "inputs": [],
+                    "operatorName": "x",
+                    "params": [],
+                  },
+                ],
+                "operatorName": "gt",
+                "params": [],
+              },
+              {
+                "inputs": [],
+                "operatorName": "tsin",
+                "params": [],
+              },
+            ],
+            "operatorName": "min",
             "params": [],
           },
         ],
@@ -1100,33 +730,23 @@ exports[`generator > reproducibility snapshots on fixed seeds 2`] = `
                   {
                     "inputs": [
                       {
-                        "inputs": [],
-                        "operatorName": "y",
-                        "params": [],
-                      },
-                      {
                         "inputs": [
                           {
                             "inputs": [],
                             "operatorName": "x",
                             "params": [],
                           },
-                          {
-                            "inputs": [],
-                            "operatorName": "y",
-                            "params": [],
-                          },
-                          {
-                            "inputs": [],
-                            "operatorName": "y",
-                            "params": [],
-                          },
                         ],
-                        "operatorName": "select",
+                        "operatorName": "sqr",
                         "params": [],
                       },
                       {
                         "inputs": [
+                          {
+                            "inputs": [],
+                            "operatorName": "y",
+                            "params": [],
+                          },
                           {
                             "inputs": [
                               {
@@ -1138,22 +758,47 @@ exports[`generator > reproducibility snapshots on fixed seeds 2`] = `
                             "operatorName": "neg",
                             "params": [],
                           },
-                          {
-                            "inputs": [],
-                            "operatorName": "x",
-                            "params": [],
-                          },
                         ],
-                        "operatorName": "min",
+                        "operatorName": "max",
                         "params": [],
                       },
                     ],
-                    "operatorName": "warp",
+                    "operatorName": "add",
+                    "params": [],
+                  },
+                ],
+                "operatorName": "abs",
+                "params": [],
+              },
+            ],
+            "operatorName": "neg",
+            "params": [],
+          },
+          {
+            "inputs": [
+              {
+                "inputs": [
+                  {
+                    "inputs": [
+                      {
+                        "inputs": [],
+                        "operatorName": "x",
+                        "params": [],
+                      },
+                      {
+                        "inputs": [],
+                        "operatorName": "const",
+                        "params": [
+                          0.32,
+                        ],
+                      },
+                    ],
+                    "operatorName": "max",
                     "params": [],
                   },
                   {
                     "inputs": [],
-                    "operatorName": "tsin",
+                    "operatorName": "x",
                     "params": [],
                   },
                 ],
@@ -1165,81 +810,25 @@ exports[`generator > reproducibility snapshots on fixed seeds 2`] = `
             "params": [],
           },
         ],
-        "operatorName": "cos",
+        "operatorName": "max",
         "params": [],
       },
       {
         "inputs": [
           {
-            "inputs": [
-              {
-                "inputs": [],
-                "operatorName": "y",
-                "params": [],
-              },
-              {
-                "inputs": [
-                  {
-                    "inputs": [],
-                    "operatorName": "tcos",
-                    "params": [],
-                  },
-                  {
-                    "inputs": [
-                      {
-                        "inputs": [
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "x",
-                                "params": [],
-                              },
-                              {
-                                "inputs": [],
-                                "operatorName": "y",
-                                "params": [],
-                              },
-                            ],
-                            "operatorName": "add",
-                            "params": [],
-                          },
-                          {
-                            "inputs": [
-                              {
-                                "inputs": [],
-                                "operatorName": "const",
-                                "params": [
-                                  -0.654,
-                                ],
-                              },
-                            ],
-                            "operatorName": "sqr",
-                            "params": [],
-                          },
-                        ],
-                        "operatorName": "max",
-                        "params": [],
-                      },
-                    ],
-                    "operatorName": "abs",
-                    "params": [],
-                  },
-                ],
-                "operatorName": "add",
-                "params": [],
-              },
-              {
-                "inputs": [],
-                "operatorName": "y",
-                "params": [],
-              },
-            ],
-            "operatorName": "select",
+            "inputs": [],
+            "operatorName": "y",
             "params": [],
           },
+          {
+            "inputs": [],
+            "operatorName": "const",
+            "params": [
+              0.439,
+            ],
+          },
         ],
-        "operatorName": "abs",
+        "operatorName": "add",
         "params": [],
       },
     ],

@@ -284,7 +284,7 @@ describe('field distribution', () => {
                 return createGrammar(catalog, {
                     weights,
                     constraints: defaultGrammar(catalog).constraints,
-                    color: defaultGrammar(catalog).color,
+                    channels: defaultGrammar(catalog).channels,
                 });
             };
 

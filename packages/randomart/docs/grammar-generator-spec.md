@@ -100,7 +100,8 @@ Format :
 ```json
 {
     "weights": { "x": 3, "y": 3, "const": 1, "sin": 1, "add": 1, "mul": 1 },
-    "constraints": { "minDepth": 3, "maxDepth": 8, "maxNodes": 60 }
+    "constraints": { "minDepth": 3, "maxDepth": 8, "maxNodes": 60 },
+    "channels": { "space": "oklch", "shareDepth": 2 }
 }
 ```
 
@@ -117,8 +118,8 @@ Une seule grammaire de départ, calibrée au lot H (D34) — snapshot dans `defa
 - Poids, calibrés pour la structure (variance du champ) : `x`/`y` 4 ; `max` 2 ; `min` 1,5 ; `mul`
   0,75 ; les aplatisseurs `const`/`add`/`gt`/`tsin`/`tcos` à 0,5 ; les combinators coûteux `select`/
   `mix`/`warp` à 0,5 ; tout le reste du catalogue à 1.
-- Modèle de couleur : `correlated` via la palette `spectrum` (un seul champ → palette), le modèle
-  qui produit des images lisibles.
+- Canaux : `channels = { space: 'oklch', shareDepth: 2 }` — un tronc partagé de profondeur 2 lu en
+  OKLCH, le modèle qui produit des images lisibles (lot J ; voir le glossaire, « Canaux »).
 - **`defaultGrammar`** : exactement cela. C'est le défaut de l'UI.
 
 `tsin` et `tcos` font partie du catalogue comme n'importe quel autre opérateur : il n'y a plus de préréglage « animé » distinct. L'animation relève de la lecture (horloge Play/Pause), pas de la grammaire. La durée de boucle (`DEFAULT_LOOP_MS = 8000`) est purement esthétique : `tsin`/`tcos` étant exactement périodiques en `u_phase`, toute durée boucle proprement.

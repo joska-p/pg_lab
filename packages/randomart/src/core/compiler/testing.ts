@@ -4,8 +4,8 @@
  */
 
 import type { Catalog } from '../catalog/index.ts';
-import { PALETTE_IDS, UNRELATED_COLOR } from '../color/index.ts';
-import type { ColorModel } from '../color/index.ts';
+import { COLOR_SPACE_IDS, RAW_CHANNELS } from '../color/index.ts';
+import type { ChannelModel } from '../color/index.ts';
 import type { Node } from '../expression/index.ts';
 import { createGrammar, defaultGrammar, randomizeWeights } from '../grammar/index.ts';
 import type { Grammar } from '../grammar/index.ts';
@@ -114,9 +114,10 @@ export interface FuzzCase {
 
 /**
  * Deterministic cases mixing the default grammar and randomized grammars (wider operator mix,
- * deeper trees), and both colour models, so the fuzz covers more than the default vocabulary. Even
- * `i` is `unrelated` (three independent channels), odd `i` is `correlated` (one field through a
- * palette) — the two emission paths of `compile` are both exercised.
+ * deeper trees), across the channel model's two axes, so the fuzz covers more than the default
+ * vocabulary. Even `i` is a raw triplet with independent channels; odd `i` is a shared trunk read
+ * in each colour space in turn, half of those fully shared (`shareDepth = maxDepth`, so `r = g =
+ * b`) — both emission paths and both generator shapes are exercised.
  */
 export function buildFuzzCases(catalog: Catalog, count: number): FuzzCase[] {
     const cases: FuzzCase[] = [];
@@ -125,14 +126,17 @@ export function buildFuzzCases(catalog: Catalog, count: number): FuzzCase[] {
     for (let i = 0; i < count; i++) {
         const seed = createSeed(i * 7919 + 1);
         const kind = i % 2;
-        const color: ColorModel =
-            i % 2 === 0
-                ? UNRELATED_COLOR
-                : { kind: 'correlated', palette: PALETTE_IDS[i % PALETTE_IDS.length] };
+        const channels: ChannelModel =
+            kind === 0
+                ? RAW_CHANNELS
+                : {
+                      space: COLOR_SPACE_IDS[Math.floor(i / 2) % COLOR_SPACE_IDS.length],
+                      shareDepth: i % 4 === 1 ? 2 : base.constraints.maxDepth,
+                  };
         const colored = createGrammar(catalog, {
             weights: base.weights,
             constraints: base.constraints,
-            color,
+            channels,
         });
         let grammar: Grammar;
         let label: string;

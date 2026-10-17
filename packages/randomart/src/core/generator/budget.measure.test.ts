@@ -84,7 +84,7 @@ describe('generator budget', () => {
                     createGrammar(catalog, {
                         weights: grammar.weights,
                         constraints: grammar.constraints,
-                        color: { kind: 'unrelated' },
+                        channels: { space: 'srgb', shareDepth: 0 },
                     }),
                     seed,
                 );
