@@ -63,22 +63,39 @@ function compileProgram(
     vertexSource: string,
     fragmentSource: string,
 ): WebGLProgram {
+    const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vertexSource);
+    let fragmentShader: WebGLShader;
+
+    try {
+        fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
+    } catch (error) {
+        gl.deleteShader(vertexShader);
+        throw error;
+    }
+
     const program = gl.createProgram();
 
     if (!program) {
+        gl.deleteShader(vertexShader);
+        gl.deleteShader(fragmentShader);
         throw new Error('Glaze: batcher program creation failed');
     }
 
-    gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER, vertexSource));
-    gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER, fragmentSource));
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
         const log = gl.getProgramInfoLog(program);
 
         gl.deleteProgram(program);
+        gl.deleteShader(vertexShader);
+        gl.deleteShader(fragmentShader);
         throw new Error(`Glaze: batcher program link failed: ${String(log)}`);
     }
+
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
 
     return program;
 }
