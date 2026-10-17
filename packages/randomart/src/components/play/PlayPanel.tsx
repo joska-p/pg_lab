@@ -11,7 +11,6 @@ import {
     applyGrammar,
     exportPng,
     newImage,
-    shuffleGrammar,
     useActionError,
     useCanvas,
     useClockStore,
@@ -28,14 +27,7 @@ import { catalog } from '../../stores/catalogueStore.ts';
  * the app-wide singleton.
  */
 const PRESETS = grammarPresets(catalog);
-const CUSTOM = 'custom';
-
-const RECIPE_OPTIONS = [
-    ...PRESETS.map((preset) => ({ value: preset.id, label: preset.label })),
-    { value: CUSTOM, label: 'Custom (edited)' },
-];
-
-const CUSTOM_DESCRIPTION = 'A grammar you edited in the lab (or shuffled).';
+const RECIPE_OPTIONS = [...PRESETS.map((preset) => ({ value: preset.id, label: preset.label }))];
 
 /**
  * The play (toy) panel: the immediate gesture — generate, shuffle, pick a recipe, watch, keep. The
@@ -57,7 +49,7 @@ export function PlayPanel() {
     );
 
     const canAnimate = hasClockStore && compiledShader.animated;
-    const currentPresetId = presetIdOf(PRESETS, grammar) ?? CUSTOM;
+    const currentPresetId = presetIdOf(PRESETS, grammar);
     const currentPreset = PRESETS.find((preset) => preset.id === currentPresetId);
 
     return (
@@ -72,13 +64,6 @@ export function PlayPanel() {
                             }}
                         >
                             New image
-                        </Button>
-                        <Button
-                            onClick={() => {
-                                shuffleGrammar();
-                            }}
-                        >
-                            Shuffle grammar
                         </Button>
                         <Text variant="muted">
                             Seed: {seed} • {compiledShader.stats.nodes} nodes
@@ -100,9 +85,7 @@ export function PlayPanel() {
                                 }
                             }}
                         />
-                        <Text variant="muted">
-                            {currentPreset?.description ?? CUSTOM_DESCRIPTION}
-                        </Text>
+                        <Text variant="muted">{currentPreset?.description}</Text>
                     </Stack>
                 </ControlField>
 
