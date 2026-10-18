@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/index.ts';
+import { Catalog, createDefaultCatalog, DEPENDENCIES, OPERATOR_SPECS } from '../catalog/index.ts';
+import type { OperatorSpec } from '../catalog/index.ts';
 import { createExpression, createNode } from '../expression/index.ts';
 import { emit } from './emit.ts';
 import { lower } from './lower.ts';
@@ -8,14 +9,14 @@ import { lower } from './lower.ts';
 describe('emit', () => {
     const catalog = createDefaultCatalog();
 
-    // r = sin(x), g = add(sin(x), y), b = tsin
-    // Vertex ids: x = 0, sin(x) = 1, y = 2, add = 3, tsin = 4. sin(x) has 2 usages.
+    // r = sin(x), g = add(sin(x), y), b = const(0.5)
+    // Vertex ids: x = 0, sin(x) = 1, y = 2, add = 3, const = 4. sin(x) has 2 usages.
     const x = createNode(catalog, 'x');
     const y = createNode(catalog, 'y');
     const sinX = createNode(catalog, 'sin', [x]);
     const add = createNode(catalog, 'add', [sinX, y]);
-    const tsin = createNode(catalog, 'tsin');
-    const shared = lower(catalog, createExpression(sinX, add, tsin));
+    const konst = createNode(catalog, 'const', [], [0.5]);
+    const shared = lower(catalog, createExpression(sinX, add, konst));
 
     it("'shared' names only the vertex used twice, and keeps atoms inline", () => {
         const result = emit(catalog, shared, 'shared');
@@ -24,7 +25,7 @@ describe('emit', () => {
         expect(result.varCount).toBe(1);
         expect(result.channelTexts[0]).toBe('v1');
         expect(result.channelTexts[1]).toContain('v1');
-        expect(result.channelTexts[2]).toContain('sin(2.0*PI*u_phase)');
+        expect(result.channelTexts[2]).toContain('0.5');
     });
 
     it("'none' emits no variable and recopies the shared vertex", () => {
@@ -45,7 +46,20 @@ describe('emit', () => {
     });
 
     it('collects the dependencies of the operators it emits', () => {
-        expect(emit(catalog, shared, 'shared').usedDeps.has('u_phase')).toBe(true);
+        // A custom operator that reads `u_phase` proves uniform-dep collection (no stock operator
+        // reads a uniform since animation moved to the coordinate prelude).
+        const clockOperator: OperatorSpec = {
+            label: 'Clock',
+            group: 'terminal',
+            requires: ['u_phase'],
+            glsl: () => 'sin(2.0*PI*u_phase)',
+        };
+        const clockCatalog = new Catalog({ ...OPERATOR_SPECS, clock: clockOperator }, DEPENDENCIES);
+        const clockNode = createNode(clockCatalog, 'clock');
+        const xn = createNode(clockCatalog, 'x');
+        const clocked = lower(clockCatalog, createExpression(clockNode, xn, xn));
+
+        expect(emit(clockCatalog, clocked, 'shared').usedDeps.has('u_phase')).toBe(true);
 
         const dx = createNode(catalog, 'const', [], [0.1]);
         const dy = createNode(catalog, 'const', [], [0.2]);

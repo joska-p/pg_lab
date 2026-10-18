@@ -34,12 +34,11 @@ export function deriveSeed(base: number, index: number): Seed {
 /**
  * Independent grammars, not a chained walk: each one starts from the neutral vocabulary and gets
  * its own full randomization (`randomGrammar`), so the sample covers the space instead of drifting
- * through it.
+ * through it. Motion is left at the default `off` (phase-0 identity), so the drawn stills are the
+ * static image of each grammar.
  *
- * Images are rendered at phase 0, where `tsin`/`tcos` are the constants 0 and 1: they flatten
- * subtrees without saying anything about the grammar, so the sampler keeps them off (`includeTime:
- * false`). The channel model defaults to the plain raw sRGB (three independent trees) — the
- * historical dataset draw; callers exploring grammars in-app pass the app's `DEFAULT_CHANNELS`.
+ * The channel model defaults to the plain raw sRGB (three independent trees) — the historical
+ * dataset draw; callers exploring grammars in-app pass the app's `DEFAULT_CHANNELS`.
  */
 export function sampleGrammars(
     catalog: Catalog,
@@ -62,7 +61,6 @@ export function sampleGrammars(
             spread,
             changeRate,
             channels,
-            includeTime: false,
         });
 
         sampled.push({

@@ -242,11 +242,10 @@ describe('grammar: defaultGrammar', () => {
         expect(g.weights.max).toBe(2);
         expect(g.weights.min).toBe(1.5);
         expect(g.weights.const).toBe(0.5);
-        expect(g.weights.tsin).toBe(0.5);
-        expect(g.weights.tcos).toBe(0.5);
         expect(g.weights.mix).toBe(0.5);
         expect(g.weights.select).toBe(0.5);
         expect(g.weights.warp).toBe(0.5);
+        expect(g.motion).toBe('off');
         expect(g.constraints).toEqual({
             minDepth: 3,
             maxDepth: 8,

@@ -7,9 +7,11 @@ import {
     RAW_CHANNELS,
 } from '../color/index.ts';
 import type { ChannelModel } from '../color/index.ts';
+import { DEFAULT_MOTION, isMotionLevel } from '../motion/index.ts';
+import type { MotionLevel } from '../motion/index.ts';
 import { assertFinite } from '../shared/index.ts';
-import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types';
-import type { Constraints, ConstraintsInput, Grammar } from './types';
+import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types.ts';
+import type { Constraints, ConstraintsInput, Grammar } from './types.ts';
 
 export const isTerminalOperator = (operator: Operator): boolean => operator.isTerminal;
 export const isNonTerminalOperator = (operator: Operator): boolean => !operator.isTerminal;
@@ -174,16 +176,27 @@ function validateChannels(channels: ChannelModel, maxDepth: number): ChannelMode
     };
 }
 
+/** Content, like a colour space: an unknown motion has no canonical repair and refuses. */
+function validateMotion(motion: MotionLevel): MotionLevel {
+    if (!isMotionLevel(motion)) {
+        throw new Error(`Randomart: unknown motion ${JSON.stringify(motion)}`);
+    }
+
+    return motion;
+}
+
 export function createGrammar(
     catalog: Catalog,
     {
         weights,
         constraints: rawConstraints,
         channels: rawChannels = RAW_CHANNELS,
+        motion = DEFAULT_MOTION,
     }: {
         readonly weights: Readonly<Record<string, number | undefined>>;
         readonly constraints: ConstraintsInput;
         readonly channels?: ChannelModel;
+        readonly motion?: MotionLevel;
     },
 ): Grammar {
     const operatorNames = Object.keys(weights);
@@ -250,24 +263,25 @@ export function createGrammar(
         // Already frozen by createConstraints.
         constraints,
         channels: Object.freeze(validateChannels(rawChannels, constraints.maxDepth)),
+        // Content, like a colour space: an unknown motion refuses (no canonical repair).
+        motion: validateMotion(motion),
     }) as Grammar;
 }
 
 /**
- * The default vocabulary: the whole catalog, weighted for _structure_. Time terminals (`tsin`,
- * `tcos`) are ordinary members of the catalog, so there is no separate "animated" preset: one seed
- * gives one expression, and animation is a matter of playback.
+ * The default vocabulary: the whole catalog, weighted for _structure_. There is no separate
+ * "animated" preset: animation is a matter of playback (the grammar's `motion`), not of
+ * vocabulary.
  *
  * These weights come from a calibration session (2026-10-17). The field of a generated expression
  * is provably bounded to `[-1, 1]` (every operator preserves the range), and every colour space
  * maps it monotonically, so the only thing that flattens an image into an aplat is a _constant_
  * field — not the mapping and not a final clamp (that clamp is dead). Measuring local flatness
  * against operator presence showed which operators structure the field and which flatten it:
- * `x`/`y`/`max` create variation, while the time terminals (`tsin`/`tcos` — the same value
- * everywhere at a given phase, and exactly `0`/`1` at phase 0, which zeroes whole `mul` subtrees),
- * `gt`, `add` and `const` dominate subtrees with a single value. Up-weighting the first and pushing
- * the second to the background roughly halves the share of near-uniform stills (measured on the
- * fuzz corpus: mean local flatness 59% → 41%, near-uniform "aplats" 42% → 19%).
+ * `x`/`y`/`max` create variation, while `gt`, `add` and `const` dominate subtrees with a single
+ * value. Up-weighting the first and pushing the second to the background roughly halves the share
+ * of near-uniform stills (measured on the fuzz corpus: mean local flatness 59% → 41%, near-uniform
+ * "aplats" 42% → 19%).
  *
  * Its colour model is `DEFAULT_CHANNELS` (a trunk of depth 2 read as OKLCH), the _curated_ default
  * — the model that actually yields readable images. `createGrammar` alone would fall back to the
@@ -287,8 +301,6 @@ export function defaultGrammar(catalog: Catalog): Grammar {
         const: 0.5,
         add: 0.5,
         gt: 0.5,
-        tsin: 0.5,
-        tcos: 0.5,
         mul: 0.75,
         // Expensive combinators, as before.
         select: 0.5,

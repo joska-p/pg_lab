@@ -13,8 +13,8 @@ export interface GrammarSummary {
      * maxDepth/maxNodes.
      */
     readonly growth: number;
-    /** True when the vocabulary contains a time terminal (`u_phase`), so images can animate. */
-    readonly hasTime: boolean;
+    /** True when the grammar's motion is not `off`, so its images animate on playback. */
+    readonly animated: boolean;
 }
 
 /** Indicator only, not a rule: lets the UI hint at the "character" of a grammar. */
@@ -23,7 +23,6 @@ export function describeGrammar(catalog: Catalog, grammar: Grammar): GrammarSumm
     let terminalWeight = 0;
     let nonTerminalWeight = 0;
     let arityWeighted = 0;
-    let hasTime = false;
 
     for (const [name, weight] of Object.entries(grammar.weights)) {
         if (weight === undefined || weight <= 0) {
@@ -34,10 +33,6 @@ export function describeGrammar(catalog: Catalog, grammar: Grammar): GrammarSumm
         const arity = operator.arity;
 
         vocabularySize++;
-
-        if (operator.requires.includes('u_phase')) {
-            hasTime = true;
-        }
 
         if (arity === 0) {
             terminalWeight += weight;
@@ -56,6 +51,6 @@ export function describeGrammar(catalog: Catalog, grammar: Grammar): GrammarSumm
         terminalShare,
         meanArity,
         growth: (1 - terminalShare) * meanArity,
-        hasTime,
+        animated: grammar.motion !== 'off',
     };
 }

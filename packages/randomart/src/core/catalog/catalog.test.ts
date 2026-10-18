@@ -223,7 +223,7 @@ describe('createDefaultCatalog', () => {
                 .terminals()
                 .map((t) => t.name)
                 .sort(),
-        ).toEqual(['const', 'tcos', 'tsin', 'x', 'y']);
+        ).toEqual(['const', 'x', 'y']);
         expect(catalog.operator('x').group).toBe('terminal');
         expect(catalog.operator('add').arity).toBe(2);
         expect(catalog.operator('mix').arity).toBe(3);

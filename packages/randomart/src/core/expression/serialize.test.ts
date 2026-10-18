@@ -29,7 +29,7 @@ describe('expression: serialize', () => {
 
     it('round-trips through nodeKey for a varied expression', () => {
         const a = createNode(catalog, 'const', [], [0.5]);
-        const b = createNode(catalog, 'tsin');
+        const b = createNode(catalog, 'y');
         const mix = createNode(catalog, 'mix', [a, b, a]);
         const expr = createExpression(mix, a, b);
 
@@ -53,7 +53,11 @@ describe('expression: serialize', () => {
 
 describe('expression: deserialize rejections', () => {
     const catalog = createDefaultCatalog();
-    const valid: ExpressionData = { r: { op: 'x' }, g: { op: 'y' }, b: { op: 'tsin' } };
+    const valid: ExpressionData = {
+        r: { op: 'x' },
+        g: { op: 'y' },
+        b: { op: 'const', params: [0] },
+    };
 
     it('rejects a non-object root with a clear message', () => {
         expect(() => deserialize(catalog, 'nope')).toThrow('object expected');

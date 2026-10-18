@@ -2,19 +2,24 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../catalog/index.ts';
 import { describeGrammar } from './describe.ts';
-import { createGrammar, defaultGrammar } from './grammar.ts';
+import { createGrammar } from './grammar.ts';
 
 const catalog = createDefaultCatalog();
 
 describe('describeGrammar', () => {
-    it('detects time terminals', () => {
-        const withoutTime = createGrammar(catalog, {
+    it('reports animation from the grammar motion', () => {
+        const still = createGrammar(catalog, {
             weights: { x: 1, y: 1, add: 1 },
             constraints: { minDepth: 1, maxDepth: 4, maxNodes: 20 },
         });
+        const moving = createGrammar(catalog, {
+            weights: { x: 1, y: 1, add: 1 },
+            constraints: { minDepth: 1, maxDepth: 4, maxNodes: 20 },
+            motion: 'drift',
+        });
 
-        expect(describeGrammar(catalog, withoutTime).hasTime).toBe(false);
-        expect(describeGrammar(catalog, defaultGrammar(catalog)).hasTime).toBe(true);
+        expect(describeGrammar(catalog, still).animated).toBe(false);
+        expect(describeGrammar(catalog, moving).animated).toBe(true);
     });
 
     it('reports zero growth for a terminal-only grammar', () => {

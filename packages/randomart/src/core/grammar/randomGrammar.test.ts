@@ -4,7 +4,6 @@ import { serializeGrammar } from '../artwork/index.ts';
 import { createDefaultCatalog } from '../catalog/index.ts';
 import { generate } from '../generator/index.ts';
 import { createRng, createSeed } from '../random/index.ts';
-import { weightOf } from './grammar.ts';
 import { randomGrammar } from './randomGrammar.ts';
 
 const catalog = createDefaultCatalog();
@@ -36,23 +35,9 @@ describe('randomGrammar', () => {
         }
     });
 
-    it('keeps time operators off when includeTime is false', () => {
+    it('draws the still-image default (motion off)', () => {
         for (let i = 1; i <= 50; i++) {
-            const grammar = randomGrammar(catalog, rngAt(i), { includeTime: false });
-
-            expect(weightOf(grammar.weights, 'tsin')).toBe(0);
-            expect(weightOf(grammar.weights, 'tcos')).toBe(0);
+            expect(randomGrammar(catalog, rngAt(i)).motion).toBe('off');
         }
-    });
-
-    it('may keep time operators when includeTime is true', () => {
-        const on = Array.from({ length: 50 }, (_, i) =>
-            randomGrammar(catalog, rngAt(i + 1), { includeTime: true }),
-        ).filter(
-            (grammar) =>
-                weightOf(grammar.weights, 'tsin') > 0 || weightOf(grammar.weights, 'tcos') > 0,
-        );
-
-        expect(on.length).toBeGreaterThan(0);
     });
 });

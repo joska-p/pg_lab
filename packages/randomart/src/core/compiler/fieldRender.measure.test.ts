@@ -203,8 +203,6 @@ describe('field render', () => {
         const: 0.5,
         add: 0.5,
         gt: 0.5,
-        tsin: 0.5,
-        tcos: 0.5,
         mul: 0.75,
     };
     const STRONG = {
@@ -215,8 +213,6 @@ describe('field render', () => {
         const: 0.3,
         add: 0.3,
         gt: 0.3,
-        tsin: 0.25,
-        tcos: 0.25,
         mul: 0.5,
         select: 0.3,
         mix: 0.3,

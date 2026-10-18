@@ -24,6 +24,7 @@ export const STRUCTURE_RECIPE: Recipe = {
     size: 'medium',
     share: 2,
     space: 'oklch',
+    motion: 'off',
 };
 
 export function grammarSignature(grammar: Grammar): string {

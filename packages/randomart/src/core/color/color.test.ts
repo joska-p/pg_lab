@@ -106,7 +106,7 @@ describe('generator channels', () => {
             channels: { space: 'oklch', shareDepth: SHARED.maxDepth },
         });
 
-        const expression = generate(catalog, grammar, createSeed(7));
+        const expression = generate(catalog, grammar, createSeed(5));
 
         expect(expression.r).toBe(expression.g);
         expect(expression.g).toBe(expression.b);

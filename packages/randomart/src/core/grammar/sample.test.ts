@@ -4,7 +4,7 @@ import { serializeGrammar } from '../artwork/index.ts';
 import { createDefaultCatalog } from '../catalog/index.ts';
 import { DEFAULT_CHANNELS, RAW_CHANNELS } from '../color/index.ts';
 import { generate } from '../generator/index.ts';
-import { getVocabulary, weightOf } from '../grammar/index.ts';
+import { getVocabulary } from '../grammar/index.ts';
 import { sampleGrammars } from './sample.ts';
 
 const catalog = createDefaultCatalog();
@@ -20,10 +20,9 @@ describe('sampleGrammars', () => {
         expect(a.map((s) => s.seeds)).toEqual(b.map((s) => s.seeds));
     });
 
-    it('keeps time operators off and the channel model raw', () => {
+    it('draws the still-image default (motion off) with the channel model raw', () => {
         for (const { grammar } of sampleGrammars(catalog, 100)) {
-            expect(weightOf(grammar.weights, 'tsin')).toBe(0);
-            expect(weightOf(grammar.weights, 'tcos')).toBe(0);
+            expect(grammar.motion).toBe('off');
             expect(grammar.channels).toEqual(RAW_CHANNELS);
         }
     });

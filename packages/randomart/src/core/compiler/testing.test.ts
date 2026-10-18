@@ -80,8 +80,7 @@ describe('real compiler output', () => {
         const y = createNode(catalog, 'y');
         const sinX = createNode(catalog, 'sin', [x]);
         const add = createNode(catalog, 'add', [sinX, y]);
-        const tsin = createNode(catalog, 'tsin');
-        const compiled = compile(catalog, createExpression(sinX, add, tsin));
+        const compiled = compile(catalog, createExpression(sinX, add, x), { motion: 'drift' });
 
         expect(checkShaderStructure(compiled.source)).toEqual([]);
     });
@@ -91,10 +90,11 @@ describe('usesOperator', () => {
     const catalog = createDefaultCatalog();
 
     it('finds an operator anywhere in the tree', () => {
-        const tsin = createNode(catalog, 'tsin');
-        const tree = createNode(catalog, 'neg', [createNode(catalog, 'sin', [tsin])]);
+        const x = createNode(catalog, 'x');
+        const sqr = createNode(catalog, 'sqr', [x]);
+        const tree = createNode(catalog, 'neg', [createNode(catalog, 'sin', [sqr])]);
 
-        expect(usesOperator(tree, new Set(['tsin', 'tcos']))).toBe(true);
+        expect(usesOperator(tree, new Set(['sqr', 'cos']))).toBe(true);
         expect(usesOperator(tree, new Set(['warp']))).toBe(false);
     });
 });

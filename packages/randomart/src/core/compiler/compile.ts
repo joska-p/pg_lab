@@ -9,6 +9,8 @@ import { colorSpaceFunction, RAW_CHANNELS } from '../color/index.ts';
 import type { ChannelModel } from '../color/index.ts';
 import { nodeCount } from '../expression/index.ts';
 import type { Expression } from '../expression/index.ts';
+import { coordinateLines, DEFAULT_MOTION } from '../motion/index.ts';
+import type { MotionLevel } from '../motion/index.ts';
 import { emit } from './emit.ts';
 import { lower } from './lower.ts';
 import { buildPreamble } from './preamble.ts';
@@ -39,6 +41,7 @@ export function compile(
 ): CompiledShader {
     const sharing = options?.sharing ?? 'shared';
     const channels: ChannelModel = options?.channels ?? RAW_CHANNELS;
+    const motion: MotionLevel = options?.motion ?? DEFAULT_MOTION;
 
     // ── 1. Lowering ─────────────────────────────────────────────────────────
     const lowerResult = lower(catalog, expression);
@@ -47,16 +50,25 @@ export function compile(
     const emitResult = emit(catalog, lowerResult, sharing);
 
     // ── 3. Preamble ─────────────────────────────────────────────────────────
-    const { preambleLines, animated, uniforms } = buildPreamble(
-        catalog,
-        emitResult.usedDeps,
-        channels.space,
-    );
+    const {
+        preambleLines,
+        animated: depsAnimated,
+        uniforms: depUniforms,
+    } = buildPreamble(catalog, emitResult.usedDeps, channels.space);
+
+    // A moving motion reads `u_phase` directly in the coordinate prelude, so the shader is
+    // animated and `u_phase` is a real uniform (renderer contract: declared everywhere, listed
+    // here only when actually read).
+    const animated = motion !== 'off' || depsAnimated;
+    const uniforms =
+        motion !== 'off' && !depUniforms.some((u) => u.name === 'u_phase')
+            ? [{ name: 'u_phase', glslType: 'float' as const }, ...depUniforms]
+            : depUniforms;
 
     // ── 4. Assemble source ───────────────────────────────────────────────────
     const [rText, gText, bText] = emitResult.channelTexts;
 
-    const mainLines: string[] = ['void main() {', '  vec2 v_p = vUv * 2.0 - 1.0;'];
+    const mainLines: string[] = ['void main() {', ...coordinateLines(motion)];
 
     if (emitResult.lines.length > 0) {
         mainLines.push('');

@@ -67,7 +67,10 @@ const initialRecipe = STRUCTURE_RECIPE;
 const initialGrammar = recipeToGrammar(catalog, initialRecipe);
 const initialSeed = createSeed(42);
 const initialExpression = generate(catalog, initialGrammar, initialSeed);
-const initialCompiled = compile(catalog, initialExpression, { channels: initialGrammar.channels });
+const initialCompiled = compile(catalog, initialExpression, {
+    channels: initialGrammar.channels,
+    motion: initialGrammar.motion,
+});
 const initialEntry: HistoryEntry = {
     id: 0,
     seed: initialSeed,
@@ -234,7 +237,10 @@ function commit(recipe: Recipe, seed: Seed, restoreId?: number, coalesce = false
     try {
         const grammar = recipeToGrammar(catalog, recipe);
         const expression = generate(catalog, grammar, seed);
-        const compiledShader = compile(catalog, expression, { channels: grammar.channels });
+        const compiledShader = compile(catalog, expression, {
+            channels: grammar.channels,
+            motion: grammar.motion,
+        });
         const state = store.getState();
         let { history } = state;
         let currentId: number;
@@ -334,7 +340,10 @@ function restoreImportedEntry(entry: HistoryEntry): void {
             seed: entry.seed,
             expression,
             provenanceCheck: entry.provenanceCheck ?? 'differs',
-            compiledShader: compile(catalog, expression, { channels: entry.grammar.channels }),
+            compiledShader: compile(catalog, expression, {
+                channels: entry.grammar.channels,
+                motion: entry.grammar.motion,
+            }),
             currentId: entry.id,
             actionError: null,
         });
@@ -388,7 +397,10 @@ export function publishArtwork(artwork: Artwork): void {
     const grammar = provenance?.grammar ?? state.grammar;
     const recipe = (provenance ? recipeOf(provenance.grammar) : null) ?? state.recipe;
     const seed = provenance?.seed ?? state.seed;
-    const compiledShader = compile(catalog, expression, { channels: grammar.channels });
+    const compiledShader = compile(catalog, expression, {
+        channels: grammar.channels,
+        motion: grammar.motion,
+    });
     const provenanceCheck = checkProvenance(catalog, artwork);
     const entry: HistoryEntry = {
         id: nextEntryId++,

@@ -35,7 +35,7 @@ function fixture(provenance = true, seed = 12_345): Fixture {
         : createExpression(
               createNode(catalog, 'x'),
               createNode(catalog, 'y'),
-              createNode(catalog, 'tsin'),
+              createNode(catalog, 'const', [], [0.5]),
           );
 
     const artwork = createArtwork({
@@ -64,7 +64,7 @@ describe('artwork: createArtwork', () => {
         const expression = createExpression(
             createNode(catalog, 'x'),
             createNode(catalog, 'y'),
-            createNode(catalog, 'tsin'),
+            createNode(catalog, 'const', [], [0.5]),
         );
 
         expect(() => createArtwork({ expression, render: { width: 0 } })).toThrow(/render\.width/);
@@ -89,7 +89,7 @@ describe('artwork: createArtwork', () => {
         const expression = createExpression(
             createNode(catalog, 'x'),
             createNode(catalog, 'y'),
-            createNode(catalog, 'tsin'),
+            createNode(catalog, 'const', [], [0.5]),
         );
 
         // Cosmetic metadata: an empty title means "absent", an oversized one is truncated

@@ -6,6 +6,7 @@ import type { DependencySpec, OperatorSpec } from '../catalog/index.ts';
 import { createExpression, createNode } from '../expression/index.ts';
 import { generate } from '../generator/index.ts';
 import { defaultGrammar } from '../grammar/index.ts';
+import { MOTION_LEVELS } from '../motion/index.ts';
 import { createSeed } from '../random/index.ts';
 import { compile } from './compile.ts';
 import { isAtom, isEnclosedInParens, wrapInput } from './format.ts';
@@ -117,18 +118,43 @@ describe('compiler', () => {
             });
         });
 
-        it('detects animation dependencies and reports u_phase in uniforms', () => {
-            const tsin = createNode(catalog, 'tsin');
-            const tcos = createNode(catalog, 'tcos');
+        it('emits a moving motion as an animated coordinate prelude reading u_phase', () => {
             const x = createNode(catalog, 'x');
+            const y = createNode(catalog, 'y');
 
-            const expr = createExpression(tsin, tcos, x);
-            const compiled = compile(catalog, expr);
+            const expr = createExpression(x, y, x);
+            const compiled = compile(catalog, expr, { motion: 'drift' });
 
             expect(compiled.animated).toBe(true);
             expect(compiled.uniforms).toEqual([{ name: 'u_phase', glslType: 'float' }]);
-            expect(compiled.source).toContain('sin(2.0*PI*u_phase)');
-            expect(compiled.source).toContain('cos(2.0*PI*u_phase)');
+            expect(compiled.source).toContain('v_p += 0.35 * vec2(sin(2.0*PI*u_phase)');
+            expect(compiled.source).toContain('sin(2.0*PI*u_phase + 2.0943951)');
+        });
+
+        it('keeps the static baseline (motion off) non-animated with no uniforms', () => {
+            const x = createNode(catalog, 'x');
+
+            const compiled = compile(catalog, createExpression(x, x, x), { motion: 'off' });
+
+            expect(compiled.animated).toBe(false);
+            expect(compiled.uniforms).toEqual([]);
+        });
+
+        it('emits each motion level as a distinct, phase-0-identity prelude', () => {
+            const x = createNode(catalog, 'x');
+            const expr = createExpression(x, x, x);
+
+            for (const motion of MOTION_LEVELS) {
+                const compiled = compile(catalog, expr, { motion });
+
+                // v_p is always derived from vUv (renderer contract), whatever the motion.
+                expect(compiled.source).toContain('v_p');
+                expect(compiled.animated).toBe(motion !== 'off');
+            }
+
+            // The three moving motions emit their own signature.
+            expect(compile(catalog, expr, { motion: 'swing' }).source).toContain('swingA');
+            expect(compile(catalog, expr, { motion: 'pulse' }).source).toContain('(1.0 + 0.3 *');
         });
 
         it('handles operator nesting and protects against double negations (--)', () => {

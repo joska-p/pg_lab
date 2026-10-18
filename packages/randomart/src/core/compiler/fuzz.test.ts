@@ -4,13 +4,12 @@ import { validateShaderContract } from '../../renderer/contract.ts';
 import { createDefaultCatalog } from '../catalog/index.ts';
 import { generate } from '../generator/index.ts';
 import { compile } from './compile.ts';
-import { buildFuzzCases, checkShaderStructure, usesOperator } from './testing.ts';
+import { buildFuzzCases, checkShaderStructure } from './testing.ts';
 import type { CompiledShader, SharingPolicy } from './types.ts';
 
 const catalog = createDefaultCatalog();
 const FUZZ_COUNT = Number(import.meta.env.VITE_FUZZ_COUNT ?? 300);
 const POLICIES: readonly SharingPolicy[] = ['none', 'shared', 'all'];
-const TIME_OPERATORS: ReadonlySet<string> = new Set(['tsin', 'tcos']);
 
 function isSourceTooLong(error: unknown): boolean {
     return error instanceof Error && /MAX_SOURCE_LENGTH/.test(error.message);
@@ -33,6 +32,7 @@ describe(`compiler fuzz, pure (${FUZZ_COUNT} cases x 3 policies)`, () => {
                         compile(catalog, expression, {
                             sharing: policy,
                             channels: grammar.channels,
+                            motion: grammar.motion,
                         }),
                     );
                 } catch (error) {
@@ -49,10 +49,8 @@ describe(`compiler fuzz, pure (${FUZZ_COUNT} cases x 3 policies)`, () => {
                 }
             }
 
-            const expectedAnimated =
-                usesOperator(expression.r, TIME_OPERATORS) ||
-                usesOperator(expression.g, TIME_OPERATORS) ||
-                usesOperator(expression.b, TIME_OPERATORS);
+            // Animation is a property of the grammar's motion, not of the vocabulary.
+            const expectedAnimated = grammar.motion !== 'off';
 
             for (const [policy, shader] of compiled) {
                 const where = `${label} / ${policy}`;

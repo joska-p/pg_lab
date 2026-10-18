@@ -1,5 +1,6 @@
 import type { OperatorId } from '../catalog/index.ts';
 import type { ChannelModel } from '../color/index.ts';
+import type { MotionLevel } from '../motion/index.ts';
 import type { Brand } from '../shared/index.ts';
 
 /**
@@ -38,6 +39,11 @@ export type Grammar = Brand<
          * `../color`). Always present.
          */
         readonly channels: ChannelModel;
+        /**
+         * How the coordinates move with `u_phase` (see `../motion`). Always present; `'off'` is the
+         * static, phase-0-identity baseline. A content field like `channels.space`.
+         */
+        readonly motion: MotionLevel;
     },
     'Grammar'
 >;

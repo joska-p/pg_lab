@@ -40,7 +40,7 @@ describe('sampleRecipes', () => {
         expect(a.map((s) => s.seeds)).toEqual(b.map((s) => s.seeds));
     });
 
-    it('draws distinct recipes, with only quantized weights, anchors on, time off', () => {
+    it('draws distinct recipes, with only quantized weights, anchors on', () => {
         const sampled = sampleRecipes(catalog, 60);
 
         expect(new Set(sampled.map((s) => recipeKey(s.recipe))).size).toBe(60);
@@ -52,8 +52,6 @@ describe('sampleRecipes', () => {
 
             expect(grammar.weights.x).toBeGreaterThan(0);
             expect(grammar.weights.y).toBeGreaterThan(0);
-            expect(grammar.weights.tsin).toBe(0);
-            expect(grammar.weights.tcos).toBe(0);
         }
     });
 
@@ -64,9 +62,14 @@ describe('sampleRecipes', () => {
     });
 
     it('honours pinned axes', () => {
-        for (const { recipe } of sampleRecipes(catalog, 30, { share: 2, space: 'oklab' })) {
+        for (const { recipe } of sampleRecipes(catalog, 30, {
+            share: 2,
+            space: 'oklab',
+            motion: 'pulse',
+        })) {
             expect(recipe.share).toBe(2);
             expect(recipe.space).toBe('oklab');
+            expect(recipe.motion).toBe('pulse');
         }
     });
 
@@ -86,9 +89,22 @@ describe('recipeToGrammar', () => {
             size: 'medium',
             share: 'mono',
             space: 'oklch',
+            motion: 'off',
         });
 
         expect(grammar.channels.shareDepth).toBe(grammar.constraints.maxDepth);
+    });
+
+    it('carries the motion axis into the grammar', () => {
+        const grammar = recipeToGrammar(catalog, {
+            levels,
+            size: 'medium',
+            share: 2,
+            space: 'oklch',
+            motion: 'swing',
+        });
+
+        expect(grammar.motion).toBe('swing');
     });
 });
 
