@@ -11,6 +11,7 @@ import {
     createNotebook,
     createRecipe,
     rateNotebookCandidate,
+    removeBatchFromNotebook,
     updateCandidateRating,
 } from './notebook.ts';
 import { parseNotebook, serializeNotebook } from './serialize.ts';
@@ -98,6 +99,27 @@ describe('notebook core', () => {
             expect(withRecipe.batches).toHaveLength(1);
             expect(withRecipe.recipes).toHaveLength(1);
             expect(withRecipe.recipes[0]?.label).toBe('Spiral dream');
+        });
+
+        it('drops a batch by id and leaves the notebook untouched when the id is unknown', () => {
+            const first = createBatch({
+                id: 'batch-1',
+                candidates: [createCandidate({ grammar, seeds, rating: 5 })],
+            });
+            const second = createBatch({
+                id: 'batch-2',
+                candidates: [createCandidate({ grammar, seeds })],
+            });
+            const notebook = addBatchToNotebook(
+                addBatchToNotebook(createNotebook(), first),
+                second,
+            );
+
+            const withoutFirst = removeBatchFromNotebook(notebook, 'batch-1');
+
+            expect(withoutFirst.batches.map((batch) => batch.id)).toEqual(['batch-2']);
+            // Unknown ids are a no-op, not an empty notebook.
+            expect(removeBatchFromNotebook(notebook, 'nope')).toBe(notebook);
         });
     });
 

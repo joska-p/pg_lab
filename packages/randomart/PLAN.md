@@ -12,6 +12,9 @@ Explore grammars by eye: draw batches of images, rate them, keep the good recipe
 - Core, compiler, renderer, lab and history: done.
 - Gallery (lot I): I0 cleanup, I1 batch rendering and planche, I2 notebook (rating, IndexedDB,
   JSON import/export) are done.
+- Gallery UI/UX structural redesign done: one derived `lot` view shared by panel and stage,
+  per-row rating, DOM selection rings, `sheet`/`row` view regimes, non-destructive dimming of
+  flat cells, stage-scoped keyboard, batch deletion.
 - Remaining: **I3 propose**, **I4 summarize**, **I5 recipes**.
 
 ## Next
@@ -46,6 +49,8 @@ preset select.
 - The planche is one offscreen surface plus one display canvas: WebGL context limits forbid one
   canvas per cell.
 - Ratings are manual: descriptors only filter flat cells and explain, never score beauty.
+- The playground mounts only `@repo/randomart/Scene`; the gallery stage never appears there.
+- `NotebookCandidate.note` exists in core but no UI uses it yet (candidate for I4).
 
 ## End of session
 

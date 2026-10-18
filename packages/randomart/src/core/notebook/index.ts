@@ -25,6 +25,7 @@ export {
     createRecipe,
     generateNotebookId,
     rateNotebookCandidate,
+    removeBatchFromNotebook,
     updateCandidateRating,
     type BatchInput,
     type CandidateInput,

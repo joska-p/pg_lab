@@ -11,6 +11,12 @@ export type PlancheRow = readonly PlancheCell[];
 /** Background of the planche (empty cells and padding), a neutral near-black. */
 export const PLANCHE_BACKGROUND: readonly [number, number, number] = [16, 16, 22];
 
+/**
+ * What a dimmed cell keeps of its pixels. Dimming is the non-destructive answer to "this grammar
+ * collapsed": the cell stays in its slot, so the grid keeps its shape.
+ */
+export const PLANCHE_DIM_FACTOR = 0.35;
+
 export interface Planche {
     readonly width: number;
     readonly height: number;
@@ -23,6 +29,13 @@ export function plancheColumns(rows: readonly PlancheRow[]): number {
     return rows.reduce((widest, row) => Math.max(widest, row.length), 0);
 }
 
+export interface PlancheOptions {
+    /** Explicit column count (a grid must not depend on which rows happen to be full). */
+    readonly columns?: number;
+    /** Per-cell flags, same shape as `rows`: a flagged cell is painted dimmed. */
+    readonly dim?: readonly (readonly boolean[])[];
+}
+
 /**
  * Assembles the grid in memory — the whole planche is **one** image, so the display needs **one**
  * `putImageData` and **one** canvas (never a canvas per cell, the WebGL context budget forbids it).
@@ -32,7 +45,7 @@ export function plancheColumns(rows: readonly PlancheRow[]): number {
 export function assemblePlanche(
     rows: readonly PlancheRow[],
     cellSize: number,
-    columns = plancheColumns(rows),
+    { columns = plancheColumns(rows), dim }: PlancheOptions = {},
 ): Planche {
     const width = Math.max(1, columns * cellSize);
     const height = Math.max(1, rows.length * cellSize);
@@ -52,6 +65,7 @@ export function assemblePlanche(
                 return;
             }
 
+            const factor = dim?.[rowIndex]?.[columnIndex] ? PLANCHE_DIM_FACTOR : 1;
             const copyWidth = Math.min(image.width, cellSize);
             const copyHeight = Math.min(image.height, cellSize);
 
@@ -60,9 +74,9 @@ export function assemblePlanche(
                 const to = ((rowIndex * cellSize + y) * width + columnIndex * cellSize) * 4;
 
                 for (let x = 0; x < copyWidth; x++) {
-                    rgba[to + x * 4] = image.rgb[from + x * 3];
-                    rgba[to + x * 4 + 1] = image.rgb[from + x * 3 + 1];
-                    rgba[to + x * 4 + 2] = image.rgb[from + x * 3 + 2];
+                    rgba[to + x * 4] = image.rgb[from + x * 3] * factor;
+                    rgba[to + x * 4 + 1] = image.rgb[from + x * 3 + 1] * factor;
+                    rgba[to + x * 4 + 2] = image.rgb[from + x * 3 + 2] * factor;
                 }
             }
         });

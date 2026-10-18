@@ -149,6 +149,13 @@ export function addBatchToNotebook(notebook: Notebook, batch: NotebookBatch): No
     };
 }
 
+/** Drops a batch (and its candidates) from the notebook. Unknown ids are a no-op. */
+export function removeBatchFromNotebook(notebook: Notebook, batchId: string): Notebook {
+    const batches = notebook.batches.filter((batch) => batch.id !== batchId);
+
+    return batches.length === notebook.batches.length ? notebook : { ...notebook, batches };
+}
+
 /** Promotes a candidate or adds a recipe to the notebook. */
 export function addRecipeToNotebook(notebook: Notebook, recipe: NotebookRecipe): Notebook {
     return {

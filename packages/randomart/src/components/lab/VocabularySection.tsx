@@ -3,6 +3,7 @@ import { ControlSection } from '@repo/ui/components/ControlSection';
 import { NumberField } from '@repo/ui/components/NumberField';
 import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
+import { Fragment } from 'react';
 
 import type { Operator, OperatorGroup } from '../../core/catalog/index.ts';
 import { MAX_WEIGHT, weightOf } from '../../core/grammar/index.ts';
@@ -74,7 +75,7 @@ export function VocabularySection() {
                 }
 
                 return (
-                    <>
+                    <Fragment key={group}>
                         <Text variant="muted">{GROUP_LABELS[group]}</Text>
                         {operators.map((operator) => (
                             <OperatorRow
@@ -83,7 +84,7 @@ export function VocabularySection() {
                                 weight={weightOf(grammar.weights, operator.name)}
                             />
                         ))}
-                    </>
+                    </Fragment>
                 );
             })}
         </ControlSection>

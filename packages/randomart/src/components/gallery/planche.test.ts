@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import type { RgbImage } from '../../core/analysis/index.ts';
-import { assemblePlanche, PLANCHE_BACKGROUND, plancheColumns } from './planche';
+import { assemblePlanche, PLANCHE_BACKGROUND, PLANCHE_DIM_FACTOR, plancheColumns } from './planche';
 
 /** A solid image `size`x`size` filled with one RGB colour. */
 function solid(size: number, rgb: readonly [number, number, number]): RgbImage {
@@ -77,5 +77,33 @@ describe('assemblePlanche', () => {
         expect(planche.width).toBe(1);
         expect(planche.height).toBe(1);
         expect(planche.rgba.length).toBe(4);
+    });
+
+    it('dims flagged cells without moving them', () => {
+        const white = solid(2, [200, 200, 200]);
+        const planche = assemblePlanche([[white, white]], 2, {
+            columns: 2,
+            dim: [[true, false]],
+        });
+
+        // Same geometry as an undimmed grid: dimming must not punch a hole.
+        expect(planche.width).toBe(4);
+        expect(planche.height).toBe(2);
+        // Dimmed cell: darker, at its own place. Untouched cell: untouched.
+        expect(pixelAt(planche, 0, 0)).toEqual([
+            Math.floor(200 * PLANCHE_DIM_FACTOR),
+            Math.floor(200 * PLANCHE_DIM_FACTOR),
+            Math.floor(200 * PLANCHE_DIM_FACTOR),
+            255,
+        ]);
+        expect(pixelAt(planche, 2, 0)).toEqual([200, 200, 200, 255]);
+    });
+
+    it('uses explicit columns even when a row is short', () => {
+        const red = solid(2, [255, 0, 0]);
+        const planche = assemblePlanche([[red]], 2, { columns: 3 });
+
+        expect(planche.width).toBe(6);
+        expect(pixelAt(planche, 4, 0)).toEqual([...PLANCHE_BACKGROUND, 255]);
     });
 });

@@ -1,46 +1,94 @@
 import { describeImage } from '../../core/analysis/index.ts';
 import type { RgbImage } from '../../core/analysis/index.ts';
 import type { RenderedBatch } from '../../renderer/index.ts';
+import { plancheColumns } from './planche';
 import type { PlancheRow } from './planche';
 
+/** Above this share of flat blocks, the grammar is considered collapsed. */
 export const FLAT_SHARE_THRESHOLD = 0.9;
 
 export function isFlat(image: RgbImage, threshold = FLAT_SHARE_THRESHOLD): boolean {
     return describeImage(image).flatShare >= threshold;
 }
 
+/**
+ * One drawn lot, ready to display: the planche rows plus the flags and counters the panel and the
+ * stage would otherwise each recompute. It is the single representation of the rendered lot in the
+ * store — `RenderedBatch[]` is the step that produces it, not a state kept in parallel.
+ */
 export interface LotView {
+    /** One row per grammar, one column per seed. `null` = the render failed for that cell. */
     readonly rows: readonly PlancheRow[];
+    /** Flat flags, same shape as `rows` (a failed cell is never flat). */
+    readonly flat: readonly (readonly boolean[])[];
+    /** Column count of the grid: the widest row, so a hole never shifts a column. */
+    readonly columns: number;
+    /** Number of grammars drawn: one candidate per row. */
+    readonly grammars: number;
     readonly cells: number;
     readonly failed: number;
-    readonly hidden: number;
+    readonly flats: number;
 }
 
-/** Prepares the planche rows and computes counters from rendered batches. Pure. */
-export function buildLotView(batches: readonly RenderedBatch[], filterFlats: boolean): LotView {
+export const EMPTY_LOT: LotView = {
+    rows: [],
+    flat: [],
+    columns: 0,
+    grammars: 0,
+    cells: 0,
+    failed: 0,
+    flats: 0,
+};
+
+/**
+ * Builds the display lot from the rendered batches. Pure.
+ *
+ * A failed render keeps its slot (`null` image), so the grid never moves when a cell dies; a flat
+ * cell keeps its pixels and is _flagged_ — the planche dims it, the panel counts it. Hiding it
+ * would punch a hole in the grid.
+ */
+export function buildLotView(batches: readonly RenderedBatch[]): LotView {
+    const rows: PlancheRow[] = [];
+    const flat: boolean[][] = [];
     let cells = 0;
     let failed = 0;
-    let hidden = 0;
+    let flats = 0;
 
-    const rows = batches.map((batch) =>
-        batch.cells.map((cell) => {
+    for (const batch of batches) {
+        const rowCells: (RgbImage | null)[] = [];
+        const rowFlat: boolean[] = [];
+
+        for (const cell of batch.cells) {
             cells++;
 
             if (!cell.image) {
                 failed++;
-
-                return null;
+                rowCells.push(null);
+                rowFlat.push(false);
+                continue;
             }
 
-            if (filterFlats && isFlat(cell.image)) {
-                hidden++;
+            const cellIsFlat = isFlat(cell.image);
 
-                return null;
+            if (cellIsFlat) {
+                flats++;
             }
 
-            return cell.image;
-        }),
-    );
+            rowCells.push(cell.image);
+            rowFlat.push(cellIsFlat);
+        }
 
-    return { rows, cells, failed, hidden };
+        rows.push(rowCells);
+        flat.push(rowFlat);
+    }
+
+    return {
+        rows,
+        flat,
+        columns: plancheColumns(rows),
+        grammars: rows.length,
+        cells,
+        failed,
+        flats,
+    };
 }

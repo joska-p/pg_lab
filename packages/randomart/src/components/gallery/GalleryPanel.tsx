@@ -1,191 +1,263 @@
 import { Button } from '@repo/ui/components/Button';
 import { Checkbox } from '@repo/ui/components/Checkbox';
-import { ControlField } from '@repo/ui/components/ControlField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { FileInput } from '@repo/ui/components/FileInput';
+import { Grid } from '@repo/ui/components/Grid';
 import { NumberField } from '@repo/ui/components/NumberField';
+import { Segmented } from '@repo/ui/components/Segmented';
 import { Select } from '@repo/ui/components/Select';
-import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
 
-import type { NotebookRating } from '../../core/notebook/index.ts';
+import type { NotebookBatch, NotebookRating } from '../../core/notebook/index.ts';
 import {
     CELL_SIZES,
     exportNotebookFile,
+    GALLERY_VIEWS,
     importNotebookFile,
-    keepCellAsArtwork,
+    MAX_GALLERY_COUNT,
+    MAX_GALLERY_SEEDS,
     newGalleryBatch,
+    openSelectedInLab,
     rateCandidateRow,
     redrawGallery,
+    removeActiveBatch,
     selectBatch,
     setGalleryCellSize,
     setGalleryCount,
-    setGalleryFilterFlats,
+    setGalleryDimFlats,
     setGallerySeeds,
-    setSelectedRowIndex,
+    setGalleryView,
+    stepRow,
+    toggleCandidateRating,
     useGalleryActiveBatch,
-    useGalleryBatches,
     useGalleryError,
+    useGalleryLot,
     useGalleryNotebook,
+    useGallerySelectedColIndex,
     useGallerySelectedRowIndex,
     useGallerySettings,
 } from '../../stores/galleryStore';
-import { buildLotView } from './lot';
+import type { GalleryView } from '../../stores/galleryStore';
 
 const RATINGS: readonly NotebookRating[] = [0, 1, 2, 3, 4, 5];
 
+const VIEW_LABELS: Record<GalleryView, string> = {
+    sheet: 'Sheet',
+    row: 'Row',
+};
+
+const VIEW_OPTIONS = GALLERY_VIEWS.map((value) => ({ value, label: VIEW_LABELS[value] }));
+
+/** Locale-independent stamp: a lot is identified by when it was drawn, not by its list position. */
+function batchStamp(createdAt: string): string {
+    const date = new Date(createdAt);
+
+    if (Number.isNaN(date.getTime())) {
+        return createdAt;
+    }
+
+    // "MM-DD HH:MM" in the user's own timezone: showing a lot drawn at 13:45 as "11:45" would lie.
+    const pad = (value: number) => String(value).padStart(2, '0');
+
+    return [
+        `${pad(date.getMonth() + 1)}-${pad(date.getDate())}`,
+        `${pad(date.getHours())}:${pad(date.getMinutes())}`,
+    ].join(' ');
+}
+
+function batchLabel(batch: NotebookBatch): string {
+    const rated = batch.candidates.filter((candidate) => candidate.rating !== undefined).length;
+
+    return `${batchStamp(batch.createdAt)} · ${String(rated)}/${String(batch.candidates.length)} rated`;
+}
+
+/**
+ * The gallery panel: everything that _decides_ what to look at or how to judge it.
+ *
+ * The split with the stage is deliberate — the panel holds every control, the stage only shows the
+ * planche. Rating follows the same rule as the data model: a note belongs to a **grammar**
+ *
+ * (a row, one candidate recipe), never to a single seed; the seeds of a row are views of one
+ * grammar.
+ */
 export function GalleryPanel() {
-    const { count, seedsPerGrammar, cellSize, filterFlats, baseSeed } = useGallerySettings();
-    const batches = useGalleryBatches();
+    const { count, seedsPerGrammar, cellSize, view, dimFlats, baseSeed } = useGallerySettings();
     const notebook = useGalleryNotebook();
     const activeBatch = useGalleryActiveBatch();
     const selectedRowIndex = useGallerySelectedRowIndex();
+    const selectedColIndex = useGallerySelectedColIndex();
+    const lot = useGalleryLot();
     const error = useGalleryError();
 
-    const { cells, failed, hidden } = buildLotView(batches, filterFlats);
-
-    const activeCandidate = activeBatch?.candidates[selectedRowIndex];
+    const candidates = activeBatch?.candidates ?? [];
+    const selected = candidates[selectedRowIndex];
+    const rated = candidates.filter((candidate) => candidate.rating !== undefined).length;
+    const lastRow = Math.max(0, candidates.length - 1);
 
     return (
-        <ControlSection title="Gallery">
-            <Stack gap="4">
-                <ControlField label="Lot">
-                    <Stack gap="2">
-                        <Stack direction="horizontal" gap="2">
-                            <NumberField
-                                label="grammars"
-                                min={1}
-                                max={16}
-                                value={count}
-                                onValueChange={setGalleryCount}
-                            />
-                            <NumberField
-                                label="seeds"
-                                min={1}
-                                max={16}
-                                value={seedsPerGrammar}
-                                onValueChange={setGallerySeeds}
-                            />
-                            <Select
-                                label="cell"
-                                value={cellSize}
-                                options={CELL_SIZES.map((size) => ({
-                                    value: size,
-                                    label: `${size} px`,
-                                }))}
-                                onValueChange={setGalleryCellSize}
-                            />
-                        </Stack>
-                        <Stack direction="horizontal" gap="2">
-                            <Button onClick={newGalleryBatch}>New batch</Button>
-                            <Button onClick={redrawGallery}>Redraw</Button>
-                        </Stack>
-                        <Text variant="muted">
-                            Seed {baseSeed} • {cells} cells • {failed} failed
-                        </Text>
-                    </Stack>
-                </ControlField>
+        <Grid columns="1" gap="8">
+            <ControlSection title="lot">
+                <Grid columns="2" gap="2">
+                    <NumberField
+                        label="grammars"
+                        min={1}
+                        max={MAX_GALLERY_COUNT}
+                        value={count}
+                        onValueChange={setGalleryCount}
+                    />
+                    <NumberField
+                        label="seeds"
+                        min={1}
+                        max={MAX_GALLERY_SEEDS}
+                        value={seedsPerGrammar}
+                        onValueChange={setGallerySeeds}
+                    />
+                </Grid>
 
-                <ControlField label="Notebook">
-                    <Stack gap="2">
-                        {notebook.batches.length > 0 ? (
-                            <Select
-                                label="Batch"
-                                value={activeBatch?.id ?? notebook.batches[0]?.id ?? ''}
-                                options={notebook.batches.map((batch, index) => ({
-                                    value: batch.id,
-                                    label: `Batch ${index + 1} (${batch.candidates.length} candidates)`,
-                                }))}
-                                onValueChange={selectBatch}
-                            />
-                        ) : null}
+                <Select
+                    label="render size"
+                    value={cellSize}
+                    options={CELL_SIZES.map((size) => ({ value: size, label: `${size} px` }))}
+                    onValueChange={setGalleryCellSize}
+                />
 
-                        <Stack direction="horizontal" gap="2">
+                <Grid columns="2" gap="2">
+                    <Button color="aqua" onClick={newGalleryBatch}>
+                        New batch
+                    </Button>
+                    <Button onClick={redrawGallery} disabled={!activeBatch}>
+                        Redraw
+                    </Button>
+                </Grid>
+
+                <Text variant="muted">
+                    {`seed ${String(baseSeed)} · ${String(count)} × ${String(seedsPerGrammar)} = ${String(count * seedsPerGrammar)} images`}
+                </Text>
+            </ControlSection>
+
+            <ControlSection title="notebook">
+                {notebook.batches.length > 0 ? (
+                    <>
+                        <Select
+                            label={`${String(notebook.batches.length)} batch(es)`}
+                            value={activeBatch?.id ?? ''}
+                            options={notebook.batches.map((batch) => ({
+                                value: batch.id,
+                                label: batchLabel(batch),
+                            }))}
+                            onValueChange={selectBatch}
+                        />
+                        <Grid columns="2" gap="2">
+                            <Button onClick={exportNotebookFile}>Export JSON</Button>
                             <Button
-                                onClick={exportNotebookFile}
-                                disabled={notebook.batches.length === 0}
+                                color="error"
+                                onClick={removeActiveBatch}
+                                disabled={!activeBatch}
                             >
-                                Export JSON
+                                Delete batch
                             </Button>
-                            <FileInput
-                                accept=".json,application/json"
-                                onFile={(file) => {
-                                    void importNotebookFile(file);
+                        </Grid>
+                    </>
+                ) : (
+                    <Text variant="muted">
+                        The notebook is empty: a drawn lot is appended here automatically.
+                    </Text>
+                )}
+
+                <FileInput
+                    accept=".json,application/json"
+                    onFile={(file) => {
+                        void importNotebookFile(file);
+                    }}
+                >
+                    Import JSON
+                </FileInput>
+            </ControlSection>
+
+            {activeBatch && selected ? (
+                <ControlSection title="rating">
+                    <Text variant="muted">
+                        {`grammar ${String(selectedRowIndex + 1)} of ${String(candidates.length)} — the rating covers the grammar, not one seed`}
+                    </Text>
+
+                    <Grid columns="6" gap="1">
+                        {RATINGS.map((rating) => (
+                            <Button
+                                key={rating}
+                                color={selected.rating === rating ? 'aqua' : 'neutral'}
+                                aria-pressed={selected.rating === rating}
+                                onClick={() => {
+                                    toggleCandidateRating(selectedRowIndex, rating);
                                 }}
                             >
-                                Import JSON
-                            </FileInput>
-                        </Stack>
-                        <Text variant="muted">
-                            {notebook.batches.length} batch(es) saved in local notebook
-                        </Text>
-                    </Stack>
-                </ControlField>
+                                {String(rating)}
+                            </Button>
+                        ))}
+                    </Grid>
 
-                {activeCandidate ? (
-                    <ControlField label={`Row ${selectedRowIndex + 1} Rating`}>
-                        <Stack gap="2">
-                            <Stack direction="horizontal" gap="1">
-                                {RATINGS.map((rating) => {
-                                    const isSelected = activeCandidate.rating === rating;
-                                    return (
-                                        <Button
-                                            key={rating}
-                                            onClick={() =>
-                                                rateCandidateRow(
-                                                    selectedRowIndex,
-                                                    isSelected ? undefined : rating,
-                                                )
-                                            }
-                                        >
-                                            {isSelected ? `★ ${rating}` : String(rating)}
-                                        </Button>
-                                    );
-                                })}
-                            </Stack>
+                    <Grid columns="3" gap="2">
+                        <Button
+                            onClick={() => {
+                                stepRow(-1);
+                            }}
+                            disabled={selectedRowIndex === 0}
+                        >
+                            ← Prev
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                stepRow(1);
+                            }}
+                            disabled={selectedRowIndex >= lastRow}
+                        >
+                            Next →
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                rateCandidateRow(selectedRowIndex, undefined);
+                            }}
+                            disabled={selected.rating === undefined}
+                        >
+                            Clear
+                        </Button>
+                    </Grid>
 
-                            <Stack direction="horizontal" gap="2">
-                                <Button onClick={keepCellAsArtwork}>Keep as artwork</Button>
-                                <Button
-                                    onClick={() =>
-                                        setSelectedRowIndex(
-                                            (selectedRowIndex + 1) %
-                                                (activeBatch?.candidates.length ?? 1),
-                                        )
-                                    }
-                                >
-                                    Next row
-                                </Button>
-                            </Stack>
+                    <Button
+                        onClick={openSelectedInLab}
+                    >{`Open in Lab (seed ${String(selectedColIndex + 1)})`}</Button>
 
-                            <Text variant="muted">
-                                Shortcuts: Keys 0–5 to rate • ↑/↓ or j/k to navigate
-                            </Text>
-                        </Stack>
-                    </ControlField>
-                ) : null}
+                    <Text variant="muted">
+                        {`${String(rated)} of ${String(candidates.length)} rated · 0–5 to rate, same digit clears`}
+                    </Text>
+                </ControlSection>
+            ) : null}
 
-                <ControlField label="Filter">
-                    <Stack gap="2">
-                        <Checkbox
-                            label="Hide flat cells"
-                            checked={filterFlats}
-                            onCheckedChange={setGalleryFilterFlats}
-                        />
-                        <Text variant="muted">
-                            {filterFlats
-                                ? `${hidden} flat cell(s) hidden`
-                                : 'A flat cell is a constant field: the grammar collapsed.'}
-                        </Text>
-                    </Stack>
-                </ControlField>
+            <ControlSection title="display">
+                <Segmented<GalleryView>
+                    label="view"
+                    value={view}
+                    options={VIEW_OPTIONS}
+                    onValueChange={setGalleryView}
+                />
 
-                {error ? (
-                    <ControlField label="Error">
-                        <Text>{error}</Text>
-                    </ControlField>
-                ) : null}
-            </Stack>
-        </ControlSection>
+                <Checkbox
+                    label="Dim collapsed cells"
+                    checked={dimFlats}
+                    onCheckedChange={setGalleryDimFlats}
+                />
+
+                <Text variant="muted">
+                    {dimFlats
+                        ? `${String(lot.flats)} of ${String(lot.cells)} cells are flat and dimmed`
+                        : `${String(lot.flats)} of ${String(lot.cells)} cells are flat — a constant field means the grammar collapsed`}
+                </Text>
+            </ControlSection>
+
+            {error ? (
+                <ControlSection title="error">
+                    <Text>{error}</Text>
+                </ControlSection>
+            ) : null}
+        </Grid>
     );
 }

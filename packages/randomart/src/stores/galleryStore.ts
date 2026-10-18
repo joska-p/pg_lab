@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+import { buildLotView, EMPTY_LOT } from '../components/gallery/lot.ts';
+import type { LotView } from '../components/gallery/lot.ts';
 import { DEFAULT_CHANNELS } from '../core/color/index.ts';
 import { sampleGrammars } from '../core/grammar/index.ts';
 import {
@@ -9,6 +11,7 @@ import {
     createNotebook,
     parseNotebook,
     rateNotebookCandidate,
+    removeBatchFromNotebook,
     serializeNotebook,
 } from '../core/notebook/index.ts';
 import type { Notebook, NotebookBatch, NotebookRating } from '../core/notebook/index.ts';
@@ -29,16 +32,27 @@ export const MAX_GALLERY_COUNT = 16;
 export const MAX_GALLERY_SEEDS = 16;
 
 /**
- * Everything that describes _which_ lot to draw. Editable in the panel, read by the render action:
- * one master copy, no duplication between the panel and the stage.
+ * How the lot is presented. `sheet` is the contact sheet: every grammar, fitted to the stage. `row`
+ * is one grammar at native cell size — the regime where a single candidate is actually judged.
+ */
+export type GalleryView = 'sheet' | 'row';
+
+export const GALLERY_VIEWS = ['sheet', 'row'] as const satisfies readonly GalleryView[];
+
+/**
+ * Everything that describes _which_ lot to draw and _how_ to show it. Editable in the panel, read
+ * by the render action: one master copy, no duplication between the panel and the stage.
  */
 export interface GallerySettings {
     /** Number of candidate grammars: one row each. */
     readonly count: number;
     /** Images per grammar: one column each. */
     readonly seedsPerGrammar: number;
+    /** Render resolution of one cell, in pixels. */
     readonly cellSize: CellSize;
-    readonly filterFlats: boolean;
+    readonly view: GalleryView;
+    /** Dim collapsed cells instead of hiding them, so the grid never gets holes. */
+    readonly dimFlats: boolean;
     /** Base of the sampling draw: the lot is reproducible from it. */
     readonly baseSeed: Seed;
 }
@@ -47,7 +61,8 @@ const DEFAULT_SETTINGS: GallerySettings = {
     count: 8,
     seedsPerGrammar: 8,
     cellSize: '64',
-    filterFlats: false,
+    view: 'sheet',
+    dimFlats: false,
     baseSeed: createSeed(1),
 };
 
@@ -55,10 +70,12 @@ interface GalleryState {
     settings: GallerySettings;
     notebook: Notebook;
     activeBatchId: string | null;
+    /** Row of the current grammar; a rating always applies to this whole row. */
     selectedRowIndex: number;
-    selectedCell: { rowIndex: number; colIndex: number } | null;
-    /** The rendered lot for the active batch. Empty until the first "New batch". */
-    batches: readonly RenderedBatch[];
+    /** Column of the current seed inside that grammar. */
+    selectedColIndex: number;
+    /** The drawn lot of the active batch, the single representation of what is on screen. */
+    lot: LotView;
     /** Message of the last failed lot, null after a success. */
     error: string | null;
 }
@@ -73,8 +90,8 @@ export const store = create<GalleryState>(() => ({
     notebook: createNotebook(),
     activeBatchId: null,
     selectedRowIndex: 0,
-    selectedCell: null,
-    batches: [],
+    selectedColIndex: 0,
+    lot: EMPTY_LOT,
     error: null,
 }));
 
@@ -100,12 +117,12 @@ export function useGallerySelectedRowIndex(): number {
     return store((state) => state.selectedRowIndex);
 }
 
-export function useGallerySelectedCell(): { rowIndex: number; colIndex: number } | null {
-    return store((state) => state.selectedCell);
+export function useGallerySelectedColIndex(): number {
+    return store((state) => state.selectedColIndex);
 }
 
-export function useGalleryBatches(): readonly RenderedBatch[] {
-    return store((state) => state.batches);
+export function useGalleryLot(): LotView {
+    return store((state) => state.lot);
 }
 
 export function useGalleryError(): string | null {
@@ -128,18 +145,51 @@ export function setGalleryCellSize(cellSize: CellSize): void {
     patchSettings({ cellSize });
 }
 
-export function setGalleryFilterFlats(filterFlats: boolean): void {
-    patchSettings({ filterFlats });
+export function setGalleryView(view: GalleryView): void {
+    patchSettings({ view });
 }
 
-export function setSelectedRowIndex(selectedRowIndex: number): void {
-    store.setState({ selectedRowIndex });
+export function setGalleryDimFlats(dimFlats: boolean): void {
+    patchSettings({ dimFlats });
 }
 
-export function setSelectedCell(selectedCell: { rowIndex: number; colIndex: number } | null): void {
+/**
+ * Moves the current grammar. Navigation clamps at both ends: a lot is a finite list to walk
+ * through, not a carousel that silently jumps back to the top.
+ */
+export function stepRow(delta: number): void {
+    const { selectedRowIndex, lot } = store.getState();
+    const last = Math.max(0, lot.grammars - 1);
+
+    store.setState({ selectedRowIndex: Math.min(last, Math.max(0, selectedRowIndex + delta)) });
+}
+
+export function selectRow(rowIndex: number): void {
+    const { lot } = store.getState();
+    const last = Math.max(0, lot.grammars - 1);
+
+    store.setState({ selectedRowIndex: Math.min(last, Math.max(0, rowIndex)) });
+}
+
+/** Moves the current seed inside the current grammar. Clamped to the drawn columns. */
+export function stepCell(delta: number): void {
+    const { selectedColIndex, lot } = store.getState();
+    const last = Math.max(0, lot.columns - 1);
+
+    store.setState({ selectedColIndex: Math.min(last, Math.max(0, selectedColIndex + delta)) });
+}
+
+export function selectCell(rowIndex: number, colIndex: number): void {
+    const { lot } = store.getState();
+    const lastRow = Math.max(0, lot.grammars - 1);
+    const lastCol = Math.max(
+        0,
+        (lot.rows[Math.min(lastRow, Math.max(0, rowIndex))]?.length ?? 1) - 1,
+    );
+
     store.setState({
-        selectedCell,
-        ...(selectedCell ? { selectedRowIndex: selectedCell.rowIndex } : {}),
+        selectedRowIndex: Math.min(lastRow, Math.max(0, rowIndex)),
+        selectedColIndex: Math.min(lastCol, Math.max(0, colIndex)),
     });
 }
 
@@ -157,6 +207,16 @@ function renderBatchCandidates(batch: NotebookBatch, cellSize: number): readonly
     );
 }
 
+function failure(cause: unknown) {
+    renderer?.destroy();
+    renderer = null;
+
+    return {
+        lot: EMPTY_LOT,
+        error: cause instanceof Error ? cause.message : String(cause),
+    };
+}
+
 /** Draws and renders a new batch, appending it to the notebook. */
 function renderNewLot(base: Seed): void {
     const { count, seedsPerGrammar, cellSize } = store.getState().settings;
@@ -171,7 +231,7 @@ function renderNewLot(base: Seed): void {
         const candidates = sampled.map(({ grammar, seeds }) => createCandidate({ grammar, seeds }));
         const batch = createBatch({ candidates });
 
-        const renderedBatches = renderBatchCandidates(batch, Number(cellSize));
+        const lot = buildLotView(renderBatchCandidates(batch, Number(cellSize)));
 
         const nextNotebook = addBatchToNotebook(store.getState().notebook, batch);
 
@@ -179,19 +239,14 @@ function renderNewLot(base: Seed): void {
             notebook: nextNotebook,
             activeBatchId: batch.id,
             selectedRowIndex: 0,
-            selectedCell: null,
-            batches: renderedBatches,
+            selectedColIndex: 0,
+            lot,
             error: null,
         });
 
         void saveNotebookToDb(nextNotebook);
     } catch (cause) {
-        renderer?.destroy();
-        renderer = null;
-        store.setState({
-            batches: [],
-            error: cause instanceof Error ? cause.message : String(cause),
-        });
+        store.setState(failure(cause));
     }
 }
 
@@ -203,7 +258,7 @@ export function newGalleryBatch(): void {
     renderNewLot(baseSeed);
 }
 
-/** "Redraw": redraws the current active batch at the current cell size. */
+/** "Redraw": redraws the active batch at the current render size. */
 export function redrawGallery(): void {
     const state = store.getState();
     const activeBatch =
@@ -216,15 +271,13 @@ export function redrawGallery(): void {
     }
 
     try {
-        const rendered = renderBatchCandidates(activeBatch, Number(state.settings.cellSize));
-        store.setState({ batches: rendered, error: null });
+        const lot = buildLotView(
+            renderBatchCandidates(activeBatch, Number(state.settings.cellSize)),
+        );
+
+        store.setState({ lot, error: null });
     } catch (cause) {
-        renderer?.destroy();
-        renderer = null;
-        store.setState({
-            batches: [],
-            error: cause instanceof Error ? cause.message : String(cause),
-        });
+        store.setState(failure(cause));
     }
 }
 
@@ -232,47 +285,80 @@ export function redrawGallery(): void {
 export function selectBatch(batchId: string): void {
     const state = store.getState();
     const batch = state.notebook.batches.find((b) => b.id === batchId);
+
     if (!batch) {
         return;
     }
 
     try {
-        const rendered = renderBatchCandidates(batch, Number(state.settings.cellSize));
+        const lot = buildLotView(renderBatchCandidates(batch, Number(state.settings.cellSize)));
+
         store.setState({
             activeBatchId: batchId,
-            batches: rendered,
             selectedRowIndex: 0,
-            selectedCell: null,
+            selectedColIndex: 0,
+            lot,
             error: null,
         });
     } catch (cause) {
-        renderer?.destroy();
-        renderer = null;
-        store.setState({
-            batches: [],
-            error: cause instanceof Error ? cause.message : String(cause),
-        });
+        store.setState(failure(cause));
     }
 }
 
-/** Rates a candidate row in the active batch (0-5, or undefined to clear). */
+/** Drops the active batch and shows the next one still in the notebook. */
+export function removeActiveBatch(): void {
+    const state = store.getState();
+    const activeBatch = state.notebook.batches.find((b) => b.id === state.activeBatchId);
+
+    if (!activeBatch) {
+        return;
+    }
+
+    const nextNotebook = removeBatchFromNotebook(state.notebook, activeBatch.id);
+    const next = nextNotebook.batches[0];
+
+    store.setState({ notebook: nextNotebook, activeBatchId: next?.id ?? null });
+    void saveNotebookToDb(nextNotebook);
+
+    if (next) {
+        selectBatch(next.id);
+    } else {
+        store.setState({ lot: EMPTY_LOT, selectedRowIndex: 0, selectedColIndex: 0 });
+    }
+}
+
+/** Rates the grammar on `rowIndex` (0-5, or undefined to clear). */
 export function rateCandidateRow(rowIndex: number, rating: NotebookRating | undefined): void {
     const state = store.getState();
     const activeBatch =
         state.notebook.batches.find((b) => b.id === state.activeBatchId) ??
         state.notebook.batches[0];
+
     if (!activeBatch) {
         return;
     }
 
     const candidate = activeBatch.candidates[rowIndex];
+
     if (!candidate) {
         return;
     }
 
     const updatedNotebook = rateNotebookCandidate(state.notebook, candidate.id, rating);
+
     store.setState({ notebook: updatedNotebook });
     void saveNotebookToDb(updatedNotebook);
+}
+
+/** Toggles the current grammar's rating: rating it twice with the same value clears it. */
+export function toggleCandidateRating(rowIndex: number, rating: NotebookRating): void {
+    const state = store.getState();
+    const activeBatch =
+        state.notebook.batches.find((b) => b.id === state.activeBatchId) ??
+        state.notebook.batches[0];
+    const candidate = activeBatch?.candidates[rowIndex];
+
+    rateCandidateRow(rowIndex, candidate?.rating === rating ? undefined : rating);
 }
 
 function downloadBlob(blob: Blob, filename: string): void {
@@ -290,32 +376,36 @@ export function exportNotebookFile(): void {
     const notebook = store.getState().notebook;
     const text = serializeNotebook(notebook);
     const blob = new Blob([text], { type: 'application/json' });
+
     downloadBlob(blob, 'randomart-notebook.json');
 }
 
 /** Imports a notebook from a JSON file and renders its latest batch. */
 export async function importNotebookFile(file: File): Promise<void> {
     const text = await file.text();
+
     try {
         const notebook = parseNotebook(catalog, text);
+
         store.setState({
             notebook,
             activeBatchId: notebook.batches[0]?.id ?? null,
             selectedRowIndex: 0,
-            selectedCell: null,
+            selectedColIndex: 0,
             error: null,
         });
         void saveNotebookToDb(notebook);
 
-        if (notebook.batches.length > 0) {
-            const firstBatch = notebook.batches[0];
-            if (firstBatch) {
-                const rendered = renderBatchCandidates(
-                    firstBatch,
-                    Number(store.getState().settings.cellSize),
-                );
-                store.setState({ batches: rendered });
-            }
+        const firstBatch = notebook.batches[0];
+
+        if (firstBatch) {
+            const lot = buildLotView(
+                renderBatchCandidates(firstBatch, Number(store.getState().settings.cellSize)),
+            );
+
+            store.setState({ lot });
+        } else {
+            store.setState({ lot: EMPTY_LOT });
         }
     } catch (cause) {
         store.setState({
@@ -324,25 +414,28 @@ export async function importNotebookFile(file: File): Promise<void> {
     }
 }
 
-/** Opens the selected cell (or selected row's first seed) in Lab mode as an artwork. */
-export function keepCellAsArtwork(): void {
+/**
+ * Opens the selected cell (grammar + seed) in Lab mode. It reuses the app's own artwork pipeline,
+ * so nothing is invented here: the gallery hands the pair over and leaves.
+ */
+export function openSelectedInLab(): void {
     const state = store.getState();
     const activeBatch =
         state.notebook.batches.find((b) => b.id === state.activeBatchId) ??
         state.notebook.batches[0];
+
     if (!activeBatch) {
         return;
     }
 
-    const rowIndex = state.selectedCell?.rowIndex ?? state.selectedRowIndex;
-    const colIndex = state.selectedCell?.colIndex ?? 0;
+    const candidate = activeBatch.candidates[state.selectedRowIndex];
 
-    const candidate = activeBatch.candidates[rowIndex];
     if (!candidate) {
         return;
     }
 
-    const seed = candidate.seeds[colIndex] ?? candidate.seeds[0];
+    const seed = candidate.seeds[state.selectedColIndex] ?? candidate.seeds[0];
+
     if (seed === undefined) {
         return;
     }
@@ -354,20 +447,23 @@ export function keepCellAsArtwork(): void {
 export async function initGalleryNotebook(): Promise<void> {
     try {
         const loaded = await loadNotebookFromDb(catalog);
+
         if (loaded && loaded.batches.length > 0) {
             const activeBatch = loaded.batches[0];
+
             if (!activeBatch) {
                 return;
             }
+
+            const lot = buildLotView(
+                renderBatchCandidates(activeBatch, Number(store.getState().settings.cellSize)),
+            );
+
             store.setState({
                 notebook: loaded,
                 activeBatchId: activeBatch.id,
+                lot,
             });
-            const rendered = renderBatchCandidates(
-                activeBatch,
-                Number(store.getState().settings.cellSize),
-            );
-            store.setState({ batches: rendered });
         }
     } catch {
         // Fallback to empty notebook on storage error
