@@ -126,7 +126,7 @@ export function GrammarSection() {
                     }}
                 />
                 <Select<ColorSpaceId>
-                    label="color space"
+                    label="color"
                     value={recipe.space}
                     options={SPACE_OPTIONS}
                     onValueChange={setRecipeSpace}
