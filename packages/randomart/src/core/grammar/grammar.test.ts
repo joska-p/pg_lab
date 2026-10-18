@@ -212,7 +212,7 @@ describe('grammar: createConstraints', () => {
         });
     });
 
-    it('repairs non-finite values to the concept defaults (findings F12)', () => {
+    it('repairs non-finite values to the concept defaults', () => {
         // Non-finite is garbage, not intent — and the fallback is per field: only the non-finite
         // `maxNodes` falls back to its concept default; the given depths keep their values.
         expect(createConstraints({ minDepth: 1, maxDepth: 8, maxNodes: Number.NaN })).toEqual({
@@ -235,7 +235,7 @@ describe('grammar: createConstraints', () => {
 describe('grammar: defaultGrammar', () => {
     const catalog = createDefaultCatalog();
 
-    it('builds the default vocabulary (calibrated for structure, lot H)', () => {
+    it('builds the default vocabulary (calibrated for structure)', () => {
         const g = defaultGrammar(catalog);
         expect(g.weights.x).toBe(4);
         expect(g.weights.y).toBe(4);

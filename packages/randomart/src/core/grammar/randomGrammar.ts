@@ -37,8 +37,8 @@ function drawConstraints(rng: Rng): ConstraintsInput {
  * A fully random grammar: vocabulary, weights and constraints all drawn at once. It starts from the
  * neutral vocabulary (every operator weight 1, minus the time terminals when `includeTime` is
  * false) and hands the rest to `randomizeWeights`, so the result is always valid. This is the core
- * of "randomize the grammar itself" (brief §4) — the dataset sampler and the play-mode shuffle are
- * two policies over the same draw.
+ * of "randomize the grammar itself" — the dataset sampler and the play-mode shuffle are two
+ * policies over the same draw.
  */
 export function randomGrammar(
     catalog: Catalog,

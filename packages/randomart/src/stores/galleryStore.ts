@@ -64,9 +64,9 @@ interface GalleryState {
 }
 
 /**
- * The gallery's domain (conventions §5.3): the lot and how it is drawn. Separate from `appStore`
- * (the workspace: current grammar, expression, history) because the two do not share write
- * authority — the panel edits the lot, the stage shows it, `appStore` never sees it.
+ * The gallery's domain: the lot and how it is drawn. Separate from `appStore` (the workspace:
+ * current grammar, expression, history) because the two do not share write authority — the panel
+ * edits the lot, the stage shows it, `appStore` never sees it.
  */
 export const store = create<GalleryState>(() => ({
     settings: DEFAULT_SETTINGS,

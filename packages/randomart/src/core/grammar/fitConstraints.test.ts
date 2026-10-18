@@ -54,7 +54,7 @@ describe('fitConstraints', () => {
         ).toEqual({ minDepth: 1, maxDepth: 8, maxNodes: 10 });
     });
 
-    it('repairs non-finite input to the concept shape (findings F12: not "NaN → min")', () => {
+    it('repairs non-finite input to the concept shape: not "NaN → min"', () => {
         expect(
             fitConstraints(operators('binary'), {
                 minDepth: Number.NaN,

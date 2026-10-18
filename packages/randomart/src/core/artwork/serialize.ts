@@ -12,7 +12,7 @@ import type { Artwork, Provenance, RenderSettingsInput } from './types.ts';
 
 export const ARTWORK_FILE_FORMAT = 'random-art';
 export const ARTWORK_FILE_VERSION = 1;
-/** Import guard (D35): checked before any `JSON.parse`. */
+/** Import guard: checked before any `JSON.parse`. */
 export const MAX_ARTWORK_FILE_LENGTH = 1_000_000;
 
 // ---------------------------------------------------------------------------
@@ -21,7 +21,7 @@ export const MAX_ARTWORK_FILE_LENGTH = 1_000_000;
 
 export const GRAMMAR_FILE_FORMAT = 'random-art-grammar';
 export const GRAMMAR_FILE_VERSION = 1;
-/** Import guard (D35): checked before any `JSON.parse`. */
+/** Import guard: checked before any `JSON.parse`. */
 export const MAX_GRAMMAR_FILE_LENGTH = 1_000_000;
 
 export interface GrammarData {
@@ -218,8 +218,13 @@ export interface ArtworkData {
 }
 
 /**
- * Canonical text of an artwork: same data → same text (fixed key order, optional fields omitted,
- * grammar weights sorted, 2-space indent) for readable diffs in a repository.
+ * Canonical text of an artwork: key order format, version, title, render, provenance, expression;
+ * absent optional fields are omitted; grammar weights sorted; 2-space indent. One version (1), no
+ * migration: an unknown version is refused. Unknown fields are refused so a future file never
+ * passes as version 1.
+ *
+ * Example: { "format": "random-art", "version": 1, "render": { ... }, "expression": { "r": { "op":
+ * "x" }, ... } }
  */
 export function serializeArtwork(artwork: Artwork): string {
     const provenance = artwork.provenance
@@ -313,6 +318,10 @@ function readProvenance(catalog: Catalog, data: unknown, path = 'provenance'): P
  * Reads artwork text: format/version guards, unknown fields refused, title/render/provenance
  * validated field by field, the expression through `deserialize` (import limits) — then
  * `createArtwork` as the only constructor.
+ *
+ * Key order: format, version, title, render, provenance, expression; absent optional fields are
+ * omitted; 2-space indent. One version (1), no migration: an unknown version is refused. Unknown
+ * fields are refused so a future file never passes as version 1.
  */
 export function parseArtwork(catalog: Catalog, text: string): Artwork {
     if (text.length > MAX_ARTWORK_FILE_LENGTH) {
@@ -357,7 +366,7 @@ export function parseArtwork(catalog: Catalog, text: string): Artwork {
         expression: deserialize(catalog, parsed.expression),
         // Repair at the file boundary (structural junk — unknown fields, wrong types — still
         // refuses, see readRender): out-of-bounds quantities clamp instead of rejecting the
-        // artwork (findings F13 — always a real artwork, even from a foreign file).
+        // artwork, so a foreign file still yields a real artwork.
         ...(parsed.render !== undefined
             ? { render: fitRenderSettings(readRender(parsed.render)) }
             : {}),

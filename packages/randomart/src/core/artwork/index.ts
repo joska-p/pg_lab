@@ -7,7 +7,7 @@ export {
     type ArtworkData,
     MAX_ARTWORK_FILE_LENGTH,
     parseArtwork,
-    // Grammar files live here: a `.randomart-grammar.json` file is artwork data (D37).
+    // Grammar files live here: a `.randomart-grammar.json` file is artwork data.
     GRAMMAR_FILE_FORMAT,
     GRAMMAR_FILE_VERSION,
     type GrammarData,

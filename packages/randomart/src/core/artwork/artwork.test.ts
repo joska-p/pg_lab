@@ -60,7 +60,7 @@ describe('artwork: createArtwork', () => {
         expect(Object.isFrozen(artwork.render)).toBe(true);
     });
 
-    it('rejects out-of-bounds render values (D36 bounds)', () => {
+    it('rejects out-of-bounds render values', () => {
         const expression = createExpression(
             createNode(catalog, 'x'),
             createNode(catalog, 'y'),
@@ -101,7 +101,7 @@ describe('artwork: createArtwork', () => {
 });
 
 describe('artwork: createRenderSettings', () => {
-    it('applies the spec defaults (1024², 8000 ms — D36) and freezes the result', () => {
+    it('applies the defaults (1024², 8000 ms) and freezes the result', () => {
         const settings = createRenderSettings();
 
         expect(settings).toEqual({ width: 1024, height: 1024, loopMs: 8000 });
@@ -116,7 +116,7 @@ describe('artwork: createRenderSettings', () => {
         });
     });
 
-    it('rejects violations with the `Randomart:` prefix (F13: the type claims, the factory proves)', () => {
+    it('rejects violations with the `Randomart:` prefix: the type claims, the factory proves', () => {
         expect(() => createRenderSettings({ width: 0 })).toThrow(
             'Randomart: render.width must be an integer in [1, 8192], received 0',
         );
@@ -143,7 +143,7 @@ describe('artwork: fitRenderSettings', () => {
         });
     });
 
-    it('routes non-finite fields to the concept defaults (findings F12: not "min"/"max")', () => {
+    it('routes non-finite fields to the concept defaults: not "min"/"max"', () => {
         expect(fitRenderSettings({ width: Number.NaN, loopMs: Number.NaN })).toEqual({
             width: 1_024,
             height: 1_024,
@@ -299,7 +299,7 @@ describe('artwork: provenance', () => {
 
         expect(checkProvenance(catalog, edited)).toBe('differs');
 
-        // The edited artwork keeps its original provenance in the file (brief §6).
+        // The edited artwork keeps its original provenance in the file.
         const editedText = serializeArtwork(edited);
         expect(JSON.parse(editedText).provenance.seed).toBe(data.provenance?.seed);
     });

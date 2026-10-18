@@ -4,7 +4,7 @@ import type { Seed } from '../random/index.ts';
 
 export const NOTEBOOK_FILE_FORMAT = 'randomart-notebook';
 export const NOTEBOOK_FILE_VERSION = 1;
-/** Import guard (D35): checked before any `JSON.parse`. */
+/** Import guard: checked before any `JSON.parse`. */
 export const MAX_NOTEBOOK_FILE_LENGTH = 10_000_000;
 
 export const MIN_RATING = 0;

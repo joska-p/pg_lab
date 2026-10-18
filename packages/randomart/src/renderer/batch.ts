@@ -57,7 +57,7 @@ interface Stage {
 /**
  * The canvas must be laid out (non-zero `clientWidth`) before `GpuSurface` exists, so it is
  * appended off-screen with an explicit pixel size — invisible, but measurable. `document` is a
- * shell concern (conventions §6): the batch renderer is the shell, the compiler stays pure.
+ * shell concern: the batch renderer is the shell, the compiler stays pure.
  */
 function createStage(size: number): Stage {
     const canvas = document.createElement('canvas');

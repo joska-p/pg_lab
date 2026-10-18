@@ -5,8 +5,8 @@ import type { Brand } from '../shared/index.ts';
 
 /**
  * Raw render settings as callers may write them: partial UI input, parsed JSON files. Carries no
- * guarantee — `createRenderSettings` repairs-checks it, `fitRenderSettings` repairs it (findings
- * F13; throw-vs-repair policy in shared/index.ts).
+ * guarantee — `createRenderSettings` repairs-checks it, `fitRenderSettings` repairs it
+ * (throw-vs-repair policy in shared/index.ts).
  */
 export interface RenderSettingsInput {
     readonly width: number;
@@ -21,7 +21,7 @@ export interface RenderSettingsInput {
  */
 export type RenderSettings = Brand<RenderSettingsInput, 'RenderSettings'>;
 
-/** Informative origin of the artwork: the expression is the reference (D1). */
+/** Informative origin of the artwork: the expression is the reference. */
 export interface Provenance {
     readonly grammar: Grammar;
     readonly seed: Seed;

@@ -18,6 +18,8 @@ export function createSeed(value: number): Seed {
 }
 
 export function randomSeed(): Seed {
+    // Generation is deterministic. This is one of the only non-deterministic sources (with
+    // notebook ids); callers in the UI use it, the generator never does.
     if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
         const buffer = new Uint32Array(1);
         crypto.getRandomValues(buffer);

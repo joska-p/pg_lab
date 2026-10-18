@@ -33,9 +33,8 @@ export type { Brand };
  *   last detector for callers that vouch for their values (core code, tests) — the glaze
  *   `createZoomBounds` vs `createZoomClamp` split.
  *
- * One categorical exception, sourced from the checklist (§14 Errors): nothing throws on the
- * per-frame path (`createPhase`, render gate) — a bad value there would spam every frame instead of
- * failing once at a configuration boundary.
+ * One categorical exception: nothing throws on the per-frame path (`createPhase`, render gate) — a
+ * bad value there would spam every frame instead of failing once at a configuration boundary.
  */
 
 export function assertFinite(value: number, label: string): void {

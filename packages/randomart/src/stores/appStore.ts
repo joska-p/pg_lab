@@ -41,7 +41,7 @@ import { DEFAULT_LOOP_DURATION } from '../renderer/contract.ts';
 import { catalog } from './catalogueStore.ts';
 /**
  * One explored state: enough to get the exact same image back. Generated entries replay from
- * `(grammar, seed)`; imported artworks keep their expression (it is the reference — D1).
+ * `(grammar, seed)`; imported artworks keep their expression (it is the reference).
  */
 export interface HistoryEntry {
     readonly id: number;
@@ -268,8 +268,8 @@ export function newImage(nextSeed: Seed = randomSeed()): void {
 }
 
 /**
- * Grammar explorations keep the seed (glossary: only the grammar dimensions change), so the effect
- * of the new grammar is comparable on the "same" seed.
+ * Grammar explorations keep the seed (only the grammar dimensions change), so the effect of the new
+ * grammar is comparable on the "same" seed.
  */
 function exploreGrammar(randomize: (grammar: Grammar, rng: Rng) => Grammar): void {
     try {
@@ -298,8 +298,8 @@ export function setConstraints(partial: Partial<ConstraintsInput>): void {
     const { grammar, seed } = store.getState();
 
     // A partial edit that is not a finite number is simply not an edit: the field keeps its value
-    // (findings F21 — the old UI fallback `? value : 1` invented a value instead). Deliberate and
-    // paired with the fact that the raw value is rounded/clamped by the core repair (rounds 1.5 → 2).
+    // (the old UI fallback `? value : 1` invented a value instead). Deliberate and paired with the
+    // fact that the raw value is rounded/clamped by the core repair (rounds 1.5 → 2).
     const edited = (value: number | undefined): number | undefined =>
         value !== undefined && Number.isFinite(value) ? value : undefined;
     const editedMinDepth = edited(partial.minDepth);
@@ -312,8 +312,8 @@ export function setConstraints(partial: Partial<ConstraintsInput>): void {
         maxNodes: editedMaxNodes ?? grammar.constraints.maxNodes,
     };
 
-    // Gesture preservation (findings F22): raising minDepth past maxDepth drags maxDepth along so
-    // the touched field visibly moves; the opposite direction is the core repair's canonical rule.
+    // Gesture preservation: raising minDepth past maxDepth drags maxDepth along so the touched
+    // field visibly moves; the opposite direction is the core repair's canonical rule.
     // This is an intent refinement, not an invariant — raising minDepth on its own would be
     // resolved by `createConstraints` anyway (maxDepth wins).
     const want: ConstraintsInput =
@@ -342,13 +342,13 @@ export function setConstraints(partial: Partial<ConstraintsInput>): void {
  * Manual weight edit from the vocabulary panel: `weight = 0` switches the operator off, a positive
  * weight switches it on. This is the _second writer_ of `grammar.weights` beside the randomizer —
  * there is deliberately no separate "enabled" state: `weight > 0` is the single source of truth for
- * the vocabulary (`getVocabulary`, findings on SSOT).
+ * the vocabulary (`getVocabulary`).
  *
  * Throw-vs-repair policy (shared/index.ts): a finite edit is an editing quantity — rounded to 3
  * decimals and clamped into [0, MAX_WEIGHT]; a non-finite edit is garbage, not an intent, and is
- * dropped (F21: the field keeps its value instead of an invented one). What is _content_ stays in
- * `createGrammar` — switching off the last terminal is refused there (F22: the invariant lives in
- * the core). The panel locks that control upfront via `isLastTerminal`, a derived reading of the
+ * dropped: the field keeps its value instead of an invented one. What is _content_ stays in
+ * `createGrammar` — switching off the last terminal is refused there: the invariant lives in the
+ * core. The panel locks that control upfront via `isLastTerminal`, a derived reading of the
  * weights, so the refusal is normally unreachable from the UI.
  */
 export function setOperatorWeight(name: string, rawWeight: number): void {
@@ -380,8 +380,8 @@ export function setOperatorWeight(name: string, rawWeight: number): void {
  * repaired; `shareDepth` is an editing quantity, repaired there. Coalesced like the other grammar
  * edits: browsing spaces is one history entry, not one per click.
  *
- * A non-finite `shareDepth` (a numeric field mid-edit, F21) keeps its current value instead of
- * inventing one — the core still repairs whatever reaches it from a file.
+ * A non-finite `shareDepth` (a numeric field mid-edit) keeps its current value instead of inventing
+ * one — the core still repairs whatever reaches it from a file.
  */
 export function setChannels(channels: ChannelModel): void {
     const { grammar, seed } = store.getState();
@@ -430,7 +430,7 @@ export function shuffleGrammar(): void {
 
 /**
  * Restores an imported artwork by its expression, without regenerating: the expression is the
- * reference (D1), and regeneration would lose a hand-edited import.
+ * reference, and regeneration would lose a hand-edited import.
  */
 function restoreImportedEntry(entry: HistoryEntry): void {
     const expression = entry.expression;
@@ -489,10 +489,10 @@ function downloadBlob(blob: Blob, filename: string): void {
 }
 
 /**
- * Publishes an imported artwork: the expression is shown as-is (D1), the grammar and seed come from
- * its provenance when present, and the liveness of its provenance is computed once. Render size is
- * ignored (friction 8: render size = canvas size until lot G); the loop duration is adopted when
- * the UI bounds allow it.
+ * Publishes an imported artwork: the expression is shown as-is, the grammar and seed come from its
+ * provenance when present, and the liveness of its provenance is computed once. Render size is
+ * ignored: render size = canvas size until the artwork is resized; the loop duration is adopted
+ * when the UI bounds allow it.
  */
 export function publishArtwork(artwork: Artwork): void {
     const { expression, provenance, render } = artwork;
@@ -522,10 +522,10 @@ export function publishArtwork(artwork: Artwork): void {
         actionError: null,
     });
 
-    // The file's loop duration is adopted unconditionally now (findings F19/F20): store duration
-    // and artwork share one bound set ([0.5, 120] s — the render bounds are the concept bounds),
-    // so no valid file value can be silently dropped by narrower UI bounds any more. `render` is a
-    // brand: its loopMs is a finite number within the bounds by construction.
+    // The file's loop duration is adopted unconditionally: store duration and artwork share one
+    // bound set ([0.5, 120] s — the render bounds are the concept bounds), so no valid file value
+    // can be silently dropped by narrower UI bounds any more. `render` is a brand: its loopMs is a
+    // finite number within the bounds by construction.
     if (render.loopMs / 1000 !== state.duration) {
         setDuration(createDurationSeconds(render.loopMs / 1000));
     }
@@ -562,13 +562,13 @@ export async function importGrammarFile(file: File): Promise<void> {
     }
 }
 
-/** Exports the current state as a `.randomart.json` artwork (expression as reference, D1). */
+/** Exports the current state as a `.randomart.json` artwork (expression as reference). */
 export function exportArtworkFile(): void {
     const state = store.getState();
     const artwork = createArtwork({
         expression: state.expression,
-        // Render size = canvas size until lot G (friction 8); the artwork keeps the default
-        // 1024² so a file stays meaningful on another screen.
+        // Render size = canvas size until the artwork is resized; the artwork keeps
+        // the default 1024² so a file stays meaningful on another screen.
         render: {
             width: DEFAULT_RENDER_WIDTH,
             height: DEFAULT_RENDER_HEIGHT,
@@ -619,10 +619,10 @@ export async function exportPng(): Promise<void> {
 }
 
 /**
- * Parses a raw string into a valid DurationSeconds — a repair entry with the _concept_ bounds
- * (findings F19): the loop duration has one bound set, the artwork's render bounds, so the UI can
- * now represent anything a file may carry (findings F20). A non-finite input is garbage, not an
- * intent: it takes the concept default (8 s, the spec default — find D36).
+ * Parses a raw string into a valid DurationSeconds — a repair entry with the _concept_ bounds: the
+ * loop duration has one bound set, the artwork's render bounds, so the UI can now represent
+ * anything a file may carry. A non-finite input is garbage, not an intent: it takes the concept
+ * default (8 s).
  */
 export function parseDurationInput(raw: string): DurationSeconds {
     const n = parseFloat(raw);

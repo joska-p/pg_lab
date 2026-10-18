@@ -17,7 +17,7 @@ export interface GrammarSummary {
     readonly hasTime: boolean;
 }
 
-/** Indicator only (grammar-spec §6), not a rule: lets the UI hint at the "character" of a grammar. */
+/** Indicator only, not a rule: lets the UI hint at the "character" of a grammar. */
 export function describeGrammar(catalog: Catalog, grammar: Grammar): GrammarSummary {
     let vocabularySize = 0;
     let terminalWeight = 0;

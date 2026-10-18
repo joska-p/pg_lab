@@ -14,9 +14,9 @@ export interface PlancheProps {
 }
 
 /**
- * The displayed grid: **one** canvas, painted from a single assembled `ImageData` (friction 15).
- * The cells come from the reused offscreen surface in `renderer/batch.ts` — this component only
- * paints what it is given, it never touches WebGL.
+ * The displayed grid: **one** canvas, painted from a single assembled `ImageData`. The cells come
+ * from the reused offscreen surface in `renderer/batch.ts` — this component only paints what it is
+ * given, it never touches WebGL.
  *
  * The canvas keeps its native resolution; CSS shrinks it to the panel width so a wide lot does not
  * force a horizontal scroll.

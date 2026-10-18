@@ -11,7 +11,7 @@ import {
 import { MAX_WEIGHT, MIN_ACTIVE_WEIGHT } from './types.ts';
 import type { Grammar } from './types.ts';
 
-/** Operators that `randomizeWeights` never switches off: avoids flat, coordinate-free images (D39). */
+/** Operators that `randomizeWeights` never switches off: avoids flat, coordinate-free images. */
 export const DEFAULT_KEEP: readonly string[] = ['x', 'y'];
 
 const clamp = (value: number, min: number, max: number): number =>

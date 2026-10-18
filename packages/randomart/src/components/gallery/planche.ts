@@ -25,9 +25,9 @@ export function plancheColumns(rows: readonly PlancheRow[]): number {
 
 /**
  * Assembles the grid in memory — the whole planche is **one** image, so the display needs **one**
- * `putImageData` and **one** canvas (friction 15: never a canvas per cell, the WebGL context budget
- * forbids it). Images are copied as-is, top-left aligned; a cell larger than `cellSize` is cropped,
- * a smaller one leaves the background showing.
+ * `putImageData` and **one** canvas (never a canvas per cell, the WebGL context budget forbids it).
+ * Images are copied as-is, top-left aligned; a cell larger than `cellSize` is cropped, a smaller
+ * one leaves the background showing.
  */
 export function assemblePlanche(
     rows: readonly PlancheRow[],

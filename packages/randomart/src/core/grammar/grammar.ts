@@ -77,29 +77,29 @@ export function isLastTerminal(
 }
 
 /**
- * The missing-field fallback shape (findings F12): a non-finite constraint value is garbage, not an
- * intent, so it takes these defaults — the `defaultGrammar` shape, a finite and feasible baseline
- * for the stock catalog. `defaultGrammar` itself uses them (one value set, one meaning).
+ * The missing-field fallback shape: a non-finite constraint value is garbage, not an intent, so it
+ * takes these defaults — the `defaultGrammar` shape, a finite and feasible baseline for the stock
+ * catalog. `defaultGrammar` itself uses them (one value set, one meaning).
  */
 export const DEFAULT_CONSTRAINTS: ConstraintsInput = { minDepth: 3, maxDepth: 8, maxNodes: 60 };
 
 /**
  * Field-level repair for one bounded integer (throw-vs-repair policy in shared/index.ts): a finite
  * value is rounded and clamped into [min, max]; a non-finite value is garbage, not an intent, and
- * takes the fallback. (F12's old `NaN → min` here was neither an error nor a sensible default.)
+ * takes the fallback. The old `NaN → min` here was neither an error nor a sensible default.
  */
 function clampInt(value: number, min: number, max: number, fallback: number): number {
     return Number.isFinite(value) ? Math.min(max, Math.max(min, Math.round(value))) : fallback;
 }
 
 /**
- * The only way to a `Constraints` brand (findings F10) — and the shape-repair rung of the repair
- * ladder: depth/node bounds are editing quantities, so out-of-range values are clamped (rounded),
+ * The only way to a `Constraints` brand — and the shape-repair rung of the repair ladder:
+ * depth/node bounds are editing quantities, so out-of-range values are clamped (rounded),
  * non-finite values take `DEFAULT_CONSTRAINTS`, and a `minDepth > maxDepth` conflict is resolved by
- * clamping minDepth down: **maxDepth wins** ("les rendre égales", user decision 2026-10-16). No
- * intent information reaches the core, so the conservative direction is canonical — the same rule
- * `fitConstraints` uses; the UI's opposite drag-along (`appStore.setConstraints`) is an intent
- * gesture layered on top, not an invariant to keep in sync.
+ * clamping minDepth down: **maxDepth wins**. No intent information reaches the core, so the
+ * conservative direction is canonical — the same rule `fitConstraints` uses; the UI's opposite
+ * drag-along (`appStore.setConstraints`) is an intent gesture layered on top, not an invariant to
+ * keep in sync.
  */
 export function createConstraints(constraints: ConstraintsInput): Constraints {
     const maxDepth = clampInt(constraints.maxDepth, 1, MAX_DEPTH, DEFAULT_CONSTRAINTS.maxDepth);
@@ -113,8 +113,8 @@ export function createConstraints(constraints: ConstraintsInput): Constraints {
 }
 
 /**
- * Keeps constraints usable for a given vocabulary — the `ZoomClamp` analog (findings F11): raw
- * values in, validated brand out, whatever garbage the UI or a JSON file feeds it. Repair pipeline
+ * Keeps constraints usable for a given vocabulary — the `ZoomClamp` analog: raw values in,
+ * validated brand out, whatever garbage the UI or a JSON file feeds it. Repair pipeline
  * (throw-vs-repair policy in shared/index.ts):
  *
  * 1. Shape repair (`createConstraints`): hard-limit clamp, rounding, `minDepth ≤ maxDepth`;
@@ -258,12 +258,12 @@ export function createGrammar(
  * `tcos`) are ordinary members of the catalog, so there is no separate "animated" preset: one seed
  * gives one expression, and animation is a matter of playback.
  *
- * These weights come from a calibration session (lot H, 2026-10-17). The field of a generated
- * expression is provably bounded to `[-1, 1]` (every operator preserves the range), and every
- * colour space maps it monotonically, so the only thing that flattens an image into an aplat is a
- * _constant_ field — not the mapping and not a final clamp (that clamp is dead). Measuring local
- * flatness against operator presence showed which operators structure the field and which flatten
- * it: `x`/`y`/`max` create variation, while the time terminals (`tsin`/`tcos` — the same value
+ * These weights come from a calibration session (2026-10-17). The field of a generated expression
+ * is provably bounded to `[-1, 1]` (every operator preserves the range), and every colour space
+ * maps it monotonically, so the only thing that flattens an image into an aplat is a _constant_
+ * field — not the mapping and not a final clamp (that clamp is dead). Measuring local flatness
+ * against operator presence showed which operators structure the field and which flatten it:
+ * `x`/`y`/`max` create variation, while the time terminals (`tsin`/`tcos` — the same value
  * everywhere at a given phase, and exactly `0`/`1` at phase 0, which zeroes whole `mul` subtrees),
  * `gt`, `add` and `const` dominate subtrees with a single value. Up-weighting the first and pushing
  * the second to the background roughly halves the share of near-uniform stills (measured on the
