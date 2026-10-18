@@ -187,6 +187,22 @@ function flatShare(luma: Float32Array, width: number, height: number): number {
     return flat / blocks;
 }
 
+/** Share of flat blocks only: the cheap path for callers that need nothing else. */
+export function flatShareOf(image: RgbImage): number {
+    const count = image.width * image.height;
+    const luma = new Float32Array(count);
+
+    for (let i = 0; i < count; i++) {
+        luma[i] =
+            (0.299 * image.rgb[i * 3] +
+                0.587 * image.rgb[i * 3 + 1] +
+                0.114 * image.rgb[i * 3 + 2]) /
+            255;
+    }
+
+    return flatShare(luma, image.width, image.height);
+}
+
 function lumaEntropy(luma: Float32Array): number {
     const bins = new Array<number>(HISTOGRAM_BINS).fill(0);
 

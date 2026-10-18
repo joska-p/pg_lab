@@ -2,8 +2,7 @@ import { create } from 'zustand';
 
 import { buildLotView, EMPTY_LOT } from '../components/bench/lot.ts';
 import type { LotView } from '../components/bench/lot.ts';
-import { DEFAULT_CHANNELS } from '../core/color/index.ts';
-import { sampleGrammars } from '../core/grammar/index.ts';
+import { sampleRecipes } from '../core/grammar/index.ts';
 import {
     addBatchToNotebook,
     createBatch,
@@ -24,20 +23,18 @@ import { openCellInLab } from './appStore.ts';
 import { catalog } from './catalogueStore.ts';
 
 /** Cell sizes offered: square powers of two ≥ 16, so the analysis descriptors accept them. */
-export type CellSize = '32' | '64' | '128';
+export type CellSize = '64' | '128' | '256';
+export const CELL_SIZES = ['64', '128', '256'] as const satisfies readonly CellSize[];
 
-export const CELL_SIZES = ['32', '64', '128'] as const satisfies readonly CellSize[];
-
-export const MAX_BENCH_COUNT = 16;
-export const MAX_BENCH_SEEDS = 16;
+export const MAX_BENCH_COUNT = 32;
+export const MAX_BENCH_SEEDS = 64;
 
 /**
  * How the lot is presented. `sheet` is the contact sheet: every grammar, fitted to the stage. `row`
  * is one grammar at native cell size — the regime where a single candidate is actually judged.
  */
-export type BenchView = 'sheet' | 'row';
-
-export const BENCH_VIEWS = ['sheet', 'row'] as const satisfies readonly BenchView[];
+export type BenchView = 'focus' | 'sheet';
+export const BENCH_VIEWS = ['focus', 'sheet'] as const satisfies readonly BenchView[];
 
 /**
  * Everything that describes _which_ lot to draw and _how_ to show it. Editable in the panel, read
@@ -58,10 +55,10 @@ export interface BenchSettings {
 }
 
 const DEFAULT_SETTINGS: BenchSettings = {
-    count: 8,
-    seedsPerGrammar: 8,
-    cellSize: '64',
-    view: 'sheet',
+    count: 12,
+    seedsPerGrammar: 36,
+    cellSize: '128',
+    view: 'focus',
     dimFlats: false,
     baseSeed: createSeed(1),
 };
@@ -222,11 +219,7 @@ function renderNewLot(base: Seed): void {
     const { count, seedsPerGrammar, cellSize } = store.getState().settings;
 
     try {
-        const sampled = sampleGrammars(catalog, count, {
-            baseSeed: base,
-            seedsPerGrammar,
-            channels: DEFAULT_CHANNELS,
-        });
+        const sampled = sampleRecipes(catalog, count, { baseSeed: base, seedsPerGrammar });
 
         const candidates = sampled.map(({ grammar, seeds }) => createCandidate({ grammar, seeds }));
         const batch = createBatch({ candidates });

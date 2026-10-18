@@ -14,6 +14,8 @@
         "lint": "vp lint",
         "test": "vp test",
         "test:glsl": "sh scripts/validate-glsl.sh",
+        "test:measure": "VITE_MEASURE=1 vp test measure",
+        "test:shaders": "VITE_DUMP_SHADERS=$PWD/.shaders vp test dump",
         "dataset": "node scripts/dataset/cli.ts run",
         "dataset:write": "node scripts/dataset/cli.ts write",
         "dataset:features": "node scripts/dataset/cli.ts features",

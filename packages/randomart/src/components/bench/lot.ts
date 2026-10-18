@@ -1,14 +1,14 @@
-import { describeImage } from '../../core/analysis/index.ts';
+import { flatShareOf } from '../../core/analysis/index.ts';
 import type { RgbImage } from '../../core/analysis/index.ts';
 import type { RenderedBatch } from '../../renderer/index.ts';
 import { plancheColumns } from './planche';
-import type { PlancheRow } from './planche';
+import type { PlancheRow, PlancheCell } from './planche';
 
 /** Above this share of flat blocks, the grammar is considered collapsed. */
 export const FLAT_SHARE_THRESHOLD = 0.9;
 
 export function isFlat(image: RgbImage, threshold = FLAT_SHARE_THRESHOLD): boolean {
-    return describeImage(image).flatShare >= threshold;
+    return flatShareOf(image) >= threshold;
 }
 
 /**
@@ -90,5 +90,32 @@ export function buildLotView(batches: readonly RenderedBatch[]): LotView {
         cells,
         failed,
         flats,
+    };
+}
+
+/**
+ * One grammar of the lot, its seeds re-flowed into a grid of `columns` columns: the focus view. The
+ * returned lot is a plain `LotView`, so the planche paints it like any other.
+ */
+export function focusLotView(lot: LotView, rowIndex: number, columns: number): LotView {
+    const cells = lot.rows[rowIndex] ?? [];
+    const flags = lot.flat[rowIndex] ?? [];
+    const width = Math.max(1, Math.min(columns, cells.length));
+    const rows: PlancheCell[][] = [];
+    const flat: boolean[][] = [];
+
+    for (let start = 0; start < cells.length; start += width) {
+        rows.push(cells.slice(start, start + width));
+        flat.push(flags.slice(start, start + width));
+    }
+
+    return {
+        rows,
+        flat,
+        columns: width,
+        grammars: rows.length,
+        cells: cells.length,
+        failed: cells.filter((cell) => cell === null).length,
+        flats: flags.filter(Boolean).length,
     };
 }

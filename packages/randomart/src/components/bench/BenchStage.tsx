@@ -5,7 +5,7 @@ import { radius, space, typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
 import { colors } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { MAX_RATING, MIN_RATING } from '../../core/notebook/index.ts';
 import type { NotebookRating } from '../../core/notebook/index.ts';
@@ -24,6 +24,8 @@ import {
     useBenchSelectedRowIndex,
     useBenchSettings,
 } from '../../stores/benchStore';
+import { focusLotView } from './lot';
+import { fitGrid } from './planche';
 import { Planche } from './Planche';
 
 const styles = stylex.create({
@@ -97,6 +99,31 @@ function stars(rating: number | undefined): string {
     return '★'.repeat(rating) + '☆'.repeat(MAX_RATING - rating);
 }
 
+/** Size of an element, kept in state; the element is a state too so late mounting is handled. */
+function useElementSize(element: HTMLElement | null): { width: number; height: number } {
+    const [size, setSize] = useState({ width: 0, height: 0 });
+
+    useEffect(() => {
+        if (!element) {
+            return;
+        }
+
+        const observer = new ResizeObserver(([entry]) => {
+            if (entry) {
+                setSize({ width: entry.contentRect.width, height: entry.contentRect.height });
+            }
+        });
+
+        observer.observe(element);
+
+        return () => {
+            observer.disconnect();
+        };
+    }, [element]);
+
+    return size;
+}
+
 /**
  * The bench stage: the planche, and nothing else. Every control lives in the panel, so the stage
  * has one job — showing the lot — and it keeps the keyboard while doing it.
@@ -117,6 +144,8 @@ export function BenchStage() {
     const selectedColIndex = useBenchSelectedColIndex();
     const error = useBenchError();
     const stageRef = useRef<HTMLDivElement>(null);
+    const [viewport, setViewport] = useState<HTMLDivElement | null>(null);
+    const viewportSize = useElementSize(viewport);
 
     useEffect(() => {
         void initBenchNotebook();
@@ -187,8 +216,13 @@ export function BenchStage() {
     }
 
     const candidate = activeBatch?.candidates[selectedRowIndex];
-    // In row view the planche holds a single row, so its row 0 is the selected grammar.
-    const plancheRowIndex = view === 'row' ? 0 : selectedRowIndex;
+    const seedCount = lot.rows[selectedRowIndex]?.length ?? 0;
+    const isFocus = view === 'focus';
+    const focusColumns = fitGrid(seedCount, viewportSize.width, viewportSize.height);
+    const shown = isFocus ? focusLotView(lot, selectedRowIndex, focusColumns) : lot;
+    const shownRow = isFocus ? Math.floor(selectedColIndex / focusColumns) : selectedRowIndex;
+    const shownCol = isFocus ? selectedColIndex % focusColumns : selectedColIndex;
+
     const counters = [
         `${String(lot.cells)} cells`,
         lot.flats > 0 ? `${String(lot.flats)} flat` : null,
@@ -204,25 +238,20 @@ export function BenchStage() {
             onKeyDown={handleKeyDown}
             {...stylex.props(styles.stage)}
         >
-            <div {...stylex.props(styles.viewport)}>
+            <div ref={setViewport} {...stylex.props(styles.viewport)}>
                 <Planche
-                    lot={
-                        view === 'row' && candidate
-                            ? {
-                                  ...lot,
-                                  rows: [lot.rows[selectedRowIndex] ?? []],
-                                  flat: [lot.flat[selectedRowIndex] ?? []],
-                                  grammars: 1,
-                              }
-                            : lot
-                    }
+                    lot={shown}
                     cellSize={Number(cellSize)}
                     view={view}
                     dimFlats={dimFlats}
-                    selectedRowIndex={plancheRowIndex}
-                    selectedColIndex={selectedColIndex}
+                    selectedRowIndex={shownRow}
+                    selectedColIndex={shownCol}
                     onCellClick={(rowIndex, colIndex) => {
-                        selectCell(view === 'row' ? selectedRowIndex : rowIndex, colIndex);
+                        if (isFocus) {
+                            selectCell(selectedRowIndex, rowIndex * focusColumns + colIndex);
+                        } else {
+                            selectCell(rowIndex, colIndex);
+                        }
                     }}
                 />
             </div>
@@ -235,7 +264,7 @@ export function BenchStage() {
             >
                 <Stack direction="horizontal" gap="4">
                     <Text>{`grammar ${String(selectedRowIndex + 1)}/${String(lot.grammars)}`}</Text>
-                    <Text>{`seed ${String(selectedColIndex + 1)}/${String(lot.columns)}`}</Text>
+                    <Text>{`seed ${String(selectedColIndex + 1)}/${String(seedCount)}`}</Text>{' '}
                     <span {...stylex.props(styles.rating)}>
                         {`${stars(candidate?.rating)} ${candidate?.rating === undefined ? 'not rated' : String(candidate.rating)}`}
                     </span>

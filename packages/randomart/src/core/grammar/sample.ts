@@ -27,7 +27,7 @@ export interface SampleOptions {
 }
 
 /** Golden-ratio multiplicative hash: distinct indices give well-separated 32-bit seeds. */
-function deriveSeed(base: number, index: number): Seed {
+export function deriveSeed(base: number, index: number): Seed {
     return createSeed((Math.imul(index + 1, 0x9e37_79b1) ^ base) >>> 0);
 }
 

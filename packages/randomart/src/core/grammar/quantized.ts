@@ -1,0 +1,195 @@
+import type { Catalog, OperatorId } from '../catalog/index.ts';
+import { COLOR_SPACE_IDS } from '../color/index.ts';
+import type { ColorSpaceId } from '../color/index.ts';
+import { createRng } from '../random/index.ts';
+import type { Rng, Seed } from '../random/index.ts';
+import { createGrammar } from './grammar.ts';
+import { deriveSeed } from './sample.ts';
+import type { ConstraintsInput, Grammar } from './types.ts';
+
+/**
+ * The quantized search space: a handful of categorical knobs instead of 22 continuous weights. A
+ * `Recipe` is the coordinate of a grammar in that space; `recipeToGrammar` is the only way down to
+ * a real `Grammar`. Neighbourhood ("one notch away") is meaningful here, which it is not on
+ * continuous weights.
+ */
+
+export const FAMILY_IDS = [
+    'anchors',
+    'extrema',
+    'arithmetic',
+    'trigonometry',
+    'logic',
+    'warp',
+] as const;
+export type FamilyId = (typeof FAMILY_IDS)[number];
+
+/** Every catalog operator belongs to exactly one family (asserted by a test). */
+export const FAMILY_OPERATORS: Record<FamilyId | 'time', readonly OperatorId[]> = {
+    anchors: ['x', 'y'],
+    extrema: ['min', 'max'],
+    arithmetic: ['const', 'neg', 'abs', 'sqr', 'add', 'mul', 'div', 'mix'],
+    trigonometry: ['sin', 'cos'],
+    logic: ['gt', 'select'],
+    warp: ['warp'],
+    // Never drawn: images are rendered at phase 0, where they are the constants 0 and 1.
+    time: ['tsin', 'tcos'],
+};
+
+export const WEIGHT_LEVELS = ['off', 'low', 'normal', 'high'] as const;
+export type WeightLevel = (typeof WEIGHT_LEVELS)[number];
+
+export const LEVEL_WEIGHT: Record<WeightLevel, number> = {
+    off: 0,
+    low: 0.5,
+    normal: 1,
+    high: 3,
+};
+
+/** Relative odds of each level in a random draw: tune here to bias the sampler. */
+const LEVEL_ODDS: Record<WeightLevel, number> = { off: 3, low: 2, normal: 3, high: 2 };
+
+/** Anchors can never be off: without x/y the image has no spatial variation. */
+const ANCHOR_LEVELS: readonly WeightLevel[] = ['normal', 'high'];
+
+export const PROFILE_IDS = ['small', 'medium', 'large'] as const;
+export type SizeProfileId = (typeof PROFILE_IDS)[number];
+
+export const SIZE_PROFILES: Record<SizeProfileId, ConstraintsInput> = {
+    small: { minDepth: 2, maxDepth: 5, maxNodes: 30 },
+    medium: { minDepth: 3, maxDepth: 8, maxNodes: 60 },
+    large: { minDepth: 4, maxDepth: 10, maxNodes: 120 },
+};
+
+export const SHARE_CHOICES = [0, 1, 2, 3, 'mono'] as const;
+export type ShareChoice = (typeof SHARE_CHOICES)[number];
+
+export interface Recipe {
+    readonly levels: Readonly<Record<FamilyId, WeightLevel>>;
+    readonly size: SizeProfileId;
+    /** `'mono'` = fully shared trunk (r = g = b). */
+    readonly share: ShareChoice;
+    readonly space: ColorSpaceId;
+}
+
+/** Stable identity, for deduplication and caches. */
+export function recipeKey(recipe: Recipe): string {
+    return JSON.stringify([
+        ...FAMILY_IDS.map((family) => recipe.levels[family]),
+        recipe.size,
+        recipe.share,
+        recipe.space,
+    ]);
+}
+
+export function recipeToGrammar(catalog: Catalog, recipe: Recipe): Grammar {
+    const weights: Record<string, number> = {};
+
+    for (const family of FAMILY_IDS) {
+        for (const name of FAMILY_OPERATORS[family]) {
+            weights[name] = LEVEL_WEIGHT[recipe.levels[family]];
+        }
+    }
+
+    for (const name of FAMILY_OPERATORS.time) {
+        weights[name] = 0;
+    }
+
+    const constraints = SIZE_PROFILES[recipe.size];
+    const shareDepth = recipe.share === 'mono' ? constraints.maxDepth : recipe.share;
+
+    return createGrammar(catalog, {
+        weights,
+        constraints,
+        channels: { space: recipe.space, shareDepth },
+    });
+}
+
+export interface RandomRecipeOptions {
+    /** Pin an axis instead of drawing it (e.g. a controlled `shareDepth` experiment). */
+    readonly share?: ShareChoice;
+    readonly space?: ColorSpaceId;
+    readonly size?: SizeProfileId;
+}
+
+const MIN_ACTIVE_FAMILIES = 2;
+
+function drawLevel(rng: Rng, allowed: readonly WeightLevel[]): WeightLevel {
+    return rng.weighted(allowed, (level) => LEVEL_ODDS[level]);
+}
+
+/** At least two non-anchor families stay on: a bare x/y vocabulary only draws gradients. */
+export function randomRecipe(rng: Rng, options: RandomRecipeOptions = {}): Recipe {
+    for (let attempt = 0; attempt < 1000; attempt++) {
+        const levels = {} as Record<FamilyId, WeightLevel>;
+
+        for (const family of FAMILY_IDS) {
+            levels[family] = drawLevel(rng, family === 'anchors' ? ANCHOR_LEVELS : WEIGHT_LEVELS);
+        }
+
+        const active = FAMILY_IDS.filter(
+            (family) => family !== 'anchors' && levels[family] !== 'off',
+        ).length;
+
+        if (active < MIN_ACTIVE_FAMILIES) {
+            continue;
+        }
+
+        return {
+            levels,
+            size: options.size ?? PROFILE_IDS[rng.int(PROFILE_IDS.length)],
+            share: options.share ?? SHARE_CHOICES[rng.int(SHARE_CHOICES.length)],
+            space: options.space ?? COLOR_SPACE_IDS[rng.int(COLOR_SPACE_IDS.length)],
+        };
+    }
+
+    throw new Error('Randomart: randomRecipe could not draw a usable recipe');
+}
+
+export interface SampledRecipe {
+    readonly recipe: Recipe;
+    readonly grammar: Grammar;
+    readonly seeds: readonly Seed[];
+}
+
+export interface SampleRecipesOptions extends RandomRecipeOptions {
+    readonly baseSeed?: number;
+    readonly seedsPerGrammar?: number;
+}
+
+const MAX_DEDUPE_ATTEMPTS = 50;
+
+/** Deterministic, deduplicated draw of recipes, each with its own seeds. */
+export function sampleRecipes(
+    catalog: Catalog,
+    count: number,
+    options: SampleRecipesOptions = {},
+): SampledRecipe[] {
+    const { baseSeed = 1, seedsPerGrammar = 36, ...pins } = options;
+    const seen = new Set<string>();
+    const sampled: SampledRecipe[] = [];
+
+    for (let i = 0; i < count; i++) {
+        const rng = createRng(deriveSeed(baseSeed, i));
+        let recipe = randomRecipe(rng, pins);
+
+        for (
+            let attempt = 0;
+            seen.has(recipeKey(recipe)) && attempt < MAX_DEDUPE_ATTEMPTS;
+            attempt++
+        ) {
+            recipe = randomRecipe(rng, pins);
+        }
+
+        seen.add(recipeKey(recipe));
+        sampled.push({
+            recipe,
+            grammar: recipeToGrammar(catalog, recipe),
+            seeds: Array.from({ length: seedsPerGrammar }, (_, k) =>
+                deriveSeed(baseSeed ^ 0x5bd1_e995, i * seedsPerGrammar + k),
+            ),
+        });
+    }
+
+    return sampled;
+}

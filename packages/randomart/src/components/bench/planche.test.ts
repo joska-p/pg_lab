@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import type { RgbImage } from '../../core/analysis/index.ts';
-import { assemblePlanche, PLANCHE_BACKGROUND, PLANCHE_DIM_FACTOR, plancheColumns } from './planche';
+import {
+    assemblePlanche,
+    fitGrid,
+    PLANCHE_BACKGROUND,
+    PLANCHE_DIM_FACTOR,
+    plancheColumns,
+} from './planche';
 
 /** A solid image `size`x`size` filled with one RGB colour. */
 function solid(size: number, rgb: readonly [number, number, number]): RgbImage {
@@ -25,6 +31,21 @@ function pixelAt(
 
     return [planche.rgba[at], planche.rgba[at + 1], planche.rgba[at + 2], planche.rgba[at + 3]];
 }
+
+describe('fitGrid', () => {
+    it('picks the squarest grid for a square box', () => {
+        expect(fitGrid(36, 900, 900)).toBe(6);
+    });
+
+    it('goes wide in a wide box', () => {
+        expect(fitGrid(36, 1200, 600)).toBe(9);
+    });
+
+    it('survives an unmeasured box', () => {
+        expect(fitGrid(10, 0, 0)).toBe(10);
+        expect(fitGrid(0, 100, 100)).toBe(1);
+    });
+});
 
 describe('assemblePlanche', () => {
     it('sizes the grid from the number of rows and columns', () => {

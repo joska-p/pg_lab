@@ -37,6 +37,31 @@ export interface PlancheOptions {
 }
 
 /**
+ * Number of columns that maximizes the cell size when `count` square cells are laid out in a
+ * `width` × `height` box.
+ */
+export function fitGrid(count: number, width: number, height: number): number {
+    if (count <= 0 || width <= 0 || height <= 0) {
+        return Math.max(1, count);
+    }
+
+    let best = 1;
+    let bestCell = 0;
+
+    for (let columns = 1; columns <= count; columns++) {
+        const rows = Math.ceil(count / columns);
+        const cell = Math.min(width / columns, height / rows);
+
+        if (cell > bestCell) {
+            bestCell = cell;
+            best = columns;
+        }
+    }
+
+    return best;
+}
+
+/**
  * Assembles the grid in memory — the whole planche is **one** image, so the display needs **one**
  * `putImageData` and **one** canvas (never a canvas per cell, the WebGL context budget forbids it).
  * Images are copied as-is, top-left aligned; a cell larger than `cellSize` is cropped, a smaller

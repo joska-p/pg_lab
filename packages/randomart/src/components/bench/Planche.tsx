@@ -71,7 +71,7 @@ export interface PlancheProps {
     /** Dim collapsed cells instead of showing them as if they were interesting. */
     readonly dimFlats?: boolean;
     /** `row` lays the planche out at native size; `sheet` fits it inside the stage. */
-    readonly view?: 'sheet' | 'row';
+    readonly view?: 'sheet' | 'focus';
     readonly onCellClick?: (rowIndex: number, colIndex: number) => void;
 }
 
@@ -170,8 +170,11 @@ export function Planche({
             // is laid out at native size and the viewport scrolls.
             style={{
                 ...frameProps.style,
-                ...(view === 'row'
-                    ? { width }
+                ...(view === 'focus'
+                    ? {
+                          width: '100%',
+                          maxWidth: `calc(${String(rows > 0 ? columns / rows : 1)} * 100cqh)`,
+                      }
                     : {
                           width: '100%',
                           maxWidth: `min(${String(width)}px, calc(${String(columns / rows)} * 100cqh))`,

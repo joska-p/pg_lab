@@ -9,9 +9,10 @@ You explore grammars more than seeds.
 
     vp dev                          # app
     vp test                         # unit tests
-    sh scripts/validate-glsl.sh     # glslangValidator on the fuzz shaders
+    vp run test:measure             # opt-in measurement probes (VITE_MEASURE=1)
+    vp run test:shaders             # dump the fuzz shaders in .shaders/
+    vp run test:glsl                # dump + glslangValidator on the fuzz shaders
     vp run dataset                  # offline dataset pipeline (see below)
-    VITE_MEASURE=1 vp test <name>   # opt-in measurement probes
 
 ## Layout
 

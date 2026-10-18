@@ -43,7 +43,7 @@ const RATINGS: readonly NotebookRating[] = [0, 1, 2, 3, 4, 5];
 
 const VIEW_LABELS: Record<BenchView, string> = {
     sheet: 'Sheet',
-    row: 'Row',
+    focus: 'Focus',
 };
 
 const VIEW_OPTIONS = BENCH_VIEWS.map((value) => ({ value, label: VIEW_LABELS[value] }));
