@@ -1,7 +1,7 @@
 import { Button } from '@repo/ui/components/Button';
 import { ControlField } from '@repo/ui/components/ControlField';
+import { Grid } from '@repo/ui/components/Grid';
 import { NumberField } from '@repo/ui/components/NumberField';
-import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
 import { useSyncExternalStore } from 'react';
 
@@ -37,37 +37,35 @@ export function PlaybackSection() {
     const canAnimate = hasClockStore && compiledShader.animated;
 
     return (
-        <Stack gap="3">
-            <Stack gap="2">
-                <Stack direction="horizontal" gap="2">
-                    <Button
-                        onClick={() => {
-                            clockStore.togglePlay();
-                        }}
-                        disabled={!canAnimate}
-                    >
-                        {isPlaying ? 'Pause' : 'Play'}
-                    </Button>
-                    <Button
-                        onClick={() => {
-                            clockStore.reset();
-                        }}
-                        disabled={!canAnimate}
-                    >
-                        Reset
-                    </Button>
-                    <NumberField
-                        label="Loop duration (s)"
-                        min={MIN_LOOP_MS / 1000}
-                        max={MAX_LOOP_MS / 1000}
-                        step={0.5}
-                        value={duration}
-                        onValueChange={(val) => {
-                            setDuration(parseDurationInput(String(val)));
-                        }}
-                    />
-                </Stack>
-            </Stack>
+        <Grid columns="1" gap="3">
+            <Grid gap="2">
+                <Button
+                    onClick={() => {
+                        clockStore.togglePlay();
+                    }}
+                    disabled={!canAnimate}
+                >
+                    {isPlaying ? 'pause' : 'play'}
+                </Button>
+                <Button
+                    onClick={() => {
+                        clockStore.reset();
+                    }}
+                    disabled={!canAnimate}
+                >
+                    Reset
+                </Button>
+                <NumberField
+                    label="loop (s)"
+                    min={MIN_LOOP_MS / 1000}
+                    max={MAX_LOOP_MS / 1000}
+                    step={0.5}
+                    value={duration}
+                    onValueChange={(val) => {
+                        setDuration(parseDurationInput(String(val)));
+                    }}
+                />
+            </Grid>
 
             {/* ── Faults & Status ── */}
             {actionError && (
@@ -83,6 +81,6 @@ export function PlaybackSection() {
                     </Text>
                 </ControlField>
             )}
-        </Stack>
+        </Grid>
     );
 }

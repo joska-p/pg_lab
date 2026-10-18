@@ -1,6 +1,5 @@
 import { Button } from '@repo/ui/components/Button';
 import { ControlField } from '@repo/ui/components/ControlField';
-import { Stack } from '@repo/ui/components/Stack';
 
 import { newImage, useCompiledShader, useSeed } from '../../stores/appStore';
 
@@ -10,16 +9,14 @@ export function SessionSection() {
     const compiledShader = useCompiledShader();
 
     return (
-        <Stack gap="3">
-            <ControlField label={`Seed: ${seed} • ${compiledShader.stats.nodes} nodes`}>
-                <Button
-                    onClick={() => {
-                        newImage();
-                    }}
-                >
-                    New image
-                </Button>
-            </ControlField>
-        </Stack>
+        <ControlField label={`Seed: ${seed} • ${compiledShader.stats.nodes} nodes`}>
+            <Button
+                onClick={() => {
+                    newImage();
+                }}
+            >
+                New image
+            </Button>
+        </ControlField>
     );
 }

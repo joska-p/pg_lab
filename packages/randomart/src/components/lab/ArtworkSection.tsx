@@ -1,6 +1,6 @@
 import { Button } from '@repo/ui/components/Button';
 import { FileInput } from '@repo/ui/components/FileInput';
-import { Stack } from '@repo/ui/components/Stack';
+import { Grid } from '@repo/ui/components/Grid';
 import { Text } from '@repo/ui/components/Text';
 
 import type { ProvenanceCheck } from '../../core/artwork/index.ts';
@@ -28,7 +28,7 @@ export function ArtworkSection() {
     const provenanceCheck = useProvenanceCheck();
 
     return (
-        <Stack gap="3">
+        <Grid columns="1" gap="3">
             <Button
                 onClick={() => {
                     void exportPng();
@@ -37,8 +37,8 @@ export function ArtworkSection() {
             >
                 Export PNG
             </Button>
-            <Stack gap="2">
-                <Stack direction="horizontal" gap="2">
+            <Grid columns="1" gap="2">
+                <Grid columns="2" gap="2">
                     <Button
                         onClick={() => {
                             exportArtworkFile();
@@ -54,9 +54,9 @@ export function ArtworkSection() {
                     >
                         Import JSON
                     </FileInput>
-                </Stack>
+                </Grid>
                 <Text variant="muted">{PROVENANCE_LABELS[provenanceCheck]}</Text>
-            </Stack>
-        </Stack>
+            </Grid>
+        </Grid>
     );
 }

@@ -64,34 +64,28 @@ export function VocabularySection() {
 
     return (
         <ControlSection title="vocabulary">
-            <Stack gap="3">
-                {GROUP_ORDER.map((group) => {
-                    const operators = catalog
-                        .operators()
-                        .filter((operator) => operator.group === group);
+            {GROUP_ORDER.map((group) => {
+                const operators = catalog
+                    .operators()
+                    .filter((operator) => operator.group === group);
 
-                    if (operators.length === 0) {
-                        return null;
-                    }
+                if (operators.length === 0) {
+                    return null;
+                }
 
-                    return (
-                        <Stack key={group} gap="1">
-                            <Text variant="muted">{GROUP_LABELS[group]}</Text>
-                            {operators.map((operator) => (
-                                <OperatorRow
-                                    key={operator.name}
-                                    operator={operator}
-                                    weight={weightOf(grammar.weights, operator.name)}
-                                />
-                            ))}
-                        </Stack>
-                    );
-                })}
-                <Text variant="muted">
-                    Unchecked = weight 0 = never drawn. &quot;New weights&quot; redistributes the
-                    weights inside the checked selection, it never toggles operators.
-                </Text>
-            </Stack>
+                return (
+                    <>
+                        <Text variant="muted">{GROUP_LABELS[group]}</Text>
+                        {operators.map((operator) => (
+                            <OperatorRow
+                                key={operator.name}
+                                operator={operator}
+                                weight={weightOf(grammar.weights, operator.name)}
+                            />
+                        ))}
+                    </>
+                );
+            })}
         </ControlSection>
     );
 }

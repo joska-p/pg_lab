@@ -1,8 +1,8 @@
 import { Button } from '@repo/ui/components/Button';
 import { FileInput } from '@repo/ui/components/FileInput';
+import { Grid } from '@repo/ui/components/Grid';
 import { NumberField } from '@repo/ui/components/NumberField';
 import { Select } from '@repo/ui/components/Select';
-import { Stack } from '@repo/ui/components/Stack';
 
 import { COLOR_SPACE_IDS, COLOR_SPACES, MIN_SHARE_DEPTH } from '../../core/color/index.ts';
 import type { ColorSpaceId } from '../../core/color/index.ts';
@@ -45,7 +45,7 @@ export function GrammarSection() {
     const currentPreset = PRESETS.find((preset) => preset.id === currentPresetId) ?? CUSTOM_PRESET;
 
     return (
-        <Stack gap="3">
+        <Grid columns="1" gap="3">
             {/* ── Recipe presets ── */}
             <Select
                 title={currentPreset?.description}
@@ -60,42 +60,40 @@ export function GrammarSection() {
             />
 
             {/* ── Grammar actions & summary ── */}
-            <Stack gap="2">
-                <Stack direction="horizontal" gap="2">
-                    <Button
-                        onClick={() => {
-                            newDistribution();
-                        }}
-                    >
-                        New weights
-                    </Button>
-                    <Button
-                        onClick={() => {
-                            resetGrammar();
-                        }}
-                    >
-                        Reset
-                    </Button>
-                    <Button
-                        onClick={() => {
-                            exportGrammarFile();
-                        }}
-                    >
-                        Export
-                    </Button>
-                    <FileInput
-                        accept=".json,application/json"
-                        onFile={(file) => {
-                            void importGrammarFile(file);
-                        }}
-                    >
-                        Import
-                    </FileInput>
-                </Stack>
-            </Stack>
+            <Grid columns="2" gap="2">
+                <Button
+                    onClick={() => {
+                        newDistribution();
+                    }}
+                >
+                    New weights
+                </Button>
+                <Button
+                    onClick={() => {
+                        resetGrammar();
+                    }}
+                >
+                    Reset
+                </Button>
+                <Button
+                    onClick={() => {
+                        exportGrammarFile();
+                    }}
+                >
+                    Export
+                </Button>
+                <FileInput
+                    accept=".json,application/json"
+                    onFile={(file) => {
+                        void importGrammarFile(file);
+                    }}
+                >
+                    Import
+                </FileInput>
+            </Grid>
 
             {/* ── Tree constraints ── */}
-            <Stack direction="horizontal" gap="2">
+            <Grid columns="3" gap="2">
                 <NumberField
                     label="minDepth"
                     min={1}
@@ -123,10 +121,10 @@ export function GrammarSection() {
                         setConstraints({ maxNodes: value });
                     }}
                 />
-            </Stack>
+            </Grid>
 
             {/* ── Channels ── */}
-            <Stack gap="2" direction="horizontal">
+            <Grid gap="2" columns="2">
                 <Select<ColorSpaceId>
                     label="color space"
                     value={grammar.channels.space}
@@ -143,7 +141,7 @@ export function GrammarSection() {
                     value={grammar.channels.shareDepth}
                     onValueChange={(shareDepth) => setChannels({ ...grammar.channels, shareDepth })}
                 />
-            </Stack>
-        </Stack>
+            </Grid>
+        </Grid>
     );
 }

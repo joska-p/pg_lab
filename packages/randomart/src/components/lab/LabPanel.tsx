@@ -1,8 +1,8 @@
-import { Stack } from '@repo/ui/components/Stack';
+import { Grid } from '@repo/ui/components/Grid';
 
-import { Inspector } from '../Inspector';
 import { ArtworkSection } from './ArtworkSection';
 import { GrammarSection } from './GrammarSection';
+import { Inspector } from './Inspector';
 import { PlaybackSection } from './PlaybackSection';
 import { SessionSection } from './SessionSection';
 import { VocabularySection } from './VocabularySection';
@@ -13,13 +13,13 @@ import { VocabularySection } from './VocabularySection';
  */
 export function LabPanel() {
     return (
-        <Stack gap="8">
+        <Grid columns="1" gap="8">
             <SessionSection />
             <PlaybackSection />
             <GrammarSection />
             <VocabularySection />
             <ArtworkSection />
             <Inspector />
-        </Stack>
+        </Grid>
     );
 }

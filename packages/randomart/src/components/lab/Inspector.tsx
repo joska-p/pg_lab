@@ -1,13 +1,13 @@
 import { ControlField } from '@repo/ui/components/ControlField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
-import { Stack } from '@repo/ui/components/Stack';
+import { Grid } from '@repo/ui/components/Grid';
 import type { CSSProperties } from 'react';
 
-import { COLOR_SPACES } from '../core/color/index.ts';
-import { formatFormula } from '../core/expression/index.ts';
-import type { Channel } from '../core/expression/index.ts';
-import { useExpression, useGrammar } from '../stores/appStore';
+import { COLOR_SPACES } from '../../core/color/index.ts';
+import { formatFormula } from '../../core/expression/index.ts';
+import type { Channel } from '../../core/expression/index.ts';
+import { useExpression, useGrammar } from '../../stores/appStore.ts';
 
 const CHANNELS: readonly Channel[] = ['r', 'g', 'b'];
 
@@ -32,7 +32,7 @@ export function Inspector() {
     return (
         <ErrorBoundary showStack={import.meta.env.DEV}>
             <ControlSection title="expression">
-                <Stack gap="3">
+                <Grid columns="1" gap="3">
                     {mono ? (
                         <ControlField label={`Field (${label})`}>
                             <div style={formulaStyle}>{formatFormula(expression.r)}</div>
@@ -44,7 +44,7 @@ export function Inspector() {
                             </ControlField>
                         ))
                     )}
-                </Stack>
+                </Grid>
             </ControlSection>
         </ErrorBoundary>
     );
