@@ -18,7 +18,7 @@ describe('renderer / contract & helpers', () => {
             expect(createPhase(0.25)).toBe(0.25);
             expect(createPhase(0.5)).toBe(0.5);
             expect(createPhase(0.75)).toBe(0.75);
-            // 1.0 wraps back to 0 (Clock.progress is [0, 1] inclusive — finding F26)
+            // 1.0 wraps back to 0 (Clock.progress is [0, 1] inclusive)
             expect(createPhase(1)).toBe(0);
             // Values beyond 1 wrap properly
             expect(createPhase(1.25)).toBeCloseTo(0.25);
@@ -35,7 +35,7 @@ describe('renderer / contract & helpers', () => {
             expect(createPhase(0.9999999999999999)).toBeGreaterThanOrEqual(0);
         });
 
-        it('rejects a non-finite progress (F08: fail loudly, do not propagate a NaN)', () => {
+        it('rejects a non-finite progress: fail loudly, do not propagate a NaN', () => {
             expect(() => createPhase(Number.NaN)).toThrow(
                 'Randomart: clock progress must be a finite number, received NaN',
             );

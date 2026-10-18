@@ -78,12 +78,12 @@ export function RandomArtCanvas({
                 const key: RenderKey = {
                     phase: createPhase(surface.clock.progress),
                     // Safe within a frame: glaze's `#resize()` runs before the frame subscribers
-                    // and clamps the CSS size to >= 1, so the brand invariant holds here (finding
-                    // F09). Never build these in an eager path (onMount, effects): the surface
-                    // dimensions are still 0 before the first frame.
+                    // and clamps the CSS size to >= 1, so the brand invariant holds here. Never
+                    // build these in an eager path (onMount, effects): the surface dimensions are
+                    // still 0 before the first frame.
                     width: createCanvasDimension(surface.width),
                     height: createCanvasDimension(surface.height),
-                    // Already a DevicePixelRatio glaze-side: carried, not de-branded (F07).
+                    // Already a DevicePixelRatio glaze-side: carried, not de-branded.
                     dpr: surface.dpr,
                     animated,
                 };

@@ -13,13 +13,16 @@ export const GLSL_OUT_COLOR = 'out vec4 o_color;';
 /**
  * Contract snippet: conversion of `vUv` [0, 1]² to centered coordinates `v_p` [-1, 1]² ensuring y
  * points upwards.
+ *
+ * Image conventions: x grows right, y grows up; [-1, 1]² is stretched over the whole image whatever
+ * its shape; colour values are written as-is and read as sRGB, no linear conversion.
  */
 export const GLSL_COORD_INIT = 'vec2 v_p = vUv * 2.0 - 1.0;';
 
-/** Default loop duration in seconds (spec: 8000ms). */
+/** Default loop duration in seconds (8000ms). */
 export const DEFAULT_LOOP_DURATION: DurationSeconds = createDurationSeconds(8);
 
-/** Default context options for randomart (spec / PLAN friction 4b). */
+/** WebGL context flags for the randomart context. */
 export const DEFAULT_CONTEXT_OPTIONS: WebGLContextAttributes = {
     antialias: false,
     preserveDrawingBuffer: true,
@@ -30,8 +33,8 @@ export const DEFAULT_CONTEXT_OPTIONS: WebGLContextAttributes = {
  * only way to a `Phase`, so nothing outside can inject 0.9999… or a stale 1.0 into `RenderKey` or
  * the `u_phase` uniform.
  *
- * Naming note (findings F02): the `Phase` literal belongs to randomart — glaze has no phase brand
- * and its `Clock.progress` stays a raw number over [0, 1] inclusive (findings F26).
+ * The `Phase` brand literal is owned by randomart: glaze has no phase brand, and its
+ * `Clock.progress` stays a raw number over [0, 1] inclusive.
  */
 export type Phase = Brand<number, 'Phase'>;
 
@@ -42,7 +45,7 @@ export type Phase = Brand<number, 'Phase'>;
 export function createPhase(progress: number): Phase {
     // `Clock.progress` is finite by construction (seconds over a strictly positive duration —
     // glaze `createDurationSeconds`). The assert documents that precondition rather than letting a
-    // NaN propagate into the uniforms and the render gate (F08).
+    // NaN propagate into the uniforms and the render gate.
     assertFinite(progress, 'clock progress');
 
     const wrapped = ((progress % 1) + 1) % 1;

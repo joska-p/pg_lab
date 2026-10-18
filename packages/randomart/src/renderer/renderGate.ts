@@ -5,7 +5,7 @@ import type { Phase } from './contract';
 /**
  * What the last drawn frame depended on. Every field is a validated brand: the phase in [0, 1)
  * comes from `createPhase`, the CSS dimensions from `createCanvasDimension` (glaze) and the DPR is
- * carried from the surface untouched instead of being widened back to `number` (findings F06/F07).
+ * carried from the surface untouched instead of being widened back to `number`.
  */
 export interface RenderKey {
     readonly phase: Phase;
