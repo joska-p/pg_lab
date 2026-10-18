@@ -10,20 +10,20 @@ import { useEffect, useRef } from 'react';
 import { MAX_RATING, MIN_RATING } from '../../core/notebook/index.ts';
 import type { NotebookRating } from '../../core/notebook/index.ts';
 import {
-    initGalleryNotebook,
+    initBenchNotebook,
     openSelectedInLab,
     rateCandidateRow,
     selectCell,
     stepCell,
     stepRow,
     toggleCandidateRating,
-    useGalleryActiveBatch,
-    useGalleryError,
-    useGalleryLot,
-    useGallerySelectedColIndex,
-    useGallerySelectedRowIndex,
-    useGallerySettings,
-} from '../../stores/galleryStore';
+    useBenchActiveBatch,
+    useBenchError,
+    useBenchLot,
+    useBenchSelectedColIndex,
+    useBenchSelectedRowIndex,
+    useBenchSettings,
+} from '../../stores/benchStore';
 import { Planche } from './Planche';
 
 const styles = stylex.create({
@@ -66,7 +66,7 @@ const styles = stylex.create({
         paddingBlock: space['1'],
         paddingInline: space['3'],
         borderRadius: radius.sm,
-        // "The keyboard acts on the gallery": shown where the keys are advertised.
+        // "The keyboard acts on the bench": shown where the keys are advertised.
         outline: {
             default: '2px solid transparent',
             [stylex.when.ancestor(':focus-visible')]: `2px solid ${colors.aqua}`,
@@ -98,7 +98,7 @@ function stars(rating: number | undefined): string {
 }
 
 /**
- * The gallery stage: the planche, and nothing else. Every control lives in the panel, so the stage
+ * The bench stage: the planche, and nothing else. Every control lives in the panel, so the stage
  * has one job — showing the lot — and it keeps the keyboard while doing it.
  *
  * Shortcuts, active while the stage has focus (clicking the planche is enough):
@@ -109,20 +109,20 @@ function stars(rating: number | undefined): string {
  * - ←/→ or h/l: previous / next seed
  * - Enter: opens the current cell in Lab
  */
-export function GalleryStage() {
-    const { cellSize, view, dimFlats } = useGallerySettings();
-    const lot = useGalleryLot();
-    const activeBatch = useGalleryActiveBatch();
-    const selectedRowIndex = useGallerySelectedRowIndex();
-    const selectedColIndex = useGallerySelectedColIndex();
-    const error = useGalleryError();
+export function BenchStage() {
+    const { cellSize, view, dimFlats } = useBenchSettings();
+    const lot = useBenchLot();
+    const activeBatch = useBenchActiveBatch();
+    const selectedRowIndex = useBenchSelectedRowIndex();
+    const selectedColIndex = useBenchSelectedColIndex();
+    const error = useBenchError();
     const stageRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        void initGalleryNotebook();
+        void initBenchNotebook();
     }, []);
 
-    // Entering the gallery hands the keyboard over: the planche is what the keys act on.
+    // Entering the bench hands the keyboard over: the planche is what the keys act on.
     useEffect(() => {
         stageRef.current?.focus();
     }, []);
@@ -176,10 +176,10 @@ export function GalleryStage() {
 
     if (lot.grammars === 0) {
         return (
-            <div ref={stageRef} tabIndex={0} aria-label="Gallery" {...stylex.props(styles.stage)}>
+            <div ref={stageRef} tabIndex={0} aria-label="Bench" {...stylex.props(styles.stage)}>
                 <div {...stylex.props(styles.empty)}>
                     <Text variant="muted">
-                        {error ?? 'No lot yet — press "New batch" in the Gallery panel.'}
+                        {error ?? 'No lot yet — press "New batch" in the Bench panel.'}
                     </Text>
                 </div>
             </div>
@@ -200,7 +200,7 @@ export function GalleryStage() {
         <div
             ref={stageRef}
             tabIndex={0}
-            aria-label="Gallery"
+            aria-label="Bench"
             onKeyDown={handleKeyDown}
             {...stylex.props(styles.stage)}
         >

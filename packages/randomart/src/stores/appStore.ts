@@ -77,7 +77,7 @@ let nextEntryId = 1;
  */
 let grammarEditId: number | null = null;
 
-export type Mode = 'gallery' | 'lab' | 'history';
+export type Mode = 'bench' | 'lab' | 'history';
 
 interface AppStoreState {
     mode: Mode;
@@ -531,7 +531,7 @@ export function publishArtwork(artwork: Artwork): void {
     }
 }
 
-/** Opens a gallery cell (grammar + seed) in Lab mode as an artwork. */
+/** Opens a bench cell (grammar + seed) in Lab mode as an artwork. */
 export function openCellInLab(grammar: Grammar, seed: Seed): void {
     const artwork = createArtwork({
         expression: generate(catalog, grammar, seed),

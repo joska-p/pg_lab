@@ -20,8 +20,8 @@ export interface SampleOptions {
     readonly changeRate?: number;
     /**
      * Channel model of the drawn grammars. Defaults to `RAW_CHANNELS`, the historical dataset draw
-     * (three independent trees in sRGB); the gallery passes the app's `DEFAULT_CHANNELS` so its
-     * lots are readable the way the play mode is.
+     * (three independent trees in sRGB); the bench passes the app's `DEFAULT_CHANNELS` so its lots
+     * are readable the way the play mode is.
      */
     readonly channels?: ChannelModel;
 }

@@ -4,14 +4,14 @@ import { Stack } from '@repo/ui/components/Stack';
 
 import { setMode, useMode } from '../stores/appStore';
 import type { Mode } from '../stores/appStore';
-import { GalleryPanel } from './gallery/GalleryPanel';
+import { BenchPanel } from './bench/BenchPanel';
 import { HistoryPanel } from './history/HistoryPanel';
 import { LabPanel } from './lab/LabPanel';
 
 const MODE_OPTIONS = [
     { value: 'lab', label: 'Lab' },
     { value: 'history', label: 'History' },
-    { value: 'gallery', label: 'Gallery' },
+    { value: 'bench', label: 'Bench' },
 ] as const satisfies readonly { value: Mode; label: string }[];
 
 /**
@@ -19,11 +19,11 @@ const MODE_OPTIONS = [
  *
  * - **Lab** (workshop): the unified creation and grammar workshop — presets, weights, constraints,
  *   vocabulary, playback, history and artwork files.
- * - **Gallery** (lots): draw candidate grammars and inspect contact sheets.
+ * - **Bench** (lots): draw candidate grammars and inspect contact sheets.
  *
  * The mode lives in the store so the shell (`ExperimentShell`/`App`) can make the Stage switch
- * between the live canvas and the gallery planche. The panel-level error boundary is kept around
- * all modes, so a failure in any of them leaves the stage intact.
+ * between the live canvas and the bench planche. The panel-level error boundary is kept around all
+ * modes, so a failure in any of them leaves the stage intact.
  */
 export function Controls() {
     const mode = useMode();
@@ -34,7 +34,7 @@ export function Controls() {
                 <Segmented<Mode> value={mode} options={MODE_OPTIONS} onValueChange={setMode} />
                 {mode === 'lab' ? <LabPanel /> : null}
                 {mode === 'history' ? <HistoryPanel /> : null}
-                {mode === 'gallery' ? <GalleryPanel /> : null}
+                {mode === 'bench' ? <BenchPanel /> : null}
             </Stack>
         </ErrorBoundary>
     );

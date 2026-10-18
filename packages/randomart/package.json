@@ -14,6 +14,11 @@
         "lint": "vp lint",
         "test": "vp test",
         "test:glsl": "sh scripts/validate-glsl.sh",
+        "dataset": "node scripts/dataset/cli.ts run",
+        "dataset:write": "node scripts/dataset/cli.ts write",
+        "dataset:features": "node scripts/dataset/cli.ts features",
+        "dataset:pca": "node scripts/dataset/cli.ts pca",
+        "dataset:sheet": "node scripts/dataset/cli.ts sheet",
         "preview": "vp preview"
     },
     "dependencies": {

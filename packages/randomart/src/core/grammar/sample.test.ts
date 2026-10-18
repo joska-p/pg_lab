@@ -28,7 +28,7 @@ describe('sampleGrammars', () => {
         }
     });
 
-    it('honours a custom channel model (the gallery passes the app default)', () => {
+    it('honours a custom channel model (the bench passes the app default)', () => {
         for (const { grammar } of sampleGrammars(catalog, 20, { channels: DEFAULT_CHANNELS })) {
             expect(grammar.channels).toEqual(DEFAULT_CHANNELS);
         }

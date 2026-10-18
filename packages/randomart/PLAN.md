@@ -10,11 +10,17 @@ Explore grammars by eye: draw batches of images, rate them, keep the good recipe
 ## State
 
 - Core, compiler, renderer, lab and history: done.
-- Gallery (lot I): I0 cleanup, I1 batch rendering and planche, I2 notebook (rating, IndexedDB,
+- Bench (lot I): I0 cleanup, I1 batch rendering and planche, I2 notebook (rating, IndexedDB,
   JSON import/export) are done.
-- Gallery UI/UX structural redesign done: one derived `lot` view shared by panel and stage,
+- Bench UI/UX structural redesign done: one derived `lot` view shared by panel and stage,
   per-row rating, DOM selection rings, `sheet`/`row` view regimes, non-destructive dimming of
   flat cells, stage-scoped keyboard, batch deletion.
+- Naming settled: the interactive half is the **bench** (`components/bench`, `benchStore`), the
+  offline half is the **dataset** (`src/dataset`, `scripts/dataset`) — same survey, two modalities.
+- Dataset pipeline reorganized: every step is a function (`scripts/dataset/*.ts`), `cli.ts` is the
+  only entry point (`vp run dataset` = write → features → pca → sheet), artifacts live in
+  `/dataset/`, the dev server is started and stopped by the write step, and the pure steps are
+  tested.
 - Remaining: **I3 propose**, **I4 summarize**, **I5 recipes**.
 
 ## Next
@@ -25,7 +31,7 @@ Explore grammars by eye: draw batches of images, rate them, keep the good recipe
 - Mutation (`randomizeWeights`, `spread` = intensity), crossover (mix weights of two elites),
   restart (`randomGrammar`).
 - Constraints inherited from parents, repaired by `fitConstraints`.
-- "New generation" button in `GalleryPanel`.
+- "New generation" button in `BenchPanel`.
 
 ### I4: summarize
 
@@ -49,7 +55,7 @@ preset select.
 - The planche is one offscreen surface plus one display canvas: WebGL context limits forbid one
   canvas per cell.
 - Ratings are manual: descriptors only filter flat cells and explain, never score beauty.
-- The playground mounts only `@repo/randomart/Scene`; the gallery stage never appears there.
+- The playground mounts only `@repo/randomart/Scene`; the bench stage never appears there.
 - `NotebookCandidate.note` exists in core but no UI uses it yet (candidate for I4).
 
 ## End of session

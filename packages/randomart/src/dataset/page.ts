@@ -8,11 +8,11 @@ import { createSeed } from '../core/random/index.ts';
 import { createBatchRenderer } from '../renderer/batch.ts';
 
 /**
- * Bench page: the in-browser half of the offline bench. It owns no rendering of its own any more —
- * the GPU work lives in `src/renderer/batch.ts` (the same renderer the gallery uses). This file is
- * only the wire adapter: a serialization boundary for `scripts/bench/generate.mjs`, which drives it
- * through `window.benchApi`. Images are drawn at phase 0, one program at a time, on the renderer's
- * single reused surface.
+ * Dataset page: the in-browser half of the offline dataset pipeline. It owns no rendering of its
+ * own any more — the GPU work lives in `src/renderer/batch.ts` (the same renderer the bench uses).
+ * This file is only the wire adapter: a serialization boundary for `scripts/dataset/generate.mjs`,
+ * which drives it through `window.datasetApi`. Images are drawn at phase 0, one program at a time,
+ * on the renderer's single reused surface.
  */
 const catalog = createDefaultCatalog();
 const renderer = createBatchRenderer(catalog);
@@ -80,14 +80,14 @@ function sample(count: number, options: SampleOptions) {
     };
 }
 
-const benchApi = { sample, renderGrammar };
+const datasetApi = { sample, renderGrammar };
 
-export type BenchApi = typeof benchApi;
+export type DatasetApi = typeof datasetApi;
 
 declare global {
     interface Window {
-        benchApi?: BenchApi;
+        datasetApi?: DatasetApi;
     }
 }
 
-window.benchApi = benchApi;
+window.datasetApi = datasetApi;

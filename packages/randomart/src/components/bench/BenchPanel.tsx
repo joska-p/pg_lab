@@ -12,41 +12,41 @@ import type { NotebookBatch, NotebookRating } from '../../core/notebook/index.ts
 import {
     CELL_SIZES,
     exportNotebookFile,
-    GALLERY_VIEWS,
+    BENCH_VIEWS,
     importNotebookFile,
-    MAX_GALLERY_COUNT,
-    MAX_GALLERY_SEEDS,
-    newGalleryBatch,
+    MAX_BENCH_COUNT,
+    MAX_BENCH_SEEDS,
+    newBenchBatch,
     openSelectedInLab,
     rateCandidateRow,
-    redrawGallery,
+    redrawBench,
     removeActiveBatch,
     selectBatch,
-    setGalleryCellSize,
-    setGalleryCount,
-    setGalleryDimFlats,
-    setGallerySeeds,
-    setGalleryView,
+    setBenchCellSize,
+    setBenchCount,
+    setBenchDimFlats,
+    setBenchSeeds,
+    setBenchView,
     stepRow,
     toggleCandidateRating,
-    useGalleryActiveBatch,
-    useGalleryError,
-    useGalleryLot,
-    useGalleryNotebook,
-    useGallerySelectedColIndex,
-    useGallerySelectedRowIndex,
-    useGallerySettings,
-} from '../../stores/galleryStore';
-import type { GalleryView } from '../../stores/galleryStore';
+    useBenchActiveBatch,
+    useBenchError,
+    useBenchLot,
+    useBenchNotebook,
+    useBenchSelectedColIndex,
+    useBenchSelectedRowIndex,
+    useBenchSettings,
+} from '../../stores/benchStore';
+import type { BenchView } from '../../stores/benchStore';
 
 const RATINGS: readonly NotebookRating[] = [0, 1, 2, 3, 4, 5];
 
-const VIEW_LABELS: Record<GalleryView, string> = {
+const VIEW_LABELS: Record<BenchView, string> = {
     sheet: 'Sheet',
     row: 'Row',
 };
 
-const VIEW_OPTIONS = GALLERY_VIEWS.map((value) => ({ value, label: VIEW_LABELS[value] }));
+const VIEW_OPTIONS = BENCH_VIEWS.map((value) => ({ value, label: VIEW_LABELS[value] }));
 
 /** Locale-independent stamp: a lot is identified by when it was drawn, not by its list position. */
 function batchStamp(createdAt: string): string {
@@ -72,7 +72,7 @@ function batchLabel(batch: NotebookBatch): string {
 }
 
 /**
- * The gallery panel: everything that _decides_ what to look at or how to judge it.
+ * The bench panel: everything that _decides_ what to look at or how to judge it.
  *
  * The split with the stage is deliberate — the panel holds every control, the stage only shows the
  * planche. Rating follows the same rule as the data model: a note belongs to a **grammar**
@@ -80,14 +80,14 @@ function batchLabel(batch: NotebookBatch): string {
  * (a row, one candidate recipe), never to a single seed; the seeds of a row are views of one
  * grammar.
  */
-export function GalleryPanel() {
-    const { count, seedsPerGrammar, cellSize, view, dimFlats, baseSeed } = useGallerySettings();
-    const notebook = useGalleryNotebook();
-    const activeBatch = useGalleryActiveBatch();
-    const selectedRowIndex = useGallerySelectedRowIndex();
-    const selectedColIndex = useGallerySelectedColIndex();
-    const lot = useGalleryLot();
-    const error = useGalleryError();
+export function BenchPanel() {
+    const { count, seedsPerGrammar, cellSize, view, dimFlats, baseSeed } = useBenchSettings();
+    const notebook = useBenchNotebook();
+    const activeBatch = useBenchActiveBatch();
+    const selectedRowIndex = useBenchSelectedRowIndex();
+    const selectedColIndex = useBenchSelectedColIndex();
+    const lot = useBenchLot();
+    const error = useBenchError();
 
     const candidates = activeBatch?.candidates ?? [];
     const selected = candidates[selectedRowIndex];
@@ -101,16 +101,16 @@ export function GalleryPanel() {
                     <NumberField
                         label="grammars"
                         min={1}
-                        max={MAX_GALLERY_COUNT}
+                        max={MAX_BENCH_COUNT}
                         value={count}
-                        onValueChange={setGalleryCount}
+                        onValueChange={setBenchCount}
                     />
                     <NumberField
                         label="seeds"
                         min={1}
-                        max={MAX_GALLERY_SEEDS}
+                        max={MAX_BENCH_SEEDS}
                         value={seedsPerGrammar}
-                        onValueChange={setGallerySeeds}
+                        onValueChange={setBenchSeeds}
                     />
                 </Grid>
 
@@ -118,14 +118,14 @@ export function GalleryPanel() {
                     label="render size"
                     value={cellSize}
                     options={CELL_SIZES.map((size) => ({ value: size, label: `${size} px` }))}
-                    onValueChange={setGalleryCellSize}
+                    onValueChange={setBenchCellSize}
                 />
 
                 <Grid columns="2" gap="2">
-                    <Button color="aqua" onClick={newGalleryBatch}>
+                    <Button color="aqua" onClick={newBenchBatch}>
                         New batch
                     </Button>
-                    <Button onClick={redrawGallery} disabled={!activeBatch}>
+                    <Button onClick={redrawBench} disabled={!activeBatch}>
                         Redraw
                     </Button>
                 </Grid>
@@ -233,17 +233,17 @@ export function GalleryPanel() {
             ) : null}
 
             <ControlSection title="display">
-                <Segmented<GalleryView>
+                <Segmented<BenchView>
                     label="view"
                     value={view}
                     options={VIEW_OPTIONS}
-                    onValueChange={setGalleryView}
+                    onValueChange={setBenchView}
                 />
 
                 <Checkbox
                     label="Dim collapsed cells"
                     checked={dimFlats}
-                    onCheckedChange={setGalleryDimFlats}
+                    onCheckedChange={setBenchDimFlats}
                 />
 
                 <Text variant="muted">

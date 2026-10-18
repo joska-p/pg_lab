@@ -32,9 +32,9 @@ export interface RenderedBatch {
 }
 
 /**
- * The in-app twin of the bench's GPU half: renders a lot of `(grammar, seed)` images on **one**
- * reused offscreen surface and reads them back. Consumed by the gallery (display) and by
- * `src/bench/page.ts` (the offline dataset pilot), so both go through the exact same pixels.
+ * The in-app twin of the dataset pipeline's GPU half: renders a lot of `(grammar, seed)` images on
+ * **one** reused offscreen surface and reads them back. Consumed by the bench (display) and by
+ * `src/dataset/page.ts` (the offline dataset pilot), so both go through the exact same pixels.
  *
  * Every failure is a value per cell, not an exception: a generated shader the driver refuses is a
  * normal outcome, and one dead cell must not abort a lot. Only building the surface itself can

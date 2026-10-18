@@ -9,7 +9,7 @@ import {
     useDuration,
     useMode,
 } from '../stores/appStore';
-import { GalleryStage } from './gallery/GalleryStage';
+import { BenchStage } from './bench/BenchStage';
 
 export function Scene() {
     const compiledShader = useCompiledShader();
@@ -18,8 +18,8 @@ export function Scene() {
 
     return (
         <ErrorBoundary showStack={import.meta.env.DEV}>
-            {mode === 'gallery' ? (
-                <GalleryStage />
+            {mode === 'bench' ? (
+                <BenchStage />
             ) : (
                 <RandomArtCanvas
                     fragmentShader={compiledShader.source}

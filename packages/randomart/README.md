@@ -10,6 +10,7 @@ You explore grammars more than seeds.
     vp dev                          # app
     vp test                         # unit tests
     sh scripts/validate-glsl.sh     # glslangValidator on the fuzz shaders
+    vp run dataset                  # offline dataset pipeline (see below)
     VITE_MEASURE=1 vp test <name>   # opt-in measurement probes
 
 ## Layout
@@ -26,8 +27,8 @@ You explore grammars more than seeds.
     - `notebook`: rated batches of candidate grammars
     - `analysis`: image descriptors and PCA
 - `src/renderer/`: WebGL through `@repo/glaze` (live canvas, batch renderer)
-- `src/stores/`, `src/components/`: Zustand state and UI (lab, gallery, history)
-- `src/bench/`, `scripts/bench/`: offline dataset pipeline and analysis
+- `src/stores/`, `src/components/`: Zustand state and UI (lab, bench, history)
+- `src/dataset/`, `scripts/dataset/`: offline dataset pipeline and analysis
 
 ## Vocabulary
 
@@ -36,7 +37,30 @@ You explore grammars more than seeds.
 - **expression**: three trees (r, g, b). **node** = tree element, **vertex** = compiler DAG entry
 - **artwork**: expression + optional provenance (grammar, seed). The expression is the reference
 - **notebook / batch / planche**: rated candidates, one rendered lot, its grid
-- **bench / dataset**: the offline pipeline and its git-ignored output
+- **dataset**: the offline pipeline and its git-ignored output
+
+## Dataset workflow
+
+The offline survey of the grammar space: sample grammars, draw them in bulk, describe them — no
+clicking through the bench. The four steps read and write the same directory (`/dataset/`,
+git-ignored), so the pipeline is a chain over one folder:
+
+| step     | command                   | reads              | writes                          |
+| -------- | ------------------------- | ------------------ | ------------------------------- |
+| write    | `vp run dataset:write`    | the running app    | `dataset.json`, `pixels.bin`    |
+| features | `vp run dataset:features` | the dataset        | `features.json`                 |
+| pca      | `vp run dataset:pca`      | dataset + features | `pca.json` + a report on stdout |
+| sheet    | `vp run dataset:sheet`    | the dataset        | `sheet.png`                     |
+
+`vp run dataset` runs the four in order. Each step is a function (`scripts/dataset/*.ts`); the CLI
+is the only file that touches argv or exits (`scripts/dataset/cli.ts`).
+
+- `write` drives a headless Chromium against `dataset.html`. The dev server is started and stopped
+  by the command itself when nothing answers on `--url` (default `http://localhost:5173`).
+- Chromium comes from `$CHROMIUM`, defaulting to `/usr/bin/chromium`; `--mode swiftshader` renders
+  in software when there is no usable GPU.
+- Options follow the command: `vp run dataset:write --count 300 --seeds 8 --size 256`, or
+  `vp run dataset:sheet --grammars 3,17,42,8`.
 
 ## Where the rules live
 

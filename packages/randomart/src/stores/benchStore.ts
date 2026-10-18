@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
-import { buildLotView, EMPTY_LOT } from '../components/gallery/lot.ts';
-import type { LotView } from '../components/gallery/lot.ts';
+import { buildLotView, EMPTY_LOT } from '../components/bench/lot.ts';
+import type { LotView } from '../components/bench/lot.ts';
 import { DEFAULT_CHANNELS } from '../core/color/index.ts';
 import { sampleGrammars } from '../core/grammar/index.ts';
 import {
@@ -28,36 +28,36 @@ export type CellSize = '32' | '64' | '128';
 
 export const CELL_SIZES = ['32', '64', '128'] as const satisfies readonly CellSize[];
 
-export const MAX_GALLERY_COUNT = 16;
-export const MAX_GALLERY_SEEDS = 16;
+export const MAX_BENCH_COUNT = 16;
+export const MAX_BENCH_SEEDS = 16;
 
 /**
  * How the lot is presented. `sheet` is the contact sheet: every grammar, fitted to the stage. `row`
  * is one grammar at native cell size — the regime where a single candidate is actually judged.
  */
-export type GalleryView = 'sheet' | 'row';
+export type BenchView = 'sheet' | 'row';
 
-export const GALLERY_VIEWS = ['sheet', 'row'] as const satisfies readonly GalleryView[];
+export const BENCH_VIEWS = ['sheet', 'row'] as const satisfies readonly BenchView[];
 
 /**
  * Everything that describes _which_ lot to draw and _how_ to show it. Editable in the panel, read
  * by the render action: one master copy, no duplication between the panel and the stage.
  */
-export interface GallerySettings {
+export interface BenchSettings {
     /** Number of candidate grammars: one row each. */
     readonly count: number;
     /** Images per grammar: one column each. */
     readonly seedsPerGrammar: number;
     /** Render resolution of one cell, in pixels. */
     readonly cellSize: CellSize;
-    readonly view: GalleryView;
+    readonly view: BenchView;
     /** Dim collapsed cells instead of hiding them, so the grid never gets holes. */
     readonly dimFlats: boolean;
     /** Base of the sampling draw: the lot is reproducible from it. */
     readonly baseSeed: Seed;
 }
 
-const DEFAULT_SETTINGS: GallerySettings = {
+const DEFAULT_SETTINGS: BenchSettings = {
     count: 8,
     seedsPerGrammar: 8,
     cellSize: '64',
@@ -66,8 +66,8 @@ const DEFAULT_SETTINGS: GallerySettings = {
     baseSeed: createSeed(1),
 };
 
-interface GalleryState {
-    settings: GallerySettings;
+interface BenchState {
+    settings: BenchSettings;
     notebook: Notebook;
     activeBatchId: string | null;
     /** Row of the current grammar; a rating always applies to this whole row. */
@@ -81,11 +81,11 @@ interface GalleryState {
 }
 
 /**
- * The gallery's domain: the lot and how it is drawn. Separate from `appStore` (the workspace:
- * current grammar, expression, history) because the two do not share write authority — the panel
- * edits the lot, the stage shows it, `appStore` never sees it.
+ * The bench's domain: the lot and how it is drawn. Separate from `appStore` (the workspace: current
+ * grammar, expression, history) because the two do not share write authority — the panel edits the
+ * lot, the stage shows it, `appStore` never sees it.
  */
-export const store = create<GalleryState>(() => ({
+export const store = create<BenchState>(() => ({
     settings: DEFAULT_SETTINGS,
     notebook: createNotebook(),
     activeBatchId: null,
@@ -95,15 +95,15 @@ export const store = create<GalleryState>(() => ({
     error: null,
 }));
 
-export function useGallerySettings(): GallerySettings {
+export function useBenchSettings(): BenchSettings {
     return store((state) => state.settings);
 }
 
-export function useGalleryNotebook(): Notebook {
+export function useBenchNotebook(): Notebook {
     return store((state) => state.notebook);
 }
 
-export function useGalleryActiveBatch(): NotebookBatch | undefined {
+export function useBenchActiveBatch(): NotebookBatch | undefined {
     return store((state) => {
         const { notebook, activeBatchId } = state;
         if (!activeBatchId) {
@@ -113,43 +113,43 @@ export function useGalleryActiveBatch(): NotebookBatch | undefined {
     });
 }
 
-export function useGallerySelectedRowIndex(): number {
+export function useBenchSelectedRowIndex(): number {
     return store((state) => state.selectedRowIndex);
 }
 
-export function useGallerySelectedColIndex(): number {
+export function useBenchSelectedColIndex(): number {
     return store((state) => state.selectedColIndex);
 }
 
-export function useGalleryLot(): LotView {
+export function useBenchLot(): LotView {
     return store((state) => state.lot);
 }
 
-export function useGalleryError(): string | null {
+export function useBenchError(): string | null {
     return store((state) => state.error);
 }
 
-function patchSettings(patch: Partial<GallerySettings>): void {
+function patchSettings(patch: Partial<BenchSettings>): void {
     store.setState((state) => ({ settings: { ...state.settings, ...patch } }));
 }
 
-export function setGalleryCount(count: number): void {
+export function setBenchCount(count: number): void {
     patchSettings({ count });
 }
 
-export function setGallerySeeds(seedsPerGrammar: number): void {
+export function setBenchSeeds(seedsPerGrammar: number): void {
     patchSettings({ seedsPerGrammar });
 }
 
-export function setGalleryCellSize(cellSize: CellSize): void {
+export function setBenchCellSize(cellSize: CellSize): void {
     patchSettings({ cellSize });
 }
 
-export function setGalleryView(view: GalleryView): void {
+export function setBenchView(view: BenchView): void {
     patchSettings({ view });
 }
 
-export function setGalleryDimFlats(dimFlats: boolean): void {
+export function setBenchDimFlats(dimFlats: boolean): void {
     patchSettings({ dimFlats });
 }
 
@@ -251,7 +251,7 @@ function renderNewLot(base: Seed): void {
 }
 
 /** "New batch": draws fresh candidate grammars and appends them to the notebook. */
-export function newGalleryBatch(): void {
+export function newBenchBatch(): void {
     const baseSeed = randomSeed();
 
     store.setState((state) => ({ settings: { ...state.settings, baseSeed } }));
@@ -259,7 +259,7 @@ export function newGalleryBatch(): void {
 }
 
 /** "Redraw": redraws the active batch at the current render size. */
-export function redrawGallery(): void {
+export function redrawBench(): void {
     const state = store.getState();
     const activeBatch =
         state.notebook.batches.find((b) => b.id === state.activeBatchId) ??
@@ -416,7 +416,7 @@ export async function importNotebookFile(file: File): Promise<void> {
 
 /**
  * Opens the selected cell (grammar + seed) in Lab mode. It reuses the app's own artwork pipeline,
- * so nothing is invented here: the gallery hands the pair over and leaves.
+ * so nothing is invented here: the bench hands the pair over and leaves.
  */
 export function openSelectedInLab(): void {
     const state = store.getState();
@@ -444,7 +444,7 @@ export function openSelectedInLab(): void {
 }
 
 /** Loads notebook from IndexedDB on startup. */
-export async function initGalleryNotebook(): Promise<void> {
+export async function initBenchNotebook(): Promise<void> {
     try {
         const loaded = await loadNotebookFromDb(catalog);
 
