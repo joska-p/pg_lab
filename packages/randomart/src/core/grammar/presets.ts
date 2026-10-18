@@ -35,7 +35,7 @@ export function grammarSignature(grammar: Grammar): string {
     });
 }
 
-const PRESET_RECIPES: readonly {
+export const PRESET_RECIPES: readonly {
     id: string;
     label: string;
     description: string;
@@ -45,25 +45,25 @@ const PRESET_RECIPES: readonly {
         id: 'structure',
         label: 'Structure',
         description: 'Calibrated start: a shallow shared trunk read as OKLCH.',
-        recipe: STRUCTURE_RECIPE,
+        recipe: { ...STRUCTURE_RECIPE, motion: 'drift' },
     },
     {
         id: 'mono',
         label: 'Mono',
         description: 'One fully shared tree: pure greyscale structure.',
-        recipe: { ...STRUCTURE_RECIPE, share: 'mono' },
+        recipe: { ...STRUCTURE_RECIPE, share: 'mono', motion: 'drift' },
     },
     {
         id: 'oklab',
         label: 'OKLab',
         description: 'The same shared trunk in OKLab: flatter, more even colour.',
-        recipe: { ...STRUCTURE_RECIPE, space: 'oklab' },
+        recipe: { ...STRUCTURE_RECIPE, space: 'oklab', motion: 'pulse' },
     },
     {
         id: 'rgb',
         label: 'Raw RGB',
         description: 'Three independent channels in sRGB: colour and shape drift apart.',
-        recipe: { ...STRUCTURE_RECIPE, share: 0, space: 'srgb' },
+        recipe: { ...STRUCTURE_RECIPE, share: 0, space: 'srgb', motion: 'swing' },
     },
 ];
 

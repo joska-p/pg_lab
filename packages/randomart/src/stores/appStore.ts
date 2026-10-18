@@ -22,13 +22,7 @@ import { compile } from '../core/compiler/index.ts';
 import type { CompiledShader } from '../core/compiler/index.ts';
 import type { Expression } from '../core/expression/index.ts';
 import { generate, GENERATOR_VERSION } from '../core/generator/index.ts';
-import {
-    describeGrammar,
-    randomRecipe,
-    recipeOf,
-    recipeToGrammar,
-    STRUCTURE_RECIPE,
-} from '../core/grammar/index.ts';
+import { describeGrammar, randomRecipe, recipeOf, recipeToGrammar } from '../core/grammar/index.ts';
 import type {
     FamilyId,
     Grammar,
@@ -38,10 +32,13 @@ import type {
     SizeProfileId,
     WeightLevel,
 } from '../core/grammar/index.ts';
+import { PRESET_RECIPES } from '../core/grammar/presets.ts';
+import type { MotionLevel } from '../core/motion/motion.ts';
 import { createRng, createSeed, randomSeed } from '../core/random/index.ts';
 import type { Seed } from '../core/random/index.ts';
 import { DEFAULT_LOOP_DURATION } from '../renderer/contract.ts';
 import { catalog } from './catalogueStore.ts';
+
 /**
  * One explored state: enough to get the exact same image back. Generated entries replay from
  * `(grammar, seed)`; imported artworks keep their expression (it is the reference).
@@ -63,7 +60,7 @@ const HISTORY_LIMIT = 30;
 
 // Time terminals are always in the default vocabulary: one seed = one expression = one shader.
 // Animation is a matter of playback (Play/Pause on the clock), not of grammar.
-const initialRecipe = STRUCTURE_RECIPE;
+const initialRecipe = PRESET_RECIPES[0].recipe;
 const initialGrammar = recipeToGrammar(catalog, initialRecipe);
 const initialSeed = createSeed(42);
 const initialExpression = generate(catalog, initialGrammar, initialSeed);
@@ -319,6 +316,10 @@ export function setRecipeShare(share: ShareChoice): void {
 
 export function setRecipeSpace(space: ColorSpaceId): void {
     editRecipe((recipe) => ({ ...recipe, space }));
+}
+
+export function setRecipeMotion(motion: MotionLevel): void {
+    editRecipe((recipe) => ({ ...recipe, motion }));
 }
 
 /**

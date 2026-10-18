@@ -18,10 +18,13 @@ import type {
     SizeProfileId,
     WeightLevel,
 } from '../../core/grammar/index.ts';
+import { MOTION_LEVELS } from '../../core/motion/index.ts';
+import type { MotionLevel } from '../../core/motion/index.ts';
 import {
     applyRecipe,
     newGrammar,
     setRecipeLevel,
+    setRecipeMotion,
     setRecipeShare,
     setRecipeSize,
     setRecipeSpace,
@@ -52,6 +55,10 @@ const SHARE_OPTIONS = SHARE_CHOICES.map((choice) => ({
     label: String(choice),
 }));
 const SPACE_OPTIONS = COLOR_SPACE_IDS.map((id) => ({ value: id, label: COLOR_SPACES[id].label }));
+const MOTION_OPTIONS = MOTION_LEVELS.map((level) => ({
+    value: level,
+    label: level,
+}));
 
 function levelOptions(family: FamilyId) {
     return (family === 'anchors' ? ANCHOR_LEVELS : WEIGHT_LEVELS).map((level) => ({
@@ -109,7 +116,7 @@ export function GrammarSection() {
                 ))}
             </Grid>
 
-            <Grid columns="3" gap="2">
+            <Grid columns="2" gap="2">
                 <Select<SizeProfileId>
                     label="size"
                     value={recipe.size}
@@ -124,11 +131,20 @@ export function GrammarSection() {
                         setRecipeShare(value === 'mono' ? 'mono' : (Number(value) as ShareChoice));
                     }}
                 />
+            </Grid>
+
+            <Grid columns="2" gap="2">
                 <Select<ColorSpaceId>
                     label="color"
                     value={recipe.space}
                     options={SPACE_OPTIONS}
                     onValueChange={setRecipeSpace}
+                />
+                <Select<MotionLevel>
+                    label="motion"
+                    value={recipe.motion}
+                    options={MOTION_OPTIONS}
+                    onValueChange={setRecipeMotion}
                 />
             </Grid>
         </Grid>
