@@ -11,7 +11,13 @@ export {
     weightOf,
 } from './grammar.ts';
 export { DEFAULT_KEEP, randomizeWeights, type RandomizeWeightsOptions } from './randomize.ts';
-export { grammarPresets, grammarSignature, presetIdOf, type GrammarPreset } from './presets.ts';
+export {
+    grammarPresets,
+    grammarSignature,
+    presetIdOf,
+    STRUCTURE_RECIPE,
+    type GrammarPreset,
+} from './presets.ts';
 export { randomGrammar, type RandomGrammarOptions } from './randomGrammar.ts';
 export { sampleGrammars, type SampledGrammar, type SampleOptions } from './sample.ts';
 export {
@@ -32,6 +38,7 @@ export {
     PROFILE_IDS,
     randomRecipe,
     recipeKey,
+    recipeOf,
     recipeToGrammar,
     SHARE_CHOICES,
     SIZE_PROFILES,

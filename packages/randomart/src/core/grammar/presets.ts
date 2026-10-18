@@ -1,22 +1,31 @@
 import type { Catalog } from '../catalog/index.ts';
-import { RAW_CHANNELS } from '../color/index.ts';
-import type { ChannelModel } from '../color/index.ts';
-import { createGrammar, defaultGrammar } from './grammar.ts';
+import { recipeKey, recipeToGrammar } from './quantized.ts';
+import type { Recipe } from './quantized.ts';
 import type { Grammar } from './types.ts';
 
 export interface GrammarPreset {
     readonly id: string;
     readonly label: string;
-    /** One line for the UI: what this recipe is for. */
     readonly description: string;
+    readonly recipe: Recipe;
     readonly grammar: Grammar;
 }
 
-/**
- * Canonical text of a grammar for identity comparison. Weights are already sorted by
- * `createGrammar`, constraints and channels have a fixed key order, so equal grammars give equal
- * text. Used to tell which built-in recipe (if any) the current grammar is, or as a cache key.
- */
+/** Quantized reading of the calibrated default: the app's starting point. */
+export const STRUCTURE_RECIPE: Recipe = {
+    levels: {
+        anchors: 'high',
+        extrema: 'high',
+        arithmetic: 'low',
+        trigonometry: 'normal',
+        logic: 'low',
+        warp: 'low',
+    },
+    size: 'medium',
+    share: 2,
+    space: 'oklch',
+};
+
 export function grammarSignature(grammar: Grammar): string {
     return JSON.stringify({
         weights: grammar.weights,
@@ -25,59 +34,48 @@ export function grammarSignature(grammar: Grammar): string {
     });
 }
 
-/**
- * The built-in recipes of the play mode. They all reuse the calibrated `defaultGrammar` weights and
- * differ in their channel model — how the triplet becomes colour (`space`) and how much structure
- * the three channels share (`shareDepth`) are both part of the grammar, so this is a real recipe
- * dimension, not a display option.
- *
- * These are provisional, hand-picked starting points: the recipes actually discovered by the lab
- * (contact sheets, rating, weight adjustment) will extend or replace this list.
- */
-export function grammarPresets(catalog: Catalog): readonly GrammarPreset[] {
-    const base = defaultGrammar(catalog);
-    const withChannels = (channels: ChannelModel): Grammar =>
-        createGrammar(catalog, {
-            weights: base.weights,
-            constraints: base.constraints,
-            channels,
-        });
+const PRESET_RECIPES: readonly {
+    id: string;
+    label: string;
+    description: string;
+    recipe: Recipe;
+}[] = [
+    {
+        id: 'structure',
+        label: 'Structure',
+        description: 'Calibrated start: a shallow shared trunk read as OKLCH.',
+        recipe: STRUCTURE_RECIPE,
+    },
+    {
+        id: 'mono',
+        label: 'Mono',
+        description: 'One fully shared tree: pure greyscale structure.',
+        recipe: { ...STRUCTURE_RECIPE, share: 'mono' },
+    },
+    {
+        id: 'oklab',
+        label: 'OKLab',
+        description: 'The same shared trunk in OKLab: flatter, more even colour.',
+        recipe: { ...STRUCTURE_RECIPE, space: 'oklab' },
+    },
+    {
+        id: 'rgb',
+        label: 'Raw RGB',
+        description: 'Three independent channels in sRGB: colour and shape drift apart.',
+        recipe: { ...STRUCTURE_RECIPE, share: 0, space: 'srgb' },
+    },
+];
 
-    return [
-        {
-            id: 'structure',
-            label: 'Structure',
-            description: 'Calibrated default: a shallow shared trunk read as OKLCH.',
-            grammar: base,
-        },
-        {
-            id: 'mono',
-            label: 'Mono',
-            description: 'One fully shared tree: pure greyscale structure.',
-            // `shareDepth = maxDepth` means no channel ever diverges, so `r = g = b`.
-            grammar: withChannels({ space: 'oklch', shareDepth: base.constraints.maxDepth }),
-        },
-        {
-            id: 'oklab',
-            label: 'OKLab',
-            description: 'The same shared trunk in OKLab: flatter, more even colour.',
-            grammar: withChannels({ space: 'oklab', shareDepth: 2 }),
-        },
-        {
-            id: 'rgb',
-            label: 'Raw RGB',
-            description: 'Three independent channels in sRGB: colour and shape drift apart.',
-            grammar: withChannels(RAW_CHANNELS),
-        },
-    ];
+export function grammarPresets(catalog: Catalog): readonly GrammarPreset[] {
+    return PRESET_RECIPES.map((preset) => ({
+        ...preset,
+        grammar: recipeToGrammar(catalog, preset.recipe),
+    }));
 }
 
-/** The id of the preset the grammar matches exactly, or `undefined` for a custom grammar. */
-export function presetIdOf(
-    presets: readonly GrammarPreset[],
-    grammar: Grammar,
-): string | undefined {
-    const text = grammarSignature(grammar);
+/** The id of the preset the recipe equals, or `undefined`: the select then reads "Custom". */
+export function presetIdOf(presets: readonly GrammarPreset[], recipe: Recipe): string | undefined {
+    const key = recipeKey(recipe);
 
-    return presets.find((preset) => grammarSignature(preset.grammar) === text)?.id;
+    return presets.find((preset) => recipeKey(preset.recipe) === key)?.id;
 }

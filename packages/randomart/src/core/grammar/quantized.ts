@@ -3,7 +3,7 @@ import { COLOR_SPACE_IDS } from '../color/index.ts';
 import type { ColorSpaceId } from '../color/index.ts';
 import { createRng } from '../random/index.ts';
 import type { Rng, Seed } from '../random/index.ts';
-import { createGrammar } from './grammar.ts';
+import { createGrammar, weightOf } from './grammar.ts';
 import { deriveSeed } from './sample.ts';
 import type { ConstraintsInput, Grammar } from './types.ts';
 
@@ -192,4 +192,47 @@ export function sampleRecipes(
     }
 
     return sampled;
+}
+
+const ANCHOR_OK: readonly WeightLevel[] = ['normal', 'high'];
+
+/** Exact inverse of `recipeToGrammar`; `null` when the grammar is not a point of the space. */
+export function recipeOf(grammar: Grammar): Recipe | null {
+    const levels = {} as Record<FamilyId, WeightLevel>;
+
+    for (const family of FAMILY_IDS) {
+        const weights = FAMILY_OPERATORS[family].map((name) => weightOf(grammar.weights, name));
+        const level = WEIGHT_LEVELS.find((candidate) =>
+            weights.every((weight) => weight === LEVEL_WEIGHT[candidate]),
+        );
+
+        if (!level || (family === 'anchors' && !ANCHOR_OK.includes(level))) {
+            return null;
+        }
+
+        levels[family] = level;
+    }
+
+    if (FAMILY_OPERATORS.time.some((name) => weightOf(grammar.weights, name) !== 0)) {
+        return null;
+    }
+
+    const { minDepth, maxDepth, maxNodes } = grammar.constraints;
+    const size = PROFILE_IDS.find((id) => {
+        const profile = SIZE_PROFILES[id];
+
+        return (
+            profile.minDepth === minDepth &&
+            profile.maxDepth === maxDepth &&
+            profile.maxNodes === maxNodes
+        );
+    });
+    const { shareDepth, space } = grammar.channels;
+    const share = shareDepth >= maxDepth ? 'mono' : SHARE_CHOICES.find((c) => c === shareDepth);
+
+    if (!size || share === undefined) {
+        return null;
+    }
+
+    return { levels, size, share, space };
 }

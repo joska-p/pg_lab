@@ -2,12 +2,14 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../catalog/index.ts';
 import { generate } from '../generator/index.ts';
+import { defaultGrammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';
 import {
     FAMILY_IDS,
     FAMILY_OPERATORS,
     LEVEL_WEIGHT,
     recipeKey,
+    recipeOf,
     recipeToGrammar,
     sampleRecipes,
 } from './quantized.ts';
@@ -87,5 +89,17 @@ describe('recipeToGrammar', () => {
         });
 
         expect(grammar.channels.shareDepth).toBe(grammar.constraints.maxDepth);
+    });
+});
+
+describe('recipeOf', () => {
+    it('inverts recipeToGrammar on sampled recipes', () => {
+        for (const { recipe, grammar } of sampleRecipes(catalog, 100)) {
+            expect(recipeOf(grammar)).toEqual(recipe);
+        }
+    });
+
+    it('refuses a grammar outside the space', () => {
+        expect(recipeOf(defaultGrammar(catalog))).toBeNull();
     });
 });

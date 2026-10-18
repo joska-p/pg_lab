@@ -5,7 +5,6 @@ import { GrammarSection } from './GrammarSection';
 import { Inspector } from './Inspector';
 import { PlaybackSection } from './PlaybackSection';
 import { SessionSection } from './SessionSection';
-import { VocabularySection } from './VocabularySection';
 
 /**
  * The unified lab (workshop) panel: orchestrates generation, recipe presets, tree constraints,
@@ -17,7 +16,6 @@ export function LabPanel() {
             <SessionSection />
             <PlaybackSection />
             <GrammarSection />
-            <VocabularySection />
             <ArtworkSection />
             <Inspector />
         </Grid>

@@ -1,80 +1,139 @@
 import { Button } from '@repo/ui/components/Button';
 import { FileInput } from '@repo/ui/components/FileInput';
 import { Grid } from '@repo/ui/components/Grid';
-import { NumberField } from '@repo/ui/components/NumberField';
 import { Select } from '@repo/ui/components/Select';
 
-import { COLOR_SPACE_IDS, COLOR_SPACES, MIN_SHARE_DEPTH } from '../../core/color/index.ts';
+import { COLOR_SPACE_IDS, COLOR_SPACES } from '../../core/color/index.ts';
 import type { ColorSpaceId } from '../../core/color/index.ts';
-import { MAX_DEPTH, MAX_NODES, grammarPresets, presetIdOf } from '../../core/grammar/index.ts';
 import {
-    applyGrammar,
+    FAMILY_IDS,
+    grammarPresets,
+    PROFILE_IDS,
+    presetIdOf,
+    SHARE_CHOICES,
+    WEIGHT_LEVELS,
+} from '../../core/grammar/index.ts';
+import type {
+    FamilyId,
+    ShareChoice,
+    SizeProfileId,
+    WeightLevel,
+} from '../../core/grammar/index.ts';
+import {
+    applyRecipe,
     exportGrammarFile,
     importGrammarFile,
-    newDistribution,
-    resetGrammar,
-    setChannels,
-    setConstraints,
-    useGrammar,
+    newGrammar,
+    setRecipeLevel,
+    setRecipeShare,
+    setRecipeSize,
+    setRecipeSpace,
+    useRecipe,
 } from '../../stores/appStore';
 import { catalog } from '../../stores/catalogueStore.ts';
 
 const PRESETS = grammarPresets(catalog);
-const CUSTOM_PRESET = {
-    id: 'custom',
-    label: 'Custom',
-    description: 'Your own grammar, with custom weights and constraints.',
-    grammar: null,
-};
-const RECIPE_OPTIONS = [
-    ...PRESETS.map((preset) => ({
-        value: preset.id,
-        label: preset.label,
-    })),
-    { value: CUSTOM_PRESET.id, label: CUSTOM_PRESET.label },
+const CUSTOM_ID = 'custom';
+const PRESET_OPTIONS = [
+    ...PRESETS.map((preset) => ({ value: preset.id, label: preset.label })),
+    { value: CUSTOM_ID, label: 'Custom' },
 ];
 
+const FAMILY_LABELS: Record<FamilyId, string> = {
+    anchors: 'anchors (x, y)',
+    extrema: 'min / max',
+    arithmetic: 'arithmetic',
+    trigonometry: 'trigonometry',
+    logic: 'logic',
+    warp: 'warp',
+};
+const ANCHOR_LEVELS: readonly WeightLevel[] = ['normal', 'high'];
+
+const SIZE_OPTIONS = PROFILE_IDS.map((id) => ({ value: id, label: id }));
+const SHARE_OPTIONS = SHARE_CHOICES.map((choice) => ({
+    value: String(choice),
+    label: String(choice),
+}));
+const SPACE_OPTIONS = COLOR_SPACE_IDS.map((id) => ({ value: id, label: COLOR_SPACES[id].label }));
+
+function levelOptions(family: FamilyId) {
+    return (family === 'anchors' ? ANCHOR_LEVELS : WEIGHT_LEVELS).map((level) => ({
+        value: level,
+        label: level,
+    }));
+}
+
 /**
- * The grammar workshop: recipe presets, structural constraints, channel sharing, and grammar-level
- * serialization actions.
+ * The grammar workshop: one story. The grammar is a quantized recipe; a preset is a named recipe,
+ * and the select reads "Custom" as soon as a knob moves away from every preset.
  */
 export function GrammarSection() {
-    const grammar = useGrammar();
-
-    const currentPresetId = presetIdOf(PRESETS, grammar);
-    const currentPreset = PRESETS.find((preset) => preset.id === currentPresetId) ?? CUSTOM_PRESET;
+    const recipe = useRecipe();
+    const presetId = presetIdOf(PRESETS, recipe);
+    const preset = PRESETS.find((candidate) => candidate.id === presetId);
 
     return (
         <Grid columns="1" gap="3">
-            {/* ── Recipe presets ── */}
             <Select
-                title={currentPreset?.description}
-                value={currentPresetId ?? CUSTOM_PRESET.id}
-                options={RECIPE_OPTIONS}
+                title={preset?.description ?? 'A recipe that is not one of the presets.'}
+                value={presetId ?? CUSTOM_ID}
+                options={PRESET_OPTIONS}
                 onValueChange={(id) => {
-                    const preset = PRESETS.find((candidate) => candidate.id === id);
-                    if (preset) {
-                        applyGrammar(preset.grammar);
+                    const chosen = PRESETS.find((candidate) => candidate.id === id);
+
+                    if (chosen) {
+                        applyRecipe(chosen.recipe);
                     }
                 }}
             />
 
-            {/* ── Grammar actions & summary ── */}
+            <Button
+                color="aqua"
+                onClick={() => {
+                    newGrammar();
+                }}
+            >
+                New grammar
+            </Button>
+
             <Grid columns="2" gap="2">
-                <Button
-                    onClick={() => {
-                        newDistribution();
+                {FAMILY_IDS.map((family) => (
+                    <Select<WeightLevel>
+                        key={family}
+                        label={FAMILY_LABELS[family]}
+                        value={recipe.levels[family]}
+                        options={levelOptions(family)}
+                        onValueChange={(level) => {
+                            setRecipeLevel(family, level);
+                        }}
+                    />
+                ))}
+            </Grid>
+
+            <Grid columns="3" gap="2">
+                <Select<SizeProfileId>
+                    label="size"
+                    value={recipe.size}
+                    options={SIZE_OPTIONS}
+                    onValueChange={setRecipeSize}
+                />
+                <Select
+                    label="shareDepth"
+                    value={String(recipe.share)}
+                    options={SHARE_OPTIONS}
+                    onValueChange={(value) => {
+                        setRecipeShare(value === 'mono' ? 'mono' : (Number(value) as ShareChoice));
                     }}
-                >
-                    New weights
-                </Button>
-                <Button
-                    onClick={() => {
-                        resetGrammar();
-                    }}
-                >
-                    Reset
-                </Button>
+                />
+                <Select<ColorSpaceId>
+                    label="color space"
+                    value={recipe.space}
+                    options={SPACE_OPTIONS}
+                    onValueChange={setRecipeSpace}
+                />
+            </Grid>
+
+            <Grid columns="2" gap="2">
                 <Button
                     onClick={() => {
                         exportGrammarFile();
@@ -90,57 +149,6 @@ export function GrammarSection() {
                 >
                     Import
                 </FileInput>
-            </Grid>
-
-            {/* ── Tree constraints ── */}
-            <Grid columns="3" gap="2">
-                <NumberField
-                    label="minDepth"
-                    min={1}
-                    max={MAX_DEPTH}
-                    value={grammar.constraints.minDepth}
-                    onValueChange={(value) => {
-                        setConstraints({ minDepth: value });
-                    }}
-                />
-                <NumberField
-                    label="maxDepth"
-                    min={1}
-                    max={MAX_DEPTH}
-                    value={grammar.constraints.maxDepth}
-                    onValueChange={(value) => {
-                        setConstraints({ maxDepth: value });
-                    }}
-                />
-                <NumberField
-                    label="maxNodes"
-                    min={1}
-                    max={MAX_NODES}
-                    value={grammar.constraints.maxNodes}
-                    onValueChange={(value) => {
-                        setConstraints({ maxNodes: value });
-                    }}
-                />
-            </Grid>
-
-            {/* ── Channels ── */}
-            <Grid gap="2" columns="2">
-                <Select<ColorSpaceId>
-                    label="color space"
-                    value={grammar.channels.space}
-                    options={COLOR_SPACE_IDS.map((id) => ({
-                        value: id,
-                        label: COLOR_SPACES[id].label,
-                    }))}
-                    onValueChange={(space) => setChannels({ ...grammar.channels, space })}
-                />
-                <NumberField
-                    label="shareDepth"
-                    min={MIN_SHARE_DEPTH}
-                    max={grammar.constraints.maxDepth}
-                    value={grammar.channels.shareDepth}
-                    onValueChange={(shareDepth) => setChannels({ ...grammar.channels, shareDepth })}
-                />
             </Grid>
         </Grid>
     );

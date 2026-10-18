@@ -1,22 +1,29 @@
 import { Button } from '@repo/ui/components/Button';
-import { ControlField } from '@repo/ui/components/ControlField';
+import { Grid } from '@repo/ui/components/Grid';
+import { TextInput } from '@repo/ui/components/TextInput';
 
-import { newImage, useCompiledShader, useSeed } from '../../stores/appStore';
+import { createSeed } from '../../core/random/index.ts';
+import { newSeed, useSeed } from '../../stores/appStore';
 
 /** Image generation: generates a new artwork from the current grammar. */
 export function SessionSection() {
     const seed = useSeed();
-    const compiledShader = useCompiledShader();
 
     return (
-        <ControlField label={`Seed: ${seed} • ${compiledShader.stats.nodes} nodes`}>
+        <Grid columns="2" gap="2">
+            <TextInput
+                value={String(seed)}
+                onValueChange={(value) => {
+                    newSeed(createSeed(Number(value)));
+                }}
+            />
             <Button
                 onClick={() => {
-                    newImage();
+                    newSeed();
                 }}
             >
-                New image
+                New seed
             </Button>
-        </ControlField>
+        </Grid>
     );
 }

@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vite-plus/test';
 import { createDefaultCatalog } from '../catalog/index.ts';
 import { generate } from '../generator/index.ts';
 import { createSeed } from '../random/index.ts';
-import { createGrammar } from './grammar.ts';
 import { grammarPresets, presetIdOf } from './presets.ts';
 
 const catalog = createDefaultCatalog();
@@ -23,18 +22,13 @@ describe('grammarPresets', () => {
 
     it('is recognized by presetIdOf', () => {
         for (const preset of presets) {
-            expect(presetIdOf(presets, preset.grammar)).toBe(preset.id);
+            expect(presetIdOf(presets, preset.recipe)).toBe(preset.id);
         }
     });
 
-    it('reports an undefined id for a grammar that matches no preset', () => {
-        const base = presets[0].grammar;
-        const custom = createGrammar(catalog, {
-            weights: { ...base.weights, x: 9 },
-            constraints: base.constraints,
-            channels: base.channels,
-        });
+    it('reports an undefined id once a knob moved', () => {
+        const base = presets[0].recipe;
 
-        expect(presetIdOf(presets, custom)).toBeUndefined();
+        expect(presetIdOf(presets, { ...base, size: 'large' })).toBeUndefined();
     });
 });
