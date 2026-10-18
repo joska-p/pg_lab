@@ -4,7 +4,7 @@ import { createDefaultCatalog } from '../catalog/index.ts';
 import { createExpression, createNode } from '../expression/index.ts';
 import { lower } from './lower.ts';
 
-describe('lower (MP3·S1)', () => {
+describe('lower', () => {
     const catalog = createDefaultCatalog();
 
     describe('topological ordering and structure', () => {
@@ -40,7 +40,7 @@ describe('lower (MP3·S1)', () => {
         });
     });
 
-    describe('hash-consing / deduplication (D22)', () => {
+    describe('hash-consing / deduplication', () => {
         it('deduplicates identical sub-expressions across channels', () => {
             const x = createNode(catalog, 'x');
             const y = createNode(catalog, 'y');
@@ -84,7 +84,7 @@ describe('lower (MP3·S1)', () => {
         });
     });
 
-    describe('usages counting (D29)', () => {
+    describe('usages counting', () => {
         it('adds +1 usage per channel root', () => {
             const x = createNode(catalog, 'x');
             const y = createNode(catalog, 'y');
@@ -167,7 +167,7 @@ describe('lower (MP3·S1)', () => {
         });
     });
 
-    describe('coordinate contexts and interning (MP3·S3 §5.1, §8.3)', () => {
+    describe('coordinate contexts and interning', () => {
         it('lowers warp node into a child context c1', () => {
             const dx = createNode(catalog, 'const', [], [0.1]);
             const dy = createNode(catalog, 'const', [], [0.2]);
@@ -204,7 +204,7 @@ describe('lower (MP3·S1)', () => {
             expect(result.contexts[0].name).toBe('c1');
         });
 
-        it('§8.3 produces two vertices for same terminal in different contexts', () => {
+        it('produces two vertices for same terminal in different contexts', () => {
             const dx1 = createNode(catalog, 'const', [], [0.1]);
             const dy1 = createNode(catalog, 'const', [], [0.2]);
             const dx2 = createNode(catalog, 'const', [], [0.3]);

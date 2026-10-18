@@ -1,5 +1,13 @@
 import type { ChannelModel } from '../color/index.ts';
 
+/**
+ * Sharing policy for lowered vertices.
+ *
+ * - None: everything inline, shared vertices are copied (can blow up exponentially with
+ *   high-multiplicity operators like sqr or mix, hence MAX_SOURCE_LENGTH).
+ * - Shared (default): a vertex gets a variable if used at least twice and its text is not an atom.
+ * - All: every vertex is named, leaving the choice to the driver.
+ */
 export type SharingPolicy = 'shared' | 'all' | 'none';
 
 export interface CompileOptions {

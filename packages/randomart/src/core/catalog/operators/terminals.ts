@@ -24,6 +24,7 @@ export const terminals = {
         requires: ['u_phase'],
         glsl: () => 'sin(2.0*PI*u_phase)',
     }),
+    // `tsin` and `tcos` are exactly periodic in `u_phase`, so any loop duration loops cleanly.
     tcos: defineOperator({
         label: 'Time cosine',
         group: 'terminal',

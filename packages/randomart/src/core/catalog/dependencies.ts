@@ -1,3 +1,5 @@
+// Naming: uniforms are `u_*`, helper functions are `ra_*`, no `__`. Names reserved by the
+// compiler: `v<n>`, `c<n>`, `v_p`, `o_color`, `PI`, `main`.
 export type DependencySpec<Id extends string = string> =
     | { readonly kind: 'uniform'; readonly glslType: 'float' }
     | { readonly kind: 'function'; readonly code: string; readonly requires?: readonly Id[] };

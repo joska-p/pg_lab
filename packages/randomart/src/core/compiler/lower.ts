@@ -3,6 +3,11 @@
  *
  * Multiplicities are owned by `Operator` (probed once, at catalog construction), so lowering only
  * walks the three-channel expression into a shared DAG and interned coordinate contexts.
+ *
+ * Vocabulary: a _node_ is an element of an expression tree; a _vertex_ is an entry of the shared
+ * DAG (key = context, operator, params, input ids); a _value_ is a number in [-1, 1]. A terminal
+ * that does not depend on coordinates is duplicated per context; harmless, the driver folds
+ * constants.
  */
 
 import type { Catalog } from '../catalog/index.ts';
@@ -70,7 +75,7 @@ export interface LowerResult {
 export const ROOT_CTX = 'root';
 
 // ---------------------------------------------------------------------------
-// Lowering (spec §5.1) — with interned coordinate contexts
+// Lowering — with interned coordinate contexts
 // ---------------------------------------------------------------------------
 
 /** Lowers the three-channel expression into a shared DAG vertex table and interned contexts. */

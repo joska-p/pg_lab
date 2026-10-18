@@ -13,6 +13,11 @@ type Named<K extends string, V> = Readonly<Record<K, V>>;
  * A registry entry: pure data plus the two text builders. `P`, `I`, `N` are inferred from the
  * literal by `defineOperator`, so `args` and `params` are precisely typed inside the builders; `D`
  * is the set of dependency ids `requires` may name.
+ *
+ * Contract: every operator takes inputs in [-1, 1] and returns a finite value in [-1, 1] (to
+ * ~1e-6), for any input, with no error case. That is why there is no raw log, sqrt, tan or
+ * division. `coords` must return coordinates inside [-1, 1]², hence `ra_fold2`. GLSL is the only
+ * semantics: there is no CPU evaluator.
  */
 export interface OperatorSpec<
     P extends string = string,

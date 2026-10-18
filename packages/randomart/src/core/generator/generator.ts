@@ -6,6 +6,9 @@ import type { Grammar } from '../grammar/index.ts';
 import { createRng } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
 
+// Increment on any change that alters the output for a given seed: PRNG algorithm, order in which
+// random numbers are consumed (operator draw, then one draw per param, then children left to right,
+// channels r, g, b), the draw rule, or rounding. A seed is only meaningful with one version.
 export const GENERATOR_VERSION = 3;
 
 /**
@@ -33,6 +36,10 @@ interface TrunkResult {
  * budget is still per channel: the shared levels hand each channel the same budget, and a divergent
  * slot is accounted for at its widest channel, so every channel satisfies `maxNodes` and
  * `minDepth`.
+ *
+ * It cannot get stuck on a valid grammar: each node receives a budget B >= minSize(depth), so a
+ * candidate always exists (the smallest-arity non-terminal before minDepth, a terminal after). The
+ * budget is split as m + floor(free / (k - i)); the last child gets the remainder.
  */
 export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expression {
     const rng = createRng(seed);

@@ -7,10 +7,9 @@ import { defaultGrammar, createGrammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';
 
 /**
- * Opt-in probe for lot H's "budget distribution" question (grammar-generator-spec §10): the split
- * `m + floor(libre / (k - i))` leaves the remainder to the last child, so the rightmost subtree may
- * be systematically larger. This measures that bias (and tree size/depth, to inform the default
- * constraints).
+ * Opt-in probe for the "budget distribution" question: the split `m + floor(libre / (k - i))`
+ * leaves the remainder to the last child, so the rightmost subtree may be systematically larger.
+ * This measures that bias (and tree size/depth, to inform the default constraints).
  *
  *     VITE_MEASURE=1 vp test budget
  *

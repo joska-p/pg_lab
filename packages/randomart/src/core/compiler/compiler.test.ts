@@ -235,9 +235,9 @@ describe('compiler', () => {
             expect(() => compile(testCatalog, expr)).toThrow(/exceeds MAX_SOURCE_LENGTH/);
         });
 
-        // ── §8.2 — Cross-channel sharing ────────────────────────────────────
+        // ── Cross-channel sharing ────────────────────────────────────
 
-        it('§8.2 shares a sub-expression used in two channels (policy=shared)', () => {
+        it('shares a sub-expression used in two channels (policy=shared)', () => {
             const x = createNode(catalog, 'x');
             const sinX = createNode(catalog, 'sin', [x]);
             const y = createNode(catalog, 'y');
@@ -255,7 +255,7 @@ describe('compiler', () => {
             expect(matches).toBe(1);
         });
 
-        it('§8.2 cross-channel sharing: vertices < nodes when sharing is effective', () => {
+        it('cross-channel sharing: vertices < nodes when sharing is effective', () => {
             const x = createNode(catalog, 'x');
             const sinX = createNode(catalog, 'sin', [x]);
             const add = createNode(catalog, 'add', [sinX, sinX]);
@@ -268,9 +268,9 @@ describe('compiler', () => {
             expect(compiled.stats.contexts).toBe(1);
         });
 
-        // ── §8.5 — Sharing policies ──────────────────────────────────────────
+        // ── Sharing policies ──────────────────────────────────────────
 
-        it('§8.5 policy=none never emits variables', () => {
+        it('policy=none never emits variables', () => {
             const x = createNode(catalog, 'x');
             const sinX = createNode(catalog, 'sin', [x]);
             const add = createNode(catalog, 'add', [sinX, sinX]);
@@ -282,7 +282,7 @@ describe('compiler', () => {
             expect(compiled.source).not.toMatch(/float v\d+ =/);
         });
 
-        it('§8.5 policy=all emits a variable for every vertex', () => {
+        it('policy=all emits a variable for every vertex', () => {
             const x = createNode(catalog, 'x');
             const sinX = createNode(catalog, 'sin', [x]);
             const expr = createExpression(sinX, x, x);
@@ -292,7 +292,7 @@ describe('compiler', () => {
             expect(compiled.stats.variables).toBe(compiled.stats.vertices);
         });
 
-        it('§8.5 all three policies produce valid GLSL and consistent stats.vertices', () => {
+        it('all three policies produce valid GLSL and consistent stats.vertices', () => {
             const x = createNode(catalog, 'x');
             const y = createNode(catalog, 'y');
             const sinX = createNode(catalog, 'sin', [x]);
@@ -318,9 +318,9 @@ describe('compiler', () => {
             expect(all.stats.variables).toBe(all.stats.vertices);
         });
 
-        // ── §8.6 — Determinism ───────────────────────────────────────────────
+        // ── Determinism ───────────────────────────────────────────────
 
-        it('§8.6 determinism: same expression compiled twice gives identical source and stats', () => {
+        it('determinism: same expression compiled twice gives identical source and stats', () => {
             const grammar = defaultGrammar(catalog);
             const expr = generate(catalog, grammar, createSeed(99));
             const a = compile(catalog, expr, { sharing: 'shared' });
@@ -329,9 +329,9 @@ describe('compiler', () => {
             expect(a.stats).toEqual(b.stats);
         });
 
-        // ── §8.7 — Literals ──────────────────────────────────────────────────
+        // ── Literals ──────────────────────────────────────────────────
 
-        it('§8.7 formats integer as float (adds .0)', () => {
+        it('formats integer as float (adds .0)', () => {
             // const operator with value 1 → should emit "1.0"
             const c = createNode(catalog, 'const', [], [1]);
             const x = createNode(catalog, 'x');
@@ -340,7 +340,7 @@ describe('compiler', () => {
             expect(compiled.source).toContain('1.0');
         });
 
-        it('§8.7 formats negative number as parenthesized literal', () => {
+        it('formats negative number as parenthesized literal', () => {
             const c = createNode(catalog, 'const', [], [-0.3]);
             const x = createNode(catalog, 'x');
             const expr = createExpression(c, x, x);
@@ -349,7 +349,7 @@ describe('compiler', () => {
             expect(compiled.source).not.toContain('--');
         });
 
-        it('§8.7 passes through scientific notation literals unchanged', () => {
+        it('passes through scientific notation literals unchanged', () => {
             // formatGlslFloat for a number like 1e-7 — no .0 added since it has 'e'
             // We test via neg(const) to exercise the path
             const c = createNode(catalog, 'const', [], [0.3]);
@@ -375,9 +375,9 @@ describe('compiler', () => {
             expect(sinCount).toBe(1);
         });
 
-        // ── MP3·S3: Contexts & warp ──────────────────────────────────────────
+        // ── Contexts & warp ───────────────────────────────────────────
 
-        it('§8.1/§8.3 compiles warp transformer and produces valid shader contract', () => {
+        it('compiles warp transformer and produces valid shader contract', () => {
             const dx = createNode(catalog, 'const', [], [0.25]);
             const dy = createNode(catalog, 'const', [], [-0.5]);
             const x = createNode(catalog, 'x');
@@ -406,7 +406,7 @@ describe('compiler', () => {
             expect(compiled.stats.contexts).toBe(2);
         });
 
-        it('§8.3 two identical transforms in different channels create only 1 context', () => {
+        it('two identical transforms in different channels create only 1 context', () => {
             const dx = createNode(catalog, 'const', [], [0.1]);
             const dy = createNode(catalog, 'const', [], [0.2]);
             const x = createNode(catalog, 'x');
@@ -426,7 +426,7 @@ describe('compiler', () => {
             expect(compiled.source).not.toContain('vec2 c2 =');
         });
 
-        it('§8.3 different transforms create multiple contexts', () => {
+        it('different transforms create multiple contexts', () => {
             const dx1 = createNode(catalog, 'const', [], [0.1]);
             const dy1 = createNode(catalog, 'const', [], [0.2]);
             const dx2 = createNode(catalog, 'const', [], [0.3]);
@@ -484,7 +484,7 @@ describe('compiler', () => {
                 const validation = validateShaderContract(compiled.source);
                 expect(validation.valid).toBe(true);
 
-                // Context c1 is ALWAYS emitted regardless of policy (spec §5.2)
+                // Context c1 is ALWAYS emitted regardless of policy.
                 expect(compiled.source).toContain('vec2 c1 =');
                 expect(compiled.stats.contexts).toBe(2);
             }
