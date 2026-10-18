@@ -41,6 +41,7 @@ export const fieldText = stylex.create({
         fontWeight: typography.fontWeightMedium,
         letterSpacing: typography.letterSpacingTight,
         color: surface.foreground,
+        whiteSpace: 'nowrap',
     },
     value: {
         fontFamily: typography.fontFamilyMono,

@@ -7,14 +7,19 @@ import { interaction, space } from '../tokens/const.stylex';
 import type { LayoutStyle } from '../types';
 
 const styles = stylex.create({
-    col: {
+    base: {
         display: 'flex',
-        flexDirection: 'column',
         gap: space['2'],
     },
+
     labelDisabled: {
         opacity: interaction.disabledOpacity,
     },
+});
+
+const directions = stylex.create({
+    vertical: { flexDirection: 'column', alignItems: 'stretch' },
+    horizontal: { flexDirection: 'row', alignItems: 'center' },
 });
 
 interface NumberFieldProps extends Omit<
@@ -31,6 +36,7 @@ interface NumberFieldProps extends Omit<
     | 'step'
 > {
     label?: string;
+    direction?: keyof typeof directions;
     invalid?: boolean;
     errorMessage?: string;
     min?: number;
@@ -44,6 +50,7 @@ interface NumberFieldProps extends Omit<
 
 export function NumberField({
     label,
+    direction = 'vertical',
     invalid = false,
     errorMessage,
     min = Number.NEGATIVE_INFINITY,
@@ -92,7 +99,7 @@ export function NumberField({
     }
 
     return (
-        <div {...stylex.props(styles.col, style)}>
+        <div {...stylex.props(styles.base, directions[direction], style)}>
             {label ? (
                 <label
                     htmlFor={controlId}

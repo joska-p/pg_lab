@@ -2,6 +2,7 @@ import { Button } from '@repo/ui/components/Button';
 import { ControlField } from '@repo/ui/components/ControlField';
 import { Grid } from '@repo/ui/components/Grid';
 import { NumberField } from '@repo/ui/components/NumberField';
+import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
 import { useSyncExternalStore } from 'react';
 
@@ -37,16 +38,17 @@ export function PlaybackSection() {
     const canAnimate = hasClockStore && compiledShader.animated;
 
     return (
-        <Grid columns="1" gap="3">
-            <Grid gap="2">
-                <Button
-                    onClick={() => {
-                        clockStore.togglePlay();
-                    }}
-                    disabled={!canAnimate}
-                >
-                    {isPlaying ? 'pause' : 'play'}
-                </Button>
+        <Grid columns="1" gap="2">
+            <Button
+                color="aurora"
+                onClick={() => {
+                    clockStore.togglePlay();
+                }}
+                disabled={!canAnimate}
+            >
+                {isPlaying ? 'pause' : 'play'}
+            </Button>
+            <Stack gap="3" direction="horizontal">
                 <Button
                     onClick={() => {
                         clockStore.reset();
@@ -56,6 +58,7 @@ export function PlaybackSection() {
                     Reset
                 </Button>
                 <NumberField
+                    direction="horizontal"
                     label="loop (s)"
                     min={MIN_LOOP_MS / 1000}
                     max={MAX_LOOP_MS / 1000}
@@ -65,7 +68,7 @@ export function PlaybackSection() {
                         setDuration(parseDurationInput(String(val)));
                     }}
                 />
-            </Grid>
+            </Stack>
 
             {/* ── Faults & Status ── */}
             {actionError && (

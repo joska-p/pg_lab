@@ -14,9 +14,7 @@ import {
     MAX_LOOP_MS,
     MIN_LOOP_MS,
     parseArtwork,
-    parseGrammarFile,
     serializeArtwork,
-    serializeGrammarFile,
 } from '../core/artwork/index.ts';
 import type { Artwork, ProvenanceCheck } from '../core/artwork/index.ts';
 import type { ColorSpaceId } from '../core/color/index.ts';
@@ -432,32 +430,6 @@ export function openCellInLab(grammar: Grammar, seed: Seed): void {
     });
     publishArtwork(artwork);
     setMode('lab');
-}
-
-/** Exports the current grammar as a versioned JSON file. */
-export function exportGrammarFile(): void {
-    const text = serializeGrammarFile(store.getState().grammar);
-
-    downloadBlob(
-        new Blob([text], { type: 'application/json' }),
-        `randomart-${Date.now()}.randomart-grammar.json`,
-    );
-}
-
-/** Imports a grammar file; keeps the current seed. Invalid files leave the state untouched. */
-export async function importGrammarFile(file: File): Promise<void> {
-    try {
-        const grammar = parseGrammarFile(catalog, await file.text());
-        const recipe = recipeOf(grammar);
-
-        if (!recipe) {
-            throw new Error('Grammar file: not a point of the quantized space');
-        }
-
-        commit(recipe, store.getState().seed);
-    } catch (error) {
-        setActionError(error);
-    }
 }
 
 /** Exports the current state as a `.randomart.json` artwork (expression as reference). */

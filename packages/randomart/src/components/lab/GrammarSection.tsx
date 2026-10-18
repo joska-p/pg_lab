@@ -1,5 +1,4 @@
 import { Button } from '@repo/ui/components/Button';
-import { FileInput } from '@repo/ui/components/FileInput';
 import { Grid } from '@repo/ui/components/Grid';
 import { Select } from '@repo/ui/components/Select';
 
@@ -21,8 +20,6 @@ import type {
 } from '../../core/grammar/index.ts';
 import {
     applyRecipe,
-    exportGrammarFile,
-    importGrammarFile,
     newGrammar,
     setRecipeLevel,
     setRecipeShare,
@@ -74,27 +71,29 @@ export function GrammarSection() {
 
     return (
         <Grid columns="1" gap="3">
-            <Select
-                title={preset?.description ?? 'A recipe that is not one of the presets.'}
-                value={presetId ?? CUSTOM_ID}
-                options={PRESET_OPTIONS}
-                onValueChange={(id) => {
-                    const chosen = PRESETS.find((candidate) => candidate.id === id);
+            <Grid columns="2" gap="2">
+                <Select
+                    title={preset?.description ?? 'A recipe that is not one of the presets.'}
+                    value={presetId ?? CUSTOM_ID}
+                    options={PRESET_OPTIONS}
+                    onValueChange={(id) => {
+                        const chosen = PRESETS.find((candidate) => candidate.id === id);
 
-                    if (chosen) {
-                        applyRecipe(chosen.recipe);
-                    }
-                }}
-            />
+                        if (chosen) {
+                            applyRecipe(chosen.recipe);
+                        }
+                    }}
+                />
 
-            <Button
-                color="aqua"
-                onClick={() => {
-                    newGrammar();
-                }}
-            >
-                New grammar
-            </Button>
+                <Button
+                    color="aqua"
+                    onClick={() => {
+                        newGrammar();
+                    }}
+                >
+                    new
+                </Button>
+            </Grid>
 
             <Grid columns="2" gap="2">
                 {FAMILY_IDS.map((family) => (
@@ -131,24 +130,6 @@ export function GrammarSection() {
                     options={SPACE_OPTIONS}
                     onValueChange={setRecipeSpace}
                 />
-            </Grid>
-
-            <Grid columns="2" gap="2">
-                <Button
-                    onClick={() => {
-                        exportGrammarFile();
-                    }}
-                >
-                    Export
-                </Button>
-                <FileInput
-                    accept=".json,application/json"
-                    onFile={(file) => {
-                        void importGrammarFile(file);
-                    }}
-                >
-                    Import
-                </FileInput>
             </Grid>
         </Grid>
     );
