@@ -2,7 +2,7 @@ import { Button } from '@repo/ui/components/Button';
 import { ControlField } from '@repo/ui/components/ControlField';
 import { Stack } from '@repo/ui/components/Stack';
 
-import { restoreEntry, useCurrentId, useHistory } from '../../stores/appStore';
+import { restoreEntry, useCurrentId, useHistory } from '../../stores/appStore.ts';
 
 /** Walks back through past candidates. */
 export function HistoryPanel() {

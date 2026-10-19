@@ -17,7 +17,7 @@ import {
     useDuration,
     useHasClockStore,
     useShaderError,
-} from '../../stores/appStore';
+} from '../../stores/appStore.ts';
 
 /** Image generation: generates a new artwork from the current grammar. */
 export function SessionSection() {

@@ -1,8 +1,8 @@
 import { flatShareOf } from '../../core/analysis/index.ts';
 import type { RgbImage } from '../../core/analysis/index.ts';
 import type { RenderedBatch } from '../../renderer/index.ts';
-import { plancheColumns } from './planche';
-import type { PlancheRow, PlancheCell } from './planche';
+import { plancheColumns } from './planche.ts';
+import type { PlancheRow, PlancheCell } from './planche.ts';
 
 /** Above this share of flat blocks, the grammar is considered collapsed. */
 export const FLAT_SHARE_THRESHOLD = 0.9;

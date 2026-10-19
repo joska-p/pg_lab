@@ -12,9 +12,9 @@ import {
     DEFAULT_CONTEXT_OPTIONS,
     DEFAULT_LOOP_DURATION,
     HANDWRITTEN_TEST_SHADER,
-} from './contract';
-import { needsRender } from './renderGate';
-import type { RenderKey } from './renderGate';
+} from './contract.ts';
+import { needsRender } from './renderGate.ts';
+import type { RenderKey } from './renderGate.ts';
 
 export interface RandomArtCanvasProps {
     /** Fragment shader source code adhering to randomart's GLSL contract. */

@@ -2,11 +2,11 @@ import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { Segmented } from '@repo/ui/components/Segmented';
 import { Stack } from '@repo/ui/components/Stack';
 
-import { setMode, useMode } from '../stores/appStore';
-import type { Mode } from '../stores/appStore';
-import { BenchPanel } from './bench/BenchPanel';
-import { HistoryPanel } from './history/HistoryPanel';
-import { LabPanel } from './lab/LabPanel';
+import { setMode, useMode } from '../stores/appStore.ts';
+import type { Mode } from '../stores/appStore.ts';
+import { BenchPanel } from './bench/BenchPanel.tsx';
+import { HistoryPanel } from './history/HistoryPanel.tsx';
+import { LabPanel } from './lab/LabPanel.tsx';
 
 const MODE_OPTIONS = [
     { value: 'lab', label: 'Lab' },

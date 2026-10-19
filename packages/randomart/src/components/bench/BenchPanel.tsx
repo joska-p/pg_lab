@@ -36,8 +36,8 @@ import {
     useBenchSelectedColIndex,
     useBenchSelectedRowIndex,
     useBenchSettings,
-} from '../../stores/benchStore';
-import type { BenchView } from '../../stores/benchStore';
+} from '../../stores/benchStore.ts';
+import type { BenchView } from '../../stores/benchStore.ts';
 
 const RATINGS: readonly NotebookRating[] = [0, 1, 2, 3, 4, 5];
 

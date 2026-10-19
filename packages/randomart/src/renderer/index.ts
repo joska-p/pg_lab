@@ -7,8 +7,8 @@ export {
     GLSL_OUT_COLOR,
     HANDWRITTEN_TEST_SHADER,
     validateShaderContract,
-} from './contract';
-export type { Phase } from './contract';
+} from './contract.ts';
+export type { Phase } from './contract.ts';
 export {
     createBatchRenderer,
     DEFAULT_BATCH_SIZE,
@@ -16,5 +16,5 @@ export {
     type BatchRequest,
     type RenderedBatch,
     type RenderedCell,
-} from './batch';
-export { RandomArtCanvas, type RandomArtCanvasProps } from './RandomArtCanvas';
+} from './batch.ts';
+export { RandomArtCanvas, type RandomArtCanvasProps } from './RandomArtCanvas.tsx';

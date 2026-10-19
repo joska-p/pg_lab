@@ -7,7 +7,7 @@ import {
     PLANCHE_BACKGROUND,
     PLANCHE_DIM_FACTOR,
     plancheColumns,
-} from './planche';
+} from './planche.ts';
 
 /** A solid image `size`x`size` filled with one RGB colour. */
 function solid(size: number, rgb: readonly [number, number, number]): RgbImage {

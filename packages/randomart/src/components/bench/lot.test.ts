@@ -4,7 +4,7 @@ import type { RgbImage } from '../../core/analysis/index.ts';
 import { createDefaultCatalog } from '../../core/catalog/index.ts';
 import { defaultGrammar } from '../../core/grammar/index.ts';
 import type { RenderedBatch } from '../../renderer/index.ts';
-import { buildLotView, EMPTY_LOT, isFlat } from './lot';
+import { buildLotView, EMPTY_LOT, isFlat } from './lot.ts';
 
 const catalog = createDefaultCatalog();
 const grammar = defaultGrammar(catalog);

@@ -1,9 +1,9 @@
 import { Grid } from '@repo/ui/components/Grid';
 
-import { ArtworkSection } from './ArtworkSection';
-import { GrammarSection } from './GrammarSection';
-import { Inspector } from './Inspector';
-import { SessionSection } from './SessionSection';
+import { ArtworkSection } from './ArtworkSection.tsx';
+import { GrammarSection } from './GrammarSection.tsx';
+import { Inspector } from './Inspector.tsx';
+import { SessionSection } from './SessionSection.tsx';
 
 /**
  * The unified lab (workshop) panel: orchestrates generation, recipe presets, tree constraints,

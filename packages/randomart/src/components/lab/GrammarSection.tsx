@@ -27,7 +27,7 @@ import {
     setRecipeSpace,
     useRecipe,
     useSeed,
-} from '../../stores/appStore';
+} from '../../stores/appStore.ts';
 import { catalog } from '../../stores/catalogueStore.ts';
 
 const PRESETS = grammarPresets(catalog);

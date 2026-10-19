@@ -23,10 +23,10 @@ import {
     useBenchSelectedColIndex,
     useBenchSelectedRowIndex,
     useBenchSettings,
-} from '../../stores/benchStore';
-import { focusLotView } from './lot';
-import { fitGrid } from './planche';
-import { Planche } from './Planche';
+} from '../../stores/benchStore.ts';
+import { focusLotView } from './lot.ts';
+import { fitGrid } from './planche.ts';
+import { Planche } from './Planche.tsx';
 
 const styles = stylex.create({
     // The stage owns the keyboard, so it is one focusable region: the shortcuts mean the same thing

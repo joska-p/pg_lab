@@ -9,7 +9,7 @@ import {
     GLSL_OUT_COLOR,
     HANDWRITTEN_TEST_SHADER,
     validateShaderContract,
-} from './contract';
+} from './contract.ts';
 
 describe('renderer / contract & helpers', () => {
     describe('createPhase', () => {
