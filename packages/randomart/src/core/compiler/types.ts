@@ -1,5 +1,4 @@
 import type { ChannelModel } from '../color/index.ts';
-import type { MotionLevel } from '../motion/index.ts';
 
 /**
  * Sharing policy for lowered vertices.
@@ -19,12 +18,6 @@ export interface CompileOptions {
      * emitted code — and is ignored here. Defaults to `RAW_CHANNELS` (raw sRGB).
      */
     readonly channels?: ChannelModel;
-    /**
-     * How the coordinates move with `u_phase` (see `../motion`). Defaults to `'off'` — the static
-     * baseline. A non-`off` motion makes the shader read `u_phase`, so `animated` is true and the
-     * play button is meaningful.
-     */
-    readonly motion?: MotionLevel;
 }
 
 export interface CompiledShaderUniform {

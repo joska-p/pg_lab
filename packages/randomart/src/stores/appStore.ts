@@ -33,7 +33,6 @@ import type {
     WeightLevel,
 } from '../core/grammar/index.ts';
 import { PRESET_RECIPES } from '../core/grammar/presets.ts';
-import type { MotionLevel } from '../core/motion/motion.ts';
 import { createRng, createSeed, randomSeed } from '../core/random/index.ts';
 import type { Seed } from '../core/random/index.ts';
 import { DEFAULT_LOOP_DURATION } from '../renderer/contract.ts';
@@ -66,7 +65,6 @@ const initialSeed = createSeed(42);
 const initialExpression = generate(catalog, initialGrammar, initialSeed);
 const initialCompiled = compile(catalog, initialExpression, {
     channels: initialGrammar.channels,
-    motion: initialGrammar.motion,
 });
 const initialEntry: HistoryEntry = {
     id: 0,
@@ -236,7 +234,6 @@ function commit(recipe: Recipe, seed: Seed, restoreId?: number, coalesce = false
         const expression = generate(catalog, grammar, seed);
         const compiledShader = compile(catalog, expression, {
             channels: grammar.channels,
-            motion: grammar.motion,
         });
         const state = store.getState();
         let { history } = state;
@@ -318,10 +315,6 @@ export function setRecipeSpace(space: ColorSpaceId): void {
     editRecipe((recipe) => ({ ...recipe, space }));
 }
 
-export function setRecipeMotion(motion: MotionLevel): void {
-    editRecipe((recipe) => ({ ...recipe, motion }));
-}
-
 /**
  * Restores an imported artwork by its expression, without regenerating: the expression is the
  * reference, and regeneration would lose a hand-edited import.
@@ -343,7 +336,6 @@ function restoreImportedEntry(entry: HistoryEntry): void {
             provenanceCheck: entry.provenanceCheck ?? 'differs',
             compiledShader: compile(catalog, expression, {
                 channels: entry.grammar.channels,
-                motion: entry.grammar.motion,
             }),
             currentId: entry.id,
             actionError: null,
@@ -400,7 +392,6 @@ export function publishArtwork(artwork: Artwork): void {
     const seed = provenance?.seed ?? state.seed;
     const compiledShader = compile(catalog, expression, {
         channels: grammar.channels,
-        motion: grammar.motion,
     });
     const provenanceCheck = checkProvenance(catalog, artwork);
     const entry: HistoryEntry = {

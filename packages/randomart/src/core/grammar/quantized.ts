@@ -1,8 +1,6 @@
 import type { Catalog, OperatorId } from '../catalog/index.ts';
 import { COLOR_SPACE_IDS } from '../color/index.ts';
 import type { ColorSpaceId } from '../color/index.ts';
-import { MOTION_LEVELS } from '../motion/index.ts';
-import type { MotionLevel } from '../motion/index.ts';
 import { createRng } from '../random/index.ts';
 import type { Rng, Seed } from '../random/index.ts';
 import { createGrammar, weightOf } from './grammar.ts';
@@ -70,8 +68,6 @@ export interface Recipe {
     /** `'mono'` = fully shared trunk (r = g = b). */
     readonly share: ShareChoice;
     readonly space: ColorSpaceId;
-    /** How the coordinates move with `u_phase`. `'off'` is the static, phase-0-identity baseline. */
-    readonly motion: MotionLevel;
 }
 
 /** Stable identity, for deduplication and caches. */
@@ -81,7 +77,6 @@ export function recipeKey(recipe: Recipe): string {
         recipe.size,
         recipe.share,
         recipe.space,
-        recipe.motion,
     ]);
 }
 
@@ -101,7 +96,6 @@ export function recipeToGrammar(catalog: Catalog, recipe: Recipe): Grammar {
         weights,
         constraints,
         channels: { space: recipe.space, shareDepth },
-        motion: recipe.motion,
     });
 }
 
@@ -110,7 +104,6 @@ export interface RandomRecipeOptions {
     readonly share?: ShareChoice;
     readonly space?: ColorSpaceId;
     readonly size?: SizeProfileId;
-    readonly motion?: MotionLevel;
 }
 
 const MIN_ACTIVE_FAMILIES = 2;
@@ -141,7 +134,6 @@ export function randomRecipe(rng: Rng, options: RandomRecipeOptions = {}): Recip
             size: options.size ?? PROFILE_IDS[rng.int(PROFILE_IDS.length)],
             share: options.share ?? SHARE_CHOICES[rng.int(SHARE_CHOICES.length)],
             space: options.space ?? COLOR_SPACE_IDS[rng.int(COLOR_SPACE_IDS.length)],
-            motion: options.motion ?? MOTION_LEVELS[rng.int(MOTION_LEVELS.length)],
         };
     }
 
@@ -232,5 +224,5 @@ export function recipeOf(grammar: Grammar): Recipe | null {
         return null;
     }
 
-    return { levels, size, share, space, motion: grammar.motion };
+    return { levels, size, share, space };
 }

@@ -7,8 +7,6 @@ import {
     RAW_CHANNELS,
 } from '../color/index.ts';
 import type { ChannelModel } from '../color/index.ts';
-import { DEFAULT_MOTION, isMotionLevel } from '../motion/index.ts';
-import type { MotionLevel } from '../motion/index.ts';
 import { assertFinite } from '../shared/index.ts';
 import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types.ts';
 import type { Constraints, ConstraintsInput, Grammar } from './types.ts';
@@ -176,27 +174,16 @@ function validateChannels(channels: ChannelModel, maxDepth: number): ChannelMode
     };
 }
 
-/** Content, like a colour space: an unknown motion has no canonical repair and refuses. */
-function validateMotion(motion: MotionLevel): MotionLevel {
-    if (!isMotionLevel(motion)) {
-        throw new Error(`Randomart: unknown motion ${JSON.stringify(motion)}`);
-    }
-
-    return motion;
-}
-
 export function createGrammar(
     catalog: Catalog,
     {
         weights,
         constraints: rawConstraints,
         channels: rawChannels = RAW_CHANNELS,
-        motion = DEFAULT_MOTION,
     }: {
         readonly weights: Readonly<Record<string, number | undefined>>;
         readonly constraints: ConstraintsInput;
         readonly channels?: ChannelModel;
-        readonly motion?: MotionLevel;
     },
 ): Grammar {
     const operatorNames = Object.keys(weights);
@@ -263,14 +250,12 @@ export function createGrammar(
         // Already frozen by createConstraints.
         constraints,
         channels: Object.freeze(validateChannels(rawChannels, constraints.maxDepth)),
-        // Content, like a colour space: an unknown motion refuses (no canonical repair).
-        motion: validateMotion(motion),
     }) as Grammar;
 }
 
 /**
  * The default vocabulary: the whole catalog, weighted for _structure_. There is no separate
- * "animated" preset: animation is a matter of playback (the grammar's `motion`), not of
+ * "animated" preset: animation is a matter of playback (the terminals' oscillator params), not of
  * vocabulary.
  *
  * These weights come from a calibration session (2026-10-17). The field of a generated expression

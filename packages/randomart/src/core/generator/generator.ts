@@ -9,7 +9,7 @@ import type { Seed } from '../random/index.ts';
 // Increment on any change that alters the output for a given seed: PRNG algorithm, order in which
 // random numbers are consumed (operator draw, then one draw per param, then children left to right,
 // channels r, g, b), the draw rule, or rounding. A seed is only meaningful with one version.
-export const GENERATOR_VERSION = 3;
+export const GENERATOR_VERSION = 4;
 
 /**
  * What one trunk level produces: the three channel nodes, the size the parent accounts for, and

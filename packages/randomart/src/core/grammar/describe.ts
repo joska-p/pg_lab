@@ -13,8 +13,6 @@ export interface GrammarSummary {
      * maxDepth/maxNodes.
      */
     readonly growth: number;
-    /** True when the grammar's motion is not `off`, so its images animate on playback. */
-    readonly animated: boolean;
 }
 
 /** Indicator only, not a rule: lets the UI hint at the "character" of a grammar. */
@@ -51,6 +49,5 @@ export function describeGrammar(catalog: Catalog, grammar: Grammar): GrammarSumm
         terminalShare,
         meanArity,
         growth: (1 - terminalShare) * meanArity,
-        animated: grammar.motion !== 'off',
     };
 }

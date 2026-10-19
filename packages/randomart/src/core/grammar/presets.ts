@@ -24,7 +24,6 @@ export const STRUCTURE_RECIPE: Recipe = {
     size: 'medium',
     share: 2,
     space: 'oklch',
-    motion: 'off',
 };
 
 export function grammarSignature(grammar: Grammar): string {
@@ -45,25 +44,25 @@ export const PRESET_RECIPES: readonly {
         id: 'structure',
         label: 'Structure',
         description: 'Calibrated start: a shallow shared trunk read as OKLCH.',
-        recipe: { ...STRUCTURE_RECIPE, motion: 'drift' },
+        recipe: STRUCTURE_RECIPE,
     },
     {
         id: 'mono',
         label: 'Mono',
         description: 'One fully shared tree: pure greyscale structure.',
-        recipe: { ...STRUCTURE_RECIPE, share: 'mono', motion: 'drift' },
+        recipe: { ...STRUCTURE_RECIPE, share: 'mono' },
     },
     {
         id: 'oklab',
         label: 'OKLab',
         description: 'The same shared trunk in OKLab: flatter, more even colour.',
-        recipe: { ...STRUCTURE_RECIPE, space: 'oklab', motion: 'pulse' },
+        recipe: { ...STRUCTURE_RECIPE, space: 'oklab' },
     },
     {
         id: 'rgb',
         label: 'Raw RGB',
         description: 'Three independent channels in sRGB: colour and shape drift apart.',
-        recipe: { ...STRUCTURE_RECIPE, share: 0, space: 'srgb', motion: 'swing' },
+        recipe: { ...STRUCTURE_RECIPE, share: 0, space: 'srgb' },
     },
 ];
 
