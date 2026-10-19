@@ -31,10 +31,10 @@ import {
 import { catalog } from '../../stores/catalogueStore.ts';
 
 const PRESETS = grammarPresets(catalog);
-const CUSTOM_ID = 'custom';
+const CUSTOM_PRESET = 'custom';
 const PRESET_OPTIONS = [
     ...PRESETS.map((preset) => ({ value: preset.id, label: preset.label })),
-    { value: CUSTOM_ID, label: 'Custom' },
+    { value: CUSTOM_PRESET, label: 'Custom' },
 ];
 
 const FAMILY_LABELS: Record<FamilyId, string> = {
@@ -88,7 +88,7 @@ export function GrammarSection() {
 
                 <Select
                     title={preset?.description ?? 'A recipe that is not one of the presets.'}
-                    value={presetId ?? CUSTOM_ID}
+                    value={presetId ?? CUSTOM_PRESET}
                     options={PRESET_OPTIONS}
                     onValueChange={(id) => {
                         const chosen = PRESETS.find((candidate) => candidate.id === id);
