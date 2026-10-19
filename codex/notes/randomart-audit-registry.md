@@ -26,6 +26,29 @@ Per-tool commands:
 | Duplication                | `jscpd packages/randomart --ignore "**/*.test.ts" --threshold 1`          |
 | Cycles (informational)     | `madge --circular --extensions ts,tsx packages/randomart/src .../scripts` |
 
+## Progress
+
+### A batch — done
+
+A-01 → A-08 landed, one commit per item, no behaviour change: `vp check` and `vp test` stay green
+(481 passed / 10 skipped repo-wide) and `GENERATOR_VERSION` and the generator snapshots are
+unchanged.
+
+| Item | Commit    | Change                                                                                                                  |
+| ---- | --------- | ----------------------------------------------------------------------------------------------------------------------- |
+| A-07 | `3fafccb` | drop `cacheVignette`, `selectRow`, `useGrammarSummary`                                                                  |
+| A-08 | `4277ce3` | drop `src/core/index.ts` (consumerless barrel)                                                                          |
+| A-01 | `e7b55a4` | explicit `.ts`/`.tsx` on every relative import (35 sites)                                                               |
+| A-02 | `3686332` | `colour` → `color` (37 sites), the two visible messages with their assertions                                           |
+| A-03 | `bab697b` | `CUSTOM_ID` → `CUSTOM_PRESET`                                                                                           |
+| A-04 | `6a219d5` | `libre` → `remaining`, the two French comments                                                                          |
+| A-05 | `6283a48` | `newSeed` → `resetSeed`, `newGrammar` → `drawGrammar`, `newImage` → `generateImage`, `newBenchBatch` → `drawBenchBatch` |
+| A-06 | `201ed1c` | `failure` → `buildErrorState`, `Mode` → `AppMode`                                                                       |
+
+Re-run after the batch: **import extensions pass (0)**, **banned vocabulary pass (0)**, **dead files
+pass (0)**, duplication passes. Still red, by decision: **layers** (B-01: the two core test imports
+of `renderer/contract.ts`) and **dead code** (B-02: the barrel symbols). Cycles stay informational.
+
 ## Summary
 
 | Check                                    | Tool              | Result                    | Gate |

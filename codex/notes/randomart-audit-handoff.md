@@ -11,9 +11,12 @@ generator snapshots must not move unless a change is explicitly decided.
 
 ## State
 
-- `vp check` and `vp test` are green (328 passed / 10 skipped). Baseline confirmed.
-- Step 1 is done: the mechanical rules are tooled and their first output is written up.
-- No line under `packages/randomart/src` has been changed yet.
+- `vp check` and `vp test` are green (328 passed / 10 skipped for randomart; 481 / 10 repo-wide).
+  Baseline confirmed.
+- **A batch done** (A-01 → A-08, one commit per item, no behaviour change, `GENERATOR_VERSION`
+  unchanged): see the table in the registry (`randomart-audit-registry.md`, "Progress").
+- The audit now passes for import extensions, banned vocabulary and dead files. Two gating checks
+  stay red _by decision_: layers (B-01) and dead code (B-02).
 
 ## Where things live
 
@@ -27,19 +30,22 @@ generator snapshots must not move unless a change is explicitly decided.
 
 ## Next action
 
-Run `vp run audit` from the repository root to see the current state, then start the **A batch**
-from the registry:
+Decide the B items in this order — B-01 first, since it is a two-file structural choice that also
+unblocks the layers gate:
 
-1. A-07 / A-08 — delete verified dead code (3 symbols + `src/core/index.ts`).
-2. A-01 → A-06 — rename / extension fixes, **one commit per item**.
-3. After each item, `vp check && vp test` must stay green and `GENERATOR_VERSION` must not change.
+1. **B-01** — `core/compiler/*.test.ts` importing `renderer/contract.ts` (extract the GLSL contract
+   into `core/compiler/`, or allow-list the test-only exception).
+2. **B-03** — dataset / bench crosstalk (`sampleGrammars` & friends).
+3. **B-04** — cycles: keep madge informational, ignore type-only edges, or move to
+   `dependency-cruiser`.
+4. **B-02** — barrel policy, then the 108 knip symbols it decides.
 
-Then move to `B` (decisions): B-01 (`core` → `renderer` test imports), B-03 (dataset/bench
-crosstalk), B-04 (madge cycles), B-02 (barrel policy).
+Once the two red gates are resolved, promote the audit rules from `tools/audit/` to `tools/lint/`
+and wire `vp run audit` into CI.
 
 ## Workflow rules
 
 - French for discussion, English for code, docs and specs.
 - One commit per correction category; no behaviour change.
-- `vp run audit` rules stay in `tools/audit/` (non-gating) until the A batch is green, then get
-  promoted to `tools/lint/` and wired into CI.
+- `vp run audit` rules stay in `tools/audit/` (non-gating) until A is green **and** the two red
+  gates are decided (B-01, B-02); then they get promoted to `tools/lint/` and wired into CI.
