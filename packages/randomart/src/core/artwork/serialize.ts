@@ -11,7 +11,7 @@ import { createArtwork, fitRenderSettings } from './create.ts';
 import type { Artwork, Provenance, RenderSettingsInput } from './types.ts';
 
 export const ARTWORK_FILE_FORMAT = 'random-art';
-export const ARTWORK_FILE_VERSION = 1;
+const ARTWORK_FILE_VERSION = 1;
 /** Import guard: checked before any `JSON.parse`. */
 export const MAX_ARTWORK_FILE_LENGTH = 1_000_000;
 
@@ -19,8 +19,8 @@ export const MAX_ARTWORK_FILE_LENGTH = 1_000_000;
 // Grammar files (moved from grammar/serialize.ts: a .randomart-grammar.json file is artwork data)
 // ---------------------------------------------------------------------------
 
-export const GRAMMAR_FILE_FORMAT = 'random-art-grammar';
-export const GRAMMAR_FILE_VERSION = 1;
+const GRAMMAR_FILE_FORMAT = 'random-art-grammar';
+const GRAMMAR_FILE_VERSION = 1;
 /** Import guard: checked before any `JSON.parse`. */
 export const MAX_GRAMMAR_FILE_LENGTH = 1_000_000;
 
