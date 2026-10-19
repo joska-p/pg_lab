@@ -27,7 +27,7 @@ Section numbers (`§2.3`, `§4`, …) are stable across files: cite them when re
 | File                                                                     | Sections      | Read it when…                                                                           |
 | ------------------------------------------------------------------------ | ------------- | --------------------------------------------------------------------------------------- |
 | [01-principles.md](01-principles.md)                                     | §1            | Designing an API, a module boundary, or deciding whether to add an abstraction.         |
-| [02-typescript.md](02-typescript.md)                                     | §2            | Writing or reviewing functions, names, comments, file structure.                        |
+| [02-typescript.md](02-typescript.md)                                     | §2            | Writing or reviewing names, types, functions, comments, file structure.                 |
 | [03-state-and-reactivity.md](03-state-and-reactivity.md)                 | §3, §4, §5    | Deciding where state lives, how React observes it, how stores are organized.            |
 | [04-core-and-rendering.md](04-core-and-rendering.md)                     | §6            | Working on simulation, rendering loops, or anything touching Canvas / WebGL / DOM.      |
 | [05-lifecycle-and-async.md](05-lifecycle-and-async.md)                   | §7, §9        | Creating/mounting/destroying live objects, proof tokens, promises, races, cancellation. |
