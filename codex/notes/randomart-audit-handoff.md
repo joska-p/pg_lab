@@ -36,13 +36,10 @@ generator snapshots must not move unless a change is explicitly decided.
 
 ## Next action
 
-The coherence audit is closed. The remaining item is out of its mechanical scope:
-
-- **D — Documentation** (registry, `D` section): **done** (`f80c169`, `0ed49b8`, `9082f18`,
-  `a342694`, `3862ebb`).
-- **B-05 — Duplication** (`C`): the 6 production clones ranked in the registry — next.
-
-Nothing is blocking.
+The coherence audit is closed, and both follow-ups are now done: **D — Documentation** (`f80c169`,
+`0ed49b8`, `9082f18`, `a342694`, `3862ebb`) and **B-05 — Duplication** (`6d450af`, `f98ba04`,
+`58d6727`, `98b2009`) — see the registry for both. `jscpd` reports 0 production clones. Nothing is
+blocking.
 
 ## Workflow rules
 

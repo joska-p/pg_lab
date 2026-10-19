@@ -218,17 +218,22 @@ edges mark types that are probably misplaced. The working hypothesis is the §2.
 (shared types in a `types.ts` at the deepest common directory), which would break the
 `grammar/types.ts ↔ quantized.ts` pair naturally. Revisit once B-02 has pruned the barrels.
 
-### B-05 — Duplication (6 production clones, 0.64% lines) · C
+### B-05 — Duplication (6 production clones) · C — **done**
 
-| Clone                                                           | Lines |
-| --------------------------------------------------------------- | ----- |
-| `core/analysis/descriptors.ts` ↔ `core/analysis/pca.ts`         | 9     |
-| `core/artwork/serialize.ts` ↔ `core/notebook/serialize.ts`      | 18    |
-| `core/generator/generator.ts` (two sibling branches)            | 9     |
-| `stores/benchStore.ts` (3 pairs, same error/`setState` pattern) | 7-11  |
+**Done**, one commit per clone family, no behaviour change: `GENERATOR_VERSION` and the generator
+snapshots are unchanged, `vp check`, `vp run audit` and `vp test` stay green. `jscpd` (same flags as
+the gate) now reports **0** production clones / 0.0% duplication.
 
-The remaining 20 clones are test fixtures. Gate threshold: `--threshold 1` (current production
-budget is 0.64%).
+| Commit    | Clone                                                      | Extraction                                                      |
+| --------- | ---------------------------------------------------------- | --------------------------------------------------------------- |
+| `6d450af` | `core/analysis/descriptors.ts` ↔ `core/analysis/pca.ts`    | `core/analysis/correlation.ts` (the shared Pearson correlation) |
+| `f98ba04` | `core/artwork/serialize.ts` ↔ `core/notebook/serialize.ts` | `isRecord`/`rejectUnknownKeys` in `core/shared` (+ expression)  |
+| `58d6727` | `core/generator/generator.ts` (two sibling branches)       | one `buildChildren` for the child-budget split                  |
+| `98b2009` | `stores/benchStore.ts` (3 pairs)                           | one `resolveActiveBatch` for the active-batch lookup            |
+
+The 20 test-fixture clones stay by design. Gate threshold: `--threshold 1`. The Type-2
+(`--ignore-identifiers`) and Type-3 (`--similarity`) passes are not gated (see the jscpd skill): they
+are noisier and were out of B-05's scope.
 
 ### B-06 — Core purity: allow-list · §1.2 · A/B
 
@@ -243,14 +248,13 @@ First quantified pass listed the stale comments and titles (source text: `_TMP/A
 de randomart.md`, §2 "Commentaires et docs obsolètes"). **Done**, one commit per category, no
 behaviour change; `vp check`, `vp run audit` and `vp test` stay green (328 / 10 for randomart).
 
-| Commit    | Change                                                                                                       |
-| --------- | ------------------------------------------------------------------------------------------------------------ |
-| `f80c169` | `Controls` "three faces" (Lab/History/Bench), `LabPanel` drops the gone constraints/vocabulary               |
-| `0ed49b8` | `BenchView` docstring `row` → `focus`; `planche.ts` cell `null` = failed render (flat cells are dimmed)        |
-| `9082f18` | `appStore.commit` "recipe knob", `dataset/page.ts` + `loadDataset` "generate.mjs" → `cli.ts`                   |
-| `a342694` | `emit.test` uniform-dep comment (stock `x`/`y` do read `u_phase`), "8000 ms" titles → "60000 ms"               |
+| Commit    | Change                                                                                                        |
+| --------- | ------------------------------------------------------------------------------------------------------------- |
+| `f80c169` | `Controls` "three faces" (Lab/History/Bench), `LabPanel` drops the gone constraints/vocabulary                |
+| `0ed49b8` | `BenchView` docstring `row` → `focus`; `planche.ts` cell `null` = failed render (flat cells are dimmed)       |
+| `9082f18` | `appStore.commit` "recipe knob", `dataset/page.ts` + `loadDataset` "generate.mjs" → `cli.ts`                  |
+| `a342694` | `emit.test` uniform-dep comment (stock `x`/`y` do read `u_phase`), "8000 ms" titles → "60000 ms"              |
 | `3862ebb` | `index.html` `<title>randomart-next</title>` → `randomart`, hard-coded `/tmp/opencode/field` → `$MEASURE_OUT` |
-
 
 ## Already covered by existing tooling
 
@@ -270,5 +274,5 @@ behaviour change; `vp check`, `vp run audit` and `vp test` stay green (328 / 10 
    by `vp check`), the vocabulary script and the runner live in `tools/lint/`, and
    `.github/workflows/deploy.yml` runs `vp run audit`.
 
-Open follow-up (not a gate): the **B-05** duplication clones (`C`). The **D** documentation list is
-done (see the D section).
+All follow-ups are done: the **D** documentation list (see the D section) and the **B-05** duplication
+clones (`C`, now 0). Nothing open.
