@@ -209,6 +209,14 @@ function buildErrorState(cause: unknown) {
     };
 }
 
+/** The active batch, or the notebook's first when the active id is gone; undefined when empty. */
+function resolveActiveBatch(state: BenchState): NotebookBatch | undefined {
+    return (
+        state.notebook.batches.find((batch) => batch.id === state.activeBatchId) ??
+        state.notebook.batches[0]
+    );
+}
+
 /** Draws and renders a new batch, appending it to the notebook. */
 function renderNewLot(base: Seed): void {
     const { count, seedsPerGrammar, cellSize } = store.getState().settings;
@@ -249,9 +257,7 @@ export function drawBenchBatch(): void {
 /** "Redraw": redraws the active batch at the current render size. */
 export function redrawBench(): void {
     const state = store.getState();
-    const activeBatch =
-        state.notebook.batches.find((b) => b.id === state.activeBatchId) ??
-        state.notebook.batches[0];
+    const activeBatch = resolveActiveBatch(state);
 
     if (!activeBatch) {
         renderNewLot(state.settings.baseSeed);
@@ -318,9 +324,7 @@ export function removeActiveBatch(): void {
 /** Rates the grammar on `rowIndex` (0-5, or undefined to clear). */
 export function rateCandidateRow(rowIndex: number, rating: NotebookRating | undefined): void {
     const state = store.getState();
-    const activeBatch =
-        state.notebook.batches.find((b) => b.id === state.activeBatchId) ??
-        state.notebook.batches[0];
+    const activeBatch = resolveActiveBatch(state);
 
     if (!activeBatch) {
         return;
@@ -341,10 +345,7 @@ export function rateCandidateRow(rowIndex: number, rating: NotebookRating | unde
 /** Toggles the current grammar's rating: rating it twice with the same value clears it. */
 export function toggleCandidateRating(rowIndex: number, rating: NotebookRating): void {
     const state = store.getState();
-    const activeBatch =
-        state.notebook.batches.find((b) => b.id === state.activeBatchId) ??
-        state.notebook.batches[0];
-    const candidate = activeBatch?.candidates[rowIndex];
+    const candidate = resolveActiveBatch(state)?.candidates[rowIndex];
 
     rateCandidateRow(rowIndex, candidate?.rating === rating ? undefined : rating);
 }
@@ -408,9 +409,7 @@ export async function importNotebookFile(file: File): Promise<void> {
  */
 export function openSelectedInLab(): void {
     const state = store.getState();
-    const activeBatch =
-        state.notebook.batches.find((b) => b.id === state.activeBatchId) ??
-        state.notebook.batches[0];
+    const activeBatch = resolveActiveBatch(state);
 
     if (!activeBatch) {
         return;
