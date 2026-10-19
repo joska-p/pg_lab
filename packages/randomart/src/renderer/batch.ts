@@ -108,8 +108,8 @@ function renderCell(stage: Stage, catalog: Catalog, grammar: Grammar, seed: Seed
         }
 
         try {
-            // Phase 0: `u_phase` is never set, so the uniform defaults to 0 and the image is the
-            // static one. Time terminals are the constants 0/1 there (see `sampleGrammars`).
+            // Phase 0: `u_phase` is never set, so the uniform defaults to 0 — the frozen first
+            // frame of the loop, the picture play would start from.
             stage.surface.renderProgram(attempt.program);
             stage.readback.drawImage(stage.canvas, 0, 0);
 

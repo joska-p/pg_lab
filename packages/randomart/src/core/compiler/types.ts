@@ -36,6 +36,11 @@ export interface CompiledShaderStats {
 export interface CompiledShader {
     readonly source: string;
     readonly uniforms: readonly CompiledShaderUniform[];
+    /**
+     * Whether the shader reads `u_phase` (factual: the operator dependency closure). There is no
+     * "static vs animated" shader type — a still image is a play frozen at some phase — this flag
+     * only tells the render gate whether a phase change can alter the picture.
+     */
     readonly animated: boolean;
     readonly stats: CompiledShaderStats;
 }

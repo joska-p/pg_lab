@@ -76,11 +76,11 @@ describe('real compiler output', () => {
     const catalog = createDefaultCatalog();
 
     it('passes the structural check on a compiled expression', () => {
-        const x = createNode(catalog, 'x');
-        const y = createNode(catalog, 'y');
+        const x = createNode(catalog, 'x', [], [0, 0, 0]);
+        const y = createNode(catalog, 'y', [], [0, 0, 0]);
         const sinX = createNode(catalog, 'sin', [x]);
         const add = createNode(catalog, 'add', [sinX, y]);
-        const compiled = compile(catalog, createExpression(sinX, add, x), { motion: 'drift' });
+        const compiled = compile(catalog, createExpression(sinX, add, x));
 
         expect(checkShaderStructure(compiled.source)).toEqual([]);
     });
@@ -90,7 +90,7 @@ describe('usesOperator', () => {
     const catalog = createDefaultCatalog();
 
     it('finds an operator anywhere in the tree', () => {
-        const x = createNode(catalog, 'x');
+        const x = createNode(catalog, 'x', [], [0, 0, 0]);
         const sqr = createNode(catalog, 'sqr', [x]);
         const tree = createNode(catalog, 'neg', [createNode(catalog, 'sin', [sqr])]);
 

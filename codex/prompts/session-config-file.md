@@ -25,8 +25,8 @@ convention files before designing anything.
 
 ## Framing questions
 
-1. **Audit first**: list every constant that is a *taste* knob (amp bounds,
-   odds, profiles, history limit…) vs a *hard constraint* (MAX_DEPTH as a
+1. **Audit first**: list every constant that is a _taste_ knob (amp bounds,
+   odds, profiles, history limit…) vs a _hard constraint_ (MAX_DEPTH as a
    guard against shader blow-up, MAX_SOURCE_LENGTH). The two categories
    deserve different treatment — do not dump guards into a tunable config.
 2. **What shape?** A single typed TS module of exported consts? A JSON file

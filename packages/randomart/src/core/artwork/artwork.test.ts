@@ -33,8 +33,8 @@ function fixture(provenance = true, seed = 12_345): Fixture {
     const expression = provenance
         ? generate(catalog, grammar, createSeed(seed))
         : createExpression(
-              createNode(catalog, 'x'),
-              createNode(catalog, 'y'),
+              createNode(catalog, 'x', [], [0, 0, 0]),
+              createNode(catalog, 'y', [], [0, 0, 0]),
               createNode(catalog, 'const', [], [0.5]),
           );
 
@@ -62,8 +62,8 @@ describe('artwork: createArtwork', () => {
 
     it('rejects out-of-bounds render values', () => {
         const expression = createExpression(
-            createNode(catalog, 'x'),
-            createNode(catalog, 'y'),
+            createNode(catalog, 'x', [], [0, 0, 0]),
+            createNode(catalog, 'y', [], [0, 0, 0]),
             createNode(catalog, 'const', [], [0.5]),
         );
 
@@ -87,8 +87,8 @@ describe('artwork: createArtwork', () => {
 
     it('repairs the title instead of refusing an artwork over it (throw-vs-repair policy)', () => {
         const expression = createExpression(
-            createNode(catalog, 'x'),
-            createNode(catalog, 'y'),
+            createNode(catalog, 'x', [], [0, 0, 0]),
+            createNode(catalog, 'y', [], [0, 0, 0]),
             createNode(catalog, 'const', [], [0.5]),
         );
 
@@ -291,7 +291,10 @@ describe('artwork: provenance', () => {
         const edited = {
             ...artwork,
             expression: createExpression(
-                createNode(catalog, 'add', [createNode(catalog, 'x'), createNode(catalog, 'y')]),
+                createNode(catalog, 'add', [
+                    createNode(catalog, 'x', [], [0, 0, 0]),
+                    createNode(catalog, 'y', [], [0, 0, 0]),
+                ]),
                 artwork.expression.g,
                 artwork.expression.b,
             ),

@@ -34,10 +34,4 @@ describe('randomGrammar', () => {
             expect(() => generate(catalog, grammar, createSeed(42))).not.toThrow();
         }
     });
-
-    it('draws the still-image default (motion off)', () => {
-        for (let i = 1; i <= 50; i++) {
-            expect(randomGrammar(catalog, rngAt(i)).motion).toBe('off');
-        }
-    });
 });

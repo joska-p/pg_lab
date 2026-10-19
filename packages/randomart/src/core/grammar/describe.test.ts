@@ -7,21 +7,6 @@ import { createGrammar } from './grammar.ts';
 const catalog = createDefaultCatalog();
 
 describe('describeGrammar', () => {
-    it('reports animation from the grammar motion', () => {
-        const still = createGrammar(catalog, {
-            weights: { x: 1, y: 1, add: 1 },
-            constraints: { minDepth: 1, maxDepth: 4, maxNodes: 20 },
-        });
-        const moving = createGrammar(catalog, {
-            weights: { x: 1, y: 1, add: 1 },
-            constraints: { minDepth: 1, maxDepth: 4, maxNodes: 20 },
-            motion: 'drift',
-        });
-
-        expect(describeGrammar(catalog, still).animated).toBe(false);
-        expect(describeGrammar(catalog, moving).animated).toBe(true);
-    });
-
     it('reports zero growth for a terminal-only grammar', () => {
         const grammar = createGrammar(catalog, {
             weights: { x: 1, y: 1 },

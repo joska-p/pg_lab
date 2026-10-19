@@ -52,9 +52,9 @@ the whole image moving as a block.
   `1 + round(2 * cycles)`. Whole cycles keep the loop exactly periodic.
 - The emitted GLSL, e.g. for `x(0.337, 0.961, 0.387)`:
 
-  ```glsl
-  (0.663*v_p.x + 0.337*sin(2.0*PI*2.0*u_phase + PI*0.961))
-  ```
+    ```glsl
+    (0.663*v_p.x + 0.337*sin(2.0*PI*2.0*u_phase + PI*0.961))
+    ```
 
 - `amp = 0` falls back to the plain coordinate `${p}.${axis}`.
 - Every x/y declares `requires: ['u_phase']`, so any expression containing one
@@ -79,19 +79,40 @@ the whole image moving as a block.
 - `amp ≤ 0.7` and `cycles ∈ {1, 2, 3}` are hard-coded in `terminals.ts` — the
   first knobs to move when exploring.
 
-## Known-broken state (deliberate, tests come next)
+## Test suite: green again (2026-10-19)
 
-The test suite still exercises the removed motion axis, so `vp check` fails on
-~21 test errors until they are rewritten and the generator snapshots are
-regenerated:
+The repairs promised above landed. `vp check` is clean (format, lint, types
+on 452 files) and `vp test` is fully green (478 passed, 10 skipped — the
+skips are the pre-existing opt-in `skipIf(!enabled)` measure/dump tests).
 
-- `src/core/compiler/compiler.test.ts`, `testing.test.ts`, `fuzz.test.ts`
-- `src/core/grammar/grammar.test.ts`, `quantized.test.ts`, `describe.test.ts`,
-  `sample.test.ts`, `randomGrammar.test.ts`
-- `src/core/generator/__snapshots__/generator.test.ts.snap` (predates the new
-  x/y draws)
+What changed:
 
-The source itself typechecks and formats cleanly.
+- `compiler.test.ts` rewritten around time terminals (oscillator GLSL, amp=0
+  fallback, cycles 1..3); `testing.test.ts`/`fuzz.test.ts` no longer pass
+  `{ motion }` to `compile()`, and fuzz derives `expectedAnimated` via
+  `usesOperator(expression, new Set(['x', 'y']))`.
+- Grammar tests (`quantized`, `sample`, `randomGrammar`, `describe`,
+  `grammar`): every `motion` reference and test deleted (the axis does not
+  exist); `grammar.test.ts`'s stale `SampleRecipesOptions` error is gone.
+- Expression tests (`expression`, `inspect`, `serialize`, `artwork`,
+  `emit`, `lower`): `x`/`y` fixtures are `createNode(catalog, 'x', [],
+  [0, 0, 0])` — amp=0, the plain coordinate — so expectations carry the
+  3 params (`x[0,0,0]()`, `x(0, 0, 0)`, serialized `params: [0, 0, 0]`).
+  `createNode` stays strict: exact param count, no defaults.
+- Generator snapshots regenerated (GENERATOR_VERSION 4): every `x`/`y`
+  leaf now carries its 3 quantized params, no bare `x`/`y` leaf remains.
+
+### The `animated` flag (decision: keep)
+
+There is no "static vs animated" shader type — a still image is a play
+frozen at some phase. `CompiledShader.animated` is kept as the **factual
+dep-closure property** "this shader reads `u_phase`" (derived by
+`buildPreamble` from the operator closure, `x`/`y` declaring
+`requires: ['u_phase']`). Its only consumer is the render gate
+(`renderer/renderGate.ts`): it skips phase-only redraws for const-only
+shaders, which is a real win (no pointless redraw at 60 fps). Docs and test
+names now say "reads / does not read `u_phase`" instead of "animated /
+static".
 
 ## Next sessions
 

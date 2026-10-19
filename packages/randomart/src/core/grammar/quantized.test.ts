@@ -65,11 +65,9 @@ describe('sampleRecipes', () => {
         for (const { recipe } of sampleRecipes(catalog, 30, {
             share: 2,
             space: 'oklab',
-            motion: 'pulse',
         })) {
             expect(recipe.share).toBe(2);
             expect(recipe.space).toBe('oklab');
-            expect(recipe.motion).toBe('pulse');
         }
     });
 
@@ -89,22 +87,20 @@ describe('recipeToGrammar', () => {
             size: 'medium',
             share: 'mono',
             space: 'oklch',
-            motion: 'off',
         });
 
         expect(grammar.channels.shareDepth).toBe(grammar.constraints.maxDepth);
     });
 
-    it('carries the motion axis into the grammar', () => {
+    it('shares no trunk at share 0', () => {
         const grammar = recipeToGrammar(catalog, {
             levels,
             size: 'medium',
-            share: 2,
+            share: 0,
             space: 'oklch',
-            motion: 'swing',
         });
 
-        expect(grammar.motion).toBe('swing');
+        expect(grammar.channels.shareDepth).toBe(0);
     });
 });
 

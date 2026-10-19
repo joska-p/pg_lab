@@ -13,7 +13,7 @@ import type { ColorSpaceId } from '../color/index.ts';
 export interface PreambleResult {
     /** Lines that go before void main(). */
     readonly preambleLines: readonly string[];
-    /** Whether u_phase is required (animated). */
+    /** Whether the shader reads `u_phase`, derived from the dependency closure alone. */
     readonly animated: boolean;
     /** Uniforms to include in CompiledShader.uniforms. */
     readonly uniforms: readonly { name: string; glslType: 'float' }[];

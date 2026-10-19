@@ -9,8 +9,8 @@ describe('lower', () => {
 
     describe('topological ordering and structure', () => {
         it('assigns ids in strict topological order (children before parents)', () => {
-            const x = createNode(catalog, 'x');
-            const y = createNode(catalog, 'y');
+            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const y = createNode(catalog, 'y', [], [0, 0, 0]);
             const sinX = createNode(catalog, 'sin', [x]);
             const add = createNode(catalog, 'add', [sinX, y]);
             const expr = createExpression(add, sinX, x);
@@ -27,7 +27,7 @@ describe('lower', () => {
         });
 
         it('returns frozen vertices, usages, and valid root ids', () => {
-            const x = createNode(catalog, 'x');
+            const x = createNode(catalog, 'x', [], [0, 0, 0]);
             const expr = createExpression(x, x, x);
             const result = lower(catalog, expr);
 
@@ -42,8 +42,8 @@ describe('lower', () => {
 
     describe('hash-consing / deduplication', () => {
         it('deduplicates identical sub-expressions across channels', () => {
-            const x = createNode(catalog, 'x');
-            const y = createNode(catalog, 'y');
+            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const y = createNode(catalog, 'y', [], [0, 0, 0]);
             const sinX = createNode(catalog, 'sin', [x]);
             const add = createNode(catalog, 'add', [sinX, y]);
 
@@ -57,8 +57,8 @@ describe('lower', () => {
         });
 
         it('deduplicates identical subtrees even when built as separate AST node objects', () => {
-            const x1 = createNode(catalog, 'x');
-            const x2 = createNode(catalog, 'x');
+            const x1 = createNode(catalog, 'x', [], [0, 0, 0]);
+            const x2 = createNode(catalog, 'x', [], [0, 0, 0]);
             const sin1 = createNode(catalog, 'sin', [x1]);
             const sin2 = createNode(catalog, 'sin', [x2]);
             const expr = createExpression(sin1, sin2, x1);
@@ -73,7 +73,7 @@ describe('lower', () => {
         it('distinguishes operators with different parameters', () => {
             const c1 = createNode(catalog, 'const', [], [0.25]);
             const c2 = createNode(catalog, 'const', [], [0.75]);
-            const x = createNode(catalog, 'x');
+            const x = createNode(catalog, 'x', [], [0, 0, 0]);
             const expr = createExpression(c1, c2, x);
 
             const result = lower(catalog, expr);
@@ -86,8 +86,8 @@ describe('lower', () => {
 
     describe('usages counting', () => {
         it('adds +1 usage per channel root', () => {
-            const x = createNode(catalog, 'x');
-            const y = createNode(catalog, 'y');
+            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const y = createNode(catalog, 'y', [], [0, 0, 0]);
             const z = createNode(catalog, 'const', [], [0.5]);
             const expr = createExpression(x, y, z);
 
@@ -99,7 +99,7 @@ describe('lower', () => {
         });
 
         it('accumulates multiple root usages when channels share the same root', () => {
-            const x = createNode(catalog, 'x');
+            const x = createNode(catalog, 'x', [], [0, 0, 0]);
             // r, g, b are all x
             const expr = createExpression(x, x, x);
             const result = lower(catalog, expr);
@@ -111,7 +111,7 @@ describe('lower', () => {
         });
 
         it('applies operator input multiplicity to child usages', () => {
-            const x = createNode(catalog, 'x');
+            const x = createNode(catalog, 'x', [], [0, 0, 0]);
             const sqrX = createNode(catalog, 'sqr', [x]); // sqr multiplicity is 2
             const expr = createExpression(sqrX, x, x);
 
@@ -131,11 +131,11 @@ describe('lower', () => {
         });
 
         it('does NOT re-accumulate child usages when an existing vertex is reused', () => {
-            const x = createNode(catalog, 'x');
+            const x = createNode(catalog, 'x', [], [0, 0, 0]);
             const sinX = createNode(catalog, 'sin', [x]); // x is child of sinX
             const add1 = createNode(catalog, 'add', [sinX, x]);
             const add2 = createNode(catalog, 'add', [sinX, x]); // identical to add1!
-            const y = createNode(catalog, 'y');
+            const y = createNode(catalog, 'y', [], [0, 0, 0]);
             const expr = createExpression(add1, add2, y);
 
             const result = lower(catalog, expr);
@@ -171,7 +171,7 @@ describe('lower', () => {
         it('lowers warp node into a child context c1', () => {
             const dx = createNode(catalog, 'const', [], [0.1]);
             const dy = createNode(catalog, 'const', [], [0.2]);
-            const x = createNode(catalog, 'x');
+            const x = createNode(catalog, 'x', [], [0, 0, 0]);
             const warpNode = createNode(catalog, 'warp', [dx, dy, x]);
             const expr = createExpression(warpNode, dx, dy);
 
@@ -191,8 +191,8 @@ describe('lower', () => {
         it('deduplicates identical contexts across channels (interning)', () => {
             const dx = createNode(catalog, 'const', [], [0.1]);
             const dy = createNode(catalog, 'const', [], [0.2]);
-            const x = createNode(catalog, 'x');
-            const y = createNode(catalog, 'y');
+            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const y = createNode(catalog, 'y', [], [0, 0, 0]);
             const warp1 = createNode(catalog, 'warp', [dx, dy, x]);
             const warp2 = createNode(catalog, 'warp', [dx, dy, y]);
             const expr = createExpression(warp1, warp2, dx);
@@ -209,7 +209,7 @@ describe('lower', () => {
             const dy1 = createNode(catalog, 'const', [], [0.2]);
             const dx2 = createNode(catalog, 'const', [], [0.3]);
             const dy2 = createNode(catalog, 'const', [], [0.4]);
-            const x = createNode(catalog, 'x');
+            const x = createNode(catalog, 'x', [], [0, 0, 0]);
 
             const warp1 = createNode(catalog, 'warp', [dx1, dy1, x]);
             const warp2 = createNode(catalog, 'warp', [dx2, dy2, x]);
@@ -230,7 +230,7 @@ describe('lower', () => {
         it('preserves topological order between vertices and contexts in program', () => {
             const dx = createNode(catalog, 'const', [], [0.1]);
             const dy = createNode(catalog, 'const', [], [0.2]);
-            const x = createNode(catalog, 'x');
+            const x = createNode(catalog, 'x', [], [0, 0, 0]);
             const warpNode = createNode(catalog, 'warp', [dx, dy, x]);
             const expr = createExpression(warpNode, dx, dy);
 
@@ -256,8 +256,8 @@ describe('lower', () => {
         it('accumulates mc usages on current inputs when context is created, but not on reuse', () => {
             const dx = createNode(catalog, 'const', [], [0.1]);
             const dy = createNode(catalog, 'const', [], [0.2]);
-            const x = createNode(catalog, 'x');
-            const y = createNode(catalog, 'y');
+            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const y = createNode(catalog, 'y', [], [0, 0, 0]);
             const warp1 = createNode(catalog, 'warp', [dx, dy, x]);
             const warp2 = createNode(catalog, 'warp', [dx, dy, y]);
             const zero = createNode(catalog, 'const', [], [0]);

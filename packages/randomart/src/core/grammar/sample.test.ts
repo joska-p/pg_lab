@@ -20,9 +20,8 @@ describe('sampleGrammars', () => {
         expect(a.map((s) => s.seeds)).toEqual(b.map((s) => s.seeds));
     });
 
-    it('draws the still-image default (motion off) with the channel model raw', () => {
+    it('draws the default with the channel model raw', () => {
         for (const { grammar } of sampleGrammars(catalog, 100)) {
-            expect(grammar.motion).toBe('off');
             expect(grammar.channels).toEqual(RAW_CHANNELS);
         }
     });

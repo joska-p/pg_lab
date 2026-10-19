@@ -245,7 +245,6 @@ describe('grammar: defaultGrammar', () => {
         expect(g.weights.mix).toBe(0.5);
         expect(g.weights.select).toBe(0.5);
         expect(g.weights.warp).toBe(0.5);
-        expect(g.motion).toBe('off');
         expect(g.constraints).toEqual({
             minDepth: 3,
             maxDepth: 8,

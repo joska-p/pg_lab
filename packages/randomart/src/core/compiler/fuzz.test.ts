@@ -4,7 +4,7 @@ import { validateShaderContract } from '../../renderer/contract.ts';
 import { createDefaultCatalog } from '../catalog/index.ts';
 import { generate } from '../generator/index.ts';
 import { compile } from './compile.ts';
-import { buildFuzzCases, checkShaderStructure } from './testing.ts';
+import { buildFuzzCases, checkShaderStructure, usesOperator } from './testing.ts';
 import type { CompiledShader, SharingPolicy } from './types.ts';
 
 const catalog = createDefaultCatalog();
@@ -32,7 +32,6 @@ describe(`compiler fuzz, pure (${FUZZ_COUNT} cases x 3 policies)`, () => {
                         compile(catalog, expression, {
                             sharing: policy,
                             channels: grammar.channels,
-                            motion: grammar.motion,
                         }),
                     );
                 } catch (error) {
@@ -49,8 +48,11 @@ describe(`compiler fuzz, pure (${FUZZ_COUNT} cases x 3 policies)`, () => {
                 }
             }
 
-            // Animation is a property of the grammar's motion, not of the vocabulary.
-            const expectedAnimated = grammar.motion !== 'off';
+            // Animation is a property of the expression: x and y are the only u_phase readers, so
+            // the shader animates iff at least one channel contains one. A still is a paused play.
+            const expectedAnimated = (['r', 'g', 'b'] as const).some((channel) =>
+                usesOperator(expression[channel], new Set(['x', 'y'])),
+            );
 
             for (const [policy, shader] of compiled) {
                 const where = `${label} / ${policy}`;

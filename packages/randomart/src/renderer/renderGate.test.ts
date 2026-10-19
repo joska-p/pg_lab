@@ -23,21 +23,25 @@ describe('needsRender', () => {
         expect(needsRender(base, { ...base })).toBe(false);
     });
 
-    it('renders when the phase moves on an animated shader', () => {
+    it('renders when the phase moves on a shader that reads u_phase', () => {
         expect(needsRender(base, { ...base, phase: createPhase(0.26) })).toBe(true);
     });
 
-    it('ignores the phase on a static shader', () => {
-        const still = { ...base, animated: false };
+    it('ignores the phase on a shader that does not read u_phase', () => {
+        const constOnly = { ...base, animated: false };
 
-        expect(needsRender(still, { ...still, phase: createPhase(0.9) })).toBe(false);
+        expect(needsRender(constOnly, { ...constOnly, phase: createPhase(0.9) })).toBe(false);
     });
 
-    it('renders after any size change, even on a static shader', () => {
-        const still = { ...base, animated: false };
+    it('renders after any size change, even on a const-only shader', () => {
+        const constOnly = { ...base, animated: false };
 
-        expect(needsRender(still, { ...still, width: 641 as RenderKey['width'] })).toBe(true);
-        expect(needsRender(still, { ...still, height: 481 as RenderKey['height'] })).toBe(true);
-        expect(needsRender(still, { ...still, dpr: 1 as RenderKey['dpr'] })).toBe(true);
+        expect(needsRender(constOnly, { ...constOnly, width: 641 as RenderKey['width'] })).toBe(
+            true,
+        );
+        expect(needsRender(constOnly, { ...constOnly, height: 481 as RenderKey['height'] })).toBe(
+            true,
+        );
+        expect(needsRender(constOnly, { ...constOnly, dpr: 1 as RenderKey['dpr'] })).toBe(true);
     });
 });
