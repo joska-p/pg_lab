@@ -1,4 +1,5 @@
-import { correlation, pca } from '../../src/core/analysis/pca.ts';
+import { correlation } from '../../src/core/analysis/correlation.ts';
+import { pca } from '../../src/core/analysis/pca.ts';
 import type { FeatureRow, Features } from './computeFeatures.ts';
 
 /** What a grammar was made of: operator weights, constraints, vocabulary size. */

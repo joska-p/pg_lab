@@ -9,24 +9,6 @@ export interface Pca {
     readonly scores: readonly (readonly number[])[];
 }
 
-export function correlation(a: readonly number[], b: readonly number[]): number {
-    const n = a.length;
-    const ma = a.reduce((s, x) => s + x, 0) / n;
-    const mb = b.reduce((s, x) => s + x, 0) / n;
-    let cov = 0;
-    let va = 0;
-    let vb = 0;
-
-    for (let i = 0; i < n; i++) {
-        cov += (a[i] - ma) * (b[i] - mb);
-        va += (a[i] - ma) ** 2;
-        vb += (b[i] - mb) ** 2;
-    }
-
-    // A constant column carries no correlation information: 0, not NaN.
-    return va === 0 || vb === 0 ? 0 : cov / Math.sqrt(va * vb);
-}
-
 /** Cyclic Jacobi for a small symmetric matrix. `vectors[k]` goes with `values[k]`, descending. */
 export function jacobiEigen(input: readonly (readonly number[])[]): {
     values: number[];

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { correlation, jacobiEigen, pca } from './pca.ts';
+import { jacobiEigen, pca } from './pca.ts';
 
 describe('jacobiEigen', () => {
     it('finds the eigenvalues of a known 2x2', () => {
@@ -65,13 +65,5 @@ describe('pca', () => {
                 [3, 5],
             ]),
         ).toThrow(/constant/);
-    });
-});
-
-describe('correlation', () => {
-    it('is 1, -1 and 0 for the textbook cases, and 0 for a constant column', () => {
-        expect(correlation([1, 2, 3], [2, 4, 6])).toBeCloseTo(1);
-        expect(correlation([1, 2, 3], [3, 2, 1])).toBeCloseTo(-1);
-        expect(correlation([1, 2, 3], [5, 5, 5])).toBe(0);
     });
 });

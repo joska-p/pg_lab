@@ -1,3 +1,5 @@
+import { correlation } from './correlation.ts';
+
 export interface RgbImage {
     readonly width: number;
     readonly height: number;
@@ -32,23 +34,6 @@ function std(values: ArrayLike<number>): number {
     }
 
     return values.length === 0 ? 0 : Math.sqrt(sum / values.length);
-}
-
-function pearson(a: ArrayLike<number>, b: ArrayLike<number>): number {
-    const ma = mean(a);
-    const mb = mean(b);
-    let cov = 0;
-    let va = 0;
-    let vb = 0;
-
-    for (let i = 0; i < a.length; i++) {
-        cov += (a[i] - ma) * (b[i] - mb);
-        va += (a[i] - ma) ** 2;
-        vb += (b[i] - mb) ** 2;
-    }
-
-    // A constant channel carries no correlation information: call it 0, not NaN.
-    return va === 0 || vb === 0 ? 0 : cov / Math.sqrt(va * vb);
 }
 
 /** Per-channel planes in [0, 1]. */
@@ -252,7 +237,10 @@ function colorStats(r: Float32Array, g: Float32Array, b: Float32Array) {
         // 1 = one dominant hue, 0 = hues spread around the wheel (or no color at all).
         hueConcentration: satSum === 0 ? 0 : Math.hypot(hueX, hueY) / satSum,
         channelCorrelation:
-            (Math.abs(pearson(r, g)) + Math.abs(pearson(g, b)) + Math.abs(pearson(r, b))) / 3,
+            (Math.abs(correlation(r, g)) +
+                Math.abs(correlation(g, b)) +
+                Math.abs(correlation(r, b))) /
+            3,
         // Hasler & Süsstrunk colorfulness, on [0, 1] channels.
         colorfulness: Math.hypot(std(rg), std(yb)) + 0.3 * Math.hypot(mean(rg), mean(yb)),
     };
