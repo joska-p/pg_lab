@@ -18,7 +18,7 @@ export interface Dataset {
     image(grammarIndex: number, seedIndex: number): RgbImage;
 }
 
-/** Reads `dataset.json` + `pixels.bin` as written by randomart's `generate.mjs`. */
+/** Reads `dataset.json` + `pixels.bin` as written by randomart's `cli.ts`. */
 export function loadDataset(directory: string): Dataset {
     const meta = JSON.parse(readFileSync(join(directory, 'dataset.json'), 'utf8'));
     const pixels = readFileSync(join(directory, 'pixels.bin'));

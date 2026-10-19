@@ -217,7 +217,7 @@ function setActionError(error: unknown): void {
  * The single write point for "a new image": generate → compile → publish, all or nothing. On
  * failure (compiler guard, bug, bad import) the previous state is kept and the error is shown.
  * Without `restoreId` a new history entry is recorded; with it, the entry is simply re-selected.
- * With `coalesce`, consecutive calls (typing in a constraint field) replace each other's entry
+ * With `coalesce`, consecutive calls (while sliding a recipe knob) replace each other's entry
  * instead of flooding the history.
  */
 function commit(recipe: Recipe, seed: Seed, restoreId?: number, coalesce = false): void {
