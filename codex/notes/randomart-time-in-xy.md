@@ -118,6 +118,6 @@ static".
 
 1. **Colour conversion deep-dive** — why `[-1, 1] → [0, 1]` via a colour
    space at all. Prompt in `codex/prompts/session-colour-pipeline.md`.
-2. **Config file for hard-coded values** — centralize the magic numbers
-   (`amp` bounds, cycle mapping, sizes, bounds…) to iterate faster. Prompt in
-   `codex/prompts/session-config-file.md`.
+2. **Config file for hard-coded values** — done (partial): `TUNING` in
+   `packages/randomart/src/core/config/tuning.ts`, split knobs-vs-guards and
+   remaining TODOs in `codex/notes/randomart-config-knobs.md`.

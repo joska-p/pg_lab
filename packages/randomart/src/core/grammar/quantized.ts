@@ -1,6 +1,8 @@
 import type { Catalog, OperatorId } from '../catalog/index.ts';
 import { COLOR_SPACE_IDS } from '../color/index.ts';
 import type { ColorSpaceId } from '../color/index.ts';
+import { TUNING } from '../config/index.ts';
+import type { SizeProfileId, WeightLevel } from '../config/index.ts';
 import { createRng } from '../random/index.ts';
 import type { Rng, Seed } from '../random/index.ts';
 import { createGrammar, weightOf } from './grammar.ts';
@@ -34,30 +36,41 @@ export const FAMILY_OPERATORS: Record<FamilyId, readonly OperatorId[]> = {
     warp: ['warp'],
 };
 
-export const WEIGHT_LEVELS = ['off', 'low', 'normal', 'high'] as const;
-export type WeightLevel = (typeof WEIGHT_LEVELS)[number];
+export type { SizeProfileId, WeightLevel } from '../config/index.ts';
 
-export const LEVEL_WEIGHT: Record<WeightLevel, number> = {
-    off: 0,
-    low: 0.5,
-    normal: 1,
-    high: 3,
-};
+/**
+ * Axis ids in draw order: they come from the config entry order, which `randomRecipe` consumes
+ * through the PRNG — append new entries in `TUNING.recipe`, never reorder.
+ */
+export const WEIGHT_LEVELS = Object.keys(TUNING.recipe.levels) as readonly WeightLevel[];
+export const PROFILE_IDS = Object.keys(TUNING.recipe.sizeProfiles) as readonly SizeProfileId[];
 
-/** Relative odds of each level in a random draw: tune here to bias the sampler. */
-const LEVEL_ODDS: Record<WeightLevel, number> = { off: 3, low: 2, normal: 3, high: 2 };
+function levelsField(field: 'weight' | 'odds'): Record<WeightLevel, number> {
+    const values = {} as Record<WeightLevel, number>;
 
-/** Anchors can never be off: without x/y the image has no spatial variation. */
-const ANCHOR_LEVELS: readonly WeightLevel[] = ['normal', 'high'];
+    for (const level of WEIGHT_LEVELS) {
+        values[level] = TUNING.recipe.levels[level][field];
+    }
 
-export const PROFILE_IDS = ['small', 'medium', 'large'] as const;
-export type SizeProfileId = (typeof PROFILE_IDS)[number];
+    return values;
+}
 
-export const SIZE_PROFILES: Record<SizeProfileId, ConstraintsInput> = {
-    small: { minDepth: 2, maxDepth: 5, maxNodes: 30 },
-    medium: { minDepth: 3, maxDepth: 8, maxNodes: 60 },
-    large: { minDepth: 4, maxDepth: 10, maxNodes: 120 },
-};
+/** Operator weight each level maps to (its meaning on the axis). */
+export const LEVEL_WEIGHT = levelsField('weight');
+
+/** Relative odds of each level in a random draw — bias the sampler in `TUNING.recipe.levels`. */
+const LEVEL_ODDS = levelsField('odds');
+
+/**
+ * Levels anchors (x/y) may be drawn at — the `anchor` flags of `TUNING.recipe.levels`: anchors can
+ * never be `off`, without x/y the image has no spatial variation.
+ */
+export const ANCHOR_LEVELS: readonly WeightLevel[] = WEIGHT_LEVELS.filter(
+    (level) => TUNING.recipe.levels[level].anchor,
+);
+
+/** Depth/node budgets per size — the knobs live in `TUNING.recipe.sizeProfiles`. */
+export const SIZE_PROFILES: Record<SizeProfileId, ConstraintsInput> = TUNING.recipe.sizeProfiles;
 
 export const SHARE_CHOICES = [0, 1, 2, 3, 'mono'] as const;
 export type ShareChoice = (typeof SHARE_CHOICES)[number];
@@ -106,8 +119,6 @@ export interface RandomRecipeOptions {
     readonly size?: SizeProfileId;
 }
 
-const MIN_ACTIVE_FAMILIES = 2;
-
 function drawLevel(rng: Rng, allowed: readonly WeightLevel[]): WeightLevel {
     return rng.weighted(allowed, (level) => LEVEL_ODDS[level]);
 }
@@ -125,7 +136,7 @@ export function randomRecipe(rng: Rng, options: RandomRecipeOptions = {}): Recip
             (family) => family !== 'anchors' && levels[family] !== 'off',
         ).length;
 
-        if (active < MIN_ACTIVE_FAMILIES) {
+        if (active < TUNING.recipe.minActiveFamilies) {
             continue;
         }
 
@@ -188,8 +199,6 @@ export function sampleRecipes(
     return sampled;
 }
 
-const ANCHOR_OK: readonly WeightLevel[] = ['normal', 'high'];
-
 /** Exact inverse of `recipeToGrammar`; `null` when the grammar is not a point of the space. */
 export function recipeOf(grammar: Grammar): Recipe | null {
     const levels = {} as Record<FamilyId, WeightLevel>;
@@ -200,7 +209,7 @@ export function recipeOf(grammar: Grammar): Recipe | null {
             weights.every((weight) => weight === LEVEL_WEIGHT[candidate]),
         );
 
-        if (!level || (family === 'anchors' && !ANCHOR_OK.includes(level))) {
+        if (!level || (family === 'anchors' && !ANCHOR_LEVELS.includes(level))) {
             return null;
         }
 

@@ -32,6 +32,7 @@ export {
     MIN_WEIGHT,
 } from './types.ts';
 export {
+    ANCHOR_LEVELS,
     FAMILY_IDS,
     FAMILY_OPERATORS,
     LEVEL_WEIGHT,

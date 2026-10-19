@@ -5,6 +5,7 @@ import { Select } from '@repo/ui/components/Select';
 import { COLOR_SPACE_IDS, COLOR_SPACES } from '../../core/color/index.ts';
 import type { ColorSpaceId } from '../../core/color/index.ts';
 import {
+    ANCHOR_LEVELS,
     FAMILY_IDS,
     grammarPresets,
     PROFILE_IDS,
@@ -44,7 +45,6 @@ const FAMILY_LABELS: Record<FamilyId, string> = {
     logic: 'logic',
     warp: 'warp',
 };
-const ANCHOR_LEVELS: readonly WeightLevel[] = ['normal', 'high'];
 
 const SIZE_OPTIONS = PROFILE_IDS.map((id) => ({ value: id, label: id }));
 const SHARE_OPTIONS = SHARE_CHOICES.map((choice) => ({
