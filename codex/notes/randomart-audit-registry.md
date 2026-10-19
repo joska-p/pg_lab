@@ -14,17 +14,20 @@ vp run audit                      # from the repository root; exits 1 when a gat
 ```
 
 Each check also runs on its own (see the table below). The task lives in the root
-`vite.config.ts`, so it is only visible from the root.
+`vite.config.ts` (`tools/lint/audit.mjs`), so it is only visible from the root.
 
 Per-tool commands:
 
 | Check                      | Command                                                                   |
 | -------------------------- | ------------------------------------------------------------------------- |
-| Layers, purity, extensions | `vp lint -c tools/audit/oxlint.audit.jsonc packages/randomart`            |
-| Vocabulary and patterns    | `node tools/audit/banned-words.mjs packages/randomart`                    |
+| Layers, purity, extensions | `vp check` (rules in `tools/lint/randomart.ts`)                           |
+| Vocabulary and patterns    | `node tools/lint/banned-words.mjs packages/randomart`                     |
 | Dead code                  | `knip -W packages/randomart`                                              |
 | Duplication                | `jscpd packages/randomart --ignore "**/*.test.ts" --threshold 1`          |
 | Cycles (informational)     | `madge --circular --extensions ts,tsx packages/randomart/src .../scripts` |
+
+Layer direction, core purity and import extensions are **lint rules** now: they run through
+`vp check` (and its CI step) like any other rule, not through the standalone audit task.
 
 ## Progress
 
@@ -48,6 +51,27 @@ unchanged.
 Re-run after the batch: **import extensions pass (0)**, **banned vocabulary pass (0)**, **dead files
 pass (0)**, duplication passes. Still red, by decision: **layers** (B-01: the two core test imports
 of `renderer/contract.ts`) and **dead code** (B-02: the barrel symbols). Cycles stay informational.
+
+### B batch — done
+
+Every gate is green (cycles stay an informational warning by decision B-04). One commit per barrel,
+`vp check` and `vp test` green after each, `GENERATOR_VERSION` and the snapshots unchanged.
+
+| Item      | Commit               | Change                                                                                      |
+| --------- | -------------------- | ------------------------------------------------------------------------------------------- |
+| B-01      | `0b49486`            | extract the GLSL contract into `core/compiler`                                              |
+| B-02      | `08ec106`            | prune the `core/analysis` barrel                                                            |
+| B-02      | `d547f1b`            | prune the `core/artwork` barrel                                                             |
+| B-02      | `4ce9d16`            | prune the `core/catalog` barrel                                                             |
+| B-02      | `20e8b2f`            | prune the `core/compiler` barrel (`export *` → named re-exports)                            |
+| B-02      | `335ad66`            | prune the `core/config` barrel                                                              |
+| B-02      | `97677eb`            | prune the `core/expression` barrel                                                          |
+| B-02      | `faaf765`            | prune the `core/grammar` barrel                                                             |
+| B-02      | `7b8497e`            | prune the `core/notebook` barrel                                                            |
+| B-02      | `a27d6ee`            | prune the `renderer` barrel                                                                 |
+| B-02      | `a098591`            | drop the module-internal exports (`publishArtwork`, `store`, `FLAT_SHARE_THRESHOLD`, …)     |
+| promotion | `fcccad1`            | rules to `tools/lint/`, promote the oxlint gates into `vp check`, wire `vp run audit` in CI |
+| docs      | `303e758`, `e1f8457` | conventions §2.6 and the settled B-01/B-03/B-04 decisions                                   |
 
 ## Summary
 
@@ -148,7 +172,7 @@ allowed direction). Landed in `0b49486`:
 
 The **layers** gate now passes.
 
-### B-02 — Over-exporting barrels (87 + 15 symbols) · knip · B
+### B-02 — Over-exporting barrels (87 + 15 symbols) · knip · B — **done**
 
 Out of 111 flagged symbols:
 
@@ -167,7 +191,8 @@ until each flagged symbol is either used or dropped.
 Where a symbol should live follows the placement rule now written in
 [conventions §2.6](../../docs/conventions/02-typescript.md): a type/interface that is not shared
 lives in the file of its consumer; a shared one lives in a `types.ts` at the deepest directory
-common to its consumers. Until the pruning lands, these 108 sites are not dead code.
+common to its consumers. Landed barrel by barrel (see the B batch table); `knip` now reports **0**
+unused exports, and the symbols used only inside their own module lost their `export` keyword.
 
 ### B-03 — Dataset/bench crosstalk (already open) · B — **decided**
 
@@ -231,7 +256,12 @@ titles, `index.html` `<title>randomart-next</title>`, hard-coded `/tmp/opencode/
 1. ~~Work through the A batch (A-01 → A-08)~~ — done (see Progress).
 2. ~~Decide B-01, B-03, B-04~~ — decided (B-01 landed in `0b49486`; B-03 and B-04 need no code
    change).
-3. **B-02** — prune the barrels so every exported symbol has a consumer, following the §2.6
-   placement rule for the types that move. This is the last red gate.
-4. Then promote the audit rules from `tools/audit/` to `tools/lint/` and wire `vp run audit` into CI
-   (`.github/workflows/deploy.yml` currently only runs `vp check --fix` and the build).
+3. ~~**B-02** — prune the barrels~~ — done (see the B batch table): every exported symbol has a
+   consumer, `knip` reports 0.
+4. ~~Promote the audit rules from `tools/audit/` to `tools/lint/` and wire `vp run audit` into CI~~ —
+   done in `fcccad1`: layers/purity/extensions are override rules in `tools/lint/randomart.ts` (run
+   by `vp check`), the vocabulary script and the runner live in `tools/lint/`, and
+   `.github/workflows/deploy.yml` runs `vp run audit`.
+
+Open follow-ups (not gates): the **D** documentation list above, and the **B-05** duplication
+clones (`C`).
