@@ -52,7 +52,7 @@ function fixture(provenance = true, seed = 12_345): Fixture {
 }
 
 describe('artwork: createArtwork', () => {
-    it('applies the render defaults (1024², 8000 ms) and freezes the artwork', () => {
+    it('applies the render defaults (1024², 60000 ms) and freezes the artwork', () => {
         const { artwork } = fixture(false);
 
         expect(artwork.render).toEqual({ width: 1024, height: 1024, loopMs: 60000 });
@@ -101,7 +101,7 @@ describe('artwork: createArtwork', () => {
 });
 
 describe('artwork: createRenderSettings', () => {
-    it('applies the defaults (1024², 8000 ms) and freezes the result', () => {
+    it('applies the defaults (1024², 60000 ms) and freezes the result', () => {
         const settings = createRenderSettings();
 
         expect(settings).toEqual({ width: 1024, height: 1024, loopMs: 60000 });

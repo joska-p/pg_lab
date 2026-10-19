@@ -46,8 +46,8 @@ describe('emit', () => {
     });
 
     it('collects the dependencies of the operators it emits', () => {
-        // A custom operator that reads `u_phase` proves uniform-dep collection (no stock operator
-        // reads a uniform since animation moved to the coordinate prelude).
+        // A custom operator that reads `u_phase` proves uniform-dep collection: only the uniforms
+        // an emitted operator declares reach the preamble (the stock `x`/`y` read `u_phase` too).
         const clockOperator: OperatorSpec = {
             label: 'Clock',
             group: 'terminal',
