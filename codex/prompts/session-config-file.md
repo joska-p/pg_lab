@@ -48,8 +48,6 @@ convention files before designing anything.
 
 ## Constraints
 
-- The test suite is currently knowingly broken (~21 errors, see the note):
-  run `vp check` but only ensure the **source** stays clean; do not fix the
-  tests here.
+- No need for back compatibility. there is no old artwork or consumers.
 - Bump `GENERATOR_VERSION` if — and only if — a change alters the numbers a
   given seed produces.
