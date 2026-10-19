@@ -5,7 +5,7 @@ import { plancheColumns } from './planche.ts';
 import type { PlancheRow, PlancheCell } from './planche.ts';
 
 /** Above this share of flat blocks, the grammar is considered collapsed. */
-export const FLAT_SHARE_THRESHOLD = 0.9;
+const FLAT_SHARE_THRESHOLD = 0.9;
 
 export function isFlat(image: RgbImage, threshold = FLAT_SHARE_THRESHOLD): boolean {
     return flatShareOf(image) >= threshold;

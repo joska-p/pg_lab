@@ -83,7 +83,7 @@ interface BenchState {
  * grammar, expression, history) because the two do not share write authority — the panel edits the
  * lot, the stage shows it, `appStore` never sees it.
  */
-export const store = create<BenchState>(() => ({
+const store = create<BenchState>(() => ({
     settings: DEFAULT_SETTINGS,
     notebook: createNotebook(),
     activeBatchId: null,

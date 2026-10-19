@@ -14,7 +14,7 @@ export interface PcaOptions {
     readonly std: boolean;
 }
 
-export interface PcaComponent {
+interface PcaComponent {
     /** Strongest descriptor loadings of this component. */
     readonly loadings: readonly { readonly label: string; readonly value: number }[];
     /** Grammar parameters tracking this component, by correlation. */

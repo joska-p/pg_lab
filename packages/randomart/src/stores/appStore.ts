@@ -381,7 +381,7 @@ function downloadBlob(blob: Blob, filename: string): void {
  * ignored: render size = canvas size until the artwork is resized; the loop duration is adopted
  * when the UI bounds allow it.
  */
-export function publishArtwork(artwork: Artwork): void {
+function publishArtwork(artwork: Artwork): void {
     const { expression, provenance, render } = artwork;
     const state = store.getState();
     const grammar = provenance?.grammar ?? state.grammar;
