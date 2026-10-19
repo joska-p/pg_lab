@@ -102,32 +102,51 @@ export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expres
         return paramValues;
     }
 
+    /**
+     * Builds the `k` children of a node, each with a fair share of `budget`: the floor `m` plus an
+     * equal share of what is left, re-split after each child from the size it actually took (the
+     * last child gets the remainder). `build` receives the child's own budget.
+     */
+    function buildChildren<T extends { size: number }>(
+        currentDepth: number,
+        budget: number,
+        k: number,
+        build: (childBudget: number) => T,
+    ): T[] {
+        const m = minSize(currentDepth + 1, minDepth, vocabulary);
+        let remaining = budget - 1 - k * m;
+        const children: T[] = [];
+
+        for (let i = 0; i < k; i++) {
+            const childBudget = m + Math.floor(remaining / (k - i));
+            const child = build(childBudget);
+
+            children.push(child);
+            remaining -= child.size - m;
+        }
+
+        return children;
+    }
+
     /** One node of ONE channel's tree, below the trunk: the historical recursion. */
     function generateNode(currentDepth: number, budget: number): { node: Node; size: number } {
         const operator = drawOperator(currentDepth, budget);
         const paramValues = drawParams(operator);
-
-        const k = operator.arity;
-        const childNodes: Node[] = [];
-        let totalChildSize = 0;
-
-        if (k > 0) {
-            const m = minSize(currentDepth + 1, minDepth, vocabulary);
-            let remaining = budget - 1 - k * m;
-
-            for (let i = 0; i < k; i++) {
-                const childBudget = m + Math.floor(remaining / (k - i));
-                const childResult = generateNode(currentDepth + 1, childBudget);
-
-                childNodes.push(childResult.node);
-                totalChildSize += childResult.size;
-                remaining -= childResult.size - m;
-            }
-        }
+        const children =
+            operator.arity > 0
+                ? buildChildren(currentDepth, budget, operator.arity, (childBudget) =>
+                      generateNode(currentDepth + 1, childBudget),
+                  )
+                : [];
 
         return {
-            node: createNode(catalog, operator.name, childNodes, paramValues),
-            size: 1 + totalChildSize,
+            node: createNode(
+                catalog,
+                operator.name,
+                children.map((child) => child.node),
+                paramValues,
+            ),
+            size: 1 + children.reduce((sum, child) => sum + child.size, 0),
         };
     }
 
@@ -150,22 +169,12 @@ export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expres
         // Inside the trunk the operator and params are drawn once, so the channels agree here.
         const operator = drawOperator(currentDepth, budget);
         const paramValues = drawParams(operator);
-
-        const k = operator.arity;
-        const childResults: TrunkResult[] = [];
-
-        if (k > 0) {
-            const m = minSize(currentDepth + 1, minDepth, vocabulary);
-            let remaining = budget - 1 - k * m;
-
-            for (let i = 0; i < k; i++) {
-                const childBudget = m + Math.floor(remaining / (k - i));
-                const childResult = generateTrunk(currentDepth + 1, childBudget);
-
-                childResults.push(childResult);
-                remaining -= childResult.size - m;
-            }
-        }
+        const childResults =
+            operator.arity > 0
+                ? buildChildren(currentDepth, budget, operator.arity, (childBudget) =>
+                      generateTrunk(currentDepth + 1, childBudget),
+                  )
+                : [];
 
         const size = 1 + childResults.reduce((sum, child) => sum + child.size, 0);
         const childrenAt = (channel: number): readonly Node[] =>
