@@ -89,30 +89,6 @@ export interface CachedVignette {
     readonly data: Uint8ClampedArray;
 }
 
-/** Caches a rendered vignette by its cache key. */
-export async function cacheVignette(key: string, vignette: CachedVignette): Promise<void> {
-    const db = await openDatabase();
-    if (!db) {
-        return;
-    }
-
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction(VIGNETTES_STORE, 'readwrite');
-        const store = tx.objectStore(VIGNETTES_STORE);
-        const req = store.put(
-            {
-                width: vignette.width,
-                height: vignette.height,
-                data: vignette.data.buffer,
-            },
-            key,
-        );
-
-        req.onsuccess = () => resolve();
-        req.onerror = () => reject(req.error);
-    });
-}
-
 /** Retrieves a cached vignette by key if available. */
 export async function getCachedVignette(key: string): Promise<CachedVignette | null> {
     const db = await openDatabase();

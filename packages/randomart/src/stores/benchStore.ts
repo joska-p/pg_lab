@@ -162,13 +162,6 @@ export function stepRow(delta: number): void {
     store.setState({ selectedRowIndex: Math.min(last, Math.max(0, selectedRowIndex + delta)) });
 }
 
-export function selectRow(rowIndex: number): void {
-    const { lot } = store.getState();
-    const last = Math.max(0, lot.grammars - 1);
-
-    store.setState({ selectedRowIndex: Math.min(last, Math.max(0, rowIndex)) });
-}
-
 /** Moves the current seed inside the current grammar. Clamped to the drawn columns. */
 export function stepCell(delta: number): void {
     const { selectedColIndex, lot } = store.getState();

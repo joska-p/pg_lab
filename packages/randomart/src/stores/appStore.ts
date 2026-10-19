@@ -189,10 +189,6 @@ export function setCanvas(canvas: HTMLCanvasElement): void {
     store.setState({ canvas });
 }
 
-export function useGrammarSummary(): GrammarSummary {
-    return store((s) => s.grammarSummary);
-}
-
 export function useGrammar(): Grammar {
     return store((s) => s.grammar);
 }
