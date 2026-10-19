@@ -2,7 +2,7 @@ import type { Address, Channel, Expression, Node } from './types.ts';
 
 const CHANNELS: readonly Channel[] = ['r', 'g', 'b'];
 
-export type NodeVisitor = (node: Node, address: Address) => void;
+type NodeVisitor = (node: Node, address: Address) => void;
 
 /** `g.in[1].in[0]`: the channel, then each input index followed. Also usable as a stable key. */
 export function formatAddress(address: Address): string {
