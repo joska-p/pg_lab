@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { validateShaderContract } from '../../renderer/contract.ts';
 import { Catalog, createDefaultCatalog, DEPENDENCIES, OPERATOR_SPECS } from '../catalog/index.ts';
 import type { DependencySpec, OperatorSpec } from '../catalog/index.ts';
 import { createExpression, createNode } from '../expression/index.ts';
@@ -8,6 +7,7 @@ import { generate } from '../generator/index.ts';
 import { defaultGrammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';
 import { compile } from './compile.ts';
+import { validateShaderContract } from './contract.ts';
 import { isAtom, isEnclosedInParens, wrapInput } from './format.ts';
 import { MAX_SOURCE_LENGTH } from './types.ts';
 

@@ -5,21 +5,6 @@ import { CONFIG } from '../core/config/index.ts';
 import { assertFinite } from '../core/shared/index.ts';
 import type { Brand } from '../core/shared/index.ts';
 
-/** Contract snippet: vertex-to-fragment UV coordinate input. */
-export const GLSL_IN_UV = 'in vec2 vUv;';
-
-/** Contract snippet: final fragment color output. */
-export const GLSL_OUT_COLOR = 'out vec4 o_color;';
-
-/**
- * Contract snippet: conversion of `vUv` [0, 1]² to centered coordinates `v_p` [-1, 1]² ensuring y
- * points upwards.
- *
- * Image conventions: x grows right, y grows up; [-1, 1]² is stretched over the whole image whatever
- * its shape; color values are written as-is and read as sRGB, no linear conversion.
- */
-export const GLSL_COORD_INIT = 'vec2 v_p = vUv * 2.0 - 1.0;';
-
 /** Default loop duration in seconds, derived from `CONFIG.artwork.loopMs`. */
 export const DEFAULT_LOOP_DURATION: DurationSeconds = createDurationSeconds(
     CONFIG.artwork.loopMs / 1000,
@@ -54,36 +39,6 @@ export function createPhase(progress: number): Phase {
     const wrapped = ((progress % 1) + 1) % 1;
     // Guard against floating point rounding edge cases where wrapped might evaluate to 1.
     return (wrapped >= 1 ? 0 : wrapped) as Phase;
-}
-
-/**
- * Validates that a fragment shader adheres to the GLSL contract:
- *
- * - Does NOT contain #version directive (handled by glaze)
- * - Contains input `in vec2 vUv;`
- * - Contains output `out vec4 o_color;`
- * - Initializes `vec2 v_p = vUv * 2.0 - 1.0;`
- */
-export function validateShaderContract(source: string): { valid: boolean; errors: string[] } {
-    const errors: string[] = [];
-
-    if (/^\s*#version/m.test(source)) {
-        errors.push('Fragment shader must not specify #version (glaze automatically injects it).');
-    }
-    if (!source.includes(GLSL_IN_UV)) {
-        errors.push(`Fragment shader must declare input "${GLSL_IN_UV}".`);
-    }
-    if (!source.includes(GLSL_OUT_COLOR)) {
-        errors.push(`Fragment shader must declare output "${GLSL_OUT_COLOR}".`);
-    }
-    if (!source.includes(GLSL_COORD_INIT)) {
-        errors.push(`Fragment shader must initialize "${GLSL_COORD_INIT}" at beginning of main.`);
-    }
-
-    return {
-        valid: errors.length === 0,
-        errors,
-    };
 }
 
 /**

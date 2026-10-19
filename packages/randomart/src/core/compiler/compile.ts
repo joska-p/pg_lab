@@ -9,6 +9,7 @@ import { colorSpaceFunction, RAW_CHANNELS } from '../color/index.ts';
 import type { ChannelModel } from '../color/index.ts';
 import { nodeCount } from '../expression/index.ts';
 import type { Expression } from '../expression/index.ts';
+import { GLSL_COORD_INIT } from './contract.ts';
 import { emit } from './emit.ts';
 import { lower } from './lower.ts';
 import { buildPreamble } from './preamble.ts';
@@ -56,7 +57,7 @@ export function compile(
     // ── 4. Assemble source ───────────────────────────────────────────────────
     const [rText, gText, bText] = emitResult.channelTexts;
 
-    const mainLines: string[] = ['void main() {', '  vec2 v_p = vUv * 2.0 - 1.0;'];
+    const mainLines: string[] = ['void main() {', `  ${GLSL_COORD_INIT}`];
 
     if (emitResult.lines.length > 0) {
         mainLines.push('');

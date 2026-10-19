@@ -1,14 +1,16 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import {
-    createPhase,
-    DEFAULT_CONTEXT_OPTIONS,
-    DEFAULT_LOOP_DURATION,
     GLSL_COORD_INIT,
     GLSL_IN_UV,
     GLSL_OUT_COLOR,
-    HANDWRITTEN_TEST_SHADER,
     validateShaderContract,
+} from '../core/compiler/index.ts';
+import {
+    createPhase,
+    DEFAULT_CONTEXT_OPTIONS,
+    DEFAULT_LOOP_DURATION,
+    HANDWRITTEN_TEST_SHADER,
 } from './contract.ts';
 
 describe('renderer / contract & helpers', () => {

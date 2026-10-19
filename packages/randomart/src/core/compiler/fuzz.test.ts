@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { validateShaderContract } from '../../renderer/contract.ts';
 import { createDefaultCatalog } from '../catalog/index.ts';
 import { generate } from '../generator/index.ts';
 import { compile } from './compile.ts';
+import { validateShaderContract } from './contract.ts';
 import { buildFuzzCases, checkShaderStructure, usesOperator } from './testing.ts';
 import type { CompiledShader, SharingPolicy } from './types.ts';
 
