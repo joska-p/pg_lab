@@ -132,13 +132,21 @@ of `core`.
 
 ## B — Decisions to make
 
-### B-01 — `core/` imports `renderer/` (2 sites) · §2.4 · B
+### B-01 — `core/` imports `renderer/` (2 sites) · §2.4 · B — **decided**
 
-`core/compiler/compiler.test.ts:3` and `core/compiler/fuzz.test.ts:3` import
-`../../renderer/contract.ts` (`validateShaderContract`). The GLSL contract lives on the renderer
-side, and the compiler tests depend on it. Two options: extract the contract into `core/`, or accept
-the test-only exception. This is structural: it moves the `GLSL_*` snippets from the renderer to the
-core.
+**Decision: extract the GLSL contract into `core/compiler`.** The contract describes what the
+compiler _emits_, so it belongs to the emitter; the renderer consumes it (renderer → core is the
+allowed direction). Landed in `0b49486`:
+
+- `core/compiler/contract.ts` owns `GLSL_IN_UV`, `GLSL_OUT_COLOR`, `GLSL_COORD_INIT` and
+  `validateShaderContract`, re-exported by `core/compiler/index.ts`;
+- `preamble.ts` and `compile.ts` emit from the constants instead of the duplicated literals (the
+  emitted source is byte-identical: `  ${GLSL_COORD_INIT}`);
+- `renderer/contract.ts` keeps `Phase`/`createPhase`/`DEFAULT_LOOP_DURATION`,
+  `DEFAULT_CONTEXT_OPTIONS` and the handwritten test shader;
+- `renderer/index.ts` and the core tests import the contract from `core/compiler`.
+
+The **layers** gate now passes.
 
 ### B-02 — Over-exporting barrels (87 + 15 symbols) · knip · B
 
@@ -153,25 +161,37 @@ Out of 111 flagged symbols:
 - **6** are used only inside their own module (`CompiledShaderStats`, `CompiledShaderUniform`,
   `FLAT_SHARE_THRESHOLD`, `PcaComponent`, `ProgramItem`, `publishArtwork`).
 
-Decision: barrel policy ("every `index.ts` re-exports the public API" **or** "export only what is
-consumed"). Until it is settled, these 108 sites are not dead code.
+Decision (**settled**): barrel policy is **"export only what is consumed"** — the knip list shrinks
+until each flagged symbol is either used or dropped.
 
-### B-03 — Dataset/bench crosstalk (already open) · B
+Where a symbol should live follows the placement rule now written in
+[conventions §2.6](../../docs/conventions/02-typescript.md): a type/interface that is not shared
+lives in the file of its consumer; a shared one lives in a `types.ts` at the deepest directory
+common to its consumers. Until the pruning lands, these 108 sites are not dead code.
 
-`sampleGrammars` / `randomGrammar` / `randomizeWeights` / `drawSpread` only serve the dataset and
-the tests (question D in `randomize.ts` / the plan). The dashboard sees them alive; the decision
-"migrate the dataset to `sampleRecipes` or accept the dual distribution" is still pending
-(`randomart-coherence-plan.md`, session D).
+### B-03 — Dataset/bench crosstalk (already open) · B — **decided**
 
-### B-04 — Cycles: madge 19, oxlint 0 · B
+**Decision: accept the two distributions.** They are two samplers with two purposes, not crosstalk:
+
+- the **dataset** (`src/dataset/page.ts`) surveys the _continuous_ grammar space:
+  `sampleGrammars` → `randomGrammar` → `randomizeWeights` with `CONFIG.sampling.drawSpread` (a
+  deliberately wider spread, documented at `config.ts:97`);
+- the **bench/lab** draw in the _quantized_ recipe space: `sampleRecipes`.
+
+`randomizeWeights` stays the shared exploration primitive (it also serves the measures/`testing.ts`).
+No code change; the config comment is the reference.
+
+### B-04 — Cycles: madge 19, oxlint 0 · B — **decided (deferred)**
 
 Verified: `import/no-cycle` (type-aware) does detect a **value** cycle (temporary files) and ignores
 `import type` edges. The 19 madge cycles therefore run through re-exports and type-only edges
 (`config/index → config.ts → color/index → config/index`, where `config.ts → color` is
 `import type`; the `grammar/types.ts ↔ quantized.ts` pair). No runtime cycle.
 
-Decision: keep madge informational (as here), configure it to ignore type-only edges, or move to
-`dependency-cruiser`.
+**Decision: keep madge informational — do not disable it.** The signal is not noise: the type-only
+edges mark types that are probably misplaced. The working hypothesis is the §2.6 placement rule
+(shared types in a `types.ts` at the deepest common directory), which would break the
+`grammar/types.ts ↔ quantized.ts` pair naturally. Revisit once B-02 has pruned the barrels.
 
 ### B-05 — Duplication (6 production clones, 0.64% lines) · C
 
@@ -208,8 +228,10 @@ titles, `index.html` `<title>randomart-next</title>`, hard-coded `/tmp/opencode/
 
 ## Proposed next steps
 
-1. Work through the A batch (A-01 → A-08): one commit per item, generator snapshots unchanged.
-2. Decide B-01, B-03, B-04, then B-02 (barrel policy).
-3. Once A is green, promote the audit rules to `error` in `tools/lint/` (not only
-   `tools/audit/`) and wire `vp run audit` into CI (`.github/workflows/deploy.yml` currently only
-   runs `vp check --fix` and the build).
+1. ~~Work through the A batch (A-01 → A-08)~~ — done (see Progress).
+2. ~~Decide B-01, B-03, B-04~~ — decided (B-01 landed in `0b49486`; B-03 and B-04 need no code
+   change).
+3. **B-02** — prune the barrels so every exported symbol has a consumer, following the §2.6
+   placement rule for the types that move. This is the last red gate.
+4. Then promote the audit rules from `tools/audit/` to `tools/lint/` and wire `vp run audit` into CI
+   (`.github/workflows/deploy.yml` currently only runs `vp check --fix` and the build).

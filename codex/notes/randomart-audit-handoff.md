@@ -15,8 +15,10 @@ generator snapshots must not move unless a change is explicitly decided.
   Baseline confirmed.
 - **A batch done** (A-01 → A-08, one commit per item, no behaviour change, `GENERATOR_VERSION`
   unchanged): see the table in the registry (`randomart-audit-registry.md`, "Progress").
-- The audit now passes for import extensions, banned vocabulary and dead files. Two gating checks
-  stay red _by decision_: layers (B-01) and dead code (B-02).
+- B-01 landed (`0b49486`): the GLSL contract lives in `core/compiler`; B-03 and B-04 are decided
+  without code change (registry).
+- The audit passes for layers, extensions, banned vocabulary and duplication. **Dead code (B-02,
+  barrel pruning) is the last red gate.**
 
 ## Where things live
 
@@ -30,18 +32,13 @@ generator snapshots must not move unless a change is explicitly decided.
 
 ## Next action
 
-Decide the B items in this order — B-01 first, since it is a two-file structural choice that also
-unblocks the layers gate:
+**B-02 — prune the barrels** so every exported symbol has a consumer (policy "export only what is
+consumed", decided in the registry), moving the shared types per the new §2.6 placement rule
+(`codex/docs/conventions/02-typescript.md`, "Where a type lives"). Work by module: `core/*`,
+`renderer/`, `stores/`, `components/`, one commit per barrel, `vp check && vp test` green and
+`GENERATOR_VERSION` unchanged after each.
 
-1. **B-01** — `core/compiler/*.test.ts` importing `renderer/contract.ts` (extract the GLSL contract
-   into `core/compiler/`, or allow-list the test-only exception).
-2. **B-03** — dataset / bench crosstalk (`sampleGrammars` & friends).
-3. **B-04** — cycles: keep madge informational, ignore type-only edges, or move to
-   `dependency-cruiser`.
-4. **B-02** — barrel policy, then the 108 knip symbols it decides.
-
-Once the two red gates are resolved, promote the audit rules from `tools/audit/` to `tools/lint/`
-and wire `vp run audit` into CI.
+Then promote the audit rules from `tools/audit/` to `tools/lint/` and wire `vp run audit` into CI.
 
 ## Workflow rules
 
