@@ -10,16 +10,13 @@ import type { Grammar } from '../core/grammar/index.ts';
 import type { Seed } from '../core/random/index.ts';
 import { DEFAULT_CONTEXT_OPTIONS } from './contract.ts';
 
-/** Side of one rendered cell, in pixels. Power of two so the analysis descriptors accept it. */
-export const DEFAULT_BATCH_SIZE = 32;
-
-export interface BatchRequest {
+interface BatchRequest {
     readonly grammar: Grammar;
     /** One image per seed: the row of the planche. */
     readonly seeds: readonly Seed[];
 }
 
-export interface RenderedCell {
+interface RenderedCell {
     /** Message of the refusal (generation, compilation, driver), `null` on success. */
     readonly error: string | null;
     /** RGB bytes (rows top to bottom) or `null` when the cell could not be rendered. */

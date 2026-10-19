@@ -16,7 +16,7 @@ import {
 import { needsRender } from './renderGate.ts';
 import type { RenderKey } from './renderGate.ts';
 
-export interface RandomArtCanvasProps {
+interface RandomArtCanvasProps {
     /** Fragment shader source code adhering to randomart's GLSL contract. */
     fragmentShader?: string;
     /** True when the shader reads `u_phase` (CompiledShader.animated). Defaults to true. */
