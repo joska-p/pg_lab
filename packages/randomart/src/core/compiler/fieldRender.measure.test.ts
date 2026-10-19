@@ -1,4 +1,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { deflateSync } from 'node:zlib';
 
 import { describe, it } from 'vite-plus/test';
@@ -13,7 +15,8 @@ import { createSeed } from '../random/index.ts';
 
 const enabled = import.meta.env.VITE_MEASURE === '1';
 const SIZE = 256;
-const OUT = '/tmp/opencode/field';
+/** Where the opt-in probe writes its PNGs; override with `MEASURE_OUT`. */
+const OUT = process.env.MEASURE_OUT ?? join(tmpdir(), 'randomart-field');
 
 const fold2 = (v: number): number => Math.abs(((((v + 3) % 4) + 4) % 4) - 2) - 1;
 
