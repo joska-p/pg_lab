@@ -2,6 +2,7 @@ import { deserializeGrammar, serializeGrammar } from '../artwork/index.ts';
 import type { Catalog } from '../catalog/index.ts';
 import { createSeed } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
+import { isRecord, rejectUnknownKeys } from '../shared/index.ts';
 import {
     isNotebookRating,
     MAX_NOTEBOOK_FILE_LENGTH,
@@ -18,22 +19,6 @@ import type {
     NotebookRecipe,
     NotebookRecipeData,
 } from './types.ts';
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function rejectUnknownKeys(
-    record: Record<string, unknown>,
-    allowed: readonly string[],
-    path: string,
-): void {
-    for (const key of Object.keys(record)) {
-        if (!allowed.includes(key)) {
-            throw new Error(`${path}.${key}: unknown field`);
-        }
-    }
-}
 
 // ---------------------------------------------------------------------------
 // Serialization

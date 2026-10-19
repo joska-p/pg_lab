@@ -1,4 +1,5 @@
 import type { Catalog } from '../catalog/index.ts';
+import { isRecord } from '../shared/index.ts';
 import { createExpression, createNode } from './expression.ts';
 import type { Expression, Node } from './types.ts';
 
@@ -17,10 +18,6 @@ export interface ExpressionData {
     readonly r: NodeData;
     readonly g: NodeData;
     readonly b: NodeData;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function serializeNode(node: Node): NodeData {

@@ -7,6 +7,7 @@ import { createGrammar, weightOf } from '../grammar/index.ts';
 import type { ConstraintsInput, Grammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
+import { isRecord, rejectUnknownKeys } from '../shared/index.ts';
 import { createArtwork, fitRenderSettings } from './create.ts';
 import type { Artwork, Provenance, RenderSettingsInput } from './types.ts';
 
@@ -28,22 +29,6 @@ export interface GrammarData {
     readonly weights: Readonly<Record<string, number>>;
     readonly constraints: ConstraintsInput;
     readonly channels: ChannelModel;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function rejectUnknownKeys(
-    record: Record<string, unknown>,
-    allowed: readonly string[],
-    path: string,
-): void {
-    for (const key of Object.keys(record)) {
-        if (!allowed.includes(key)) {
-            throw new Error(`${path}.${key}: unknown field`);
-        }
-    }
 }
 
 /** Plain JSON object; weight keys in alphabetical order so equal grammars give equal text. */

@@ -69,3 +69,21 @@ export function assertIntegerInRange(value: number, label: string, min: number, 
         );
     }
 }
+
+/** True for a plain JSON object: not null, not an array, not a primitive. */
+export function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/** Guards a parsed object against unknown fields, naming the first offender as a dotted path. */
+export function rejectUnknownKeys(
+    record: Record<string, unknown>,
+    allowed: readonly string[],
+    path: string,
+): void {
+    for (const key of Object.keys(record)) {
+        if (!allowed.includes(key)) {
+            throw new Error(`${path}.${key}: unknown field`);
+        }
+    }
+}
