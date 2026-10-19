@@ -270,17 +270,18 @@ function commit(recipe: Recipe, seed: Seed, restoreId?: number, coalesce = false
     }
 }
 
-/** "New seed": the seed changes, the grammar stays. */
-export function newSeed(nextSeed: Seed = randomSeed()): void {
+/** "Reset seed": the seed changes, the grammar stays. */
+export function resetSeed(nextSeed: Seed = randomSeed()): void {
     commit(store.getState().recipe, nextSeed);
 }
 
-/** "New grammar": a random point of the quantized space. The seed stays, so grammars compare. */
-export function newGrammar(): void {
+/** "Draw grammar": a random point of the quantized space. The seed stays, so grammars compare. */
+export function drawGrammar(): void {
     commit(randomRecipe(createRng(randomSeed())), store.getState().seed);
 }
 
-export function newImage(): void {
+/** "Generate image": a random recipe and a random seed at once. */
+export function generateImage(): void {
     commit(randomRecipe(createRng(randomSeed())), randomSeed());
 }
 

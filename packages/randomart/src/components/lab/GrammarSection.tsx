@@ -19,8 +19,8 @@ import type { FamilyId } from '../../core/grammar/index.ts';
 import { createSeed } from '../../core/random/index.ts';
 import {
     applyRecipe,
-    newSeed,
-    newGrammar,
+    resetSeed,
+    drawGrammar,
     setRecipeLevel,
     setRecipeShare,
     setRecipeSize,
@@ -73,14 +73,14 @@ export function GrammarSection() {
                     title="type a seed number"
                     value={String(seed)}
                     onValueChange={(value) => {
-                        newSeed(createSeed(Number(value)));
+                        resetSeed(createSeed(Number(value)));
                     }}
                 />
                 <Button
                     title="generate a new random seed"
                     color="solder"
                     onClick={() => {
-                        newSeed();
+                        resetSeed();
                     }}
                 >
                     ⟳
@@ -103,7 +103,7 @@ export function GrammarSection() {
                     title="generate a new random grammar"
                     color="orange"
                     onClick={() => {
-                        newGrammar();
+                        drawGrammar();
                     }}
                 >
                     ⟳

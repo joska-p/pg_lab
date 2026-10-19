@@ -16,7 +16,7 @@ import {
     importNotebookFile,
     MAX_BENCH_COUNT,
     MAX_BENCH_SEEDS,
-    newBenchBatch,
+    drawBenchBatch,
     openSelectedInLab,
     rateCandidateRow,
     redrawBench,
@@ -122,7 +122,7 @@ export function BenchPanel() {
                 />
 
                 <Grid columns="2" gap="2">
-                    <Button color="aqua" onClick={newBenchBatch}>
+                    <Button color="aqua" onClick={drawBenchBatch}>
                         New batch
                     </Button>
                     <Button onClick={redrawBench} disabled={!activeBatch}>

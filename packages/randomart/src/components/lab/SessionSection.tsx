@@ -9,7 +9,7 @@ import { useSyncExternalStore } from 'react';
 import { MAX_LOOP_MS, MIN_LOOP_MS } from '../../core/artwork/index.ts';
 import {
     parseDurationInput,
-    newImage,
+    generateImage,
     setDuration,
     useActionError,
     useClockStore,
@@ -41,7 +41,7 @@ export function SessionSection() {
                 title="generate a new image"
                 color="aqua"
                 onClick={() => {
-                    newImage();
+                    generateImage();
                 }}
             >
                 New image

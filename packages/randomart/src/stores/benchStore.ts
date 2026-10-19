@@ -237,8 +237,8 @@ function renderNewLot(base: Seed): void {
     }
 }
 
-/** "New batch": draws fresh candidate grammars and appends them to the notebook. */
-export function newBenchBatch(): void {
+/** "Draw batch": draws fresh candidate grammars and appends them to the notebook. */
+export function drawBenchBatch(): void {
     const baseSeed = randomSeed();
 
     store.setState((state) => ({ settings: { ...state.settings, baseSeed } }));
