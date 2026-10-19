@@ -421,4 +421,18 @@ selectors.ts
 
 is a reasonable evolution of a store that has become difficult to scan.
 
+### Where a type lives
+
+A type is the shape of a value, so it lives where that value is understood, not in a barrel that
+happens to re-export it:
+
+- one consumer → declare the type in that consumer's file, next to the code that reads the shape;
+- several consumers → declare it in a `types.ts` in the **deepest directory common to those
+  consumers**, and import it from there;
+- the whole package → the package's own `types.ts`, or the module that owns the concept.
+
+This keeps the mutual dependency graph local: a shared `types.ts` at the lowest common ancestor
+cannot reach back into either consumer. Do not read this as "move every type to `types.ts`": a type
+that one module owns stays with it, and a `types.ts` is a placement rule, not a dumping ground.
+
 It is not a structure to create in advance.

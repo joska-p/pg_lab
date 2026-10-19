@@ -50,6 +50,7 @@ Section numbers (`§2.3`, `§4`, …) are stable across files: cite them when re
 | Loading a static asset from a library package | §12.3                                    |
 | Tempted to write `useMemo` / `useCallback`    | §12.4                                    |
 | Splitting a file                              | §2.6                                     |
+| Deciding where a type lives                   | §2.6                                     |
 
 ---
 
