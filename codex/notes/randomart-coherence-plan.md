@@ -3,6 +3,7 @@
 Navigation aid for the next sessions; the repository is the source of truth. Read this
 first, then only the linked docs the current task needs.
 
+- Coherence audit (tooling, findings, next action): `codex/notes/randomart-audit-handoff.md`.
 - Knobs vs guards, landed values, PRNG consequences: `codex/notes/randomart-config-knobs.md`.
 - Naming rules: `codex/docs/conventions/02-typescript.md` §2.1.
 - Colour pipeline and gamut lead: `codex/notes/randomart-colour-pipeline.md`.
