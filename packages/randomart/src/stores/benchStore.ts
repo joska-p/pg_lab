@@ -198,7 +198,7 @@ function renderBatchCandidates(batch: NotebookBatch, cellSize: number): readonly
     );
 }
 
-function failure(cause: unknown) {
+function buildErrorState(cause: unknown) {
     renderer?.destroy();
     renderer = null;
 
@@ -233,7 +233,7 @@ function renderNewLot(base: Seed): void {
 
         void saveNotebookToDb(nextNotebook);
     } catch (cause) {
-        store.setState(failure(cause));
+        store.setState(buildErrorState(cause));
     }
 }
 
@@ -264,7 +264,7 @@ export function redrawBench(): void {
 
         store.setState({ lot, error: null });
     } catch (cause) {
-        store.setState(failure(cause));
+        store.setState(buildErrorState(cause));
     }
 }
 
@@ -288,7 +288,7 @@ export function selectBatch(batchId: string): void {
             error: null,
         });
     } catch (cause) {
-        store.setState(failure(cause));
+        store.setState(buildErrorState(cause));
     }
 }
 

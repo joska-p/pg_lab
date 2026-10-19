@@ -78,10 +78,10 @@ let nextEntryId = 1;
  */
 let grammarEditId: number | null = null;
 
-export type Mode = 'bench' | 'lab' | 'history';
+export type AppMode = 'bench' | 'lab' | 'history';
 
 interface AppStoreState {
-    mode: Mode;
+    mode: AppMode;
     clockStore: ClockStore;
     shaderError: ShaderError | null;
     /**
@@ -123,11 +123,11 @@ const store = create<AppStoreState>(() => ({
     canvas: null,
 }));
 
-export function useMode(): Mode {
+export function useMode(): AppMode {
     return store((s) => s.mode);
 }
 
-export function setMode(mode: Mode): void {
+export function setMode(mode: AppMode): void {
     store.setState({ mode });
 }
 
