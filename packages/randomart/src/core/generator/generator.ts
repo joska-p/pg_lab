@@ -113,15 +113,15 @@ export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expres
 
         if (k > 0) {
             const m = minSize(currentDepth + 1, minDepth, vocabulary);
-            let libre = budget - 1 - k * m;
+            let remaining = budget - 1 - k * m;
 
             for (let i = 0; i < k; i++) {
-                const childBudget = m + Math.floor(libre / (k - i));
+                const childBudget = m + Math.floor(remaining / (k - i));
                 const childResult = generateNode(currentDepth + 1, childBudget);
 
                 childNodes.push(childResult.node);
                 totalChildSize += childResult.size;
-                libre -= childResult.size - m;
+                remaining -= childResult.size - m;
             }
         }
 
@@ -156,14 +156,14 @@ export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expres
 
         if (k > 0) {
             const m = minSize(currentDepth + 1, minDepth, vocabulary);
-            let libre = budget - 1 - k * m;
+            let remaining = budget - 1 - k * m;
 
             for (let i = 0; i < k; i++) {
-                const childBudget = m + Math.floor(libre / (k - i));
+                const childBudget = m + Math.floor(remaining / (k - i));
                 const childResult = generateTrunk(currentDepth + 1, childBudget);
 
                 childResults.push(childResult);
-                libre -= childResult.size - m;
+                remaining -= childResult.size - m;
             }
         }
 

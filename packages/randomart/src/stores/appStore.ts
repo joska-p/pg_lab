@@ -270,7 +270,7 @@ function commit(recipe: Recipe, seed: Seed, restoreId?: number, coalesce = false
     }
 }
 
-/** "Nouvelle seed": the seed changes, the grammar stays. */
+/** "New seed": the seed changes, the grammar stays. */
 export function newSeed(nextSeed: Seed = randomSeed()): void {
     commit(store.getState().recipe, nextSeed);
 }
