@@ -6,7 +6,7 @@
  * cannot silently come back. Each rule carries the replacement or the reason, so the fix is
  * mechanical. The list is deliberately small: a rule earns its place only when it is unambiguous.
  *
- * Usage: node tools/audit/banned-words.mjs [root...] (default: packages/randomart) Exit code is
+ * Usage: node tools/lint/banned-words.mjs [root...] (default: packages/randomart) Exit code is
  * non-zero when a rule matches, so `vp run audit` fails on a regression.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';

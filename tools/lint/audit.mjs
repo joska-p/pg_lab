@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /**
- * Audit runner (conventions §1.2, §2.1, §2.4, §12.4).
+ * Coherence audit (conventions §2.1, §12.4).
  *
- * Chains the mechanical checks that keep randomart coherent: dead code (knip), layer direction and
- * core purity (oxlint `tools/audit/oxlint.audit.jsonc`), banned vocabulary (banned-words.mjs),
- * import extensions, cycles (madge) and duplication (jscpd). Every check prints first; the runner
- * exits non-zero only when a gating check fails, so a report is always complete.
+ * Chains the mechanical checks that are not oxlint rules: banned vocabulary (banned-words.mjs),
+ * dead code (knip) and duplication (jscpd). Layer direction, core purity and import extensions are
+ * lint rules now (`tools/lint/randomart.ts`, enforced by `vp check`). Cycles (madge) stay
+ * informational. Every check prints first; the runner exits non-zero only when a gating check
+ * fails, so a report is always complete.
  *
- * Usage: node tools/audit/run.mjs
+ * Usage: node tools/lint/audit.mjs
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
@@ -21,15 +22,9 @@ const PACKAGE = 'packages/randomart';
  */
 const CHECKS = [
     {
-        name: 'layers + purity + extensions',
-        command: 'vp',
-        args: ['lint', '-c', 'tools/audit/oxlint.audit.jsonc', PACKAGE],
-        gating: true,
-    },
-    {
         name: 'banned vocabulary',
         command: 'node',
-        args: ['tools/audit/banned-words.mjs', PACKAGE],
+        args: ['tools/lint/banned-words.mjs', PACKAGE],
         gating: true,
     },
     {
