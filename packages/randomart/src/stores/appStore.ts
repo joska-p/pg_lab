@@ -284,6 +284,10 @@ export function newGrammar(): void {
     commit(randomRecipe(createRng(randomSeed())), store.getState().seed);
 }
 
+export function newImage(): void {
+    commit(randomRecipe(createRng(randomSeed())), randomSeed());
+}
+
 /** Selecting a preset: its recipe replaces the current one, same seed. */
 export function applyRecipe(recipe: Recipe): void {
     commit(recipe, store.getState().seed);

@@ -1,6 +1,7 @@
 import { Button } from '@repo/ui/components/Button';
 import { Grid } from '@repo/ui/components/Grid';
 import { Select } from '@repo/ui/components/Select';
+import { TextInput } from '@repo/ui/components/TextInput';
 
 import { COLOR_SPACE_IDS, COLOR_SPACES } from '../../core/color/index.ts';
 import type { ColorSpaceId } from '../../core/color/index.ts';
@@ -19,14 +20,17 @@ import type {
     SizeProfileId,
     WeightLevel,
 } from '../../core/grammar/index.ts';
+import { createSeed } from '../../core/random/index.ts';
 import {
     applyRecipe,
+    newSeed,
     newGrammar,
     setRecipeLevel,
     setRecipeShare,
     setRecipeSize,
     setRecipeSpace,
     useRecipe,
+    useSeed,
 } from '../../stores/appStore';
 import { catalog } from '../../stores/catalogueStore.ts';
 
@@ -66,12 +70,31 @@ function levelOptions(family: FamilyId) {
  */
 export function GrammarSection() {
     const recipe = useRecipe();
+    const seed = useSeed();
+
     const presetId = presetIdOf(PRESETS, recipe);
     const preset = PRESETS.find((candidate) => candidate.id === presetId);
 
     return (
         <Grid columns="1" gap="3">
             <Grid columns="2" gap="2">
+                <TextInput
+                    title="type a seed number"
+                    value={String(seed)}
+                    onValueChange={(value) => {
+                        newSeed(createSeed(Number(value)));
+                    }}
+                />
+                <Button
+                    title="generate a new random seed"
+                    color="solder"
+                    onClick={() => {
+                        newSeed();
+                    }}
+                >
+                    ⟳
+                </Button>
+
                 <Select
                     title={preset?.description ?? 'A recipe that is not one of the presets.'}
                     value={presetId ?? CUSTOM_ID}
@@ -86,12 +109,13 @@ export function GrammarSection() {
                 />
 
                 <Button
-                    color="aqua"
+                    title="generate a new random grammar"
+                    color="orange"
                     onClick={() => {
                         newGrammar();
                     }}
                 >
-                    new
+                    ⟳
                 </Button>
             </Grid>
 

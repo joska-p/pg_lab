@@ -3,7 +3,6 @@ import { Grid } from '@repo/ui/components/Grid';
 import { ArtworkSection } from './ArtworkSection';
 import { GrammarSection } from './GrammarSection';
 import { Inspector } from './Inspector';
-import { PlaybackSection } from './PlaybackSection';
 import { SessionSection } from './SessionSection';
 
 /**
@@ -14,7 +13,6 @@ export function LabPanel() {
     return (
         <Grid columns="1" gap="8">
             <SessionSection />
-            <PlaybackSection />
             <GrammarSection />
             <ArtworkSection />
             <Inspector />

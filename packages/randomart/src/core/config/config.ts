@@ -157,7 +157,7 @@ export const CONFIG = {
     recipe: {
         levels: {
             off: { weight: 0, odds: 3, allowsAnchors: false },
-            low: { weight: 0.5, odds: 2, allowsAnchors: false },
+            low: { weight: 0.5, odds: 2, allowsAnchors: true },
             normal: { weight: 1, odds: 3, allowsAnchors: true },
             high: { weight: 3, odds: 2, allowsAnchors: true },
         },
@@ -179,7 +179,7 @@ export const CONFIG = {
     artwork: {
         width: 1_024,
         height: 1_024,
-        loopMs: 8_000,
+        loopMs: 60_000,
     },
     color: {
         oklabChroma: 0.4,
