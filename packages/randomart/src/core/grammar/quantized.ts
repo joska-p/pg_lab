@@ -69,7 +69,7 @@ export const ANCHOR_LEVELS: readonly WeightLevel[] = WEIGHT_LEVELS.filter(
 );
 
 /** Depth/node budgets per size — the values live in `CONFIG.recipe.sizeProfiles`. */
-export const SIZE_PROFILES: Record<SizeProfileId, ConstraintsInput> = CONFIG.recipe.sizeProfiles;
+const SIZE_PROFILES: Record<SizeProfileId, ConstraintsInput> = CONFIG.recipe.sizeProfiles;
 
 export const SHARE_CHOICES = [0, 1, 2, 3, 'mono'] as const;
 /** Stable identity, for deduplication and caches. */

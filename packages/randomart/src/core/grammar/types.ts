@@ -29,7 +29,7 @@ export type Constraints = Brand<ConstraintsInput, 'Constraints'>;
  * vocabulary an author chose is present. Values stay raw numbers; validation lives in
  * `createGrammar` (throw-vs-repair policy in shared/index.ts).
  */
-export type GrammarWeights = Readonly<Partial<Record<OperatorId, number>>>;
+type GrammarWeights = Readonly<Partial<Record<OperatorId, number>>>;
 
 export type Grammar = Brand<
     {

@@ -12,7 +12,7 @@ export interface GrammarPreset {
 }
 
 /** Quantized reading of the calibrated default: the app's starting point. */
-export const STRUCTURE_RECIPE: Recipe = {
+const STRUCTURE_RECIPE: Recipe = {
     levels: {
         anchors: 'high',
         extrema: 'high',
@@ -25,14 +25,6 @@ export const STRUCTURE_RECIPE: Recipe = {
     share: CONFIG.channels.shareDepth,
     space: CONFIG.channels.space,
 };
-
-export function grammarSignature(grammar: Grammar): string {
-    return JSON.stringify({
-        weights: grammar.weights,
-        constraints: grammar.constraints,
-        channels: grammar.channels,
-    });
-}
 
 export const PRESET_RECIPES: readonly {
     id: string;
