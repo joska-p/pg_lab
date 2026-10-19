@@ -15,6 +15,9 @@
  * no DOM, no GPU — and the compiler owns only the call site.
  */
 
+import { formatGlslFloat } from '../catalog/format.ts';
+import { TUNING } from '../config/index.ts';
+
 export type ColorSpaceId = 'srgb' | 'oklch' | 'oklab' | 'hsl';
 
 export interface ColorSpace {
@@ -72,7 +75,7 @@ const OKLAB_TO_SRGB_GLSL = `vec3 ra_oklabToSrgb(vec3 lab) {
 const OKLCH_GLSL = `${OKLAB_TO_SRGB_GLSL}
 vec3 ra_oklch(vec3 raw) {
     float L = clamp(raw.x * 0.5 + 0.5, 0.0, 1.0);
-    float C = abs(raw.y) * 0.4;
+    float C = abs(raw.y) * ${formatGlslFloat(TUNING.color.oklabChroma)};
     float h = (raw.z * 0.5 + 0.5) * 6.283185307179586;
     return ra_oklabToSrgb(vec3(L, C * cos(h), C * sin(h)));
 }`;
@@ -80,7 +83,7 @@ vec3 ra_oklch(vec3 raw) {
 const OKLAB_GLSL = `${OKLAB_TO_SRGB_GLSL}
 vec3 ra_oklab(vec3 raw) {
     float L = clamp(raw.x * 0.5 + 0.5, 0.0, 1.0);
-    return ra_oklabToSrgb(vec3(L, raw.y * 0.4, raw.z * 0.4));
+    return ra_oklabToSrgb(vec3(L, raw.y * ${formatGlslFloat(TUNING.color.oklabChroma)}, raw.z * ${formatGlslFloat(TUNING.color.oklabChroma)}));
 }`;
 
 const HSL_TO_SRGB_GLSL = `vec3 ra_hslToSrgb(vec3 hsl) {
@@ -135,8 +138,8 @@ export interface ChannelModel {
 
 export const MIN_SHARE_DEPTH = 0;
 
-/** Depth of the shared trunk in the curated default (`defaultGrammar`). */
-export const DEFAULT_SHARE_DEPTH = 2;
+/** Depth of the shared trunk in the curated default (`TUNING.channels`). */
+export const DEFAULT_SHARE_DEPTH = TUNING.channels.defaultShareDepth;
 
 /**
  * The fallback of `createGrammar` when the caller says nothing: three independent channels in raw
@@ -149,4 +152,7 @@ export const RAW_CHANNELS: ChannelModel = { space: 'srgb', shareDepth: MIN_SHARE
  * the trees is what makes the three channels correlate, so the image reads as colour following the
  * shape rather than as coloured noise — a palette is no longer needed for that.
  */
-export const DEFAULT_CHANNELS: ChannelModel = { space: 'oklch', shareDepth: DEFAULT_SHARE_DEPTH };
+export const DEFAULT_CHANNELS: ChannelModel = {
+    space: TUNING.channels.defaultSpace,
+    shareDepth: DEFAULT_SHARE_DEPTH,
+};

@@ -1,9 +1,14 @@
 # Randomart — Tuning knobs vs hard constraints (2026-10-19)
 
+Entry point for the consolidation track: `randomart-coherence-plan.md`.
+
 Follow-up of `randomart-time-in-xy.md`. Landed with the config-file session
 (prompt: `codex/prompts/session-config-file.md`). `GENERATOR_VERSION` is
 **not** bumped: every wired value is byte-identical to what it replaced; the
-pinning tests (`core/config/tuning.test.ts`) lock that.
+pinning tests (`core/config/tuning.test.ts`) lock that. A second pass closed
+the first TODO list (param rounding, sampler policy, artwork/shell defaults,
+`DEFAULT_CONSTRAINTS`, the 8 s loop duplication) and added the colour chroma
+knob; still no version bump, every value unchanged.
 
 ## What landed
 
@@ -11,22 +16,41 @@ pinning tests (`core/config/tuning.test.ts`) lock that.
   `TUNING`, holding the taste knobs: the time terminals' draw ranges (`amp`,
   `phase`, `cycles`) and cycle-count mapping, plus the recipe space. The
   config is the **single source of truth of the quantized axes**: one entry
-  per weight level (`weight` + `odds` + `anchor`) and per size profile, and
-  the public `WeightLevel`/`SizeProfileId` types are `keyof` those entries —
-  adding a `medium-low` or a `xx-large` is adding one entry, and the compiler
-  then points at every site that must handle it (`LEVEL_WEIGHT`, the UI
-  selects, the pins test). The axis id arrays (`WEIGHT_LEVELS`,
-  `PROFILE_IDS`, `ANCHOR_LEVELS`) are derived from the entry order, which is
-  the PRNG draw order — **append, don't reorder**.
+  per weight level (`weight` + `odds` + `allowsAnchors`) and per size profile,
+  and the public `WeightLevel`/`SizeProfileId` types are `keyof` those entries
+  — adding a `medium-low` or a `xx-large` is adding one entry, and the
+  compiler then points at every site that must handle it (`LEVEL_WEIGHT`, the
+  UI selects, the pins test). The axis id arrays (`WEIGHT_LEVELS`,
+  `SIZE_PROFILE_IDS`, `ANCHOR_LEVELS`) are derived from the entry order, which
+  is the PRNG draw order — **append, don't reorder**.
 - Wiring (kept minimal on purpose): `catalog/operators/terminals.ts` and
   `grammar/quantized.ts`. The latter keeps its exported names
   (`SIZE_PROFILES`, `LEVEL_WEIGHT`, …), so no consumer moved. Bonus dedup:
   the anchor-eligibility list existed three times (`ANCHOR_LEVELS` and
   `ANCHOR_OK` in `quantized.ts`, again in `GrammarSection.tsx`) — now one
   derived list, exported from the grammar.
-- `core/config/tuning.test.ts` — pins both groups so a knob tweak cannot slip
+- `core/config/tuning.test.ts` — pins every group so a knob tweak cannot slip
   in silently: a failure is the reminder that comes with a consequence
   (below).
+- **Second pass** — `TUNING` gained `generator.paramDecimals`, `sampling`,
+  `artwork`, `color` (OKLab chroma), `channels` (the curated space/shareDepth,
+  now the single source for both `DEFAULT_CHANNELS` and `STRUCTURE_RECIPE`)
+  and `app` (history limit, initial seed). Wiring touched `generator.ts`
+  (`PARAM_SCALE`), `grammar.ts` (`DEFAULT_CONSTRAINTS` =
+  `TUNING.recipe.sizeProfiles.medium`), `randomize.ts`, `randomGrammar.ts`,
+  `sample.ts`, `quantized.ts`, `benchStore.ts`, `appStore.ts`,
+  `artwork/types.ts`, `renderer/contract.ts` (the 8 s loop now derives from
+  `DEFAULT_LOOP_MS`) and `color/index.ts` (chroma interpolation). The
+  sampler defaults are named by policy: `exploreSpread` for a UI step,
+  `drawSpread` for a full draw, `benchSeedsPerGrammar` (36) vs
+  `datasetSeedsPerGrammar` (16).
+- **Naming convention** — `codex/docs/conventions/02-typescript.md` §2.1 now
+  covers casing, `type` vs `interface`, role suffixes, function prefixes
+  (`create`/`fit`/`parse`/`serialize`/`draw`/`sample`/…), booleans, constants
+  and units, abbreviations, domain vocabulary and renames. This pass applied
+  it to two existing names: `WeightLevelKnobs.anchor` →
+  `allowsAnchors` (a boolean reads as an assertion) and `PROFILE_IDS` →
+  `SIZE_PROFILE_IDS` (the type is `SizeProfileId`).
 
 ## The split: knobs vs guards
 
@@ -36,35 +60,46 @@ Iterating on them should never require reading (much less editing) code.
 **Guards** (stay next to their invariant): values that keep the system safe
 or make an invariant checkable. Tuning them is a bug, not an experiment.
 
-| Constant                                                                                      | File                                                                    | Category                                             |
-| --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------- |
-| `amp`/`phase`/`cycles` bounds                                                                 | `catalog/operators/terminals.ts`                                        | knob ✅                                              |
-| cycle mapping `1..3`                                                                          | `catalog/operators/terminals.ts`                                        | knob ✅                                              |
-| `levels` (weight + odds + anchor per level)                                                   | `grammar/quantized.ts`                                                  | knob ✅                                              |
-| `MIN_ACTIVE_FAMILIES`                                                                         | `grammar/quantized.ts`                                                  | knob ✅                                              |
-| `SIZE_PROFILES`                                                                               | `grammar/quantized.ts`                                                  | knob ✅                                              |
-| param 3-decimal rounding                                                                      | `generator/generator.ts`                                                | knob TODO                                            |
-| `DEFAULT_CONSTRAINTS`                                                                         | `grammar/grammar.ts`                                                    | TODO (duplicates the `medium` profile — derive it)   |
-| calibrated weights in `defaultGrammar`                                                        | `grammar/grammar.ts`                                                    | TODO (a calibration preset; keep in code or name it) |
-| sampler defaults (`baseSeed`, `seedsPerGrammar`, `spread`, `changeRate`, dedupe/attempt caps) | `grammar/quantized.ts`, `grammar/sample.ts`, `grammar/randomGrammar.ts` | TODO (dataset/bench policy)                          |
-| `HISTORY_LIMIT`, initial seed `42`                                                            | `stores/appStore.ts`                                                    | TODO (shell-level taste)                             |
-| `DEFAULT_RENDER_WIDTH/HEIGHT`, `DEFAULT_LOOP_MS`, `MIN/MAX_LOOP_MS`                           | `core/artwork/types.ts`                                                 | TODO (bounds are slider + validation, semi-guard)    |
-| `DEFAULT_LOOP_DURATION` (8 s, renderer) vs `DEFAULT_LOOP_MS` (8 000 ms, core)                 | `renderer/contract.ts`, `core/artwork/types.ts`                         | TODO (one truth, one unit)                           |
-| `MAX_DEPTH`, `MAX_NODES`, `MAX_WEIGHT`, `MIN_ACTIVE_WEIGHT`                                   | `grammar/types.ts`                                                      | guard — stays                                        |
-| `MAX_SOURCE_LENGTH`                                                                           | `compiler/types.ts`                                                     | guard — stays (shader blow-up)                       |
-| `MIN/MAX_RENDER_SIZE`, `MAX_TITLE_LENGTH`                                                     | `core/artwork/types.ts`                                                 | guard — stays                                        |
-| attempt caps in `randomRecipe`/`sampleRecipes`                                                | `grammar/quantized.ts`                                                  | guard — stays (loop termination)                     |
+| Constant                                                                      | File                                            | Category                                             |
+| ----------------------------------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------- |
+| `amp`/`phase`/`cycles` bounds                                                 | `TUNING.terminals`                              | knob ✅                                              |
+| cycle mapping `1..3`                                                          | `TUNING.terminals`                              | knob ✅                                              |
+| `levels` (`weight` + `odds` + `allowsAnchors`)                                | `TUNING.recipe`                                 | knob ✅                                              |
+| `minActiveFamilies`                                                           | `TUNING.recipe`                                 | knob ✅                                              |
+| `sizeProfiles`                                                                | `TUNING.recipe`                                 | knob ✅                                              |
+| param rounding (`paramDecimals = 3`)                                          | `TUNING.generator`                              | knob ✅ (draw-affecting)                             |
+| sampler defaults (`baseSeed`, spreads, `changeRate`, seeds per grammar)       | `TUNING.sampling`                               | knob ✅                                              |
+| `DEFAULT_CONSTRAINTS`                                                         | `grammar/grammar.ts`                            | knob ✅ (derived from `sizeProfiles.medium`)         |
+| OkLab chroma `0.4`                                                            | `TUNING.color`                                  | knob ✅ (shader output, not PRNG)                    |
+| curated space/shareDepth                                                      | `TUNING.channels`                               | knob ✅ (single source for the default recipe)       |
+| `HISTORY_LIMIT`, initial seed `42`                                            | `TUNING.app`                                    | knob ✅                                              |
+| render defaults (1024², 8 000 ms)                                             | `TUNING.artwork`                                | knob ✅                                              |
+| `DEFAULT_LOOP_DURATION` (8 s, renderer) vs `DEFAULT_LOOP_MS` (8 000 ms, core) | `renderer/contract.ts`, `core/artwork/types.ts` | resolved ✅ (renderer derives from core)             |
+| calibrated weights in `defaultGrammar`                                        | `grammar/grammar.ts`                            | TODO (a calibration preset; keep in code or name it) |
+| `MIN/MAX_LOOP_MS`                                                             | `core/artwork/types.ts`                         | TODO (bounds are slider + validation, semi-guard)    |
+| dataset continuous draw vs quantized recipe space                             | `grammar/sample.ts`, `grammar/randomGrammar.ts` | TODO (dataset/bench policy)                          |
+| `MAX_DEPTH`, `MAX_NODES`, `MAX_WEIGHT`, `MIN_ACTIVE_WEIGHT`                   | `grammar/types.ts`                              | guard — stays                                        |
+| `MAX_SOURCE_LENGTH`                                                           | `compiler/types.ts`                             | guard — stays (shader blow-up)                       |
+| `MIN/MAX_RENDER_SIZE`, `MAX_TITLE_LENGTH`                                     | `core/artwork/types.ts`                         | guard — stays                                        |
+| attempt caps in `randomRecipe`/`sampleRecipes`                                | `grammar/quantized.ts`                          | guard — stays (loop termination)                     |
 
 ## PRNG consequences (the rule behind the pins)
 
-- **Draw-affecting** (`TUNING.terminals`, later the param rounding): same
-  `(grammar, seed)` → different numbers → different image. Changing these
+- **Draw-affecting** (`TUNING.terminals`, `TUNING.generator.paramDecimals`):
+  same `(grammar, seed)` → different numbers → different image. Changing these
   **must bump `GENERATOR_VERSION`** and regenerate the generator snapshots.
-- **Sampler-affecting** (`TUNING.recipe`): changes which recipes and seeds
-  the app/dataset explores, but `generate()` for a given `(grammar, seed)`
-  still draws the same numbers. No version bump; the exploration just moves.
-  (`SIZE_PROFILES` sits on this side because `recipeToGrammar` re-derives the
-  grammar from the recipe — nothing stored replays through old profiles.)
+- **Sampler-affecting** (`TUNING.recipe`, `TUNING.sampling`): changes which
+  recipes and seeds the app/dataset explores, but `generate()` for a given
+  `(grammar, seed)` still draws the same numbers. No version bump; the
+  exploration just moves. (`sizeProfiles` sits on this side because
+  `recipeToGrammar` re-derives the grammar from the recipe — nothing stored
+  replays through old profiles.)
+- **Render-affecting** (`TUNING.color`): changes the shader's output, not the
+  expression or the draws. No `GENERATOR_VERSION` bump; a shader change is
+  its own event (the colour note's open lead).
+- **Shell/render policy** (`TUNING.artwork`, `TUNING.channels`, `TUNING.app`):
+  no PRNG impact. `channels` curates both `DEFAULT_CHANNELS` and
+  `STRUCTURE_RECIPE`, so the curated default has one source.
 
 ## Decisions and rationale
 
@@ -94,24 +129,35 @@ or make an invariant checkable. Tuning them is a bug, not an experiment.
   should too, not invent ad-hoc objects.
 - **One entry per level of a discrete axis** (the merged construct): a level
   is one concept carrying `weight` (its meaning), `odds` (how often it is
-  drawn) and `anchor` (eligibility), so all three live in one config entry
-  instead of three parallel maps. Same shape for future per-family or
+  drawn) and `allowsAnchors` (eligibility), so all three live in one config
+  entry instead of three parallel maps. Same shape for future per-family or
   per-preset metadata. The former three copies of the anchor list
   (`ANCHOR_LEVELS`, `ANCHOR_OK`, `GrammarSection.tsx`) were the cost of the
   parallel-map shape — now one derived list.
-- **Named points of a discrete axis**: `SIZE_PROFILES` is the pattern for
-  "a few curated settings instead of a range" — `DEFAULT_CONSTRAINTS` and
-  the render defaults are candidates to become points of similar axes.
-- **Unit/owner duplication**: the 8 s loop exists twice (ms in core, s in
-  the renderer contract). Next wiring pass should pick one owner.
+- **Named points of a discrete axis**: `sizeProfiles` is the pattern for
+  "a few curated settings instead of a range" — `DEFAULT_CONSTRAINTS` now
+  derives from `sizeProfiles.medium`.
+- **Unit/owner duplication**: resolved. The renderer's
+  `DEFAULT_LOOP_DURATION` derives from the core `DEFAULT_LOOP_MS`; the
+  artwork spec owns the number, the renderer only brands it as seconds.
 
 ## TODO (next passes, smallest first)
 
-1. `appStore.ts`: `HISTORY_LIMIT`, initial seed `42` (pure shell knobs).
-2. Artwork/render defaults: `DEFAULT_RENDER_WIDTH/HEIGHT`, `DEFAULT_LOOP_MS`
-   and the loop-duration duplication with `renderer/contract.ts`.
-3. `generator.ts`: `PARAM_DECIMALS = 3` — draw-affecting, needs the
-   `GENERATOR_VERSION` bump + snapshot regen when it actually moves.
-4. Sampler policy defaults in `quantized.ts`/`sample.ts`/`randomGrammar.ts`
-   (`baseSeed`, `seedsPerGrammar`, `spread`, `changeRate`) and
-   `DEFAULT_CONSTRAINTS` derived from `SIZE_PROFILES.medium`.
+1. `defaultGrammar`: the app's default is the `Structure` preset
+   (`STRUCTURE_RECIPE`); `defaultGrammar` is a measured calibration fixture
+   used by tests and compiler fuzzing. Its name still reads as "the app
+   default". Either rename it (`calibrationGrammar`) or document the
+   distinction at the definition; no behaviour change.
+2. `MIN/MAX_LOOP_MS`: decide knob vs guard. They are a UI slider range and a
+   file-validation bound, not a safety guard; if they stay, say why in
+   `artwork/types.ts`.
+3. Dataset sampler: the offline dataset still draws continuous grammars
+   (`sampleGrammars` → `randomGrammar`), while the app and the bench explore
+   the quantized recipes. Decide whether the dataset should move to
+   `sampleRecipes` (same space as the bench) and retire the continuous draw,
+   or keep and document the wider survey.
+4. Naming-convention cleanup batch (see §2.1): `LotView` counts
+   (`cells`/`grammars`/`failed`/`flats` → `*Count`), the `serializeArtwork`
+   (`string`) vs `serializeGrammar` (`data`) asymmetry, and
+   `validateChannels` (it throws on content and repairs `shareDepth`, so
+   neither `assert` nor `fit` names it exactly).

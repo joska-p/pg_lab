@@ -157,6 +157,7 @@ images, so it needs a new shader version, not a `GENERATOR_VERSION` bump.
 
 - Gamut mapping instead of per-channel clamp for `oklch`, `oklab`, `hsl` (see §2).
 - Decide whether the colour space belongs in the artwork file proper, not only in provenance.
-- If chroma/saturation scales (`0.4`, `100`) become a tuning knob, they belong in the config file
-  session (`codex/prompts/session-config-file.md`) as taste knobs, not constraints. Changing them
-  does not alter seed output, so no `GENERATOR_VERSION` bump.
+- The OKLab chroma scale (`0.4`) is now `TUNING.color.oklabChroma` (second config pass). Changing
+  it does not alter seed output, so no `GENERATOR_VERSION` bump; the pinning test records the new
+  value. The HSL percentages (`100`) and the full turn (`360`) are unit conversions, not taste, so
+  they stay in `color/index.ts`.

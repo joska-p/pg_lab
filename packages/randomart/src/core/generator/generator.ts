@@ -1,4 +1,5 @@
 import type { Catalog, Operator } from '../catalog/index.ts';
+import { TUNING } from '../config/index.ts';
 import { createExpression, createNode } from '../expression/index.ts';
 import type { Expression, Node } from '../expression/index.ts';
 import { getVocabulary, minSize, weightOf } from '../grammar/index.ts';
@@ -10,6 +11,9 @@ import type { Seed } from '../random/index.ts';
 // random numbers are consumed (operator draw, then one draw per param, then children left to right,
 // channels r, g, b), the draw rule, or rounding. A seed is only meaningful with one version.
 export const GENERATOR_VERSION = 4;
+
+/** Integer scale of the param rounding: `PARAM_DECIMALS` decimal places. */
+const PARAM_SCALE = 10 ** TUNING.generator.paramDecimals;
 
 /**
  * What one trunk level produces: the three channel nodes, the size the parent accounts for, and
@@ -89,7 +93,7 @@ export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expres
         for (const param of operator.params) {
             const u = rng.next();
             const raw = param.min + u * (param.max - param.min);
-            const rounded = Math.round(raw * 1000) / 1000;
+            const rounded = Math.round(raw * PARAM_SCALE) / PARAM_SCALE;
             const clamped = Math.min(param.max, Math.max(param.min, rounded));
 
             paramValues.push(Object.is(clamped, -0) || clamped === 0 ? 0 : clamped);

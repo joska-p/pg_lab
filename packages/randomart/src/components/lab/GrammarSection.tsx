@@ -8,7 +8,7 @@ import {
     ANCHOR_LEVELS,
     FAMILY_IDS,
     grammarPresets,
-    PROFILE_IDS,
+    SIZE_PROFILE_IDS,
     presetIdOf,
     SHARE_CHOICES,
     WEIGHT_LEVELS,
@@ -46,7 +46,7 @@ const FAMILY_LABELS: Record<FamilyId, string> = {
     warp: 'warp',
 };
 
-const SIZE_OPTIONS = PROFILE_IDS.map((id) => ({ value: id, label: id }));
+const SIZE_OPTIONS = SIZE_PROFILE_IDS.map((id) => ({ value: id, label: id }));
 const SHARE_OPTIONS = SHARE_CHOICES.map((choice) => ({
     value: String(choice),
     label: String(choice),

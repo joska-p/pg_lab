@@ -43,7 +43,7 @@ export type { SizeProfileId, WeightLevel } from '../config/index.ts';
  * through the PRNG — append new entries in `TUNING.recipe`, never reorder.
  */
 export const WEIGHT_LEVELS = Object.keys(TUNING.recipe.levels) as readonly WeightLevel[];
-export const PROFILE_IDS = Object.keys(TUNING.recipe.sizeProfiles) as readonly SizeProfileId[];
+export const SIZE_PROFILE_IDS = Object.keys(TUNING.recipe.sizeProfiles) as readonly SizeProfileId[];
 
 function levelsField(field: 'weight' | 'odds'): Record<WeightLevel, number> {
     const values = {} as Record<WeightLevel, number>;
@@ -66,7 +66,7 @@ const LEVEL_ODDS = levelsField('odds');
  * never be `off`, without x/y the image has no spatial variation.
  */
 export const ANCHOR_LEVELS: readonly WeightLevel[] = WEIGHT_LEVELS.filter(
-    (level) => TUNING.recipe.levels[level].anchor,
+    (level) => TUNING.recipe.levels[level].allowsAnchors,
 );
 
 /** Depth/node budgets per size — the knobs live in `TUNING.recipe.sizeProfiles`. */
@@ -123,7 +123,10 @@ function drawLevel(rng: Rng, allowed: readonly WeightLevel[]): WeightLevel {
     return rng.weighted(allowed, (level) => LEVEL_ODDS[level]);
 }
 
-/** At least two non-anchor families stay on: a bare x/y vocabulary only draws gradients. */
+/**
+ * At least `TUNING.recipe.minActiveFamilies` non-anchor families stay on: a bare x/y vocabulary
+ * only draws gradients.
+ */
 export function randomRecipe(rng: Rng, options: RandomRecipeOptions = {}): Recipe {
     for (let attempt = 0; attempt < 1000; attempt++) {
         const levels = {} as Record<FamilyId, WeightLevel>;
@@ -142,7 +145,7 @@ export function randomRecipe(rng: Rng, options: RandomRecipeOptions = {}): Recip
 
         return {
             levels,
-            size: options.size ?? PROFILE_IDS[rng.int(PROFILE_IDS.length)],
+            size: options.size ?? SIZE_PROFILE_IDS[rng.int(SIZE_PROFILE_IDS.length)],
             share: options.share ?? SHARE_CHOICES[rng.int(SHARE_CHOICES.length)],
             space: options.space ?? COLOR_SPACE_IDS[rng.int(COLOR_SPACE_IDS.length)],
         };
@@ -170,7 +173,11 @@ export function sampleRecipes(
     count: number,
     options: SampleRecipesOptions = {},
 ): SampledRecipe[] {
-    const { baseSeed = 1, seedsPerGrammar = 36, ...pins } = options;
+    const {
+        baseSeed = TUNING.sampling.baseSeed,
+        seedsPerGrammar = TUNING.sampling.benchSeedsPerGrammar,
+        ...pins
+    } = options;
     const seen = new Set<string>();
     const sampled: SampledRecipe[] = [];
 
@@ -217,7 +224,7 @@ export function recipeOf(grammar: Grammar): Recipe | null {
     }
 
     const { minDepth, maxDepth, maxNodes } = grammar.constraints;
-    const size = PROFILE_IDS.find((id) => {
+    const size = SIZE_PROFILE_IDS.find((id) => {
         const profile = SIZE_PROFILES[id];
 
         return (

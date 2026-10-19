@@ -1,3 +1,4 @@
+import { TUNING } from '../config/index.ts';
 import type { Expression } from '../expression/index.ts';
 import type { Grammar } from '../grammar/index.ts';
 import type { Seed } from '../random/index.ts';
@@ -51,6 +52,6 @@ export const MIN_LOOP_MS = 500;
 export const MAX_LOOP_MS = 120_000;
 export const MAX_TITLE_LENGTH = 200;
 
-export const DEFAULT_RENDER_WIDTH = 1_024;
-export const DEFAULT_RENDER_HEIGHT = 1_024;
-export const DEFAULT_LOOP_MS = 8_000;
+export const DEFAULT_RENDER_WIDTH = TUNING.artwork.defaultWidth;
+export const DEFAULT_RENDER_HEIGHT = TUNING.artwork.defaultHeight;
+export const DEFAULT_LOOP_MS = TUNING.artwork.defaultLoopMs;

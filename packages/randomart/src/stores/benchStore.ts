@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 import { buildLotView, EMPTY_LOT } from '../components/bench/lot.ts';
 import type { LotView } from '../components/bench/lot.ts';
+import { TUNING } from '../core/config/index.ts';
 import { sampleRecipes } from '../core/grammar/index.ts';
 import {
     addBatchToNotebook,
@@ -56,11 +57,11 @@ export interface BenchSettings {
 
 const DEFAULT_SETTINGS: BenchSettings = {
     count: 12,
-    seedsPerGrammar: 36,
+    seedsPerGrammar: TUNING.sampling.benchSeedsPerGrammar,
     cellSize: '128',
     view: 'focus',
     dimFlats: false,
-    baseSeed: createSeed(1),
+    baseSeed: createSeed(TUNING.sampling.baseSeed),
 };
 
 interface BenchState {

@@ -1,6 +1,7 @@
 import type { Catalog } from '../catalog/index.ts';
 import { RAW_CHANNELS } from '../color/index.ts';
 import type { ChannelModel } from '../color/index.ts';
+import { TUNING } from '../config/index.ts';
 import { createRng, createSeed } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
 import { randomGrammar } from './randomGrammar.ts';
@@ -45,10 +46,10 @@ export function sampleGrammars(
     options: SampleOptions = {},
 ): SampledGrammar[] {
     const {
-        baseSeed = 1,
-        seedsPerGrammar = 16,
-        spread = 8,
-        changeRate = 0.3,
+        baseSeed = TUNING.sampling.baseSeed,
+        seedsPerGrammar = TUNING.sampling.datasetSeedsPerGrammar,
+        spread = TUNING.sampling.drawSpread,
+        changeRate = TUNING.sampling.changeRate,
         channels = RAW_CHANNELS,
     } = options;
 

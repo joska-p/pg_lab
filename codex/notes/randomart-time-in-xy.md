@@ -118,6 +118,10 @@ static".
 
 1. **Colour conversion deep-dive** — why `[-1, 1] → [0, 1]` via a colour
    space at all. Prompt in `codex/prompts/session-colour-pipeline.md`.
-2. **Config file for hard-coded values** — done (partial): `TUNING` in
-   `packages/randomart/src/core/config/tuning.ts`, split knobs-vs-guards and
-   remaining TODOs in `codex/notes/randomart-config-knobs.md`.
+2. **Config file for hard-coded values** — done: `TUNING` in
+   `packages/randomart/src/core/config/tuning.ts` holds terminals,
+   generator rounding, the recipe space, the sampler policy, artwork/render
+   defaults, colour chroma, curated channels and the app shell; the
+   knobs-vs-guards split and the remaining leads are in
+   `codex/notes/randomart-config-knobs.md`. The naming rules live in
+   `codex/docs/conventions/02-typescript.md` §2.1.

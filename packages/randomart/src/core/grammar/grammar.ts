@@ -7,6 +7,7 @@ import {
     RAW_CHANNELS,
 } from '../color/index.ts';
 import type { ChannelModel } from '../color/index.ts';
+import { TUNING } from '../config/index.ts';
 import { assertFinite } from '../shared/index.ts';
 import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types.ts';
 import type { Constraints, ConstraintsInput, Grammar } from './types.ts';
@@ -78,10 +79,10 @@ export function isLastTerminal(
 
 /**
  * The missing-field fallback shape: a non-finite constraint value is garbage, not an intent, so it
- * takes these defaults — the `defaultGrammar` shape, a finite and feasible baseline for the stock
- * catalog. `defaultGrammar` itself uses them (one value set, one meaning).
+ * takes these defaults — the `medium` size profile of the recipe space, a finite and feasible
+ * baseline for the stock catalog. `defaultGrammar` itself uses them (one value set, one meaning).
  */
-export const DEFAULT_CONSTRAINTS: ConstraintsInput = { minDepth: 3, maxDepth: 8, maxNodes: 60 };
+export const DEFAULT_CONSTRAINTS: ConstraintsInput = TUNING.recipe.sizeProfiles.medium;
 
 /**
  * Field-level repair for one bounded integer (throw-vs-repair policy in shared/index.ts): a finite

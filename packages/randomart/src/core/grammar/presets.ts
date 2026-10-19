@@ -1,4 +1,5 @@
 import type { Catalog } from '../catalog/index.ts';
+import { TUNING } from '../config/index.ts';
 import { recipeKey, recipeToGrammar } from './quantized.ts';
 import type { Recipe } from './quantized.ts';
 import type { Grammar } from './types.ts';
@@ -22,8 +23,8 @@ export const STRUCTURE_RECIPE: Recipe = {
         warp: 'low',
     },
     size: 'medium',
-    share: 2,
-    space: 'oklch',
+    share: TUNING.channels.defaultShareDepth,
+    space: TUNING.channels.defaultSpace,
 };
 
 export function grammarSignature(grammar: Grammar): string {

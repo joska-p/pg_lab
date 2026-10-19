@@ -20,6 +20,7 @@ import type { Artwork, ProvenanceCheck } from '../core/artwork/index.ts';
 import type { ColorSpaceId } from '../core/color/index.ts';
 import { compile } from '../core/compiler/index.ts';
 import type { CompiledShader } from '../core/compiler/index.ts';
+import { TUNING } from '../core/config/index.ts';
 import type { Expression } from '../core/expression/index.ts';
 import { generate, GENERATOR_VERSION } from '../core/generator/index.ts';
 import { describeGrammar, randomRecipe, recipeOf, recipeToGrammar } from '../core/grammar/index.ts';
@@ -55,13 +56,13 @@ export interface HistoryEntry {
     readonly provenanceCheck?: ProvenanceCheck;
 }
 
-const HISTORY_LIMIT = 30;
+const HISTORY_LIMIT = TUNING.app.historyLimit;
 
 // Time terminals are always in the default vocabulary: one seed = one expression = one shader.
 // Animation is a matter of playback (Play/Pause on the clock), not of grammar.
 const initialRecipe = PRESET_RECIPES[0].recipe;
 const initialGrammar = recipeToGrammar(catalog, initialRecipe);
-const initialSeed = createSeed(42);
+const initialSeed = createSeed(TUNING.app.initialSeed);
 const initialExpression = generate(catalog, initialGrammar, initialSeed);
 const initialCompiled = compile(catalog, initialExpression, {
     channels: initialGrammar.channels,
