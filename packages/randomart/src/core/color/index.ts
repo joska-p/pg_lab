@@ -1,5 +1,5 @@
 /**
- * Channels — how the generated expression becomes the colour the shader writes.
+ * Channels — how the generated expression becomes the color the shader writes.
  *
  * Two orthogonal axes, both carried by the grammar (they describe the image space, like the
  * vocabulary does) and travelling with it through serialization and the artwork provenance:
@@ -70,7 +70,7 @@ const OKLAB_TO_SRGB_GLSL = `vec3 ra_oklabToSrgb(vec3 lab) {
 /**
  * The remaps, all from the raw triplet in `[-1, 1]`: lightness gets `x * 0.5 + 0.5`,
  * chroma/saturation `abs(y)`, and the hue is the third channel wrapped onto a full turn. These are
- * the coordinates the old colour-space reference used
+ * the coordinates the old color-space reference used
  * (`_TMP/oldy/randomart/src/core/glsl-color-spaces.ts`).
  */
 const OKLCH_GLSL = `${OKLAB_TO_SRGB_GLSL}
@@ -137,8 +137,8 @@ export const RAW_CHANNELS: ChannelModel = { space: 'srgb', shareDepth: MIN_SHARE
 
 /**
  * The app's default (`defaultGrammar`): a shared trunk of depth 2 read as OKLCH. Sharing the top of
- * the trees is what makes the three channels correlate, so the image reads as colour following the
- * shape rather than as coloured noise — a palette is no longer needed for that.
+ * the trees is what makes the three channels correlate, so the image reads as color following the
+ * shape rather than as colored noise — a palette is no longer needed for that.
  */
 export const DEFAULT_CHANNELS: ChannelModel = {
     space: CONFIG.channels.space,

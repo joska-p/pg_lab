@@ -33,17 +33,17 @@ describe('channel model', () => {
         expect(defaultGrammar(catalog).channels).toEqual(DEFAULT_CHANNELS);
     });
 
-    it('refuses an unknown colour space (content, not a repair)', () => {
+    it('refuses an unknown color space (content, not a repair)', () => {
         expect(() =>
             createGrammar(catalog, {
                 weights: { x: 1 },
                 constraints: { minDepth: 1, maxDepth: 2, maxNodes: 2 },
                 channels: { space: 'nope' as never, shareDepth: 0 },
             }),
-        ).toThrow(/unknown colour space/);
+        ).toThrow(/unknown color space/);
     });
 
-    it('keeps every declared colour space usable', () => {
+    it('keeps every declared color space usable', () => {
         for (const space of COLOR_SPACE_IDS) {
             const grammar = createGrammar(catalog, {
                 weights: { x: 1 },
@@ -141,7 +141,7 @@ describe('compile channels', () => {
         createSeed(1),
     );
 
-    it('applies the colour space conversion once, at the end of main', () => {
+    it('applies the color space conversion once, at the end of main', () => {
         const srgb = compile(catalog, expression, {
             channels: { space: 'srgb', shareDepth: 0 },
         });
@@ -211,7 +211,7 @@ describe('channel serialization', () => {
         );
         expect(() =>
             deserializeGrammar(catalog, { ...base, channels: { space: 'nope', shareDepth: 0 } }),
-        ).toThrow(/grammar\.channels\.space: unknown colour space/);
+        ).toThrow(/grammar\.channels\.space: unknown color space/);
         expect(() =>
             deserializeGrammar(catalog, { ...base, channels: { space: 'srgb', shareDepth: 'a' } }),
         ).toThrow(/grammar\.channels\.shareDepth: number expected/);

@@ -116,7 +116,7 @@ export interface Config {
         readonly loopMs: number;
     };
     /**
-     * How the raw triplet becomes colour (core/color/index.ts). Not draw-affecting: the expression
+     * How the raw triplet becomes color (core/color/index.ts). Not draw-affecting: the expression
      * is unchanged, the shader's output is.
      */
     readonly color: {
@@ -127,7 +127,7 @@ export interface Config {
         readonly oklabChroma: number;
     };
     /**
-     * The app's curated defaults (core/color/index.ts, grammar/presets.ts). The colour space and
+     * The app's curated defaults (core/color/index.ts, grammar/presets.ts). The color space and
      * trunk depth appear in both `DEFAULT_CHANNELS` and the `Structure` preset, so they live here
      * once.
      */

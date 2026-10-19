@@ -103,7 +103,7 @@ describe('compiler', () => {
             expect(compiled.source).toContain('const float PI = 3.141592653589793;');
             expect(compiled.source).toContain('vec2 v_p = vUv * 2.0 - 1.0;');
 
-            // Single colour path: the triplet through the colour space's conversion (sRGB default).
+            // Single color path: the triplet through the color space's conversion (sRGB default).
             expect(compiled.source).toContain('vec3 ra_srgb(vec3 raw)');
             expect(compiled.source).toContain(
                 'o_color = vec4(ra_srgb(vec3(v_p.x, v_p.y, 0.25)), 1.0);',

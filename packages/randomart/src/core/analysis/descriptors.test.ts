@@ -18,7 +18,7 @@ function image(pixel: (x: number, y: number) => [number, number, number]): RgbIm
 }
 
 describe('describeImage', () => {
-    it('reads a flat grey image as flat, edgeless and colourless', () => {
+    it('reads a flat grey image as flat, edgeless and colorless', () => {
         const d = describeImage(image(() => [128, 128, 128]));
 
         expect(d.flatShare).toBe(1);
@@ -44,7 +44,7 @@ describe('describeImage', () => {
         expect(smooth.edgeSharpness).toBeLessThan(split.edgeSharpness);
     });
 
-    it('measures colour: a pure red image is saturated with one hue', () => {
+    it('measures color: a pure red image is saturated with one hue', () => {
         const d = describeImage(image(() => [255, 0, 0]));
 
         expect(d.meanSaturation).toBeCloseTo(1);

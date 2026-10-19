@@ -249,18 +249,18 @@ function colorStats(r: Float32Array, g: Float32Array, b: Float32Array) {
     return {
         meanSaturation: mean(saturation),
         stdSaturation: std(saturation),
-        // 1 = one dominant hue, 0 = hues spread around the wheel (or no colour at all).
+        // 1 = one dominant hue, 0 = hues spread around the wheel (or no color at all).
         hueConcentration: satSum === 0 ? 0 : Math.hypot(hueX, hueY) / satSum,
         channelCorrelation:
             (Math.abs(pearson(r, g)) + Math.abs(pearson(g, b)) + Math.abs(pearson(r, b))) / 3,
-        // Hasler & Süsstrunk colourfulness, on [0, 1] channels.
+        // Hasler & Süsstrunk colorfulness, on [0, 1] channels.
         colorfulness: Math.hypot(std(rg), std(yb)) + 0.3 * Math.hypot(mean(rg), mean(yb)),
     };
 }
 
 /**
  * Cheap, readable descriptors of one image (square, power-of-two side ≥ 16). Structure comes from
- * the luminance, colour from the channels. Key order is stable: it is the column order of the
+ * the luminance, color from the channels. Key order is stable: it is the column order of the
  * feature table.
  */
 export function describeImage(image: RgbImage): Descriptors {

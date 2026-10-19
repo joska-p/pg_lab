@@ -151,7 +151,7 @@ export function fitConstraints(
 }
 
 /**
- * A colour space is content (it defines the image), so an unknown id has no canonical repair and
+ * A color space is content (it defines the image), so an unknown id has no canonical repair and
  * refuses, like a bad weight (throw-vs-repair policy in shared/index.ts). `shareDepth` is an
  * editing quantity, so it is _repaired_: rounded and clamped into `[0, maxDepth]` (a non-finite
  * value takes `CONFIG.channels.shareDepth`). `>= maxDepth` is a legitimate reading — one shared
@@ -161,7 +161,7 @@ export function fitConstraints(
  */
 function validateChannels(channels: ChannelModel, maxDepth: number): ChannelModel {
     if (!isColorSpaceId(channels.space)) {
-        throw new Error(`Randomart: unknown colour space ${JSON.stringify(channels.space)}`);
+        throw new Error(`Randomart: unknown color space ${JSON.stringify(channels.space)}`);
     }
 
     return {
@@ -260,17 +260,17 @@ export function createGrammar(
  * vocabulary.
  *
  * These weights come from a calibration session (2026-10-17). The field of a generated expression
- * is provably bounded to `[-1, 1]` (every operator preserves the range), and every colour space
- * maps it monotonically, so the only thing that flattens an image into an aplat is a _constant_
- * field — not the mapping and not a final clamp (that clamp is dead). Measuring local flatness
- * against operator presence showed which operators structure the field and which flatten it:
- * `x`/`y`/`max` create variation, while `gt`, `add` and `const` dominate subtrees with a single
- * value. Up-weighting the first and pushing the second to the background roughly halves the share
- * of near-uniform stills (measured on the fuzz corpus: mean local flatness 59% → 41%, near-uniform
+ * is provably bounded to `[-1, 1]` (every operator preserves the range), and every color space maps
+ * it monotonically, so the only thing that flattens an image into an aplat is a _constant_ field —
+ * not the mapping and not a final clamp (that clamp is dead). Measuring local flatness against
+ * operator presence showed which operators structure the field and which flatten it: `x`/`y`/`max`
+ * create variation, while `gt`, `add` and `const` dominate subtrees with a single value.
+ * Up-weighting the first and pushing the second to the background roughly halves the share of
+ * near-uniform stills (measured on the fuzz corpus: mean local flatness 59% → 41%, near-uniform
  * "aplats" 42% → 19%).
  *
- * Its colour model is `DEFAULT_CHANNELS` (a trunk of depth 2 read as OKLCH), the _curated_ default
- * — the model that actually yields readable images. `createGrammar` alone would fall back to the
+ * Its color model is `DEFAULT_CHANNELS` (a trunk of depth 2 read as OKLCH), the _curated_ default —
+ * the model that actually yields readable images. `createGrammar` alone would fall back to the
  * plain raw-sRGB model (`RAW_CHANNELS`, three independent channels).
  */
 export function defaultGrammar(catalog: Catalog): Grammar {

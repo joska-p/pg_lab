@@ -9,7 +9,7 @@ import {
     plancheColumns,
 } from './planche.ts';
 
-/** A solid image `size`x`size` filled with one RGB colour. */
+/** A solid image `size`x`size` filled with one RGB color. */
 function solid(size: number, rgb: readonly [number, number, number]): RgbImage {
     const bytes = new Uint8Array(size * size * 3);
 

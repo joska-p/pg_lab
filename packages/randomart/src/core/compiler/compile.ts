@@ -25,7 +25,7 @@ import type { CompiledShader, CompileOptions } from './types.ts';
  * - `out vec4 o_color;` as color output
  * - `uniform float u_phase;` always declared
  *
- * There is a single colour path: whatever the channels' shape, `main` ends with the one conversion
+ * There is a single color path: whatever the channels' shape, `main` ends with the one conversion
  * of the `(r, g, b)` triplet — `o_color = vec4(<space>(vec3(r, g, b)), 1.0);` — and the preamble
  * carries that space's GLSL. `shareDepth` never reaches the compiler: it shapes the expression, not
  * the emission.
@@ -66,7 +66,7 @@ export function compile(
     }
 
     mainLines.push('');
-    // The one colour decision: the triplet through the space's conversion (a plain remap for sRGB).
+    // The one color decision: the triplet through the space's conversion (a plain remap for sRGB).
     // The conversion's own `clamp` is boundary assurance, not a correcting transform.
     mainLines.push(
         `  o_color = vec4(${colorSpaceFunction(channels.space)}(vec3(${rText}, ${gText}, ${bText})), 1.0);`,

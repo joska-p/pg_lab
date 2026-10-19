@@ -34,7 +34,7 @@ const styles = stylex.create({
         width: '100%',
         boxShadow: `inset 0 0 0 2px ${palette.light0Hard}, inset 0 0 0 3px ${palette.dark0Hard}`,
     },
-    // The current seed stands out by its colour, not its thickness.
+    // The current seed stands out by its color, not its thickness.
     cellRing: {
         boxShadow: `inset 0 0 0 2px ${colors.aqua}, inset 0 0 0 3px ${palette.dark0Hard}`,
     },

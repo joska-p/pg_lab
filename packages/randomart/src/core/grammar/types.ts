@@ -36,7 +36,7 @@ export type Grammar = Brand<
         readonly weights: GrammarWeights;
         readonly constraints: Constraints;
         /**
-         * How the generated tree(s) become colour, and how much structure they share (see
+         * How the generated tree(s) become color, and how much structure they share (see
          * `../color`). Always present.
          */
         readonly channels: ChannelModel;

@@ -20,7 +20,7 @@ const formulaStyle: CSSProperties = {
 /**
  * The expression, one line per channel: the compiled formula is the reference for understanding an
  * image. When the trunk is shared down to `maxDepth` the three channels are one tree, so it is
- * shown once, with the colour space that reads it.
+ * shown once, with the color space that reads it.
  */
 export function Inspector() {
     const expression = useExpression();

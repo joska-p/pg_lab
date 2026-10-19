@@ -62,7 +62,7 @@ export function serializeGrammar(grammar: Grammar): GrammarData {
 /**
  * Reads the optional `channels` field of a grammar object. Absent → `undefined`, i.e. the
  * `RAW_CHANNELS` fallback of `createGrammar` (a grammar written before channels existed, or built
- * by hand). Present but malformed → refuses with the field path. The colour space is content (an
+ * by hand). Present but malformed → refuses with the field path. The color space is content (an
  * unknown id has no canonical repair), so it is checked here; `shareDepth` is an editing quantity,
  * a plain number whose range `createGrammar` repairs (throw-vs-repair policy), so only its type is
  * checked.
@@ -80,7 +80,7 @@ function readChannels(data: unknown, path: string): ChannelModel | undefined {
 
     if (!isColorSpaceId(data.space)) {
         throw new Error(
-            `${path}.channels.space: unknown colour space ${JSON.stringify(data.space)}`,
+            `${path}.channels.space: unknown color space ${JSON.stringify(data.space)}`,
         );
     }
 

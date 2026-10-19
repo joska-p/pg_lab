@@ -55,13 +55,13 @@ export const PRESET_RECIPES: readonly {
     {
         id: 'oklab',
         label: 'OKLab',
-        description: 'The same shared trunk in OKLab: flatter, more even colour.',
+        description: 'The same shared trunk in OKLab: flatter, more even color.',
         recipe: { ...STRUCTURE_RECIPE, space: 'oklab' },
     },
     {
         id: 'rgb',
         label: 'Raw RGB',
-        description: 'Three independent channels in sRGB: colour and shape drift apart.',
+        description: 'Three independent channels in sRGB: color and shape drift apart.',
         recipe: { ...STRUCTURE_RECIPE, share: 0, space: 'srgb' },
     },
 ];

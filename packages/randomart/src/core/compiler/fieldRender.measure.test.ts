@@ -78,7 +78,7 @@ const evalNode = (node: Node, p: P, phase: number): number => {
 };
 
 // --- Contact-sheet colormaps ------------------------------------------------
-// Deliberately local: the core no longer ships palettes (channels are a colour space + a shared
+// Deliberately local: the core no longer ships palettes (channels are a color space + a shared
 // trunk depth now). A contact sheet still needs *some* map from the raw field to RGB, so the probe
 // keeps its own.
 const clamp01 = (v: number): number => Math.min(1, Math.max(0, v));
@@ -136,7 +136,7 @@ function encodePng(width: number, height: number, rgb: Uint8Array): Buffer {
     ihdr.writeUInt32BE(width, 0);
     ihdr.writeUInt32BE(height, 4);
     ihdr[8] = 8; // bit depth
-    ihdr[9] = 2; // colour type: truecolour
+    ihdr[9] = 2; // color type: truecolor
     return Buffer.concat([
         Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
         chunk('IHDR', ihdr),

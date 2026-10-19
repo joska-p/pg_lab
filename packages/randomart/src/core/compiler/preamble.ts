@@ -20,9 +20,9 @@ export interface PreambleResult {
 }
 
 /**
- * Builds the preamble lines from the set of used dependency names, plus the colour space's
+ * Builds the preamble lines from the set of used dependency names, plus the color space's
  * conversion function. Order: precision → blank → vUv/o_color → blank → u_phase → extra uniforms →
- * blank → PI → blank → dependency functions → blank → colour space function.
+ * blank → PI → blank → dependency functions → blank → color space function.
  */
 export function buildPreamble(
     catalog: Catalog,

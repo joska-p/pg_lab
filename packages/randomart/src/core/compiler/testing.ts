@@ -116,8 +116,8 @@ export interface FuzzCase {
  * Deterministic cases mixing the default grammar and randomized grammars (wider operator mix,
  * deeper trees), across the channel model's two axes, so the fuzz covers more than the default
  * vocabulary. Even `i` is a raw triplet with independent channels; odd `i` is a shared trunk read
- * in each colour space in turn, half of those fully shared (`shareDepth = maxDepth`, so `r = g =
- * b`) — both emission paths and both generator shapes are exercised.
+ * in each color space in turn, half of those fully shared (`shareDepth = maxDepth`, so `r = g = b`)
+ * — both emission paths and both generator shapes are exercised.
  */
 export function buildFuzzCases(catalog: Catalog, count: number): FuzzCase[] {
     const cases: FuzzCase[] = [];

@@ -13,7 +13,7 @@ export type SharingPolicy = 'shared' | 'all' | 'none';
 export interface CompileOptions {
     readonly sharing?: SharingPolicy;
     /**
-     * How the three channels become colour: only `space` drives the emission (the conversion the
+     * How the three channels become color: only `space` drives the emission (the conversion the
      * shader ends with). `shareDepth` is a generator concern — it decides the shape, not the
      * emitted code — and is ignored here. Defaults to `RAW_CHANNELS` (raw sRGB).
      */

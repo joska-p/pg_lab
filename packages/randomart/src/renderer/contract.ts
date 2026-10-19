@@ -16,7 +16,7 @@ export const GLSL_OUT_COLOR = 'out vec4 o_color;';
  * points upwards.
  *
  * Image conventions: x grows right, y grows up; [-1, 1]² is stretched over the whole image whatever
- * its shape; colour values are written as-is and read as sRGB, no linear conversion.
+ * its shape; color values are written as-is and read as sRGB, no linear conversion.
  */
 export const GLSL_COORD_INIT = 'vec2 v_p = vUv * 2.0 - 1.0;';
 
