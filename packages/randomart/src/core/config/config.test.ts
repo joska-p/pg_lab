@@ -24,7 +24,7 @@ describe('config pins', () => {
         expect(CONFIG.recipe).toEqual({
             levels: {
                 off: { weight: 0, odds: 3, allowsAnchors: false },
-                low: { weight: 0.5, odds: 2, allowsAnchors: false },
+                low: { weight: 0.5, odds: 2, allowsAnchors: true },
                 normal: { weight: 1, odds: 3, allowsAnchors: true },
                 high: { weight: 3, odds: 2, allowsAnchors: true },
             },
@@ -49,7 +49,7 @@ describe('config pins', () => {
         expect(CONFIG.artwork).toEqual({
             width: 1_024,
             height: 1_024,
-            loopMs: 8_000,
+            loopMs: 60_000,
         });
         expect(CONFIG.color).toEqual({
             oklabChroma: 0.4,

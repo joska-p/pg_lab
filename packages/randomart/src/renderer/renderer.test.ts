@@ -97,8 +97,8 @@ describe('renderer / contract & helpers', () => {
     });
 
     describe('defaults', () => {
-        it('has an 8-second default duration', () => {
-            expect(DEFAULT_LOOP_DURATION).toBe(8);
+        it('has an 60-second default duration', () => {
+            expect(DEFAULT_LOOP_DURATION).toBe(60);
         });
 
         it('configures antialias false and preserveDrawingBuffer true', () => {

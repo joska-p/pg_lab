@@ -55,7 +55,7 @@ describe('artwork: createArtwork', () => {
     it('applies the render defaults (1024², 8000 ms) and freezes the artwork', () => {
         const { artwork } = fixture(false);
 
-        expect(artwork.render).toEqual({ width: 1024, height: 1024, loopMs: 8000 });
+        expect(artwork.render).toEqual({ width: 1024, height: 1024, loopMs: 60000 });
         expect(Object.isFrozen(artwork)).toBe(true);
         expect(Object.isFrozen(artwork.render)).toBe(true);
     });
@@ -104,7 +104,7 @@ describe('artwork: createRenderSettings', () => {
     it('applies the defaults (1024², 8000 ms) and freezes the result', () => {
         const settings = createRenderSettings();
 
-        expect(settings).toEqual({ width: 1024, height: 1024, loopMs: 8000 });
+        expect(settings).toEqual({ width: 1024, height: 1024, loopMs: 60000 });
         expect(Object.isFrozen(settings)).toBe(true);
     });
 
@@ -112,7 +112,7 @@ describe('artwork: createRenderSettings', () => {
         expect(createRenderSettings({ width: 2_048 })).toEqual({
             width: 2_048,
             height: 1024,
-            loopMs: 8000,
+            loopMs: 60000,
         });
     });
 
@@ -147,12 +147,12 @@ describe('artwork: fitRenderSettings', () => {
         expect(fitRenderSettings({ width: Number.NaN, loopMs: Number.NaN })).toEqual({
             width: 1_024,
             height: 1_024,
-            loopMs: 8_000,
+            loopMs: 60_000,
         });
         expect(fitRenderSettings()).toEqual({
             width: 1_024,
             height: 1_024,
-            loopMs: 8_000,
+            loopMs: 60_000,
         });
     });
 });

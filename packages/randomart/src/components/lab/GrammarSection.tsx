@@ -1,10 +1,11 @@
 import { Button } from '@repo/ui/components/Button';
 import { Grid } from '@repo/ui/components/Grid';
+import { Segmented } from '@repo/ui/components/Segmented';
 import { Select } from '@repo/ui/components/Select';
+import { Slider } from '@repo/ui/components/Slider';
 import { TextInput } from '@repo/ui/components/TextInput';
 
 import { COLOR_SPACE_IDS, COLOR_SPACES } from '../../core/color/index.ts';
-import type { ColorSpaceId } from '../../core/color/index.ts';
 import {
     ANCHOR_LEVELS,
     FAMILY_IDS,
@@ -14,12 +15,7 @@ import {
     SHARE_CHOICES,
     WEIGHT_LEVELS,
 } from '../../core/grammar/index.ts';
-import type {
-    FamilyId,
-    ShareChoice,
-    SizeProfileId,
-    WeightLevel,
-} from '../../core/grammar/index.ts';
+import type { FamilyId } from '../../core/grammar/index.ts';
 import { createSeed } from '../../core/random/index.ts';
 import {
     applyRecipe,
@@ -50,11 +46,6 @@ const FAMILY_LABELS: Record<FamilyId, string> = {
     warp: 'warp',
 };
 
-const SIZE_OPTIONS = SIZE_PROFILE_IDS.map((id) => ({ value: id, label: id }));
-const SHARE_OPTIONS = SHARE_CHOICES.map((choice) => ({
-    value: String(choice),
-    label: String(choice),
-}));
 const SPACE_OPTIONS = COLOR_SPACE_IDS.map((id) => ({ value: id, label: COLOR_SPACES[id].label }));
 
 function levelOptions(family: FamilyId) {
@@ -76,7 +67,7 @@ export function GrammarSection() {
     const preset = PRESETS.find((candidate) => candidate.id === presetId);
 
     return (
-        <Grid columns="1" gap="3">
+        <Grid columns="1" gap="3" justifyItem="stretch" alignItem="stretch">
             <Grid columns="2" gap="2">
                 <TextInput
                     title="type a seed number"
@@ -119,45 +110,56 @@ export function GrammarSection() {
                 </Button>
             </Grid>
 
-            <Grid columns="2" gap="2">
-                {FAMILY_IDS.map((family) => (
-                    <Select<WeightLevel>
+            {FAMILY_IDS.map((family) => {
+                const level = recipe.levels[family];
+                const levelIndex = levelOptions(family).findIndex(
+                    (option) => option.value === level,
+                );
+                const numberOfLevels = levelOptions(family).length - 1;
+
+                function handleOnValueChange(newLevel: number) {
+                    const newLevelValue = levelOptions(family)[newLevel].value;
+                    setRecipeLevel(family, newLevelValue);
+                }
+
+                return (
+                    <Slider
+                        color="orange"
                         key={family}
                         label={FAMILY_LABELS[family]}
-                        value={recipe.levels[family]}
-                        options={levelOptions(family)}
-                        onValueChange={(level) => {
-                            setRecipeLevel(family, level);
-                        }}
+                        value={levelIndex}
+                        min={0}
+                        max={numberOfLevels}
+                        onValueChange={handleOnValueChange}
                     />
-                ))}
-            </Grid>
+                );
+            })}
 
-            <Grid columns="2" gap="2">
-                <Select<SizeProfileId>
-                    label="size"
-                    value={recipe.size}
-                    options={SIZE_OPTIONS}
-                    onValueChange={setRecipeSize}
-                />
-                <Select
-                    label="shareDepth"
-                    value={String(recipe.share)}
-                    options={SHARE_OPTIONS}
-                    onValueChange={(value) => {
-                        setRecipeShare(value === 'mono' ? 'mono' : (Number(value) as ShareChoice));
-                    }}
-                />
-            </Grid>
+            <Slider
+                color="orange"
+                label="size"
+                value={SIZE_PROFILE_IDS.indexOf(recipe.size)}
+                min={0}
+                max={SIZE_PROFILE_IDS.length - 1}
+                onValueChange={(value) => setRecipeSize(SIZE_PROFILE_IDS[value])}
+            />
 
-            <Grid columns="2" gap="2">
-                <Select<ColorSpaceId>
-                    label="color"
-                    value={recipe.space}
-                    options={SPACE_OPTIONS}
-                    onValueChange={setRecipeSpace}
-                />
-            </Grid>
+            <Slider
+                color="orange"
+                label="shareDepth"
+                value={SHARE_CHOICES.indexOf(recipe.share)}
+                min={0}
+                max={SHARE_CHOICES.length - 1}
+                onValueChange={(value) => setRecipeShare(SHARE_CHOICES[value])}
+            />
+
+            <Segmented
+                color="orange"
+                label="color"
+                value={recipe.space}
+                options={SPACE_OPTIONS}
+                onValueChange={setRecipeSpace}
+            />
         </Grid>
     );
 }

@@ -30,6 +30,7 @@ export function ArtworkSection() {
     return (
         <Grid columns="1" gap="3">
             <Button
+                color="aqua"
                 onClick={() => {
                     void exportPng();
                 }}
@@ -40,6 +41,7 @@ export function ArtworkSection() {
             <Grid columns="1" gap="2">
                 <Grid columns="2" gap="2">
                     <Button
+                        color="solder"
                         onClick={() => {
                             exportArtworkFile();
                         }}
@@ -47,6 +49,7 @@ export function ArtworkSection() {
                         Export JSON
                     </Button>
                     <FileInput
+                        color="solder"
                         accept=".json,application/json"
                         onFile={(file) => {
                             void importArtworkFile(file);
