@@ -1,9 +1,9 @@
 import type { RgbImage } from '../../core/analysis/index.ts';
 
 /**
- * One displayed cell: a rendered image, or `null` when the cell is empty (a failed render, or a
- * candidate hidden by the flat filter). A row is one grammar, its columns are its seeds — the
- * planche is the render-side twin of `sampleGrammars` (one line per grammar).
+ * One displayed cell: a rendered image, or `null` when the render failed (the slot is kept so the
+ * grid never moves). A row is one grammar, its columns are its seeds — the planche is the
+ * render-side twin of `sampleGrammars` (one line per grammar).
  */
 export type PlancheCell = RgbImage | null;
 export type PlancheRow = readonly PlancheCell[];

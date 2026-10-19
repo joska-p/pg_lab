@@ -31,8 +31,9 @@ export const MAX_BENCH_COUNT = 32;
 export const MAX_BENCH_SEEDS = 64;
 
 /**
- * How the lot is presented. `sheet` is the contact sheet: every grammar, fitted to the stage. `row`
- * is one grammar at native cell size — the regime where a single candidate is actually judged.
+ * How the lot is presented. `sheet` is the contact sheet: every grammar, fitted to the stage.
+ * `focus` is one grammar at native cell size — the regime where a single candidate is actually
+ * judged.
  */
 export type BenchView = 'focus' | 'sheet';
 export const BENCH_VIEWS = ['focus', 'sheet'] as const satisfies readonly BenchView[];
