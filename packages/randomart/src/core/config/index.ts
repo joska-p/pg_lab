@@ -1,7 +1,1 @@
-export {
-    CONFIG,
-    type Config,
-    type SizeProfileId,
-    type WeightLevel,
-    type WeightLevelKnobs,
-} from './config.ts';
+export { CONFIG, type SizeProfileId, type WeightLevel } from './config.ts';

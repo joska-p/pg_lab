@@ -3,7 +3,7 @@ import type { ColorSpaceId } from '../color/index.ts';
 import type { ConstraintsInput } from '../grammar/types.ts';
 
 /** One level of the quantized weight axis: what it means and how often it is drawn. */
-export interface WeightLevelKnobs {
+interface WeightLevelKnobs {
     /** Operator weight the level maps to (its meaning on the axis). */
     readonly weight: number;
     /** Relative odds of the level in a random draw: bias the sampler here. */
@@ -43,7 +43,7 @@ export interface WeightLevelKnobs {
  * `artwork` and `app` are shell/render policy and affect no PRNG stream. The pinning tests in
  * `config.test.ts` fail on any change, as the reminder.
  */
-export interface Config {
+interface Config {
     /** Time terminals `x`/`y` (catalog/operators/terminals.ts). Draw-affecting. */
     readonly terminals: {
         /**
