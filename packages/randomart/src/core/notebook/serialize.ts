@@ -39,7 +39,7 @@ function rejectUnknownKeys(
 // Serialization
 // ---------------------------------------------------------------------------
 
-export function serializeCandidate(candidate: NotebookCandidate): NotebookCandidateData {
+function serializeCandidate(candidate: NotebookCandidate): NotebookCandidateData {
     return {
         id: candidate.id,
         grammar: serializeGrammar(candidate.grammar),
@@ -49,7 +49,7 @@ export function serializeCandidate(candidate: NotebookCandidate): NotebookCandid
     };
 }
 
-export function serializeBatch(batch: NotebookBatch): NotebookBatchData {
+function serializeBatch(batch: NotebookBatch): NotebookBatchData {
     return {
         id: batch.id,
         createdAt: batch.createdAt,
@@ -58,7 +58,7 @@ export function serializeBatch(batch: NotebookBatch): NotebookBatchData {
     };
 }
 
-export function serializeRecipe(recipe: NotebookRecipe): NotebookRecipeData {
+function serializeRecipe(recipe: NotebookRecipe): NotebookRecipeData {
     return {
         id: recipe.id,
         label: recipe.label,

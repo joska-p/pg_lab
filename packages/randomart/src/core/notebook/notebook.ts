@@ -15,7 +15,7 @@ let nextLocalId = 1;
 /** Generates a unique, readable string identifier with a prefix. */
 // Generation is deterministic. This is one of the only non-deterministic sources (with
 // randomSeed); callers in the UI use it, the generator never does.
-export function generateNotebookId(prefix: string): string {
+function generateNotebookId(prefix: string): string {
     const time = Date.now().toString(36);
     const counter = (nextLocalId++).toString(36);
     const random = Math.random().toString(36).slice(2, 6);
