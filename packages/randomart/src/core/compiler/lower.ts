@@ -55,7 +55,7 @@ export interface ContextDef {
 }
 
 /** An item in the topographically ordered execution program. */
-export type ProgramItem =
+type ProgramItem =
     | { readonly kind: 'vertex'; readonly vertex: Vertex }
     | { readonly kind: 'context'; readonly context: ContextDef };
 

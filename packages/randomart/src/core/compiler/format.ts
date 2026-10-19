@@ -2,10 +2,9 @@
  * Format.ts — GLSL text formatting utilities.
  *
  * - IsAtom / isEnclosedInParens / wrapInput: parenthesization helpers.
- * - FormatGlslFloat: number → valid GLSL ES 3.00 literal (re-exported from catalog).
+ *
+ * Number → GLSL literal formatting lives in `catalog/format.ts` (used by the operators).
  */
-
-export { formatGlslFloat } from '../catalog/format.ts';
 
 const IDENTIFIER_OR_MEMBER = /^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?$/;
 const POSITIVE_NUMBER = /^\d+(\.\d+)?([eE][+-]?\d+)?$/;

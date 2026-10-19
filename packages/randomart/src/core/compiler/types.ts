@@ -20,12 +20,12 @@ export interface CompileOptions {
     readonly channels?: ChannelModel;
 }
 
-export interface CompiledShaderUniform {
+interface CompiledShaderUniform {
     readonly name: string;
     readonly glslType: 'float';
 }
 
-export interface CompiledShaderStats {
+interface CompiledShaderStats {
     readonly nodes: number;
     readonly vertices: number;
     readonly variables: number;
