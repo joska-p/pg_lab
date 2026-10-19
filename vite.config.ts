@@ -65,5 +65,13 @@ export default defineConfig({
     },
     run: {
         cache: true,
+        tasks: {
+            // Mechanical coherence audit for randomart (dead code, layers, purity, vocabulary,
+            // duplication). Reporting is complete even when a check fails; see tools/audit/run.mjs.
+            audit: {
+                command: 'node tools/audit/run.mjs',
+                cache: false,
+            },
+        },
     },
 });

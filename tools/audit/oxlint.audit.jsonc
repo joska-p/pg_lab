@@ -1,0 +1,73 @@
+{
+    "$schema": "../../node_modules/oxlint/configuration_schema.json",
+    "plugins": ["import"],
+    "rules": {
+        "import/extensions": ["error", "ignorePackages", { "ts": "always", "tsx": "always" }],
+    },
+    "overrides": [
+        {
+            "files": ["**/packages/randomart/src/core/**"],
+            "rules": {
+                "no-restricted-imports": [
+                    "error",
+                    {
+                        "patterns": [
+                            {
+                                "group": [
+                                    "**/renderer/**",
+                                    "**/stores/**",
+                                    "**/components/**",
+                                    "**/storage/**",
+                                    "**/dataset/**",
+                                ],
+                                "message": "core/ must not reach into higher layers (conventions §2.4)",
+                            },
+                        ],
+                    },
+                ],
+                "no-restricted-globals": [
+                    "error",
+                    "document",
+                    "window",
+                    "localStorage",
+                    "indexedDB",
+                    "requestAnimationFrame",
+                ],
+                "no-restricted-properties": [
+                    "error",
+                    {
+                        "object": "Math",
+                        "property": "random",
+                        "message": "core must not reach for ambient randomness (conventions §1.2)",
+                    },
+                    {
+                        "object": "Date",
+                        "property": "now",
+                        "message": "core must not reach for ambient time (conventions §1.2)",
+                    },
+                    {
+                        "object": "performance",
+                        "property": "now",
+                        "message": "core must not reach for ambient time (conventions §1.2)",
+                    },
+                ],
+            },
+        },
+        {
+            "files": ["**/packages/randomart/src/core/**/*.test.ts"],
+            "rules": {
+                "no-restricted-globals": "off",
+                "no-restricted-properties": "off",
+            },
+        },
+        {
+            "files": [
+                "**/packages/randomart/src/core/random/seed.ts",
+                "**/packages/randomart/src/core/notebook/notebook.ts",
+            ],
+            "rules": {
+                "no-restricted-properties": "off",
+            },
+        },
+    ],
+}

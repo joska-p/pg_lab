@@ -1,0 +1,23 @@
+{
+    "$schema": "https://unpkg.com/knip@6/schema.json",
+    "tags": ["-lintignore"],
+    "workspaces": {
+        ".": {},
+        "packages/randomart": {
+            "entry": [
+                "src/dataset/page.ts",
+                "src/**/*.test.ts",
+                "scripts/**/*.test.ts",
+                "scripts/probe-webgl.mjs"
+            ],
+            "project": ["src/**/*.{ts,tsx}", "scripts/**/*.{ts,mjs}"],
+            "ignoreDependencies": [
+                "@rolldown/plugin-babel",
+                "@stylexjs/unplugin",
+                "@vitejs/plugin-react",
+                "babel-plugin-react-compiler",
+                "lightningcss"
+            ]
+        }
+    }
+}

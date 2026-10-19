@@ -13,8 +13,12 @@
         "@stylexjs/unplugin": "catalog:",
         "@types/node": "catalog:",
         "@vitejs/plugin-react": "catalog:",
+        "jscpd": "catalog:",
+        "knip": "catalog:",
         "lightningcss": "catalog:",
+        "madge": "catalog:",
         "playwright-core": "catalog:",
+        "typescript": "catalog:",
         "vite-plus": "catalog:"
     },
     "devEngines": {
