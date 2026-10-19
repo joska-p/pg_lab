@@ -6,8 +6,8 @@ import { Inspector } from './Inspector.tsx';
 import { SessionSection } from './SessionSection.tsx';
 
 /**
- * The unified lab (workshop) panel: orchestrates generation, recipe presets, tree constraints,
- * vocabulary weights, playback loops, artwork I/O, and expression inspection.
+ * The unified lab (workshop) panel: orchestrates generation, recipe presets and weights, playback
+ * loops, artwork I/O, and expression inspection.
  */
 export function LabPanel() {
     return (

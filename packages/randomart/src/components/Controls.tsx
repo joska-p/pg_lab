@@ -15,10 +15,11 @@ const MODE_OPTIONS = [
 ] as const satisfies readonly { value: AppMode; label: string }[];
 
 /**
- * The panel orchestrator: one switch between the two faces of randomart.
+ * The panel orchestrator: one switch between the three faces of randomart.
  *
- * - **Lab** (workshop): the unified creation and grammar workshop — presets, weights, constraints,
- *   vocabulary, playback, history and artwork files.
+ * - **Lab** (workshop): the unified creation and grammar workshop — presets, weights, playback and
+ *   artwork files.
+ * - **History** (timeline): walk back through past candidates.
  * - **Bench** (lots): draw candidate grammars and inspect contact sheets.
  *
  * The mode lives in the store so the shell (`ExperimentShell`/`App`) can make the Stage switch
