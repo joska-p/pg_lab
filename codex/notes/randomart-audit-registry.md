@@ -239,11 +239,18 @@ today. If an exception should go away, this is where it shows.
 
 ## D — Documentation
 
-Not quantified in this pass (outside the mechanical scope). The source text
-(`_TMP/Audit de coherence de randomart.md`, §2 "Commentaires et docs obsolètes") remains the
-reference list: `Controls` "two faces", `LabPanel`, `benchStore`/`Planche` `row` vs
-`'sheet'|'focus'`, `appStore.commit`, `dataset/page.ts` "generate.mjs", `emit.test`, "8000 ms"
-titles, `index.html` `<title>randomart-next</title>`, hard-coded `/tmp/opencode/field`.
+First quantified pass listed the stale comments and titles (source text: `_TMP/Audit de coherence
+de randomart.md`, §2 "Commentaires et docs obsolètes"). **Done**, one commit per category, no
+behaviour change; `vp check`, `vp run audit` and `vp test` stay green (328 / 10 for randomart).
+
+| Commit    | Change                                                                                                       |
+| --------- | ------------------------------------------------------------------------------------------------------------ |
+| `f80c169` | `Controls` "three faces" (Lab/History/Bench), `LabPanel` drops the gone constraints/vocabulary               |
+| `0ed49b8` | `BenchView` docstring `row` → `focus`; `planche.ts` cell `null` = failed render (flat cells are dimmed)        |
+| `9082f18` | `appStore.commit` "recipe knob", `dataset/page.ts` + `loadDataset` "generate.mjs" → `cli.ts`                   |
+| `a342694` | `emit.test` uniform-dep comment (stock `x`/`y` do read `u_phase`), "8000 ms" titles → "60000 ms"               |
+| `3862ebb` | `index.html` `<title>randomart-next</title>` → `randomart`, hard-coded `/tmp/opencode/field` → `$MEASURE_OUT` |
+
 
 ## Already covered by existing tooling
 
@@ -263,5 +270,5 @@ titles, `index.html` `<title>randomart-next</title>`, hard-coded `/tmp/opencode/
    by `vp check`), the vocabulary script and the runner live in `tools/lint/`, and
    `.github/workflows/deploy.yml` runs `vp run audit`.
 
-Open follow-ups (not gates): the **D** documentation list above, and the **B-05** duplication
-clones (`C`).
+Open follow-up (not a gate): the **B-05** duplication clones (`C`). The **D** documentation list is
+done (see the D section).

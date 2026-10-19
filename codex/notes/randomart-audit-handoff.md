@@ -36,12 +36,13 @@ generator snapshots must not move unless a change is explicitly decided.
 
 ## Next action
 
-The coherence audit is closed. The remaining items are out of its mechanical scope:
+The coherence audit is closed. The remaining item is out of its mechanical scope:
 
-- **D — Documentation** (registry, `D` section): the stale comments and titles listed there.
-- **B-05 — Duplication** (`C`): the 6 production clones ranked in the registry.
+- **D — Documentation** (registry, `D` section): **done** (`f80c169`, `0ed49b8`, `9082f18`,
+  `a342694`, `3862ebb`).
+- **B-05 — Duplication** (`C`): the 6 production clones ranked in the registry — next.
 
-Both are tracked in the registry; nothing is blocking.
+Nothing is blocking.
 
 ## Workflow rules
 
