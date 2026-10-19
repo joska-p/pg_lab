@@ -1,7 +1,7 @@
 import type { Catalog } from '../catalog/index.ts';
 import { DEFAULT_CHANNELS } from '../color/index.ts';
 import type { ChannelModel } from '../color/index.ts';
-import { TUNING } from '../config/index.ts';
+import { CONFIG } from '../config/index.ts';
 import type { Rng } from '../random/index.ts';
 import { createGrammar } from './grammar.ts';
 import { randomizeWeights } from './randomize.ts';
@@ -19,7 +19,7 @@ export interface RandomGrammarOptions {
 /**
  * Raw draws: `createGrammar` repairs them (feasibility, ordering), so they may be extreme. This is
  * the continuous constraint draw of the dataset survey; the app and the bench explore the quantized
- * `TUNING.recipe.sizeProfiles` instead.
+ * `CONFIG.recipe.sizeProfiles` instead.
  */
 function drawConstraints(rng: Rng): ConstraintsInput {
     return {
@@ -41,8 +41,8 @@ export function randomGrammar(
     options: RandomGrammarOptions = {},
 ): Grammar {
     const {
-        spread = TUNING.sampling.drawSpread,
-        changeRate = TUNING.sampling.changeRate,
+        spread = CONFIG.sampling.drawSpread,
+        changeRate = CONFIG.sampling.changeRate,
         channels = DEFAULT_CHANNELS,
     } = options;
     const neutral: Record<string, number> = {};

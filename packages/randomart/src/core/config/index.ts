@@ -1,7 +1,7 @@
 export {
-    TUNING,
+    CONFIG,
+    type Config,
     type SizeProfileId,
-    type Tuning,
     type WeightLevel,
     type WeightLevelKnobs,
-} from './tuning.ts';
+} from './config.ts';

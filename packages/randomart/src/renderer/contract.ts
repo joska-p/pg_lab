@@ -1,7 +1,7 @@
 import { createDurationSeconds } from '@repo/glaze/core/time';
 import type { DurationSeconds } from '@repo/glaze/core/time';
 
-import { DEFAULT_LOOP_MS } from '../core/artwork/index.ts';
+import { CONFIG } from '../core/config/index.ts';
 import { assertFinite } from '../core/shared/index.ts';
 import type { Brand } from '../core/shared/index.ts';
 
@@ -20,8 +20,10 @@ export const GLSL_OUT_COLOR = 'out vec4 o_color;';
  */
 export const GLSL_COORD_INIT = 'vec2 v_p = vUv * 2.0 - 1.0;';
 
-/** Default loop duration in seconds, derived from the artwork spec's `DEFAULT_LOOP_MS`. */
-export const DEFAULT_LOOP_DURATION: DurationSeconds = createDurationSeconds(DEFAULT_LOOP_MS / 1000);
+/** Default loop duration in seconds, derived from `CONFIG.artwork.loopMs`. */
+export const DEFAULT_LOOP_DURATION: DurationSeconds = createDurationSeconds(
+    CONFIG.artwork.loopMs / 1000,
+);
 
 /** WebGL context flags for the randomart context. */
 export const DEFAULT_CONTEXT_OPTIONS: WebGLContextAttributes = {

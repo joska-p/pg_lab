@@ -1,13 +1,13 @@
 import type { Catalog, OperatorId } from '../catalog/index.ts';
 import { COLOR_SPACE_IDS } from '../color/index.ts';
 import type { ColorSpaceId } from '../color/index.ts';
-import { TUNING } from '../config/index.ts';
+import { CONFIG } from '../config/index.ts';
 import type { SizeProfileId, WeightLevel } from '../config/index.ts';
 import { createRng } from '../random/index.ts';
 import type { Rng, Seed } from '../random/index.ts';
 import { createGrammar, weightOf } from './grammar.ts';
 import { deriveSeed } from './sample.ts';
-import type { ConstraintsInput, Grammar } from './types.ts';
+import type { ConstraintsInput, FamilyId, Grammar, Recipe, ShareChoice } from './types.ts';
 
 /**
  * The quantized search space: a handful of categorical knobs instead of 22 continuous weights. A
@@ -24,7 +24,6 @@ export const FAMILY_IDS = [
     'logic',
     'warp',
 ] as const;
-export type FamilyId = (typeof FAMILY_IDS)[number];
 
 /** Every catalog operator belongs to exactly one family (asserted by a test). */
 export const FAMILY_OPERATORS: Record<FamilyId, readonly OperatorId[]> = {
@@ -40,16 +39,16 @@ export type { SizeProfileId, WeightLevel } from '../config/index.ts';
 
 /**
  * Axis ids in draw order: they come from the config entry order, which `randomRecipe` consumes
- * through the PRNG — append new entries in `TUNING.recipe`, never reorder.
+ * through the PRNG — append new entries in `CONFIG.recipe`, never reorder.
  */
-export const WEIGHT_LEVELS = Object.keys(TUNING.recipe.levels) as readonly WeightLevel[];
-export const SIZE_PROFILE_IDS = Object.keys(TUNING.recipe.sizeProfiles) as readonly SizeProfileId[];
+export const WEIGHT_LEVELS = Object.keys(CONFIG.recipe.levels) as readonly WeightLevel[];
+export const SIZE_PROFILE_IDS = Object.keys(CONFIG.recipe.sizeProfiles) as readonly SizeProfileId[];
 
 function levelsField(field: 'weight' | 'odds'): Record<WeightLevel, number> {
     const values = {} as Record<WeightLevel, number>;
 
     for (const level of WEIGHT_LEVELS) {
-        values[level] = TUNING.recipe.levels[level][field];
+        values[level] = CONFIG.recipe.levels[level][field];
     }
 
     return values;
@@ -58,31 +57,21 @@ function levelsField(field: 'weight' | 'odds'): Record<WeightLevel, number> {
 /** Operator weight each level maps to (its meaning on the axis). */
 export const LEVEL_WEIGHT = levelsField('weight');
 
-/** Relative odds of each level in a random draw — bias the sampler in `TUNING.recipe.levels`. */
+/** Relative odds of each level in a random draw — bias the sampler in `CONFIG.recipe.levels`. */
 const LEVEL_ODDS = levelsField('odds');
 
 /**
- * Levels anchors (x/y) may be drawn at — the `anchor` flags of `TUNING.recipe.levels`: anchors can
- * never be `off`, without x/y the image has no spatial variation.
+ * Levels anchors (x/y) may be drawn at — the `allowsAnchors` flags of `CONFIG.recipe.levels`:
+ * anchors can never be `off`, without x/y the image has no spatial variation.
  */
 export const ANCHOR_LEVELS: readonly WeightLevel[] = WEIGHT_LEVELS.filter(
-    (level) => TUNING.recipe.levels[level].allowsAnchors,
+    (level) => CONFIG.recipe.levels[level].allowsAnchors,
 );
 
-/** Depth/node budgets per size — the knobs live in `TUNING.recipe.sizeProfiles`. */
-export const SIZE_PROFILES: Record<SizeProfileId, ConstraintsInput> = TUNING.recipe.sizeProfiles;
+/** Depth/node budgets per size — the values live in `CONFIG.recipe.sizeProfiles`. */
+export const SIZE_PROFILES: Record<SizeProfileId, ConstraintsInput> = CONFIG.recipe.sizeProfiles;
 
 export const SHARE_CHOICES = [0, 1, 2, 3, 'mono'] as const;
-export type ShareChoice = (typeof SHARE_CHOICES)[number];
-
-export interface Recipe {
-    readonly levels: Readonly<Record<FamilyId, WeightLevel>>;
-    readonly size: SizeProfileId;
-    /** `'mono'` = fully shared trunk (r = g = b). */
-    readonly share: ShareChoice;
-    readonly space: ColorSpaceId;
-}
-
 /** Stable identity, for deduplication and caches. */
 export function recipeKey(recipe: Recipe): string {
     return JSON.stringify([
@@ -124,7 +113,7 @@ function drawLevel(rng: Rng, allowed: readonly WeightLevel[]): WeightLevel {
 }
 
 /**
- * At least `TUNING.recipe.minActiveFamilies` non-anchor families stay on: a bare x/y vocabulary
+ * At least `CONFIG.recipe.minActiveFamilies` non-anchor families stay on: a bare x/y vocabulary
  * only draws gradients.
  */
 export function randomRecipe(rng: Rng, options: RandomRecipeOptions = {}): Recipe {
@@ -139,7 +128,7 @@ export function randomRecipe(rng: Rng, options: RandomRecipeOptions = {}): Recip
             (family) => family !== 'anchors' && levels[family] !== 'off',
         ).length;
 
-        if (active < TUNING.recipe.minActiveFamilies) {
+        if (active < CONFIG.recipe.minActiveFamilies) {
             continue;
         }
 
@@ -174,8 +163,8 @@ export function sampleRecipes(
     options: SampleRecipesOptions = {},
 ): SampledRecipe[] {
     const {
-        baseSeed = TUNING.sampling.baseSeed,
-        seedsPerGrammar = TUNING.sampling.benchSeedsPerGrammar,
+        baseSeed = CONFIG.sampling.baseSeed,
+        seedsPerGrammar = CONFIG.sampling.benchSeedsPerGrammar,
         ...pins
     } = options;
     const seen = new Set<string>();

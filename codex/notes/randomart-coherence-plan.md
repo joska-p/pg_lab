@@ -10,37 +10,50 @@ first, then only the linked docs the current task needs.
 
 ## Goal
 
-Randomart grew organically; the consolidation track is: one place for taste knobs
-(`TUNING`), one vocabulary for names (§2.1), no contradictory or duplicated defaults.
+Randomart grew organically; the consolidation track is: one place for the curated values
+(`CONFIG`), one vocabulary for names (§2.1), no contradictory or duplicated defaults.
 Functional behaviour stays byte-identical unless a session explicitly decides otherwise,
 and then the PRNG consequence (`GENERATOR_VERSION`) is named.
 
 ## State after this session
 
-- `TUNING` is the single source for: `terminals`, `generator` (param rounding),
+- `CONFIG` is the single source for: `terminals`, `generator` (param rounding),
   `recipe`, `sampling`, `artwork` (1024², 8 000 ms), `color` (OKLab chroma),
   `channels` (curated space + `shareDepth`, feeding both `DEFAULT_CHANNELS` and
   `STRUCTURE_RECIPE`), `app` (history limit, initial seed).
 - Wired: `generator.ts`, `grammar.ts` (`DEFAULT_CONSTRAINTS` =
   `sizeProfiles.medium`), `randomize.ts`, `randomGrammar.ts`, `sample.ts`,
-  `quantized.ts`, `benchStore.ts`, `appStore.ts`, `artwork/types.ts`,
-  `renderer/contract.ts` (8 s derives from `DEFAULT_LOOP_MS`), `color/index.ts`.
+  `quantized.ts`, `benchStore.ts`, `appStore.ts`, `artwork/create.ts`,
+  `renderer/contract.ts` (8 s derives from `CONFIG.artwork.loopMs`), `color/index.ts`.
+- **One value, one name** (config session): `tuning.ts`/`TUNING`/`Tuning` renamed to
+  `config.ts`/`CONFIG`/`Config`; the redundant `default` prefix dropped on the keys
+  (`artwork.width|height|loopMs`, `channels.space|shareDepth`); the pure aliases removed
+  (`DEFAULT_RENDER_WIDTH|HEIGHT`, `DEFAULT_LOOP_MS`, `DEFAULT_SHARE_DEPTH`,
+  `HISTORY_LIMIT`) — consumers read `CONFIG.<section>.<key>`. Composed defaults
+  (`DEFAULT_CHANNELS`, `DEFAULT_CONSTRAINTS`, `DEFAULT_LOOP_DURATION`) stay, as
+  derivations. `artwork/types.ts` is a types+guards file again.
+- **Where a type lives** (config session): a type imported by ≥2 modules sits in its
+  module's `types.ts`; a local one stays colocated. Brands stay next to their factory
+  (`Seed`, `Phase`); guards stay next to the invariant they protect (a `types.ts` may
+  carry guards, never a config value). Applied: `core/color/types.ts`
+  (`ColorSpaceId`, `ChannelModel`); `grammar/types.ts` (`Recipe`, `FamilyId`,
+  `ShareChoice`, `GrammarSummary`, `SampleOptions`).
 - Naming convention written. Two names aligned: `allowsAnchors` (was `anchor`),
   `SIZE_PROFILE_IDS` (was `PROFILE_IDS`).
-- Verification: `vp check --fix` clean (455 files); `vp test` in `packages/randomart`
+- Verification: `vp check --fix` clean; `vp test` in `packages/randomart`
   328 passed / 10 skipped; no `GENERATOR_VERSION` bump; generator snapshots unchanged.
 - All values are unchanged, so nothing replays differently.
 
 ## Invariants to keep (see the config note for the full table)
 
-- Draw-affecting: `TUNING.terminals` + `TUNING.generator.paramDecimals` → a change bumps
+- Draw-affecting: `CONFIG.terminals` + `CONFIG.generator.paramDecimals` → a change bumps
   `GENERATOR_VERSION` and regenerates the generator snapshots.
-- Sampler-affecting: `TUNING.recipe` + `TUNING.sampling` → the exploration moves,
+- Sampler-affecting: `CONFIG.recipe` + `CONFIG.sampling` → the exploration moves,
   `generate(grammar, seed)` does not.
-- Render-affecting: `TUNING.color` → the shader output changes, no generator bump.
-- `TUNING.artwork` / `channels` / `app` → no PRNG impact.
-- Guards stay out of `TUNING` (`MAX_DEPTH`, `MAX_SOURCE_LENGTH`, `MIN/MAX_RENDER_SIZE`…).
-- `packages/randomart/src/core/config/tuning.test.ts` pins every group: a failure is the
+- Render-affecting: `CONFIG.color` → the shader output changes, no generator bump.
+- `CONFIG.artwork` / `channels` / `app` → no PRNG impact.
+- Guards stay out of `CONFIG` (`MAX_DEPTH`, `MAX_SOURCE_LENGTH`, `MIN/MAX_RENDER_SIZE`…).
+- `packages/randomart/src/core/config/config.test.ts` pins every group: a failure is the
   reminder that a change has a consequence.
 
 ## Findings left (audited, not all addressed)
@@ -52,7 +65,7 @@ and then the PRNG consequence (`GENERATOR_VERSION`) is named.
 2. **Two sampler spaces.** The app and the bench explore the quantized recipes
    (`sampleRecipes`); the offline dataset still draws continuous grammars
    (`sampleGrammars` → `randomGrammar` → `drawConstraints`). Both are wired to
-   `TUNING.sampling`, but they do not cover the same space.
+   `CONFIG.sampling`, but they do not cover the same space.
 3. **Loop bounds.** `MIN/MAX_LOOP_MS` sit in `core/artwork/types.ts`: they are a UI
    slider range and a file-validation bound, not a safety guard. Knob or guard?
 4. **Naming deviations** (see §2.1):
@@ -66,7 +79,7 @@ and then the PRNG consequence (`GENERATOR_VERSION`) is named.
       `shareDepth`; it fits neither `assert` nor `fit`.
 5. **Minor.** `DEFAULT_KEEP = ['x', 'y']` (`randomize.ts`) duplicates the anchors family
    (`FAMILY_OPERATORS.anchors` / `ANCHOR_LEVELS`), but lives at a lower layer.
-6. **Colour.** The OKLab chroma is now `TUNING.color.oklabChroma`; the HSL `100` and the
+6. **Colour.** The OKLab chroma is now `CONFIG.color.oklabChroma`; the HSL `100` and the
    full turn `360` are unit conversions and stay in `color/index.ts`. Gamut mapping
    (reduce chroma until in gamut) is the open colour lead.
 
@@ -89,7 +102,7 @@ at the definition. No behaviour change; `DEFAULT_CONSTRAINTS` already derives fr
 
 ### C. Loop bounds decision
 
-Decide whether `MIN/MAX_LOOP_MS` are taste knobs (move to `TUNING.artwork`) or guards
+Decide whether `MIN/MAX_LOOP_MS` are taste knobs (move to `CONFIG.artwork`) or guards
 (stay, with a comment stating why). One line of reasoning, then act.
 
 ### D. Dataset sampler

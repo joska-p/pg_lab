@@ -8,9 +8,6 @@ import { create } from 'zustand';
 import {
     checkProvenance,
     createArtwork,
-    DEFAULT_LOOP_MS,
-    DEFAULT_RENDER_HEIGHT,
-    DEFAULT_RENDER_WIDTH,
     MAX_LOOP_MS,
     MIN_LOOP_MS,
     parseArtwork,
@@ -20,7 +17,7 @@ import type { Artwork, ProvenanceCheck } from '../core/artwork/index.ts';
 import type { ColorSpaceId } from '../core/color/index.ts';
 import { compile } from '../core/compiler/index.ts';
 import type { CompiledShader } from '../core/compiler/index.ts';
-import { TUNING } from '../core/config/index.ts';
+import { CONFIG } from '../core/config/index.ts';
 import type { Expression } from '../core/expression/index.ts';
 import { generate, GENERATOR_VERSION } from '../core/generator/index.ts';
 import { describeGrammar, randomRecipe, recipeOf, recipeToGrammar } from '../core/grammar/index.ts';
@@ -56,13 +53,11 @@ export interface HistoryEntry {
     readonly provenanceCheck?: ProvenanceCheck;
 }
 
-const HISTORY_LIMIT = TUNING.app.historyLimit;
-
 // Time terminals are always in the default vocabulary: one seed = one expression = one shader.
 // Animation is a matter of playback (Play/Pause on the clock), not of grammar.
 const initialRecipe = PRESET_RECIPES[0].recipe;
 const initialGrammar = recipeToGrammar(catalog, initialRecipe);
-const initialSeed = createSeed(TUNING.app.initialSeed);
+const initialSeed = createSeed(CONFIG.app.initialSeed);
 const initialExpression = generate(catalog, initialGrammar, initialSeed);
 const initialCompiled = compile(catalog, initialExpression, {
     channels: initialGrammar.channels,
@@ -254,7 +249,7 @@ function commit(recipe: Recipe, seed: Seed, restoreId?: number, coalesce = false
                 ? history.filter((candidate) => candidate.id !== state.currentId)
                 : history;
 
-            history = [entry, ...kept].slice(0, HISTORY_LIMIT);
+            history = [entry, ...kept].slice(0, CONFIG.app.historyLimit);
             currentId = entry.id;
             grammarEditId = coalesce ? entry.id : null;
         } else {
@@ -413,7 +408,7 @@ export function publishArtwork(artwork: Artwork): void {
         expression,
         provenanceCheck,
         compiledShader,
-        history: [entry, ...state.history].slice(0, HISTORY_LIMIT),
+        history: [entry, ...state.history].slice(0, CONFIG.app.historyLimit),
         currentId: entry.id,
         actionError: null,
     });
@@ -443,10 +438,10 @@ export function exportArtworkFile(): void {
     const artwork = createArtwork({
         expression: state.expression,
         // Render size = canvas size until the artwork is resized; the artwork keeps
-        // the default 1024² so a file stays meaningful on another screen.
+        // the config default so a file stays meaningful on another screen.
         render: {
-            width: DEFAULT_RENDER_WIDTH,
-            height: DEFAULT_RENDER_HEIGHT,
+            width: CONFIG.artwork.width,
+            height: CONFIG.artwork.height,
             loopMs: Math.round(state.duration * 1000),
         },
         provenance: {
@@ -497,13 +492,13 @@ export async function exportPng(): Promise<void> {
  * Parses a raw string into a valid DurationSeconds — a repair entry with the _concept_ bounds: the
  * loop duration has one bound set, the artwork's render bounds, so the UI can now represent
  * anything a file may carry. A non-finite input is garbage, not an intent: it takes the concept
- * default (8 s).
+ * default (`DEFAULT_LOOP_DURATION`).
  */
 export function parseDurationInput(raw: string): DurationSeconds {
     const n = parseFloat(raw);
     const clamped = Number.isFinite(n)
         ? Math.min(MAX_LOOP_MS / 1000, Math.max(MIN_LOOP_MS / 1000, n))
-        : DEFAULT_LOOP_MS / 1000;
+        : DEFAULT_LOOP_DURATION;
 
     return createDurationSeconds(clamped);
 }

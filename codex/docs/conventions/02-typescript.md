@@ -51,7 +51,7 @@ Use the glossary in the package README as the source of truth for domain words. 
 | ----------------------------------------------------- | ------------------------ | ------------------------------------------------------- |
 | Variables, parameters, properties, functions, methods | `camelCase`              | `shareDepth`, `drawOperator`, `renderSettings`          |
 | Types, interfaces, classes, React components, brands  | `PascalCase`             | `Grammar`, `ChannelModel`, `RandomArtCanvas`, `Seed`    |
-| Module-level constants, registries, config, id arrays | `SCREAMING_SNAKE_CASE`   | `MAX_DEPTH`, `DEFAULT_CHANNELS`, `TUNING`, `FAMILY_IDS` |
+| Module-level constants, registries, config, id arrays | `SCREAMING_SNAKE_CASE`   | `MAX_DEPTH`, `DEFAULT_CHANNELS`, `CONFIG`, `FAMILY_IDS` |
 | Module-level singletons and live instances            | `camelCase`              | `catalog`, `store`, `renderer`                          |
 | Type parameters                                       | `PascalCase`             | `T`, `K`, `V`, `TSurface`                               |
 | File names: modules                                   | `camelCase.ts`           | `randomGrammar.ts`, `appStore.ts`                       |
@@ -169,7 +169,7 @@ Module constants use meaningful prefixes and suffixes:
 | Pattern                   | Meaning                                      | Examples                                    |
 | ------------------------- | -------------------------------------------- | ------------------------------------------- |
 | `MAX_*` / `MIN_*`         | Domain bounds enforced by validation         | `MAX_DEPTH`, `MIN_LOOP_MS`                  |
-| `DEFAULT_*`               | Fallback/default value                       | `DEFAULT_CHANNELS`, `DEFAULT_LOOP_MS`       |
+| `DEFAULT_*`               | Fallback/default value                       | `DEFAULT_CHANNELS`, `DEFAULT_CONSTRAINTS`   |
 | `EMPTY_*`                 | Identity/empty value                         | `EMPTY_LOT`                                 |
 | `RAW_*`                   | Unprocessed base model                       | `RAW_CHANNELS`                              |
 | `*_LIMIT`                 | Capacity or attempt cap (not a domain bound) | `HISTORY_LIMIT`                             |
@@ -180,7 +180,7 @@ Module constants use meaningful prefixes and suffixes:
 | `*_LEVELS` / `*_PROFILES` | Named points of an axis                      | `WEIGHT_LEVELS`, `SIZE_PROFILES`            |
 | `*_REGISTRY`              | Map of implementations                       | `PREAMBLE_REGISTRY`, `SPACE_REGISTRY`       |
 | `*_GLSL` / `GLSL_*`       | GLSL source or contract snippet              | `OKLCH_GLSL`, `GLSL_IN_UV`                  |
-| `*_MS`                    | Raw duration in milliseconds                 | `DEFAULT_LOOP_MS`, `MAX_LOOP_MS`            |
+| `*_MS`                    | Raw duration in milliseconds                 | `MIN_LOOP_MS`, `MAX_LOOP_MS`                |
 | `*Count`                  | Numeric count                                | `nodeCount`, `failedCount`                  |
 
 Plural nouns name collections (`rows`, `weights`, `COLOR_SPACES`); a number is a `*Count` (`cellCount`, not `cells`). A range is a `<quantity>Range` or the quantity itself when the type is `ParamRange` (`amp`, `cycleCounts`); it is not a list.

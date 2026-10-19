@@ -1,9 +1,7 @@
+import { CONFIG } from '../config/index.ts';
 import { assertFinite, assertIntegerInRange } from '../shared/index.ts';
 import type { Artwork, ArtworkInput, RenderSettings, RenderSettingsInput } from './types.ts';
 import {
-    DEFAULT_LOOP_MS,
-    DEFAULT_RENDER_HEIGHT,
-    DEFAULT_RENDER_WIDTH,
     MAX_LOOP_MS,
     MAX_RENDER_SIZE,
     MAX_TITLE_LENGTH,
@@ -12,15 +10,15 @@ import {
 } from './types.ts';
 
 /**
- * The only way to a `RenderSettings` brand: constrains the render block numbers and applies the
- * spec defaults for absent fields (1024², 8000 ms). Throws for callers who vouch for their values;
- * parse files (external data) through `fitRenderSettings` below. Accepts raw
- * `Partial<RenderSettingsInput>` so callers can hand in UI values or parsed JSON.
+ * The only way to a `RenderSettings` brand: constrains the render block numbers and applies
+ * `CONFIG.artwork` for absent fields. Throws for callers who vouch for their values; parse files
+ * (external data) through `fitRenderSettings` below. Accepts raw `Partial<RenderSettingsInput>` so
+ * callers can hand in UI values or parsed JSON.
  */
 export function createRenderSettings(render?: Partial<RenderSettingsInput>): RenderSettings {
-    const width = render?.width ?? DEFAULT_RENDER_WIDTH;
-    const height = render?.height ?? DEFAULT_RENDER_HEIGHT;
-    const loopMs = render?.loopMs ?? DEFAULT_LOOP_MS;
+    const width = render?.width ?? CONFIG.artwork.width;
+    const height = render?.height ?? CONFIG.artwork.height;
+    const loopMs = render?.loopMs ?? CONFIG.artwork.loopMs;
 
     assertIntegerInRange(width, 'render.width', MIN_RENDER_SIZE, MAX_RENDER_SIZE);
     assertIntegerInRange(height, 'render.height', MIN_RENDER_SIZE, MAX_RENDER_SIZE);
@@ -53,14 +51,14 @@ export function fitRenderSettings(render?: Partial<RenderSettingsInput>): Render
             : Math.min(max, Math.max(min, Math.round(value)));
 
     return createRenderSettings({
-        width: clampBounded(render?.width, MIN_RENDER_SIZE, MAX_RENDER_SIZE, DEFAULT_RENDER_WIDTH),
+        width: clampBounded(render?.width, MIN_RENDER_SIZE, MAX_RENDER_SIZE, CONFIG.artwork.width),
         height: clampBounded(
             render?.height,
             MIN_RENDER_SIZE,
             MAX_RENDER_SIZE,
-            DEFAULT_RENDER_HEIGHT,
+            CONFIG.artwork.height,
         ),
-        loopMs: clampBounded(render?.loopMs, MIN_LOOP_MS, MAX_LOOP_MS, DEFAULT_LOOP_MS),
+        loopMs: clampBounded(render?.loopMs, MIN_LOOP_MS, MAX_LOOP_MS, CONFIG.artwork.loopMs),
     });
 }
 

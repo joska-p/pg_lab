@@ -1,13 +1,7 @@
 import type { Catalog, Operator, OperatorId } from '../catalog';
-import {
-    DEFAULT_CHANNELS,
-    DEFAULT_SHARE_DEPTH,
-    isColorSpaceId,
-    MIN_SHARE_DEPTH,
-    RAW_CHANNELS,
-} from '../color/index.ts';
+import { DEFAULT_CHANNELS, isColorSpaceId, MIN_SHARE_DEPTH, RAW_CHANNELS } from '../color/index.ts';
 import type { ChannelModel } from '../color/index.ts';
-import { TUNING } from '../config/index.ts';
+import { CONFIG } from '../config/index.ts';
 import { assertFinite } from '../shared/index.ts';
 import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types.ts';
 import type { Constraints, ConstraintsInput, Grammar } from './types.ts';
@@ -82,7 +76,7 @@ export function isLastTerminal(
  * takes these defaults — the `medium` size profile of the recipe space, a finite and feasible
  * baseline for the stock catalog. `defaultGrammar` itself uses them (one value set, one meaning).
  */
-export const DEFAULT_CONSTRAINTS: ConstraintsInput = TUNING.recipe.sizeProfiles.medium;
+export const DEFAULT_CONSTRAINTS: ConstraintsInput = CONFIG.recipe.sizeProfiles.medium;
 
 /**
  * Field-level repair for one bounded integer (throw-vs-repair policy in shared/index.ts): a finite
@@ -160,9 +154,10 @@ export function fitConstraints(
  * A colour space is content (it defines the image), so an unknown id has no canonical repair and
  * refuses, like a bad weight (throw-vs-repair policy in shared/index.ts). `shareDepth` is an
  * editing quantity, so it is _repaired_: rounded and clamped into `[0, maxDepth]` (a non-finite
- * value takes `DEFAULT_SHARE_DEPTH`). `>= maxDepth` is a legitimate reading — one shared tree,
- * hence `r = g = b`. A missing `channels` field takes `RAW_CHANNELS`: three independent channels in
- * sRGB, the historical behaviour of a grammar built from parts without an explicit choice.
+ * value takes `CONFIG.channels.shareDepth`). `>= maxDepth` is a legitimate reading — one shared
+ * tree, hence `r = g = b`. A missing `channels` field takes `RAW_CHANNELS`: three independent
+ * channels in sRGB, the historical behaviour of a grammar built from parts without an explicit
+ * choice.
  */
 function validateChannels(channels: ChannelModel, maxDepth: number): ChannelModel {
     if (!isColorSpaceId(channels.space)) {
@@ -171,7 +166,12 @@ function validateChannels(channels: ChannelModel, maxDepth: number): ChannelMode
 
     return {
         space: channels.space,
-        shareDepth: clampInt(channels.shareDepth, MIN_SHARE_DEPTH, maxDepth, DEFAULT_SHARE_DEPTH),
+        shareDepth: clampInt(
+            channels.shareDepth,
+            MIN_SHARE_DEPTH,
+            maxDepth,
+            CONFIG.channels.shareDepth,
+        ),
     };
 }
 

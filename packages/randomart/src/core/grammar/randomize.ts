@@ -1,5 +1,5 @@
 import type { Catalog, Operator } from '../catalog/index.ts';
-import { TUNING } from '../config/index.ts';
+import { CONFIG } from '../config/index.ts';
 import type { Rng } from '../random/index.ts';
 import {
     createGrammar,
@@ -169,9 +169,9 @@ export function randomizeWeights(
     rng: Rng,
     options: RandomizeWeightsOptions = {},
 ): Grammar {
-    const spread = options.spread ?? TUNING.sampling.exploreSpread;
+    const spread = options.spread ?? CONFIG.sampling.exploreSpread;
     const preserveTerminalShare = options.preserveTerminalShare ?? true;
-    const changeRate = options.changeRate ?? TUNING.sampling.changeRate;
+    const changeRate = options.changeRate ?? CONFIG.sampling.changeRate;
     const keep = new Set(options.keep ?? DEFAULT_KEEP);
 
     if (!Number.isFinite(spread) || spread < 1) {

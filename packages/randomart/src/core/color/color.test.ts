@@ -3,11 +3,12 @@ import { describe, expect, it } from 'vite-plus/test';
 import { deserializeGrammar, serializeGrammar } from '../artwork/index.ts';
 import { createDefaultCatalog } from '../catalog/index.ts';
 import { compile } from '../compiler/index.ts';
+import { CONFIG } from '../config/index.ts';
 import { nodeCount } from '../expression/index.ts';
 import { generate } from '../generator/index.ts';
 import { createGrammar, defaultGrammar, randomizeWeights } from '../grammar/index.ts';
 import { createRng, createSeed } from '../random/index.ts';
-import { COLOR_SPACE_IDS, DEFAULT_CHANNELS, DEFAULT_SHARE_DEPTH, RAW_CHANNELS } from './index.ts';
+import { COLOR_SPACE_IDS, DEFAULT_CHANNELS, RAW_CHANNELS } from './index.ts';
 
 const catalog = createDefaultCatalog();
 
@@ -65,7 +66,7 @@ describe('channel model', () => {
         expect(channels(-3)).toBe(0); // clamped up
         expect(channels(9)).toBe(5); // clamped down to maxDepth
         expect(channels(2.7)).toBe(3); // rounded
-        expect(channels(Number.NaN)).toBe(DEFAULT_SHARE_DEPTH); // non-finite → the concept's default
+        expect(channels(Number.NaN)).toBe(CONFIG.channels.shareDepth); // non-finite → the concept's default
     });
 });
 

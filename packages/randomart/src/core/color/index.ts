@@ -16,9 +16,10 @@
  */
 
 import { formatGlslFloat } from '../catalog/format.ts';
-import { TUNING } from '../config/index.ts';
+import { CONFIG } from '../config/index.ts';
+import type { ChannelModel, ColorSpaceId } from './types.ts';
 
-export type ColorSpaceId = 'srgb' | 'oklch' | 'oklab' | 'hsl';
+export type { ChannelModel, ColorSpaceId } from './types.ts';
 
 export interface ColorSpace {
     readonly id: ColorSpaceId;
@@ -75,7 +76,7 @@ const OKLAB_TO_SRGB_GLSL = `vec3 ra_oklabToSrgb(vec3 lab) {
 const OKLCH_GLSL = `${OKLAB_TO_SRGB_GLSL}
 vec3 ra_oklch(vec3 raw) {
     float L = clamp(raw.x * 0.5 + 0.5, 0.0, 1.0);
-    float C = abs(raw.y) * ${formatGlslFloat(TUNING.color.oklabChroma)};
+    float C = abs(raw.y) * ${formatGlslFloat(CONFIG.color.oklabChroma)};
     float h = (raw.z * 0.5 + 0.5) * 6.283185307179586;
     return ra_oklabToSrgb(vec3(L, C * cos(h), C * sin(h)));
 }`;
@@ -83,7 +84,7 @@ vec3 ra_oklch(vec3 raw) {
 const OKLAB_GLSL = `${OKLAB_TO_SRGB_GLSL}
 vec3 ra_oklab(vec3 raw) {
     float L = clamp(raw.x * 0.5 + 0.5, 0.0, 1.0);
-    return ra_oklabToSrgb(vec3(L, raw.y * ${formatGlslFloat(TUNING.color.oklabChroma)}, raw.z * ${formatGlslFloat(TUNING.color.oklabChroma)}));
+    return ra_oklabToSrgb(vec3(L, raw.y * ${formatGlslFloat(CONFIG.color.oklabChroma)}, raw.z * ${formatGlslFloat(CONFIG.color.oklabChroma)}));
 }`;
 
 const HSL_TO_SRGB_GLSL = `vec3 ra_hslToSrgb(vec3 hsl) {
@@ -125,21 +126,8 @@ export function colorSpaceGlsl(space: ColorSpaceId): string {
     return COLOR_SPACES[space].glsl;
 }
 
-/** How the raw triplet is read before output. `shareDepth` is a generator concern, not a render one. */
-export interface ChannelModel {
-    /** Interpretation of `(r, g, b)`, applied once at the end of `main`. */
-    readonly space: ColorSpaceId;
-    /**
-     * Depth of the trunk the three channels share. `0` = independent trees; `>= maxDepth` = one
-     * tree, so `r = g = b`. `createGrammar` repairs it into `[0, maxDepth]`.
-     */
-    readonly shareDepth: number;
-}
-
+/** Depth floor of a shared trunk: `0` = three independent trees. */
 export const MIN_SHARE_DEPTH = 0;
-
-/** Depth of the shared trunk in the curated default (`TUNING.channels`). */
-export const DEFAULT_SHARE_DEPTH = TUNING.channels.defaultShareDepth;
 
 /**
  * The fallback of `createGrammar` when the caller says nothing: three independent channels in raw
@@ -153,6 +141,6 @@ export const RAW_CHANNELS: ChannelModel = { space: 'srgb', shareDepth: MIN_SHARE
  * shape rather than as coloured noise — a palette is no longer needed for that.
  */
 export const DEFAULT_CHANNELS: ChannelModel = {
-    space: TUNING.channels.defaultSpace,
-    shareDepth: DEFAULT_SHARE_DEPTH,
+    space: CONFIG.channels.space,
+    shareDepth: CONFIG.channels.shareDepth,
 };

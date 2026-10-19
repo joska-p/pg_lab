@@ -1,6 +1,8 @@
 import type { OperatorId } from '../catalog/index.ts';
-import type { ChannelModel } from '../color/index.ts';
+import type { ChannelModel, ColorSpaceId } from '../color/index.ts';
+import type { SizeProfileId, WeightLevel } from '../config/index.ts';
 import type { Brand } from '../shared/index.ts';
+import type { FAMILY_IDS, SHARE_CHOICES } from './quantized.ts';
 
 /**
  * Raw constraints as callers may write them: UI fields, hand-edited state, parsed JSON. Carries no
@@ -56,3 +58,52 @@ export const MAX_WEIGHT = 100;
 export const MIN_ACTIVE_WEIGHT = 0.001;
 export const MAX_DEPTH = 16;
 export const MAX_NODES = 400;
+
+/** Family of the catalog vocabulary (`FAMILY_IDS`), the coarse axis of the recipe space. */
+export type FamilyId = (typeof FAMILY_IDS)[number];
+
+/** How deep the three channels share their structure in a recipe (`SHARE_CHOICES`). */
+export type ShareChoice = (typeof SHARE_CHOICES)[number];
+
+/**
+ * One point of the quantized search space: a handful of categorical knobs instead of 22 continuous
+ * weights. `recipeToGrammar` (quantized.ts) is the only way down to a real `Grammar`, and
+ * neighbourhood ("one notch away") is meaningful here, which it is not on continuous weights.
+ */
+export interface Recipe {
+    readonly levels: Readonly<Record<FamilyId, WeightLevel>>;
+    readonly size: SizeProfileId;
+    /** `'mono'` = fully shared trunk (r = g = b). */
+    readonly share: ShareChoice;
+    readonly space: ColorSpaceId;
+}
+
+/** Indicator only, not a rule: lets the UI hint at the "character" of a grammar. */
+export interface GrammarSummary {
+    /** Vocabulary size. */
+    readonly vocabularySize: number;
+    /** Share of the total weight that goes to terminals, in (0, 1]. */
+    readonly terminalShare: number;
+    /** Weight-averaged arity of the non-terminals (0 if there are none). */
+    readonly meanArity: number;
+    /**
+     * `(1 − terminalShare) × meanArity`: above 1, trees tend to grow until cut by
+     * maxDepth/maxNodes.
+     */
+    readonly growth: number;
+}
+
+/** Options of `sampleGrammars` (sample.ts); the offline dataset passes the seeds budget. */
+export interface SampleOptions {
+    readonly baseSeed?: number;
+    readonly seedsPerGrammar?: number;
+    /** Weight scaling amplitude, wider than the UI's default to cover more of the space. */
+    readonly spread?: number;
+    readonly changeRate?: number;
+    /**
+     * Channel model of the drawn grammars. Defaults to `RAW_CHANNELS`, the historical dataset draw
+     * (three independent trees in sRGB); the bench passes the app's `DEFAULT_CHANNELS` so its lots
+     * are readable the way the play mode is.
+     */
+    readonly channels?: ChannelModel;
+}

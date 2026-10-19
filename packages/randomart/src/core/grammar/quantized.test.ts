@@ -13,7 +13,7 @@ import {
     recipeToGrammar,
     sampleRecipes,
 } from './quantized.ts';
-import type { Recipe } from './quantized.ts';
+import type { Recipe } from './types.ts';
 
 const catalog = createDefaultCatalog();
 const ALLOWED = new Set(Object.values(LEVEL_WEIGHT));

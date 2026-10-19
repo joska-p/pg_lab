@@ -1,19 +1,5 @@
 import type { Catalog } from '../catalog/index.ts';
-import type { Grammar } from './types.ts';
-
-export interface GrammarSummary {
-    /** Vocabulary size. */
-    readonly vocabularySize: number;
-    /** Share of the total weight that goes to terminals, in (0, 1]. */
-    readonly terminalShare: number;
-    /** Weight-averaged arity of the non-terminals (0 if there are none). */
-    readonly meanArity: number;
-    /**
-     * `(1 − terminalShare) × meanArity`: above 1, trees tend to grow until cut by
-     * maxDepth/maxNodes.
-     */
-    readonly growth: number;
-}
+import type { Grammar, GrammarSummary } from './types.ts';
 
 /** Indicator only, not a rule: lets the UI hint at the "character" of a grammar. */
 export function describeGrammar(catalog: Catalog, grammar: Grammar): GrammarSummary {

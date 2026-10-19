@@ -1,5 +1,5 @@
 import type { Catalog, Operator } from '../catalog/index.ts';
-import { TUNING } from '../config/index.ts';
+import { CONFIG } from '../config/index.ts';
 import { createExpression, createNode } from '../expression/index.ts';
 import type { Expression, Node } from '../expression/index.ts';
 import { getVocabulary, minSize, weightOf } from '../grammar/index.ts';
@@ -13,7 +13,7 @@ import type { Seed } from '../random/index.ts';
 export const GENERATOR_VERSION = 4;
 
 /** Integer scale of the param rounding: `PARAM_DECIMALS` decimal places. */
-const PARAM_SCALE = 10 ** TUNING.generator.paramDecimals;
+const PARAM_SCALE = 10 ** CONFIG.generator.paramDecimals;
 
 /**
  * What one trunk level produces: the three channel nodes, the size the parent accounts for, and

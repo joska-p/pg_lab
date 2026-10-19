@@ -25,9 +25,6 @@ export type {
     RenderSettingsInput,
 } from './types.ts';
 export {
-    DEFAULT_LOOP_MS,
-    DEFAULT_RENDER_HEIGHT,
-    DEFAULT_RENDER_WIDTH,
     MAX_LOOP_MS,
     MAX_RENDER_SIZE,
     MAX_TITLE_LENGTH,

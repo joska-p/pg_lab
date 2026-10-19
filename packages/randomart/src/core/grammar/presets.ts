@@ -1,8 +1,7 @@
 import type { Catalog } from '../catalog/index.ts';
-import { TUNING } from '../config/index.ts';
+import { CONFIG } from '../config/index.ts';
 import { recipeKey, recipeToGrammar } from './quantized.ts';
-import type { Recipe } from './quantized.ts';
-import type { Grammar } from './types.ts';
+import type { Recipe, Grammar } from './types.ts';
 
 export interface GrammarPreset {
     readonly id: string;
@@ -23,8 +22,8 @@ export const STRUCTURE_RECIPE: Recipe = {
         warp: 'low',
     },
     size: 'medium',
-    share: TUNING.channels.defaultShareDepth,
-    space: TUNING.channels.defaultSpace,
+    share: CONFIG.channels.shareDepth,
+    space: CONFIG.channels.space,
 };
 
 export function grammarSignature(grammar: Grammar): string {

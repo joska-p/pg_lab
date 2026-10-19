@@ -16,15 +16,23 @@ export interface WeightLevelKnobs {
 }
 
 /**
- * Taste knobs: the numbers we iterate on while exploring the look/feel, in one place instead of
- * scattered through the core. Edit + HMR, no code change. This file is the **single source of
- * truth** for the quantized axes: the level and size ids are `keyof` its entries, so adding a level
- * (`medium-low`, `very-high`, …) is adding an entry here — the compiler then points at every site
- * that must handle it.
+ * The curated values of the package, in one typed module: every number a caller never passes and
+ * every value the app starts from. Edit + HMR, no code change.
+ *
+ * This file is the **single source of truth of the quantized axes**: the level and size ids are
+ * `keyof` its entries, so adding a level (`medium-low`, `very-high`, …) is adding an entry here —
+ * the compiler then points at every site that must handle it.
+ *
+ * **One value, one name.** A consumer reads `CONFIG.<section>.<key>`; it does not re-declare the
+ * value under a second name. A domain may _derive_ a model from these values (`DEFAULT_CHANNELS`,
+ * `DEFAULT_CONSTRAINTS`, `DEFAULT_LOOP_DURATION`), which is composition, not renaming. The
+ * `default` prefix is redundant on the keys themselves: a value hardcoded here is, by construction,
+ * the default of its section — so the keys are bare (`artwork.width`, `channels.space`).
  *
  * This is NOT where guards live. Hard limits that keep the system safe (`MAX_DEPTH`,
  * `MAX_SOURCE_LENGTH`, `MAX_RENDER_SIZE`…) stay next to the invariants they protect: they are not
- * meant to be tuned, and putting them here would invite tuning them.
+ * meant to be tuned, and putting them here would invite tuning them. A `types.ts` may carry the
+ * guards of its concept; it must never carry a config value or an alias of one.
  *
  * PRNG sensitivity (see `GENERATOR_VERSION` in `../generator`): a seed reproduces an image only
  * with the same grammar AND the same draw-affecting values. Changing anything under `terminals` or
@@ -33,9 +41,9 @@ export interface WeightLevelKnobs {
  * sampler explores, but not what `generate()` draws for a given `(grammar, seed)`. `color` changes
  * the rendered image without changing the expression (a shader change, not a generator one);
  * `artwork` and `app` are shell/render policy and affect no PRNG stream. The pinning tests in
- * `tuning.test.ts` fail on any change, as the reminder.
+ * `config.test.ts` fail on any change, as the reminder.
  */
-export interface Tuning {
+export interface Config {
     /** Time terminals `x`/`y` (catalog/operators/terminals.ts). Draw-affecting. */
     readonly terminals: {
         /**
@@ -98,14 +106,14 @@ export interface Tuning {
         readonly datasetSeedsPerGrammar: number;
     };
     /**
-     * Artwork/render defaults (core/artwork/types.ts). Shell-level taste: the values a new artwork
+     * Artwork/render defaults (core/artwork). Shell-level curation: the values a new artwork
      * carries when the caller says nothing. The render bounds stay guards, next to the artwork
      * brand.
      */
     readonly artwork: {
-        readonly defaultWidth: number;
-        readonly defaultHeight: number;
-        readonly defaultLoopMs: number;
+        readonly width: number;
+        readonly height: number;
+        readonly loopMs: number;
     };
     /**
      * How the raw triplet becomes colour (core/color/index.ts). Not draw-affecting: the expression
@@ -124,8 +132,8 @@ export interface Tuning {
      * once.
      */
     readonly channels: {
-        readonly defaultSpace: ColorSpaceId;
-        readonly defaultShareDepth: number;
+        readonly space: ColorSpaceId;
+        readonly shareDepth: number;
     };
     /** App shell (stores/appStore.ts). Not draw-affecting. */
     readonly app: {
@@ -136,7 +144,7 @@ export interface Tuning {
     };
 }
 
-export const TUNING = {
+export const CONFIG = {
     terminals: {
         amp: { min: 0, max: 0.7 },
         phase: { min: -1, max: 1 },
@@ -169,25 +177,25 @@ export const TUNING = {
         datasetSeedsPerGrammar: 16,
     },
     artwork: {
-        defaultWidth: 1_024,
-        defaultHeight: 1_024,
-        defaultLoopMs: 8_000,
+        width: 1_024,
+        height: 1_024,
+        loopMs: 8_000,
     },
     color: {
         oklabChroma: 0.4,
     },
     channels: {
-        defaultSpace: 'oklch',
-        defaultShareDepth: 2,
+        space: 'oklch',
+        shareDepth: 2,
     },
     app: {
         historyLimit: 30,
         initialSeed: 42,
     },
-} as const satisfies Tuning;
+} as const satisfies Config;
 
 /** Ids of the weight axis, in draw order. */
-export type WeightLevel = keyof typeof TUNING.recipe.levels;
+export type WeightLevel = keyof typeof CONFIG.recipe.levels;
 
 /** Ids of the size axis, in draw order. */
-export type SizeProfileId = keyof typeof TUNING.recipe.sizeProfiles;
+export type SizeProfileId = keyof typeof CONFIG.recipe.sizeProfiles;

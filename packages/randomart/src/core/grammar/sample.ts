@@ -1,30 +1,15 @@
 import type { Catalog } from '../catalog/index.ts';
 import { RAW_CHANNELS } from '../color/index.ts';
-import type { ChannelModel } from '../color/index.ts';
-import { TUNING } from '../config/index.ts';
+import { CONFIG } from '../config/index.ts';
 import { createRng, createSeed } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
 import { randomGrammar } from './randomGrammar.ts';
-import type { Grammar } from './types.ts';
+import type { Grammar, SampleOptions } from './types.ts';
 
 export interface SampledGrammar {
     readonly grammar: Grammar;
     /** Image seeds for this grammar, derived from its index: the whole dataset is deterministic. */
     readonly seeds: readonly Seed[];
-}
-
-export interface SampleOptions {
-    readonly baseSeed?: number;
-    readonly seedsPerGrammar?: number;
-    /** Weight scaling amplitude, wider than the UI's default to cover more of the space. */
-    readonly spread?: number;
-    readonly changeRate?: number;
-    /**
-     * Channel model of the drawn grammars. Defaults to `RAW_CHANNELS`, the historical dataset draw
-     * (three independent trees in sRGB); the bench passes the app's `DEFAULT_CHANNELS` so its lots
-     * are readable the way the play mode is.
-     */
-    readonly channels?: ChannelModel;
 }
 
 /** Golden-ratio multiplicative hash: distinct indices give well-separated 32-bit seeds. */
@@ -46,10 +31,10 @@ export function sampleGrammars(
     options: SampleOptions = {},
 ): SampledGrammar[] {
     const {
-        baseSeed = TUNING.sampling.baseSeed,
-        seedsPerGrammar = TUNING.sampling.datasetSeedsPerGrammar,
-        spread = TUNING.sampling.drawSpread,
-        changeRate = TUNING.sampling.changeRate,
+        baseSeed = CONFIG.sampling.baseSeed,
+        seedsPerGrammar = CONFIG.sampling.datasetSeedsPerGrammar,
+        spread = CONFIG.sampling.drawSpread,
+        changeRate = CONFIG.sampling.changeRate,
         channels = RAW_CHANNELS,
     } = options;
 
