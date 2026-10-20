@@ -14,22 +14,22 @@ import {
     serializeArtworkFile,
 } from '../core/artwork/index.ts';
 import type { Artwork, ProvenanceCheck } from '../core/artwork/index.ts';
+import type { OperatorId } from '../core/catalog/index.ts';
 import type { ColorSpaceId } from '../core/color/index.ts';
 import { compile } from '../core/compiler/index.ts';
 import type { CompiledShader } from '../core/compiler/index.ts';
 import { CONFIG } from '../core/config/index.ts';
 import type { Expression } from '../core/expression/index.ts';
 import { generate, GENERATOR_VERSION } from '../core/generator/index.ts';
-import { drawRecipe, recipeOf, recipeToGrammar } from '../core/grammar/index.ts';
+import { drawRecipe, recipeOf, recipeToGrammar, repairRecipe } from '../core/grammar/index.ts';
 import type {
-    FamilyId,
     Grammar,
     Recipe,
     ShareChoice,
     SizeProfileId,
     WeightLevel,
 } from '../core/grammar/index.ts';
-import { PRESET_RECIPES } from '../core/grammar/presets.ts';
+import { DEFAULT_RECIPE } from '../core/grammar/presets.ts';
 import { createRng, createSeed, randomSeed } from '../core/random/index.ts';
 import type { Seed } from '../core/random/index.ts';
 import { DEFAULT_LOOP_DURATION } from '../renderer/contract.ts';
@@ -57,7 +57,7 @@ export interface HistoryEntry {
 
 // Time terminals are always in the default vocabulary: one seed = one expression = one shader.
 // Animation is a matter of playback (Play/Pause on the clock), not of grammar.
-const initialRecipe = PRESET_RECIPES[0].recipe;
+const initialRecipe = DEFAULT_RECIPE;
 const initialGrammar = recipeToGrammar(catalog, initialRecipe);
 const initialSeed = createSeed(CONFIG.app.initialSeed);
 const initialExpression = generate(catalog, initialGrammar, initialSeed);
@@ -222,7 +222,10 @@ function setActionError(error: unknown): void {
  */
 function commit(recipe: Recipe, seed: Seed, restoreId?: number, coalesce = false): void {
     try {
-        const grammar = recipeToGrammar(catalog, recipe);
+        // Repair once, here: the state stores the point of the space the grammar is compiled
+        // from, so the sliders always show exactly what was generated.
+        const repaired = repairRecipe(catalog, recipe);
+        const grammar = recipeToGrammar(catalog, repaired);
         const expression = generate(catalog, grammar, seed);
         const compiledShader = compile(catalog, expression, {
             channels: grammar.channels,
@@ -236,7 +239,7 @@ function commit(recipe: Recipe, seed: Seed, restoreId?: number, coalesce = false
                 id: nextEntryId++,
                 seed,
                 grammar,
-                recipe,
+                recipe: repaired,
                 nodes: compiledShader.stats.nodes,
             };
 
@@ -255,7 +258,7 @@ function commit(recipe: Recipe, seed: Seed, restoreId?: number, coalesce = false
 
         store.setState({
             grammar,
-            recipe,
+            recipe: repaired,
             seed,
             expression,
             provenanceCheck: 'matches',
@@ -295,8 +298,8 @@ function editRecipe(change: (recipe: Recipe) => Recipe): void {
     commit(change(recipe), seed, undefined, true);
 }
 
-export function setRecipeLevel(family: FamilyId, level: WeightLevel): void {
-    editRecipe((recipe) => ({ ...recipe, levels: { ...recipe.levels, [family]: level } }));
+export function setRecipeOperator(name: OperatorId, level: WeightLevel): void {
+    editRecipe((recipe) => ({ ...recipe, levels: { ...recipe.levels, [name]: level } }));
 }
 
 export function setRecipeSize(size: SizeProfileId): void {

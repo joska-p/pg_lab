@@ -1,10 +1,10 @@
 import type { Catalog } from '../catalog/index.ts';
 import { RAW_CHANNELS } from '../color/index.ts';
 import { CONFIG } from '../config/index.ts';
-import { createRng, createSeed } from '../random/index.ts';
+import { createRng } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
-import { drawGrammar } from './randomGrammar.ts';
-import type { Grammar, SampleOptions } from './types.ts';
+import { deriveSeed, drawRecipe, itemSeeds, recipeToGrammar, SHARE_CHOICES } from './quantized.ts';
+import type { Grammar, SampleOptions, ShareChoice } from './types.ts';
 
 export interface SampledGrammar {
     readonly grammar: Grammar;
@@ -12,18 +12,13 @@ export interface SampledGrammar {
     readonly seeds: readonly Seed[];
 }
 
-/** Golden-ratio multiplicative hash: distinct indices give well-separated 32-bit seeds. */
-export function deriveSeed(base: number, index: number): Seed {
-    return createSeed((Math.imul(index + 1, 0x9e37_79b1) ^ base) >>> 0);
-}
-
 /**
- * Independent grammars, not a chained walk: each one starts from the neutral vocabulary and gets
- * its own full randomization (`drawGrammar`), so the sample covers the space instead of drifting
- * through it.
+ * Independent grammars, not a chained walk: each one is its own draw of the recipe grid (the family
+ * prior of `drawRecipe`), so the sample covers the space instead of drifting through it.
  *
- * The channel model defaults to the plain raw sRGB (three independent trees) — the historical
- * dataset draw; callers exploring grammars in-app pass the app's `DEFAULT_CHANNELS`.
+ * The channel model becomes the pinned recipe axes — the default `RAW_CHANNELS` reads as "share 0
+ * in sRGB" (three independent trees), the historical dataset draw; callers exploring grammars
+ * in-app pass the app's `DEFAULT_CHANNELS` ("share 2 read as OKLCH").
  */
 export function sampleGrammars(
     catalog: Catalog,
@@ -33,26 +28,22 @@ export function sampleGrammars(
     const {
         baseSeed = CONFIG.sampling.baseSeed,
         seedsPerGrammar = CONFIG.sampling.datasetSeedsPerGrammar,
-        spread = CONFIG.sampling.drawSpread,
-        changeRate = CONFIG.sampling.changeRate,
         channels = RAW_CHANNELS,
     } = options;
 
     const sampled: SampledGrammar[] = [];
+    // A channel shareDepth is a plain number; on the recipe axis it reads as the matching notch
+    // (anything beyond the notches is a fully shared trunk, i.e. 'mono').
+    const share: ShareChoice =
+        SHARE_CHOICES.find((choice) => choice === channels.shareDepth) ?? 'mono';
 
     for (let i = 0; i < count; i++) {
         const rng = createRng(deriveSeed(baseSeed, i));
-        const grammar = drawGrammar(catalog, rng, {
-            spread,
-            changeRate,
-            channels,
-        });
+        const recipe = drawRecipe(rng, { share, space: channels.space });
 
         sampled.push({
-            grammar,
-            seeds: Array.from({ length: seedsPerGrammar }, (_, k) =>
-                deriveSeed(baseSeed ^ 0x5bd1_e995, i * seedsPerGrammar + k),
-            ),
+            grammar: recipeToGrammar(catalog, recipe),
+            seeds: itemSeeds(baseSeed, i, seedsPerGrammar),
         });
     }
 

@@ -9,8 +9,9 @@ interface WeightLevelKnobs {
     /** Relative odds of the level in a random draw: bias the sampler here. */
     readonly odds: number;
     /**
-     * Whether anchors (x/y) may be drawn at this level: `off` would let a grammar lose every
-     * spatial anchor, hence the restriction to `normal`/`high`.
+     * Whether anchors (x/y) may be drawn at this level. A random draw keeps both anchors live —
+     * without x/y the image has no spatial variation — while the authoring UI may still switch one
+     * of them off (only switching _both_ off is refused).
      */
     readonly allowsAnchors: boolean;
 }
@@ -72,15 +73,17 @@ interface Config {
     /** Quantized recipe space (core/grammar/quantized.ts). Sampler-affecting. */
     readonly recipe: {
         /**
-         * The weight axis, one entry per level. **Append, don't reorder**: the entry order is the
-         * PRNG draw order of `drawRecipe`, so reordering changes what every recipe seed draws.
+         * The weight axis, one entry per level, keyed by its slider index (`weight === index`).
+         * **Append, don't reorder**: the entry order is the PRNG draw order of `drawRecipe`, so
+         * reordering changes what every recipe seed draws. An operator weight is always one of
+         * these values; the app's default recipe (`grammar/presets.ts`) is expressed on this grid.
          */
         readonly levels: Readonly<Record<string, WeightLevelKnobs>>;
         /**
-         * At least this many non-anchor families stay on: a bare x/y vocabulary only draws
-         * gradients.
+         * At least this many non-anchor operators stay on in a drawn recipe: a bare x/y vocabulary
+         * only draws gradients.
          */
-        readonly minActiveFamilies: number;
+        readonly minActiveOperators: number;
         /** The size axis, one entry per profile. Same append-only note as `levels`. */
         readonly sizeProfiles: Readonly<Record<string, ConstraintsInput>>;
     };
@@ -89,16 +92,9 @@ interface Config {
         /** Base seed of every deterministic sample draw. */
         readonly baseSeed: number;
         /**
-         * Weight spread of one exploration step (the UI shuffle): each live weight is multiplied by
-         * a log-uniform factor in `[1/exploreSpread, exploreSpread]`.
+         * Probability that one operator moves one notch in a walk step (`stepRecipe`). 0 = the walk
+         * freezes; 1 = every operator moves at every step.
          */
-        readonly exploreSpread: number;
-        /**
-         * Weight spread of a full random draw (dataset, `drawGrammar`): deliberately wider than a
-         * UI step so the sample covers more of the space.
-         */
-        readonly drawSpread: number;
-        /** Probability that each operator toggles on/off in one exploration step. */
         readonly changeRate: number;
         /** Seeds per grammar in the bench's contact sheet (a 6×6 deck). */
         readonly benchSeedsPerGrammar: number;
@@ -156,12 +152,13 @@ export const CONFIG = {
     },
     recipe: {
         levels: {
-            off: { weight: 0, odds: 3, allowsAnchors: false },
-            low: { weight: 0.5, odds: 2, allowsAnchors: true },
-            normal: { weight: 1, odds: 3, allowsAnchors: true },
-            high: { weight: 3, odds: 2, allowsAnchors: true },
+            '0': { weight: 0, odds: 3, allowsAnchors: false },
+            '1': { weight: 1, odds: 3, allowsAnchors: true },
+            '2': { weight: 2, odds: 2, allowsAnchors: true },
+            '3': { weight: 3, odds: 1, allowsAnchors: true },
+            '4': { weight: 4, odds: 2, allowsAnchors: true },
         },
-        minActiveFamilies: 2,
+        minActiveOperators: 2,
         sizeProfiles: {
             small: { minDepth: 2, maxDepth: 5, maxNodes: 30 },
             medium: { minDepth: 3, maxDepth: 8, maxNodes: 60 },
@@ -170,8 +167,6 @@ export const CONFIG = {
     },
     sampling: {
         baseSeed: 1,
-        exploreSpread: 4,
-        drawSpread: 8,
         changeRate: 0.3,
         benchSeedsPerGrammar: 36,
         datasetSeedsPerGrammar: 16,

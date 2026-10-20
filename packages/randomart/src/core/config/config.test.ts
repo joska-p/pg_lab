@@ -23,12 +23,13 @@ describe('config pins', () => {
     it('pins the sampler knobs: changing them alters the explored recipes and seeds', () => {
         expect(CONFIG.recipe).toEqual({
             levels: {
-                off: { weight: 0, odds: 3, allowsAnchors: false },
-                low: { weight: 0.5, odds: 2, allowsAnchors: true },
-                normal: { weight: 1, odds: 3, allowsAnchors: true },
-                high: { weight: 3, odds: 2, allowsAnchors: true },
+                '0': { weight: 0, odds: 3, allowsAnchors: false },
+                '1': { weight: 1, odds: 3, allowsAnchors: true },
+                '2': { weight: 2, odds: 2, allowsAnchors: true },
+                '3': { weight: 3, odds: 1, allowsAnchors: true },
+                '4': { weight: 4, odds: 2, allowsAnchors: true },
             },
-            minActiveFamilies: 2,
+            minActiveOperators: 2,
             sizeProfiles: {
                 small: { minDepth: 2, maxDepth: 5, maxNodes: 30 },
                 medium: { minDepth: 3, maxDepth: 8, maxNodes: 60 },
@@ -37,8 +38,6 @@ describe('config pins', () => {
         });
         expect(CONFIG.sampling).toEqual({
             baseSeed: 1,
-            exploreSpread: 4,
-            drawSpread: 8,
             changeRate: 0.3,
             benchSeedsPerGrammar: 36,
             datasetSeedsPerGrammar: 16,

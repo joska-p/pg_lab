@@ -1,5 +1,5 @@
 import type { Catalog, Operator, OperatorId } from '../catalog/index.ts';
-import { DEFAULT_CHANNELS, isColorSpaceId, MIN_SHARE_DEPTH, RAW_CHANNELS } from '../color/index.ts';
+import { isColorSpaceId, MIN_SHARE_DEPTH, RAW_CHANNELS } from '../color/index.ts';
 import type { ChannelModel } from '../color/index.ts';
 import { CONFIG } from '../config/index.ts';
 import { assertFinite } from '../shared/index.ts';
@@ -74,7 +74,7 @@ export function isLastTerminal(
 /**
  * The missing-field fallback shape: a non-finite constraint value is garbage, not an intent, so it
  * takes these defaults — the `medium` size profile of the recipe space, a finite and feasible
- * baseline for the stock catalog. `defaultGrammar` itself uses them (one value set, one meaning).
+ * baseline for the stock catalog. The default grammar uses them (one value set, one meaning).
  */
 export const DEFAULT_CONSTRAINTS: ConstraintsInput = CONFIG.recipe.sizeProfiles.medium;
 
@@ -252,56 +252,4 @@ export function createGrammar(
         constraints,
         channels: Object.freeze(validateChannels(rawChannels, constraints.maxDepth)),
     }) as Grammar;
-}
-
-/**
- * The default vocabulary: the whole catalog, weighted for _structure_. There is no separate
- * "animated" preset: animation is a matter of playback (the terminals' oscillator params), not of
- * vocabulary.
- *
- * These weights come from a calibration session (2026-10-17). The field of a generated expression
- * is provably bounded to `[-1, 1]` (every operator preserves the range), and every color space maps
- * it monotonically, so the only thing that flattens an image into an aplat is a _constant_ field —
- * not the mapping and not a final clamp (that clamp is dead). Measuring local flatness against
- * operator presence showed which operators structure the field and which flatten it: `x`/`y`/`max`
- * create variation, while `gt`, `add` and `const` dominate subtrees with a single value.
- * Up-weighting the first and pushing the second to the background roughly halves the share of
- * near-uniform stills (measured on the fuzz corpus: mean local flatness 59% → 41%, near-uniform
- * "aplats" 42% → 19%).
- *
- * Its color model is `DEFAULT_CHANNELS` (a trunk of depth 2 read as OKLCH), the _curated_ default —
- * the model that actually yields readable images. `createGrammar` alone would fall back to the
- * plain raw-sRGB model (`RAW_CHANNELS`, three independent channels).
- */
-export function defaultGrammar(catalog: Catalog): Grammar {
-    // Typed by `OperatorId`: a mistyped operator here is a compile error (the static registry is the
-    // source of truth), not a runtime import refusal.
-    const weights: Partial<Record<OperatorId, number>> = {
-        // Spatial anchors: always vary across the image.
-        x: 4,
-        y: 4,
-        // Structure makers.
-        max: 2,
-        min: 1.5,
-        // Flatteners: still in the vocabulary, pushed to the background.
-        const: 0.5,
-        add: 0.5,
-        gt: 0.5,
-        mul: 0.75,
-        // Expensive combinators, as before.
-        select: 0.5,
-        mix: 0.5,
-        warp: 0.5,
-    };
-
-    // Every other catalog operator gets the neutral weight 1.
-    for (const operator of catalog.operators()) {
-        weights[operator.name as OperatorId] ??= 1;
-    }
-
-    return createGrammar(catalog, {
-        weights,
-        constraints: DEFAULT_CONSTRAINTS,
-        channels: DEFAULT_CHANNELS,
-    });
 }

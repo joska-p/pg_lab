@@ -3,13 +3,22 @@ import { Grid } from '@repo/ui/components/Grid';
 import { Segmented } from '@repo/ui/components/Segmented';
 import { Select } from '@repo/ui/components/Select';
 import { Slider } from '@repo/ui/components/Slider';
+import { Text } from '@repo/ui/components/Text';
 import { TextInput } from '@repo/ui/components/TextInput';
 
+import type { OperatorId } from '../../core/catalog/index.ts';
 import { COLOR_SPACE_IDS, COLOR_SPACES } from '../../core/color/index.ts';
 import {
-    ANCHOR_LEVELS,
+    ANCHOR_OPERATORS,
     FAMILY_IDS,
+    FAMILY_OPERATORS,
     grammarPresets,
+    isLastTerminal,
+    levelIndexOf,
+    levelOf,
+    NEUTRAL_LEVEL,
+    OFF_LEVEL,
+    recipeWeights,
     SIZE_PROFILE_IDS,
     presetIdOf,
     SHARE_CHOICES,
@@ -21,7 +30,7 @@ import {
     applyRecipe,
     resetSeed,
     drawGrammar,
-    setRecipeLevel,
+    setRecipeOperator,
     setRecipeShare,
     setRecipeSize,
     setRecipeSpace,
@@ -48,16 +57,13 @@ const FAMILY_LABELS: Record<FamilyId, string> = {
 
 const SPACE_OPTIONS = COLOR_SPACE_IDS.map((id) => ({ value: id, label: COLOR_SPACES[id].label }));
 
-function levelOptions(family: FamilyId) {
-    return (family === 'anchors' ? ANCHOR_LEVELS : WEIGHT_LEVELS).map((level) => ({
-        value: level,
-        label: level,
-    }));
-}
+const MAX_LEVEL_INDEX = WEIGHT_LEVELS.length - 1;
 
 /**
- * The grammar workshop: one story. The grammar is a quantized recipe; a preset is a named recipe,
- * and the select reads "Custom" as soon as a knob moves away from every preset.
+ * The grammar workshop: one story. The grammar is a point of the quantized grid — one weight level
+ * per operator — a preset is a named recipe, and the select reads "Custom" as soon as a knob moves
+ * away from every preset. A slider whose lowest notch would break a structural invariant (the last
+ * active terminal, the last live anchor) starts at the first valid notch.
  */
 export function GrammarSection() {
     const recipe = useRecipe();
@@ -65,6 +71,17 @@ export function GrammarSection() {
 
     const presetId = presetIdOf(PRESETS, recipe);
     const preset = PRESETS.find((candidate) => candidate.id === presetId);
+    const weights = recipeWeights(recipe);
+
+    function mustStayOn(name: OperatorId): boolean {
+        const lastAnchor =
+            ANCHOR_OPERATORS.includes(name) &&
+            ANCHOR_OPERATORS.filter((other) => other !== name).every(
+                (other) => levelOf(recipe, other) === OFF_LEVEL,
+            );
+
+        return lastAnchor || isLastTerminal(catalog, weights, name);
+    }
 
     return (
         <Grid columns="1" gap="3" justifyItem="stretch" alignItem="stretch">
@@ -110,30 +127,25 @@ export function GrammarSection() {
                 </Button>
             </Grid>
 
-            {FAMILY_IDS.map((family) => {
-                const level = recipe.levels[family];
-                const levelIndex = levelOptions(family).findIndex(
-                    (option) => option.value === level,
-                );
-                const numberOfLevels = levelOptions(family).length - 1;
+            {FAMILY_IDS.map((family) => (
+                <Grid key={family} columns="1" gap="1" justifyItem="stretch" alignItem="stretch">
+                    <Text>{FAMILY_LABELS[family]}</Text>
 
-                function handleOnValueChange(newLevel: number) {
-                    const newLevelValue = levelOptions(family)[newLevel].value;
-                    setRecipeLevel(family, newLevelValue);
-                }
-
-                return (
-                    <Slider
-                        color="orange"
-                        key={family}
-                        label={FAMILY_LABELS[family]}
-                        value={levelIndex}
-                        min={0}
-                        max={numberOfLevels}
-                        onValueChange={handleOnValueChange}
-                    />
-                );
-            })}
+                    {FAMILY_OPERATORS[family].map((name) => (
+                        <Slider
+                            color="orange"
+                            key={name}
+                            label={name}
+                            value={levelIndexOf(levelOf(recipe, name))}
+                            min={mustStayOn(name) ? 1 : 0}
+                            max={MAX_LEVEL_INDEX}
+                            onValueChange={(index) => {
+                                setRecipeOperator(name, WEIGHT_LEVELS[index] ?? NEUTRAL_LEVEL);
+                            }}
+                        />
+                    ))}
+                </Grid>
+            ))}
 
             <Slider
                 color="orange"

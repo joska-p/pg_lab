@@ -6,8 +6,8 @@ import { compile } from '../compiler/index.ts';
 import { CONFIG } from '../config/index.ts';
 import { nodeCount } from '../expression/index.ts';
 import { generate } from '../generator/index.ts';
-import { createGrammar, defaultGrammar } from '../grammar/index.ts';
-import { randomizeWeights } from '../grammar/randomize.ts';
+import { createGrammar, defaultGrammar, recipeToGrammar, stepRecipe } from '../grammar/index.ts';
+import type { Recipe } from '../grammar/index.ts';
 import { createRng, createSeed } from '../random/index.ts';
 import { COLOR_SPACE_IDS, DEFAULT_CHANNELS, RAW_CHANNELS } from './index.ts';
 
@@ -119,16 +119,22 @@ describe('generator channels', () => {
         expect(compiled.stats.nodes).toBe(3 * nodeCount(expression.r));
     });
 
-    it('randomizeWeights preserves the channel model', () => {
-        const grammar = createGrammar(catalog, {
-            weights: fullWeights(),
-            constraints: SHARED,
-            channels: { space: 'hsl', shareDepth: 2 },
+    it('a recipe walk preserves the color axes', () => {
+        const recipe: Recipe = {
+            levels: { x: '1', y: '1', const: '1' },
+            size: 'small',
+            share: 2,
+            space: 'hsl',
+        };
+
+        const stepped = stepRecipe(catalog, recipe, createRng(createSeed(11)));
+
+        expect(stepped.space).toBe('hsl');
+        expect(stepped.share).toBe(2);
+        expect(recipeToGrammar(catalog, stepped).channels).toEqual({
+            space: 'hsl',
+            shareDepth: 2,
         });
-
-        const randomized = randomizeWeights(catalog, grammar, createRng(createSeed(11)));
-
-        expect(randomized.channels).toEqual({ space: 'hsl', shareDepth: 2 });
     });
 });
 

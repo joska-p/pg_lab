@@ -1,9 +1,5 @@
 # Randomart — State (single entry point)
 
-Read this first; the repository is the source of truth. This file replaces the former entry points
-(`PLAN.md`, `randomart-coherence-plan.md`, `randomart-audit-handoff.md`) and points to the detail
-notes instead of duplicating them.
-
 ## Goal
 
 Find good grammar recipes by eye: judge one grammar at a time over many seeds, keep the good ones as
@@ -23,28 +19,33 @@ Behaviour stays byte-identical unless a session decides otherwise, and then the 
 
 ## Where things live
 
-| Topic                                          | Document                                             |
-| ---------------------------------------------- | ---------------------------------------------------- |
-| Naming / layers / type placement rules         | `codex/docs/conventions/02-typescript.md` §2.1, §2.6 |
-| Audit tooling and what each gate covers        | `tools/lint/audit.mjs`, `tools/lint/banned-words.mjs`, `knip.json` |
-| Audit history (A/B batches, per-commit detail) | `randomart-audit-registry.md`                        |
-| Post-gate-repair follow-up and triage log      | `randomart-audit-followup.md`                        |
-| Config values vs hard guards, PRNG impact      | `randomart-config-knobs.md`                          |
-| Loose ends noticed, not yet scheduled          | `findings.md`                                        |
-| Colour pipeline (session note, dated)          | `randomart-colour-pipeline.md`                       |
-| Time in the `x`/`y` terminals (session note, dated) | `randomart-time-in-xy.md`                        |
+| Topic                                               | Document                                                           |
+| --------------------------------------------------- | ------------------------------------------------------------------ |
+| Naming / layers / type placement rules              | `codex/docs/conventions/02-typescript.md` §2.1, §2.6               |
+| Audit tooling and what each gate covers             | `tools/lint/audit.mjs`, `tools/lint/banned-words.mjs`, `knip.json` |
+| Audit history (A/B batches, per-commit detail)      | `randomart-audit-registry.md`                                      |
+| Post-gate-repair follow-up and triage log           | `randomart-audit-followup.md`                                      |
+| Config values vs hard guards, PRNG impact           | `randomart-config-knobs.md`                                        |
+| Loose ends noticed, not yet scheduled               | `findings.md`                                                      |
+| Colour pipeline (session note, dated)               | `randomart-colour-pipeline.md`                                     |
+| Time in the `x`/`y` terminals (session note, dated) | `randomart-time-in-xy.md`                                          |
 
 ## State
 
 - Core, compiler, renderer, lab, bench and history: done. Notebook (rated batches, IndexedDB, JSON
   import/export) works, format v1.
-- **One quantized space** (`core/grammar/quantized.ts`): a `Recipe` = family levels + size profile +
-  `share` + colour space. The grammar is always derived (`recipeToGrammar`); `recipeOf` is its exact
-  inverse. `x`/`y` carry the time through their oscillator params (`amp`/`phase`/`cycles`).
+- **One quantized space** (`core/grammar/quantized.ts`): a `Recipe` = one weight level per operator
+  (the `CONFIG.recipe.levels` grid, index = weight: 0…4) + size profile + `share` + colour space. The
+  grammar is always derived (`recipeToGrammar`); `recipeOf` is its exact inverse. `repairRecipe`
+  keeps the invariants (one live anchor, one active terminal). `stepRecipe` is the grid walk (±1
+  notch). `x`/`y` carry the time through their oscillator params (`amp`/`phase`/`cycles`).
+- **One default grammar.** `defaultGrammar` is the `structure` recipe (`DEFAULT_RECIPE`, the
+  2026-10-17 calibration snapped on the grid) compiled down — the app's start point and a preset
+  like any other, no separate test/measurement fixture.
 - **Bench** draws lots with `sampleRecipes`; focus view shows one grammar over its seeds, `planche`
   is the grid overview. Rating is still the 0-5 note (to be replaced, see T1).
-- **Dataset pipeline** (`scripts/dataset`) still works but surveys the continuous grammar space
-  (`sampleGrammars`), out of sync with the bench's quantized space (see Open decisions).
+- **Dataset pipeline** (`scripts/dataset`) surveys the same quantized space: `sampleGrammars` is now
+  `sampleRecipes` + seed derivation (the default `RAW_CHANNELS` reads as "share 0, sRGB").
 - **Audit closed, gates repaired.** Layers, extensions, vocabulary, dead code (including the
   `knip --production` pass) and duplication all pass; cycles stay an informational warning
   (decision B-04). Lot A (naming) is done.
@@ -95,22 +96,17 @@ Compare means and use `correlation` (0/1 target) between tags and levels/share/s
 
 ## Open decisions
 
-1. **Two default grammars.** `defaultGrammar` (calibrated weights) is a test/measurement fixture;
-   the app starts from `PRESET_RECIPES[0]` (`STRUCTURE_RECIPE`). `recipeOf(defaultGrammar)` returns
-   `null`. Rename to `calibrationGrammar` or document the distinction at the definition.
-2. **Two sampler spaces.** The app and bench explore the quantized recipes (`sampleRecipes`); the
-   offline dataset still draws continuous grammars (`sampleGrammars` → `drawGrammar`). Move the
-   dataset to `sampleRecipes` or document the wider survey as intentional.
-3. **Loop bounds.** `MIN/MAX_LOOP_MS` (`core/artwork/types.ts`) are a UI slider range and a
+1. **Loop bounds.** `MIN/MAX_LOOP_MS` (`core/artwork/types.ts`) are a UI slider range and a
    file-validation bound, not a safety guard. Knob or guard?
-4. **Colour gamut mapping.** Replace the per-channel clamp in OKLCH/OKLab/HSL with a chroma-reducing
+2. **Colour gamut mapping.** Replace the per-channel clamp in OKLCH/OKLab/HSL with a chroma-reducing
    gamut map. Changes images, so it is a shader change, not a `GENERATOR_VERSION` bump. See
    `randomart-colour-pipeline.md` §2.
 
 ## Open frictions
 
 - `openCellInLab` and imported artworks recover knobs through `recipeOf`; an artwork outside the
-  space displays correctly but the knobs keep the previous recipe.
+  space displays correctly but the knobs keep the previous recipe. The recipe grid is now the
+  grammar's own grid, so this only remains for hand-edited/continuous-weight imports.
 - Browser range and fuzz tests are not automated; `scripts/validate-glsl.sh` covers syntax only.
 - Sub-expression preview ignores ancestor warps.
 - Render size equals canvas size; the batch readback goes through canvas capture, not `readPixels`.

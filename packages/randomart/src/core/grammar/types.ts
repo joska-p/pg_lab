@@ -24,10 +24,10 @@ export interface ConstraintsInput {
 export type Constraints = Brand<ConstraintsInput, 'Constraints'>;
 
 /**
- * Weights keyed by operator id, so the static registry makes a mistyped name a compile error
- * (`defaultGrammar` is protected this way). Partial: an absent operator is simply off — only the
- * vocabulary an author chose is present. Values stay raw numbers; validation lives in
- * `createGrammar` (throw-vs-repair policy in shared/index.ts).
+ * Weights keyed by operator id, so the static registry makes a mistyped name a compile error.
+ * Partial: an absent operator is simply off — only the vocabulary an author chose is present.
+ * Values stay raw numbers; validation lives in `createGrammar` (throw-vs-repair policy in
+ * shared/index.ts).
  */
 type GrammarWeights = Readonly<Partial<Record<OperatorId, number>>>;
 
@@ -50,27 +50,26 @@ export type Grammar = Brand<
  */
 export const MIN_WEIGHT = 0;
 export const MAX_WEIGHT = 100;
-/**
- * Smallest strictly positive weight. A weight of exactly 0 means "off"; anything above it is a live
- * weight, and this floor keeps rounding from silently switching an operator off.
- */
-export const MIN_ACTIVE_WEIGHT = 0.001;
 export const MAX_DEPTH = 16;
 export const MAX_NODES = 400;
 
-/** Family of the catalog vocabulary (`FAMILY_IDS`), the coarse axis of the recipe space. */
+/**
+ * Family of the catalog vocabulary (`FAMILY_IDS`): the grouping the sampler draws by and the UI
+ * orders operator sliders with.
+ */
 export type FamilyId = (typeof FAMILY_IDS)[number];
 
 /** How deep the three channels share their structure in a recipe (`SHARE_CHOICES`). */
 export type ShareChoice = (typeof SHARE_CHOICES)[number];
 
 /**
- * One point of the quantized search space: a handful of categorical knobs instead of 22 continuous
- * weights. `recipeToGrammar` (quantized.ts) is the only way down to a real `Grammar`, and
- * neighbourhood ("one notch away") is meaningful here, which it is not on continuous weights.
+ * One point of the quantized space: a weight level per operator — the slider grid of
+ * `CONFIG.recipe.levels` — plus the size, share and color axes. `recipeToGrammar` (quantized.ts) is
+ * the only way down to a real `Grammar`, and "one notch away" is meaningful here, which it is not
+ * on continuous weights. An absent operator reads as `NEUTRAL_LEVEL`.
  */
 export interface Recipe {
-    readonly levels: Readonly<Record<FamilyId, WeightLevel>>;
+    readonly levels: Readonly<Partial<Record<OperatorId, WeightLevel>>>;
     readonly size: SizeProfileId;
     /** `'mono'` = fully shared trunk (r = g = b). */
     readonly share: ShareChoice;
@@ -96,9 +95,6 @@ export interface GrammarSummary {
 export interface SampleOptions {
     readonly baseSeed?: number;
     readonly seedsPerGrammar?: number;
-    /** Weight scaling amplitude, wider than the UI's default to cover more of the space. */
-    readonly spread?: number;
-    readonly changeRate?: number;
     /**
      * Channel model of the drawn grammars. Defaults to `RAW_CHANNELS`, the historical dataset draw
      * (three independent trees in sRGB); the bench passes the app's `DEFAULT_CHANNELS` so its lots

@@ -234,11 +234,12 @@ describe('grammar: defaultGrammar', () => {
         expect(g.weights.x).toBe(4);
         expect(g.weights.y).toBe(4);
         expect(g.weights.max).toBe(2);
-        expect(g.weights.min).toBe(1.5);
-        expect(g.weights.const).toBe(0.5);
-        expect(g.weights.mix).toBe(0.5);
-        expect(g.weights.select).toBe(0.5);
-        expect(g.weights.warp).toBe(0.5);
+        expect(g.weights.min).toBe(2);
+        // Operators absent from the default recipe read as the neutral weight 1.
+        expect(g.weights.const).toBe(1);
+        expect(g.weights.mix).toBe(1);
+        expect(g.weights.select).toBe(1);
+        expect(g.weights.warp).toBe(1);
         expect(g.constraints).toEqual({
             minDepth: 3,
             maxDepth: 8,

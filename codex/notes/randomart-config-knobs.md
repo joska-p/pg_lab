@@ -112,29 +112,27 @@ passed; a domain may derive a model from them.
 **Guards** (stay next to their invariant): values that keep the system safe or make an
 invariant checkable. Changing them is a bug, not an experiment.
 
-| Constant                                                                | File                                            | Category                                             |
-| ----------------------------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------- |
-| `amp`/`phase`/`cycles` bounds                                           | `CONFIG.terminals`                              | knob ✅                                              |
-| cycle mapping `1..3`                                                    | `CONFIG.terminals`                              | knob ✅                                              |
-| `levels` (`weight` + `odds` + `allowsAnchors`)                          | `CONFIG.recipe`                                 | knob ✅                                              |
-| `minActiveFamilies`                                                     | `CONFIG.recipe`                                 | knob ✅                                              |
-| `sizeProfiles`                                                          | `CONFIG.recipe`                                 | knob ✅                                              |
-| param rounding (`paramDecimals = 3`)                                    | `CONFIG.generator`                              | knob ✅ (draw-affecting)                             |
-| sampler defaults (`baseSeed`, spreads, `changeRate`, seeds per grammar) | `CONFIG.sampling`                               | knob ✅                                              |
-| `DEFAULT_CONSTRAINTS`                                                   | `grammar/grammar.ts`                            | knob ✅ (derived from `sizeProfiles.medium`)         |
-| OkLab chroma `0.4`                                                      | `CONFIG.color`                                  | knob ✅ (shader output, not PRNG)                    |
-| curated space/shareDepth                                                | `CONFIG.channels`                               | knob ✅ (single source for the default recipe)       |
-| `HISTORY_LIMIT`, initial seed `42`                                      | `CONFIG.app`                                    | knob ✅                                              |
-| render values (1024², 8 000 ms)                                         | `CONFIG.artwork`                                | knob ✅                                              |
-| `DEFAULT_LOOP_DURATION` (8 s, renderer)                                 | `renderer/contract.ts`                          | derived ✅ (from `CONFIG.artwork.loopMs`)            |
-| presets (`STRUCTURE_RECIPE`, `PRESET_RECIPES`)                          | `grammar/presets.ts`                            | curated recipes, domain-owned (see below)            |
-| calibrated weights in `defaultGrammar`                                  | `grammar/grammar.ts`                            | TODO (a calibration preset; keep in code or name it) |
-| `MIN/MAX_LOOP_MS`                                                       | `core/artwork/types.ts`                         | TODO (bounds are slider + validation, semi-guard)    |
-| dataset continuous draw vs quantized recipe space                       | `grammar/sample.ts`, `grammar/randomGrammar.ts` | TODO (dataset/bench policy)                          |
-| `MAX_DEPTH`, `MAX_NODES`, `MAX_WEIGHT`, `MIN_ACTIVE_WEIGHT`             | `grammar/types.ts`                              | guard — stays                                        |
-| `MAX_SOURCE_LENGTH`                                                     | `compiler/types.ts`                             | guard — stays (shader blow-up)                       |
-| `MIN/MAX_RENDER_SIZE`, `MAX_TITLE_LENGTH`                               | `core/artwork/types.ts`                         | guard — stays                                        |
-| attempt caps in `randomRecipe`/`sampleRecipes`                          | `grammar/quantized.ts`                          | guard — stays (loop termination)                     |
+| Constant                                                                | File                    | Category                                                        |
+| ----------------------------------------------------------------------- | ----------------------- | --------------------------------------------------------------- |
+| `amp`/`phase`/`cycles` bounds                                           | `CONFIG.terminals`      | knob ✅                                                         |
+| cycle mapping `1..3`                                                    | `CONFIG.terminals`      | knob ✅                                                         |
+| `levels` (`weight` + `odds` + `allowsAnchors`)                          | `CONFIG.recipe`         | knob ✅                                                         |
+| `minActiveFamilies`                                                     | `CONFIG.recipe`         | knob ✅                                                         |
+| `sizeProfiles`                                                          | `CONFIG.recipe`         | knob ✅                                                         |
+| param rounding (`paramDecimals = 3`)                                    | `CONFIG.generator`      | knob ✅ (draw-affecting)                                        |
+| sampler defaults (`baseSeed`, spreads, `changeRate`, seeds per grammar) | `CONFIG.sampling`       | knob ✅                                                         |
+| `DEFAULT_CONSTRAINTS`                                                   | `grammar/grammar.ts`    | knob ✅ (derived from `sizeProfiles.medium`)                    |
+| OkLab chroma `0.4`                                                      | `CONFIG.color`          | knob ✅ (shader output, not PRNG)                               |
+| curated space/shareDepth                                                | `CONFIG.channels`       | knob ✅ (single source for the default recipe)                  |
+| `HISTORY_LIMIT`, initial seed `42`                                      | `CONFIG.app`            | knob ✅                                                         |
+| render values (1024², 8 000 ms)                                         | `CONFIG.artwork`        | knob ✅                                                         |
+| `DEFAULT_LOOP_DURATION` (8 s, renderer)                                 | `renderer/contract.ts`  | derived ✅ (from `CONFIG.artwork.loopMs`)                       |
+| presets (`DEFAULT_RECIPE`, `PRESET_RECIPES`)                            | `grammar/presets.ts`    | curated recipes; `defaultGrammar` derives from `DEFAULT_RECIPE` |
+| `MIN/MAX_LOOP_MS`                                                       | `core/artwork/types.ts` | TODO (bounds are slider + validation, semi-guard)               |
+| `MAX_DEPTH`, `MAX_NODES`, `MAX_WEIGHT`                                  | `grammar/types.ts`      | guard — stays                                                   |
+| `MAX_SOURCE_LENGTH`                                                     | `compiler/types.ts`     | guard — stays (shader blow-up)                                  |
+| `MIN/MAX_RENDER_SIZE`, `MAX_TITLE_LENGTH`                               | `core/artwork/types.ts` | guard — stays                                                   |
+| attempt caps in `drawRecipe`/`sampleRecipes`                            | `grammar/quantized.ts`  | guard — stays (loop termination)                                |
 
 ## PRNG consequences (the rule behind the pins)
 
@@ -150,7 +148,7 @@ invariant checkable. Changing them is a bug, not an experiment.
   the draws. No `GENERATOR_VERSION` bump; a shader change is its own event (the colour
   note's open lead).
 - **Shell/render policy** (`CONFIG.artwork`, `CONFIG.channels`, `CONFIG.app`): no PRNG
-  impact. `channels` curates both `DEFAULT_CHANNELS` and `STRUCTURE_RECIPE`, so the curated
+  impact. `channels` curates both `DEFAULT_CHANNELS` and `DEFAULT_RECIPE`, so the curated
   default has one source.
 
 ## Decisions and rationale
@@ -178,9 +176,10 @@ invariant checkable. Changing them is a bug, not an experiment.
    them.
 5. **Presets stay in the grammar.** A `Recipe` is a point of the quantized space, a preset a
    _named_ recipe (§2.1.8); `grammarPresets(catalog)` needs the catalog to become grammars,
-   so the list lives with that code, not in `CONFIG`. `STRUCTURE_RECIPE` reads
-   `CONFIG.channels` for `share`/`space` and its own literals for `size`/`levels`: that is
-   the preset's definition, not a duplicated config value.
+   so the list lives with that code, not in `CONFIG`. `DEFAULT_RECIPE` (the `structure`
+   preset) reads `CONFIG.channels` for `share`/`space` and its own level literals: that is
+   the preset's definition, not a duplicated config value. `defaultGrammar` is simply this
+   recipe compiled down.
 
 ## Patterns worth promoting (framing Q4)
 
@@ -201,19 +200,11 @@ invariant checkable. Changing them is a bug, not an experiment.
 
 ## TODO (next passes, smallest first)
 
-1. `defaultGrammar`: the app's default is the `Structure` preset (`STRUCTURE_RECIPE`);
-   `defaultGrammar` is a measured calibration fixture used by tests and compiler fuzzing.
-   Its name still reads as "the app default". Either rename it (`calibrationGrammar`) or
-   document the distinction at the definition; no behaviour change.
-2. `MIN/MAX_LOOP_MS`: decide knob vs guard. They are a UI slider range and a file-validation
+1. `MIN/MAX_LOOP_MS`: decide knob vs guard. They are a UI slider range and a file-validation
    bound, not a safety guard; if they stay, say why in `artwork/types.ts`.
-3. Dataset sampler: the offline dataset still draws continuous grammars (`sampleGrammars` →
-   `randomGrammar`), while the app and the bench explore the quantized recipes. Decide
-   whether the dataset should move to `sampleRecipes` (same space as the bench) and retire
-   the continuous draw, or keep and document the wider survey.
-4. Placement leftovers (see `findings.md`): `GrammarData` ownership (artwork serialization
+2. Placement leftovers (see `findings.md`): `GrammarData` ownership (artwork serialization
    consumed by the notebook) and `LotView` (a store importing a component type).
-5. Naming-convention cleanup batch (see §2.1): `LotView` counts
+3. Naming-convention cleanup batch (see §2.1): `LotView` counts
    (`cells`/`grammars`/`failed`/`flats` → `*Count`), the `serializeArtwork` (`string`) vs
    `serializeGrammar` (`data`) asymmetry, and `validateChannels` (it throws on content and
    repairs `shareDepth`, so neither `assert` nor `fit` names it exactly).

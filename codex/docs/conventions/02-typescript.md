@@ -120,7 +120,7 @@ Functions are verb-first. The prefix states the contract, not just the implement
 | `useX`                                         | React hook; follows the Rules of Hooks                                                      | `useGrammar`, `useBenchLot`                             |
 | `drawX`                                        | Consume the PRNG and return one value                                                       | `drawOperator`, `drawParams`, `drawLevel`               |
 | `sampleX`                                      | Draw a point or a collection from a distribution                                            | `sampleRecipes`, `sampleGrammars`                       |
-| `randomizeX`                                   | Return a randomized variant; consumes the PRNG                                              | `randomizeWeights`                                      |
+| `stepX`                                        | Move a value by one notch/delta; consumes the PRNG                                          | `stepRecipe`, `stepCell`                                |
 | `generateX`                                    | Deterministic domain construction from its inputs; may consume the PRNG                     | `generate`                                              |
 | `deriveX`                                      | Deterministic derivation from an input                                                      | `deriveSeed`                                            |
 | `buildX`                                       | Assemble a domain value from parts; no I/O                                                  | `buildLotView`, `buildPreamble`                         |
