@@ -5,12 +5,12 @@ gates) landed in two commits, then the repaired gates were re-run to see what th
 
 ## Step 1 — gates repaired (done)
 
-| Commit    | Change                                                                                            |
-| --------- | ------------------------------------------------------------------------------------------------- |
-| `d209e9c` | banned-words: scan `src/dataset`/`scripts/dataset`, check file names, flag directory imports      |
+| Commit    | Change                                                                                                                         |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `d209e9c` | banned-words: scan `src/dataset`/`scripts/dataset`, check file names, flag directory imports                                   |
 | `d209e9c` | randomart lint: layer rules for renderer/storage/stores, core purity extended (`Date`, `crypto`, timers, `fetch`, `navigator`) |
-| `d209e9c` | knip `--production` (reported, not gating), jscpd threshold `0`                                    |
-| `207eaf6` | randomart fixes the repaired gates flagged, plus the Space-key rating bug (`Number(' ') === 0`)    |
+| `d209e9c` | knip `--production` (reported, not gating), jscpd threshold `0`                                                                |
+| `207eaf6` | randomart fixes the repaired gates flagged, plus the Space-key rating bug (`Number(' ') === 0`)                                |
 
 ## Step 2 — re-run of the repaired gates
 
@@ -39,7 +39,7 @@ Deleted (dead in production **and** not part of the kept API):
   since `cacheVignette` was dropped (A-07);
 - `assertStrictlyPositive` (`core/shared/index.ts`): no production reader;
 - `serializeGrammarFile` / `parseGrammarFile` (`core/artwork/serialize.ts`) with `GRAMMAR_FILE_FORMAT`,
-  `GRAMMAR_FILE_VERSION`, `MAX_GRAMMAR_FILE_LENGTH` and their tests: the grammar *file* format was
+  `GRAMMAR_FILE_VERSION`, `MAX_GRAMMAR_FILE_LENGTH` and their tests: the grammar _file_ format was
   superseded by the artwork bundle.
 
 Pruned barrels (live symbols, no consumer through that barrel): `core/catalog`, `core/expression`,
