@@ -17,13 +17,8 @@ const ARTWORK_FILE_VERSION = 1;
 export const MAX_ARTWORK_FILE_LENGTH = 1_000_000;
 
 // ---------------------------------------------------------------------------
-// Grammar files (moved from grammar/serialize.ts: a .randomart-grammar.json file is artwork data)
+// Grammar data (weights, constraints, channels as plain JSON)
 // ---------------------------------------------------------------------------
-
-const GRAMMAR_FILE_FORMAT = 'random-art-grammar';
-const GRAMMAR_FILE_VERSION = 1;
-/** Import guard: checked before any `JSON.parse`. */
-export const MAX_GRAMMAR_FILE_LENGTH = 1_000_000;
 
 export interface GrammarData {
     readonly weights: Readonly<Record<string, number>>;
@@ -135,53 +130,6 @@ export function deserializeGrammar(catalog: Catalog, data: unknown, path = 'gram
             cause: error,
         });
     }
-}
-
-/** `.randomart-grammar.json` content: format, version, grammar; 2-space indent. */
-export function serializeGrammarFile(grammar: Grammar): string {
-    return `${JSON.stringify(
-        {
-            format: GRAMMAR_FILE_FORMAT,
-            version: GRAMMAR_FILE_VERSION,
-            grammar: serializeGrammar(grammar),
-        },
-        null,
-        2,
-    )}\n`;
-}
-
-export function parseGrammarFile(catalog: Catalog, text: string): Grammar {
-    if (text.length > MAX_GRAMMAR_FILE_LENGTH) {
-        throw new Error(
-            `Grammar file too large (${text.length} characters, limit ${MAX_GRAMMAR_FILE_LENGTH})`,
-        );
-    }
-
-    let parsed: unknown;
-
-    try {
-        parsed = JSON.parse(text);
-    } catch {
-        throw new Error('Grammar file: invalid JSON');
-    }
-
-    if (!isRecord(parsed)) {
-        throw new Error('Grammar file: object expected');
-    }
-
-    rejectUnknownKeys(parsed, ['format', 'version', 'grammar'], 'file');
-
-    if (parsed.format !== GRAMMAR_FILE_FORMAT) {
-        throw new Error(
-            `Grammar file: format ${JSON.stringify(parsed.format)} not supported (expected "${GRAMMAR_FILE_FORMAT}")`,
-        );
-    }
-
-    if (parsed.version !== GRAMMAR_FILE_VERSION) {
-        throw new Error(`Grammar file: version ${String(parsed.version)} not supported`);
-    }
-
-    return deserializeGrammar(catalog, parsed.grammar);
 }
 
 // ---------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 import type { CanvasDimension, DevicePixelRatio } from '@repo/glaze/core/render';
 
-import type { Phase } from './contract';
+import type { Phase } from './contract.ts';
 
 /**
  * What the last drawn frame depended on. Every field is a validated brand: the phase in [0, 1)

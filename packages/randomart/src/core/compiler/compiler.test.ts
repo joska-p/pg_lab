@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { Catalog, createDefaultCatalog, DEPENDENCIES, OPERATOR_SPECS } from '../catalog/index.ts';
-import type { DependencySpec, OperatorSpec } from '../catalog/index.ts';
+import { DEPENDENCIES } from '../catalog/dependencies.ts';
+import type { DependencySpec } from '../catalog/dependencies.ts';
+import { Catalog, createDefaultCatalog } from '../catalog/index.ts';
+import { OPERATOR_SPECS } from '../catalog/operators/registry.ts';
+import type { OperatorSpec } from '../catalog/operators/types.ts';
 import { createExpression, createNode } from '../expression/index.ts';
 import { generate } from '../generator/index.ts';
 import { defaultGrammar } from '../grammar/index.ts';

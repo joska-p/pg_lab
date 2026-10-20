@@ -1,14 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../catalog/index.ts';
-import {
-    createConstraints,
-    createGrammar,
-    DEFAULT_CONSTRAINTS,
-    defaultGrammar,
-    isLastTerminal,
-    minSize,
-} from './index.ts';
+import { createConstraints, DEFAULT_CONSTRAINTS } from './grammar.ts';
+import { createGrammar, defaultGrammar, isLastTerminal, minSize } from './index.ts';
 
 /** Copies a grammar's partial weights into a mutable full record, absent entries becoming 0. */
 function mutableWeights(grammar: {

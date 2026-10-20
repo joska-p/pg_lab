@@ -9,7 +9,7 @@ export interface GrammarInput {
 }
 
 export interface PcaOptions {
-    /** Keep only the structure descriptors, or only the colour ones. */
+    /** Keep only the structure descriptors, or only the color ones. */
     readonly only?: 'structure' | 'color';
     /** Also use the per-grammar spread as a column. */
     readonly std: boolean;
@@ -49,7 +49,7 @@ const LINKS_SHOWN = 6;
 const SCORES_KEPT = 6;
 const ENDS_SHOWN = 4;
 
-/** Descriptors of one family are the colour ones; everything else counts as structure. */
+/** Descriptors of one family are the color ones; everything else counts as structure. */
 function isColor(name: string): boolean {
     return COLOR.has(name);
 }

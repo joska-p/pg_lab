@@ -5,7 +5,6 @@ import type { Notebook } from '../core/notebook/index.ts';
 const DB_NAME = 'randomart-db';
 const DB_VERSION = 1;
 const NOTEBOOK_STORE = 'notebook';
-const VIGNETTES_STORE = 'vignettes';
 const CURRENT_NOTEBOOK_KEY = 'current_notebook';
 
 function hasIndexedDb(): boolean {
@@ -24,9 +23,6 @@ function openDatabase(): Promise<IDBDatabase | null> {
             const db = request.result;
             if (!db.objectStoreNames.contains(NOTEBOOK_STORE)) {
                 db.createObjectStore(NOTEBOOK_STORE);
-            }
-            if (!db.objectStoreNames.contains(VIGNETTES_STORE)) {
-                db.createObjectStore(VIGNETTES_STORE);
             }
         };
 
@@ -78,42 +74,6 @@ export async function loadNotebookFromDb(catalog: Catalog): Promise<Notebook | n
             } catch {
                 resolve(null);
             }
-        };
-        req.onerror = () => reject(req.error);
-    });
-}
-
-export interface CachedVignette {
-    readonly width: number;
-    readonly height: number;
-    readonly data: Uint8ClampedArray;
-}
-
-/** Retrieves a cached vignette by key if available. */
-export async function getCachedVignette(key: string): Promise<CachedVignette | null> {
-    const db = await openDatabase();
-    if (!db) {
-        return null;
-    }
-
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction(VIGNETTES_STORE, 'readonly');
-        const store = tx.objectStore(VIGNETTES_STORE);
-        const req = store.get(key);
-
-        req.onsuccess = () => {
-            const result = req.result as
-                | { width: number; height: number; data: ArrayBuffer }
-                | undefined;
-            if (!result) {
-                resolve(null);
-                return;
-            }
-            resolve({
-                width: result.width,
-                height: result.height,
-                data: new Uint8ClampedArray(result.data),
-            });
         };
         req.onerror = () => reject(req.error);
     });

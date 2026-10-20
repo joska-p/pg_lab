@@ -1,14 +1,11 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import {
-    Catalog,
-    createDefaultCatalog,
-    DEPENDENCIES,
-    formatGlslFloat,
-    Operator,
-    OPERATOR_SPECS,
-} from './index.ts';
-import type { DependencySpec, OperatorSpec } from './index.ts';
+import { DEPENDENCIES } from './dependencies.ts';
+import type { DependencySpec } from './dependencies.ts';
+import { formatGlslFloat } from './format.ts';
+import { Catalog, createDefaultCatalog, Operator } from './index.ts';
+import { OPERATOR_SPECS } from './operators/registry.ts';
+import type { OperatorSpec } from './operators/types.ts';
 
 const countIn = (haystack: string, needle: string): number => haystack.split(needle).length - 1;
 

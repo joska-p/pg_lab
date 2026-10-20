@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import {
-    assertFinite,
-    assertInteger,
-    assertIntegerInRange,
-    assertStrictlyPositive,
-} from './index.ts';
+import { assertFinite, assertInteger, assertIntegerInRange } from './index.ts';
 
 describe('assertFinite', () => {
     it('accepts finite numbers', () => {
@@ -23,26 +18,6 @@ describe('assertFinite', () => {
         );
         expect(() => assertFinite(Number.NEGATIVE_INFINITY, 'val')).toThrow(
             'Randomart: val must be a finite number, received -Infinity',
-        );
-    });
-});
-
-describe('assertStrictlyPositive', () => {
-    it('accepts strictly positive finite numbers', () => {
-        expect(() => assertStrictlyPositive(1e-9, 'val')).not.toThrow();
-        expect(() => assertStrictlyPositive(1, 'val')).not.toThrow();
-        expect(() => assertStrictlyPositive(120, 'val')).not.toThrow();
-    });
-
-    it('rejects zero, negatives and non-finite values', () => {
-        expect(() => assertStrictlyPositive(0, 'val')).toThrow(
-            'Randomart: val must be strictly positive, received 0',
-        );
-        expect(() => assertStrictlyPositive(-3, 'val')).toThrow(
-            'Randomart: val must be strictly positive, received -3',
-        );
-        expect(() => assertStrictlyPositive(Number.NaN, 'val')).toThrow(
-            'Randomart: val must be a finite number, received NaN',
         );
     });
 });

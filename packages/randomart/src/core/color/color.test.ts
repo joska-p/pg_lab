@@ -6,7 +6,8 @@ import { compile } from '../compiler/index.ts';
 import { CONFIG } from '../config/index.ts';
 import { nodeCount } from '../expression/index.ts';
 import { generate } from '../generator/index.ts';
-import { createGrammar, defaultGrammar, randomizeWeights } from '../grammar/index.ts';
+import { createGrammar, defaultGrammar } from '../grammar/index.ts';
+import { randomizeWeights } from '../grammar/randomize.ts';
 import { createRng, createSeed } from '../random/index.ts';
 import { COLOR_SPACE_IDS, DEFAULT_CHANNELS, RAW_CHANNELS } from './index.ts';
 

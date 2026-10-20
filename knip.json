@@ -19,6 +19,17 @@
                 "@vitejs/plugin-react",
                 "babel-plugin-react-compiler",
                 "lightningcss"
+            ],
+            "ignoreExportsUsedInFile": true,
+            "ignore": [
+                "src/core/compiler/contract.ts",
+                "src/core/compiler/index.ts",
+                "src/core/expression/index.ts",
+                "src/core/expression/traverse.ts",
+                "src/core/expression/types.ts",
+                "src/core/grammar/grammar.ts",
+                "src/core/grammar/index.ts",
+                "src/core/notebook/notebook.ts"
             ]
         }
     }

@@ -43,15 +43,6 @@ export function assertFinite(value: number, label: string): void {
     }
 }
 
-/** Exists for symmetry with glaze's helper: same contract, `Randomart:` prefix. */
-export function assertStrictlyPositive(value: number, label: string): void {
-    assertFinite(value, label);
-
-    if (value <= 0) {
-        throw new Error(`Randomart: ${label} must be strictly positive, received ${String(value)}`);
-    }
-}
-
 export function assertInteger(value: number, label: string): void {
     assertFinite(value, label);
 

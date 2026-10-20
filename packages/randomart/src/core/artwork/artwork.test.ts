@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../catalog/index.ts';
-import { createExpression, createNode, nodeKey } from '../expression/index.ts';
+import { createExpression, createNode } from '../expression/index.ts';
+import { nodeKey } from '../expression/key.ts';
 import { generate, GENERATOR_VERSION } from '../generator/index.ts';
 import { defaultGrammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';

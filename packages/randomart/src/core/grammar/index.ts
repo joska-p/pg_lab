@@ -1,15 +1,12 @@
 export { describeGrammar } from './describe.ts';
 export {
-    createConstraints,
     createGrammar,
-    DEFAULT_CONSTRAINTS,
     defaultGrammar,
     getVocabulary,
     isLastTerminal,
     minSize,
     weightOf,
 } from './grammar.ts';
-export { randomizeWeights } from './randomize.ts';
 export { grammarPresets, presetIdOf } from './presets.ts';
 export { sampleGrammars } from './sample.ts';
 export {

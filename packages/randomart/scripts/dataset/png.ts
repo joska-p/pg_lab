@@ -38,7 +38,7 @@ export function encodePng(rgb: Uint8Array, width: number, height: number): Buffe
     header.writeUInt32BE(width, 0);
     header.writeUInt32BE(height, 4);
     header[8] = 8; // bit depth
-    header[9] = 2; // colour type: RGB
+    header[9] = 2; // color type: RGB
 
     const stride = width * 3;
     const raw = Buffer.alloc((stride + 1) * height); // each row starts with filter byte 0

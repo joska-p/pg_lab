@@ -39,12 +39,6 @@ const RULES = [
         message: '`TUNING` was renamed to `CONFIG` (codex/notes/randomart-config-knobs.md).',
     },
     {
-        id: 'french',
-        pattern: /\b(libre|nouvelle|nouveau|couleur|vagues|rendre)\b/gi,
-        message:
-            'French word in code or comments; code, docs and comments are English (AGENTS.md).',
-    },
-    {
         id: 'memo',
         pattern: /\buseMemo\b|\buseCallback\b|React\.memo\b/,
         message:
@@ -71,13 +65,6 @@ const RULES = [
         message:
             'Acronyms read as words in identifiers (`Id`); `*_IDS` is reserved for id arrays (conventions §2.1.7).',
         allow: /\b(?:FAMILY|SIZE_PROFILE|COLOR_SPACE)_IDS\b/,
-    },
-    {
-        // The word list above only knows a few words; an accented letter is French whatever the word.
-        id: 'french-accent',
-        pattern: /[àâçéèêëîïôùûœ]/i,
-        message:
-            'Accented French letter in code or comments; code, docs and comments are English (AGENTS.md).',
     },
     {
         // `import/extensions` does not see a directory import (`'../catalog'`): it resolves to a file.

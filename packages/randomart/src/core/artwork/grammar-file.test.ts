@@ -2,13 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../catalog/index.ts';
 import { createGrammar, defaultGrammar } from '../grammar/index.ts';
-import {
-    deserializeGrammar,
-    MAX_GRAMMAR_FILE_LENGTH,
-    parseGrammarFile,
-    serializeGrammar,
-    serializeGrammarFile,
-} from './serialize.ts';
+import { deserializeGrammar, serializeGrammar } from './serialize.ts';
 
 const catalog = createDefaultCatalog();
 
@@ -85,46 +79,5 @@ describe('grammar serialization', () => {
                 constraints: { minDepth: 1, maxDepth: 4, maxNodes: 10 },
             }),
         ).toThrow(/does not exist in catalog/);
-    });
-});
-
-describe('grammar file', () => {
-    it('round-trips through text', () => {
-        const grammar = defaultGrammar(catalog);
-        const restored = parseGrammarFile(catalog, serializeGrammarFile(grammar));
-
-        expect(serializeGrammar(restored)).toEqual(serializeGrammar(grammar));
-    });
-
-    it('writes format, version, grammar in that order', () => {
-        const text = serializeGrammarFile(defaultGrammar(catalog));
-
-        expect(Object.keys(JSON.parse(text))).toEqual(['format', 'version', 'grammar']);
-    });
-
-    it('rejects wrong format, wrong version and invalid JSON', () => {
-        const base = JSON.parse(serializeGrammarFile(defaultGrammar(catalog)));
-
-        expect(() =>
-            parseGrammarFile(catalog, JSON.stringify({ ...base, format: 'other' })),
-        ).toThrow(/format "other" not supported/);
-        expect(() => parseGrammarFile(catalog, JSON.stringify({ ...base, version: 2 }))).toThrow(
-            /version 2 not supported/,
-        );
-        expect(() => parseGrammarFile(catalog, '{nope')).toThrow(/invalid JSON/);
-    });
-
-    it('rejects unknown top-level fields', () => {
-        const base = JSON.parse(serializeGrammarFile(defaultGrammar(catalog)));
-
-        expect(() => parseGrammarFile(catalog, JSON.stringify({ ...base, extra: 1 }))).toThrow(
-            /file\.extra: unknown field/,
-        );
-    });
-
-    it('rejects an oversized text before parsing it', () => {
-        expect(() => parseGrammarFile(catalog, 'x'.repeat(MAX_GRAMMAR_FILE_LENGTH + 1))).toThrow(
-            /too large/,
-        );
     });
 });

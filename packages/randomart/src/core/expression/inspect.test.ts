@@ -4,20 +4,11 @@ import { createDefaultCatalog } from '../catalog/index.ts';
 import { generate } from '../generator/index.ts';
 import { defaultGrammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';
-import {
-    createExpression,
-    createNode,
-    equals,
-    formatAddress,
-    formatFormula,
-    formatNodeLabel,
-    getNode,
-    nodeCount,
-    nodeKey,
-    usedOperators,
-    walk,
-} from './index.ts';
-import type { Address } from './index.ts';
+import { formatNodeLabel } from './formula.ts';
+import { createExpression, createNode, equals, formatFormula, nodeCount } from './index.ts';
+import { nodeKey } from './key.ts';
+import { formatAddress, getNode, usedOperators, walk } from './traverse.ts';
+import type { Address } from './types.ts';
 
 const catalog = createDefaultCatalog();
 const x = createNode(catalog, 'x', [], [0, 0, 0]);
