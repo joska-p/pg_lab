@@ -104,7 +104,7 @@
           "line": 13,
           "position": 511
         },
-        "name": "randomart/src/App.tsx",
+        "name": "randomart/src/ui/App.tsx",
         "start": 1,
         "startLoc": {
           "column": 0,
@@ -1446,7 +1446,7 @@
     }
   ],
   "statistics": {
-    "detectionDate": "2026-10-20T22:19:30.036Z",
+    "detectionDate": "2026-10-20T23:12:46.253Z",
     "formats": {
       "css": {
         "clones": 0,

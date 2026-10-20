@@ -5,7 +5,7 @@ import { GENERATOR_VERSION } from '../core/generator/generator';
 import { sampleGrammars } from '../core/grammar/sample';
 import type { SampleOptions } from '../core/grammar/types';
 import { createSeed } from '../core/random/seed';
-import { createBatchRenderer } from '../renderer/batch';
+import { createBatchRenderer } from '../renderer/batch/batch';
 
 /**
  * Dataset page: the in-browser half of the offline dataset pipeline. It owns no rendering of its

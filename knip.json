@@ -11,7 +11,7 @@
     ],
     "workspaces": {
         ".": {
-            "project": ["tools/**/*.ts"]
+            "project": ["src/**/*.{ts,tsx}"]
         },
         "apps/playground": {
             "project": ["src/**/*.{ts,tsx}"]
@@ -20,15 +20,13 @@
             "project": ["src/**/*.{ts,tsx}"]
         },
         "packages/randomart": {
-            "project": ["src/**/*.{ts,tsx}", "scripts/**/*.{ts,mjs}"],
-            "ignore": ["src/dataset/page.ts"],
-            "ignoreExportsUsedInFile": true
+            "project": ["src/**/*.{ts,tsx}"]
         },
         "packages/glaze": {
             "project": ["src/**/*.{ts,tsx}"]
         },
         "packages/glaze3d": {
-            "project": ["src/**/*.ts"]
+            "project": ["src/**/*.{ts,tsx}"]
         },
         "packages/automa": {
             "project": ["src/**/*.{ts,tsx}"]
@@ -37,7 +35,7 @@
             "project": ["src/**/*.{ts,tsx}"]
         },
         "packages/worker-pool": {
-            "project": ["src/**/*.ts"]
+            "project": ["src/**/*.{ts,tsx}"]
         },
         "packages/ui": {
             "project": ["src/**/*.{ts,tsx}"]

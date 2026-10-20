@@ -4,9 +4,9 @@
     "private": true,
     "type": "module",
     "exports": {
-        "./App": "./src/App.tsx",
-        "./Scene": "./src/components/Scene.tsx",
-        "./Controls": "./src/components/Controls.tsx"
+        "./App": "./src/ui/App.tsx",
+        "./Scene": "./src/ui/components/Scene.tsx",
+        "./Controls": "./src/ui/components/Controls.tsx"
     },
     "scripts": {
         "dev": "vp dev",
