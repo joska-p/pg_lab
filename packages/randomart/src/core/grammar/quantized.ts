@@ -90,57 +90,6 @@ export function drawGrammar(catalog: Catalog, rng: Rng, pins: GrammarPins = {}):
     return createGrammar(catalog, { weights, size, shareDepth, space });
 }
 
-export interface StepGrammarOptions {
-    /** Probability that one operator moves one notch. Default: `CONFIG.sampling.changeRate`. */
-    readonly changeRate?: number;
-}
-
-/**
- * One exploration step on the grid: each operator moves one integer notch up or down with
- * probability `changeRate`, clipped at the edges. Only the weights move — size, share and color are
- * axes of their own. The two viability invariants are restored deterministically, so the result is
- * always a point of the space. Deterministic: one `rng.next()` per operator, plus one per moving
- * operator for its direction.
- *
- * @lintignore
- */
-export function stepGrammar(
-    catalog: Catalog,
-    grammar: Grammar,
-    rng: Rng,
-    options: StepGrammarOptions = {},
-): Grammar {
-    const changeRate = options.changeRate ?? CONFIG.sampling.changeRate;
-
-    if (!Number.isFinite(changeRate) || changeRate < 0 || changeRate > 1) {
-        throw new Error(
-            `Randomart: changeRate must be a finite number in [0, 1], received ${changeRate}`,
-        );
-    }
-
-    const weights: Partial<Record<OperatorId, number>> = { ...grammar.weights };
-
-    for (const operator of catalog.operators()) {
-        if (rng.next() < changeRate) {
-            const current = weightOf(weights, operator.name);
-            const up = rng.next() < 0.5;
-
-            weights[operator.name as OperatorId] = up
-                ? Math.min(CONFIG.grammar.maxWeight, current + 1)
-                : Math.max(0, current - 1);
-        }
-    }
-
-    ensureUsableVocabulary(catalog, weights);
-
-    return createGrammar(catalog, {
-        weights,
-        size: grammar.size,
-        shareDepth: grammar.shareDepth,
-        space: grammar.space,
-    });
-}
-
 /** Golden-ratio multiplicative hash: distinct indices give well-separated 32-bit seeds. */
 export function deriveSeed(base: number, index: number): Seed {
     return createSeed((Math.imul(index + 1, 0x9e37_79b1) ^ base) >>> 0);

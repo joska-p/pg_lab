@@ -10,7 +10,7 @@ import { generate } from '../generator/generator';
 import { defaultGrammar } from '../grammar/presets';
 import { createSeed } from '../random/seed';
 import { compile } from './compile';
-import { validateShaderContract } from './contract';
+import { validateShaderContract } from './contract.test';
 import { isAtom, isEnclosedInParens, wrapInput } from './format';
 import { MAX_SOURCE_LENGTH } from './types';
 

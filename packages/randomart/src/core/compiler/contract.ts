@@ -19,35 +19,3 @@ export const GLSL_OUT_COLOR = 'out vec4 o_color;';
  * its shape; color values are written as-is and read as sRGB, no linear conversion.
  */
 export const GLSL_COORD_INIT = 'vec2 v_p = vUv * 2.0 - 1.0;';
-
-/**
- * Validates that a fragment shader adheres to the GLSL contract:
- *
- * - Does NOT contain #version directive (handled by glaze)
- * - Contains input `in vec2 vUv;`
- * - Contains output `out vec4 o_color;`
- * - Initializes `vec2 v_p = vUv * 2.0 - 1.0;`
- *
- * @lintignore
- */
-export function validateShaderContract(source: string): { valid: boolean; errors: string[] } {
-    const errors: string[] = [];
-
-    if (/^\s*#version/m.test(source)) {
-        errors.push('Fragment shader must not specify #version (glaze automatically injects it).');
-    }
-    if (!source.includes(GLSL_IN_UV)) {
-        errors.push(`Fragment shader must declare input "${GLSL_IN_UV}".`);
-    }
-    if (!source.includes(GLSL_OUT_COLOR)) {
-        errors.push(`Fragment shader must declare output "${GLSL_OUT_COLOR}".`);
-    }
-    if (!source.includes(GLSL_COORD_INIT)) {
-        errors.push(`Fragment shader must initialize "${GLSL_COORD_INIT}" at beginning of main.`);
-    }
-
-    return {
-        valid: errors.length === 0,
-        errors,
-    };
-}

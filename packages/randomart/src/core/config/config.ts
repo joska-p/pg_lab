@@ -74,8 +74,8 @@ interface Config {
         /** Base seed of every deterministic sample draw. */
         readonly baseSeed: number;
         /**
-         * Probability that one operator moves one notch in a walk step (`stepGrammar`). 0 = the
-         * walk freezes; 1 = every operator moves at every step.
+         * Probability that one operator moves one notch in a walk step. 0 = the walk freezes; 1 =
+         * every operator moves at every step.
          */
         readonly changeRate: number;
         /** Seeds per grammar in the bench's contact sheet (a 6×6 deck). */

@@ -8,8 +8,6 @@ import { nodeCount } from '../expression/expression';
 import { generate } from '../generator/generator';
 import { channelModelOf, constraintsOf, createGrammar } from '../grammar/grammar';
 import { defaultGrammar } from '../grammar/presets';
-import { stepGrammar } from '../grammar/quantized';
-import { createRng } from '../random/rng';
 import { createSeed } from '../random/seed';
 import { COLOR_SPACE_IDS, DEFAULT_CHANNELS } from './color';
 
@@ -116,22 +114,6 @@ describe('generator channels', () => {
         const compiled = compile(catalog, expression);
         expect(compiled.stats.vertices).toBe(nodeCount(expression.r));
         expect(compiled.stats.nodes).toBe(3 * nodeCount(expression.r));
-    });
-
-    it('a grammar step preserves the color axes', () => {
-        const grammar = createGrammar(catalog, {
-            weights: { x: 1, y: 1, const: 1, neg: 1 },
-            size: 'small',
-            shareDepth: 2,
-            space: 'hsl',
-        });
-
-        const stepped = stepGrammar(catalog, grammar, createRng(createSeed(11)));
-
-        expect(stepped.size).toBe('small');
-        expect(stepped.shareDepth).toBe(2);
-        expect(stepped.space).toBe('hsl');
-        expect(channelModelOf(stepped)).toEqual({ space: 'hsl', shareDepth: 2 });
     });
 });
 

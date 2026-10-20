@@ -7,8 +7,62 @@ import { createSeed } from '../random/seed';
 import { createExpression, createNode, nodeCount } from './expression';
 import { formatNodeLabel, formatFormula } from './formula';
 import { equals, nodeKey } from './key';
-import { formatAddress, getNode, usedOperators, walk } from './traverse';
-import type { Address } from './types';
+import type { Channel, Expression, Node } from './types';
+
+interface Address {
+    readonly channel: Channel;
+    readonly path: readonly number[];
+}
+
+const CHANNELS: readonly Channel[] = ['r', 'g', 'b'];
+
+type NodeVisitor = (node: Node, address: Address) => void;
+
+function formatAddress(address: Address): string {
+    return `${address.channel}${address.path.map((index) => `.in[${index}]`).join('')}`;
+}
+
+function getNode(expression: Expression, address: Address): Node {
+    let node: Node = expression[address.channel];
+
+    for (const [step, index] of address.path.entries()) {
+        const child: Node | undefined = node.inputs[index];
+
+        if (child === undefined) {
+            throw new Error(
+                `Invalid address ${formatAddress(address)}: no input ${index} at step ${step + 1}`,
+            );
+        }
+
+        node = child;
+    }
+
+    return node;
+}
+
+function walk(expression: Expression, visitor: NodeVisitor): void {
+    const visit = (node: Node, channel: Channel, path: readonly number[]): void => {
+        visitor(node, { channel, path });
+
+        node.inputs.forEach((child, index) => {
+            visit(child, channel, [...path, index]);
+        });
+    };
+
+    for (const channel of CHANNELS) {
+        visit(expression[channel], channel, []);
+    }
+}
+
+function usedOperators(expression: Expression): ReadonlySet<string> {
+    const names = new Set<string>();
+
+    walk(expression, (node) => {
+        names.add(node.operatorName);
+    });
+
+    return names;
+}
 
 const catalog = createDefaultCatalog();
 const x = createNode(catalog, 'x', [], [0, 0, 0]);

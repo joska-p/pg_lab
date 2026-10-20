@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import {
-    GLSL_COORD_INIT,
-    GLSL_IN_UV,
-    GLSL_OUT_COLOR,
-    validateShaderContract,
-} from '../core/compiler/contract';
-import {
     createPhase,
     DEFAULT_CONTEXT_OPTIONS,
     DEFAULT_LOOP_DURATION,
@@ -40,48 +34,6 @@ describe('renderer / contract & helpers', () => {
         it('rejects a non-finite progress: fail loudly, do not propagate a NaN', () => {
             expect(() => createPhase(Number.NaN)).toThrow(
                 'Randomart: clock progress must be a finite number, received NaN',
-            );
-        });
-    });
-
-    describe('GLSL contract validation', () => {
-        it('validates the handwritten test shader successfully', () => {
-            const result = validateShaderContract(HANDWRITTEN_TEST_SHADER);
-            expect(result.valid).toBe(true);
-            expect(result.errors).toEqual([]);
-        });
-
-        it('rejects shaders containing #version', () => {
-            const invalidSource = `#version 300 es\n${HANDWRITTEN_TEST_SHADER}`;
-            const result = validateShaderContract(invalidSource);
-            expect(result.valid).toBe(false);
-            expect(result.errors).toContain(
-                'Fragment shader must not specify #version (glaze automatically injects it).',
-            );
-        });
-
-        it('rejects shaders missing in vec2 vUv', () => {
-            const invalidSource = HANDWRITTEN_TEST_SHADER.replace(GLSL_IN_UV, '');
-            const result = validateShaderContract(invalidSource);
-            expect(result.valid).toBe(false);
-            expect(result.errors).toContain(`Fragment shader must declare input "${GLSL_IN_UV}".`);
-        });
-
-        it('rejects shaders missing out vec4 o_color', () => {
-            const invalidSource = HANDWRITTEN_TEST_SHADER.replace(GLSL_OUT_COLOR, '');
-            const result = validateShaderContract(invalidSource);
-            expect(result.valid).toBe(false);
-            expect(result.errors).toContain(
-                `Fragment shader must declare output "${GLSL_OUT_COLOR}".`,
-            );
-        });
-
-        it('rejects shaders missing vec2 v_p coordinate initialization', () => {
-            const invalidSource = HANDWRITTEN_TEST_SHADER.replace(GLSL_COORD_INIT, '');
-            const result = validateShaderContract(invalidSource);
-            expect(result.valid).toBe(false);
-            expect(result.errors).toContain(
-                `Fragment shader must initialize "${GLSL_COORD_INIT}" at beginning of main.`,
             );
         });
     });
