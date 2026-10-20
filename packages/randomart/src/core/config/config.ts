@@ -1,4 +1,4 @@
-import type { ParamRange, ColorSpaceId, Constraints } from './types';
+import type { ParamRange, ColorSpaceId, SizeProfiles, SizeProfileId } from './types';
 
 /**
  * The curated values of the package, in one typed module: every number a caller never passes and
@@ -67,7 +67,7 @@ interface Config {
          * Size axis: one coherent depth/node budget per profile. A profile is a named point on the
          * axis; constraints are always derived from it, never stored free-form in a grammar.
          */
-        readonly sizeProfiles: Readonly<Record<string, Constraints>>;
+        readonly sizeProfiles: SizeProfiles;
     };
     /** Sampling policy shared by the app and the dataset. Sampler-affecting. */
     readonly sampling: {
@@ -163,9 +163,6 @@ export const CONFIG = {
         initialSeed: 42,
     },
 } as const satisfies Config;
-
-/** Ids of the size axis, in draw order. */
-export type SizeProfileId = keyof typeof CONFIG.grammar.sizeProfiles;
 
 /** Guard for the size registry: a profile id is content, an unknown one has no canonical repair. */
 export function isSizeProfileId(value: unknown): value is SizeProfileId {

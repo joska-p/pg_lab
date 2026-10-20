@@ -1,6 +1,5 @@
 import type { OperatorId } from '../catalog/operators/registry';
-import type { SizeProfileId } from '../config/config';
-import type { ColorSpaceId } from '../config/types';
+import type { ColorSpaceId, SizeProfileId } from '../config/types';
 import type { Brand } from '../shared/shared';
 
 /**

@@ -3,7 +3,7 @@ import type { Operator } from '../catalog/operators/Operator';
 import type { OperatorId } from '../catalog/operators/registry';
 import { COLOR_SPACE_IDS } from '../color/color';
 import { CONFIG } from '../config/config';
-import type { SizeProfileId } from '../config/config';
+import type { SizeProfileId } from '../config/types';
 import type { Rng } from '../random/rng';
 import { createSeed } from '../random/seed';
 import type { Seed } from '../random/seed';
@@ -22,8 +22,6 @@ import type { Grammar, GrammarPins } from './types';
  * by that profile's `maxDepth`. Everything is discrete by construction; there is no continuous
  * recipe behind a grammar.
  */
-
-export type { SizeProfileId } from '../config/config';
 
 export const SIZE_PROFILE_IDS = Object.keys(
     CONFIG.grammar.sizeProfiles,

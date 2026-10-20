@@ -16,3 +16,6 @@ export interface Constraints {
     readonly maxDepth: number;
     readonly maxNodes: number;
 }
+
+export type SizeProfileId = 'small' | 'medium' | 'large';
+export type SizeProfiles = Readonly<Record<SizeProfileId, Constraints>>;

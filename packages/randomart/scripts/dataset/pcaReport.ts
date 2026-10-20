@@ -1,6 +1,6 @@
 import { correlation } from '../../src/core/analysis/correlation';
 import { pca } from '../../src/core/analysis/pca';
-import type { SizeProfileId } from '../../src/core/config/config';
+import type { SizeProfileId } from '../../src/core/config/types';
 import { constraintsOf } from '../../src/core/grammar/grammar';
 import type { FeatureRow, Features } from './computeFeatures';
 

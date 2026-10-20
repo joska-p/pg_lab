@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../catalog/Catalog';
-import type { SizeProfileId } from '../config/config';
+import type { SizeProfileId } from '../config/types';
 import { depth, nodeCount } from '../expression/expression';
 import type { Node } from '../expression/types';
 import { constraintsOf, createGrammar, getVocabulary } from '../grammar/grammar';

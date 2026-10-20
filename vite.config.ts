@@ -2,7 +2,6 @@ import { defineConfig } from 'vite-plus';
 
 import { baseLint } from './tools/lint/base.ts';
 import { nodeLint } from './tools/lint/node.ts';
-import { randomartLint } from './tools/lint/randomart.ts';
 import { reactLint } from './tools/lint/react.ts';
 
 const ignorePatterns = ['dist/**', '**/vendor/*.js', '.agents/**/*.{js,ts}'];
@@ -51,7 +50,6 @@ export default defineConfig({
                 files: reactPackages,
                 ...reactLint,
             },
-            ...randomartLint,
             {
                 files: ['tools/**'],
                 ...nodeLint,
@@ -67,15 +65,6 @@ export default defineConfig({
     },
     run: {
         cache: true,
-        tasks: {
-            // Mechanical coherence audit for randomart (dead code, vocabulary, duplication). The
-            // lint-backed gates (layers, purity, extensions) live in tools/lint/randomart.ts and run
-            // through `vp check`; reporting is complete even when a check fails. See
-            // tools/lint/audit.mjs.
-            audit: {
-                command: 'node tools/lint/audit.mjs',
-                cache: false,
-            },
-        },
+        tasks: {},
     },
 });

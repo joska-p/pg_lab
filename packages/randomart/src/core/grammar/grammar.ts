@@ -4,8 +4,7 @@ import type { OperatorId } from '../catalog/operators/registry';
 import { isColorSpaceId, MIN_SHARE_DEPTH } from '../color/color';
 import type { ChannelModel } from '../color/types';
 import { CONFIG, isSizeProfileId } from '../config/config';
-import type { SizeProfileId } from '../config/config';
-import type { Constraints } from '../config/types';
+import type { Constraints, SizeProfileId, ColorSpaceId } from '../config/types';
 import { assertIntegerInRange } from '../shared/shared';
 import type { Grammar } from './types';
 
@@ -132,9 +131,9 @@ export function createGrammar(
         space,
     }: {
         readonly weights: Readonly<Record<string, number | undefined>>;
-        readonly size: string;
+        readonly size: SizeProfileId;
         readonly shareDepth: number;
-        readonly space: string;
+        readonly space: ColorSpaceId;
     },
 ): Grammar {
     const operatorNames = Object.keys(weights);

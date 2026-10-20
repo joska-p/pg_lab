@@ -1,8 +1,7 @@
 import type { Catalog } from '../catalog/Catalog';
 import { isColorSpaceId } from '../color/color';
 import { isSizeProfileId } from '../config/config';
-import type { SizeProfileId } from '../config/config';
-import type { ColorSpaceId } from '../config/types';
+import type { ColorSpaceId, SizeProfileId } from '../config/types';
 import { deserialize, serialize } from '../expression/serialize';
 import type { ExpressionData } from '../expression/serialize';
 import { createGrammar, weightOf } from '../grammar/grammar';
