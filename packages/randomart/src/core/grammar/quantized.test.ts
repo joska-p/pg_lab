@@ -105,12 +105,6 @@ describe('drawGrammar', () => {
 });
 
 describe('the default grammar on the grid', () => {
-    it('is exactly the structure preset', () => {
-        expect(grammarKey(catalog, defaultGrammar(catalog))).toBe(
-            grammarKey(catalog, defaultGrammar(catalog)),
-        );
-    });
-
     it('keeps x and y as the strongest operators', () => {
         const grammar = defaultGrammar(catalog);
 

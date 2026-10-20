@@ -51,7 +51,7 @@ describe('renderer / contract & helpers', () => {
     });
 
     describe('defaults', () => {
-        it('has an 60-second default duration', () => {
+        it('has an 60-seconds default duration', () => {
             expect(DEFAULT_LOOP_DURATION).toBe(60);
         });
 

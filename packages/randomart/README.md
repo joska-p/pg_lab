@@ -34,7 +34,7 @@ You explore grammars more than seeds.
 ## Vocabulary
 
 - **grammar**: an integer weight per operator (0 = off, same range for all) + size profile +
-  shared-trunk depth + colour space
+  shared-trunk depth + color space
 - **preset**: a named grammar (`defaultGrammar`, `grammarPresets`); there is no separate recipe type
 - **seed**: picks one expression inside a grammar
 - **expression**: three trees (r, g, b). **node** = tree element, **vertex** = compiler DAG entry
@@ -67,7 +67,7 @@ is the only file that touches argv or exits (`scripts/dataset/cli.ts`).
 
 ## Where the rules live
 
-- throw vs repair: `src/core/shared/index.ts`
+- throw vs repair: `src/core/shared/shared.ts`
 - operator contract: `src/core/catalog/operators/types.ts`
 - generator versioning: `src/core/generator/generator.ts`
 - file formats: `src/core/artwork/serialize.ts`

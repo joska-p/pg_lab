@@ -30,7 +30,7 @@ export const MAX_BENCH_COUNT = 32;
 export const MAX_BENCH_SEEDS = 64;
 
 /**
- * How the lot is presented. `sheet` is the contact sheet: every grammar, fitted to the stage.
+ * How the lot is presented. `planche` is the contact sheet: every grammar, fitted to the stage.
  * `focus` is one grammar at native cell size — the regime where a single candidate is actually
  * judged.
  */
