@@ -12,11 +12,8 @@ import type { ColorSpaceId } from '../config/types';
 import { GLSL_IN_UV, GLSL_OUT_COLOR } from './contract';
 
 export interface PreambleResult {
-    /** Lines that go before void main(). */
     readonly preambleLines: readonly string[];
-    /** Whether the shader reads `u_phase`, derived from the dependency closure alone. */
     readonly animated: boolean;
-    /** Uniforms to include in CompiledShader.uniforms. */
     readonly uniforms: readonly { name: string; glslType: 'float' }[];
 }
 

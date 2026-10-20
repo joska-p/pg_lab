@@ -38,9 +38,7 @@ export interface HistoryEntry {
     readonly seed: Seed;
     readonly grammar: Grammar;
     readonly nodes: number;
-    /** Present only for imported artworks (their provenance may not replay the expression). */
     readonly expression?: Expression;
-    /** Provenance status computed at import; absent for generated entries (they replay). */
     readonly provenanceCheck?: ProvenanceCheck;
 }
 
@@ -73,10 +71,6 @@ interface AppStoreState {
     mode: AppMode;
     clockStore: ClockStore;
     shaderError: ShaderError | null;
-    /**
-     * Message of the last failed exploration action (generate/compile/import); null after a
-     * success.
-     */
     actionError: string | null;
     duration: DurationSeconds;
     grammar: Grammar;
@@ -84,7 +78,6 @@ interface AppStoreState {
     currentId: number;
     seed: Seed;
     expression: Expression;
-    /** Provenance status of the current artwork ("matches" unless it was imported). */
     provenanceCheck: ProvenanceCheck;
     compiledShader: CompiledShader;
     canvas: HTMLCanvasElement | null;
@@ -144,7 +137,6 @@ export function useDuration(): DurationSeconds {
     return store((s) => s.duration);
 }
 
-/** Updates the loop duration in the store and in the live clockStore (preserves progress). */
 export function setDuration(duration: DurationSeconds): void {
     store.getState().clockStore.setDuration(duration);
     store.setState({ duration });
@@ -185,10 +177,6 @@ export function useHistory(): readonly HistoryEntry[] {
 export function useCurrentId(): number {
     return store((s) => s.currentId);
 }
-
-// ---------------------------------------------------------------------------
-// Exploration
-// ---------------------------------------------------------------------------
 
 function setActionError(error: unknown): void {
     store.setState({ actionError: error instanceof Error ? error.message : String(error) });
@@ -255,22 +243,18 @@ function commit(
     }
 }
 
-/** "Reset seed": the seed changes, the grammar stays. */
 export function resetSeed(nextSeed: Seed = randomSeed()): void {
     commit(store.getState().grammar, nextSeed);
 }
 
-/** "Draw grammar": a random point of the quantized space. The seed stays, so grammars compare. */
 export function drawGrammar(): void {
     commit(drawRandomGrammar(catalog, createRng(randomSeed())), store.getState().seed);
 }
 
-/** "Generate image": a random grammar and a random seed at once. */
 export function generateImage(): void {
     commit(drawRandomGrammar(catalog, createRng(randomSeed())), randomSeed());
 }
 
-/** Selecting a preset: its grammar replaces the current one, same seed. */
 export function applyGrammar(grammar: Grammar): void {
     commit(grammar, store.getState().seed);
 }
@@ -346,10 +330,6 @@ export function restoreEntry(id: number): void {
     commit(entry.grammar, entry.seed, entry.id);
 }
 
-// ---------------------------------------------------------------------------
-// Files
-// ---------------------------------------------------------------------------
-
 function downloadBlob(blob: Blob, filename: string): void {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -398,16 +378,12 @@ function publishArtwork(artwork: Artwork): void {
         actionError: null,
     });
 
-    // The file's loop duration is adopted unconditionally: store duration and artwork share one
-    // bound set ([0.5, 120] s — the render bounds are the concept bounds), so no valid file value
-    // can be silently dropped by narrower UI bounds any more. `render` is a brand: its loopMs is a
-    // finite number within the bounds by construction.
+    // Adopt loop duration directly; render.loopMs is already validated within bounds.
     if (render.loopMs / 1000 !== state.duration) {
         setDuration(createDurationSeconds(render.loopMs / 1000));
     }
 }
 
-/** Opens a bench cell (grammar + seed) in Lab mode as an artwork. */
 export function openCellInLab(grammar: Grammar, seed: Seed): void {
     const artwork = createArtwork({
         expression: generate(catalog, grammar, seed),
@@ -417,13 +393,11 @@ export function openCellInLab(grammar: Grammar, seed: Seed): void {
     setMode('lab');
 }
 
-/** Exports the current state as a `.randomart.json` artwork (expression as reference). */
 export function exportArtworkFile(): void {
     const state = store.getState();
     const artwork = createArtwork({
         expression: state.expression,
-        // Render size = canvas size until the artwork is resized; the artwork keeps
-        // the config default so a file stays meaningful on another screen.
+        // Retains default render size so exported files stay consistent across displays.
         render: {
             width: CONFIG.artwork.width,
             height: CONFIG.artwork.height,
@@ -454,7 +428,6 @@ export async function importArtworkFile(file: File): Promise<void> {
     }
 }
 
-/** Exports the current canvas as a PNG blob. Requires preserveDrawingBuffer: true. */
 export async function exportPng(): Promise<void> {
     const { canvas } = store.getState();
 

@@ -81,7 +81,6 @@ export function SessionSection() {
                 />
             </Stack>
 
-            {/* ── Faults & Status ── */}
             {actionError && (
                 <ControlField label="Action Error">
                     <Text>{actionError}</Text>

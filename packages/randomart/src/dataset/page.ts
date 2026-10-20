@@ -29,11 +29,8 @@ function bytesToBase64(bytes: Uint8Array): string {
 }
 
 export interface RenderedGrammar {
-    /** One flag per seed: false when generation, compilation or the driver refused the image. */
     readonly ok: readonly boolean[];
-    /** One message per seed, null on success. */
     readonly errors: readonly (string | null)[];
-    /** Base64 of `seeds.length * size * size * 3` bytes: RGB, rows top to bottom, zeros on failure. */
     readonly rgb: string;
 }
 
@@ -60,8 +57,6 @@ function renderGrammar(
         ok.push(cell.error === null);
         errors.push(cell.error);
 
-        // A failed image stays all zeros: the dataset contract (`ok[]` flags them, the offline side
-        // never reads the pixels of a false cell).
         if (cell.image) {
             rgb.set(cell.image.rgb, index * imageBytes);
         }

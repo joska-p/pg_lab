@@ -13,14 +13,11 @@ import { DEFAULT_CONTEXT_OPTIONS } from './contract';
 
 interface BatchRequest {
     readonly grammar: Grammar;
-    /** One image per seed: the row of the planche. */
     readonly seeds: readonly Seed[];
 }
 
 interface RenderedCell {
-    /** Message of the refusal (generation, compilation, driver), `null` on success. */
     readonly error: string | null;
-    /** RGB bytes (rows top to bottom) or `null` when the cell could not be rendered. */
     readonly image: RgbImage | null;
 }
 
@@ -30,18 +27,14 @@ export interface RenderedBatch {
 }
 
 /**
- * The in-app twin of the dataset pipeline's GPU half: renders a lot of `(grammar, seed)` images on
- * **one** reused offscreen surface and reads them back. Consumed by the bench (display) and by
- * `src/dataset/page.ts` (the offline dataset pilot), so both go through the exact same pixels.
+ * Renders `(grammar, seed)` images on a reused offscreen surface. Used by the bench and the offline
+ * dataset pipeline so both go through the exact same pixels.
  *
- * Every failure is a value per cell, not an exception: a generated shader the driver refuses is a
- * normal outcome, and one dead cell must not abort a lot. Only building the surface itself can
- * throw (e.g. no WebGL2).
+ * Failures are values per cell, not exceptions: a shader the driver refuses is a normal outcome,
+ * and one dead cell must not abort a lot. Only surface creation can throw (e.g., no WebGL2).
  */
 export interface BatchRenderer {
-    /** Renders every request at `size`; reuses the surface, recreating it when `size` changes. */
     render(requests: readonly BatchRequest[], size: number): readonly RenderedBatch[];
-    /** Destroys the surface and detaches its canvas. The renderer must not be used afterwards. */
     destroy(): void;
 }
 
@@ -53,9 +46,8 @@ interface Stage {
 }
 
 /**
- * The canvas must be laid out (non-zero `clientWidth`) before `GpuSurface` exists, so it is
- * appended off-screen with an explicit pixel size — invisible, but measurable. `document` is a
- * shell concern: the batch renderer is the shell, the compiler stays pure.
+ * The canvas must have a layout size before `GpuSurface` is created. We append it off-screen with
+ * an explicit pixel size so it's measurable without being visible.
  */
 function createStage(size: number): Stage {
     const canvas = document.createElement('canvas');
@@ -106,8 +98,7 @@ function renderCell(stage: Stage, catalog: Catalog, grammar: Grammar, seed: Seed
         }
 
         try {
-            // Phase 0: `u_phase` is never set, so the uniform defaults to 0 — the frozen first
-            // frame of the loop, the picture play would start from.
+            // Phase 0: `u_phase` defaults to 0 — the frozen first frame of the loop.
             stage.surface.renderProgram(attempt.program);
             stage.readback.drawImage(stage.canvas, 0, 0);
 

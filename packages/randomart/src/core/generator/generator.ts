@@ -16,11 +16,6 @@ export const GENERATOR_VERSION = 4;
 /** Integer scale of the param rounding: `PARAM_DECIMALS` decimal places. */
 const PARAM_SCALE = 10 ** CONFIG.generator.paramDecimals;
 
-/**
- * What one trunk level produces: the three channel nodes, the size the parent accounts for, and
- * whether the three are the _same_ node object (the whole subtree is shared, so the mono case
- * collapses to a single tree).
- */
 interface TrunkResult {
     readonly nodes: readonly [Node, Node, Node];
     readonly size: number;
@@ -53,10 +48,6 @@ export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expres
 
     const vocabulary: Operator[] = getVocabulary(catalog, grammar.weights);
 
-    /**
-     * Draws the operator of a node: candidates by depth and budget, sorted by name, then a weighted
-     * draw. Shared by the diverging recursion and the trunk, so both obey the same grammar rules.
-     */
     function drawOperator(currentDepth: number, budget: number): Operator {
         const candidates = vocabulary.filter((operator) => {
             const k = operator.arity;
@@ -103,11 +94,6 @@ export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expres
         return paramValues;
     }
 
-    /**
-     * Builds the `k` children of a node, each with a fair share of `budget`: the floor `m` plus an
-     * equal share of what is left, re-split after each child from the size it actually took (the
-     * last child gets the remainder). `build` receives the child's own budget.
-     */
     function buildChildren<T extends { size: number }>(
         currentDepth: number,
         budget: number,
@@ -129,7 +115,6 @@ export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expres
         return children;
     }
 
-    /** One node of ONE channel's tree, below the trunk: the historical recursion. */
     function generateNode(currentDepth: number, budget: number): { node: Node; size: number } {
         const operator = drawOperator(currentDepth, budget);
         const paramValues = drawParams(operator);
@@ -151,7 +136,6 @@ export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expres
         };
     }
 
-    /** One trunk level, or a diverging slot below it, for the three channels at once. */
     function generateTrunk(currentDepth: number, budget: number): TrunkResult {
         // Below the trunk the channels diverge: three independent draws from the same stream. The
         // parent accounts for the widest channel, so each channel still fits the shared budget.

@@ -96,7 +96,6 @@ export function Planche({
     const frameRef = useRef<HTMLDivElement>(null);
     const [hovered, setHovered] = useState<{ row: number; col: number } | null>(null);
 
-    // Auto-memoized by React Compiler: only recomputed when the lot, its flags or the size change.
     const { width, height, rgba } = assemblePlanche(lot.rows, cellSize, {
         columns: lot.columnCount,
         dim: dimFlats ? lot.flat : undefined,

@@ -13,44 +13,27 @@
 import type { Catalog } from '../catalog/Catalog';
 import type { Expression, Node } from '../expression/types';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 /**
  * A vertex in the lowered DAG. Created once per unique (context, operatorName, params, inputIds)
  * key.
  */
 export interface Vertex {
-    /** Stable sequential id, assigned in topological order (children before parents). */
     readonly id: number;
-    /** Operator name. */
     readonly operatorName: string;
-    /** Operator params. */
     readonly params: readonly number[];
-    /** Ids of child vertices, in input order. */
     readonly inputIds: readonly number[];
-    /** Coordinate context ('root' or 'c1', 'c2', ...). */
     readonly context: string;
-    /** Operator `requires` deps accumulated from this node. */
     readonly requires: readonly string[];
 }
 
 /** A child coordinate context definition created by a transformer operator. */
 export interface ContextDef {
-    /** Stable sequential context id (1, 2, ...). */
     readonly id: number;
-    /** Context GLSL variable name: 'c1', 'c2', ... */
     readonly name: string;
-    /** Parent context name: 'root' or 'c1', ... */
     readonly parentName: string;
-    /** Operator that generated this context (e.g. 'warp'). */
     readonly operatorName: string;
-    /** Parameters of the operator. */
     readonly params: readonly number[];
-    /** Vertex ids of 'current' inputs that compute the coordinates. */
     readonly currentInputIds: readonly number[];
-    /** Dependencies required by this operator (e.g. ['ra_fold2']). */
     readonly requires: readonly string[];
 }
 
@@ -60,25 +43,15 @@ type ProgramItem =
     | { readonly kind: 'context'; readonly context: ContextDef };
 
 export interface LowerResult {
-    /** All vertices in topological order (children before parents). */
     readonly vertices: readonly Vertex[];
-    /** All child coordinate contexts created in topological order. */
     readonly contexts: readonly ContextDef[];
-    /** Sequential program of contexts and vertices in strict dependency order. */
     readonly program: readonly ProgramItem[];
-    /** Usages[id] = number of times vertex `id` contributes to written GLSL text. */
     readonly usages: readonly number[];
-    /** Vertex ids for the three output channels [r, g, b]. */
     readonly roots: readonly [number, number, number];
 }
 
 export const ROOT_CTX = 'root';
 
-// ---------------------------------------------------------------------------
-// Lowering — with interned coordinate contexts
-// ---------------------------------------------------------------------------
-
-/** Lowers the three-channel expression into a shared DAG vertex table and interned contexts. */
 export function lower(catalog: Catalog, expression: Expression): LowerResult {
     const vertices: Vertex[] = [];
     const contexts: ContextDef[] = [];
@@ -95,12 +68,10 @@ export function lower(catalog: Catalog, expression: Expression): LowerResult {
         const operator = catalog.operator(operatorName);
         const paramsStr = params.join(',');
 
-        // 1. `current` inputs come first, in the current context.
         const currentIds = inputs
             .slice(0, operator.currentCount)
             .map((child) => lowerNode(child, contextName));
 
-        // 2. `inner` inputs live in the interned context created by `coords`.
         let innerContext = contextName;
 
         if (operator.hasInner) {
@@ -140,7 +111,6 @@ export function lower(catalog: Catalog, expression: Expression): LowerResult {
             .map((child) => lowerNode(child, innerContext));
         const allInputIds = [...currentIds, ...innerIds];
 
-        // 3. Hash-consing.
         const vertexKey = `${contextName}|${operatorName}[${paramsStr}](${allInputIds.join(',')})`;
         const existing = vertexMap.get(vertexKey);
 

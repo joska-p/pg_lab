@@ -18,10 +18,6 @@ const ARTWORK_FILE_VERSION = 1;
 /** Import guard: checked before any `JSON.parse`. */
 export const MAX_ARTWORK_FILE_LENGTH = 1_000_000;
 
-// ---------------------------------------------------------------------------
-// Grammar data (weights, size, shareDepth, space as plain JSON)
-// ---------------------------------------------------------------------------
-
 export interface GrammarData {
     readonly weights: Readonly<Record<string, number>>;
     readonly size: SizeProfileId;
@@ -98,10 +94,6 @@ export function deserializeGrammar(catalog: Catalog, data: unknown, path = 'gram
         });
     }
 }
-
-// ---------------------------------------------------------------------------
-// Artwork file (.randomart.json)
-// ---------------------------------------------------------------------------
 
 /** `.randomart.json` content; key order: format, version, title, render, provenance, expression. */
 export interface ArtworkData {
@@ -264,9 +256,7 @@ export function parseArtworkFile(catalog: Catalog, text: string): Artwork {
 
     return createArtwork({
         expression: deserialize(catalog, parsed.expression),
-        // Repair at the file boundary (structural junk — unknown fields, wrong types — still
-        // refuses, see readRender): out-of-bounds quantities clamp instead of rejecting the
-        // artwork, so a foreign file still yields a real artwork.
+        // Clamp out-of-bounds quantities at file boundary so external files still render.
         ...(parsed.render !== undefined
             ? { render: fitRenderSettings(readRender(parsed.render)) }
             : {}),

@@ -1,9 +1,3 @@
-/**
- * Compile.ts — Orchestration of the GLSL compilation pipeline.
- *
- * Pipeline: lower → emit → buildPreamble → assemble source
- */
-
 import type { Catalog } from '../catalog/Catalog';
 import { colorSpaceFunction, RAW_CHANNELS } from '../color/color';
 import type { ChannelModel } from '../color/types';
@@ -41,20 +35,14 @@ export function compile(
     const sharing = options?.sharing ?? 'shared';
     const channels: ChannelModel = options?.channels ?? RAW_CHANNELS;
 
-    // ── 1. Lowering ─────────────────────────────────────────────────────────
     const lowerResult = lower(catalog, expression);
-
-    // ── 2. Emission ─────────────────────────────────────────────────────────
     const emitResult = emit(catalog, lowerResult, sharing);
-
-    // ── 3. Preamble ─────────────────────────────────────────────────────────
     const { preambleLines, animated, uniforms } = buildPreamble(
         catalog,
         emitResult.usedDeps,
         channels.space,
     );
 
-    // ── 4. Assemble source ───────────────────────────────────────────────────
     const [rText, gText, bText] = emitResult.channelTexts;
 
     const mainLines: string[] = ['void main() {', `  ${GLSL_COORD_INIT}`];
@@ -67,8 +55,8 @@ export function compile(
     }
 
     mainLines.push('');
-    // The one color decision: the triplet through the space's conversion (a plain remap for sRGB).
-    // The conversion's own `clamp` is boundary assurance, not a correcting transform.
+    // Single color path: triplet through the space's conversion (remap for sRGB).
+    // The conversion's `clamp` is boundary assurance, not a correcting transform.
     mainLines.push(
         `  o_color = vec4(${colorSpaceFunction(channels.space)}(vec3(${rText}, ${gText}, ${bText})), 1.0);`,
     );
@@ -82,7 +70,6 @@ export function compile(
         );
     }
 
-    // ── 5. Stats ─────────────────────────────────────────────────────────────
     const totalNodes = nodeCount(expression);
 
     return {

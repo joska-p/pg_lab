@@ -31,9 +31,7 @@ export type Phase = Brand<number, 'Phase'>;
  * (negative, > 1) and folds the inclusive 1.0 boundary back to 0.
  */
 export function createPhase(progress: number): Phase {
-    // `Clock.progress` is finite by construction (seconds over a strictly positive duration —
-    // glaze `createDurationSeconds`). The assert documents that precondition rather than letting a
-    // NaN propagate into the uniforms and the render gate.
+    // Precondition: progress is finite; prevents NaN from propagating into uniforms.
     assertFinite(progress, 'clock progress');
 
     const wrapped = ((progress % 1) + 1) % 1;

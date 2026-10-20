@@ -272,8 +272,6 @@ describe('compiler', () => {
             expect(() => compile(testCatalog, expr)).toThrow(/exceeds MAX_SOURCE_LENGTH/);
         });
 
-        // ── Cross-channel sharing ────────────────────────────────────
-
         it('shares a sub-expression used in two channels (policy=shared)', () => {
             const x = createNode(catalog, 'x', [], [0, 0, 0]);
             const sinX = createNode(catalog, 'sin', [x]);
@@ -304,8 +302,6 @@ describe('compiler', () => {
             expect(compiled.stats.vertices).toBeLessThan(compiled.stats.nodes);
             expect(compiled.stats.contexts).toBe(1);
         });
-
-        // ── Sharing policies ──────────────────────────────────────────
 
         it('policy=none never emits variables', () => {
             const x = createNode(catalog, 'x', [], [0, 0, 0]);

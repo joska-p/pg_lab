@@ -31,7 +31,6 @@ function openDatabase(): Promise<IDBDatabase | null> {
     });
 }
 
-/** Persists the current notebook state to IndexedDB. */
 export async function saveNotebookToDb(notebook: Notebook): Promise<void> {
     const db = await openDatabase();
     if (!db) {
@@ -50,7 +49,6 @@ export async function saveNotebookToDb(notebook: Notebook): Promise<void> {
     });
 }
 
-/** Loads the persisted notebook state from IndexedDB if present. */
 export async function loadNotebookFromDb(catalog: Catalog): Promise<Notebook | null> {
     const db = await openDatabase();
     if (!db) {

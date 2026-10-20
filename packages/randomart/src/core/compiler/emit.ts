@@ -1,36 +1,16 @@
-/**
- * Emit.ts — GLSL emission pass.
- *
- * Walks the vertex program in topological order, decides which vertices get a named variable
- * according to the sharing policy, and emits the corresponding GLSL lines.
- */
-
 import type { Catalog } from '../catalog/Catalog';
 import { isAtom, wrapInput } from './format';
 import { ROOT_CTX } from './lower';
 import type { ContextDef, LowerResult, Vertex } from './lower';
 import type { SharingPolicy } from './types';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 export interface EmitResult {
-    /** GLSL statement lines to place inside main() (before the final rgb assembly). */
     readonly lines: readonly string[];
-    /** Number of GLSL variables emitted (stat, excluding coordinate contexts). */
     readonly varCount: number;
-    /** Text representation of the three channel roots [r, g, b] (may be inline or var name). */
     readonly channelTexts: readonly [string, string, string];
-    /** Set of dependency names used across all vertices and contexts. */
     readonly usedDeps: ReadonlySet<string>;
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Returns the GLSL text to use when a vertex is referenced as an input. */
 function inputText(
     id: number,
     varNames: Map<number, string>,
@@ -52,7 +32,6 @@ function inputText(
     return wrapInput(inline);
 }
 
-/** Decides whether a vertex receives a named variable, according to the sharing policy. */
 function shouldHaveVariable(
     policy: SharingPolicy,
     usages: readonly number[],
@@ -73,13 +52,9 @@ function shouldHaveVariable(
     }
 }
 
-// ---------------------------------------------------------------------------
-// Main emission
-// ---------------------------------------------------------------------------
-
 /**
- * Emits GLSL statements for each context and vertex in topological program order. Returns the
- * lines, variable count, channel root texts, and used dependencies.
+ * Emits GLSL statements in topological program order. Returns lines, variable count, channel roots,
+ * and used dependencies.
  */
 export function emit(
     catalog: Catalog,
@@ -116,7 +91,6 @@ export function emit(
         const { id, operatorName, params, inputIds, context, requires } = vertex;
         const operator = catalog.operator(operatorName);
 
-        // Collect dependencies
         for (const req of requires) {
             usedDeps.add(req);
         }
@@ -124,13 +98,10 @@ export function emit(
             usedDeps.add(req);
         }
 
-        // Build input texts for this vertex's glsl call
         const inputTexts = inputIds.map((childId) => inputText(childId, varNames, inlineTexts));
-
         const glslP = context === ROOT_CTX ? 'v_p' : context;
         const rawText = operator.glsl(inputTexts, params, glslP);
 
-        // Decide variable assignment
         if (shouldHaveVariable(policy, usages, id, rawText)) {
             const varName = `v${id}`;
             lines.push(`  float ${varName} = ${rawText};`);
@@ -155,7 +126,6 @@ export function emit(
         }
     }
 
-    // Resolve channel root texts
     const channelTexts: [string, string, string] = roots.map((rootId) =>
         inputText(rootId, varNames, inlineTexts),
     ) as [string, string, string];

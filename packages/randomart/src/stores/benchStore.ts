@@ -42,16 +42,11 @@ export const BENCH_VIEWS = ['focus', 'planche'] as const satisfies readonly Benc
  * by the render action: one master copy, no duplication between the panel and the stage.
  */
 export interface BenchSettings {
-    /** Number of candidate grammars: one row each. */
     readonly count: number;
-    /** Images per grammar: one column each. */
     readonly seedsPerGrammar: number;
-    /** Render resolution of one cell, in pixels. */
     readonly cellSize: CellSize;
     readonly view: BenchView;
-    /** Dim collapsed cells instead of hiding them, so the grid never gets holes. */
     readonly dimFlats: boolean;
-    /** Base of the sampling draw: the lot is reproducible from it. */
     readonly baseSeed: Seed;
 }
 
@@ -68,13 +63,9 @@ interface BenchState {
     settings: BenchSettings;
     notebook: Notebook;
     activeBatchId: string | null;
-    /** Row of the current grammar; a rating always applies to this whole row. */
     selectedRowIndex: number;
-    /** Column of the current seed inside that grammar. */
     selectedColIndex: number;
-    /** The drawn lot of the active batch, the single representation of what is on screen. */
     lot: LotView;
-    /** Message of the last failed lot, null after a success. */
     error: string | null;
 }
 
@@ -162,7 +153,6 @@ export function stepRow(delta: number): void {
     store.setState({ selectedRowIndex: Math.min(last, Math.max(0, selectedRowIndex + delta)) });
 }
 
-/** Moves the current seed inside the current grammar. Clamped to the drawn columns. */
 export function stepCell(delta: number): void {
     const { selectedColIndex, lot } = store.getState();
     const last = Math.max(0, lot.columnCount - 1);
@@ -208,7 +198,6 @@ function buildErrorState(cause: unknown) {
     };
 }
 
-/** The active batch, or the notebook's first when the active id is gone; undefined when empty. */
 function resolveActiveBatch(state: BenchState): NotebookBatch | undefined {
     return (
         state.notebook.batches.find((batch) => batch.id === state.activeBatchId) ??
@@ -216,7 +205,6 @@ function resolveActiveBatch(state: BenchState): NotebookBatch | undefined {
     );
 }
 
-/** Draws and renders a new batch, appending it to the notebook. */
 function renderNewLot(base: Seed): void {
     const { count, seedsPerGrammar, cellSize } = store.getState().settings;
 
@@ -245,7 +233,6 @@ function renderNewLot(base: Seed): void {
     }
 }
 
-/** "Draw batch": draws fresh candidate grammars and appends them to the notebook. */
 export function drawBenchBatch(): void {
     const baseSeed = randomSeed();
 
@@ -253,7 +240,6 @@ export function drawBenchBatch(): void {
     renderNewLot(baseSeed);
 }
 
-/** "Redraw": redraws the active batch at the current render size. */
 export function redrawBench(): void {
     const state = store.getState();
     const activeBatch = resolveActiveBatch(state);
@@ -274,7 +260,6 @@ export function redrawBench(): void {
     }
 }
 
-/** Selects an existing batch from the notebook to view on the planche. */
 export function selectBatch(batchId: string): void {
     const state = store.getState();
     const batch = state.notebook.batches.find((b) => b.id === batchId);
@@ -298,7 +283,6 @@ export function selectBatch(batchId: string): void {
     }
 }
 
-/** Drops the active batch and shows the next one still in the notebook. */
 export function removeActiveBatch(): void {
     const state = store.getState();
     const activeBatch = state.notebook.batches.find((b) => b.id === state.activeBatchId);
@@ -320,7 +304,6 @@ export function removeActiveBatch(): void {
     }
 }
 
-/** Rates the grammar on `rowIndex` (0-5, or undefined to clear). */
 export function rateCandidateRow(rowIndex: number, rating: NotebookRating | undefined): void {
     const state = store.getState();
     const activeBatch = resolveActiveBatch(state);
@@ -359,7 +342,6 @@ function downloadBlob(blob: Blob, filename: string): void {
     URL.revokeObjectURL(url);
 }
 
-/** Exports the full notebook to a JSON file. */
 export function exportNotebookFile(): void {
     const notebook = store.getState().notebook;
     const text = serializeNotebook(notebook);
@@ -368,7 +350,6 @@ export function exportNotebookFile(): void {
     downloadBlob(blob, 'randomart-notebook.json');
 }
 
-/** Imports a notebook from a JSON file and renders its latest batch. */
 export async function importNotebookFile(file: File): Promise<void> {
     const text = await file.text();
 
@@ -429,7 +410,6 @@ export function openSelectedInLab(): void {
     openCellInLab(candidate.grammar, seed);
 }
 
-/** Loads notebook from IndexedDB on startup. */
 export async function initBenchNotebook(): Promise<void> {
     try {
         const loaded = await loadNotebookFromDb(catalog);
