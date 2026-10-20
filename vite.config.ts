@@ -65,6 +65,36 @@ export default defineConfig({
     },
     run: {
         cache: true,
-        tasks: {},
+        tasks: {
+            knip: {
+                command:
+                    'knip --reporter json > ./reports/knip.json; knip --reporter markdown > ./reports/knip.md',
+                cache: false,
+            },
+            jscpd: {
+                command: 'jscpd --config .jscpd.json',
+                cache: false,
+            },
+            madge: {
+                command:
+                    'madge --circular --extensions ts,tsx --exclude "(test|__snapshots__|node_modules|dist|build|vendor)" apps packages tools',
+                cache: false,
+            },
+            madgeViewDeps: {
+                command:
+                    'madge --extensions ts,tsx --exclude "(test|__snapshots__|node_modules|dist|build|vendor)" --image reports/dependencies.svg apps packages tools',
+                cache: false,
+            },
+            madgeViewCircular: {
+                command:
+                    'madge --circular --extensions ts,tsx --exclude "(test|__snapshots__|node_modules|dist|build|vendor)" --image reports/circular.svg apps packages tools',
+                cache: false,
+            },
+            audit: {
+                command:
+                    'vp run knip; vp run madgeViewCircular; vp run madgeViewDeps; vp run jscpd',
+                cache: false,
+            },
+        },
     },
 });

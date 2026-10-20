@@ -1,25 +1,58 @@
 {
     "$schema": "https://unpkg.com/knip@6/schema.json",
     "tags": ["-lintignore"],
+    "ignoreDependencies": [
+        "@rolldown/plugin-babel",
+        "@stylexjs/unplugin",
+        "@vitejs/plugin-react",
+        "babel-plugin-react-compiler",
+        "lightningcss",
+        "vite"
+    ],
     "workspaces": {
-        ".": {},
+        ".": {
+            "project": ["tools/**/*.ts"]
+        },
+        "apps/playground": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
+        "apps/brouillon": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
         "packages/randomart": {
-            "entry": [
-                "src/dataset/page.ts!",
-                "scripts/probe-webgl.mjs!",
-                "scripts/dataset/cli.ts!",
-                "src/**/*.test.ts",
-                "scripts/**/*.test.ts"
-            ],
-            "project": ["src/**/*.{ts,tsx}!", "scripts/**/*.{ts,mjs}!"],
-            "ignoreDependencies": [
-                "@rolldown/plugin-babel",
-                "@stylexjs/unplugin",
-                "@vitejs/plugin-react",
-                "babel-plugin-react-compiler",
-                "lightningcss"
-            ],
+            "project": ["src/**/*.{ts,tsx}", "scripts/**/*.{ts,mjs}"],
+            "ignore": ["src/dataset/page.ts"],
             "ignoreExportsUsedInFile": true
+        },
+        "packages/glaze": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
+        "packages/glaze3d": {
+            "project": ["src/**/*.ts"]
+        },
+        "packages/automa": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
+        "packages/mosaic-maker": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
+        "packages/worker-pool": {
+            "project": ["src/**/*.ts"]
+        },
+        "packages/ui": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
+        "packages/fracture": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
+        "packages/mol-demo": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
+        "packages/art-canvas": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
+        "tools/new-mini-app": {
+            "project": ["src/**/*.ts", "bin/**/*.ts"]
         }
     }
 }

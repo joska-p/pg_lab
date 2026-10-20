@@ -1,0 +1,26 @@
+{
+    "threshold": 5,
+    "minLines": 10,
+    "minTokens": 70,
+    "reporters": ["console", "html", "json"],
+    "output": "reports",
+    "path": ["apps", "packages", "tools"],
+    "ignore": [
+        "**/*.test.{ts,tsx}",
+        "**/*.snap",
+        "**/__snapshots__/**",
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/vendor/**",
+        "**/.agents/**",
+        "**/reports/**",
+        "**/*.d.ts",
+        "**/package.json",
+        "**/vite.config.ts"
+    ],
+    "formats": ["typescript", "javascript", "tsx", "jsx", "json", "css", "scss", "markup"],
+    "verbose": false,
+    "blame": false,
+    "absolute": false
+}
