@@ -15,10 +15,10 @@ import {
 } from '../core/artwork/index.ts';
 import type { Artwork, ProvenanceCheck } from '../core/artwork/index.ts';
 import type { OperatorId } from '../core/catalog/index.ts';
-import type { ColorSpaceId } from '../core/color/index.ts';
 import { compile } from '../core/compiler/index.ts';
 import type { CompiledShader } from '../core/compiler/index.ts';
 import { CONFIG } from '../core/config/index.ts';
+import type { SizeProfileId, ColorSpaceId } from '../core/config/index.ts';
 import type { Expression } from '../core/expression/index.ts';
 import { generate, GENERATOR_VERSION } from '../core/generator/index.ts';
 import {
@@ -26,7 +26,7 @@ import {
     drawGrammar as drawRandomGrammar,
     createGrammar,
 } from '../core/grammar/index.ts';
-import type { Grammar, SizeProfileId } from '../core/grammar/index.ts';
+import type { Grammar } from '../core/grammar/index.ts';
 import { defaultGrammar } from '../core/grammar/presets.ts';
 import { createRng, createSeed, randomSeed } from '../core/random/index.ts';
 import type { Seed } from '../core/random/index.ts';

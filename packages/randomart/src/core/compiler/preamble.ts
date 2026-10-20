@@ -8,7 +8,7 @@
 
 import type { Catalog, ShaderDependency } from '../catalog/index.ts';
 import { colorSpaceGlsl } from '../color/index.ts';
-import type { ColorSpaceId } from '../color/index.ts';
+import type { ColorSpaceId } from '../config/index.ts';
 import { GLSL_IN_UV, GLSL_OUT_COLOR } from './contract.ts';
 
 export interface PreambleResult {

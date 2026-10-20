@@ -5,9 +5,7 @@
         ".": {},
         "packages/randomart": {
             "entry": [
-                "src/main.tsx!",
                 "src/dataset/page.ts!",
-                "scripts/dataset/cli.ts!",
                 "scripts/probe-webgl.mjs!",
                 "src/**/*.test.ts",
                 "scripts/**/*.test.ts"
@@ -20,17 +18,7 @@
                 "babel-plugin-react-compiler",
                 "lightningcss"
             ],
-            "ignoreExportsUsedInFile": true,
-            "ignore": [
-                "src/core/compiler/contract.ts",
-                "src/core/compiler/index.ts",
-                "src/core/expression/index.ts",
-                "src/core/expression/traverse.ts",
-                "src/core/expression/types.ts",
-                "src/core/grammar/grammar.ts",
-                "src/core/grammar/index.ts",
-                "src/core/notebook/notebook.ts"
-            ]
+            "ignoreExportsUsedInFile": true
         }
     }
 }

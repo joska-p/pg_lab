@@ -1,7 +1,7 @@
 import { correlation } from '../../src/core/analysis/correlation.ts';
 import { pca } from '../../src/core/analysis/pca.ts';
+import type { SizeProfileId } from '../../src/core/config/index.ts';
 import { constraintsOf } from '../../src/core/grammar/index.ts';
-import type { SizeProfileId } from '../../src/core/grammar/index.ts';
 import type { FeatureRow, Features } from './computeFeatures.ts';
 
 /** What a grammar was made of: operator weights, its size profile, share depth and vocabulary. */

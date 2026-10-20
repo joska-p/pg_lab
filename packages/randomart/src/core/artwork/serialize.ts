@@ -1,8 +1,7 @@
 import type { Catalog } from '../catalog/index.ts';
 import { isColorSpaceId } from '../color/index.ts';
-import type { ColorSpaceId } from '../color/index.ts';
 import { isSizeProfileId } from '../config/index.ts';
-import type { SizeProfileId } from '../config/index.ts';
+import type { SizeProfileId, ColorSpaceId } from '../config/index.ts';
 import { deserialize, serialize } from '../expression/index.ts';
 import type { ExpressionData } from '../expression/index.ts';
 import { createGrammar, weightOf } from '../grammar/index.ts';

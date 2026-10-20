@@ -1,6 +1,4 @@
-/** How the `(r, g, b)` triplet the expression produces is interpreted before output. */
-export type ColorSpaceId = 'srgb' | 'oklch' | 'oklab' | 'hsl';
-
+import type { ColorSpaceId } from '../config/index.ts';
 /**
  * How the raw triplet is read before output: the space, and how deep the three channels share their
  * structure. `shareDepth` is a generator concern, not a render one.

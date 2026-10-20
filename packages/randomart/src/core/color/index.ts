@@ -17,9 +17,10 @@
 
 import { formatGlslFloat } from '../catalog/format.ts';
 import { CONFIG } from '../config/index.ts';
-import type { ChannelModel, ColorSpaceId } from './types.ts';
+import type { ColorSpaceId } from '../config/types.ts';
+import type { ChannelModel } from './types.ts';
 
-export type { ChannelModel, ColorSpaceId } from './types.ts';
+export type { ChannelModel } from './types.ts';
 
 export interface ColorSpace {
     readonly id: ColorSpaceId;

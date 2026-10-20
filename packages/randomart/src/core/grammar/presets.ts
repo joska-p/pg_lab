@@ -1,6 +1,6 @@
 import type { Catalog, OperatorId } from '../catalog/index.ts';
 import { DEFAULT_CHANNELS } from '../color/index.ts';
-import type { ColorSpaceId } from '../color/index.ts';
+import type { ColorSpaceId } from '../config/index.ts';
 import { CONFIG } from '../config/index.ts';
 import { constraintsOf, createGrammar } from './grammar.ts';
 import { grammarKey } from './quantized.ts';

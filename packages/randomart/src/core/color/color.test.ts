@@ -6,13 +6,8 @@ import { compile } from '../compiler/index.ts';
 import { CONFIG } from '../config/index.ts';
 import { nodeCount } from '../expression/index.ts';
 import { generate } from '../generator/index.ts';
-import {
-    channelModelOf,
-    constraintsOf,
-    createGrammar,
-    defaultGrammar,
-    stepGrammar,
-} from '../grammar/index.ts';
+import { channelModelOf, constraintsOf, createGrammar, defaultGrammar } from '../grammar/index.ts';
+import { stepGrammar } from '../grammar/quantized.ts';
 import { createRng, createSeed } from '../random/index.ts';
 import { COLOR_SPACE_IDS, DEFAULT_CHANNELS } from './index.ts';
 

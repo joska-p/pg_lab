@@ -1,6 +1,4 @@
-import type { ParamRange } from '../catalog/index.ts';
-import type { ColorSpaceId } from '../color/index.ts';
-import type { Constraints } from '../grammar/types.ts';
+import type { ParamRange, ColorSpaceId, Constraints } from './types.ts';
 
 /**
  * The curated values of the package, in one typed module: every number a caller never passes and
@@ -168,3 +166,8 @@ export const CONFIG = {
 
 /** Ids of the size axis, in draw order. */
 export type SizeProfileId = keyof typeof CONFIG.grammar.sizeProfiles;
+
+/** Guard for the size registry: a profile id is content, an unknown one has no canonical repair. */
+export function isSizeProfileId(value: unknown): value is SizeProfileId {
+    return typeof value === 'string' && Object.hasOwn(CONFIG.grammar.sizeProfiles, value);
+}

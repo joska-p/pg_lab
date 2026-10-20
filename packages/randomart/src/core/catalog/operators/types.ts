@@ -1,11 +1,7 @@
+import type { ParamRange } from '../../config/types.ts';
 import type { DependencyId } from '../dependencies.ts';
 
 export type OperatorGroup = 'terminal' | 'arithmetic' | 'trigonometry' | 'logic' | 'transform';
-
-export interface ParamRange {
-    readonly min: number;
-    readonly max: number;
-}
 
 type Named<K extends string, V> = Readonly<Record<K, V>>;
 
