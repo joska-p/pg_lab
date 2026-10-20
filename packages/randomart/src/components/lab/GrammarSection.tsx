@@ -3,7 +3,6 @@ import { Grid } from '@repo/ui/components/Grid';
 import { Segmented } from '@repo/ui/components/Segmented';
 import { Select } from '@repo/ui/components/Select';
 import { Slider } from '@repo/ui/components/Slider';
-import { Text } from '@repo/ui/components/Text';
 import { TextInput } from '@repo/ui/components/TextInput';
 
 import type { Operator, OperatorId } from '../../core/catalog/index.ts';
@@ -126,25 +125,32 @@ export function GrammarSection() {
                 </Button>
             </Grid>
 
-            {OPERATOR_GROUPS.map(({ group, label, operators }) => (
-                <Grid key={group} columns="1" gap="1" justifyItem="stretch" alignItem="stretch">
-                    <Text>{label}</Text>
+            <Grid columns="1" gap="6">
+                <Segmented
+                    color="orange"
+                    value={grammar.space}
+                    options={SPACE_OPTIONS}
+                    onValueChange={setGrammarSpace}
+                />
 
-                    {operators.map((operator) => (
-                        <Slider
-                            color="orange"
-                            key={operator.name}
-                            label={operator.name}
-                            value={weightOf(grammar.weights, operator.name)}
-                            min={mustStayOn(operator) ? 1 : 0}
-                            max={CONFIG.grammar.maxWeight}
-                            onValueChange={(weight) => {
-                                setGrammarWeight(operator.name as OperatorId, weight);
-                            }}
-                        />
-                    ))}
-                </Grid>
-            ))}
+                {OPERATOR_GROUPS.map(({ group, operators }) => (
+                    <Grid key={group} columns="1" gap="2" justifyItem="stretch" alignItem="stretch">
+                        {operators.map((operator) => (
+                            <Slider
+                                color="orange"
+                                key={operator.name}
+                                label={operator.name}
+                                value={weightOf(grammar.weights, operator.name)}
+                                min={mustStayOn(operator) ? 1 : 0}
+                                max={CONFIG.grammar.maxWeight}
+                                onValueChange={(weight) => {
+                                    setGrammarWeight(operator.name as OperatorId, weight);
+                                }}
+                            />
+                        ))}
+                    </Grid>
+                ))}
+            </Grid>
 
             <Slider
                 color="orange"
@@ -162,14 +168,6 @@ export function GrammarSection() {
                 min={0}
                 max={maxShareDepth}
                 onValueChange={setGrammarShareDepth}
-            />
-
-            <Segmented
-                color="orange"
-                label="color"
-                value={grammar.space}
-                options={SPACE_OPTIONS}
-                onValueChange={setGrammarSpace}
             />
         </Grid>
     );

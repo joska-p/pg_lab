@@ -1,4 +1,3 @@
-export { describeGrammar } from './describe.ts';
 export {
     channelModelOf,
     constraintsOf,
