@@ -130,8 +130,9 @@ export function colorSpaceGlsl(space: ColorSpaceId): string {
 export const MIN_SHARE_DEPTH = 0;
 
 /**
- * The fallback of `createGrammar` when the caller says nothing: three independent channels in raw
- * sRGB — the plain model, exactly what a grammar built from parts did before channels existed.
+ * The compiler's default when the caller passes no channel model: three independent channels in raw
+ * sRGB — the plain model. A grammar always carries its own `space`/`shareDepth`, so `compile` is
+ * the only remaining consumer of this fallback.
  */
 export const RAW_CHANNELS: ChannelModel = { space: 'srgb', shareDepth: MIN_SHARE_DEPTH };
 

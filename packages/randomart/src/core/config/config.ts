@@ -1,48 +1,36 @@
 import type { ParamRange } from '../catalog/index.ts';
 import type { ColorSpaceId } from '../color/index.ts';
-import type { ConstraintsInput } from '../grammar/types.ts';
-
-/** One level of the quantized weight axis: what it means and how often it is drawn. */
-interface WeightLevelKnobs {
-    /** Operator weight the level maps to (its meaning on the axis). */
-    readonly weight: number;
-    /** Relative odds of the level in a random draw: bias the sampler here. */
-    readonly odds: number;
-    /**
-     * Whether anchors (x/y) may be drawn at this level. A random draw keeps both anchors live —
-     * without x/y the image has no spatial variation — while the authoring UI may still switch one
-     * of them off (only switching _both_ off is refused).
-     */
-    readonly allowsAnchors: boolean;
-}
+import type { Constraints } from '../grammar/types.ts';
 
 /**
  * The curated values of the package, in one typed module: every number a caller never passes and
  * every value the app starts from. Edit + HMR, no code change.
  *
- * This file is the **single source of truth of the quantized axes**: the level and size ids are
- * `keyof` its entries, so adding a level (`medium-low`, `very-high`, …) is adding an entry here —
- * the compiler then points at every site that must handle it.
+ * This file is the **single source of truth of the quantized axes**: the weight range and the size
+ * ids come from its `grammar` section, so adding a profile (`xx-large`, …) is adding an entry here
+ * — the compiler then points at every site that must handle it.
  *
  * **One value, one name.** A consumer reads `CONFIG.<section>.<key>`; it does not re-declare the
  * value under a second name. A domain may _derive_ a model from these values (`DEFAULT_CHANNELS`,
- * `DEFAULT_CONSTRAINTS`, `DEFAULT_LOOP_DURATION`), which is composition, not renaming. The
- * `default` prefix is redundant on the keys themselves: a value hardcoded here is, by construction,
- * the default of its section — so the keys are bare (`artwork.width`, `channels.space`).
+ * `constraintsOf`, `DEFAULT_LOOP_DURATION`), which is composition, not renaming. The `default`
+ * prefix is redundant on the keys themselves: a value hardcoded here is, by construction, the
+ * default of its section — so the keys are bare (`artwork.width`, `channels.space`).
  *
- * This is NOT where guards live. Hard limits that keep the system safe (`MAX_DEPTH`,
- * `MAX_SOURCE_LENGTH`, `MAX_RENDER_SIZE`…) stay next to the invariants they protect: they are not
- * meant to be tuned, and putting them here would invite tuning them. A `types.ts` may carry the
+ * This is NOT where guards live. Hard limits that keep the system safe (`MAX_SOURCE_LENGTH`,
+ * `MAX_RENDER_SIZE`, `MAX_ARTWORK_FILE_LENGTH`…) stay next to the invariants they protect: they are
+ * not meant to be tuned, and putting them here would invite tuning them. A `types.ts` may carry the
  * guards of its concept; it must never carry a config value or an alias of one.
  *
  * PRNG sensitivity (see `GENERATOR_VERSION` in `../generator`): a seed reproduces an image only
  * with the same grammar AND the same draw-affecting values. Changing anything under `terminals` or
  * `generator` alters the numbers every seed produces → **bump `GENERATOR_VERSION` and regenerate
- * the generator snapshots**. Changing `recipe` or `sampling` alters which recipes and seeds the
- * sampler explores, but not what `generate()` draws for a given `(grammar, seed)`. `color` changes
- * the rendered image without changing the expression (a shader change, not a generator one);
- * `artwork` and `app` are shell/render policy and affect no PRNG stream. The pinning tests in
- * `config.test.ts` fail on any change, as the reminder.
+ * the generator snapshots**. Changing `grammar` (the weight range, the set of profiles) or
+ * `sampling` alters which grammars and seeds the sampler explores, but not what `generate()` draws
+ * for a grammar whose fields are unchanged. Editing an existing `sizeProfiles` entry is the
+ * exception: it changes the constraints of grammars already using that profile, so treat it as
+ * draw-affecting. `color` changes the rendered image without changing the expression (a shader
+ * change, not a generator one); `artwork` and `app` are shell/render policy and affect no PRNG
+ * stream. The pinning tests in `config.test.ts` fail on any change, as the reminder.
  */
 interface Config {
     /** Time terminals `x`/`y` (catalog/operators/terminals.ts). Draw-affecting. */
@@ -70,30 +58,26 @@ interface Config {
          */
         readonly paramDecimals: number;
     };
-    /** Quantized recipe space (core/grammar/quantized.ts). Sampler-affecting. */
-    readonly recipe: {
+    /** Quantized grammar space (core/grammar/quantized.ts). Sampler-affecting. */
+    readonly grammar: {
         /**
-         * The weight axis, one entry per level, keyed by its slider index (`weight === index`).
-         * **Append, don't reorder**: the entry order is the PRNG draw order of `drawRecipe`, so
-         * reordering changes what every recipe seed draws. An operator weight is always one of
-         * these values; the app's default recipe (`grammar/presets.ts`) is expressed on this grid.
+         * Finesse of the weight axis: every operator weight is an integer in `[0, maxWeight]`, with
+         * the same range for every operator.
          */
-        readonly levels: Readonly<Record<string, WeightLevelKnobs>>;
+        readonly maxWeight: number;
         /**
-         * At least this many non-anchor operators stay on in a drawn recipe: a bare x/y vocabulary
-         * only draws gradients.
+         * Size axis: one coherent depth/node budget per profile. A profile is a named point on the
+         * axis; constraints are always derived from it, never stored free-form in a grammar.
          */
-        readonly minActiveOperators: number;
-        /** The size axis, one entry per profile. Same append-only note as `levels`. */
-        readonly sizeProfiles: Readonly<Record<string, ConstraintsInput>>;
+        readonly sizeProfiles: Readonly<Record<string, Constraints>>;
     };
     /** Sampling policy shared by the app and the dataset. Sampler-affecting. */
     readonly sampling: {
         /** Base seed of every deterministic sample draw. */
         readonly baseSeed: number;
         /**
-         * Probability that one operator moves one notch in a walk step (`stepRecipe`). 0 = the walk
-         * freezes; 1 = every operator moves at every step.
+         * Probability that one operator moves one notch in a walk step (`stepGrammar`). 0 = the
+         * walk freezes; 1 = every operator moves at every step.
          */
         readonly changeRate: number;
         /** Seeds per grammar in the bench's contact sheet (a 6×6 deck). */
@@ -150,15 +134,8 @@ export const CONFIG = {
     generator: {
         paramDecimals: 3,
     },
-    recipe: {
-        levels: {
-            '0': { weight: 0, odds: 3, allowsAnchors: false },
-            '1': { weight: 1, odds: 3, allowsAnchors: true },
-            '2': { weight: 2, odds: 2, allowsAnchors: true },
-            '3': { weight: 3, odds: 1, allowsAnchors: true },
-            '4': { weight: 4, odds: 2, allowsAnchors: true },
-        },
-        minActiveOperators: 2,
+    grammar: {
+        maxWeight: 4,
         sizeProfiles: {
             small: { minDepth: 2, maxDepth: 5, maxNodes: 30 },
             medium: { minDepth: 3, maxDepth: 8, maxNodes: 60 },
@@ -189,8 +166,5 @@ export const CONFIG = {
     },
 } as const satisfies Config;
 
-/** Ids of the weight axis, in draw order. */
-export type WeightLevel = keyof typeof CONFIG.recipe.levels;
-
 /** Ids of the size axis, in draw order. */
-export type SizeProfileId = keyof typeof CONFIG.recipe.sizeProfiles;
+export type SizeProfileId = keyof typeof CONFIG.grammar.sizeProfiles;

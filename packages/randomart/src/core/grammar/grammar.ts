@@ -1,10 +1,10 @@
 import type { Catalog, Operator, OperatorId } from '../catalog/index.ts';
-import { isColorSpaceId, MIN_SHARE_DEPTH, RAW_CHANNELS } from '../color/index.ts';
+import { isColorSpaceId, MIN_SHARE_DEPTH } from '../color/index.ts';
 import type { ChannelModel } from '../color/index.ts';
-import { CONFIG } from '../config/index.ts';
-import { assertFinite } from '../shared/index.ts';
-import { MAX_DEPTH, MAX_NODES, MAX_WEIGHT, MIN_WEIGHT } from './types.ts';
-import type { Constraints, ConstraintsInput, Grammar } from './types.ts';
+import { CONFIG, isSizeProfileId } from '../config/index.ts';
+import type { SizeProfileId } from '../config/index.ts';
+import { assertIntegerInRange } from '../shared/index.ts';
+import type { Constraints, Grammar } from './types.ts';
 
 export const isTerminalOperator = (operator: Operator): boolean => operator.isTerminal;
 export const isNonTerminalOperator = (operator: Operator): boolean => !operator.isTerminal;
@@ -19,6 +19,16 @@ export function weightOf(
     name: string,
 ): number {
     return weights[name] ?? 0;
+}
+
+/** The depth/node budget of a size profile — the only way to constraints. */
+export function constraintsOf(size: SizeProfileId): Constraints {
+    return CONFIG.grammar.sizeProfiles[size];
+}
+
+/** The channel model a grammar implies: the color space and the shared-trunk depth. */
+export function channelModelOf(grammar: Grammar): ChannelModel {
+    return { space: grammar.space, shareDepth: grammar.shareDepth };
 }
 
 export function minSize(
@@ -51,151 +61,94 @@ export function getVocabulary(
         .filter((operator) => weightOf(weights, operator.name) > 0);
 }
 
+function isLastOfKind(
+    catalog: Catalog,
+    weights: Readonly<Record<string, number | undefined>>,
+    name: string,
+    isKind: (operator: Operator) => boolean,
+): boolean {
+    if (weightOf(weights, name) <= 0) {
+        return false;
+    }
+
+    return getVocabulary(catalog, weights).filter(isKind).length === 1;
+}
+
 /**
- * True when switching `name` off would empty the terminals — i.e. it is the only active terminal
- * left, so `createGrammar` would refuse the gesture (rule 3: structure with no canonical repair).
- *
- * A derived reading of `weights`, never a stored flag: the UI uses it to disable a control that has
- * no valid outcome (the invariant itself stays in `createGrammar`). An operator that is already off
- * is not "the last terminal": there is nothing to switch off.
+ * True when switching `name` off would empty the terminals — the generator could no longer finish a
+ * tree, so `createGrammar` refuses the gesture. A derived reading of `weights`, never a stored
+ * flag: the UI uses it to disable a control that has no valid outcome.
  */
 export function isLastTerminal(
     catalog: Catalog,
     weights: Readonly<Record<string, number | undefined>>,
     name: string,
 ): boolean {
-    if (weightOf(weights, name) <= 0) {
-        return false;
-    }
-
-    return getVocabulary(catalog, weights).filter(isTerminalOperator).length === 1;
+    return isLastOfKind(catalog, weights, name, isTerminalOperator);
 }
 
 /**
- * The missing-field fallback shape: a non-finite constraint value is garbage, not an intent, so it
- * takes these defaults — the `medium` size profile of the recipe space, a finite and feasible
- * baseline for the stock catalog. The default grammar uses them (one value set, one meaning).
+ * True when switching `name` off would empty the non-terminals — every size profile has `minDepth >
+ * 1`, so a terminal-only vocabulary cannot grow a tree.
  */
-export const DEFAULT_CONSTRAINTS: ConstraintsInput = CONFIG.recipe.sizeProfiles.medium;
+export function isLastNonTerminal(
+    catalog: Catalog,
+    weights: Readonly<Record<string, number | undefined>>,
+    name: string,
+): boolean {
+    return isLastOfKind(catalog, weights, name, isNonTerminalOperator);
+}
 
 /**
  * Field-level repair for one bounded integer (throw-vs-repair policy in shared/index.ts): a finite
  * value is rounded and clamped into [min, max]; a non-finite value is garbage, not an intent, and
- * takes the fallback. The old `NaN → min` here was neither an error nor a sensible default.
+ * takes the fallback.
  */
 function clampInt(value: number, min: number, max: number, fallback: number): number {
     return Number.isFinite(value) ? Math.min(max, Math.max(min, Math.round(value))) : fallback;
 }
 
 /**
- * The only way to a `Constraints` brand — and the shape-repair rung of the repair ladder:
- * depth/node bounds are editing quantities, so out-of-range values are clamped (rounded),
- * non-finite values take `DEFAULT_CONSTRAINTS`, and a `minDepth > maxDepth` conflict is resolved by
- * clamping minDepth down: **maxDepth wins**. No intent information reaches the core, so the
- * conservative direction is canonical — the same rule `fitConstraints` uses; the UI's opposite
- * drag-along (`appStore.setConstraints`) is an intent gesture layered on top, not an invariant to
- * keep in sync.
- */
-export function createConstraints(constraints: ConstraintsInput): Constraints {
-    const maxDepth = clampInt(constraints.maxDepth, 1, MAX_DEPTH, DEFAULT_CONSTRAINTS.maxDepth);
-    const maxNodes = clampInt(constraints.maxNodes, 1, MAX_NODES, DEFAULT_CONSTRAINTS.maxNodes);
-    const minDepth = Math.min(
-        clampInt(constraints.minDepth, 1, MAX_DEPTH, DEFAULT_CONSTRAINTS.minDepth),
-        maxDepth,
-    );
-
-    return Object.freeze({ minDepth, maxDepth, maxNodes }) as Constraints;
-}
-
-/**
- * Keeps constraints usable for a given vocabulary — the `ZoomClamp` analog: raw values in,
- * validated brand out, whatever garbage the UI or a JSON file feeds it. Repair pipeline
- * (throw-vs-repair policy in shared/index.ts):
+ * The only way to a `Grammar`. Weights and the size/space axes are content (throw on invalid input:
+ * no canonical repair); `shareDepth` is an editing quantity with an order, so it is rounded and
+ * clamped into `[0, maxDepth]` of the size profile.
  *
- * 1. Shape repair (`createConstraints`): hard-limit clamp, rounding, `minDepth ≤ maxDepth`;
- * 2. Depth beyond the vocabulary: with no non-terminal, `minDepth` always falls back to 1;
- * 3. Feasibility: `maxNodes` is raised to `minSize(1, minDepth)` (capped at `MAX_NODES`), then
- *    `minDepth` is lowered until it fits — at `minDepth = 1` every grammar is feasible, so the
- *    pipeline always terminates and `createGrammar` cannot reject on rules 5 and 7.
+ * The two structural invariants are checked, not repaired (there is no honest way to invent which
+ * operator the author meant):
+ *
+ * 1. At least one terminal is active — otherwise no tree can end;
+ * 2. At least one non-terminal is active — every size profile has `minDepth > 1`, so a terminal-only
+ *    vocabulary cannot grow a tree.
  */
-export function fitConstraints(
-    operators: readonly Operator[],
-    constraints: ConstraintsInput,
-): Constraints {
-    // Rung 1: the shape repair — clamped, rounded, ordered.
-    const shape = createConstraints(constraints);
-    const maxDepth = shape.maxDepth;
-    let minDepth = shape.minDepth;
-    let maxNodes = shape.maxNodes;
-
-    // Rung 2: the vocabulary yields (rule 5 repair). Lowering `maxNodes` first, then `minDepth`
-    // down, always terminates since `minDepth = 1` is feasible.
-    if (minDepth > 1 && !operators.some(isNonTerminalOperator)) {
-        minDepth = 1;
-    }
-
-    // Rung 3: feasibility (rule 7 repair) — maxNodes climbs to the needed minimum, then minDepth
-    // yields if even MAX_NODES is not enough.
-    const needed = (): number => minSize(1, minDepth, operators);
-
-    if (needed() > maxNodes) {
-        maxNodes = Math.min(MAX_NODES, needed());
-    }
-
-    while (minDepth > 1 && minSize(1, minDepth, operators) > maxNodes) {
-        minDepth--;
-    }
-
-    // `createConstraints` is the runtime proof that the clamp result satisfies the brand invariant.
-    return createConstraints({ minDepth, maxDepth, maxNodes });
-}
-
-/**
- * A color space is content (it defines the image), so an unknown id has no canonical repair and
- * refuses, like a bad weight (throw-vs-repair policy in shared/index.ts). `shareDepth` is an
- * editing quantity, so it is _repaired_: rounded and clamped into `[0, maxDepth]` (a non-finite
- * value takes `CONFIG.channels.shareDepth`). `>= maxDepth` is a legitimate reading — one shared
- * tree, hence `r = g = b`. A missing `channels` field takes `RAW_CHANNELS`: three independent
- * channels in sRGB, the historical behaviour of a grammar built from parts without an explicit
- * choice.
- */
-function validateChannels(channels: ChannelModel, maxDepth: number): ChannelModel {
-    if (!isColorSpaceId(channels.space)) {
-        throw new Error(`Randomart: unknown color space ${JSON.stringify(channels.space)}`);
-    }
-
-    return {
-        space: channels.space,
-        shareDepth: clampInt(
-            channels.shareDepth,
-            MIN_SHARE_DEPTH,
-            maxDepth,
-            CONFIG.channels.shareDepth,
-        ),
-    };
-}
-
 export function createGrammar(
     catalog: Catalog,
     {
         weights,
-        constraints: rawConstraints,
-        channels: rawChannels = RAW_CHANNELS,
+        size,
+        shareDepth,
+        space,
     }: {
         readonly weights: Readonly<Record<string, number | undefined>>;
-        readonly constraints: ConstraintsInput;
-        readonly channels?: ChannelModel;
+        readonly size: string;
+        readonly shareDepth: number;
+        readonly space: string;
     },
 ): Grammar {
     const operatorNames = Object.keys(weights);
-    // Weights are checked, never repaired (throw-vs-repair policy in shared/index.ts): a weight is
-    // content — clamping garbage into "off" or saturating at MAX_WEIGHT would silently rewrite the
-    // vocabulary. Corruption refuses honestly (UI error, import rejected with the field path).
+    // Weights are checked, never repaired: clamping garbage into "off" or saturating at maxWeight
+    // would silently rewrite the vocabulary.
     if (operatorNames.length === 0) {
         throw new Error('Randomart: grammar weights must not be empty');
     }
 
-    // Rule 1: Every operator exists in catalog (content: an unknown name has no canonical repair)
+    if (!isSizeProfileId(size)) {
+        throw new Error(`Randomart: unknown size profile ${JSON.stringify(size)}`);
+    }
+
+    if (!isColorSpaceId(space)) {
+        throw new Error(`Randomart: unknown color space ${JSON.stringify(space)}`);
+    }
+
     const operators: Operator[] = [];
     for (const name of operatorNames) {
         try {
@@ -205,39 +158,35 @@ export function createGrammar(
         }
     }
 
-    // Rule 2: Weights are finite and within [MIN_WEIGHT, MAX_WEIGHT]
     for (const [name, weight] of Object.entries(weights)) {
         if (weight === undefined) {
             continue; // An absent weight means "off": the key carries no value to validate.
         }
 
-        assertFinite(weight, `weight of operator "${name}"`);
-        if (weight < MIN_WEIGHT || weight > MAX_WEIGHT) {
-            throw new Error(
-                `Randomart: weight of operator "${name}" (${weight}) must be within [${MIN_WEIGHT}, ${MAX_WEIGHT}]`,
-            );
-        }
+        assertIntegerInRange(weight, `weight of operator "${name}"`, 0, CONFIG.grammar.maxWeight);
     }
 
-    // The vocabulary: what the generator may draw. A weight of 0 switches the operator off.
     const vocabulary = operators.filter((operator) => weightOf(weights, operator.name) > 0);
 
-    // Rule 3: Vocabulary contains at least one active terminal — structure with no canonical
-    // repair (which terminal to switch back on would be invented content), so it throws.
-    const terminals = vocabulary.filter(isTerminalOperator);
-    if (terminals.length === 0) {
+    if (!vocabulary.some(isTerminalOperator)) {
         throw new Error(
             'Randomart: grammar vocabulary must contain at least one terminal operator',
         );
     }
 
-    // Rules 4-7 (constraints × vocabulary) are *repaired*, not checked (throw-vs-repair policy in
-    // shared/index.ts): the raw constraints go through `fitConstraints`, whose rungs resolve the
-    // hard-limit bounds, the ordering (minDepth ≤ maxDepth), the minDepth>1-without-non-terminal
-    // rule (5) and feasibility (7). Feeding broken constraints can no longer reject a grammar —
-    // this is the aggregate constructor, where UI and file data legitimately arrive (user
-    // decision 2026-10-16).
-    const constraints = fitConstraints(vocabulary, rawConstraints);
+    if (!vocabulary.some(isNonTerminalOperator)) {
+        throw new Error(
+            'Randomart: grammar vocabulary must contain at least one non-terminal operator',
+        );
+    }
+
+    const constraints = constraintsOf(size);
+    const resolvedShareDepth = clampInt(
+        shareDepth,
+        MIN_SHARE_DEPTH,
+        constraints.maxDepth,
+        Math.min(CONFIG.channels.shareDepth, constraints.maxDepth),
+    );
 
     // Freeze and sort weights deterministically. The names were validated against the catalog above,
     // so narrowing the literal key type to `OperatorId` is sound.
@@ -248,8 +197,8 @@ export function createGrammar(
 
     return Object.freeze({
         weights: Object.freeze(sortedWeights),
-        // Already frozen by createConstraints.
-        constraints,
-        channels: Object.freeze(validateChannels(rawChannels, constraints.maxDepth)),
+        size,
+        shareDepth: resolvedShareDepth,
+        space,
     }) as Grammar;
 }

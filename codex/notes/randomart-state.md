@@ -2,7 +2,7 @@
 
 ## Goal
 
-Find good grammar recipes by eye: judge one grammar at a time over many seeds, keep the good ones as
+Find good grammars by eye: judge one grammar at a time over many seeds, keep the good ones as
 presets. Around that goal, keep the package coherent: one place for curated values (`CONFIG`), one
 vocabulary for names (conventions §2.1), one direction for dependencies (§2.4), no dead code and no
 duplication.
@@ -14,8 +14,9 @@ cd packages/randomart && vp check --fix && vp test    # green gate before and af
 vp run audit                                          # from the root: vocabulary, knip, jscpd (madge warns)
 ```
 
-Behaviour stays byte-identical unless a session decides otherwise, and then the PRNG consequence
-(`GENERATOR_VERSION`) is named.
+Generation stays byte-identical for a given `(grammar, seed)` unless a session decides otherwise, and
+then the PRNG consequence (`GENERATOR_VERSION`) is named. Changing the sampler changes which points
+are explored, not what `generate()` draws for a point.
 
 ## Where things live
 
@@ -34,21 +35,29 @@ Behaviour stays byte-identical unless a session decides otherwise, and then the 
 
 - Core, compiler, renderer, lab, bench and history: done. Notebook (rated batches, IndexedDB, JSON
   import/export) works, format v1.
-- **One quantized space** (`core/grammar/quantized.ts`): a `Recipe` = one weight level per operator
-  (the `CONFIG.recipe.levels` grid, index = weight: 0…4) + size profile + `share` + colour space. The
-  grammar is always derived (`recipeToGrammar`); `recipeOf` is its exact inverse. `repairRecipe`
-  keeps the invariants (one live anchor, one active terminal). `stepRecipe` is the grid walk (±1
-  notch). `x`/`y` carry the time through their oscillator params (`amp`/`phase`/`cycles`).
-- **One default grammar.** `defaultGrammar` is the `structure` recipe (`DEFAULT_RECIPE`, the
-  2026-10-17 calibration snapped on the grid) compiled down — the app's start point and a preset
-  like any other, no separate test/measurement fixture.
-- **Bench** draws lots with `sampleRecipes`; focus view shows one grammar over its seeds, `planche`
+- **One quantized space** (`core/grammar/quantized.ts`): a `Grammar` = one **integer weight per
+  operator** (same range `[0, CONFIG.grammar.maxWeight]`, `0` = off) + `size` profile + `shareDepth`
+    - colour space. There is no `Recipe` and no weight-level indirection: the grammar _is_ the point.
+      Constraints are derived from `size` (`constraintsOf`), never stored free-form; the only repair in
+      `createGrammar` is `shareDepth`, an editing quantity clamped into `[0, maxDepth]`. It checks the
+      rest as content (integer weights, known size/space, at least one active terminal **and** one active
+      non-terminal) and throws otherwise. `drawGrammar` draws each operator independently in
+      `[0..maxWeight]`, then the size/share/space axes; `stepGrammar` walks one integer notch (±1). Both
+      restore the two viability invariants deterministically. Families (`terminal`,
+      `arithmetic`, …) exist only as UI grouping (`operator.group`). `x`/`y` carry the time through
+      their oscillator params (`amp`/`phase`/`cycles`).
+- **One default grammar.** `defaultGrammar` is the `structure` preset: the 2026-10-17 calibration on
+  the integer grid (medium profile, `x=y=4`, `min=max=2`, everything else `1`, `shareDepth=2`,
+  OKLCH) — the app's start point and a preset like any other, no separate test/measurement fixture.
+- **Bench** draws lots with `sampleGrammars`; focus view shows one grammar over its seeds, `planche`
   is the grid overview. Rating is still the 0-5 note (to be replaced, see T1).
-- **Dataset pipeline** (`scripts/dataset`) surveys the same quantized space: `sampleGrammars` is now
-  `sampleRecipes` + seed derivation (the default `RAW_CHANNELS` reads as "share 0, sRGB").
-- **Audit closed, gates repaired.** Layers, extensions, vocabulary, dead code (including the
-  `knip --production` pass) and duplication all pass; cycles stay an informational warning
-  (decision B-04). Lot A (naming) is done.
+- **Dataset pipeline** (`scripts/dataset`) surveys the same quantized space with the same
+  `sampleGrammars` sampler (one sampler, not two): the caller may pin `size`, `shareDepth` or
+  `space`, and seed derivation is shared with the bench.
+- **Gates green.** `vp check --fix`, `vp test` and the audit pass after the 2026-10-20
+  quantized-grammar refactor: the tests cover the integer weight grid, the per-profile constraints,
+  the single `sampleGrammars` sampler and the new serialization. Cycles stay an informational
+  warning (decision B-04). Lot A (naming) is done.
 
 ## Next
 
@@ -58,33 +67,37 @@ Behaviour stays byte-identical unless a session decides otherwise, and then the 
   flat, too chaotic, dirty colours. Plus a `kept` boolean, the only decision that matters.
 - Auto tags precomputed from `describeImage` (flat, saturated, symmetric, colourfulness...):
   displayed, never ticked by hand.
-- Notebook format v2: `rating` becomes `tags` + `kept`, store the `Recipe`, migrate v1 files on read.
+- Notebook format v2: `rating` becomes `tags` + `kept`, store the `Grammar`, migrate v1 files on read.
 - One keyboard key per tag, one for keep.
 
 ### T2 — keep creates a preset
 
-A kept recipe is promoted to a preset, persisted in the notebook, offered in the Lab select next to
+A kept grammar is promoted to a preset, persisted in the notebook, offered in the Lab select next to
 the built-ins.
 
 ### T3 — neighbours ("More like this")
 
-One-notch mutation of a kept recipe (a level ±1, size, share, space), deduplicated with
-`recipeKey`. New lot made of the recipe and its neighbours.
+One-notch mutation of a kept grammar (one operator weight ±1, or size/shareDepth/space),
+deduplicated with `grammarKey`. New lot made of the grammar and its neighbours.
 
-### T4 — tags vs recipe statistics
+### T4 — tags vs grammar statistics
 
-Compare means and use `correlation` (0/1 target) between tags and levels/share/space. Needs roughly
-50-100 judged grammars to mean anything. Read-only report. PCA stays optional.
+Compare means and use `correlation` (0/1 target) between tags and weights/shareDepth/space. Needs
+roughly 50-100 judged grammars to mean anything. Read-only report. PCA stays optional.
 
 ### T5 — options
 
 - Diversified draw: sample ~40, drop flat ones, keep the 8 farthest apart in descriptor space.
-- Controlled view: same recipe, one row per `share` (distributions are comparable, images are not).
+- Controlled view: same grammar, one row per `shareDepth` (distributions are comparable, images are
+  not).
 
 ### C batch — `appStore` SSOT, errors and lifecycle
 
-- `appStore` stores `grammar`, `recipe` and `HistoryEntry.grammar` while the grammar should be
-  derived from the recipe; `commit` / `publishArtwork` / `restoreImportedEntry` repeat the same block.
+- ~~`appStore` stores `grammar` and `recipe` while the grammar should be derived from the recipe.~~
+  Done: `grammar` is the only representation, `HistoryEntry` stores it directly, and imports use the
+  provenance grammar as-is (an invalid import is refused, never repaired into a different point).
+  The shared generate → compile → publish block still exists (`commit` / `publishArtwork` /
+  `restoreImportedEntry`).
 - `downloadBlob` is duplicated with two behaviours (deferred revoke in `appStore`, immediate in
   `benchStore`); the active-batch lookup exists as `resolveActiveBatch` / `useBenchActiveBatch` /
   `removeActiveBatch`.
@@ -104,9 +117,9 @@ Compare means and use `correlation` (0/1 target) between tags and levels/share/s
 
 ## Open frictions
 
-- `openCellInLab` and imported artworks recover knobs through `recipeOf`; an artwork outside the
-  space displays correctly but the knobs keep the previous recipe. The recipe grid is now the
-  grammar's own grid, so this only remains for hand-edited/continuous-weight imports.
+- Imported artworks carry a grammar, so `openCellInLab` and the inspector show the exact point;
+  there is no `recipeOf` fallback and no continuous-weight case left. Invalid grammars are refused
+  at the import boundary.
 - Browser range and fuzz tests are not automated; `scripts/validate-glsl.sh` covers syntax only.
 - Sub-expression preview ignores ancestor warps.
 - Render size equals canvas size; the batch readback goes through canvas capture, not `readPixels`.

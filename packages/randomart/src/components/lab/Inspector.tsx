@@ -7,6 +7,7 @@ import type { CSSProperties } from 'react';
 import { COLOR_SPACES } from '../../core/color/index.ts';
 import { formatFormula } from '../../core/expression/index.ts';
 import type { Channel } from '../../core/expression/index.ts';
+import { constraintsOf } from '../../core/grammar/index.ts';
 import { useExpression, useGrammar } from '../../stores/appStore.ts';
 
 const CHANNELS: readonly Channel[] = ['r', 'g', 'b'];
@@ -25,9 +26,9 @@ const formulaStyle: CSSProperties = {
 export function Inspector() {
     const expression = useExpression();
     const grammar = useGrammar();
-    const { space, shareDepth } = grammar.channels;
+    const { space, shareDepth } = grammar;
     const label = COLOR_SPACES[space].label;
-    const mono = shareDepth >= grammar.constraints.maxDepth;
+    const mono = shareDepth >= constraintsOf(grammar.size).maxDepth;
 
     return (
         <ErrorBoundary showStack={import.meta.env.DEV}>

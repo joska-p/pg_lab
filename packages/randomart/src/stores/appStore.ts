@@ -21,15 +21,13 @@ import type { CompiledShader } from '../core/compiler/index.ts';
 import { CONFIG } from '../core/config/index.ts';
 import type { Expression } from '../core/expression/index.ts';
 import { generate, GENERATOR_VERSION } from '../core/generator/index.ts';
-import { drawRecipe, recipeOf, recipeToGrammar, repairRecipe } from '../core/grammar/index.ts';
-import type {
-    Grammar,
-    Recipe,
-    ShareChoice,
-    SizeProfileId,
-    WeightLevel,
+import {
+    channelModelOf,
+    drawGrammar as drawRandomGrammar,
+    createGrammar,
 } from '../core/grammar/index.ts';
-import { DEFAULT_RECIPE } from '../core/grammar/presets.ts';
+import type { Grammar, SizeProfileId } from '../core/grammar/index.ts';
+import { defaultGrammar } from '../core/grammar/presets.ts';
 import { createRng, createSeed, randomSeed } from '../core/random/index.ts';
 import type { Seed } from '../core/random/index.ts';
 import { DEFAULT_LOOP_DURATION } from '../renderer/contract.ts';
@@ -43,11 +41,6 @@ export interface HistoryEntry {
     readonly id: number;
     readonly seed: Seed;
     readonly grammar: Grammar;
-    /**
-     * The recipe the grammar derives from. An imported artwork whose grammar is outside the
-     * quantized space keeps the recipe that was current at import.
-     */
-    readonly recipe: Recipe;
     readonly nodes: number;
     /** Present only for imported artworks (their provenance may not replay the expression). */
     readonly expression?: Expression;
@@ -57,26 +50,24 @@ export interface HistoryEntry {
 
 // Time terminals are always in the default vocabulary: one seed = one expression = one shader.
 // Animation is a matter of playback (Play/Pause on the clock), not of grammar.
-const initialRecipe = DEFAULT_RECIPE;
-const initialGrammar = recipeToGrammar(catalog, initialRecipe);
+const initialGrammar = defaultGrammar(catalog);
 const initialSeed = createSeed(CONFIG.app.initialSeed);
 const initialExpression = generate(catalog, initialGrammar, initialSeed);
 const initialCompiled = compile(catalog, initialExpression, {
-    channels: initialGrammar.channels,
+    channels: channelModelOf(initialGrammar),
 });
 const initialEntry: HistoryEntry = {
     id: 0,
     seed: initialSeed,
     grammar: initialGrammar,
-    recipe: initialRecipe,
     nodes: initialCompiled.stats.nodes,
 };
 
 let nextEntryId = 1;
 
 /**
- * Id of the history entry created by the current run of grammar edits (constraints, weights), if
- * any.
+ * Id of the history entry created by the current run of grammar edits (weights, size, share,
+ * space), if any.
  */
 let grammarEditId: number | null = null;
 
@@ -93,7 +84,6 @@ interface AppStoreState {
     actionError: string | null;
     duration: DurationSeconds;
     grammar: Grammar;
-    recipe: Recipe;
     history: readonly HistoryEntry[];
     currentId: number;
     seed: Seed;
@@ -113,7 +103,6 @@ const store = create<AppStoreState>(() => ({
     actionError: null,
     duration: DEFAULT_LOOP_DURATION,
     grammar: initialGrammar,
-    recipe: initialRecipe,
     history: [initialEntry],
     currentId: initialEntry.id,
     seed: initialSeed,
@@ -193,10 +182,6 @@ export function useGrammar(): Grammar {
     return store((s) => s.grammar);
 }
 
-export function useRecipe(): Recipe {
-    return store((s) => s.recipe);
-}
-
 export function useHistory(): readonly HistoryEntry[] {
     return store((s) => s.history);
 }
@@ -217,18 +202,22 @@ function setActionError(error: unknown): void {
  * The single write point for "a new image": generate → compile → publish, all or nothing. On
  * failure (compiler guard, bug, bad import) the previous state is kept and the error is shown.
  * Without `restoreId` a new history entry is recorded; with it, the entry is simply re-selected.
- * With `coalesce`, consecutive calls (while sliding a recipe knob) replace each other's entry
+ * With `coalesce`, consecutive calls (while sliding a grammar knob) replace each other's entry
  * instead of flooding the history.
  */
-function commit(recipe: Recipe, seed: Seed, restoreId?: number, coalesce = false): void {
+function commit(
+    grammarOrChange: Grammar | (() => Grammar),
+    seed: Seed,
+    restoreId?: number,
+    coalesce = false,
+): void {
     try {
-        // Repair once, here: the state stores the point of the space the grammar is compiled
-        // from, so the sliders always show exactly what was generated.
-        const repaired = repairRecipe(catalog, recipe);
-        const grammar = recipeToGrammar(catalog, repaired);
+        // A thunk keeps editor validation (createGrammar may refuse a gesture) inside the single
+        // error boundary, so a refused edit surfaces as actionError instead of escaping a handler.
+        const grammar = typeof grammarOrChange === 'function' ? grammarOrChange() : grammarOrChange;
         const expression = generate(catalog, grammar, seed);
         const compiledShader = compile(catalog, expression, {
-            channels: grammar.channels,
+            channels: channelModelOf(grammar),
         });
         const state = store.getState();
         let { history } = state;
@@ -239,7 +228,6 @@ function commit(recipe: Recipe, seed: Seed, restoreId?: number, coalesce = false
                 id: nextEntryId++,
                 seed,
                 grammar,
-                recipe: repaired,
                 nodes: compiledShader.stats.nodes,
             };
 
@@ -258,7 +246,6 @@ function commit(recipe: Recipe, seed: Seed, restoreId?: number, coalesce = false
 
         store.setState({
             grammar,
-            recipe: repaired,
             seed,
             expression,
             provenanceCheck: 'matches',
@@ -274,44 +261,49 @@ function commit(recipe: Recipe, seed: Seed, restoreId?: number, coalesce = false
 
 /** "Reset seed": the seed changes, the grammar stays. */
 export function resetSeed(nextSeed: Seed = randomSeed()): void {
-    commit(store.getState().recipe, nextSeed);
+    commit(store.getState().grammar, nextSeed);
 }
 
 /** "Draw grammar": a random point of the quantized space. The seed stays, so grammars compare. */
 export function drawGrammar(): void {
-    commit(drawRecipe(createRng(randomSeed())), store.getState().seed);
+    commit(drawRandomGrammar(catalog, createRng(randomSeed())), store.getState().seed);
 }
 
-/** "Generate image": a random recipe and a random seed at once. */
+/** "Generate image": a random grammar and a random seed at once. */
 export function generateImage(): void {
-    commit(drawRecipe(createRng(randomSeed())), randomSeed());
+    commit(drawRandomGrammar(catalog, createRng(randomSeed())), randomSeed());
 }
 
-/** Selecting a preset: its recipe replaces the current one, same seed. */
-export function applyRecipe(recipe: Recipe): void {
-    commit(recipe, store.getState().seed);
+/** Selecting a preset: its grammar replaces the current one, same seed. */
+export function applyGrammar(grammar: Grammar): void {
+    commit(grammar, store.getState().seed);
 }
 
-function editRecipe(change: (recipe: Recipe) => Recipe): void {
-    const { recipe, seed } = store.getState();
+function editGrammar(change: (grammar: Grammar) => Grammar): void {
+    const { grammar, seed } = store.getState();
 
-    commit(change(recipe), seed, undefined, true);
+    commit(() => change(grammar), seed, undefined, true);
 }
 
-export function setRecipeOperator(name: OperatorId, level: WeightLevel): void {
-    editRecipe((recipe) => ({ ...recipe, levels: { ...recipe.levels, [name]: level } }));
+export function setGrammarWeight(name: OperatorId, weight: number): void {
+    editGrammar((grammar) =>
+        createGrammar(catalog, {
+            ...grammar,
+            weights: { ...grammar.weights, [name]: weight },
+        }),
+    );
 }
 
-export function setRecipeSize(size: SizeProfileId): void {
-    editRecipe((recipe) => ({ ...recipe, size }));
+export function setGrammarSize(size: SizeProfileId): void {
+    editGrammar((grammar) => createGrammar(catalog, { ...grammar, size }));
 }
 
-export function setRecipeShare(share: ShareChoice): void {
-    editRecipe((recipe) => ({ ...recipe, share }));
+export function setGrammarShareDepth(shareDepth: number): void {
+    editGrammar((grammar) => createGrammar(catalog, { ...grammar, shareDepth }));
 }
 
-export function setRecipeSpace(space: ColorSpaceId): void {
-    editRecipe((recipe) => ({ ...recipe, space }));
+export function setGrammarSpace(space: ColorSpaceId): void {
+    editGrammar((grammar) => createGrammar(catalog, { ...grammar, space }));
 }
 
 /**
@@ -328,12 +320,11 @@ function restoreImportedEntry(entry: HistoryEntry): void {
     try {
         store.setState({
             grammar: entry.grammar,
-            recipe: entry.recipe,
             seed: entry.seed,
             expression,
             provenanceCheck: entry.provenanceCheck ?? 'differs',
             compiledShader: compile(catalog, expression, {
-                channels: entry.grammar.channels,
+                channels: channelModelOf(entry.grammar),
             }),
             currentId: entry.id,
             actionError: null,
@@ -356,7 +347,7 @@ export function restoreEntry(id: number): void {
         return;
     }
 
-    commit(entry.recipe, entry.seed, entry.id);
+    commit(entry.grammar, entry.seed, entry.id);
 }
 
 // ---------------------------------------------------------------------------
@@ -386,17 +377,15 @@ function publishArtwork(artwork: Artwork): void {
     const { expression, provenance, render } = artwork;
     const state = store.getState();
     const grammar = provenance?.grammar ?? state.grammar;
-    const recipe = (provenance ? recipeOf(provenance.grammar) : null) ?? state.recipe;
     const seed = provenance?.seed ?? state.seed;
     const compiledShader = compile(catalog, expression, {
-        channels: grammar.channels,
+        channels: channelModelOf(grammar),
     });
     const provenanceCheck = checkProvenance(catalog, artwork);
     const entry: HistoryEntry = {
         id: nextEntryId++,
         seed,
         grammar,
-        recipe,
         nodes: compiledShader.stats.nodes,
         expression,
         provenanceCheck,
@@ -404,7 +393,6 @@ function publishArtwork(artwork: Artwork): void {
 
     store.setState({
         grammar,
-        recipe,
         seed,
         expression,
         provenanceCheck,

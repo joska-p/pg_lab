@@ -20,7 +20,7 @@ You explore grammars more than seeds.
     - `catalog`: operators and shader dependencies
     - `expression`: immutable trees, keys, serialization
     - `random`: seed and PRNG
-    - `grammar`: vocabulary, weights, constraints, presets, sampling
+    - `grammar`: quantized grammar, presets, sampling
     - `generator`: `(grammar, seed) → expression`
     - `compiler`: expression → GLSL
     - `color`: channel model and colour spaces
@@ -33,7 +33,9 @@ You explore grammars more than seeds.
 
 ## Vocabulary
 
-- **grammar**: weight per operator (0 = off) + constraints + channel model
+- **grammar**: an integer weight per operator (0 = off, same range for all) + size profile +
+  shared-trunk depth + colour space
+- **preset**: a named grammar (`defaultGrammar`, `grammarPresets`); there is no separate recipe type
 - **seed**: picks one expression inside a grammar
 - **expression**: three trees (r, g, b). **node** = tree element, **vertex** = compiler DAG entry
 - **artwork**: expression + optional provenance (grammar, seed). The expression is the reference

@@ -36,10 +36,13 @@ Do not introduce a synonym for an existing concept:
 create / make / build / assemble   pick one per meaning (see the verb table)
 draw / pick / sample / choose      draw and sample consume the PRNG; choose is a UI decision
 get / read / load                  get is a pure lookup; read is a shape check; load crosses an I/O boundary
-recipe / preset                    a recipe is a point in the quantized space; a preset is a named recipe
+grammar / vocabulary / preset      a grammar is a point of the quantized space; the vocabulary is its
+                                   positive-weight operators; a preset is a named grammar
 seed / baseSeed                    a seed is one image; baseSeed is the root of a sample draw
-share / shareDepth                 share is the recipe choice; shareDepth is the resolved trunk depth
-level / profile                    level is a point on the weight axis; profile is a point on the size axis
+weight / shareDepth                weight is one operator's integer on the grid; shareDepth is the
+                                   resolved shared-trunk depth, bounded by the size profile
+size / profile                     size is the profile id carried by a grammar; profile is the point
+                                   on the size axis that supplies constraints
 planche / sheet                    planche is the in-app grid; sheet is the dataset's contact sheet
 ```
 
@@ -47,15 +50,15 @@ Use the glossary in the package README as the source of truth for domain words. 
 
 ### 2.1.2 Casing
 
-| Kind                                                  | Convention               | Examples                                                |
-| ----------------------------------------------------- | ------------------------ | ------------------------------------------------------- |
-| Variables, parameters, properties, functions, methods | `camelCase`              | `shareDepth`, `drawOperator`, `renderSettings`          |
-| Types, interfaces, classes, React components, brands  | `PascalCase`             | `Grammar`, `ChannelModel`, `RandomArtCanvas`, `Seed`    |
-| Module-level constants, registries, config, id arrays | `SCREAMING_SNAKE_CASE`   | `MAX_DEPTH`, `DEFAULT_CHANNELS`, `CONFIG`, `FAMILY_IDS` |
-| Module-level singletons and live instances            | `camelCase`              | `catalog`, `store`, `renderer`                          |
-| Type parameters                                       | `PascalCase`             | `T`, `K`, `V`, `TSurface`                               |
-| File names: modules                                   | `camelCase.ts`           | `randomGrammar.ts`, `appStore.ts`                       |
-| File names: React components and classes              | `PascalCase.tsx` / `.ts` | `BenchPanel.tsx`, `ShaderError.ts`                      |
+| Kind                                                  | Convention               | Examples                                                            |
+| ----------------------------------------------------- | ------------------------ | ------------------------------------------------------------------- |
+| Variables, parameters, properties, functions, methods | `camelCase`              | `shareDepth`, `drawOperator`, `renderSettings`                      |
+| Types, interfaces, classes, React components, brands  | `PascalCase`             | `Grammar`, `ChannelModel`, `RandomArtCanvas`, `Seed`                |
+| Module-level constants, registries, config, id arrays | `SCREAMING_SNAKE_CASE`   | `MAX_RENDER_SIZE`, `DEFAULT_CHANNELS`, `CONFIG`, `SIZE_PROFILE_IDS` |
+| Module-level singletons and live instances            | `camelCase`              | `catalog`, `store`, `renderer`                                      |
+| Type parameters                                       | `PascalCase`             | `T`, `K`, `V`, `TSurface`                                           |
+| File names: modules                                   | `camelCase.ts`           | `randomGrammar.ts`, `appStore.ts`                                   |
+| File names: React components and classes              | `PascalCase.tsx` / `.ts` | `BenchPanel.tsx`, `ShaderError.ts`                                  |
 
 `SCREAMING_SNAKE_CASE` is for values fixed at module load: bounds, defaults, registries, config objects, id arrays. A local `const` stays `camelCase`. A singleton that owns state or a lifecycle (`catalog`, `store`) stays `camelCase` even when it is module-level.
 
@@ -76,24 +79,24 @@ Do not encode mutability or implementation in the name. `readonly` belongs in th
 
 Role suffixes are part of the vocabulary:
 
-| Suffix / prefix      | Meaning                                                               | Examples                                    |
-| -------------------- | --------------------------------------------------------------------- | ------------------------------------------- |
-| `*Input`             | Raw, untrusted shape accepted at a boundary, before validation/repair | `ArtworkInput`, `RenderSettingsInput`       |
-| `*Data`              | Plain serializable shape (JSON-like), not a domain value              | `ArtworkData`, `GrammarData`                |
-| `*Options`           | Optional arguments of one call                                        | `CompileOptions`, `SampleOptions`           |
-| `*Config`            | Required construction/environment configuration                       | `GpuSurfaceConfig`                          |
-| `*Settings`          | User-editable, persisted state                                        | `BenchSettings`, `RenderSettings`           |
-| `*State`             | The internal state of a store                                         | `AppStoreState`, `BenchState`               |
-| `*View`              | A display-oriented projection of domain data                          | `LotView`                                   |
-| `*Summary`           | A derived, human-readable description                                 | `GrammarSummary`                            |
-| `*Check` / `*Status` | The outcome of a check                                                | `ProvenanceCheck`                           |
-| `*Model`             | A domain interpretation of several values                             | `ChannelModel`                              |
-| `*Id`                | An opaque key into a registry                                         | `ColorSpaceId`, `FamilyId`, `SizeProfileId` |
-| `*Entry`             | One element of a collection                                           | `HistoryEntry`                              |
-| `*Cell`, `*Row`      | One part of a grid                                                    | `PlancheCell`, `PlancheRow`                 |
-| `*Props`             | React component props                                                 | `RandomArtCanvasProps`                      |
+| Suffix / prefix      | Meaning                                                               | Examples                                      |
+| -------------------- | --------------------------------------------------------------------- | --------------------------------------------- |
+| `*Input`             | Raw, untrusted shape accepted at a boundary, before validation/repair | `ArtworkInput`, `RenderSettingsInput`         |
+| `*Data`              | Plain serializable shape (JSON-like), not a domain value              | `ArtworkData`, `GrammarData`                  |
+| `*Options`           | Optional arguments of one call                                        | `CompileOptions`, `SampleOptions`             |
+| `*Config`            | Required construction/environment configuration                       | `GpuSurfaceConfig`                            |
+| `*Settings`          | User-editable, persisted state                                        | `BenchSettings`, `RenderSettings`             |
+| `*State`             | The internal state of a store                                         | `AppStoreState`, `BenchState`                 |
+| `*View`              | A display-oriented projection of domain data                          | `LotView`                                     |
+| `*Summary`           | A derived, human-readable description                                 | `GrammarSummary`                              |
+| `*Check` / `*Status` | The outcome of a check                                                | `ProvenanceCheck`                             |
+| `*Model`             | A domain interpretation of several values                             | `ChannelModel`                                |
+| `*Id`                | An opaque key into a registry                                         | `ColorSpaceId`, `SizeProfileId`, `OperatorId` |
+| `*Entry`             | One element of a collection                                           | `HistoryEntry`                                |
+| `*Cell`, `*Row`      | One part of a grid                                                    | `PlancheCell`, `PlancheRow`                   |
+| `*Props`             | React component props                                                 | `RandomArtCanvasProps`                        |
 
-Named points of an ordered axis keep the axis noun rather than `Id`: `WeightLevel`, `ShareChoice`, `BenchView`, `CellSize`. The `Id` suffix is for opaque registry keys, not for every string union.
+Named points of an ordered axis keep the axis noun rather than `Id`: `BenchView`, `CellSize`, `OperatorGroup`. The `Id` suffix is for opaque registry keys, not for every string union.
 
 Branded types are named after the concept they guarantee, with no suffix: `Seed`, `Grammar`, `Expression`, `Artwork`, `Constraints`, `Phase`. The raw shape is `XInput`, the throwing factory is `createX`, and the repairing entry point is `fitX` (§2.1.4). Do not brand a value merely to make a signature look precise; the brand must correspond to a boundary that actually establishes it.
 
@@ -104,23 +107,23 @@ Functions are verb-first. The prefix states the contract, not just the implement
 | Prefix                                         | Contract                                                                                    | Examples                                                |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
 | `createX`                                      | Establish a branded/invariant-carrying value; throws on invalid vouched input               | `createGrammar`, `createSeed`, `createArtwork`          |
-| `fitX`                                         | Repair untrusted input into a valid value; clamps/defaults, no throw for editing quantities | `fitConstraints`, `fitRenderSettings`                   |
+| `fitX`                                         | Repair untrusted input into a valid value; clamps/defaults, no throw for editing quantities | `fitRenderSettings`                                     |
 | `parseX` / `parseXFile`                        | External text (or unknown) → domain; refuses malformed structure                            | `parseArtwork`, `parseNotebook`, `parseGrammarFile`     |
 | `deserializeX`                                 | Plain data object → domain; refuses malformed structure                                     | `deserializeGrammar`, `deserialize`                     |
 | `serializeX`                                   | Domain → plain data object                                                                  | `serializeGrammar`                                      |
 | `serializeXFile`                               | Domain → text                                                                               | `serializeGrammarFile`                                  |
-| `readX`                                        | Internal field-level shape check of unknown data; not exported                              | `readChannels`, `readRender`                            |
+| `readX`                                        | Internal field-level shape check of unknown data; not exported                              | `readRender`                                            |
 | `assertX`                                      | Throw when an invariant does not hold; no meaningful return                                 | `assertFinite`, `assertIntegerInRange`                  |
 | `checkX`                                       | Compute a status/boolean without throwing                                                   | `checkProvenance`, `checkShaderStructure`               |
 | `isX` / `hasX` / `canX` / `shouldX` / `needsX` | Boolean predicate, no side effects                                                          | `isTerminalOperator`, `hasClockStore`, `needsRender`    |
 | `getX`                                         | Pure lookup/read; no side effects                                                           | `getVocabulary`, `getNode`, `getIsPlaying`              |
-| `xOf(y)`                                       | Pure projection/derivation (`get` would read awkwardly)                                     | `weightOf`, `recipeOf`, `presetIdOf`, `flatShareOf`     |
+| `xOf(y)`                                       | Pure projection/derivation (`get` would read awkwardly)                                     | `weightOf`, `grammarKey`, `presetIdOf`, `flatShareOf`   |
 | `xCount` / `xLength`                           | Numeric count or length                                                                     | `nodeCount`, `sourceLength`                             |
 | `setX` / `patchX` / `toggleX`                  | Replace a value / update part of it / flip a boolean                                        | `setDuration`, `patchSettings`, `toggleCandidateRating` |
 | `useX`                                         | React hook; follows the Rules of Hooks                                                      | `useGrammar`, `useBenchLot`                             |
-| `drawX`                                        | Consume the PRNG and return one value                                                       | `drawOperator`, `drawParams`, `drawLevel`               |
-| `sampleX`                                      | Draw a point or a collection from a distribution                                            | `sampleRecipes`, `sampleGrammars`                       |
-| `stepX`                                        | Move a value by one notch/delta; consumes the PRNG                                          | `stepRecipe`, `stepCell`                                |
+| `drawX`                                        | Consume the PRNG and return one value                                                       | `drawOperator`, `drawParams`, `drawGrammar`             |
+| `sampleX`                                      | Draw a point or a collection from a distribution                                            | `sampleGrammars`                                        |
+| `stepX`                                        | Move a value by one notch/delta; consumes the PRNG                                          | `stepGrammar`, `stepCell`                               |
 | `generateX`                                    | Deterministic domain construction from its inputs; may consume the PRNG                     | `generate`                                              |
 | `deriveX`                                      | Deterministic derivation from an input                                                      | `deriveSeed`                                            |
 | `buildX`                                       | Assemble a domain value from parts; no I/O                                                  | `buildLotView`, `buildPreamble`                         |
@@ -129,7 +132,7 @@ Functions are verb-first. The prefix states the contract, not just the implement
 | `renderX`                                      | Produce pixels or GPU output; side effects allowed                                          | `renderGrammar`                                         |
 | `loadX` / `saveX`                              | Cross an I/O boundary (storage, files, assets)                                              | `loadNotebookFromDb`, `saveNotebookToDb`                |
 | `initX`                                        | One-time setup with side effects                                                            | `initBenchNotebook`                                     |
-| `applyX`                                       | Apply a prepared value to the current state                                                 | `applyRecipe`                                           |
+| `applyX`                                       | Apply a prepared value to the current state                                                 | `applyGrammar`                                          |
 | `publishX`                                     | Make a value the current app state                                                          | `publishArtwork`                                        |
 | `openX`                                        | Reveal or navigate to a value                                                               | `openCellInLab`                                         |
 | `selectX` / `stepX`                            | Choose the current item / move by a delta                                                   | `selectRow`, `stepCell`                                 |
@@ -168,15 +171,15 @@ Module constants use meaningful prefixes and suffixes:
 
 | Pattern                   | Meaning                                      | Examples                                    |
 | ------------------------- | -------------------------------------------- | ------------------------------------------- |
-| `MAX_*` / `MIN_*`         | Domain bounds enforced by validation         | `MAX_DEPTH`, `MIN_LOOP_MS`                  |
-| `DEFAULT_*`               | Fallback/default value                       | `DEFAULT_CHANNELS`, `DEFAULT_CONSTRAINTS`   |
+| `MAX_*` / `MIN_*`         | Domain bounds enforced by validation         | `MAX_ARTWORK_FILE_LENGTH`, `MIN_LOOP_MS`    |
+| `DEFAULT_*`               | Fallback/default value                       | `DEFAULT_CHANNELS`, `DEFAULT_LOOP_DURATION` |
 | `EMPTY_*`                 | Identity/empty value                         | `EMPTY_LOT`                                 |
 | `RAW_*`                   | Unprocessed base model                       | `RAW_CHANNELS`                              |
 | `*_LIMIT`                 | Capacity or attempt cap (not a domain bound) | `HISTORY_LIMIT`                             |
 | `*_VERSION`               | Format/generator version                     | `GENERATOR_VERSION`, `ARTWORK_FILE_VERSION` |
 | `*_FORMAT`                | File format identifier                       | `ARTWORK_FILE_FORMAT`                       |
-| `*_IDS`                   | Ids of a registry, in canonical/draw order   | `FAMILY_IDS`, `SIZE_PROFILE_IDS`            |
-| `*_CHOICES`               | Allowed values of a user/recipe axis         | `SHARE_CHOICES`                             |
+| `*_IDS`                   | Ids of a registry, in canonical/draw order   | `SIZE_PROFILE_IDS`, `COLOR_SPACE_IDS`       |
+| `*_CHOICES`               | Allowed values of a user axis                | `BENCH_VIEWS`, `CELL_SIZES`                 |
 | `*_LEVELS` / `*_PROFILES` | Named points of an axis                      | `WEIGHT_LEVELS`, `SIZE_PROFILES`            |
 | `*_REGISTRY`              | Map of implementations                       | `PREAMBLE_REGISTRY`, `SPACE_REGISTRY`       |
 | `*_GLSL` / `GLSL_*`       | GLSL source or contract snippet              | `OKLCH_GLSL`, `GLSL_IN_UV`                  |
@@ -200,7 +203,7 @@ These distinctions are easy to lose and expensive to rediscover:
 - **grammar** — weights + constraints + channels. **vocabulary** — the operators with a positive weight.
 - **seed** — one expression inside a grammar. **baseSeed** — the root of a deterministic sample draw.
 - **expression** — three trees (r, g, b). **node** — a tree element. **vertex** — a compiler DAG entry.
-- **recipe** — a point in the quantized space. **preset** — a named recipe. **level** / **profile** — points on the weight / size axes.
+- **grammar** — a point in the quantized space: one integer weight per operator, a size profile, a share depth and a colour space. **preset** — a named grammar. **profile** — a point on the size axis, supplying the constraints.
 - **artwork** — expression + optional provenance + render settings. **provenance** — informative origin; the expression is the reference.
 - **batch** — one drawn lot. **candidate** — one grammar with its seeds. **planche** — the grid of a lot. **sheet** — the dataset's contact sheet.
 - **channel** — one scalar tree / one component of colour. **space** — how the triplet is read. **shareDepth** — how deep the channels share structure.

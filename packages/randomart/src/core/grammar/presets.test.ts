@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../catalog/index.ts';
 import { generate } from '../generator/index.ts';
+import { createGrammar, constraintsOf, defaultGrammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';
 import { grammarPresets, presetIdOf } from './presets.ts';
 
@@ -17,18 +18,43 @@ describe('grammarPresets', () => {
     it('gives grammars the generator can use', () => {
         for (const preset of presets) {
             expect(() => generate(catalog, preset.grammar, createSeed(1))).not.toThrow();
+            expect(preset.grammar.shareDepth).toBeLessThanOrEqual(
+                constraintsOf(preset.grammar.size).maxDepth,
+            );
         }
     });
 
     it('is recognized by presetIdOf', () => {
         for (const preset of presets) {
-            expect(presetIdOf(presets, preset.recipe)).toBe(preset.id);
+            expect(presetIdOf(catalog, presets, preset.grammar)).toBe(preset.id);
         }
     });
 
-    it('reports an undefined id once a knob moved', () => {
-        const base = presets[0].recipe;
+    it('includes the app default as the structure preset', () => {
+        const structure = presets.find((preset) => preset.id === 'structure');
 
-        expect(presetIdOf(presets, { ...base, size: 'large' })).toBeUndefined();
+        expect(structure?.grammar).toEqual(defaultGrammar(catalog));
+        expect(presetIdOf(catalog, presets, defaultGrammar(catalog))).toBe('structure');
+    });
+
+    it('encodes mono as the full medium trunk and raw RGB as no trunk', () => {
+        const mono = presets.find((preset) => preset.id === 'mono');
+        const rgb = presets.find((preset) => preset.id === 'rgb');
+
+        expect(mono?.grammar.shareDepth).toBe(constraintsOf('medium').maxDepth);
+        expect(rgb?.grammar.shareDepth).toBe(0);
+        expect(rgb?.grammar.space).toBe('srgb');
+    });
+
+    it('reports an undefined id once a knob moved', () => {
+        const base = presets[0].grammar;
+        const moved = createGrammar(catalog, {
+            weights: base.weights,
+            size: 'large',
+            shareDepth: base.shareDepth,
+            space: base.space,
+        });
+
+        expect(presetIdOf(catalog, presets, moved)).toBeUndefined();
     });
 });

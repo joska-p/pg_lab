@@ -2,9 +2,8 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { serializeGrammar } from '../artwork/index.ts';
 import { createDefaultCatalog } from '../catalog/index.ts';
-import { DEFAULT_CHANNELS, RAW_CHANNELS } from '../color/index.ts';
 import { generate } from '../generator/index.ts';
-import { getVocabulary, recipeOf } from '../grammar/index.ts';
+import { constraintsOf, getVocabulary } from '../grammar/index.ts';
 import { sampleGrammars } from './sample.ts';
 
 const catalog = createDefaultCatalog();
@@ -20,18 +19,29 @@ describe('sampleGrammars', () => {
         expect(a.map((s) => s.seeds)).toEqual(b.map((s) => s.seeds));
     });
 
-    it('draws the default (raw sRGB, share 0) as a point of the recipe space', () => {
+    it('draws every axis inside its bounds', () => {
         for (const { grammar } of sampleGrammars(catalog, 100)) {
-            expect(recipeOf(grammar)).not.toBeNull();
-            expect(grammar.channels.space).toBe(RAW_CHANNELS.space);
-            expect(grammar.channels.shareDepth).toBe(RAW_CHANNELS.shareDepth);
+            expect(grammar.shareDepth).toBeGreaterThanOrEqual(0);
+            expect(grammar.shareDepth).toBeLessThanOrEqual(constraintsOf(grammar.size).maxDepth);
         }
     });
 
-    it('honours a custom channel model (the bench passes the app default)', () => {
-        for (const { grammar } of sampleGrammars(catalog, 20, { channels: DEFAULT_CHANNELS })) {
-            expect(grammar.channels.space).toBe(DEFAULT_CHANNELS.space);
-            expect(grammar.channels.shareDepth).toBe(DEFAULT_CHANNELS.shareDepth);
+    it('covers more than one size and color space over a sample', () => {
+        const sampled = sampleGrammars(catalog, 100);
+
+        expect(new Set(sampled.map((s) => s.grammar.size)).size).toBeGreaterThan(1);
+        expect(new Set(sampled.map((s) => s.grammar.space)).size).toBeGreaterThan(1);
+    });
+
+    it('honours pinned axes', () => {
+        for (const { grammar } of sampleGrammars(catalog, 30, {
+            size: 'small',
+            shareDepth: 2,
+            space: 'oklab',
+        })) {
+            expect(grammar.size).toBe('small');
+            expect(grammar.shareDepth).toBe(2);
+            expect(grammar.space).toBe('oklab');
         }
     });
 
@@ -59,6 +69,6 @@ describe('sampleGrammars', () => {
     it('derives distinct image seeds', () => {
         const [first] = sampleGrammars(catalog, 1, { seedsPerGrammar: 16 });
 
-        expect(new Set(first.seeds).size).toBe(16);
+        expect(new Set(first?.seeds).size).toBe(16);
     });
 });

@@ -6,40 +6,37 @@ import { compile } from '../compiler/index.ts';
 import { CONFIG } from '../config/index.ts';
 import { nodeCount } from '../expression/index.ts';
 import { generate } from '../generator/index.ts';
-import { createGrammar, defaultGrammar, recipeToGrammar, stepRecipe } from '../grammar/index.ts';
-import type { Recipe } from '../grammar/index.ts';
+import {
+    channelModelOf,
+    constraintsOf,
+    createGrammar,
+    defaultGrammar,
+    stepGrammar,
+} from '../grammar/index.ts';
 import { createRng, createSeed } from '../random/index.ts';
-import { COLOR_SPACE_IDS, DEFAULT_CHANNELS, RAW_CHANNELS } from './index.ts';
+import { COLOR_SPACE_IDS, DEFAULT_CHANNELS } from './index.ts';
 
 const catalog = createDefaultCatalog();
+const SIZE = 'medium' as const;
+const MAX_DEPTH = constraintsOf(SIZE).maxDepth;
 
 /** Full-catalog weights, so a shared trunk still produces a rich, non-degenerate tree. */
 function fullWeights(): Record<string, number> {
     return Object.fromEntries(catalog.operators().map((operator) => [operator.name, 1]));
 }
 
-const SHARED = { minDepth: 2, maxDepth: 6, maxNodes: 40 };
-
 describe('channel model', () => {
-    it('defaults to raw sRGB, three independent channels, when the caller says nothing', () => {
-        const grammar = createGrammar(catalog, {
-            weights: { x: 1, y: 1 },
-            constraints: { minDepth: 1, maxDepth: 4, maxNodes: 20 },
-        });
-
-        expect(grammar.channels).toEqual(RAW_CHANNELS);
-    });
-
     it('defaultGrammar shares a shallow trunk read as OKLCH', () => {
-        expect(defaultGrammar(catalog).channels).toEqual(DEFAULT_CHANNELS);
+        expect(channelModelOf(defaultGrammar(catalog))).toEqual(DEFAULT_CHANNELS);
     });
 
     it('refuses an unknown color space (content, not a repair)', () => {
         expect(() =>
             createGrammar(catalog, {
-                weights: { x: 1 },
-                constraints: { minDepth: 1, maxDepth: 2, maxNodes: 2 },
-                channels: { space: 'nope' as never, shareDepth: 0 },
+                weights: { x: 1, add: 1 },
+                size: SIZE,
+                shareDepth: 0,
+                space: 'nope' as never,
             }),
         ).toThrow(/unknown color space/);
     });
@@ -47,27 +44,29 @@ describe('channel model', () => {
     it('keeps every declared color space usable', () => {
         for (const space of COLOR_SPACE_IDS) {
             const grammar = createGrammar(catalog, {
-                weights: { x: 1 },
-                constraints: { minDepth: 1, maxDepth: 2, maxNodes: 2 },
-                channels: { space, shareDepth: 1 },
+                weights: { x: 1, add: 1 },
+                size: SIZE,
+                shareDepth: 1,
+                space,
             });
 
-            expect(grammar.channels).toEqual({ space, shareDepth: 1 });
+            expect(channelModelOf(grammar)).toEqual({ space, shareDepth: 1 });
         }
     });
 
     it('repairs shareDepth instead of refusing it (an editing quantity)', () => {
-        const channels = (shareDepth: number): number =>
+        const shareDepth = (value: number): number =>
             createGrammar(catalog, {
                 weights: { x: 1, add: 1 },
-                constraints: { minDepth: 1, maxDepth: 5, maxNodes: 20 },
-                channels: { space: 'srgb', shareDepth },
-            }).channels.shareDepth;
+                size: SIZE,
+                shareDepth: value,
+                space: 'srgb',
+            }).shareDepth;
 
-        expect(channels(-3)).toBe(0); // clamped up
-        expect(channels(9)).toBe(5); // clamped down to maxDepth
-        expect(channels(2.7)).toBe(3); // rounded
-        expect(channels(Number.NaN)).toBe(CONFIG.channels.shareDepth); // non-finite → the concept's default
+        expect(shareDepth(-3)).toBe(0); // clamped up
+        expect(shareDepth(99)).toBe(MAX_DEPTH); // clamped down to the profile's maxDepth
+        expect(shareDepth(2.7)).toBe(3); // rounded
+        expect(shareDepth(Number.NaN)).toBe(CONFIG.channels.shareDepth); // non-finite → default
     });
 });
 
@@ -75,8 +74,9 @@ describe('generator channels', () => {
     it('shareDepth 0: three independent trees', () => {
         const grammar = createGrammar(catalog, {
             weights: fullWeights(),
-            constraints: SHARED,
-            channels: { space: 'srgb', shareDepth: 0 },
+            size: SIZE,
+            shareDepth: 0,
+            space: 'srgb',
         });
 
         const expression = generate(catalog, grammar, createSeed(7));
@@ -88,8 +88,9 @@ describe('generator channels', () => {
     it('a shallow trunk: the channels agree at the root, then diverge below it', () => {
         const grammar = createGrammar(catalog, {
             weights: fullWeights(),
-            constraints: SHARED,
-            channels: { space: 'oklch', shareDepth: 2 },
+            size: SIZE,
+            shareDepth: 2,
+            space: 'oklch',
         });
 
         const expression = generate(catalog, grammar, createSeed(7));
@@ -104,8 +105,9 @@ describe('generator channels', () => {
     it('shareDepth >= maxDepth: one single tree, so r = g = b', () => {
         const grammar = createGrammar(catalog, {
             weights: fullWeights(),
-            constraints: SHARED,
-            channels: { space: 'oklch', shareDepth: SHARED.maxDepth },
+            size: SIZE,
+            shareDepth: MAX_DEPTH,
+            space: 'oklch',
         });
 
         const expression = generate(catalog, grammar, createSeed(5));
@@ -119,22 +121,20 @@ describe('generator channels', () => {
         expect(compiled.stats.nodes).toBe(3 * nodeCount(expression.r));
     });
 
-    it('a recipe walk preserves the color axes', () => {
-        const recipe: Recipe = {
-            levels: { x: '1', y: '1', const: '1' },
+    it('a grammar step preserves the color axes', () => {
+        const grammar = createGrammar(catalog, {
+            weights: { x: 1, y: 1, const: 1, neg: 1 },
             size: 'small',
-            share: 2,
-            space: 'hsl',
-        };
-
-        const stepped = stepRecipe(catalog, recipe, createRng(createSeed(11)));
-
-        expect(stepped.space).toBe('hsl');
-        expect(stepped.share).toBe(2);
-        expect(recipeToGrammar(catalog, stepped).channels).toEqual({
-            space: 'hsl',
             shareDepth: 2,
+            space: 'hsl',
         });
+
+        const stepped = stepGrammar(catalog, grammar, createRng(createSeed(11)));
+
+        expect(stepped.size).toBe('small');
+        expect(stepped.shareDepth).toBe(2);
+        expect(stepped.space).toBe('hsl');
+        expect(channelModelOf(stepped)).toEqual({ space: 'hsl', shareDepth: 2 });
     });
 });
 
@@ -142,8 +142,10 @@ describe('compile channels', () => {
     const expression = generate(
         catalog,
         createGrammar(catalog, {
-            weights: { x: 1, y: 1, const: 1 },
-            constraints: { minDepth: 1, maxDepth: 2, maxNodes: 5 },
+            weights: { x: 1, y: 1, const: 1, neg: 1 },
+            size: 'small',
+            shareDepth: 0,
+            space: 'srgb',
         }),
         createSeed(1),
     );
@@ -180,53 +182,70 @@ describe('compile channels', () => {
 });
 
 describe('channel serialization', () => {
-    it('round-trips the channel model', () => {
+    it('round-trips the grammar axes', () => {
         const grammar = defaultGrammar(catalog);
         const data = serializeGrammar(grammar);
 
-        expect(data.channels).toEqual(DEFAULT_CHANNELS);
-        expect(deserializeGrammar(catalog, data).channels).toEqual(DEFAULT_CHANNELS);
+        expect(data.space).toBe(DEFAULT_CHANNELS.space);
+        expect(data.shareDepth).toBe(DEFAULT_CHANNELS.shareDepth);
+        expect(serializeGrammar(deserializeGrammar(catalog, data))).toEqual(data);
     });
 
-    it('accepts a missing channel model (falls back to raw sRGB)', () => {
-        const grammar = deserializeGrammar(catalog, {
-            weights: { x: 1 },
-            constraints: { minDepth: 1, maxDepth: 2, maxNodes: 2 },
-        });
-
-        expect(grammar.channels).toEqual(RAW_CHANNELS);
+    it('requires every axis (there is no channel fallback in a grammar)', () => {
+        expect(() =>
+            deserializeGrammar(catalog, {
+                weights: { x: 1, add: 1 },
+                size: SIZE,
+                shareDepth: 0,
+            }),
+        ).toThrow(/grammar\.space: unknown color space/);
+        expect(() =>
+            deserializeGrammar(catalog, {
+                weights: { x: 1, add: 1 },
+                size: SIZE,
+                space: 'oklch',
+            }),
+        ).toThrow(/grammar\.shareDepth: number expected/);
+        expect(() =>
+            deserializeGrammar(catalog, {
+                weights: { x: 1, add: 1 },
+                shareDepth: 0,
+                space: 'oklch',
+            }),
+        ).toThrow(/grammar\.size: unknown size profile/);
     });
 
-    it('repairs shareDepth against the maxDepth in the file', () => {
+    it('repairs shareDepth against the maxDepth of the size profile', () => {
         const grammar = deserializeGrammar(catalog, {
             weights: { x: 1, add: 1 },
-            constraints: { minDepth: 1, maxDepth: 4, maxNodes: 20 },
-            channels: { space: 'oklab', shareDepth: 99 },
+            size: 'small',
+            shareDepth: 99,
+            space: 'oklab',
         });
 
-        expect(grammar.channels).toEqual({ space: 'oklab', shareDepth: 4 });
+        expect(grammar.shareDepth).toBe(5);
+        expect(grammar.space).toBe('oklab');
     });
 
-    it('refuses a malformed channel model with the field path', () => {
+    it('refuses a malformed channel field with the field path', () => {
         const base = {
-            weights: { x: 1 },
-            constraints: { minDepth: 1, maxDepth: 2, maxNodes: 2 },
+            weights: { x: 1, add: 1 },
+            size: SIZE,
+            shareDepth: 0,
+            space: 'srgb',
         };
 
-        expect(() => deserializeGrammar(catalog, { ...base, channels: 42 })).toThrow(
-            /grammar\.channels: object expected/,
+        expect(() => deserializeGrammar(catalog, { ...base, space: 'nope' })).toThrow(
+            /grammar\.space: unknown color space/,
         );
-        expect(() =>
-            deserializeGrammar(catalog, { ...base, channels: { space: 'nope', shareDepth: 0 } }),
-        ).toThrow(/grammar\.channels\.space: unknown color space/);
-        expect(() =>
-            deserializeGrammar(catalog, { ...base, channels: { space: 'srgb', shareDepth: 'a' } }),
-        ).toThrow(/grammar\.channels\.shareDepth: number expected/);
+        expect(() => deserializeGrammar(catalog, { ...base, shareDepth: Number.NaN })).toThrow(
+            /grammar\.shareDepth: finite number expected/,
+        );
         expect(() =>
             deserializeGrammar(catalog, {
                 ...base,
-                channels: { space: 'srgb', shareDepth: 0, palette: 'spectrum' },
+                channels: { space: 'srgb', shareDepth: 0 },
             }),
-        ).toThrow(/grammar\.channels\.palette: unknown field/);
+        ).toThrow(/grammar\.channels: unknown field/);
     });
 });

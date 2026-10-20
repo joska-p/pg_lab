@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { buildLotView, EMPTY_LOT } from '../components/bench/lot.ts';
 import type { LotView } from '../components/bench/lot.ts';
 import { CONFIG } from '../core/config/index.ts';
-import { sampleRecipes } from '../core/grammar/index.ts';
+import { sampleGrammars } from '../core/grammar/index.ts';
 import {
     addBatchToNotebook,
     createBatch,
@@ -222,7 +222,7 @@ function renderNewLot(base: Seed): void {
     const { count, seedsPerGrammar, cellSize } = store.getState().settings;
 
     try {
-        const sampled = sampleRecipes(catalog, count, { baseSeed: base, seedsPerGrammar });
+        const sampled = sampleGrammars(catalog, count, { baseSeed: base, seedsPerGrammar });
 
         const candidates = sampled.map(({ grammar, seeds }) => createCandidate({ grammar, seeds }));
         const batch = createBatch({ candidates });

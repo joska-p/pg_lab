@@ -6,35 +6,28 @@ import { Slider } from '@repo/ui/components/Slider';
 import { Text } from '@repo/ui/components/Text';
 import { TextInput } from '@repo/ui/components/TextInput';
 
-import type { OperatorId } from '../../core/catalog/index.ts';
+import type { Operator, OperatorId } from '../../core/catalog/index.ts';
 import { COLOR_SPACE_IDS, COLOR_SPACES } from '../../core/color/index.ts';
+import { CONFIG } from '../../core/config/index.ts';
 import {
-    ANCHOR_OPERATORS,
-    FAMILY_IDS,
-    FAMILY_OPERATORS,
+    constraintsOf,
     grammarPresets,
+    isLastNonTerminal,
     isLastTerminal,
-    levelIndexOf,
-    levelOf,
-    NEUTRAL_LEVEL,
-    OFF_LEVEL,
-    recipeWeights,
-    SIZE_PROFILE_IDS,
     presetIdOf,
-    SHARE_CHOICES,
-    WEIGHT_LEVELS,
+    SIZE_PROFILE_IDS,
+    weightOf,
 } from '../../core/grammar/index.ts';
-import type { FamilyId } from '../../core/grammar/index.ts';
 import { createSeed } from '../../core/random/index.ts';
 import {
-    applyRecipe,
-    resetSeed,
+    applyGrammar,
     drawGrammar,
-    setRecipeOperator,
-    setRecipeShare,
-    setRecipeSize,
-    setRecipeSpace,
-    useRecipe,
+    resetSeed,
+    setGrammarShareDepth,
+    setGrammarSize,
+    setGrammarSpace,
+    setGrammarWeight,
+    useGrammar,
     useSeed,
 } from '../../stores/appStore.ts';
 import { catalog } from '../../stores/catalogStore.ts';
@@ -46,41 +39,47 @@ const PRESET_OPTIONS = [
     { value: CUSTOM_PRESET, label: 'Custom' },
 ];
 
-const FAMILY_LABELS: Record<FamilyId, string> = {
-    anchors: 'anchors (x, y)',
-    extrema: 'min / max',
+/**
+ * Display-only grouping: the model has no families, but a flat list of 17 sliders is unreadable.
+ * The catalog's own `group` is reused here, so a new operator lands in the right section.
+ */
+const GROUP_LABELS: Record<Operator['group'], string> = {
+    terminal: 'terminals',
     arithmetic: 'arithmetic',
     trigonometry: 'trigonometry',
     logic: 'logic',
-    warp: 'warp',
+    transform: 'warp',
 };
+
+const OPERATOR_GROUPS = (Object.keys(GROUP_LABELS) as Operator['group'][])
+    .map((group) => ({
+        group,
+        label: GROUP_LABELS[group],
+        operators: catalog.operators().filter((operator) => operator.group === group),
+    }))
+    .filter((bucket) => bucket.operators.length > 0);
 
 const SPACE_OPTIONS = COLOR_SPACE_IDS.map((id) => ({ value: id, label: COLOR_SPACES[id].label }));
 
-const MAX_LEVEL_INDEX = WEIGHT_LEVELS.length - 1;
-
 /**
- * The grammar workshop: one story. The grammar is a point of the quantized grid — one weight level
- * per operator — a preset is a named recipe, and the select reads "Custom" as soon as a knob moves
- * away from every preset. A slider whose lowest notch would break a structural invariant (the last
- * active terminal, the last live anchor) starts at the first valid notch.
+ * The grammar workshop: one point of the quantized space — an integer weight per operator, a size
+ * profile, a shared-trunk depth and a color space. A preset is a named grammar; the select reads
+ * "Custom" as soon as a knob moves away from every preset. A slider whose zero would break a
+ * structural invariant (the last terminal or the last non-terminal) starts at 1.
  */
 export function GrammarSection() {
-    const recipe = useRecipe();
+    const grammar = useGrammar();
     const seed = useSeed();
 
-    const presetId = presetIdOf(PRESETS, recipe);
+    const presetId = presetIdOf(catalog, PRESETS, grammar);
     const preset = PRESETS.find((candidate) => candidate.id === presetId);
-    const weights = recipeWeights(recipe);
+    const maxShareDepth = constraintsOf(grammar.size).maxDepth;
+    const mono = grammar.shareDepth >= maxShareDepth;
 
-    function mustStayOn(name: OperatorId): boolean {
-        const lastAnchor =
-            ANCHOR_OPERATORS.includes(name) &&
-            ANCHOR_OPERATORS.filter((other) => other !== name).every(
-                (other) => levelOf(recipe, other) === OFF_LEVEL,
-            );
-
-        return lastAnchor || isLastTerminal(catalog, weights, name);
+    function mustStayOn(operator: Operator): boolean {
+        return operator.isTerminal
+            ? isLastTerminal(catalog, grammar.weights, operator.name)
+            : isLastNonTerminal(catalog, grammar.weights, operator.name);
     }
 
     return (
@@ -104,14 +103,14 @@ export function GrammarSection() {
                 </Button>
 
                 <Select
-                    title={preset?.description ?? 'A recipe that is not one of the presets.'}
+                    title={preset?.description ?? 'A grammar that is not one of the presets.'}
                     value={presetId ?? CUSTOM_PRESET}
                     options={PRESET_OPTIONS}
                     onValueChange={(id) => {
                         const chosen = PRESETS.find((candidate) => candidate.id === id);
 
                         if (chosen) {
-                            applyRecipe(chosen.recipe);
+                            applyGrammar(chosen.grammar);
                         }
                     }}
                 />
@@ -127,20 +126,20 @@ export function GrammarSection() {
                 </Button>
             </Grid>
 
-            {FAMILY_IDS.map((family) => (
-                <Grid key={family} columns="1" gap="1" justifyItem="stretch" alignItem="stretch">
-                    <Text>{FAMILY_LABELS[family]}</Text>
+            {OPERATOR_GROUPS.map(({ group, label, operators }) => (
+                <Grid key={group} columns="1" gap="1" justifyItem="stretch" alignItem="stretch">
+                    <Text>{label}</Text>
 
-                    {FAMILY_OPERATORS[family].map((name) => (
+                    {operators.map((operator) => (
                         <Slider
                             color="orange"
-                            key={name}
-                            label={name}
-                            value={levelIndexOf(levelOf(recipe, name))}
-                            min={mustStayOn(name) ? 1 : 0}
-                            max={MAX_LEVEL_INDEX}
-                            onValueChange={(index) => {
-                                setRecipeOperator(name, WEIGHT_LEVELS[index] ?? NEUTRAL_LEVEL);
+                            key={operator.name}
+                            label={operator.name}
+                            value={weightOf(grammar.weights, operator.name)}
+                            min={mustStayOn(operator) ? 1 : 0}
+                            max={CONFIG.grammar.maxWeight}
+                            onValueChange={(weight) => {
+                                setGrammarWeight(operator.name as OperatorId, weight);
                             }}
                         />
                     ))}
@@ -150,27 +149,27 @@ export function GrammarSection() {
             <Slider
                 color="orange"
                 label="size"
-                value={SIZE_PROFILE_IDS.indexOf(recipe.size)}
+                value={SIZE_PROFILE_IDS.indexOf(grammar.size)}
                 min={0}
                 max={SIZE_PROFILE_IDS.length - 1}
-                onValueChange={(value) => setRecipeSize(SIZE_PROFILE_IDS[value])}
+                onValueChange={(value) => setGrammarSize(SIZE_PROFILE_IDS[value])}
             />
 
             <Slider
                 color="orange"
-                label="share"
-                value={SHARE_CHOICES.indexOf(recipe.share)}
+                label={mono ? 'share (mono)' : 'share'}
+                value={grammar.shareDepth}
                 min={0}
-                max={SHARE_CHOICES.length - 1}
-                onValueChange={(value) => setRecipeShare(SHARE_CHOICES[value])}
+                max={maxShareDepth}
+                onValueChange={setGrammarShareDepth}
             />
 
             <Segmented
                 color="orange"
                 label="color"
-                value={recipe.space}
+                value={grammar.space}
                 options={SPACE_OPTIONS}
-                onValueChange={setRecipeSpace}
+                onValueChange={setGrammarSpace}
             />
         </Grid>
     );

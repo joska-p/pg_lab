@@ -190,42 +190,43 @@ describe('field render', () => {
             weights[op.name] =
                 op.name === 'x' || op.name === 'y'
                     ? 3
-                    : op.name === 'const'
+                    : op.name === 'select' || op.name === 'mix' || op.name === 'warp'
                       ? 1
-                      : op.name === 'select' || op.name === 'mix' || op.name === 'warp'
-                        ? 0.5
-                        : 1;
+                      : 2;
         }
         Object.assign(weights, overrides);
         const base = defaultGrammar(catalog);
         return createGrammar(catalog, {
             weights,
-            constraints: base.constraints,
-            channels: base.channels,
+            size: base.size,
+            shareDepth: base.shareDepth,
+            space: base.space,
         });
     };
 
+    // Integer weights on the same `[0, 4]` grid as the app: 0 turns an operator off, 4 is the
+    // strongest. The probe is opt-in and has no assertions; it only compares contact sheets.
     const GENTLE = {
         x: 4,
         y: 4,
         max: 2,
-        min: 1.5,
-        const: 0.5,
-        add: 0.5,
-        gt: 0.5,
-        mul: 0.75,
+        min: 2,
+        const: 1,
+        add: 1,
+        gt: 1,
+        mul: 2,
     };
     const STRONG = {
-        x: 5,
-        y: 5,
-        max: 2,
+        x: 4,
+        y: 4,
+        max: 3,
         min: 2,
-        const: 0.3,
-        add: 0.3,
-        gt: 0.3,
-        mul: 0.5,
-        select: 0.3,
-        mix: 0.3,
+        const: 1,
+        add: 1,
+        gt: 1,
+        mul: 1,
+        select: 1,
+        mix: 1,
     };
 
     function sheet(grammar: Grammar, path: string): void {

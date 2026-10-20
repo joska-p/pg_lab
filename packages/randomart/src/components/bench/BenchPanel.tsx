@@ -75,10 +75,8 @@ function batchLabel(batch: NotebookBatch): string {
  * The bench panel: everything that _decides_ what to look at or how to judge it.
  *
  * The split with the stage is deliberate — the panel holds every control, the stage only shows the
- * planche. Rating follows the same rule as the data model: a note belongs to a **grammar**
- *
- * (a row, one candidate recipe), never to a single seed; the seeds of a row are views of one
- * grammar.
+ * planche. Rating follows the same rule as the data model: a note belongs to a **grammar** (a row,
+ * one candidate), never to a single seed; the seeds of a row are views of one grammar.
  */
 export function BenchPanel() {
     const { count, seedsPerGrammar, cellSize, view, dimFlats, baseSeed } = useBenchSettings();

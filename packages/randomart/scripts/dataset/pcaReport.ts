@@ -1,11 +1,15 @@
 import { correlation } from '../../src/core/analysis/correlation.ts';
 import { pca } from '../../src/core/analysis/pca.ts';
+import { constraintsOf } from '../../src/core/grammar/index.ts';
+import type { SizeProfileId } from '../../src/core/grammar/index.ts';
 import type { FeatureRow, Features } from './computeFeatures.ts';
 
-/** What a grammar was made of: operator weights, constraints, vocabulary size. */
+/** What a grammar was made of: operator weights, its size profile, share depth and vocabulary. */
 export interface GrammarInput {
-    readonly weights: Record<string, number>;
-    readonly constraints: Record<string, number>;
+    readonly weights: Readonly<Record<string, number>>;
+    readonly size: SizeProfileId;
+    readonly shareDepth: number;
+    readonly space: string;
 }
 
 export interface PcaOptions {
@@ -101,10 +105,16 @@ export function buildPcaReport(
             label: `w:${name}`,
             pick: (g: GrammarInput) => g.weights[name] ?? 0,
         })),
-        ...['minDepth', 'maxDepth', 'maxNodes'].map((key) => ({
+        // Constraints are derived from the size profile, never stored in a grammar: correlating
+        // them still says which budget tracks a component, without trusting a second copy.
+        ...(['minDepth', 'maxDepth', 'maxNodes'] as const).map((key) => ({
             label: key,
-            pick: (g: GrammarInput) => g.constraints[key],
+            pick: (g: GrammarInput) => constraintsOf(g.size)[key],
         })),
+        {
+            label: 'shareDepth',
+            pick: (g: GrammarInput) => g.shareDepth,
+        },
         {
             label: 'vocabulary',
             pick: (g: GrammarInput) => Object.values(g.weights).filter((w) => w > 0).length,

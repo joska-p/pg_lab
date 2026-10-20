@@ -6,6 +6,7 @@ import type { RgbImage } from '../core/analysis/index.ts';
 import type { Catalog } from '../core/catalog/index.ts';
 import { compile } from '../core/compiler/index.ts';
 import { generate } from '../core/generator/index.ts';
+import { channelModelOf } from '../core/grammar/index.ts';
 import type { Grammar } from '../core/grammar/index.ts';
 import type { Seed } from '../core/random/index.ts';
 import { DEFAULT_CONTEXT_OPTIONS } from './contract.ts';
@@ -97,7 +98,7 @@ function createStage(size: number): Stage {
 function renderCell(stage: Stage, catalog: Catalog, grammar: Grammar, seed: Seed): RenderedCell {
     try {
         const expression = generate(catalog, grammar, seed);
-        const { source } = compile(catalog, expression, { channels: grammar.channels });
+        const { source } = compile(catalog, expression, { channels: channelModelOf(grammar) });
         const attempt = stage.surface.tryCreateProgram(source);
 
         if (!attempt.ok) {

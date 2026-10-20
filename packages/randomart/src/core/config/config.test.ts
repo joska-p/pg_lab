@@ -20,16 +20,9 @@ describe('config pins', () => {
         });
     });
 
-    it('pins the sampler knobs: changing them alters the explored recipes and seeds', () => {
-        expect(CONFIG.recipe).toEqual({
-            levels: {
-                '0': { weight: 0, odds: 3, allowsAnchors: false },
-                '1': { weight: 1, odds: 3, allowsAnchors: true },
-                '2': { weight: 2, odds: 2, allowsAnchors: true },
-                '3': { weight: 3, odds: 1, allowsAnchors: true },
-                '4': { weight: 4, odds: 2, allowsAnchors: true },
-            },
-            minActiveOperators: 2,
+    it('pins the grammar space: changing it alters which grammars are explored', () => {
+        expect(CONFIG.grammar).toEqual({
+            maxWeight: 4,
             sizeProfiles: {
                 small: { minDepth: 2, maxDepth: 5, maxNodes: 30 },
                 medium: { minDepth: 3, maxDepth: 8, maxNodes: 60 },

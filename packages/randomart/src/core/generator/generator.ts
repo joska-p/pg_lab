@@ -2,7 +2,7 @@ import type { Catalog, Operator } from '../catalog/index.ts';
 import { CONFIG } from '../config/index.ts';
 import { createExpression, createNode } from '../expression/index.ts';
 import type { Expression, Node } from '../expression/index.ts';
-import { getVocabulary, minSize, weightOf } from '../grammar/index.ts';
+import { constraintsOf, getVocabulary, minSize, weightOf } from '../grammar/index.ts';
 import type { Grammar } from '../grammar/index.ts';
 import { createRng } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
@@ -29,11 +29,11 @@ interface TrunkResult {
 /**
  * Generates the three-channel expression of a grammar for a seed.
  *
- * The three channels correlate through `grammar.channels.shareDepth`: the top `shareDepth` levels
- * are the **shared trunk** — their operator and params are drawn once, so all channels agree there
- * — and below it each channel diverges on operators _and_ params (diverging on values alone would
- * only leave grey zones). `0` gives the historical three independent trees; `>= maxDepth` gives a
- * single tree, hence `r = g = b`.
+ * The three channels correlate through `grammar.shareDepth`: the top `shareDepth` levels are the
+ * **shared trunk** — their operator and params are drawn once, so all channels agree there — and
+ * below it each channel diverges on operators _and_ params (diverging on values alone would only
+ * leave grey zones). `0` gives the historical three independent trees; `>= maxDepth` gives a single
+ * tree, hence `r = g = b`.
  *
  * A terminal drawn inside the trunk ends its branch for good, so the deeper the trunk (or the
  * earlier a terminal falls), the more the channels coincide — this is the cost of correlation. The
@@ -47,8 +47,8 @@ interface TrunkResult {
  */
 export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expression {
     const rng = createRng(seed);
-    const { minDepth, maxDepth, maxNodes } = grammar.constraints;
-    const shareDepth = grammar.channels.shareDepth;
+    const { minDepth, maxDepth, maxNodes } = constraintsOf(grammar.size);
+    const { shareDepth } = grammar;
 
     const vocabulary: Operator[] = getVocabulary(catalog, grammar.weights);
 

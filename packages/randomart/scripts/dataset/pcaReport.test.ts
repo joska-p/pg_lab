@@ -21,7 +21,9 @@ function featuresFixture(): Features {
 function grammarsFixture(): GrammarInput[] {
     return Array.from({ length: 6 }, (_, i) => ({
         weights: { sin: i / 5, cos: 1 - i / 5 },
-        constraints: { minDepth: 1, maxDepth: 3, maxNodes: 10 },
+        size: 'medium' as const,
+        shareDepth: 2,
+        space: 'oklch',
     }));
 }
 

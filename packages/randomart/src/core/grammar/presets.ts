@@ -1,97 +1,126 @@
-import type { Catalog } from '../catalog/index.ts';
+import type { Catalog, OperatorId } from '../catalog/index.ts';
+import { DEFAULT_CHANNELS } from '../color/index.ts';
+import type { ColorSpaceId } from '../color/index.ts';
 import { CONFIG } from '../config/index.ts';
-import { recipeKey, recipeToGrammar } from './quantized.ts';
-import type { Recipe, Grammar } from './types.ts';
+import { constraintsOf, createGrammar } from './grammar.ts';
+import { grammarKey } from './quantized.ts';
+import type { Grammar } from './types.ts';
 
 export interface GrammarPreset {
     readonly id: string;
     readonly label: string;
     readonly description: string;
-    readonly recipe: Recipe;
     readonly grammar: Grammar;
 }
 
 /**
- * The app's starting point: the 2026-10-17 calibration, snapped onto the weight grid. The field of
- * a generated expression is provably bounded to `[-1, 1]` (every operator preserves the range), and
- * every color space maps it monotonically, so the only thing that flattens an image into an aplat
- * is a _constant_ field — not the mapping and not a final clamp (that clamp is dead). Measuring
- * local flatness against operator presence showed which operators structure the field and which
- * flatten it: `x`/`y`/`max` create variation, while `gt`, `add` and `const` dominate subtrees with
- * a single value. Up-weighting the first and leaving the second at the neutral level roughly halves
- * the share of near-uniform stills (measured on the fuzz corpus: mean local flatness 59% → 41%,
- * near-uniform "aplats" 42% → 19%).
+ * The 2026-10-17 calibration, expressed on the weight axis. Measuring local flatness against
+ * operator presence showed which operators structure the field and which flatten it: `x`/`y`/`max`
+ * create variation, while `gt`, `add` and `const` dominate subtrees with a single value.
+ * Up-weighting the first and leaving the second at the neutral weight roughly halves the share of
+ * near-uniform stills (measured on the fuzz corpus: mean local flatness 59% → 41%, near-uniform
+ * "aplats" 42% → 19%).
  *
- * Operators absent from `levels` read as `NEUTRAL_LEVEL` (weight 1): the vocabulary is the whole
- * catalog, weighted for _structure_. There is no separate "animated" preset: animation is a matter
- * of playback (the terminals' oscillator params), not of vocabulary.
+ * Every other operator stays at the neutral weight 1: the vocabulary is the whole catalog, weighted
+ * for _structure_. Animation is a matter of playback (the terminals' oscillator params), not of
+ * vocabulary.
  */
-export const DEFAULT_RECIPE: Recipe = {
-    levels: {
-        // Spatial anchors: always vary across the image.
-        x: '4',
-        y: '4',
-        // Structure makers.
-        max: '2',
-        min: '2',
-    },
-    size: 'medium',
-    share: CONFIG.channels.shareDepth,
-    space: CONFIG.channels.space,
+const CALIBRATION: Readonly<Partial<Record<OperatorId, number>>> = {
+    x: CONFIG.grammar.maxWeight,
+    y: CONFIG.grammar.maxWeight,
+    max: Math.min(2, CONFIG.grammar.maxWeight),
+    min: Math.min(2, CONFIG.grammar.maxWeight),
 };
 
-/**
- * The default grammar: the `structure` recipe compiled down. Its color model is a trunk of depth 2
- * read as OKLCH, the _curated_ default — the model that actually yields readable images
- * (`createGrammar` alone would fall back to plain raw sRGB).
- */
+/** The full catalog at the neutral weight, with the calibration applied. */
+function calibratedWeights(catalog: Catalog): Record<OperatorId, number> {
+    const weights = {} as Record<OperatorId, number>;
+
+    for (const operator of catalog.operators()) {
+        weights[operator.name as OperatorId] = 1;
+    }
+
+    return Object.assign(weights, CALIBRATION);
+}
+
+/** The default grammar: the calibrated start, a medium grammar in the curated channel model. */
 export function defaultGrammar(catalog: Catalog): Grammar {
-    return recipeToGrammar(catalog, DEFAULT_RECIPE);
+    return createGrammar(catalog, {
+        weights: calibratedWeights(catalog),
+        size: 'medium',
+        shareDepth: DEFAULT_CHANNELS.shareDepth,
+        space: DEFAULT_CHANNELS.space,
+    });
 }
 
-/** Quantized readings of the calibrated default: the app's starting point and its variants. */
-export const PRESET_RECIPES: readonly {
-    id: string;
-    label: string;
-    description: string;
-    recipe: Recipe;
-}[] = [
-    {
-        id: 'structure',
-        label: 'Structure',
-        description: 'Calibrated start: a shallow shared trunk read as OKLCH.',
-        recipe: DEFAULT_RECIPE,
-    },
-    {
-        id: 'mono',
-        label: 'Mono',
-        description: 'One fully shared tree: pure greyscale structure.',
-        recipe: { ...DEFAULT_RECIPE, share: 'mono' },
-    },
-    {
-        id: 'oklab',
-        label: 'OKLab',
-        description: 'The same shared trunk in OKLab: flatter, more even color.',
-        recipe: { ...DEFAULT_RECIPE, space: 'oklab' },
-    },
-    {
-        id: 'rgb',
-        label: 'Raw RGB',
-        description: 'Three independent channels in sRGB: color and shape drift apart.',
-        recipe: { ...DEFAULT_RECIPE, share: 0, space: 'srgb' },
-    },
-];
+function preset(
+    catalog: Catalog,
+    id: string,
+    label: string,
+    description: string,
+    shareDepth: number,
+    space: ColorSpaceId,
+): GrammarPreset {
+    return {
+        id,
+        label,
+        description,
+        grammar: createGrammar(catalog, {
+            weights: calibratedWeights(catalog),
+            size: 'medium',
+            shareDepth,
+            space,
+        }),
+    };
+}
 
+/** Named grammars: the app's starting point and its channel-model variants. */
 export function grammarPresets(catalog: Catalog): readonly GrammarPreset[] {
-    return PRESET_RECIPES.map((preset) => ({
-        ...preset,
-        grammar: recipeToGrammar(catalog, preset.recipe),
-    }));
+    const monoShareDepth = constraintsOf('medium').maxDepth;
+
+    return [
+        preset(
+            catalog,
+            'structure',
+            'Structure',
+            'Calibrated start: a shallow shared trunk read as OKLCH.',
+            DEFAULT_CHANNELS.shareDepth,
+            DEFAULT_CHANNELS.space,
+        ),
+        preset(
+            catalog,
+            'mono',
+            'Mono',
+            'One fully shared tree: pure greyscale structure.',
+            monoShareDepth,
+            DEFAULT_CHANNELS.space,
+        ),
+        preset(
+            catalog,
+            'oklab',
+            'OKLab',
+            'The same shared trunk in OKLab: flatter, more even color.',
+            DEFAULT_CHANNELS.shareDepth,
+            'oklab',
+        ),
+        preset(
+            catalog,
+            'rgb',
+            'Raw RGB',
+            'Three independent channels in sRGB: color and shape drift apart.',
+            0,
+            'srgb',
+        ),
+    ];
 }
 
-/** The id of the preset the recipe equals, or `undefined`: the select then reads "Custom". */
-export function presetIdOf(presets: readonly GrammarPreset[], recipe: Recipe): string | undefined {
-    const key = recipeKey(recipe);
+/** The id of the preset the grammar equals, or `undefined`: the select then reads "Custom". */
+export function presetIdOf(
+    catalog: Catalog,
+    presets: readonly GrammarPreset[],
+    grammar: Grammar,
+): string | undefined {
+    const key = grammarKey(catalog, grammar);
 
-    return presets.find((preset) => recipeKey(preset.recipe) === key)?.id;
+    return presets.find((preset) => grammarKey(catalog, preset.grammar) === key)?.id;
 }

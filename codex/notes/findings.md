@@ -22,11 +22,8 @@ stated; each item names the file so a future session can pick it up. Generated d
    record): `catalog/operators/types.ts` exports the `defineOperator` factory;
    `notebook/types.ts` exports `NOTEBOOK_FILE_FORMAT`/`_VERSION`, `MAX_NOTEBOOK_FILE_LENGTH`
    and the `isNotebookRating` validator. Validators/factories are code, not types.
-5. **`grammar/types.ts` ↔ `grammar/quantized.ts` type-only cycle.** `FamilyId`/`ShareChoice`
-   are derived from the value lists (`FAMILY_IDS`, `SHARE_CHOICES`) that live in
-   `quantized.ts`, while `quantized.ts` imports `Recipe`/`FamilyId`/`ShareChoice` back from
-   `types.ts`. It is type-only (erased at runtime, TS handles it), but a
-   `grammar/vocabulary.ts` holding the lists + their id types would remove the tangle.
+5. ~~**`grammar/types.ts` ↔ `grammar/quantized.ts` type-only cycle.**~~ Resolved 2026-10-20:
+   families and share choices are gone, and `quantized.ts` only imports `types.ts`; no cycle.
 6. **`Seed`/`Phase` brands** stay colocated with their factories (`random/seed.ts`,
    `renderer/contract.ts`) — deliberate exception, kept.
 
@@ -38,12 +35,12 @@ stated; each item names the file so a future session can pick it up. Generated d
    colour space (it belongs next to `COLOR_SPACES`)?
 2. **`MIN/MAX_LOOP_MS`** (`core/artwork/types.ts`) are a UI slider range and a file-validation
    bound, not a safety guard (already a TODO in the coherence plan).
-3. **`DEFAULT_KEEP = ['x', 'y']`** (`core/grammar/randomize.ts`) duplicates
-   `FAMILY_OPERATORS.anchors`/`ANCHOR_LEVELS` at a lower layer (existing finding).
-4. **`STRUCTURE_RECIPE` mixes sources**: `share`/`space` from `CONFIG.channels`, `size`/`levels`
-   as literals. Documented as intentional (the preset's own definition); worth a second look
-   if `medium` becomes configurable.
-5. **`defaultGrammar`** is a calibration fixture, not the app default (existing TODO).
+3. ~~**`DEFAULT_KEEP = ['x', 'y']`** duplicates the anchor list.~~ Resolved 2026-10-20:
+   `randomize.ts`, the anchor lists and the family vocabulary are gone.
+4. ~~**`STRUCTURE_RECIPE` mixes sources.**~~ Resolved 2026-10-20: presets are named grammars;
+   `structure` reads `CONFIG.channels` for `shareDepth`/`space` and its own weight literals.
+5. ~~**`defaultGrammar`** is a calibration fixture, not the app default.~~ Resolved 2026-10-20:
+   it is the app's initial grammar and the `structure` preset.
 6. **`core/grammar/grammar.ts:1`** imports `'../catalog'` without the `.ts` extension, unlike
    every other import in the package.
 7. **`DEFAULT_LOOP_DURATION` vs `CONFIG.artwork.loopMs / 1000`**: the division was duplicated

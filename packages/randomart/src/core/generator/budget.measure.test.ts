@@ -3,7 +3,7 @@ import { describe, it } from 'vite-plus/test';
 import { createDefaultCatalog } from '../catalog/index.ts';
 import type { Node } from '../expression/index.ts';
 import { generate } from '../generator/index.ts';
-import { defaultGrammar, createGrammar } from '../grammar/index.ts';
+import { constraintsOf, createGrammar, defaultGrammar } from '../grammar/index.ts';
 import { createSeed } from '../random/index.ts';
 
 /**
@@ -35,7 +35,7 @@ describe('generator budget', () => {
         () => {
             const catalog = createDefaultCatalog();
             const grammar = defaultGrammar(catalog);
-            const { minDepth, maxDepth, maxNodes } = grammar.constraints;
+            const { minDepth, maxDepth, maxNodes } = constraintsOf(grammar.size);
             /** Mean child size normalised by the node's total child size, per child index. */
             const binarySharesFirst: number[] = [];
             const binarySharesSecond: number[] = [];
@@ -83,8 +83,9 @@ describe('generator budget', () => {
                     catalog,
                     createGrammar(catalog, {
                         weights: grammar.weights,
-                        constraints: grammar.constraints,
-                        channels: { space: 'srgb', shareDepth: 0 },
+                        size: grammar.size,
+                        shareDepth: 0,
+                        space: 'srgb',
                     }),
                     seed,
                 );
