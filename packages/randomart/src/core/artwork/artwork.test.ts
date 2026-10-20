@@ -96,7 +96,7 @@ describe('artwork: createArtwork', () => {
         // canonically (keep the first MAX_TITLE_LENGTH characters).
         expect(createArtwork({ expression, title: '' }).title).toBeUndefined();
         expect(createArtwork({ expression, title: 'x'.repeat(201) }).title).toHaveLength(200);
-        expect(createArtwork({ expression, title: 'Vagues' }).title).toBe('Vagues');
+        expect(createArtwork({ expression, title: 'Waves' }).title).toBe('Waves');
     });
 });
 
@@ -192,7 +192,7 @@ describe('artwork: files', () => {
 
     it('omits optional fields and keeps a fixed key order with a title', () => {
         const { artwork } = fixture(false);
-        const titled = { ...artwork, title: 'Vagues' } as Artwork;
+        const titled = { ...artwork, title: 'Waves' } as Artwork;
         const text = serializeArtwork(titled);
 
         expect(Object.keys(JSON.parse(text))).toEqual([
@@ -202,7 +202,7 @@ describe('artwork: files', () => {
             'render',
             'expression',
         ]);
-        expect(text).toContain('"title": "Vagues"');
+        expect(text).toContain('"title": "Waves"');
     });
 
     it('rejects a wrong format, version 2 and invalid JSON', () => {

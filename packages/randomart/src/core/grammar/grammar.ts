@@ -1,4 +1,4 @@
-import type { Catalog, Operator, OperatorId } from '../catalog';
+import type { Catalog, Operator, OperatorId } from '../catalog/index.ts';
 import { DEFAULT_CHANNELS, isColorSpaceId, MIN_SHARE_DEPTH, RAW_CHANNELS } from '../color/index.ts';
 import type { ChannelModel } from '../color/index.ts';
 import { CONFIG } from '../config/index.ts';

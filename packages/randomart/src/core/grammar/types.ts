@@ -52,8 +52,7 @@ export const MIN_WEIGHT = 0;
 export const MAX_WEIGHT = 100;
 /**
  * Smallest strictly positive weight. A weight of exactly 0 means "off"; anything above it is a live
- * weight, and this floor keeps rounding from silently switching an operator off. The UI also uses
- * it as the weight floor of the last active terminal, whose removal `createGrammar` refuses.
+ * weight, and this floor keeps rounding from silently switching an operator off.
  */
 export const MIN_ACTIVE_WEIGHT = 0.001;
 export const MAX_DEPTH = 16;

@@ -197,7 +197,7 @@ describe('grammar: createConstraints', () => {
             maxNodes: 1,
         });
 
-        // … a conflict resolves "les rendre égales" with maxDepth winning…
+        // … a conflict resolves to equal bounds, with maxDepth winning…
         expect(createConstraints({ minDepth: 5, maxDepth: 3, maxNodes: 60 })).toEqual({
             minDepth: 3,
             maxDepth: 3,

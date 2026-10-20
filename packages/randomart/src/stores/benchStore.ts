@@ -21,7 +21,7 @@ import { createBatchRenderer } from '../renderer/index.ts';
 import type { BatchRenderer, RenderedBatch } from '../renderer/index.ts';
 import { loadNotebookFromDb, saveNotebookToDb } from '../storage/notebookDb.ts';
 import { openCellInLab } from './appStore.ts';
-import { catalog } from './catalogueStore.ts';
+import { catalog } from './catalogStore.ts';
 
 /** Cell sizes offered: square powers of two ≥ 16, so the analysis descriptors accept them. */
 export type CellSize = '64' | '128' | '256';

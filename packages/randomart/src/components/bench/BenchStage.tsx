@@ -163,7 +163,8 @@ export function BenchStage() {
 
         const digit = Number(event.key);
 
-        if (event.key.length === 1 && RATINGS.includes(digit as NotebookRating)) {
+        // `Number(' ')` is 0: only a real digit key rates, never Space or another blank key.
+        if (/^\d$/.test(event.key) && RATINGS.includes(digit as NotebookRating)) {
             event.preventDefault();
             toggleCandidateRating(selectedRowIndex, digit as NotebookRating);
             return;

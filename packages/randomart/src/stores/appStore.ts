@@ -34,7 +34,7 @@ import { PRESET_RECIPES } from '../core/grammar/presets.ts';
 import { createRng, createSeed, randomSeed } from '../core/random/index.ts';
 import type { Seed } from '../core/random/index.ts';
 import { DEFAULT_LOOP_DURATION } from '../renderer/contract.ts';
-import { catalog } from './catalogueStore.ts';
+import { catalog } from './catalogStore.ts';
 
 /**
  * One explored state: enough to get the exact same image back. Generated entries replay from
@@ -44,7 +44,10 @@ export interface HistoryEntry {
     readonly id: number;
     readonly seed: Seed;
     readonly grammar: Grammar;
-    /** Present when the grammar came from the quantized recipe space. */
+    /**
+     * The recipe the grammar derives from. An imported artwork whose grammar is outside the
+     * quantized space keeps the recipe that was current at import.
+     */
     readonly recipe: Recipe;
     readonly nodes: number;
     /** Present only for imported artworks (their provenance may not replay the expression). */

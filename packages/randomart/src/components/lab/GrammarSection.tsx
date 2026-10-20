@@ -28,7 +28,7 @@ import {
     useRecipe,
     useSeed,
 } from '../../stores/appStore.ts';
-import { catalog } from '../../stores/catalogueStore.ts';
+import { catalog } from '../../stores/catalogStore.ts';
 
 const PRESETS = grammarPresets(catalog);
 const CUSTOM_PRESET = 'custom';

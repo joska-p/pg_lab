@@ -21,7 +21,7 @@ interface RandomArtCanvasProps {
     fragmentShader?: string;
     /** True when the shader reads `u_phase` (CompiledShader.animated). Defaults to true. */
     animated?: boolean;
-    /** Animation loop duration. Defaults to 8 seconds. */
+    /** Animation loop duration. Defaults to `DEFAULT_LOOP_DURATION`. */
     duration?: DurationSeconds;
     /** Callback invoked whenever shader compilation succeeds (null) or fails (ShaderError). */
     onShaderError?: (error: ShaderError | null) => void;
