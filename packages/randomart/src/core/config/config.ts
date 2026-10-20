@@ -73,7 +73,7 @@ interface Config {
     readonly recipe: {
         /**
          * The weight axis, one entry per level. **Append, don't reorder**: the entry order is the
-         * PRNG draw order of `randomRecipe`, so reordering changes what every recipe seed draws.
+         * PRNG draw order of `drawRecipe`, so reordering changes what every recipe seed draws.
          */
         readonly levels: Readonly<Record<string, WeightLevelKnobs>>;
         /**
@@ -94,7 +94,7 @@ interface Config {
          */
         readonly exploreSpread: number;
         /**
-         * Weight spread of a full random draw (dataset, `randomGrammar`): deliberately wider than a
+         * Weight spread of a full random draw (dataset, `drawGrammar`): deliberately wider than a
          * UI step so the sample covers more of the space.
          */
         readonly drawSpread: number;

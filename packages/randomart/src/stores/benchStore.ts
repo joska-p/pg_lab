@@ -35,8 +35,8 @@ export const MAX_BENCH_SEEDS = 64;
  * `focus` is one grammar at native cell size — the regime where a single candidate is actually
  * judged.
  */
-export type BenchView = 'focus' | 'sheet';
-export const BENCH_VIEWS = ['focus', 'sheet'] as const satisfies readonly BenchView[];
+export type BenchView = 'focus' | 'planche';
+export const BENCH_VIEWS = ['focus', 'planche'] as const satisfies readonly BenchView[];
 
 /**
  * Everything that describes _which_ lot to draw and _how_ to show it. Editable in the panel, read
@@ -158,7 +158,7 @@ export function setBenchDimFlats(dimFlats: boolean): void {
  */
 export function stepRow(delta: number): void {
     const { selectedRowIndex, lot } = store.getState();
-    const last = Math.max(0, lot.grammars - 1);
+    const last = Math.max(0, lot.grammarCount - 1);
 
     store.setState({ selectedRowIndex: Math.min(last, Math.max(0, selectedRowIndex + delta)) });
 }
@@ -166,14 +166,14 @@ export function stepRow(delta: number): void {
 /** Moves the current seed inside the current grammar. Clamped to the drawn columns. */
 export function stepCell(delta: number): void {
     const { selectedColIndex, lot } = store.getState();
-    const last = Math.max(0, lot.columns - 1);
+    const last = Math.max(0, lot.columnCount - 1);
 
     store.setState({ selectedColIndex: Math.min(last, Math.max(0, selectedColIndex + delta)) });
 }
 
 export function selectCell(rowIndex: number, colIndex: number): void {
     const { lot } = store.getState();
-    const lastRow = Math.max(0, lot.grammars - 1);
+    const lastRow = Math.max(0, lot.grammarCount - 1);
     const lastCol = Math.max(
         0,
         (lot.rows[Math.min(lastRow, Math.max(0, rowIndex))]?.length ?? 1) - 1,

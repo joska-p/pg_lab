@@ -3,7 +3,7 @@ import { RAW_CHANNELS } from '../color/index.ts';
 import { CONFIG } from '../config/index.ts';
 import { createRng, createSeed } from '../random/index.ts';
 import type { Seed } from '../random/index.ts';
-import { randomGrammar } from './randomGrammar.ts';
+import { drawGrammar } from './randomGrammar.ts';
 import type { Grammar, SampleOptions } from './types.ts';
 
 export interface SampledGrammar {
@@ -19,7 +19,7 @@ export function deriveSeed(base: number, index: number): Seed {
 
 /**
  * Independent grammars, not a chained walk: each one starts from the neutral vocabulary and gets
- * its own full randomization (`randomGrammar`), so the sample covers the space instead of drifting
+ * its own full randomization (`drawGrammar`), so the sample covers the space instead of drifting
  * through it.
  *
  * The channel model defaults to the plain raw sRGB (three independent trees) — the historical
@@ -42,7 +42,7 @@ export function sampleGrammars(
 
     for (let i = 0; i < count; i++) {
         const rng = createRng(deriveSeed(baseSeed, i));
-        const grammar = randomGrammar(catalog, rng, {
+        const grammar = drawGrammar(catalog, rng, {
             spread,
             changeRate,
             channels,

@@ -60,19 +60,19 @@ describe('buildLotView', () => {
             batch([gradient(16), gradient(16), gradient(16)]),
         ]);
 
-        expect(lot.grammars).toBe(2);
-        expect(lot.columns).toBe(3);
-        expect(lot.cells).toBe(6);
-        expect(lot.failed).toBe(0);
-        expect(lot.flats).toBe(0);
+        expect(lot.grammarCount).toBe(2);
+        expect(lot.columnCount).toBe(3);
+        expect(lot.cellCount).toBe(6);
+        expect(lot.failedCount).toBe(0);
+        expect(lot.flatCount).toBe(0);
     });
 
     it('keeps a failed render in its slot so the grid never shifts', () => {
         const lot = buildLotView([batch([gradient(16), null, gradient(16)])]);
 
-        expect(lot.cells).toBe(3);
-        expect(lot.failed).toBe(1);
-        expect(lot.columns).toBe(3);
+        expect(lot.cellCount).toBe(3);
+        expect(lot.failedCount).toBe(1);
+        expect(lot.columnCount).toBe(3);
         expect(lot.rows[0]?.[1]).toBeNull();
         expect(lot.flat[0]?.[1]).toBe(false);
     });
@@ -81,7 +81,7 @@ describe('buildLotView', () => {
         const flat = solid(16, 200);
         const lot = buildLotView([batch([flat, gradient(16)])]);
 
-        expect(lot.flats).toBe(1);
+        expect(lot.flatCount).toBe(1);
         expect(lot.rows[0]?.[0]).toBe(flat);
         expect(lot.flat[0]?.[0]).toBe(true);
         expect(lot.flat[0]?.[1]).toBe(false);
@@ -90,7 +90,7 @@ describe('buildLotView', () => {
     it('pads the grid to the widest row', () => {
         const lot = buildLotView([batch([gradient(16), gradient(16)]), batch([gradient(16)])]);
 
-        expect(lot.columns).toBe(2);
+        expect(lot.columnCount).toBe(2);
         expect(lot.rows[1]).toHaveLength(1);
         expect(lot.flat[1]).toHaveLength(1);
     });

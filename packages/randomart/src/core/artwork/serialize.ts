@@ -159,7 +159,7 @@ export interface ArtworkData {
  * Example: { "format": "random-art", "version": 1, "render": { ... }, "expression": { "r": { "op":
  * "x" }, ... } }
  */
-export function serializeArtwork(artwork: Artwork): string {
+export function serializeArtworkFile(artwork: Artwork): string {
     const provenance = artwork.provenance
         ? {
               generatorVersion: artwork.provenance.generatorVersion,
@@ -256,7 +256,7 @@ function readProvenance(catalog: Catalog, data: unknown, path = 'provenance'): P
  * omitted; 2-space indent. One version (1), no migration: an unknown version is refused. Unknown
  * fields are refused so a future file never passes as version 1.
  */
-export function parseArtwork(catalog: Catalog, text: string): Artwork {
+export function parseArtworkFile(catalog: Catalog, text: string): Artwork {
     if (text.length > MAX_ARTWORK_FILE_LENGTH) {
         throw new Error(
             `Artwork file too large (${text.length} characters, limit ${MAX_ARTWORK_FILE_LENGTH})`,

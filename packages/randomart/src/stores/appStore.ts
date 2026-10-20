@@ -10,8 +10,8 @@ import {
     createArtwork,
     MAX_LOOP_MS,
     MIN_LOOP_MS,
-    parseArtwork,
-    serializeArtwork,
+    parseArtworkFile,
+    serializeArtworkFile,
 } from '../core/artwork/index.ts';
 import type { Artwork, ProvenanceCheck } from '../core/artwork/index.ts';
 import type { ColorSpaceId } from '../core/color/index.ts';
@@ -20,11 +20,10 @@ import type { CompiledShader } from '../core/compiler/index.ts';
 import { CONFIG } from '../core/config/index.ts';
 import type { Expression } from '../core/expression/index.ts';
 import { generate, GENERATOR_VERSION } from '../core/generator/index.ts';
-import { describeGrammar, randomRecipe, recipeOf, recipeToGrammar } from '../core/grammar/index.ts';
+import { drawRecipe, recipeOf, recipeToGrammar } from '../core/grammar/index.ts';
 import type {
     FamilyId,
     Grammar,
-    GrammarSummary,
     Recipe,
     ShareChoice,
     SizeProfileId,
@@ -94,7 +93,6 @@ interface AppStoreState {
     actionError: string | null;
     duration: DurationSeconds;
     grammar: Grammar;
-    grammarSummary: GrammarSummary;
     recipe: Recipe;
     history: readonly HistoryEntry[];
     currentId: number;
@@ -116,7 +114,6 @@ const store = create<AppStoreState>(() => ({
     duration: DEFAULT_LOOP_DURATION,
     grammar: initialGrammar,
     recipe: initialRecipe,
-    grammarSummary: describeGrammar(catalog, initialGrammar),
     history: [initialEntry],
     currentId: initialEntry.id,
     seed: initialSeed,
@@ -259,7 +256,6 @@ function commit(recipe: Recipe, seed: Seed, restoreId?: number, coalesce = false
         store.setState({
             grammar,
             recipe,
-            grammarSummary: describeGrammar(catalog, grammar),
             seed,
             expression,
             provenanceCheck: 'matches',
@@ -280,12 +276,12 @@ export function resetSeed(nextSeed: Seed = randomSeed()): void {
 
 /** "Draw grammar": a random point of the quantized space. The seed stays, so grammars compare. */
 export function drawGrammar(): void {
-    commit(randomRecipe(createRng(randomSeed())), store.getState().seed);
+    commit(drawRecipe(createRng(randomSeed())), store.getState().seed);
 }
 
 /** "Generate image": a random recipe and a random seed at once. */
 export function generateImage(): void {
-    commit(randomRecipe(createRng(randomSeed())), randomSeed());
+    commit(drawRecipe(createRng(randomSeed())), randomSeed());
 }
 
 /** Selecting a preset: its recipe replaces the current one, same seed. */
@@ -330,7 +326,6 @@ function restoreImportedEntry(entry: HistoryEntry): void {
         store.setState({
             grammar: entry.grammar,
             recipe: entry.recipe,
-            grammarSummary: describeGrammar(catalog, entry.grammar),
             seed: entry.seed,
             expression,
             provenanceCheck: entry.provenanceCheck ?? 'differs',
@@ -406,7 +401,6 @@ function publishArtwork(artwork: Artwork): void {
 
     store.setState({
         grammar,
-        grammarSummary: describeGrammar(catalog, grammar),
         recipe,
         seed,
         expression,
@@ -456,7 +450,7 @@ export function exportArtworkFile(): void {
     });
 
     downloadBlob(
-        new Blob([serializeArtwork(artwork)], { type: 'application/json' }),
+        new Blob([serializeArtworkFile(artwork)], { type: 'application/json' }),
         `randomart-${Date.now()}.randomart.json`,
     );
 }
@@ -467,7 +461,7 @@ export function exportArtworkFile(): void {
  */
 export async function importArtworkFile(file: File): Promise<void> {
     try {
-        publishArtwork(parseArtwork(catalog, await file.text()));
+        publishArtwork(parseArtworkFile(catalog, await file.text()));
     } catch (error) {
         setActionError(error);
     }

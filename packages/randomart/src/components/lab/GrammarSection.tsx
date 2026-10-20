@@ -146,7 +146,7 @@ export function GrammarSection() {
 
             <Slider
                 color="orange"
-                label="shareDepth"
+                label="share"
                 value={SHARE_CHOICES.indexOf(recipe.share)}
                 min={0}
                 max={SHARE_CHOICES.length - 1}

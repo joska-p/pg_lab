@@ -59,16 +59,23 @@ own module is not dead).
 Result: `vp check` green, `vp test` green (303 passed / 3 skipped), `knip --production` silent,
 `vp run audit` green except the informational cycles warning.
 
-## Step 4 — remaining items (not yet done)
+## Step 4 — Lot A restant (done)
 
-- **A restant**: stale comments (`RandomArtCanvas` "Default to 8 seconds" → 60 s, the coherence-plan
-  and config-knobs "8 000 ms", `MIN_ACTIVE_WEIGHT` "The UI also uses it", `HistoryEntry.recipe`
-  "Present when…" while the field is required), naming (`randomRecipe`/`randomGrammar` consume the
-  PRNG so `draw*`; `LotView` counters not `*Count`; `BenchView = 'sheet'` mixes planche/sheet;
-  the `shareDepth` slider edits `share`; `serializeArtwork` returns text while `serializeGrammar`
-  returns data), the `*.measure.test.ts` probes (still evaluate `tsin`/`tcos` and ignore the x/y
-  oscillation parameters; `fieldDist` strong and structured candidates are identical), and the dead
-  `grammarSummary` store field (recomputed on every commit for nothing).
+- naming: `randomRecipe` → `drawRecipe`, `randomGrammar` → `drawGrammar` (both consume the PRNG, the
+  file names keep `randomGrammar.ts`); `BenchView = 'sheet'` → `'planche'` (the in-app grid is the
+  planche, `sheet` is the dataset's contact sheet); the `shareDepth` slider relabelled `share` (it
+  edits the recipe choice, not the resolved trunk depth); `serializeArtwork`/`parseArtwork` →
+  `serializeArtworkFile`/`parseArtworkFile` (they handle text, the four-name convention in
+  §2.1.4); `LotView` numeric fields to `*Count` (`columnCount`, `grammarCount`, `cellCount`,
+  `failedCount`, `flatCount`).
+- the `fieldRender.measure.test.ts` probe evaluates `x`/`y` with their oscillator params
+  (`amp`/`phase`/`cycles`) instead of the removed `tsin`/`tcos`.
+- the dead `grammarSummary` store field dropped (`describeGrammar` keeps its test).
+- stale comments: already gone in `a342694` (`8 seconds` → 60 s, `HistoryEntry.recipe`), nothing left
+  to fix here.
+
+## Step 5 — remaining items (not yet done)
+
 - **Single state document**: `PLAN.md`, `randomart-coherence-plan`, `findings`,
   `randomart-config-knobs`, `randomart-audit-handoff` and this registry coexist; the handoff says
   "Nothing open" while the plan lists sessions A–E and `PLAN.md` lists T1–T5. Collapse into one.

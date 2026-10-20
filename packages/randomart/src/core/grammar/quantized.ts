@@ -38,7 +38,7 @@ export const FAMILY_OPERATORS: Record<FamilyId, readonly OperatorId[]> = {
 export type { SizeProfileId, WeightLevel } from '../config/index.ts';
 
 /**
- * Axis ids in draw order: they come from the config entry order, which `randomRecipe` consumes
+ * Axis ids in draw order: they come from the config entry order, which `drawRecipe` consumes
  * through the PRNG — append new entries in `CONFIG.recipe`, never reorder.
  */
 export const WEIGHT_LEVELS = Object.keys(CONFIG.recipe.levels) as readonly WeightLevel[];
@@ -116,7 +116,7 @@ function drawLevel(rng: Rng, allowed: readonly WeightLevel[]): WeightLevel {
  * At least `CONFIG.recipe.minActiveFamilies` non-anchor families stay on: a bare x/y vocabulary
  * only draws gradients.
  */
-export function randomRecipe(rng: Rng, options: RandomRecipeOptions = {}): Recipe {
+export function drawRecipe(rng: Rng, options: RandomRecipeOptions = {}): Recipe {
     for (let attempt = 0; attempt < 1000; attempt++) {
         const levels = {} as Record<FamilyId, WeightLevel>;
 
@@ -140,7 +140,7 @@ export function randomRecipe(rng: Rng, options: RandomRecipeOptions = {}): Recip
         };
     }
 
-    throw new Error('Randomart: randomRecipe could not draw a usable recipe');
+    throw new Error('Randomart: drawRecipe could not draw a usable recipe');
 }
 
 export interface SampledRecipe {
@@ -172,14 +172,14 @@ export function sampleRecipes(
 
     for (let i = 0; i < count; i++) {
         const rng = createRng(deriveSeed(baseSeed, i));
-        let recipe = randomRecipe(rng, pins);
+        let recipe = drawRecipe(rng, pins);
 
         for (
             let attempt = 0;
             seen.has(recipeKey(recipe)) && attempt < MAX_DEDUPE_ATTEMPTS;
             attempt++
         ) {
-            recipe = randomRecipe(rng, pins);
+            recipe = drawRecipe(rng, pins);
         }
 
         seen.add(recipeKey(recipe));

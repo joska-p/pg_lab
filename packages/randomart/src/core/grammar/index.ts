@@ -21,7 +21,7 @@ export {
 export {
     ANCHOR_LEVELS,
     FAMILY_IDS,
-    randomRecipe,
+    drawRecipe,
     recipeOf,
     recipeToGrammar,
     SHARE_CHOICES,

@@ -3,8 +3,8 @@ export { checkProvenance, type ProvenanceCheck } from './provenance.ts';
 export {
     // Grammar files live here: a `.randomart-grammar.json` file is artwork data.
     deserializeGrammar,
-    parseArtwork,
-    serializeArtwork,
+    parseArtworkFile,
+    serializeArtworkFile,
     serializeGrammar,
     type GrammarData,
 } from './serialize.ts';

@@ -35,7 +35,7 @@ export function createRenderSettings(render?: Partial<RenderSettingsInput>): Ren
 
 /**
  * Repairs raw render settings into the brand — the `ZoomClamp` analog for the render block, the
- * repair entry for file boundaries (`parseArtwork`). Quantities are clamped (rounded) into the
+ * repair entry for file boundaries (`parseArtworkFile`). Quantities are clamped (rounded) into the
  * concept bounds; a non-finite field is garbage, not an intent, and takes the concept default;
  * absent fields already default in `createRenderSettings`.
  */

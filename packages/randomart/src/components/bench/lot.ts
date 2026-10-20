@@ -22,22 +22,22 @@ export interface LotView {
     /** Flat flags, same shape as `rows` (a failed cell is never flat). */
     readonly flat: readonly (readonly boolean[])[];
     /** Column count of the grid: the widest row, so a hole never shifts a column. */
-    readonly columns: number;
+    readonly columnCount: number;
     /** Number of grammars drawn: one candidate per row. */
-    readonly grammars: number;
-    readonly cells: number;
-    readonly failed: number;
-    readonly flats: number;
+    readonly grammarCount: number;
+    readonly cellCount: number;
+    readonly failedCount: number;
+    readonly flatCount: number;
 }
 
 export const EMPTY_LOT: LotView = {
     rows: [],
     flat: [],
-    columns: 0,
-    grammars: 0,
-    cells: 0,
-    failed: 0,
-    flats: 0,
+    columnCount: 0,
+    grammarCount: 0,
+    cellCount: 0,
+    failedCount: 0,
+    flatCount: 0,
 };
 
 /**
@@ -85,11 +85,11 @@ export function buildLotView(batches: readonly RenderedBatch[]): LotView {
     return {
         rows,
         flat,
-        columns: plancheColumns(rows),
-        grammars: rows.length,
-        cells,
-        failed,
-        flats,
+        columnCount: plancheColumns(rows),
+        grammarCount: rows.length,
+        cellCount: cells,
+        failedCount: failed,
+        flatCount: flats,
     };
 }
 
@@ -112,10 +112,10 @@ export function focusLotView(lot: LotView, rowIndex: number, columns: number): L
     return {
         rows,
         flat,
-        columns: width,
-        grammars: rows.length,
-        cells: cells.length,
-        failed: cells.filter((cell) => cell === null).length,
-        flats: flags.filter(Boolean).length,
+        columnCount: width,
+        grammarCount: rows.length,
+        cellCount: cells.length,
+        failedCount: cells.filter((cell) => cell === null).length,
+        flatCount: flags.filter(Boolean).length,
     };
 }

@@ -70,8 +70,8 @@ export interface PlancheProps {
     readonly selectedColIndex?: number;
     /** Dim collapsed cells instead of showing them as if they were interesting. */
     readonly dimFlats?: boolean;
-    /** `row` lays the planche out at native size; `sheet` fits it inside the stage. */
-    readonly view?: 'sheet' | 'focus';
+    /** `focus` shows one row; `planche` fits the whole grid inside the stage. */
+    readonly view?: 'planche' | 'focus';
     readonly onCellClick?: (rowIndex: number, colIndex: number) => void;
 }
 
@@ -89,7 +89,7 @@ export function Planche({
     selectedRowIndex,
     selectedColIndex,
     dimFlats = false,
-    view = 'sheet',
+    view = 'planche',
     onCellClick,
 }: PlancheProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -98,7 +98,7 @@ export function Planche({
 
     // Auto-memoized by React Compiler: only recomputed when the lot, its flags or the size change.
     const { width, height, rgba } = assemblePlanche(lot.rows, cellSize, {
-        columns: lot.columns,
+        columns: lot.columnCount,
         dim: dimFlats ? lot.flat : undefined,
     });
 
@@ -123,16 +123,16 @@ export function Planche({
     const cellAt = (event: React.MouseEvent): { row: number; col: number } | null => {
         const frame = frameRef.current;
 
-        if (!frame || lot.columns === 0 || lot.grammars === 0) {
+        if (!frame || lot.columnCount === 0 || lot.grammarCount === 0) {
             return null;
         }
 
         const rect = frame.getBoundingClientRect();
-        const column = Math.floor(((event.clientX - rect.left) / rect.width) * lot.columns);
-        const row = Math.floor(((event.clientY - rect.top) / rect.height) * lot.grammars);
+        const column = Math.floor(((event.clientX - rect.left) / rect.width) * lot.columnCount);
+        const row = Math.floor(((event.clientY - rect.top) / rect.height) * lot.grammarCount);
         const targetRow = lot.rows[row];
 
-        if (row < 0 || row >= lot.grammars || !targetRow) {
+        if (row < 0 || row >= lot.grammarCount || !targetRow) {
             return null;
         }
 
@@ -147,8 +147,8 @@ export function Planche({
     const rowProps = stylex.props(styles.ring, styles.rowRing);
     const cellProps = stylex.props(styles.ring, styles.cellRing);
     const hoverProps = stylex.props(styles.ring, styles.hoverRing);
-    const rows = lot.grammars;
-    const columns = lot.columns;
+    const rows = lot.grammarCount;
+    const columns = lot.columnCount;
     const rowIndex = selectedRowIndex ?? 0;
     const colIndex = selectedColIndex ?? 0;
     const hoverIsSelection = hovered?.row === rowIndex && hovered.col === colIndex;
@@ -205,7 +205,7 @@ export function Planche({
                 {...stylex.props(styles.canvas)}
             />
 
-            {view === 'sheet' && rows > 0 ? (
+            {view === 'planche' && rows > 0 ? (
                 <div
                     aria-hidden
                     className={rowProps.className}

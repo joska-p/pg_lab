@@ -6,6 +6,7 @@ import { deflateSync } from 'node:zlib';
 import { describe, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../catalog/index.ts';
+import { CONFIG } from '../config/index.ts';
 import type { Expression, Node } from '../expression/index.ts';
 import { formatFormula } from '../expression/index.ts';
 import { generate } from '../generator/index.ts';
@@ -30,15 +31,21 @@ const evalNode = (node: Node, p: P, phase: number): number => {
 
     switch (node.operatorName) {
         case 'x':
-            return p.x;
-        case 'y':
-            return p.y;
+        case 'y': {
+            const axis = node.operatorName === 'x' ? p.x : p.y;
+            const [amp = 0, phaseParam = 0, cycles = 0] = node.params;
+            if (amp === 0) {
+                return axis;
+            }
+            const { min: cycleMin, max: cycleMax } = CONFIG.terminals.cycleCounts;
+            const count = cycleMin + Math.round((cycleMax - cycleMin) * cycles);
+            return (
+                (1 - amp) * axis +
+                amp * Math.sin(2 * Math.PI * count * phase + Math.PI * phaseParam)
+            );
+        }
         case 'const':
             return node.params[0];
-        case 'tsin':
-            return Math.sin(2 * Math.PI * phase);
-        case 'tcos':
-            return Math.cos(2 * Math.PI * phase);
         case 'neg':
             return -a(0);
         case 'abs':

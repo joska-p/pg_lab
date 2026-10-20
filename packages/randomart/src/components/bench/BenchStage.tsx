@@ -204,7 +204,7 @@ export function BenchStage() {
         }
     };
 
-    if (lot.grammars === 0) {
+    if (lot.grammarCount === 0) {
         return (
             <div ref={stageRef} tabIndex={0} aria-label="Bench" {...stylex.props(styles.stage)}>
                 <div {...stylex.props(styles.empty)}>
@@ -225,9 +225,9 @@ export function BenchStage() {
     const shownCol = isFocus ? selectedColIndex % focusColumns : selectedColIndex;
 
     const counters = [
-        `${String(lot.cells)} cells`,
-        lot.flats > 0 ? `${String(lot.flats)} flat` : null,
-        lot.failed > 0 ? `${String(lot.failed)} failed` : null,
+        `${String(lot.cellCount)} cells`,
+        lot.flatCount > 0 ? `${String(lot.flatCount)} flat` : null,
+        lot.failedCount > 0 ? `${String(lot.failedCount)} failed` : null,
         error,
     ].filter((part): part is string => part !== null);
 
@@ -264,7 +264,7 @@ export function BenchStage() {
                 )}
             >
                 <Stack direction="horizontal" gap="4">
-                    <Text>{`grammar ${String(selectedRowIndex + 1)}/${String(lot.grammars)}`}</Text>
+                    <Text>{`grammar ${String(selectedRowIndex + 1)}/${String(lot.grammarCount)}`}</Text>
                     <Text>{`seed ${String(selectedColIndex + 1)}/${String(seedCount)}`}</Text>{' '}
                     <span {...stylex.props(styles.rating)}>
                         {`${stars(candidate?.rating)} ${candidate?.rating === undefined ? 'not rated' : String(candidate.rating)}`}

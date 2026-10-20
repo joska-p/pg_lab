@@ -9,8 +9,8 @@ import { createSeed } from '../random/index.ts';
 import { createArtwork, createRenderSettings, fitRenderSettings } from './create.ts';
 import { checkProvenance } from './provenance.ts';
 import {
-    parseArtwork,
-    serializeArtwork,
+    parseArtworkFile,
+    serializeArtworkFile,
     ARTWORK_FILE_FORMAT,
     MAX_ARTWORK_FILE_LENGTH,
 } from './serialize.ts';
@@ -45,7 +45,7 @@ function fixture(provenance = true, seed = 12_345): Fixture {
             ? { grammar, seed: createSeed(seed), generatorVersion: GENERATOR_VERSION }
             : undefined,
     });
-    const data = JSON.parse(serializeArtwork(artwork)) as ArtworkData & { expression: unknown };
+    const data = JSON.parse(serializeArtworkFile(artwork)) as ArtworkData & { expression: unknown };
 
     expect(data.format).toBe(ARTWORK_FILE_FORMAT);
 
@@ -161,7 +161,7 @@ describe('artwork: fitRenderSettings', () => {
 describe('artwork: files', () => {
     it('round-trips (expression by nodeKey, the rest by value)', () => {
         const { artwork } = fixture();
-        const back = parseArtwork(catalog, serializeArtwork(artwork));
+        const back = parseArtworkFile(catalog, serializeArtworkFile(artwork));
 
         expect(nodeKey(back.expression.r)).toBe(nodeKey(artwork.expression.r));
         expect(nodeKey(back.expression.g)).toBe(nodeKey(artwork.expression.g));
@@ -176,7 +176,7 @@ describe('artwork: files', () => {
 
     it('writes canonical text: fixed key order, stable across reads', () => {
         const { artwork } = fixture();
-        const text = serializeArtwork(artwork);
+        const text = serializeArtworkFile(artwork);
 
         // No provenance in this fixture either way: absent optional fields are omitted.
         expect(Object.keys(JSON.parse(text))).toEqual([
@@ -188,13 +188,13 @@ describe('artwork: files', () => {
         ]);
 
         // Round-trip is idempotent: same data → same text (readable diffs in a repository).
-        expect(serializeArtwork(parseArtwork(catalog, text))).toBe(text);
+        expect(serializeArtworkFile(parseArtworkFile(catalog, text))).toBe(text);
     });
 
     it('omits optional fields and keeps a fixed key order with a title', () => {
         const { artwork } = fixture(false);
         const titled = { ...artwork, title: 'Waves' } as Artwork;
-        const text = serializeArtwork(titled);
+        const text = serializeArtworkFile(titled);
 
         expect(Object.keys(JSON.parse(text))).toEqual([
             'format',
@@ -209,32 +209,32 @@ describe('artwork: files', () => {
     it('rejects a wrong format, version 2 and invalid JSON', () => {
         const { data } = fixture();
 
-        expect(() => parseArtwork(catalog, JSON.stringify({ ...data, format: 'other' }))).toThrow(
-            /format "other" not supported/,
-        );
-        expect(() => parseArtwork(catalog, JSON.stringify({ ...data, version: 2 }))).toThrow(
+        expect(() =>
+            parseArtworkFile(catalog, JSON.stringify({ ...data, format: 'other' })),
+        ).toThrow(/format "other" not supported/);
+        expect(() => parseArtworkFile(catalog, JSON.stringify({ ...data, version: 2 }))).toThrow(
             /version 2 not supported/,
         );
         expect(() =>
-            parseArtwork(catalog, JSON.stringify({ ...data, version: undefined })),
+            parseArtworkFile(catalog, JSON.stringify({ ...data, version: undefined })),
         ).toThrow(/version undefined not supported/);
-        expect(() => parseArtwork(catalog, 'not json at all')).toThrow(/invalid JSON/);
+        expect(() => parseArtworkFile(catalog, 'not json at all')).toThrow(/invalid JSON/);
     });
 
     it('rejects unknown fields with their path', () => {
         const { data } = fixture();
 
-        expect(() => parseArtwork(catalog, JSON.stringify({ ...data, extra: 1 }))).toThrow(
+        expect(() => parseArtworkFile(catalog, JSON.stringify({ ...data, extra: 1 }))).toThrow(
             /file\.extra: unknown field/,
         );
         expect(() =>
-            parseArtwork(
+            parseArtworkFile(
                 catalog,
                 JSON.stringify({ ...data, provenance: { ...data.provenance, extra: 1 } }),
             ),
         ).toThrow(/provenance\.extra: unknown field/);
         expect(() =>
-            parseArtwork(
+            parseArtworkFile(
                 catalog,
                 JSON.stringify({
                     ...data,
@@ -253,7 +253,7 @@ describe('artwork: files', () => {
             JSON.stringify({ ...data, render: { ...data.render, width: 99_999, loopMs: 300_000 } }),
         );
 
-        const repaired = parseArtwork(catalog, JSON.stringify(corrupt));
+        const repaired = parseArtworkFile(catalog, JSON.stringify(corrupt));
 
         expect(repaired.render.width).toBe(8_192);
         expect(repaired.render.loopMs).toBe(120_000);
@@ -263,12 +263,15 @@ describe('artwork: files', () => {
         const { data } = fixture();
 
         expect(() =>
-            parseArtwork(catalog, JSON.stringify({ ...data, expression: { r: { op: 'abc' } } })),
+            parseArtworkFile(
+                catalog,
+                JSON.stringify({ ...data, expression: { r: { op: 'abc' } } }),
+            ),
         ).toThrow(/Expression invalid at r/);
     });
 
     it('rejects a text over the import limit before parsing it', () => {
-        expect(() => parseArtwork(catalog, 'x'.repeat(MAX_ARTWORK_FILE_LENGTH + 1))).toThrow(
+        expect(() => parseArtworkFile(catalog, 'x'.repeat(MAX_ARTWORK_FILE_LENGTH + 1))).toThrow(
             /too large/,
         );
     });
@@ -304,7 +307,7 @@ describe('artwork: provenance', () => {
         expect(checkProvenance(catalog, edited)).toBe('differs');
 
         // The edited artwork keeps its original provenance in the file.
-        const editedText = serializeArtwork(edited);
+        const editedText = serializeArtworkFile(edited);
         expect(JSON.parse(editedText).provenance.seed).toBe(data.provenance?.seed);
     });
 

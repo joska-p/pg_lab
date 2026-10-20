@@ -42,7 +42,7 @@ import type { BenchView } from '../../stores/benchStore.ts';
 const RATINGS: readonly NotebookRating[] = [0, 1, 2, 3, 4, 5];
 
 const VIEW_LABELS: Record<BenchView, string> = {
-    sheet: 'Sheet',
+    planche: 'Planche',
     focus: 'Focus',
 };
 
@@ -248,8 +248,8 @@ export function BenchPanel() {
 
                 <Text variant="muted">
                     {dimFlats
-                        ? `${String(lot.flats)} of ${String(lot.cells)} cells are flat and dimmed`
-                        : `${String(lot.flats)} of ${String(lot.cells)} cells are flat — a constant field means the grammar collapsed`}
+                        ? `${String(lot.flatCount)} of ${String(lot.cellCount)} cells are flat and dimmed`
+                        : `${String(lot.flatCount)} of ${String(lot.cellCount)} cells are flat — a constant field means the grammar collapsed`}
                 </Text>
             </ControlSection>
 

@@ -35,7 +35,7 @@ function drawConstraints(rng: Rng): ConstraintsInput {
  * result is always valid. This is the core of "randomize the grammar itself" — the dataset sampler
  * and the play-mode shuffle are two policies over the same draw.
  */
-export function randomGrammar(
+export function drawGrammar(
     catalog: Catalog,
     rng: Rng,
     options: RandomGrammarOptions = {},
