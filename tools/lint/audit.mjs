@@ -34,10 +34,19 @@ const CHECKS = [
         gating: true,
     },
     {
+        name: 'dead code (production entry points)',
+        command: 'knip',
+        // Tests are not entry points here: a symbol that only a test reads is dead for the app.
+        // Reported but not gating until the findings are triaged; flip to `true` at zero.
+        args: ['-W', PACKAGE, '--production'],
+        gating: false,
+    },
+    {
         name: 'duplication',
         command: 'jscpd',
-        // Production files only: the test suite duplicates fixtures on purpose.
-        args: [PACKAGE, '--ignore', '**/*.test.ts', '--threshold', '1'],
+        // Production files only: the test suite duplicates fixtures on purpose. Threshold 0: any
+        // clone fails, a percentage tolerance lets duplication drift upward unseen.
+        args: [PACKAGE, '--ignore', '**/*.test.ts', '--threshold', '0'],
         gating: true,
     },
     {

@@ -5,12 +5,14 @@
         ".": {},
         "packages/randomart": {
             "entry": [
-                "src/dataset/page.ts",
+                "src/main.tsx!",
+                "src/dataset/page.ts!",
+                "scripts/dataset/cli.ts!",
+                "scripts/probe-webgl.mjs!",
                 "src/**/*.test.ts",
-                "scripts/**/*.test.ts",
-                "scripts/probe-webgl.mjs"
+                "scripts/**/*.test.ts"
             ],
-            "project": ["src/**/*.{ts,tsx}", "scripts/**/*.{ts,mjs}"],
+            "project": ["src/**/*.{ts,tsx}!", "scripts/**/*.{ts,mjs}!"],
             "ignoreDependencies": [
                 "@rolldown/plugin-babel",
                 "@stylexjs/unplugin",

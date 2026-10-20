@@ -7,12 +7,45 @@ import type { OxlintOverride } from 'vite-plus/lint';
  * `vite.config.ts` so `vp check` enforces them:
  *
  * - Explicit extension on every relative import;
- * - Layer direction: `core/` never reaches into a higher layer;
- * - Core purity: no ambient randomness, time or DOM in `core/`.
+ * - Layer direction: `core` < `renderer` / `storage` < `stores` < `components`, each layer only
+ *   imports downwards;
+ * - Core purity: no ambient randomness, time, network or DOM in `core/`.
  *
  * `import/extensions` stays scoped to randomart: the rest of the workspace has not been migrated to
  * explicit extensions yet.
  */
+
+/** Layers a lower layer must never import, as import-path globs. */
+const LAYER_GLOBS = {
+    renderer: '**/renderer/**',
+    stores: '**/stores/**',
+    components: '**/components/**',
+    storage: '**/storage/**',
+    dataset: '**/dataset/**',
+} as const;
+
+type Layer = keyof typeof LAYER_GLOBS;
+
+/** One `files` override forbidding `forbidden` layers from the files of `layer`. */
+function forbidLayers(layer: string, forbidden: readonly Layer[]): OxlintOverride {
+    return {
+        files: [`packages/randomart/src/${layer}/**`],
+        rules: {
+            'no-restricted-imports': [
+                'error',
+                {
+                    patterns: [
+                        {
+                            group: forbidden.map((name) => LAYER_GLOBS[name]),
+                            message: `${layer}/ must not reach into higher layers (conventions §2.4)`,
+                        },
+                    ],
+                },
+            ],
+        },
+    };
+}
+
 export const randomartLint: OxlintOverride[] = [
     {
         files: ['packages/randomart/**'],
@@ -20,33 +53,37 @@ export const randomartLint: OxlintOverride[] = [
             'import/extensions': ['error', 'ignorePackages', { ts: 'always', tsx: 'always' }],
         },
     },
+    forbidLayers('core', ['renderer', 'stores', 'components', 'storage', 'dataset']),
+    forbidLayers('renderer', ['stores', 'components', 'storage', 'dataset']),
+    forbidLayers('storage', ['renderer', 'stores', 'components', 'dataset']),
+    forbidLayers('stores', ['components', 'dataset']),
+    {
+        // Known violation (codex/notes/findings.md, "LotView layer inversion"): the store imports
+        // the lot builder from `components/bench/`. Remove this override when `lot.ts` moves.
+        files: ['packages/randomart/src/stores/benchStore.ts'],
+        rules: {
+            'no-restricted-imports': 'off',
+        },
+    },
     {
         files: ['packages/randomart/src/core/**'],
         rules: {
-            'no-restricted-imports': [
-                'error',
-                {
-                    patterns: [
-                        {
-                            group: [
-                                '**/renderer/**',
-                                '**/stores/**',
-                                '**/components/**',
-                                '**/storage/**',
-                                '**/dataset/**',
-                            ],
-                            message: 'core/ must not reach into higher layers (conventions §2.4)',
-                        },
-                    ],
-                },
-            ],
+            // `Date` and `performance` are time, `crypto` is randomness, the rest is I/O or DOM:
+            // the shell reads them and hands the values in (conventions §1.2).
             'no-restricted-globals': [
                 'error',
                 'document',
                 'window',
+                'navigator',
                 'localStorage',
                 'indexedDB',
                 'requestAnimationFrame',
+                'setTimeout',
+                'setInterval',
+                'fetch',
+                'Date',
+                'performance',
+                'crypto',
             ],
             'no-restricted-properties': [
                 'error',
@@ -54,16 +91,6 @@ export const randomartLint: OxlintOverride[] = [
                     object: 'Math',
                     property: 'random',
                     message: 'core must not reach for ambient randomness (conventions §1.2)',
-                },
-                {
-                    object: 'Date',
-                    property: 'now',
-                    message: 'core must not reach for ambient time (conventions §1.2)',
-                },
-                {
-                    object: 'performance',
-                    property: 'now',
-                    message: 'core must not reach for ambient time (conventions §1.2)',
                 },
             ],
         },
@@ -76,11 +103,14 @@ export const randomartLint: OxlintOverride[] = [
         },
     },
     {
+        // The two documented non-deterministic sources of core: `randomSeed` (crypto) and the
+        // notebook ids and timestamps (`Date`, `Math.random`).
         files: [
             'packages/randomart/src/core/random/seed.ts',
             'packages/randomart/src/core/notebook/notebook.ts',
         ],
         rules: {
+            'no-restricted-globals': 'off',
             'no-restricted-properties': 'off',
         },
     },

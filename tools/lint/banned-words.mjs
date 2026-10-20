@@ -9,12 +9,12 @@
  * Usage: node tools/lint/banned-words.mjs [root...] (default: packages/randomart) Exit code is
  * non-zero when a rule matches, so `vp run audit` fails on a regression.
  */
-import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { basename, join, relative, resolve } from 'node:path';
 
 const DEFAULT_ROOTS = ['packages/randomart'];
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.mjs']);
-const IGNORED_DIRECTORIES = new Set(['node_modules', 'dist', '.shaders', 'dataset']);
+const IGNORED_DIRECTORIES = new Set(['node_modules', 'dist', '.shaders']);
 
 /**
  * A rule is a regular expression plus the sentence to show next to the match.
@@ -40,7 +40,7 @@ const RULES = [
     },
     {
         id: 'french',
-        pattern: /\b(libre|nouvelle|nouveau|couleur)\b/gi,
+        pattern: /\b(libre|nouvelle|nouveau|couleur|vagues|rendre)\b/gi,
         message:
             'French word in code or comments; code, docs and comments are English (AGENTS.md).',
     },
@@ -72,12 +72,49 @@ const RULES = [
             'Acronyms read as words in identifiers (`Id`); `*_IDS` is reserved for id arrays (conventions §2.1.7).',
         allow: /\b(?:FAMILY|SIZE_PROFILE|COLOR_SPACE)_IDS\b/,
     },
+    {
+        // The word list above only knows a few words; an accented letter is French whatever the word.
+        id: 'french-accent',
+        pattern: /[àâçéèêëîïôùûœ]/i,
+        message:
+            'Accented French letter in code or comments; code, docs and comments are English (AGENTS.md).',
+    },
+    {
+        // `import/extensions` does not see a directory import (`'../catalog'`): it resolves to a file.
+        id: 'import-extension',
+        pattern: /\bfrom\s+'\.{1,2}\/(?:(?!\.(?:tsx?|css|mjs|js|json)')[^'\n])*'/,
+        message:
+            'Relative import without an explicit extension; write the file (`../catalog/index.ts`) (conventions §2.1.9).',
+    },
 ];
+
+/**
+ * Rules on file names, which the line scan cannot see (`catalogueStore.ts` has no `\bcatalogue\b`
+ * inside any line). Patterns are not global: `test()` must stay stateless.
+ */
+const FILE_NAME_RULES = [
+    {
+        id: 'file-name',
+        pattern: /catalogue|colour|tuning/i,
+        message:
+            'File name uses a retired word; use `catalog`, `color`, `config` (conventions §2.1.1).',
+    },
+];
+
+/**
+ * The git-ignored pipeline output is `<package>/dataset/`, next to a `package.json`. `src/dataset/`
+ * and `scripts/dataset/` are code and must be scanned, so the name alone is not enough.
+ *
+ * @param {string} directory @param {string} entry
+ */
+function isOutputDirectory(directory, entry) {
+    return entry === 'dataset' && existsSync(join(directory, 'package.json'));
+}
 
 /** @param {string} directory @param {string[]} [files] */
 function collectFiles(directory, files = []) {
     for (const entry of readdirSync(directory)) {
-        if (IGNORED_DIRECTORIES.has(entry)) {
+        if (IGNORED_DIRECTORIES.has(entry) || isOutputDirectory(directory, entry)) {
             continue;
         }
 
@@ -109,6 +146,19 @@ function scan(roots) {
     const findings = [];
 
     for (const file of roots.flatMap((root) => collectFiles(root))) {
+        const name = basename(file);
+
+        for (const rule of FILE_NAME_RULES) {
+            if (rule.pattern.test(name)) {
+                findings.push({
+                    id: rule.id,
+                    message: rule.message,
+                    at: relative(process.cwd(), file),
+                    text: name,
+                });
+            }
+        }
+
         const lines = readFileSync(file, 'utf8').split('\n');
 
         lines.forEach((text, index) => {
