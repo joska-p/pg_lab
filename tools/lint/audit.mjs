@@ -37,9 +37,8 @@ const CHECKS = [
         name: 'dead code (production entry points)',
         command: 'knip',
         // Tests are not entry points here: a symbol that only a test reads is dead for the app.
-        // Reported but not gating until the findings are triaged; flip to `true` at zero.
         args: ['-W', PACKAGE, '--production'],
-        gating: false,
+        gating: true,
     },
     {
         name: 'duplication',

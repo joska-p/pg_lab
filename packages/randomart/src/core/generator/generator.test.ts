@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/index.ts';
-import type { SizeProfileId } from '../config/index.ts';
-import { depth, nodeCount } from '../expression/index.ts';
-import type { Node } from '../expression/index.ts';
-import { constraintsOf, createGrammar, defaultGrammar, getVocabulary } from '../grammar/index.ts';
-import { createSeed } from '../random/index.ts';
-import { GENERATOR_VERSION, generate } from './index.ts';
+import { createDefaultCatalog } from '../catalog/Catalog';
+import type { SizeProfileId } from '../config/config';
+import { depth, nodeCount } from '../expression/expression';
+import type { Node } from '../expression/types';
+import { constraintsOf, createGrammar, getVocabulary } from '../grammar/grammar';
+import { defaultGrammar } from '../grammar/presets';
+import { createSeed } from '../random/seed';
+import { GENERATOR_VERSION, generate } from './generator';
 
 function checkNodeInvariants(
     node: Node,

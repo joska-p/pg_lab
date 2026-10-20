@@ -7,8 +7,8 @@ import { colors } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useRef, useState } from 'react';
 
-import { MAX_RATING, MIN_RATING } from '../../core/notebook/index.ts';
-import type { NotebookRating } from '../../core/notebook/index.ts';
+import { MAX_RATING, MIN_RATING } from '../../core/notebook/types';
+import type { NotebookRating } from '../../core/notebook/types';
 import {
     initBenchNotebook,
     openSelectedInLab,
@@ -23,10 +23,10 @@ import {
     useBenchSelectedColIndex,
     useBenchSelectedRowIndex,
     useBenchSettings,
-} from '../../stores/benchStore.ts';
-import { focusLotView } from './lot.ts';
-import { fitGrid } from './planche.ts';
-import { Planche } from './Planche.tsx';
+} from '../../stores/benchStore';
+import { focusLotView } from './lot';
+import { fitGrid } from './planche';
+import { Planche } from './Planche';
 
 const styles = stylex.create({
     // The stage owns the keyboard, so it is one focusable region: the shortcuts mean the same thing

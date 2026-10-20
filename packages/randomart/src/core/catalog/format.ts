@@ -1,4 +1,4 @@
-import { assertFinite } from '../shared/index.ts';
+import { assertFinite } from '../shared/shared';
 
 /** Number → valid GLSL ES 3.00 float literal (negative values are parenthesized). */
 export function formatGlslFloat(value: number): string {

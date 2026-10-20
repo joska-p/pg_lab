@@ -3,14 +3,14 @@ import { FileInput } from '@repo/ui/components/FileInput';
 import { Grid } from '@repo/ui/components/Grid';
 import { Text } from '@repo/ui/components/Text';
 
-import type { ProvenanceCheck } from '../../core/artwork/index.ts';
+import type { ProvenanceCheck } from '../../core/artwork/provenance';
 import {
     exportArtworkFile,
     exportPng,
     importArtworkFile,
     useCanvas,
     useProvenanceCheck,
-} from '../../stores/appStore.ts';
+} from '../../stores/appStore';
 
 const PROVENANCE_LABELS: Record<ProvenanceCheck, string> = {
     none: 'No provenance: this artwork was made or edited by hand',

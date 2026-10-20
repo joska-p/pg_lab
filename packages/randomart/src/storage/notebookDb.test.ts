@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../core/catalog/index.ts';
-import { createNotebook } from '../core/notebook/index.ts';
-import { loadNotebookFromDb, saveNotebookToDb } from './notebookDb.ts';
+import { createDefaultCatalog } from '../core/catalog/Catalog';
+import { createNotebook } from '../core/notebook/notebook';
+import { loadNotebookFromDb, saveNotebookToDb } from './notebookDb';
 
 describe('notebookDb', () => {
     const catalog = createDefaultCatalog();

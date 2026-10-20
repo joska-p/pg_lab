@@ -1,5 +1,5 @@
-import { formatNumber } from './key.ts';
-import type { Node } from './types.ts';
+import { formatNumber } from './key';
+import type { Node } from './types';
 
 /** One-line label of a node alone: `sin`, `const(0.3)`. No knowledge of specific operators. */
 export function formatNodeLabel(node: Node): string {

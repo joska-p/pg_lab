@@ -1,15 +1,17 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { deserializeGrammar, serializeGrammar } from '../artwork/index.ts';
-import { createDefaultCatalog } from '../catalog/index.ts';
-import { compile } from '../compiler/index.ts';
-import { CONFIG } from '../config/index.ts';
-import { nodeCount } from '../expression/index.ts';
-import { generate } from '../generator/index.ts';
-import { channelModelOf, constraintsOf, createGrammar, defaultGrammar } from '../grammar/index.ts';
-import { stepGrammar } from '../grammar/quantized.ts';
-import { createRng, createSeed } from '../random/index.ts';
-import { COLOR_SPACE_IDS, DEFAULT_CHANNELS } from './index.ts';
+import { deserializeGrammar, serializeGrammar } from '../artwork/serialize';
+import { createDefaultCatalog } from '../catalog/Catalog';
+import { compile } from '../compiler/compile';
+import { CONFIG } from '../config/config';
+import { nodeCount } from '../expression/expression';
+import { generate } from '../generator/generator';
+import { channelModelOf, constraintsOf, createGrammar } from '../grammar/grammar';
+import { defaultGrammar } from '../grammar/presets';
+import { stepGrammar } from '../grammar/quantized';
+import { createRng } from '../random/rng';
+import { createSeed } from '../random/seed';
+import { COLOR_SPACE_IDS, DEFAULT_CHANNELS } from './color';
 
 const catalog = createDefaultCatalog();
 const SIZE = 'medium' as const;

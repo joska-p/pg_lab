@@ -1,4 +1,4 @@
-import type { Address, Channel, Expression, Node } from './types.ts';
+import type { Address, Channel, Expression, Node } from './types';
 
 const CHANNELS: readonly Channel[] = ['r', 'g', 'b'];
 

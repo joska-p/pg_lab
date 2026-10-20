@@ -1,17 +1,20 @@
-import type { Catalog, Operator, OperatorId } from '../catalog/index.ts';
-import { COLOR_SPACE_IDS } from '../color/index.ts';
-import { CONFIG } from '../config/index.ts';
-import type { SizeProfileId } from '../config/index.ts';
-import { createSeed } from '../random/index.ts';
-import type { Rng, Seed } from '../random/index.ts';
+import type { Catalog } from '../catalog/Catalog';
+import type { Operator } from '../catalog/operators/Operator';
+import type { OperatorId } from '../catalog/operators/registry';
+import { COLOR_SPACE_IDS } from '../color/color';
+import { CONFIG } from '../config/config';
+import type { SizeProfileId } from '../config/config';
+import type { Rng } from '../random/rng';
+import { createSeed } from '../random/seed';
+import type { Seed } from '../random/seed';
 import {
     constraintsOf,
     createGrammar,
     isNonTerminalOperator,
     isTerminalOperator,
     weightOf,
-} from './grammar.ts';
-import type { Grammar, GrammarPins } from './types.ts';
+} from './grammar';
+import type { Grammar, GrammarPins } from './types';
 
 /**
  * The quantized grammar space: every operator weight is an integer in `[0,
@@ -20,7 +23,7 @@ import type { Grammar, GrammarPins } from './types.ts';
  * recipe behind a grammar.
  */
 
-export type { SizeProfileId } from '../config/index.ts';
+export type { SizeProfileId } from '../config/config';
 
 export const SIZE_PROFILE_IDS = Object.keys(
     CONFIG.grammar.sizeProfiles,
@@ -98,6 +101,8 @@ export interface StepGrammarOptions {
  * axes of their own. The two viability invariants are restored deterministically, so the result is
  * always a point of the space. Deterministic: one `rng.next()` per operator, plus one per moving
  * operator for its direction.
+ *
+ * @lintignore
  */
 export function stepGrammar(
     catalog: Catalog,

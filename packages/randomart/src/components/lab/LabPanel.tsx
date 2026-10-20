@@ -1,9 +1,9 @@
 import { Grid } from '@repo/ui/components/Grid';
 
-import { ArtworkSection } from './ArtworkSection.tsx';
-import { GrammarSection } from './GrammarSection.tsx';
-import { Inspector } from './Inspector.tsx';
-import { SessionSection } from './SessionSection.tsx';
+import { ArtworkSection } from './ArtworkSection';
+import { GrammarSection } from './GrammarSection';
+import { Inspector } from './Inspector';
+import { SessionSection } from './SessionSection';
 
 /**
  * The unified lab (workshop) panel: orchestrates generation, grammar presets and weights, playback

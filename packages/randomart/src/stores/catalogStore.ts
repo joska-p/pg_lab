@@ -1,4 +1,4 @@
-import { createDefaultCatalog } from '../core/catalog/index.ts';
+import { createDefaultCatalog } from '../core/catalog/Catalog';
 
 /**
  * The app-wide catalog: `Operator` instances probe their multiplicities once, at construction, so

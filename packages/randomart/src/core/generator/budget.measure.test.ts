@@ -1,10 +1,11 @@
 import { describe, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/index.ts';
-import type { Node } from '../expression/index.ts';
-import { generate } from '../generator/index.ts';
-import { constraintsOf, createGrammar, defaultGrammar } from '../grammar/index.ts';
-import { createSeed } from '../random/index.ts';
+import { createDefaultCatalog } from '../catalog/Catalog';
+import type { Node } from '../expression/types';
+import { constraintsOf, createGrammar } from '../grammar/grammar';
+import { defaultGrammar } from '../grammar/presets';
+import { createSeed } from '../random/seed';
+import { generate } from './generator';
 
 /**
  * Opt-in probe for the "budget distribution" question: the split `m + floor(remaining / (k - i))`

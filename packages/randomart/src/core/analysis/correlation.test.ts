@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { correlation } from './correlation.ts';
+import { correlation } from './correlation';
 
 describe('correlation', () => {
     it('is 1, -1 and 0 for the textbook cases, and 0 for a constant column', () => {

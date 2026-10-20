@@ -1,10 +1,11 @@
-import type { Catalog, OperatorId } from '../catalog/index.ts';
-import { DEFAULT_CHANNELS } from '../color/index.ts';
-import type { ColorSpaceId } from '../config/index.ts';
-import { CONFIG } from '../config/index.ts';
-import { constraintsOf, createGrammar } from './grammar.ts';
-import { grammarKey } from './quantized.ts';
-import type { Grammar } from './types.ts';
+import type { Catalog } from '../catalog/Catalog';
+import type { OperatorId } from '../catalog/operators/registry';
+import { DEFAULT_CHANNELS } from '../color/color';
+import { CONFIG } from '../config/config';
+import type { ColorSpaceId } from '../config/types';
+import { constraintsOf, createGrammar } from './grammar';
+import { grammarKey } from './quantized';
+import type { Grammar } from './types';
 
 export interface GrammarPreset {
     readonly id: string;

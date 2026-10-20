@@ -1,4 +1,4 @@
-import type { RgbImage } from '../../core/analysis/index.ts';
+import type { RgbImage } from '../../core/analysis/descriptors';
 
 /**
  * One displayed cell: a rendered image, or `null` when the render failed (the slot is kept so the

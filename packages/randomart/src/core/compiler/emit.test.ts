@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { DEPENDENCIES } from '../catalog/dependencies.ts';
-import { Catalog, createDefaultCatalog } from '../catalog/index.ts';
-import { OPERATOR_SPECS } from '../catalog/operators/registry.ts';
-import type { OperatorSpec } from '../catalog/operators/types.ts';
-import { createExpression, createNode } from '../expression/index.ts';
-import { emit } from './emit.ts';
-import { lower } from './lower.ts';
+import { Catalog, createDefaultCatalog } from '../catalog/Catalog';
+import { DEPENDENCIES } from '../catalog/dependencies';
+import { OPERATOR_SPECS } from '../catalog/operators/registry';
+import type { OperatorSpec } from '../catalog/operators/types';
+import { createExpression, createNode } from '../expression/expression';
+import { emit } from './emit';
+import { lower } from './lower';
 
 describe('emit', () => {
     const catalog = createDefaultCatalog();

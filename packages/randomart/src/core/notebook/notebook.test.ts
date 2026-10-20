@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/index.ts';
-import { defaultGrammar } from '../grammar/index.ts';
-import { createSeed } from '../random/index.ts';
+import { createDefaultCatalog } from '../catalog/Catalog';
+import { defaultGrammar } from '../grammar/presets';
+import { createSeed } from '../random/seed';
 import {
     addBatchToNotebook,
     addRecipeToNotebook,
@@ -13,14 +13,14 @@ import {
     rateNotebookCandidate,
     removeBatchFromNotebook,
     updateCandidateRating,
-} from './notebook.ts';
-import { parseNotebook, serializeNotebook } from './serialize.ts';
+} from './notebook';
+import { parseNotebook, serializeNotebook } from './serialize';
 import {
     isNotebookRating,
     MAX_NOTEBOOK_FILE_LENGTH,
     NOTEBOOK_FILE_FORMAT,
     NOTEBOOK_FILE_VERSION,
-} from './types.ts';
+} from './types';
 
 describe('notebook core', () => {
     const catalog = createDefaultCatalog();

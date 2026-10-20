@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createRng, createSeed, randomSeed } from './index.ts';
-import { MAX_SEED } from './seed.ts';
+import { createRng } from './rng';
+import { createSeed, randomSeed, MAX_SEED } from './seed';
 
 describe('Seed', () => {
     it('creates a seed for valid non-negative 32-bit integers', () => {

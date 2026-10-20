@@ -5,11 +5,11 @@
  * according to the sharing policy, and emits the corresponding GLSL lines.
  */
 
-import type { Catalog } from '../catalog/index.ts';
-import { isAtom, wrapInput } from './format.ts';
-import { ROOT_CTX } from './lower.ts';
-import type { ContextDef, LowerResult, Vertex } from './lower.ts';
-import type { SharingPolicy } from './types.ts';
+import type { Catalog } from '../catalog/Catalog';
+import { isAtom, wrapInput } from './format';
+import { ROOT_CTX } from './lower';
+import type { ContextDef, LowerResult, Vertex } from './lower';
+import type { SharingPolicy } from './types';
 
 // ---------------------------------------------------------------------------
 // Types

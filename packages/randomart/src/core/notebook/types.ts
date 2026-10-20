@@ -1,6 +1,6 @@
-import type { GrammarData } from '../artwork/index.ts';
-import type { Grammar } from '../grammar/index.ts';
-import type { Seed } from '../random/index.ts';
+import type { GrammarData } from '../artwork/serialize';
+import type { Grammar } from '../grammar/types';
+import type { Seed } from '../random/seed';
 
 export const NOTEBOOK_FILE_FORMAT = 'randomart-notebook';
 export const NOTEBOOK_FILE_VERSION = 1;

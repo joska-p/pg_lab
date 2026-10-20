@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { describeImage } from './descriptors.ts';
-import type { RgbImage } from './descriptors.ts';
+import { describeImage } from './descriptors';
+import type { RgbImage } from './descriptors';
 
 const SIZE = 32;
 

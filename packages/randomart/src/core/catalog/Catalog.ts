@@ -1,8 +1,8 @@
-import { DEPENDENCIES } from './dependencies.ts';
-import type { DependencySpec } from './dependencies.ts';
-import { Operator } from './operators/Operator.ts';
-import { OPERATOR_SPECS } from './operators/registry.ts';
-import type { OperatorSpec } from './operators/types.ts';
+import { DEPENDENCIES } from './dependencies';
+import type { DependencySpec } from './dependencies';
+import { Operator } from './operators/Operator';
+import { OPERATOR_SPECS } from './operators/registry';
+import type { OperatorSpec } from './operators/types';
 
 export type ShaderDependency = DependencySpec & { readonly name: string };
 

@@ -10,8 +10,8 @@
  * constants.
  */
 
-import type { Catalog } from '../catalog/index.ts';
-import type { Expression, Node } from '../expression/index.ts';
+import type { Catalog } from '../catalog/Catalog';
+import type { Expression, Node } from '../expression/types';
 
 // ---------------------------------------------------------------------------
 // Types

@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import type { RgbImage } from '../../core/analysis/index.ts';
+import type { RgbImage } from '../../core/analysis/descriptors';
 import {
     assemblePlanche,
     fitGrid,
     PLANCHE_BACKGROUND,
     PLANCHE_DIM_FACTOR,
     plancheColumns,
-} from './planche.ts';
+} from './planche';
 
 /** A solid image `size`x`size` filled with one RGB color. */
 function solid(size: number, rgb: readonly [number, number, number]): RgbImage {

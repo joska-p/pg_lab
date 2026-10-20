@@ -1,5 +1,5 @@
-import { describeImage } from '../../src/core/analysis/descriptors.ts';
-import type { Dataset } from './loadDataset.ts';
+import { describeImage } from '../../src/core/analysis/descriptors';
+import type { Dataset } from './loadDataset';
 
 /** One dataset grammar, summarized over its valid images. */
 export interface FeatureRow {

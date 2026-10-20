@@ -1,14 +1,14 @@
-import { deserializeGrammar, serializeGrammar } from '../artwork/index.ts';
-import type { Catalog } from '../catalog/index.ts';
-import { createSeed } from '../random/index.ts';
-import type { Seed } from '../random/index.ts';
-import { isRecord, rejectUnknownKeys } from '../shared/index.ts';
+import { deserializeGrammar, serializeGrammar } from '../artwork/serialize';
+import type { Catalog } from '../catalog/Catalog';
+import { createSeed } from '../random/seed';
+import type { Seed } from '../random/seed';
+import { isRecord, rejectUnknownKeys } from '../shared/shared';
 import {
     isNotebookRating,
     MAX_NOTEBOOK_FILE_LENGTH,
     NOTEBOOK_FILE_FORMAT,
     NOTEBOOK_FILE_VERSION,
-} from './types.ts';
+} from './types';
 import type {
     Notebook,
     NotebookBatch,
@@ -18,7 +18,7 @@ import type {
     NotebookData,
     NotebookRecipe,
     NotebookRecipeData,
-} from './types.ts';
+} from './types';
 
 // ---------------------------------------------------------------------------
 // Serialization

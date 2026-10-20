@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/index.ts';
-import { createExpression, createNode, depth, nodeCount } from './index.ts';
+import { createDefaultCatalog } from '../catalog/Catalog';
+import { createExpression, createNode, depth, nodeCount } from './expression';
 
 describe('expression: createNode & createExpression', () => {
     const catalog = createDefaultCatalog();

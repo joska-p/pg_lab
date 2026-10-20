@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { CONFIG } from './index.ts';
+import { CONFIG } from './config';
 
 /**
  * A seed only reproduces an image with the same grammar AND the same draw-affecting values. These

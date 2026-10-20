@@ -1,10 +1,13 @@
-import type { Catalog, Operator, OperatorId } from '../catalog/index.ts';
-import { isColorSpaceId, MIN_SHARE_DEPTH } from '../color/index.ts';
-import type { ChannelModel } from '../color/index.ts';
-import { CONFIG, isSizeProfileId } from '../config/index.ts';
-import type { SizeProfileId, Constraints } from '../config/index.ts';
-import { assertIntegerInRange } from '../shared/index.ts';
-import type { Grammar } from './types.ts';
+import type { Catalog } from '../catalog/Catalog';
+import type { Operator } from '../catalog/operators/Operator';
+import type { OperatorId } from '../catalog/operators/registry';
+import { isColorSpaceId, MIN_SHARE_DEPTH } from '../color/color';
+import type { ChannelModel } from '../color/types';
+import { CONFIG, isSizeProfileId } from '../config/config';
+import type { SizeProfileId } from '../config/config';
+import type { Constraints } from '../config/types';
+import { assertIntegerInRange } from '../shared/shared';
+import type { Grammar } from './types';
 
 export const isTerminalOperator = (operator: Operator): boolean => operator.isTerminal;
 export const isNonTerminalOperator = (operator: Operator): boolean => !operator.isTerminal;

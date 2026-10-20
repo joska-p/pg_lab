@@ -15,12 +15,12 @@
  * no DOM, no GPU — and the compiler owns only the call site.
  */
 
-import { formatGlslFloat } from '../catalog/format.ts';
-import { CONFIG } from '../config/index.ts';
-import type { ColorSpaceId } from '../config/types.ts';
-import type { ChannelModel } from './types.ts';
+import { formatGlslFloat } from '../catalog/format';
+import { CONFIG } from '../config/config';
+import type { ColorSpaceId } from '../config/types';
+import type { ChannelModel } from './types';
 
-export type { ChannelModel } from './types.ts';
+export type { ChannelModel } from './types';
 
 export interface ColorSpace {
     readonly id: ColorSpaceId;

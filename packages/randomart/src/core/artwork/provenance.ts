@@ -1,8 +1,8 @@
-import type { Catalog } from '../catalog/index.ts';
-import { equals } from '../expression/index.ts';
-import type { Expression } from '../expression/index.ts';
-import { GENERATOR_VERSION, generate } from '../generator/index.ts';
-import type { Artwork } from './types.ts';
+import type { Catalog } from '../catalog/Catalog';
+import { equals } from '../expression/key';
+import type { Expression } from '../expression/types';
+import { GENERATOR_VERSION, generate } from '../generator/generator';
+import type { Artwork } from './types';
 
 /**
  * - `none`: no provenance (nothing to check).

@@ -1,7 +1,7 @@
-import type { Expression } from '../expression/index.ts';
-import type { Grammar } from '../grammar/index.ts';
-import type { Seed } from '../random/index.ts';
-import type { Brand } from '../shared/index.ts';
+import type { Expression } from '../expression/types';
+import type { Grammar } from '../grammar/types';
+import type { Seed } from '../random/seed';
+import type { Brand } from '../shared/shared';
 
 /**
  * Raw render settings as callers may write them: partial UI input, parsed JSON files. Carries no

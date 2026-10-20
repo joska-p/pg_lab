@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { chromium } from 'playwright-core';
 
-import type { GrammarData } from '../../src/core/artwork/index.ts';
+import type { GrammarData } from '../../src/core/artwork/serialize';
 
 export interface WriteDatasetOptions {
     /** The running app: `dataset.html` is loaded from it. */

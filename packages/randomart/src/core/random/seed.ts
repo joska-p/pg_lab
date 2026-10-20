@@ -1,5 +1,5 @@
-import { assertIntegerInRange } from '../shared/index.ts';
-import type { Brand } from '../shared/index.ts';
+import { assertIntegerInRange } from '../shared/shared';
+import type { Brand } from '../shared/shared';
 
 export type Seed = Brand<number, 'Seed'>;
 

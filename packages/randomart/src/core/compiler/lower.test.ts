@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/index.ts';
-import { createExpression, createNode } from '../expression/index.ts';
-import { lower } from './lower.ts';
+import { createDefaultCatalog } from '../catalog/Catalog';
+import { createExpression, createNode } from '../expression/expression';
+import { lower } from './lower';
 
 describe('lower', () => {
     const catalog = createDefaultCatalog();

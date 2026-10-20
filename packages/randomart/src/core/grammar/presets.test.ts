@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/index.ts';
-import { generate } from '../generator/index.ts';
-import { createGrammar, constraintsOf, defaultGrammar } from '../grammar/index.ts';
-import { createSeed } from '../random/index.ts';
-import { grammarPresets, presetIdOf } from './presets.ts';
+import { createDefaultCatalog } from '../catalog/Catalog';
+import { generate } from '../generator/generator';
+import { createSeed } from '../random/seed';
+import { createGrammar, constraintsOf } from './grammar';
+import { defaultGrammar, grammarPresets, presetIdOf } from './presets';
 
 const catalog = createDefaultCatalog();
 const presets = grammarPresets(catalog);

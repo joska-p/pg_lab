@@ -1,18 +1,18 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { DEPENDENCIES } from '../catalog/dependencies.ts';
-import type { DependencySpec } from '../catalog/dependencies.ts';
-import { Catalog, createDefaultCatalog } from '../catalog/index.ts';
-import { OPERATOR_SPECS } from '../catalog/operators/registry.ts';
-import type { OperatorSpec } from '../catalog/operators/types.ts';
-import { createExpression, createNode } from '../expression/index.ts';
-import { generate } from '../generator/index.ts';
-import { defaultGrammar } from '../grammar/index.ts';
-import { createSeed } from '../random/index.ts';
-import { compile } from './compile.ts';
-import { validateShaderContract } from './contract.ts';
-import { isAtom, isEnclosedInParens, wrapInput } from './format.ts';
-import { MAX_SOURCE_LENGTH } from './types.ts';
+import { Catalog, createDefaultCatalog } from '../catalog/Catalog';
+import { DEPENDENCIES } from '../catalog/dependencies';
+import type { DependencySpec } from '../catalog/dependencies';
+import { OPERATOR_SPECS } from '../catalog/operators/registry';
+import type { OperatorSpec } from '../catalog/operators/types';
+import { createExpression, createNode } from '../expression/expression';
+import { generate } from '../generator/generator';
+import { defaultGrammar } from '../grammar/presets';
+import { createSeed } from '../random/seed';
+import { compile } from './compile';
+import { validateShaderContract } from './contract';
+import { isAtom, isEnclosedInParens, wrapInput } from './format';
+import { MAX_SOURCE_LENGTH } from './types';
 
 describe('compiler', () => {
     describe('isAtom', () => {

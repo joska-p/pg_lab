@@ -8,7 +8,7 @@ import { Segmented } from '@repo/ui/components/Segmented';
 import { Select } from '@repo/ui/components/Select';
 import { Text } from '@repo/ui/components/Text';
 
-import type { NotebookBatch, NotebookRating } from '../../core/notebook/index.ts';
+import type { NotebookBatch, NotebookRating } from '../../core/notebook/types';
 import {
     CELL_SIZES,
     exportNotebookFile,
@@ -36,8 +36,8 @@ import {
     useBenchSelectedColIndex,
     useBenchSelectedRowIndex,
     useBenchSettings,
-} from '../../stores/benchStore.ts';
-import type { BenchView } from '../../stores/benchStore.ts';
+} from '../../stores/benchStore';
+import type { BenchView } from '../../stores/benchStore';
 
 const RATINGS: readonly NotebookRating[] = [0, 1, 2, 3, 4, 5];
 

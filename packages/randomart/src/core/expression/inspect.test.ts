@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/index.ts';
-import { generate } from '../generator/index.ts';
-import { defaultGrammar } from '../grammar/index.ts';
-import { createSeed } from '../random/index.ts';
-import { formatNodeLabel } from './formula.ts';
-import { createExpression, createNode, equals, formatFormula, nodeCount } from './index.ts';
-import { nodeKey } from './key.ts';
-import { formatAddress, getNode, usedOperators, walk } from './traverse.ts';
-import type { Address } from './types.ts';
+import { createDefaultCatalog } from '../catalog/Catalog';
+import { generate } from '../generator/generator';
+import { defaultGrammar } from '../grammar/presets';
+import { createSeed } from '../random/seed';
+import { createExpression, createNode, nodeCount } from './expression';
+import { formatNodeLabel, formatFormula } from './formula';
+import { equals, nodeKey } from './key';
+import { formatAddress, getNode, usedOperators, walk } from './traverse';
+import type { Address } from './types';
 
 const catalog = createDefaultCatalog();
 const x = createNode(catalog, 'x', [], [0, 0, 0]);

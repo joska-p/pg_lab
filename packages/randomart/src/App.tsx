@@ -3,8 +3,8 @@ import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
 
-import { Controls } from './components/Controls.tsx';
-import { Scene } from './components/Scene.tsx';
+import { Controls } from './components/Controls';
+import { Scene } from './components/Scene';
 
 export function App() {
     return (

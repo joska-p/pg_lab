@@ -1,6 +1,7 @@
-import type { OperatorId } from '../catalog/index.ts';
-import type { SizeProfileId, ColorSpaceId } from '../config/index.ts';
-import type { Brand } from '../shared/index.ts';
+import type { OperatorId } from '../catalog/operators/registry';
+import type { SizeProfileId } from '../config/config';
+import type { ColorSpaceId } from '../config/types';
+import type { Brand } from '../shared/shared';
 
 /**
  * Weights keyed by operator id, so the static registry makes a mistyped name a compile error.

@@ -1,21 +1,21 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/index.ts';
-import { createExpression, createNode } from '../expression/index.ts';
-import { nodeKey } from '../expression/key.ts';
-import { generate, GENERATOR_VERSION } from '../generator/index.ts';
-import { defaultGrammar } from '../grammar/index.ts';
-import { createSeed } from '../random/index.ts';
-import { createArtwork, createRenderSettings, fitRenderSettings } from './create.ts';
-import { checkProvenance } from './provenance.ts';
+import { createDefaultCatalog } from '../catalog/Catalog';
+import { createExpression, createNode } from '../expression/expression';
+import { nodeKey } from '../expression/key';
+import { generate, GENERATOR_VERSION } from '../generator/generator';
+import { defaultGrammar } from '../grammar/presets';
+import { createSeed } from '../random/seed';
+import { createArtwork, createRenderSettings, fitRenderSettings } from './create';
+import { checkProvenance } from './provenance';
 import {
     parseArtworkFile,
     serializeArtworkFile,
     ARTWORK_FILE_FORMAT,
     MAX_ARTWORK_FILE_LENGTH,
-} from './serialize.ts';
-import type { ArtworkData } from './serialize.ts';
-import type { Artwork } from './types.ts';
+} from './serialize';
+import type { ArtworkData } from './serialize';
+import type { Artwork } from './types';
 
 const catalog = createDefaultCatalog();
 

@@ -1,4 +1,4 @@
-import type { Dataset } from './loadDataset.ts';
+import type { Dataset } from './loadDataset';
 
 /** A grid of dataset images: one row per grammar, one column per seed. */
 export interface ContactSheet {

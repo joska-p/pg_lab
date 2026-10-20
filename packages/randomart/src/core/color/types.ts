@@ -1,4 +1,4 @@
-import type { ColorSpaceId } from '../config/index.ts';
+import type { ColorSpaceId } from '../config/types';
 /**
  * How the raw triplet is read before output: the space, and how deep the three channels share their
  * structure. `shareDepth` is a generator concern, not a render one.

@@ -1,4 +1,4 @@
-import { correlation } from './correlation.ts';
+import { correlation } from './correlation';
 
 export interface RgbImage {
     readonly width: number;

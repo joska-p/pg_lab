@@ -5,13 +5,13 @@ import {
     GLSL_IN_UV,
     GLSL_OUT_COLOR,
     validateShaderContract,
-} from '../core/compiler/index.ts';
+} from '../core/compiler/contract';
 import {
     createPhase,
     DEFAULT_CONTEXT_OPTIONS,
     DEFAULT_LOOP_DURATION,
     HANDWRITTEN_TEST_SHADER,
-} from './contract.ts';
+} from './contract';
 
 describe('renderer / contract & helpers', () => {
     describe('createPhase', () => {

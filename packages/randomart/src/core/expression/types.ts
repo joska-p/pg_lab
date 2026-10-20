@@ -1,4 +1,4 @@
-import type { Brand } from '../shared/index.ts';
+import type { Brand } from '../shared/shared';
 
 export type Channel = 'r' | 'g' | 'b';
 
@@ -20,7 +20,11 @@ export type Expression = Brand<
     'Expression'
 >;
 
-/** Points at a node: a channel plus the input indices to follow from its root (`[]` = the root). */
+/**
+ * Points at a node: a channel plus the input indices to follow from its root (`[]` = the root).
+ *
+ * @lintignore
+ */
 export interface Address {
     readonly channel: Channel;
     readonly path: readonly number[];

@@ -1,5 +1,5 @@
-import type { ParamRange } from '../../config/types.ts';
-import type { DependencyId } from '../dependencies.ts';
+import type { ParamRange } from '../../config/types';
+import type { DependencyId } from '../dependencies';
 
 export type OperatorGroup = 'terminal' | 'arithmetic' | 'trigonometry' | 'logic' | 'transform';
 

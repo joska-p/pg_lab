@@ -1,4 +1,4 @@
-import { defineOperator } from './types.ts';
+import { defineOperator } from './types';
 
 export const trigonometry = {
     sin: defineOperator({

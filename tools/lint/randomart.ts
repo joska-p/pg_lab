@@ -6,13 +6,9 @@ import type { OxlintOverride } from 'vite-plus/lint';
  * These were the gates of the standalone coherence audit; composed as `files` overrides in the root
  * `vite.config.ts` so `vp check` enforces them:
  *
- * - Explicit extension on every relative import;
  * - Layer direction: `core` < `renderer` / `storage` < `stores` < `components`, each layer only
  *   imports downwards;
  * - Core purity: no ambient randomness, time, network or DOM in `core/`.
- *
- * `import/extensions` stays scoped to randomart: the rest of the workspace has not been migrated to
- * explicit extensions yet.
  */
 
 /** Layers a lower layer must never import, as import-path globs. */
@@ -47,12 +43,6 @@ function forbidLayers(layer: string, forbidden: readonly Layer[]): OxlintOverrid
 }
 
 export const randomartLint: OxlintOverride[] = [
-    {
-        files: ['packages/randomart/**'],
-        rules: {
-            'import/extensions': ['error', 'ignorePackages', { ts: 'always', tsx: 'always' }],
-        },
-    },
     forbidLayers('core', ['renderer', 'stores', 'components', 'storage', 'dataset']),
     forbidLayers('renderer', ['stores', 'components', 'storage', 'dataset']),
     forbidLayers('storage', ['renderer', 'stores', 'components', 'dataset']),

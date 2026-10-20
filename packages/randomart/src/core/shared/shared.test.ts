@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { assertFinite, assertInteger, assertIntegerInRange } from './index.ts';
+import { assertFinite, assertInteger, assertIntegerInRange } from './shared';
 
 describe('assertFinite', () => {
     it('accepts finite numbers', () => {

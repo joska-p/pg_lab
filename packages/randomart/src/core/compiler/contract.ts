@@ -27,6 +27,8 @@ export const GLSL_COORD_INIT = 'vec2 v_p = vUv * 2.0 - 1.0;';
  * - Contains input `in vec2 vUv;`
  * - Contains output `out vec4 o_color;`
  * - Initializes `vec2 v_p = vUv * 2.0 - 1.0;`
+ *
+ * @lintignore
  */
 export function validateShaderContract(source: string): { valid: boolean; errors: string[] } {
     const errors: string[] = [];

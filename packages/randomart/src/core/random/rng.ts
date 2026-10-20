@@ -1,5 +1,5 @@
-import { assertFinite, assertInteger } from '../shared/index.ts';
-import type { Seed } from './seed.ts';
+import { assertFinite, assertInteger } from '../shared/shared';
+import type { Seed } from './seed';
 
 export interface Rng {
     readonly next: () => number;

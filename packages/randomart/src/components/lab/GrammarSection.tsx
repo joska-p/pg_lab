@@ -5,19 +5,19 @@ import { Select } from '@repo/ui/components/Select';
 import { Slider } from '@repo/ui/components/Slider';
 import { TextInput } from '@repo/ui/components/TextInput';
 
-import type { Operator, OperatorId } from '../../core/catalog/index.ts';
-import { COLOR_SPACE_IDS, COLOR_SPACES } from '../../core/color/index.ts';
-import { CONFIG } from '../../core/config/index.ts';
+import type { Operator } from '../../core/catalog/operators/Operator';
+import type { OperatorId } from '../../core/catalog/operators/registry';
+import { COLOR_SPACE_IDS, COLOR_SPACES } from '../../core/color/color';
+import { CONFIG } from '../../core/config/config';
 import {
     constraintsOf,
-    grammarPresets,
     isLastNonTerminal,
     isLastTerminal,
-    presetIdOf,
-    SIZE_PROFILE_IDS,
     weightOf,
-} from '../../core/grammar/index.ts';
-import { createSeed } from '../../core/random/index.ts';
+} from '../../core/grammar/grammar';
+import { grammarPresets, presetIdOf } from '../../core/grammar/presets';
+import { SIZE_PROFILE_IDS } from '../../core/grammar/quantized';
+import { createSeed } from '../../core/random/seed';
 import {
     applyGrammar,
     drawGrammar,
@@ -28,8 +28,8 @@ import {
     setGrammarWeight,
     useGrammar,
     useSeed,
-} from '../../stores/appStore.ts';
-import { catalog } from '../../stores/catalogStore.ts';
+} from '../../stores/appStore';
+import { catalog } from '../../stores/catalogStore';
 
 const PRESETS = grammarPresets(catalog);
 const CUSTOM_PRESET = 'custom';

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import type { RgbImage } from '../../src/core/analysis/descriptors.ts';
+import type { RgbImage } from '../../src/core/analysis/descriptors';
 
 export interface DatasetGrammar {
     readonly grammar: unknown;

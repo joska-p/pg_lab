@@ -1,11 +1,12 @@
-import type { Catalog, Operator } from '../catalog/index.ts';
-import { CONFIG } from '../config/index.ts';
-import { createExpression, createNode } from '../expression/index.ts';
-import type { Expression, Node } from '../expression/index.ts';
-import { constraintsOf, getVocabulary, minSize, weightOf } from '../grammar/index.ts';
-import type { Grammar } from '../grammar/index.ts';
-import { createRng } from '../random/index.ts';
-import type { Seed } from '../random/index.ts';
+import type { Catalog } from '../catalog/Catalog';
+import type { Operator } from '../catalog/operators/Operator';
+import { CONFIG } from '../config/config';
+import { createExpression, createNode } from '../expression/expression';
+import type { Expression, Node } from '../expression/types';
+import { constraintsOf, getVocabulary, minSize, weightOf } from '../grammar/grammar';
+import type { Grammar } from '../grammar/types';
+import { createRng } from '../random/rng';
+import type { Seed } from '../random/seed';
 
 // Increment on any change that alters the output for a given seed: PRNG algorithm, order in which
 // random numbers are consumed (operator draw, then one draw per param, then children left to right,

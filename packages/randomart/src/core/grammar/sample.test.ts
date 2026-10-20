@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { serializeGrammar } from '../artwork/index.ts';
-import { createDefaultCatalog } from '../catalog/index.ts';
-import { generate } from '../generator/index.ts';
-import { constraintsOf, getVocabulary } from '../grammar/index.ts';
-import { sampleGrammars } from './sample.ts';
+import { serializeGrammar } from '../artwork/serialize';
+import { createDefaultCatalog } from '../catalog/Catalog';
+import { generate } from '../generator/generator';
+import { constraintsOf, getVocabulary } from './grammar';
+import { sampleGrammars } from './sample';
 
 const catalog = createDefaultCatalog();
 

@@ -1,4 +1,4 @@
-import type { ChannelModel } from '../color/index.ts';
+import type { ChannelModel } from '../color/types';
 
 /**
  * Sharing policy for lowered vertices.

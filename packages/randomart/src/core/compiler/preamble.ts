@@ -6,10 +6,10 @@
  * derives `vec2 v_p = vUv * 2.0 - 1.0;` inside `main()`, rather than receiving `in vec2 v_p`.
  */
 
-import type { Catalog, ShaderDependency } from '../catalog/index.ts';
-import { colorSpaceGlsl } from '../color/index.ts';
-import type { ColorSpaceId } from '../config/index.ts';
-import { GLSL_IN_UV, GLSL_OUT_COLOR } from './contract.ts';
+import type { Catalog, ShaderDependency } from '../catalog/Catalog';
+import { colorSpaceGlsl } from '../color/color';
+import type { ColorSpaceId } from '../config/types';
+import { GLSL_IN_UV, GLSL_OUT_COLOR } from './contract';
 
 export interface PreambleResult {
     /** Lines that go before void main(). */

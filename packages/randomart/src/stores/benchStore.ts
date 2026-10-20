@@ -1,27 +1,26 @@
 import { create } from 'zustand';
 
-import { buildLotView, EMPTY_LOT } from '../components/bench/lot.ts';
-import type { LotView } from '../components/bench/lot.ts';
-import { CONFIG } from '../core/config/index.ts';
-import { sampleGrammars } from '../core/grammar/index.ts';
+import { buildLotView, EMPTY_LOT } from '../components/bench/lot';
+import type { LotView } from '../components/bench/lot';
+import { CONFIG } from '../core/config/config';
+import { sampleGrammars } from '../core/grammar/sample';
 import {
     addBatchToNotebook,
     createBatch,
     createCandidate,
     createNotebook,
-    parseNotebook,
     rateNotebookCandidate,
     removeBatchFromNotebook,
-    serializeNotebook,
-} from '../core/notebook/index.ts';
-import type { Notebook, NotebookBatch, NotebookRating } from '../core/notebook/index.ts';
-import type { Seed } from '../core/random/index.ts';
-import { createSeed, randomSeed } from '../core/random/index.ts';
-import { createBatchRenderer } from '../renderer/index.ts';
-import type { BatchRenderer, RenderedBatch } from '../renderer/index.ts';
-import { loadNotebookFromDb, saveNotebookToDb } from '../storage/notebookDb.ts';
-import { openCellInLab } from './appStore.ts';
-import { catalog } from './catalogStore.ts';
+} from '../core/notebook/notebook';
+import { parseNotebook, serializeNotebook } from '../core/notebook/serialize';
+import type { Notebook, NotebookBatch, NotebookRating } from '../core/notebook/types';
+import type { Seed } from '../core/random/seed';
+import { createSeed, randomSeed } from '../core/random/seed';
+import { createBatchRenderer } from '../renderer/batch';
+import type { BatchRenderer, RenderedBatch } from '../renderer/batch';
+import { loadNotebookFromDb, saveNotebookToDb } from '../storage/notebookDb';
+import { openCellInLab } from './appStore';
+import { catalog } from './catalogStore';
 
 /** Cell sizes offered: square powers of two ≥ 16, so the analysis descriptors accept them. */
 export type CellSize = '64' | '128' | '256';

@@ -2,14 +2,14 @@ import { createDevicePixelRatio } from '@repo/glaze/core/render';
 import { createGpuSurface } from '@repo/glaze/gpu/GpuSurface';
 import type { GpuSurface } from '@repo/glaze/gpu/GpuSurface';
 
-import type { RgbImage } from '../core/analysis/index.ts';
-import type { Catalog } from '../core/catalog/index.ts';
-import { compile } from '../core/compiler/index.ts';
-import { generate } from '../core/generator/index.ts';
-import { channelModelOf } from '../core/grammar/index.ts';
-import type { Grammar } from '../core/grammar/index.ts';
-import type { Seed } from '../core/random/index.ts';
-import { DEFAULT_CONTEXT_OPTIONS } from './contract.ts';
+import type { RgbImage } from '../core/analysis/descriptors';
+import type { Catalog } from '../core/catalog/Catalog';
+import { compile } from '../core/compiler/compile';
+import { generate } from '../core/generator/generator';
+import { channelModelOf } from '../core/grammar/grammar';
+import type { Grammar } from '../core/grammar/types';
+import type { Seed } from '../core/random/seed';
+import { DEFAULT_CONTEXT_OPTIONS } from './contract';
 
 interface BatchRequest {
     readonly grammar: Grammar;

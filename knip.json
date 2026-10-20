@@ -7,10 +7,12 @@
             "entry": [
                 "src/dataset/page.ts!",
                 "scripts/probe-webgl.mjs!",
+                "scripts/dataset/cli.ts!",
                 "src/**/*.test.ts",
                 "scripts/**/*.test.ts"
             ],
             "project": ["src/**/*.{ts,tsx}!", "scripts/**/*.{ts,mjs}!"],
+            "ignore": ["src/core/expression/traverse.ts"],
             "ignoreDependencies": [
                 "@rolldown/plugin-babel",
                 "@stylexjs/unplugin",

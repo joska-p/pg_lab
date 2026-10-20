@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/index.ts';
-import { CONFIG } from '../config/index.ts';
-import { generate } from '../generator/index.ts';
-import { getVocabulary } from '../grammar/index.ts';
-import { createRng, createSeed } from '../random/index.ts';
-import { constraintsOf, createGrammar, weightOf } from './grammar.ts';
-import { defaultGrammar } from './presets.ts';
-import { grammarKey, stepGrammar } from './quantized.ts';
+import { createDefaultCatalog } from '../catalog/Catalog';
+import { CONFIG } from '../config/config';
+import { generate } from '../generator/generator';
+import { createRng } from '../random/rng';
+import { createSeed } from '../random/seed';
+import { getVocabulary, constraintsOf, createGrammar, weightOf } from './grammar';
+import { defaultGrammar } from './presets';
+import { grammarKey, stepGrammar } from './quantized';
 
 const catalog = createDefaultCatalog();
 const rngAt = (seed: number) => createRng(createSeed(seed));

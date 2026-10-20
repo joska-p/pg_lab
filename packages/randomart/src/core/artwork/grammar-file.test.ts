@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/index.ts';
-import { createGrammar, defaultGrammar } from '../grammar/index.ts';
-import { deserializeGrammar, serializeGrammar } from './serialize.ts';
+import { createDefaultCatalog } from '../catalog/Catalog';
+import { createGrammar } from '../grammar/grammar';
+import { defaultGrammar } from '../grammar/presets';
+import { deserializeGrammar, serializeGrammar } from './serialize';
 
 const catalog = createDefaultCatalog();
 

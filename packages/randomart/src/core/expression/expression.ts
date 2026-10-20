@@ -1,6 +1,6 @@
-import type { Catalog } from '../catalog/index.ts';
-import { assertFinite } from '../shared/index.ts';
-import type { Expression, Node } from './types.ts';
+import type { Catalog } from '../catalog/Catalog';
+import { assertFinite } from '../shared/shared';
+import type { Expression, Node } from './types';
 
 export function createNode(
     catalog: Catalog,

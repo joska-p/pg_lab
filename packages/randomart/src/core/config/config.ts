@@ -1,4 +1,4 @@
-import type { ParamRange, ColorSpaceId, Constraints } from './types.ts';
+import type { ParamRange, ColorSpaceId, Constraints } from './types';
 
 /**
  * The curated values of the package, in one typed module: every number a caller never passes and

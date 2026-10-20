@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/index.ts';
-import { createExpression, createNode, deserialize, serialize } from './index.ts';
-import type { ExpressionData } from './index.ts';
-import { nodeKey } from './key.ts';
-import { MAX_IMPORT_DEPTH, MAX_IMPORT_NODES } from './serialize.ts';
-import type { NodeData } from './serialize.ts';
+import { createDefaultCatalog } from '../catalog/Catalog';
+import { createExpression, createNode } from './expression';
+import { nodeKey } from './key';
+import { deserialize, MAX_IMPORT_DEPTH, MAX_IMPORT_NODES, serialize } from './serialize';
+import type { ExpressionData, NodeData } from './serialize';
 
 describe('expression: serialize', () => {
     const catalog = createDefaultCatalog();

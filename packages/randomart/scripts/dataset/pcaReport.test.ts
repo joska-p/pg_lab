@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import type { Features } from './computeFeatures.ts';
-import { buildPcaReport, formatPcaReport } from './pcaReport.ts';
-import type { GrammarInput } from './pcaReport.ts';
+import type { Features } from './computeFeatures';
+import { buildPcaReport, formatPcaReport } from './pcaReport';
+import type { GrammarInput } from './pcaReport';
 
 function featuresFixture(): Features {
     const names = ['meanSaturation', 'contrast', 'flat'];

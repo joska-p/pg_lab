@@ -1,9 +1,9 @@
 import { createDurationSeconds } from '@repo/glaze/core/time';
 import type { DurationSeconds } from '@repo/glaze/core/time';
 
-import { CONFIG } from '../core/config/index.ts';
-import { assertFinite } from '../core/shared/index.ts';
-import type { Brand } from '../core/shared/index.ts';
+import { CONFIG } from '../core/config/config';
+import { assertFinite } from '../core/shared/shared';
+import type { Brand } from '../core/shared/shared';
 
 /** Default loop duration in seconds, derived from `CONFIG.artwork.loopMs`. */
 export const DEFAULT_LOOP_DURATION: DurationSeconds = createDurationSeconds(

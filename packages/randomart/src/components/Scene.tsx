@@ -1,6 +1,6 @@
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 
-import { RandomArtCanvas } from '../renderer/index.ts';
+import { RandomArtCanvas } from '../renderer/RandomArtCanvas';
 import {
     setCanvas,
     setClockStore,
@@ -8,8 +8,8 @@ import {
     useCompiledShader,
     useDuration,
     useMode,
-} from '../stores/appStore.ts';
-import { BenchStage } from './bench/BenchStage.tsx';
+} from '../stores/appStore';
+import { BenchStage } from './bench/BenchStage';
 
 export function Scene() {
     const compiledShader = useCompiledShader();

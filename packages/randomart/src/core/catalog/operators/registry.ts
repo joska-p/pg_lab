@@ -1,9 +1,9 @@
-import { arithmetic } from './arithmetic.ts';
-import { logic } from './logic.ts';
-import { terminals } from './terminals.ts';
-import { transforms } from './transforms.ts';
-import { trigonometry } from './trigonometry.ts';
-import type { OperatorSpec } from './types.ts';
+import { arithmetic } from './arithmetic';
+import { logic } from './logic';
+import { terminals } from './terminals';
+import { transforms } from './transforms';
+import { trigonometry } from './trigonometry';
+import type { OperatorSpec } from './types';
 
 export const OPERATOR_SPECS = {
     ...terminals,

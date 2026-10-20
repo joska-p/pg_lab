@@ -5,14 +5,15 @@ import { deflateSync } from 'node:zlib';
 
 import { describe, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/index.ts';
-import { CONFIG } from '../config/index.ts';
-import type { Expression, Node } from '../expression/index.ts';
-import { formatFormula } from '../expression/index.ts';
-import { generate } from '../generator/index.ts';
-import { createGrammar, defaultGrammar } from '../grammar/index.ts';
-import type { Grammar } from '../grammar/index.ts';
-import { createSeed } from '../random/index.ts';
+import { createDefaultCatalog } from '../catalog/Catalog';
+import { CONFIG } from '../config/config';
+import { formatFormula } from '../expression/formula';
+import type { Expression, Node } from '../expression/types';
+import { generate } from '../generator/generator';
+import { createGrammar } from '../grammar/grammar';
+import { defaultGrammar } from '../grammar/presets';
+import type { Grammar } from '../grammar/types';
+import { createSeed } from '../random/seed';
 
 const enabled = import.meta.env.VITE_MEASURE === '1';
 const SIZE = 256;

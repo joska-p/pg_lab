@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import type { RgbImage } from '../../core/analysis/index.ts';
-import { createDefaultCatalog } from '../../core/catalog/index.ts';
-import { defaultGrammar } from '../../core/grammar/index.ts';
-import type { RenderedBatch } from '../../renderer/index.ts';
-import { buildLotView, EMPTY_LOT, isFlat } from './lot.ts';
+import type { RgbImage } from '../../core/analysis/descriptors';
+import { createDefaultCatalog } from '../../core/catalog/Catalog';
+import { defaultGrammar } from '../../core/grammar/presets';
+import type { RenderedBatch } from '../../renderer/batch';
+import { buildLotView, EMPTY_LOT, isFlat } from './lot';
 
 const catalog = createDefaultCatalog();
 const grammar = defaultGrammar(catalog);

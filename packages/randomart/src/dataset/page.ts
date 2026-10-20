@@ -1,11 +1,11 @@
-import { deserializeGrammar, serializeGrammar } from '../core/artwork/index.ts';
-import type { GrammarData } from '../core/artwork/index.ts';
-import { createDefaultCatalog } from '../core/catalog/index.ts';
-import { GENERATOR_VERSION } from '../core/generator/index.ts';
-import { sampleGrammars } from '../core/grammar/index.ts';
-import type { SampleOptions } from '../core/grammar/index.ts';
-import { createSeed } from '../core/random/index.ts';
-import { createBatchRenderer } from '../renderer/batch.ts';
+import { deserializeGrammar, serializeGrammar } from '../core/artwork/serialize';
+import type { GrammarData } from '../core/artwork/serialize';
+import { createDefaultCatalog } from '../core/catalog/Catalog';
+import { GENERATOR_VERSION } from '../core/generator/generator';
+import { sampleGrammars } from '../core/grammar/sample';
+import type { SampleOptions } from '../core/grammar/types';
+import { createSeed } from '../core/random/seed';
+import { createBatchRenderer } from '../renderer/batch';
 
 /**
  * Dataset page: the in-browser half of the offline dataset pipeline. It owns no rendering of its

@@ -66,13 +66,6 @@ const RULES = [
             'Acronyms read as words in identifiers (`Id`); `*_IDS` is reserved for id arrays (conventions §2.1.7).',
         allow: /\b(?:FAMILY|SIZE_PROFILE|COLOR_SPACE)_IDS\b/,
     },
-    {
-        // `import/extensions` does not see a directory import (`'../catalog'`): it resolves to a file.
-        id: 'import-extension',
-        pattern: /\bfrom\s+'\.{1,2}\/(?:(?!\.(?:tsx?|css|mjs|js|json)')[^'\n])*'/,
-        message:
-            'Relative import without an explicit extension; write the file (`../catalog/index.ts`) (conventions §2.1.9).',
-    },
 ];
 
 /**

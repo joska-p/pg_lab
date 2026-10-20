@@ -1,13 +1,13 @@
-import { CONFIG } from '../config/index.ts';
-import { assertFinite, assertIntegerInRange } from '../shared/index.ts';
-import type { Artwork, ArtworkInput, RenderSettings, RenderSettingsInput } from './types.ts';
+import { CONFIG } from '../config/config';
+import { assertFinite, assertIntegerInRange } from '../shared/shared';
+import type { Artwork, ArtworkInput, RenderSettings, RenderSettingsInput } from './types';
 import {
     MAX_LOOP_MS,
     MAX_RENDER_SIZE,
     MAX_TITLE_LENGTH,
     MIN_LOOP_MS,
     MIN_RENDER_SIZE,
-} from './types.ts';
+} from './types';
 
 /**
  * The only way to a `RenderSettings` brand: constrains the render block numbers and applies

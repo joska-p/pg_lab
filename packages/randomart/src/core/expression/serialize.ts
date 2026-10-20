@@ -1,7 +1,7 @@
-import type { Catalog } from '../catalog/index.ts';
-import { isRecord } from '../shared/index.ts';
-import { createExpression, createNode } from './expression.ts';
-import type { Expression, Node } from './types.ts';
+import type { Catalog } from '../catalog/Catalog';
+import { isRecord } from '../shared/shared';
+import { createExpression, createNode } from './expression';
+import type { Expression, Node } from './types';
 
 /** Import guards: checked while reading, so a hostile file never reaches the compiler. */
 export const MAX_IMPORT_NODES = 5_000;

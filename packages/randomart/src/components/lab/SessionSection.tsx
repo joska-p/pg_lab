@@ -6,7 +6,7 @@ import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
 import { useSyncExternalStore } from 'react';
 
-import { MAX_LOOP_MS, MIN_LOOP_MS } from '../../core/artwork/index.ts';
+import { MAX_LOOP_MS, MIN_LOOP_MS } from '../../core/artwork/types';
 import {
     parseDurationInput,
     generateImage,
@@ -17,7 +17,7 @@ import {
     useDuration,
     useHasClockStore,
     useShaderError,
-} from '../../stores/appStore.ts';
+} from '../../stores/appStore';
 
 /** Image generation: generates a new artwork from the current grammar. */
 export function SessionSection() {

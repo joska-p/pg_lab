@@ -1,4 +1,4 @@
-import type { Node } from './types.ts';
+import type { Node } from './types';
 
 /** Shortest JavaScript form that reads back exactly; `-0` is written `0`. */
 export function formatNumber(value: number): string {

@@ -5,33 +5,29 @@ import { createNullClockStore } from '@repo/glaze/react/clockStore';
 import type { ClockStore } from '@repo/glaze/react/types';
 import { create } from 'zustand';
 
-import {
-    checkProvenance,
-    createArtwork,
-    MAX_LOOP_MS,
-    MIN_LOOP_MS,
-    parseArtworkFile,
-    serializeArtworkFile,
-} from '../core/artwork/index.ts';
-import type { Artwork, ProvenanceCheck } from '../core/artwork/index.ts';
-import type { OperatorId } from '../core/catalog/index.ts';
-import { compile } from '../core/compiler/index.ts';
-import type { CompiledShader } from '../core/compiler/index.ts';
-import { CONFIG } from '../core/config/index.ts';
-import type { SizeProfileId, ColorSpaceId } from '../core/config/index.ts';
-import type { Expression } from '../core/expression/index.ts';
-import { generate, GENERATOR_VERSION } from '../core/generator/index.ts';
-import {
-    channelModelOf,
-    drawGrammar as drawRandomGrammar,
-    createGrammar,
-} from '../core/grammar/index.ts';
-import type { Grammar } from '../core/grammar/index.ts';
-import { defaultGrammar } from '../core/grammar/presets.ts';
-import { createRng, createSeed, randomSeed } from '../core/random/index.ts';
-import type { Seed } from '../core/random/index.ts';
-import { DEFAULT_LOOP_DURATION } from '../renderer/contract.ts';
-import { catalog } from './catalogStore.ts';
+import { createArtwork } from '../core/artwork/create';
+import { checkProvenance } from '../core/artwork/provenance';
+import type { ProvenanceCheck } from '../core/artwork/provenance';
+import { parseArtworkFile, serializeArtworkFile } from '../core/artwork/serialize';
+import { MAX_LOOP_MS, MIN_LOOP_MS } from '../core/artwork/types';
+import type { Artwork } from '../core/artwork/types';
+import type { OperatorId } from '../core/catalog/operators/registry';
+import { compile } from '../core/compiler/compile';
+import type { CompiledShader } from '../core/compiler/types';
+import { CONFIG } from '../core/config/config';
+import type { SizeProfileId } from '../core/config/config';
+import type { ColorSpaceId } from '../core/config/types';
+import type { Expression } from '../core/expression/types';
+import { generate, GENERATOR_VERSION } from '../core/generator/generator';
+import { channelModelOf, createGrammar } from '../core/grammar/grammar';
+import { defaultGrammar } from '../core/grammar/presets';
+import { drawGrammar as drawRandomGrammar } from '../core/grammar/quantized';
+import type { Grammar } from '../core/grammar/types';
+import { createRng } from '../core/random/rng';
+import { createSeed, randomSeed } from '../core/random/seed';
+import type { Seed } from '../core/random/seed';
+import { DEFAULT_LOOP_DURATION } from '../renderer/contract';
+import { catalog } from './catalogStore';
 
 /**
  * One explored state: enough to get the exact same image back. Generated entries replay from

@@ -1,9 +1,9 @@
-import type { Catalog } from '../catalog/index.ts';
-import { CONFIG } from '../config/index.ts';
-import { createRng } from '../random/index.ts';
-import type { Seed } from '../random/index.ts';
-import { deriveSeed, drawGrammar, grammarKey, itemSeeds } from './quantized.ts';
-import type { Grammar, SampleOptions } from './types.ts';
+import type { Catalog } from '../catalog/Catalog';
+import { CONFIG } from '../config/config';
+import { createRng } from '../random/rng';
+import type { Seed } from '../random/seed';
+import { deriveSeed, drawGrammar, grammarKey, itemSeeds } from './quantized';
+import type { Grammar, SampleOptions } from './types';
 
 export interface SampledGrammar {
     readonly grammar: Grammar;

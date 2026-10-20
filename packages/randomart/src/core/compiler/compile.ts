@@ -4,17 +4,17 @@
  * Pipeline: lower → emit → buildPreamble → assemble source
  */
 
-import type { Catalog } from '../catalog/index.ts';
-import { colorSpaceFunction, RAW_CHANNELS } from '../color/index.ts';
-import type { ChannelModel } from '../color/index.ts';
-import { nodeCount } from '../expression/index.ts';
-import type { Expression } from '../expression/index.ts';
-import { GLSL_COORD_INIT } from './contract.ts';
-import { emit } from './emit.ts';
-import { lower } from './lower.ts';
-import { buildPreamble } from './preamble.ts';
-import { MAX_SOURCE_LENGTH } from './types.ts';
-import type { CompiledShader, CompileOptions } from './types.ts';
+import type { Catalog } from '../catalog/Catalog';
+import { colorSpaceFunction, RAW_CHANNELS } from '../color/color';
+import type { ChannelModel } from '../color/types';
+import { nodeCount } from '../expression/expression';
+import type { Expression } from '../expression/types';
+import { GLSL_COORD_INIT } from './contract';
+import { emit } from './emit';
+import { lower } from './lower';
+import { buildPreamble } from './preamble';
+import { MAX_SOURCE_LENGTH } from './types';
+import type { CompiledShader, CompileOptions } from './types';
 
 /**
  * Compiles a randomart Expression into a complete GLSL ES 3.00 fragment shader.

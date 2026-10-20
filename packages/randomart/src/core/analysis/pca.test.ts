@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { jacobiEigen, pca } from './pca.ts';
+import { jacobiEigen, pca } from './pca';
 
 describe('jacobiEigen', () => {
     it('finds the eigenvalues of a known 2x2', () => {
