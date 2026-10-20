@@ -275,4 +275,5 @@ behaviour change; `vp check`, `vp run audit` and `vp test` stay green (328 / 10 
    `.github/workflows/deploy.yml` runs `vp run audit`.
 
 All follow-ups are done: the **D** documentation list (see the D section) and the **B-05** duplication
-clones (`C`, now 0). Nothing open.
+clones (`C`, now 0). The single entry point for current state is
+[`randomart-state.md`](randomart-state.md).

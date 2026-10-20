@@ -74,15 +74,18 @@ Result: `vp check` green, `vp test` green (303 passed / 3 skipped), `knip --prod
 - stale comments: already gone in `a342694` (`8 seconds` → 60 s, `HistoryEntry.recipe`), nothing left
   to fix here.
 
-## Step 5 — remaining items (not yet done)
+## Step 5 — remaining items
 
-- **Single state document**: `PLAN.md`, `randomart-coherence-plan`, `findings`,
-  `randomart-config-knobs`, `randomart-audit-handoff` and this registry coexist; the handoff says
-  "Nothing open" while the plan lists sessions A–E and `PLAN.md` lists T1–T5. Collapse into one.
-- **C batch**: `appStore` SSOT (grammar/recipe/HistoryEntry.grammar stored while the grammar should
-  be derived), the `commit`/`publishArtwork`/`restoreImportedEntry` repeated block, `downloadBlob`
-  duplicated with two behaviours, `resolveActiveBatch`/`useBenchActiveBatch`/`removeActiveBatch`
-  variants, and the error/async/lifecycle list (`createSeed(Number(value))` throws in a handler,
-  unbounded `setBenchCount`/`setBenchSeeds`, `await file.text()` outside the `try`,
-  `void saveNotebookToDb`, `openDatabase` never closed, `initBenchNotebook` may overwrite a newer
-  batch, `setCanvas`/`setClockStore` never reset on unmount).
+- **Single state document**: done. `codex/notes/randomart-state.md` is the one entry point (goal,
+  state, T1–T5, the C batch, open decisions and frictions). `PLAN.md`, `randomart-coherence-plan.md`
+  and `randomart-audit-handoff.md` are now one-line pointers to it; `findings.md`,
+  `randomart-config-knobs.md` and the dated session notes stay as referenced detail; the registry
+  keeps the per-commit audit history.
+- **C batch** (still open, tracked in `randomart-state.md` §Next): `appStore` SSOT (grammar/recipe/
+  HistoryEntry.grammar stored while the grammar should be derived), the `commit`/`publishArtwork`/
+  `restoreImportedEntry` repeated block, `downloadBlob` duplicated with two behaviours,
+  `resolveActiveBatch`/`useBenchActiveBatch`/`removeActiveBatch` variants, and the error/async/
+  lifecycle list (`createSeed(Number(value))` throws in a handler, unbounded `setBenchCount`/
+  `setBenchSeeds`, `await file.text()` outside the `try`, `void saveNotebookToDb`, `openDatabase`
+  never closed, `initBenchNotebook` may overwrite a newer batch, `setCanvas`/`setClockStore` never
+  reset on unmount).
