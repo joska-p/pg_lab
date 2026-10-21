@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../catalog/Catalog';
 import { createGrammar } from '../grammar/grammar';
-import { defaultGrammar } from '../grammar/presets';
+import { grammarPresets } from '../grammar/presets';
 import { deserializeGrammar, serializeGrammar } from './serialize';
 
 const catalog = createDefaultCatalog();
 
 describe('grammar serialization', () => {
     it('round-trips a grammar', () => {
-        const grammar = defaultGrammar(catalog);
+        const grammar = grammarPresets(catalog)[0].grammar;
         const restored = deserializeGrammar(catalog, serializeGrammar(grammar));
 
         expect(serializeGrammar(restored)).toEqual(serializeGrammar(grammar));

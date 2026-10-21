@@ -7,9 +7,9 @@ import { CONFIG } from '../config/config';
 import { nodeCount } from '../expression/expression';
 import { generate } from '../generator/generator';
 import { channelModelOf, constraintsOf, createGrammar } from '../grammar/grammar';
-import { defaultGrammar } from '../grammar/presets';
+import { grammarPresets } from '../grammar/presets';
 import { createSeed } from '../random/seed';
-import { COLOR_SPACE_IDS, DEFAULT_CHANNELS } from './color';
+import { COLOR_SPACE_IDS } from './color';
 
 const catalog = createDefaultCatalog();
 const SIZE = 'medium' as const;
@@ -22,7 +22,7 @@ function fullWeights(): Record<string, number> {
 
 describe('channel model', () => {
     it('defaultGrammar shares a shallow trunk read as OKLCH', () => {
-        expect(channelModelOf(defaultGrammar(catalog))).toEqual(DEFAULT_CHANNELS);
+        expect(channelModelOf(grammarPresets(catalog)[0].grammar)).toEqual(CONFIG.channels);
     });
 
     it('refuses an unknown color space (content, not a repair)', () => {
@@ -162,11 +162,11 @@ describe('compile channels', () => {
 
 describe('channel serialization', () => {
     it('round-trips the grammar axes', () => {
-        const grammar = defaultGrammar(catalog);
+        const grammar = grammarPresets(catalog)[0].grammar;
         const data = serializeGrammar(grammar);
 
-        expect(data.space).toBe(DEFAULT_CHANNELS.space);
-        expect(data.shareDepth).toBe(DEFAULT_CHANNELS.shareDepth);
+        expect(data.space).toBe(CONFIG.channels.space);
+        expect(data.shareDepth).toBe(CONFIG.channels.shareDepth);
         expect(serializeGrammar(deserializeGrammar(catalog, data))).toEqual(data);
     });
 

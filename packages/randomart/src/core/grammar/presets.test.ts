@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../catalog/Catalog';
+import { CONFIG } from '../config/config';
 import { generate } from '../generator/generator';
 import { createSeed } from '../random/seed';
-import { createGrammar, constraintsOf } from './grammar';
-import { defaultGrammar, grammarPresets, presetIdOf } from './presets';
+import { constraintsOf, createGrammar } from './grammar';
+import { grammarPresets, presetIdOf } from './presets';
 
 const catalog = createDefaultCatalog();
 const presets = grammarPresets(catalog);
@@ -13,6 +14,14 @@ describe('grammarPresets', () => {
     it('has unique ids and labels', () => {
         expect(new Set(presets.map((preset) => preset.id)).size).toBe(presets.length);
         expect(new Set(presets.map((preset) => preset.label)).size).toBe(presets.length);
+    });
+
+    it('states a weight for every operator of the catalog', () => {
+        for (const preset of presets) {
+            for (const operator of catalog.operators()) {
+                expect(Object.hasOwn(preset.grammar.weights, operator.name)).toBe(true);
+            }
+        }
     });
 
     it('gives grammars the generator can use', () => {
@@ -30,22 +39,6 @@ describe('grammarPresets', () => {
         }
     });
 
-    it('includes the app default as the structure preset', () => {
-        const structure = presets.find((preset) => preset.id === 'structure');
-
-        expect(structure?.grammar).toEqual(defaultGrammar(catalog));
-        expect(presetIdOf(catalog, presets, defaultGrammar(catalog))).toBe('structure');
-    });
-
-    it('encodes mono as the full medium trunk and raw RGB as no trunk', () => {
-        const mono = presets.find((preset) => preset.id === 'mono');
-        const rgb = presets.find((preset) => preset.id === 'rgb');
-
-        expect(mono?.grammar.shareDepth).toBe(constraintsOf('medium').maxDepth);
-        expect(rgb?.grammar.shareDepth).toBe(0);
-        expect(rgb?.grammar.space).toBe('srgb');
-    });
-
     it('reports an undefined id once a knob moved', () => {
         const base = presets[0].grammar;
         const moved = createGrammar(catalog, {
@@ -56,5 +49,15 @@ describe('grammarPresets', () => {
         });
 
         expect(presetIdOf(catalog, presets, moved)).toBeUndefined();
+    });
+
+    it('keeps the first preset as found: x and y at the top, min and max at 2', () => {
+        const { grammar } = presets[0];
+
+        expect(grammar.weights.x).toBe(CONFIG.grammar.maxWeight);
+        expect(grammar.weights.y).toBe(CONFIG.grammar.maxWeight);
+        expect(grammar.weights.max).toBe(2);
+        expect(grammar.weights.min).toBe(2);
+        expect(grammar.size).toBe('medium');
     });
 });

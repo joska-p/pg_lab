@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../../core/catalog/Catalog';
-import { defaultGrammar } from '../../core/grammar/presets';
+import { grammarPresets } from '../../core/grammar/presets';
 import { createSeed } from '../../core/random/seed';
 import {
     addBatchToNotebook,
@@ -22,7 +22,7 @@ import {
 
 describe('notebook core', () => {
     const catalog = createDefaultCatalog();
-    const grammar = defaultGrammar(catalog);
+    const grammar = grammarPresets(catalog)[0].grammar;
     const seeds = [createSeed(42), createSeed(43)];
 
     describe('types and validation', () => {

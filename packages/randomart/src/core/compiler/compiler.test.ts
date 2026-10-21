@@ -7,7 +7,7 @@ import { OPERATOR_SPECS } from '../catalog/operators/registry';
 import type { OperatorSpec } from '../catalog/operators/types';
 import { createExpression, createNode } from '../expression/expression';
 import { generate } from '../generator/generator';
-import { defaultGrammar } from '../grammar/presets';
+import { grammarPresets } from '../grammar/presets';
 import { createSeed } from '../random/seed';
 import { compile } from './compile';
 import { validateShaderContract } from './contract.test';
@@ -208,8 +208,8 @@ describe('compiler', () => {
             expect(compile1.stats).toEqual(compile2.stats);
         });
 
-        it('integrates with generate and defaultGrammar', () => {
-            const grammar = defaultGrammar(catalog);
+        it('integrates with generate and structure preset', () => {
+            const grammar = grammarPresets(catalog)[0].grammar;
             const seed = createSeed(42);
             const expr = generate(catalog, grammar, seed);
 
@@ -354,7 +354,7 @@ describe('compiler', () => {
         // ── Determinism ───────────────────────────────────────────────
 
         it('determinism: same expression compiled twice gives identical source and stats', () => {
-            const grammar = defaultGrammar(catalog);
+            const grammar = grammarPresets(catalog)[0].grammar;
             const expr = generate(catalog, grammar, createSeed(99));
             const a = compile(catalog, expr, { sharing: 'shared' });
             const b = compile(catalog, expr, { sharing: 'shared' });

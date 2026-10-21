@@ -3,7 +3,7 @@ import { describe, it } from 'vite-plus/test';
 import { createDefaultCatalog } from '../catalog/Catalog';
 import type { Node } from '../expression/types';
 import { constraintsOf, createGrammar } from '../grammar/grammar';
-import { defaultGrammar } from '../grammar/presets';
+import { grammarPresets } from '../grammar/presets';
 import { createSeed } from '../random/seed';
 import { generate } from './generator';
 
@@ -35,7 +35,7 @@ describe('generator budget', () => {
         'reports child-size bias and tree stats',
         () => {
             const catalog = createDefaultCatalog();
-            const grammar = defaultGrammar(catalog);
+            const grammar = grammarPresets(catalog)[0].grammar;
             const { minDepth, maxDepth, maxNodes } = constraintsOf(grammar.size);
             /** Mean child size normalised by the node's total child size, per child index. */
             const binarySharesFirst: number[] = [];

@@ -136,13 +136,3 @@ export const MIN_SHARE_DEPTH = 0;
  * the only remaining consumer of this fallback.
  */
 export const RAW_CHANNELS: ChannelModel = { space: 'srgb', shareDepth: MIN_SHARE_DEPTH };
-
-/**
- * The app's default (`defaultGrammar`): a shared trunk of depth 2 read as OKLCH. Sharing the top of
- * the trees is what makes the three channels correlate, so the image reads as color following the
- * shape rather than as colored noise — a palette is no longer needed for that.
- */
-export const DEFAULT_CHANNELS: ChannelModel = {
-    space: CONFIG.channels.space,
-    shareDepth: CONFIG.channels.shareDepth,
-};

@@ -16,7 +16,6 @@ import type { ColorSpaceId, SizeProfileId } from '../../core/config/types';
 import type { Expression } from '../../core/expression/types';
 import { generate } from '../../core/generator/generator';
 import { channelModelOf, createGrammar } from '../../core/grammar/grammar';
-import { defaultGrammar } from '../../core/grammar/presets';
 import { drawGrammar as drawRandomGrammar } from '../../core/grammar/quantized';
 import type { Grammar } from '../../core/grammar/types';
 import { createRng } from '../../core/random/rng';
@@ -45,10 +44,10 @@ interface LabState {
     canvas: HTMLCanvasElement | null;
 }
 
-// Time terminals are always in the default vocabulary: one seed = one expression = one shader.
+// No default grammar: the first screen draws one, from the initial seed, so it stays reproducible.
 // Animation is a matter of playback (Play/Pause on the clock), not of grammar.
-const initialGrammar = defaultGrammar(catalog);
 const initialSeed = createSeed(CONFIG.app.initialSeed);
+const initialGrammar = drawRandomGrammar(catalog, createRng(initialSeed));
 const initialExpression = generate(catalog, initialGrammar, initialSeed);
 const initialCompiled = compile(catalog, initialExpression, {
     channels: channelModelOf(initialGrammar),

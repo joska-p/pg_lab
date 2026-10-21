@@ -40,3 +40,10 @@ export interface SampleOptions extends GrammarPins {
     readonly baseSeed?: number;
     readonly seedsPerGrammar?: number;
 }
+
+export interface GrammarPreset {
+    readonly id: string;
+    readonly label: string;
+    readonly description: string;
+    readonly grammar: Grammar;
+}

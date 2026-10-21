@@ -5,7 +5,8 @@ import type { SizeProfileId } from '../config/types';
 import { depth, nodeCount } from '../expression/expression';
 import type { Node } from '../expression/types';
 import { constraintsOf, createGrammar, getVocabulary } from '../grammar/grammar';
-import { defaultGrammar } from '../grammar/presets';
+import { grammarPresets } from '../grammar/presets';
+import type { Grammar } from '../grammar/types';
 import { createSeed } from '../random/seed';
 import { GENERATOR_VERSION, generate } from './generator';
 
@@ -38,7 +39,7 @@ function checkNodeInvariants(
 
 const catalog = createDefaultCatalog();
 
-function checkExpression(grammar: ReturnType<typeof defaultGrammar>, seed: number): void {
+function checkExpression(grammar: Grammar, seed: number): void {
     const { minDepth, maxDepth, maxNodes } = constraintsOf(grammar.size);
     const allowedOperators = new Set(
         getVocabulary(catalog, grammar.weights).map((operator) => operator.name),
@@ -59,7 +60,7 @@ describe('generator', () => {
     });
 
     it('generates expressions satisfying all grammar invariants across various seeds', () => {
-        const grammar = defaultGrammar(catalog);
+        const grammar = grammarPresets(catalog)[0].grammar;
 
         for (const seed of [1, 42, 999, 314159]) {
             checkExpression(grammar, seed);
@@ -67,7 +68,7 @@ describe('generator', () => {
     });
 
     it('respects every size profile budget', () => {
-        const base = defaultGrammar(catalog);
+        const base = grammarPresets(catalog)[0].grammar;
         const sizes: readonly SizeProfileId[] = ['small', 'medium', 'large'];
 
         for (const size of sizes) {
@@ -85,7 +86,7 @@ describe('generator', () => {
     });
 
     it('respects the invariants at every shared-trunk depth (0 … maxDepth)', () => {
-        const base = defaultGrammar(catalog);
+        const base = grammarPresets(catalog)[0].grammar;
         const { maxDepth } = constraintsOf(base.size);
 
         for (let shareDepth = 0; shareDepth <= maxDepth; shareDepth++) {
@@ -124,7 +125,7 @@ describe('generator', () => {
     });
 
     it('is strictly deterministic: same seed produces identical expression', () => {
-        const grammar = defaultGrammar(catalog);
+        const grammar = grammarPresets(catalog)[0].grammar;
         const seed = createSeed(1337);
 
         const expr1 = generate(catalog, grammar, seed);
@@ -134,7 +135,7 @@ describe('generator', () => {
     });
 
     it('different seeds produce different expressions', () => {
-        const grammar = defaultGrammar(catalog);
+        const grammar = grammarPresets(catalog)[0].grammar;
         const expr1 = generate(catalog, grammar, createSeed(1));
         const expr2 = generate(catalog, grammar, createSeed(2));
 
@@ -142,7 +143,7 @@ describe('generator', () => {
     });
 
     it('reproducibility snapshots on fixed seeds', () => {
-        const grammar = defaultGrammar(catalog);
+        const grammar = grammarPresets(catalog)[0].grammar;
 
         const exprSeed0 = generate(catalog, grammar, createSeed(0));
         const exprSeed42 = generate(catalog, grammar, createSeed(42));

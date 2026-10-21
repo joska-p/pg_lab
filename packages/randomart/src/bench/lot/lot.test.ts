@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../../core/catalog/Catalog';
-import { defaultGrammar } from '../../core/grammar/presets';
+import { grammarPresets } from '../../core/grammar/presets';
 import type { RenderedBatch } from '../../core/renderer/batch/batch';
 import type { RgbImage } from '../../core/renderer/types';
 import { buildLotView, EMPTY_LOT, isFlat } from './lot';
 
 const catalog = createDefaultCatalog();
-const grammar = defaultGrammar(catalog);
+const grammar = grammarPresets(catalog)[0].grammar;
 
 /** A flat image: every block has zero variance, so the grammar has collapsed. */
 function solid(size: number, level: number): RgbImage {

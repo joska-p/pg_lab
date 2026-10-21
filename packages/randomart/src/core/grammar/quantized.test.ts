@@ -6,7 +6,7 @@ import { generate } from '../generator/generator';
 import { createRng } from '../random/rng';
 import { createSeed } from '../random/seed';
 import { constraintsOf, createGrammar, getVocabulary, weightOf } from './grammar';
-import { defaultGrammar } from './presets';
+import { grammarPresets } from './presets';
 import { deriveSeed, drawGrammar, grammarKey, itemSeeds, SIZE_PROFILE_IDS } from './quantized';
 
 const catalog = createDefaultCatalog();
@@ -19,7 +19,7 @@ describe('the quantized axes', () => {
     });
 
     it('grammarKey is stable and distinguishes each axis', () => {
-        const base = defaultGrammar(catalog);
+        const base = grammarPresets(catalog)[0].grammar;
         const same = createGrammar(catalog, {
             weights: base.weights,
             size: base.size,
@@ -101,15 +101,6 @@ describe('drawGrammar', () => {
 
         expect(weights.has(0)).toBe(true);
         expect(weights.has(CONFIG.grammar.maxWeight)).toBe(true);
-    });
-});
-
-describe('the default grammar on the grid', () => {
-    it('keeps x and y as the strongest operators', () => {
-        const grammar = defaultGrammar(catalog);
-
-        expect(grammar.weights.x).toBe(CONFIG.grammar.maxWeight);
-        expect(grammar.weights.y).toBe(CONFIG.grammar.maxWeight);
     });
 });
 

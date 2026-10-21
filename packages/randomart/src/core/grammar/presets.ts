@@ -1,118 +1,70 @@
 import type { Catalog } from '../catalog/Catalog';
 import type { OperatorId } from '../catalog/operators/registry';
-import { DEFAULT_CHANNELS } from '../color/color';
-import { CONFIG } from '../config/config';
-import type { ColorSpaceId } from '../config/types';
-import { constraintsOf, createGrammar } from './grammar';
+import type { ColorSpaceId, SizeProfileId } from '../config/types';
+import { createGrammar } from './grammar';
 import { grammarKey } from './quantized';
-import type { Grammar } from './types';
+import type { Grammar, GrammarPreset } from './types';
 
-export interface GrammarPreset {
+/**
+ * A preset as plain data, the shape of a grammar found by the bench or the dataset: paste it as-is.
+ * Weights are exhaustive on purpose (`Record<OperatorId, number>`): a preset is readable in full,
+ * and adding an operator to the catalog fails to compile here until every preset states its
+ * weight.
+ */
+interface PresetData {
     readonly id: string;
     readonly label: string;
     readonly description: string;
-    readonly grammar: Grammar;
-}
-
-/**
- * The 2026-10-17 calibration, expressed on the weight axis. Measuring local flatness against
- * operator presence showed which operators structure the field and which flatten it: `x`/`y`/`max`
- * create variation, while `gt`, `add` and `const` dominate subtrees with a single value.
- * Up-weighting the first and leaving the second at the neutral weight roughly halves the share of
- * near-uniform stills (measured on the fuzz corpus: mean local flatness 59% → 41%, near-uniform
- * "aplats" 42% → 19%).
- *
- * Every other operator stays at the neutral weight 1: the vocabulary is the whole catalog, weighted
- * for _structure_. Animation is a matter of playback (the terminals' oscillator params), not of
- * vocabulary.
- */
-const CALIBRATION: Readonly<Partial<Record<OperatorId, number>>> = {
-    x: CONFIG.grammar.maxWeight,
-    y: CONFIG.grammar.maxWeight,
-    max: Math.min(2, CONFIG.grammar.maxWeight),
-    min: Math.min(2, CONFIG.grammar.maxWeight),
-};
-
-/** The full catalog at the neutral weight, with the calibration applied. */
-function calibratedWeights(catalog: Catalog): Record<OperatorId, number> {
-    const weights = {} as Record<OperatorId, number>;
-
-    for (const operator of catalog.operators()) {
-        weights[operator.name as OperatorId] = 1;
-    }
-
-    return Object.assign(weights, CALIBRATION);
-}
-
-/** The default grammar: the calibrated start, a medium grammar in the curated channel model. */
-export function defaultGrammar(catalog: Catalog): Grammar {
-    return createGrammar(catalog, {
-        weights: calibratedWeights(catalog),
-        size: 'medium',
-        shareDepth: DEFAULT_CHANNELS.shareDepth,
-        space: DEFAULT_CHANNELS.space,
-    });
-}
-
-function preset(
-    catalog: Catalog,
-    id: string,
-    label: string,
-    description: string,
-    shareDepth: number,
-    space: ColorSpaceId,
-): GrammarPreset {
-    return {
-        id,
-        label,
-        description,
-        grammar: createGrammar(catalog, {
-            weights: calibratedWeights(catalog),
-            size: 'medium',
-            shareDepth,
-            space,
-        }),
+    readonly grammar: {
+        readonly weights: Readonly<Record<OperatorId, number>>;
+        readonly size: SizeProfileId;
+        readonly shareDepth: number;
+        readonly space: ColorSpaceId;
     };
 }
 
-/** Named grammars: the app's starting point and its channel-model variants. */
-export function grammarPresets(catalog: Catalog): readonly GrammarPreset[] {
-    const monoShareDepth = constraintsOf('medium').maxDepth;
+/** The curated catalog. Every grammar the bench keeps is appended here, whole and readable. */
+const PRESET_DATA: readonly PresetData[] = [
+    {
+        id: 'structure',
+        label: 'Structure',
+        description:
+            'First grammar kept: x/y dominate, min/max structure the field, the rest is neutral.',
+        grammar: {
+            weights: {
+                abs: 1,
+                add: 1,
+                const: 1,
+                cos: 1,
+                div: 1,
+                gt: 1,
+                max: 2,
+                min: 2,
+                mix: 1,
+                mul: 1,
+                neg: 1,
+                select: 1,
+                sin: 1,
+                sqr: 1,
+                warp: 1,
+                x: 4,
+                y: 4,
+            },
+            size: 'medium',
+            shareDepth: 2,
+            space: 'oklch',
+        },
+    },
+];
 
-    return [
-        preset(
-            catalog,
-            'structure',
-            'Structure',
-            'Calibrated start: a shallow shared trunk read as OKLCH.',
-            DEFAULT_CHANNELS.shareDepth,
-            DEFAULT_CHANNELS.space,
-        ),
-        preset(
-            catalog,
-            'mono',
-            'Mono',
-            'One fully shared tree: pure greyscale structure.',
-            monoShareDepth,
-            DEFAULT_CHANNELS.space,
-        ),
-        preset(
-            catalog,
-            'oklab',
-            'OKLab',
-            'The same shared trunk in OKLab: flatter, more even color.',
-            DEFAULT_CHANNELS.shareDepth,
-            'oklab',
-        ),
-        preset(
-            catalog,
-            'rgb',
-            'Raw RGB',
-            'Three independent channels in sRGB: color and shape drift apart.',
-            0,
-            'srgb',
-        ),
-    ];
+/** The catalog as domain grammars, each validated by `createGrammar` against the operator catalog. */
+export function grammarPresets(catalog: Catalog): readonly GrammarPreset[] {
+    return PRESET_DATA.map(({ id, label, description, grammar }) => ({
+        id,
+        label,
+        description,
+        grammar: createGrammar(catalog, grammar),
+    }));
 }
 
 /** The id of the preset the grammar equals, or `undefined`: the select then reads "Custom". */
