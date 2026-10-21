@@ -1,9 +1,8 @@
 import { describe, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/Catalog';
 import type { Node } from '../expression/types';
 import { constraintsOf, createGrammar } from '../grammar/grammar';
-import { grammarPresets } from '../grammar/presets';
+import { GRAMMAR_PRESETS } from '../grammar/presets';
 import { createSeed } from '../random/seed';
 import { generate } from './generator';
 
@@ -34,8 +33,7 @@ describe('generator budget', () => {
     it.skipIf(!enabled)(
         'reports child-size bias and tree stats',
         () => {
-            const catalog = createDefaultCatalog();
-            const grammar = grammarPresets(catalog)[0].grammar;
+            const grammar = GRAMMAR_PRESETS[0].grammar;
             const { minDepth, maxDepth, maxNodes } = constraintsOf(grammar.size);
             /** Mean child size normalised by the node's total child size, per child index. */
             const binarySharesFirst: number[] = [];
@@ -67,7 +65,7 @@ describe('generator budget', () => {
 
             for (let i = 0; i < CASES; i++) {
                 const seed = createSeed(i * 7919 + 1);
-                const expression = generate(catalog, grammar, seed);
+                const expression = generate(grammar, seed);
                 walk(expression.r);
                 const treeSize = size(expression.r);
                 const treeDepth = depth(expression.r);
@@ -81,8 +79,7 @@ describe('generator budget', () => {
                 }
 
                 const unrelated = generate(
-                    catalog,
-                    createGrammar(catalog, {
+                    createGrammar({
                         weights: grammar.weights,
                         size: grammar.size,
                         shareDepth: 0,

@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../../core/catalog/Catalog';
-import { grammarPresets } from '../../core/grammar/presets';
+import { GRAMMAR_PRESETS } from '../../core/grammar/presets';
 import { createSeed } from '../../core/random/seed';
 import {
     addBatchToNotebook,
@@ -21,8 +20,7 @@ import {
 } from './types';
 
 describe('notebook core', () => {
-    const catalog = createDefaultCatalog();
-    const grammar = grammarPresets(catalog)[0].grammar;
+    const grammar = GRAMMAR_PRESETS[0].grammar;
     const seeds = [createSeed(42), createSeed(43)];
 
     describe('types and validation', () => {
@@ -141,7 +139,7 @@ describe('notebook core', () => {
             const serialized = serializeNotebook(original);
             expect(serialized.endsWith('\n')).toBe(true);
 
-            const parsed = parseNotebook(catalog, serialized);
+            const parsed = parseNotebook(serialized);
             expect(parsed.format).toBe(NOTEBOOK_FILE_FORMAT);
             expect(parsed.version).toBe(NOTEBOOK_FILE_VERSION);
             expect(parsed.generatorVersion).toBe(3);
@@ -156,11 +154,11 @@ describe('notebook core', () => {
 
         it('rejects files exceeding MAX_NOTEBOOK_FILE_LENGTH', () => {
             const oversized = ' '.repeat(MAX_NOTEBOOK_FILE_LENGTH + 1);
-            expect(() => parseNotebook(catalog, oversized)).toThrow(/too large/);
+            expect(() => parseNotebook(oversized)).toThrow(/too large/);
         });
 
         it('rejects invalid JSON', () => {
-            expect(() => parseNotebook(catalog, '{not json')).toThrow(/invalid JSON/);
+            expect(() => parseNotebook('{not json')).toThrow(/invalid JSON/);
         });
 
         it('rejects unexpected format or version', () => {
@@ -170,7 +168,7 @@ describe('notebook core', () => {
                 generatorVersion: 1,
                 batches: [],
             });
-            expect(() => parseNotebook(catalog, badFormat)).toThrow(/format.*not supported/);
+            expect(() => parseNotebook(badFormat)).toThrow(/format.*not supported/);
 
             const badVersion = JSON.stringify({
                 format: NOTEBOOK_FILE_FORMAT,
@@ -178,7 +176,7 @@ describe('notebook core', () => {
                 generatorVersion: 1,
                 batches: [],
             });
-            expect(() => parseNotebook(catalog, badVersion)).toThrow(/version.*not supported/);
+            expect(() => parseNotebook(badVersion)).toThrow(/version.*not supported/);
         });
 
         it('rejects unknown fields in notebook, batch, and candidate', () => {
@@ -189,7 +187,7 @@ describe('notebook core', () => {
                 batches: [],
                 extraRootField: true,
             });
-            expect(() => parseNotebook(catalog, withUnknownRoot)).toThrow(
+            expect(() => parseNotebook(withUnknownRoot)).toThrow(
                 /notebook\.extraRootField: unknown field/,
             );
 
@@ -199,7 +197,7 @@ describe('notebook core', () => {
             const raw = JSON.parse(serializeNotebook(nb));
 
             raw.batches[0].candidates[0].hackedField = 123;
-            expect(() => parseNotebook(catalog, JSON.stringify(raw))).toThrow(
+            expect(() => parseNotebook(JSON.stringify(raw))).toThrow(
                 /notebook\.batches\[0\]\.candidates\[0\]\.hackedField: unknown field/,
             );
         });
@@ -211,7 +209,7 @@ describe('notebook core', () => {
             const raw = JSON.parse(serializeNotebook(nb));
 
             raw.batches[0].candidates[0].rating = 8;
-            expect(() => parseNotebook(catalog, JSON.stringify(raw))).toThrow(
+            expect(() => parseNotebook(JSON.stringify(raw))).toThrow(
                 /notebook\.batches\[0\]\.candidates\[0\]\.rating: integer between 0 and 5 expected/,
             );
         });

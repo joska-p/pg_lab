@@ -1,4 +1,3 @@
-import type { Catalog } from '../catalog/Catalog';
 import type { OperatorId } from '../catalog/operators/registry';
 import type { ColorSpaceId, SizeProfileId } from '../config/types';
 import { createGrammar } from './grammar';
@@ -57,23 +56,19 @@ const PRESET_DATA: readonly PresetData[] = [
     },
 ];
 
-/** The catalog as domain grammars, each validated by `createGrammar` against the operator catalog. */
-export function grammarPresets(catalog: Catalog): readonly GrammarPreset[] {
-    return PRESET_DATA.map(({ id, label, description, grammar }) => ({
+/** The catalog as domain grammars, each validated by `createGrammar` at module load. */
+export const GRAMMAR_PRESETS: readonly GrammarPreset[] = PRESET_DATA.map(
+    ({ id, label, description, grammar }) => ({
         id,
         label,
         description,
-        grammar: createGrammar(catalog, grammar),
-    }));
-}
+        grammar: createGrammar(grammar),
+    }),
+);
 
 /** The id of the preset the grammar equals, or `undefined`: the select then reads "Custom". */
-export function presetIdOf(
-    catalog: Catalog,
-    presets: readonly GrammarPreset[],
-    grammar: Grammar,
-): string | undefined {
-    const key = grammarKey(catalog, grammar);
+export function presetIdOf(grammar: Grammar): string | undefined {
+    const key = grammarKey(grammar);
 
-    return presets.find((preset) => grammarKey(catalog, preset.grammar) === key)?.id;
+    return GRAMMAR_PRESETS.find((preset) => grammarKey(preset.grammar) === key)?.id;
 }

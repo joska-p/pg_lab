@@ -2,7 +2,7 @@ import { createDevicePixelRatio } from '@repo/glaze/core/render';
 import { createGpuSurface } from '@repo/glaze/gpu/GpuSurface';
 import type { GpuSurface } from '@repo/glaze/gpu/GpuSurface';
 
-import type { Catalog } from '../../catalog/Catalog';
+import { catalog } from '../../catalog/default';
 import { compile } from '../../compiler/compile';
 import { generate } from '../../generator/generator';
 import { channelModelOf } from '../../grammar/grammar';
@@ -87,9 +87,9 @@ function createStage(size: number): Stage {
     return { size, canvas, surface, readback };
 }
 
-function renderCell(stage: Stage, catalog: Catalog, grammar: Grammar, seed: Seed): RenderedCell {
+function renderCell(stage: Stage, grammar: Grammar, seed: Seed): RenderedCell {
     try {
-        const expression = generate(catalog, grammar, seed);
+        const expression = generate(grammar, seed);
         const { source } = compile(catalog, expression, { channels: channelModelOf(grammar) });
         const attempt = stage.surface.tryCreateProgram(source);
 
@@ -121,7 +121,7 @@ function renderCell(stage: Stage, catalog: Catalog, grammar: Grammar, seed: Seed
     }
 }
 
-export function createBatchRenderer(catalog: Catalog): BatchRenderer {
+export function createBatchRenderer(): BatchRenderer {
     let stage: Stage | null = null;
 
     return {
@@ -136,7 +136,7 @@ export function createBatchRenderer(catalog: Catalog): BatchRenderer {
 
             return requests.map(({ grammar, seeds }) => ({
                 grammar,
-                cells: seeds.map((seed) => renderCell(current, catalog, grammar, seed)),
+                cells: seeds.map((seed) => renderCell(current, grammar, seed)),
             }));
         },
         destroy() {

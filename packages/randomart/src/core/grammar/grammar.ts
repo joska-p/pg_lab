@@ -1,4 +1,4 @@
-import type { Catalog } from '../catalog/Catalog';
+import { catalog } from '../catalog/default';
 import type { Operator } from '../catalog/operators/Operator';
 import type { OperatorId } from '../catalog/operators/registry';
 import { isColorSpaceId, MIN_SHARE_DEPTH } from '../color/color';
@@ -53,10 +53,7 @@ export function minSize(
  * The vocabulary of a grammar: the operators it may draw, i.e. those with a strictly positive
  * weight, by alphabetical name. A weight of 0 means the operator is off.
  */
-export function getVocabulary(
-    catalog: Catalog,
-    weights: Readonly<Record<string, number | undefined>>,
-): Operator[] {
+export function getVocabulary(weights: Readonly<Record<string, number | undefined>>): Operator[] {
     return Object.keys(weights)
         .sort()
         .map((name) => catalog.operator(name))
@@ -64,7 +61,6 @@ export function getVocabulary(
 }
 
 function isLastOfKind(
-    catalog: Catalog,
     weights: Readonly<Record<string, number | undefined>>,
     name: string,
     isKind: (operator: Operator) => boolean,
@@ -73,7 +69,7 @@ function isLastOfKind(
         return false;
     }
 
-    return getVocabulary(catalog, weights).filter(isKind).length === 1;
+    return getVocabulary(weights).filter(isKind).length === 1;
 }
 
 /**
@@ -82,11 +78,10 @@ function isLastOfKind(
  * flag: the UI uses it to disable a control that has no valid outcome.
  */
 export function isLastTerminal(
-    catalog: Catalog,
     weights: Readonly<Record<string, number | undefined>>,
     name: string,
 ): boolean {
-    return isLastOfKind(catalog, weights, name, isTerminalOperator);
+    return isLastOfKind(weights, name, isTerminalOperator);
 }
 
 /**
@@ -94,11 +89,10 @@ export function isLastTerminal(
  * 1`, so a terminal-only vocabulary cannot grow a tree.
  */
 export function isLastNonTerminal(
-    catalog: Catalog,
     weights: Readonly<Record<string, number | undefined>>,
     name: string,
 ): boolean {
-    return isLastOfKind(catalog, weights, name, isNonTerminalOperator);
+    return isLastOfKind(weights, name, isNonTerminalOperator);
 }
 
 /**
@@ -122,23 +116,20 @@ function clampInt(value: number, min: number, max: number, fallback: number): nu
  * 2. At least one non-terminal is active — every size profile has `minDepth > 1`, so a terminal-only
  *    vocabulary cannot grow a tree.
  */
-export function createGrammar(
-    catalog: Catalog,
-    {
-        weights,
-        size,
-        shareDepth,
-        space,
-    }: {
-        readonly weights: Readonly<Record<string, number | undefined>>;
-        readonly size: SizeProfileId;
-        readonly shareDepth: number;
-        readonly space: ColorSpaceId;
-    },
-): Grammar {
+export function createGrammar({
+    weights,
+    size,
+    shareDepth,
+    space,
+}: {
+    readonly weights: Readonly<Record<string, number | undefined>>;
+    readonly size: SizeProfileId;
+    readonly shareDepth: number;
+    readonly space: ColorSpaceId;
+}): Grammar {
     const operatorNames = Object.keys(weights);
-    // Weights are checked, never repaired: clamping garbage into "off" or saturating at maxWeight
-    // would silently rewrite the vocabulary.
+
+    // Weights are checked, never repaired: clamping garbage into "off" or saturating at maxWeight would silently rewrite the vocabulary.
     if (operatorNames.length === 0) {
         throw new Error('Randomart: grammar weights must not be empty');
     }

@@ -1,4 +1,3 @@
-import type { Catalog } from '../catalog/Catalog';
 import { equals } from '../expression/key';
 import type { Expression } from '../expression/types';
 import { GENERATOR_VERSION, generate } from '../generator/generator';
@@ -18,7 +17,7 @@ function sameExpression(a: Expression, b: Expression): boolean {
 }
 
 /** Informs the UI ("regenerable" or "hand-edited"); the expression is never replaced by this. */
-export function checkProvenance(catalog: Catalog, artwork: Artwork): ProvenanceCheck {
+export function checkProvenance(artwork: Artwork): ProvenanceCheck {
     const { provenance, expression } = artwork;
 
     if (!provenance) {
@@ -29,7 +28,7 @@ export function checkProvenance(catalog: Catalog, artwork: Artwork): ProvenanceC
         return 'version-mismatch';
     }
 
-    const regenerated = generate(catalog, provenance.grammar, provenance.seed);
+    const regenerated = generate(provenance.grammar, provenance.seed);
 
     return sameExpression(regenerated, expression) ? 'matches' : 'differs';
 }

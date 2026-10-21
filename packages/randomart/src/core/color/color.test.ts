@@ -7,7 +7,7 @@ import { CONFIG } from '../config/config';
 import { nodeCount } from '../expression/expression';
 import { generate } from '../generator/generator';
 import { channelModelOf, constraintsOf, createGrammar } from '../grammar/grammar';
-import { grammarPresets } from '../grammar/presets';
+import { GRAMMAR_PRESETS } from '../grammar/presets';
 import { createSeed } from '../random/seed';
 import { COLOR_SPACE_IDS } from './color';
 
@@ -22,12 +22,12 @@ function fullWeights(): Record<string, number> {
 
 describe('channel model', () => {
     it('defaultGrammar shares a shallow trunk read as OKLCH', () => {
-        expect(channelModelOf(grammarPresets(catalog)[0].grammar)).toEqual(CONFIG.channels);
+        expect(channelModelOf(GRAMMAR_PRESETS[0].grammar)).toEqual(CONFIG.channels);
     });
 
     it('refuses an unknown color space (content, not a repair)', () => {
         expect(() =>
-            createGrammar(catalog, {
+            createGrammar({
                 weights: { x: 1, add: 1 },
                 size: SIZE,
                 shareDepth: 0,
@@ -38,7 +38,7 @@ describe('channel model', () => {
 
     it('keeps every declared color space usable', () => {
         for (const space of COLOR_SPACE_IDS) {
-            const grammar = createGrammar(catalog, {
+            const grammar = createGrammar({
                 weights: { x: 1, add: 1 },
                 size: SIZE,
                 shareDepth: 1,
@@ -51,7 +51,7 @@ describe('channel model', () => {
 
     it('repairs shareDepth instead of refusing it (an editing quantity)', () => {
         const shareDepth = (value: number): number =>
-            createGrammar(catalog, {
+            createGrammar({
                 weights: { x: 1, add: 1 },
                 size: SIZE,
                 shareDepth: value,
@@ -67,28 +67,28 @@ describe('channel model', () => {
 
 describe('generator channels', () => {
     it('shareDepth 0: three independent trees', () => {
-        const grammar = createGrammar(catalog, {
+        const grammar = createGrammar({
             weights: fullWeights(),
             size: SIZE,
             shareDepth: 0,
             space: 'srgb',
         });
 
-        const expression = generate(catalog, grammar, createSeed(7));
+        const expression = generate(grammar, createSeed(7));
 
         expect(expression.r).not.toBe(expression.g);
         expect(expression.g).not.toBe(expression.b);
     });
 
     it('a shallow trunk: the channels agree at the root, then diverge below it', () => {
-        const grammar = createGrammar(catalog, {
+        const grammar = createGrammar({
             weights: fullWeights(),
             size: SIZE,
             shareDepth: 2,
             space: 'oklch',
         });
 
-        const expression = generate(catalog, grammar, createSeed(7));
+        const expression = generate(grammar, createSeed(7));
 
         // Same operator and params at the shared root — that is the correlation …
         expect(expression.r.operatorName).toBe(expression.g.operatorName);
@@ -98,14 +98,14 @@ describe('generator channels', () => {
     });
 
     it('shareDepth >= maxDepth: one single tree, so r = g = b', () => {
-        const grammar = createGrammar(catalog, {
+        const grammar = createGrammar({
             weights: fullWeights(),
             size: SIZE,
             shareDepth: MAX_DEPTH,
             space: 'oklch',
         });
 
-        const expression = generate(catalog, grammar, createSeed(5));
+        const expression = generate(grammar, createSeed(5));
 
         expect(expression.r).toBe(expression.g);
         expect(expression.g).toBe(expression.b);
@@ -119,8 +119,7 @@ describe('generator channels', () => {
 
 describe('compile channels', () => {
     const expression = generate(
-        catalog,
-        createGrammar(catalog, {
+        createGrammar({
             weights: { x: 1, y: 1, const: 1, neg: 1 },
             size: 'small',
             shareDepth: 0,
@@ -162,31 +161,31 @@ describe('compile channels', () => {
 
 describe('channel serialization', () => {
     it('round-trips the grammar axes', () => {
-        const grammar = grammarPresets(catalog)[0].grammar;
+        const grammar = GRAMMAR_PRESETS[0].grammar;
         const data = serializeGrammar(grammar);
 
         expect(data.space).toBe(CONFIG.channels.space);
         expect(data.shareDepth).toBe(CONFIG.channels.shareDepth);
-        expect(serializeGrammar(deserializeGrammar(catalog, data))).toEqual(data);
+        expect(serializeGrammar(deserializeGrammar(data))).toEqual(data);
     });
 
     it('requires every axis (there is no channel fallback in a grammar)', () => {
         expect(() =>
-            deserializeGrammar(catalog, {
+            deserializeGrammar({
                 weights: { x: 1, add: 1 },
                 size: SIZE,
                 shareDepth: 0,
             }),
         ).toThrow(/grammar\.space: unknown color space/);
         expect(() =>
-            deserializeGrammar(catalog, {
+            deserializeGrammar({
                 weights: { x: 1, add: 1 },
                 size: SIZE,
                 space: 'oklch',
             }),
         ).toThrow(/grammar\.shareDepth: number expected/);
         expect(() =>
-            deserializeGrammar(catalog, {
+            deserializeGrammar({
                 weights: { x: 1, add: 1 },
                 shareDepth: 0,
                 space: 'oklch',
@@ -195,7 +194,7 @@ describe('channel serialization', () => {
     });
 
     it('repairs shareDepth against the maxDepth of the size profile', () => {
-        const grammar = deserializeGrammar(catalog, {
+        const grammar = deserializeGrammar({
             weights: { x: 1, add: 1 },
             size: 'small',
             shareDepth: 99,
@@ -214,14 +213,14 @@ describe('channel serialization', () => {
             space: 'srgb',
         };
 
-        expect(() => deserializeGrammar(catalog, { ...base, space: 'nope' })).toThrow(
+        expect(() => deserializeGrammar({ ...base, space: 'nope' })).toThrow(
             /grammar\.space: unknown color space/,
         );
-        expect(() => deserializeGrammar(catalog, { ...base, shareDepth: Number.NaN })).toThrow(
+        expect(() => deserializeGrammar({ ...base, shareDepth: Number.NaN })).toThrow(
             /grammar\.shareDepth: finite number expected/,
         );
         expect(() =>
-            deserializeGrammar(catalog, {
+            deserializeGrammar({
                 ...base,
                 channels: { space: 'srgb', shareDepth: 0 },
             }),

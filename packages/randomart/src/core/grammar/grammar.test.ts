@@ -10,7 +10,7 @@ import {
     isLastTerminal,
     minSize,
 } from './grammar';
-import { grammarPresets } from './presets';
+import { GRAMMAR_PRESETS } from './presets';
 
 /** Copies a grammar's partial weights into a mutable full record, absent entries becoming 0. */
 function mutableWeights(grammar: {
@@ -65,11 +65,9 @@ describe('grammar: minSize', () => {
 });
 
 describe('grammar: createGrammar validations', () => {
-    const catalog = createDefaultCatalog();
-
     it('rejects unknown operator', () => {
         expect(() =>
-            createGrammar(catalog, {
+            createGrammar({
                 ...VALID,
                 weights: { x: 1, nonexistent: 1 },
             }),
@@ -78,21 +76,21 @@ describe('grammar: createGrammar validations', () => {
 
     it('accepts weight 0 (off) and rejects out-of-range or non-integer weights', () => {
         expect(
-            createGrammar(catalog, {
+            createGrammar({
                 ...VALID,
                 weights: { x: 0, y: 0, const: 1, add: 1 },
             }),
         ).toBeTruthy();
 
         expect(() =>
-            createGrammar(catalog, {
+            createGrammar({
                 ...VALID,
                 weights: { x: -1, add: 1 },
             }),
         ).toThrow('Randomart: weight of operator "x" must be an integer in [0, 4], received -1');
 
         expect(() =>
-            createGrammar(catalog, {
+            createGrammar({
                 ...VALID,
                 weights: { x: CONFIG.grammar.maxWeight + 1, add: 1 },
             }),
@@ -101,7 +99,7 @@ describe('grammar: createGrammar validations', () => {
         );
 
         expect(() =>
-            createGrammar(catalog, {
+            createGrammar({
                 ...VALID,
                 weights: { x: 1.5, add: 1 },
             }),
@@ -110,7 +108,7 @@ describe('grammar: createGrammar validations', () => {
 
     it('rejects non-finite weights', () => {
         expect(() =>
-            createGrammar(catalog, {
+            createGrammar({
                 ...VALID,
                 weights: { x: Number.NaN, add: 1 },
             }),
@@ -119,7 +117,7 @@ describe('grammar: createGrammar validations', () => {
 
     it('rejects empty weights', () => {
         expect(() =>
-            createGrammar(catalog, {
+            createGrammar({
                 ...VALID,
                 weights: {},
             }),
@@ -128,14 +126,14 @@ describe('grammar: createGrammar validations', () => {
 
     it('rejects unknown size profile or color space', () => {
         expect(() =>
-            createGrammar(catalog, {
+            createGrammar({
                 ...VALID,
                 size: 'nope' as never,
             }),
         ).toThrow(/unknown size profile/);
 
         expect(() =>
-            createGrammar(catalog, {
+            createGrammar({
                 ...VALID,
                 space: 'nope' as never,
             }),
@@ -144,7 +142,7 @@ describe('grammar: createGrammar validations', () => {
 
     it('rejects a vocabulary without an active terminal', () => {
         expect(() =>
-            createGrammar(catalog, {
+            createGrammar({
                 ...VALID,
                 weights: { add: 1, mul: 0 },
             }),
@@ -154,7 +152,7 @@ describe('grammar: createGrammar validations', () => {
     it('rejects a vocabulary without an active non-terminal', () => {
         // Every size profile has minDepth > 1, so a terminal-only vocabulary cannot grow a tree.
         expect(() =>
-            createGrammar(catalog, {
+            createGrammar({
                 ...VALID,
                 weights: { x: 1, y: 1, const: 1 },
             }),
@@ -162,7 +160,7 @@ describe('grammar: createGrammar validations', () => {
     });
 
     it('derives constraints from the size profile and never stores them', () => {
-        const grammar = createGrammar(catalog, { ...VALID, size: 'small' });
+        const grammar = createGrammar({ ...VALID, size: 'small' });
 
         expect('constraints' in grammar).toBe(false);
         expect(constraintsOf(grammar.size)).toEqual(CONFIG.grammar.sizeProfiles.small);
@@ -170,7 +168,7 @@ describe('grammar: createGrammar validations', () => {
 
     it('repairs shareDepth into [0, maxDepth] and rounds it', () => {
         const shareDepth = (value: number, size: 'small' | 'large' = 'small'): number =>
-            createGrammar(catalog, { ...VALID, size, shareDepth: value }).shareDepth;
+            createGrammar({ ...VALID, size, shareDepth: value }).shareDepth;
 
         expect(shareDepth(-3)).toBe(0); // clamped up
         expect(shareDepth(99)).toBe(CONFIG.grammar.sizeProfiles.small.maxDepth); // clamped down
@@ -181,7 +179,7 @@ describe('grammar: createGrammar validations', () => {
     });
 
     it('freezes the grammar and its weights', () => {
-        const grammar = createGrammar(catalog, { ...VALID, weights: { y: 1, x: 2, add: 1 } });
+        const grammar = createGrammar({ ...VALID, weights: { y: 1, x: 2, add: 1 } });
 
         expect(Object.isFrozen(grammar)).toBe(true);
         expect(Object.isFrozen(grammar.weights)).toBe(true);
@@ -193,7 +191,7 @@ describe('grammar: structure preset', () => {
     const catalog = createDefaultCatalog();
 
     it('builds the default vocabulary (calibrated for structure)', () => {
-        const grammar = grammarPresets(catalog)[0].grammar;
+        const grammar = GRAMMAR_PRESETS[0].grammar;
         expect(grammar.weights.x).toBe(CONFIG.grammar.maxWeight);
         expect(grammar.weights.y).toBe(CONFIG.grammar.maxWeight);
         expect(grammar.weights.max).toBe(2);
@@ -208,7 +206,7 @@ describe('grammar: structure preset', () => {
     });
 
     it('covers the whole catalog and uses the medium budget', () => {
-        const grammar = grammarPresets(catalog)[0].grammar;
+        const grammar = GRAMMAR_PRESETS[0].grammar;
 
         for (const operator of catalog.operators()) {
             expect(Object.hasOwn(grammar.weights, operator.name)).toBe(true);
@@ -224,60 +222,60 @@ describe('grammar: viability predicates', () => {
     const nonTerminals = catalog.operators().filter((operator) => !operator.isTerminal);
 
     it('isLastTerminal is false while several terminals are active', () => {
-        const { weights } = grammarPresets(catalog)[0].grammar;
+        const { weights } = GRAMMAR_PRESETS[0].grammar;
 
         for (const terminal of terminals) {
-            expect(isLastTerminal(catalog, weights, terminal.name)).toBe(false);
+            expect(isLastTerminal(weights, terminal.name)).toBe(false);
         }
     });
 
     it('isLastTerminal is true for the only active terminal, false for an inactive one', () => {
-        const weights = mutableWeights(grammarPresets(catalog)[0].grammar);
+        const weights = mutableWeights(GRAMMAR_PRESETS[0].grammar);
 
         for (const terminal of terminals) {
             weights[terminal.name] = terminal.name === 'x' ? 1 : 0;
         }
 
-        expect(isLastTerminal(catalog, weights, 'x')).toBe(true);
-        expect(isLastTerminal(catalog, weights, 'y')).toBe(false);
+        expect(isLastTerminal(weights, 'x')).toBe(true);
+        expect(isLastTerminal(weights, 'y')).toBe(false);
     });
 
     it('isLastNonTerminal is true for the only active non-terminal', () => {
-        const weights = mutableWeights(grammarPresets(catalog)[0].grammar);
+        const weights = mutableWeights(GRAMMAR_PRESETS[0].grammar);
 
         for (const operator of nonTerminals) {
             weights[operator.name] = operator.name === 'add' ? 1 : 0;
         }
 
-        expect(isLastNonTerminal(catalog, weights, 'add')).toBe(true);
-        expect(isLastNonTerminal(catalog, weights, 'neg')).toBe(false);
+        expect(isLastNonTerminal(weights, 'add')).toBe(true);
+        expect(isLastNonTerminal(weights, 'neg')).toBe(false);
     });
 
     it('tracks what createGrammar refuses when emptying a kind', () => {
-        const weights = mutableWeights(grammarPresets(catalog)[0].grammar);
+        const weights = mutableWeights(GRAMMAR_PRESETS[0].grammar);
 
         for (const terminal of terminals) {
             weights[terminal.name] = terminal.name === 'x' ? 1 : 0;
         }
 
-        expect(isLastTerminal(catalog, weights, 'x')).toBe(true);
-        expect(() => createGrammar(catalog, { ...VALID, weights: { ...weights, x: 0 } })).toThrow(
+        expect(isLastTerminal(weights, 'x')).toBe(true);
+        expect(() => createGrammar({ ...VALID, weights: { ...weights, x: 0 } })).toThrow(
             /at least one terminal/,
         );
 
-        const onlyAdd = mutableWeights(grammarPresets(catalog)[0].grammar);
+        const onlyAdd = mutableWeights(GRAMMAR_PRESETS[0].grammar);
         for (const operator of nonTerminals) {
             onlyAdd[operator.name] = operator.name === 'add' ? 1 : 0;
         }
 
-        expect(isLastNonTerminal(catalog, onlyAdd, 'add')).toBe(true);
-        expect(() => createGrammar(catalog, { ...VALID, weights: { ...onlyAdd, add: 0 } })).toThrow(
+        expect(isLastNonTerminal(onlyAdd, 'add')).toBe(true);
+        expect(() => createGrammar({ ...VALID, weights: { ...onlyAdd, add: 0 } })).toThrow(
             /at least one non-terminal/,
         );
     });
 
     it('getVocabulary keeps only positive weights', () => {
-        const names = getVocabulary(catalog, { x: 1, y: 0, add: 2, mul: 1 }).map(
+        const names = getVocabulary({ x: 1, y: 0, add: 2, mul: 1 }).map(
             (operator) => operator.name,
         );
 

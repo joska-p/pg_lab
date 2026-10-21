@@ -40,7 +40,7 @@ function publishArtwork(artwork: Artwork): void {
     const compiledShader = compile(catalog, expression, {
         channels: channelModelOf(grammar),
     });
-    const provenanceCheck = checkProvenance(catalog, artwork);
+    const provenanceCheck = checkProvenance(artwork);
 
     publishLabState({ grammar, seed, expression, provenanceCheck, compiledShader });
 
@@ -53,7 +53,7 @@ function publishArtwork(artwork: Artwork): void {
 /** Publishes `(grammar, seed)` as a fresh artwork: the bench's "open in Lab" entry point. */
 export function openCellInLab(grammar: Grammar, seed: Seed): void {
     const artwork = createArtwork({
-        expression: generate(catalog, grammar, seed),
+        expression: generate(grammar, seed),
         provenance: { grammar, seed, generatorVersion: GENERATOR_VERSION },
     });
 
@@ -89,7 +89,7 @@ export function exportArtworkFile(): void {
  */
 export async function importArtworkFile(file: File): Promise<void> {
     try {
-        publishArtwork(parseArtworkFile(catalog, await file.text()));
+        publishArtwork(parseArtworkFile(await file.text()));
     } catch (error) {
         setActionError(error);
     }

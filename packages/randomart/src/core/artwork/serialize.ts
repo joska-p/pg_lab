@@ -1,4 +1,3 @@
-import type { Catalog } from '../catalog/Catalog';
 import { isColorSpaceId } from '../color/color';
 import { isSizeProfileId } from '../config/config';
 import type { ColorSpaceId, SizeProfileId } from '../config/types';
@@ -41,7 +40,7 @@ export function serializeGrammar(grammar: Grammar): GrammarData {
 }
 
 /** Accepts unknown input and validates it through `createGrammar`; errors carry the field path. */
-export function deserializeGrammar(catalog: Catalog, data: unknown, path = 'grammar'): Grammar {
+export function deserializeGrammar(data: unknown, path = 'grammar'): Grammar {
     if (!isRecord(data)) {
         throw new Error(`${path}: object expected`);
     }
@@ -81,7 +80,7 @@ export function deserializeGrammar(catalog: Catalog, data: unknown, path = 'gram
     }
 
     try {
-        return createGrammar(catalog, {
+        return createGrammar({
             weights,
             size: data.size,
             shareDepth: data.shareDepth,
@@ -167,7 +166,7 @@ function readRender(data: unknown): RenderSettingsInput {
     };
 }
 
-function readProvenance(catalog: Catalog, data: unknown, path = 'provenance'): Provenance {
+function readProvenance(data: unknown, path = 'provenance'): Provenance {
     if (!isRecord(data)) {
         throw new Error(`${path}: object expected`);
     }
@@ -186,7 +185,7 @@ function readProvenance(catalog: Catalog, data: unknown, path = 'provenance'): P
         throw new Error(`${path}.grammar: object expected`);
     }
 
-    const grammar = deserializeGrammar(catalog, data.grammar, `${path}.grammar`);
+    const grammar = deserializeGrammar(data.grammar, `${path}.grammar`);
 
     let seed: Seed;
 
@@ -214,7 +213,7 @@ function readProvenance(catalog: Catalog, data: unknown, path = 'provenance'): P
  * omitted; 2-space indent. One version (1), no migration: an unknown version is refused. Unknown
  * fields are refused so a future file never passes as version 1.
  */
-export function parseArtworkFile(catalog: Catalog, text: string): Artwork {
+export function parseArtworkFile(text: string): Artwork {
     if (text.length > MAX_ARTWORK_FILE_LENGTH) {
         throw new Error(
             `Artwork file too large (${text.length} characters, limit ${MAX_ARTWORK_FILE_LENGTH})`,
@@ -254,13 +253,13 @@ export function parseArtworkFile(catalog: Catalog, text: string): Artwork {
     }
 
     return createArtwork({
-        expression: deserialize(catalog, parsed.expression),
+        expression: deserialize(parsed.expression),
         // Clamp out-of-bounds quantities at file boundary so external files still render.
         ...(parsed.render !== undefined
             ? { render: fitRenderSettings(readRender(parsed.render)) }
             : {}),
         ...(parsed.provenance !== undefined
-            ? { provenance: readProvenance(catalog, parsed.provenance) }
+            ? { provenance: readProvenance(parsed.provenance) }
             : {}),
         ...(parsed.title !== undefined ? { title: parsed.title } : {}),
     });

@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/Catalog';
 import type { SizeProfileId } from '../config/types';
 import { depth, nodeCount } from '../expression/expression';
 import type { Node } from '../expression/types';
 import { constraintsOf, createGrammar, getVocabulary } from '../grammar/grammar';
-import { grammarPresets } from '../grammar/presets';
+import { GRAMMAR_PRESETS } from '../grammar/presets';
 import type { Grammar } from '../grammar/types';
 import { createSeed } from '../random/seed';
 import { GENERATOR_VERSION, generate } from './generator';
@@ -37,14 +36,12 @@ function checkNodeInvariants(
     }
 }
 
-const catalog = createDefaultCatalog();
-
 function checkExpression(grammar: Grammar, seed: number): void {
     const { minDepth, maxDepth, maxNodes } = constraintsOf(grammar.size);
     const allowedOperators = new Set(
-        getVocabulary(catalog, grammar.weights).map((operator) => operator.name),
+        getVocabulary(grammar.weights).map((operator) => operator.name),
     );
-    const expression = generate(catalog, grammar, createSeed(seed));
+    const expression = generate(grammar, createSeed(seed));
 
     for (const channel of [expression.r, expression.g, expression.b]) {
         expect(nodeCount(channel)).toBeLessThanOrEqual(maxNodes);
@@ -60,7 +57,7 @@ describe('generator', () => {
     });
 
     it('generates expressions satisfying all grammar invariants across various seeds', () => {
-        const grammar = grammarPresets(catalog)[0].grammar;
+        const grammar = GRAMMAR_PRESETS[0].grammar;
 
         for (const seed of [1, 42, 999, 314159]) {
             checkExpression(grammar, seed);
@@ -68,11 +65,11 @@ describe('generator', () => {
     });
 
     it('respects every size profile budget', () => {
-        const base = grammarPresets(catalog)[0].grammar;
+        const base = GRAMMAR_PRESETS[0].grammar;
         const sizes: readonly SizeProfileId[] = ['small', 'medium', 'large'];
 
         for (const size of sizes) {
-            const grammar = createGrammar(catalog, {
+            const grammar = createGrammar({
                 weights: base.weights,
                 size,
                 shareDepth: 0,
@@ -86,11 +83,11 @@ describe('generator', () => {
     });
 
     it('respects the invariants at every shared-trunk depth (0 … maxDepth)', () => {
-        const base = grammarPresets(catalog)[0].grammar;
+        const base = GRAMMAR_PRESETS[0].grammar;
         const { maxDepth } = constraintsOf(base.size);
 
         for (let shareDepth = 0; shareDepth <= maxDepth; shareDepth++) {
-            const grammar = createGrammar(catalog, {
+            const grammar = createGrammar({
                 weights: base.weights,
                 size: base.size,
                 shareDepth,
@@ -104,7 +101,7 @@ describe('generator', () => {
     });
 
     it('handles a minimal vocabulary: one terminal and one unary non-terminal', () => {
-        const grammar = createGrammar(catalog, {
+        const grammar = createGrammar({
             weights: { x: 1, neg: 1 },
             size: 'small',
             shareDepth: 0,
@@ -112,7 +109,7 @@ describe('generator', () => {
         });
 
         for (const seed of [123, 456]) {
-            const expression = generate(catalog, grammar, createSeed(seed));
+            const expression = generate(grammar, createSeed(seed));
             const { minDepth, maxDepth, maxNodes } = constraintsOf(grammar.size);
 
             for (const channel of [expression.r, expression.g, expression.b]) {
@@ -125,28 +122,28 @@ describe('generator', () => {
     });
 
     it('is strictly deterministic: same seed produces identical expression', () => {
-        const grammar = grammarPresets(catalog)[0].grammar;
+        const grammar = GRAMMAR_PRESETS[0].grammar;
         const seed = createSeed(1337);
 
-        const expr1 = generate(catalog, grammar, seed);
-        const expr2 = generate(catalog, grammar, seed);
+        const expr1 = generate(grammar, seed);
+        const expr2 = generate(grammar, seed);
 
         expect(JSON.stringify(expr1)).toBe(JSON.stringify(expr2));
     });
 
     it('different seeds produce different expressions', () => {
-        const grammar = grammarPresets(catalog)[0].grammar;
-        const expr1 = generate(catalog, grammar, createSeed(1));
-        const expr2 = generate(catalog, grammar, createSeed(2));
+        const grammar = GRAMMAR_PRESETS[0].grammar;
+        const expr1 = generate(grammar, createSeed(1));
+        const expr2 = generate(grammar, createSeed(2));
 
         expect(JSON.stringify(expr1)).not.toBe(JSON.stringify(expr2));
     });
 
     it('reproducibility snapshots on fixed seeds', () => {
-        const grammar = grammarPresets(catalog)[0].grammar;
+        const grammar = GRAMMAR_PRESETS[0].grammar;
 
-        const exprSeed0 = generate(catalog, grammar, createSeed(0));
-        const exprSeed42 = generate(catalog, grammar, createSeed(42));
+        const exprSeed0 = generate(grammar, createSeed(0));
+        const exprSeed42 = generate(grammar, createSeed(42));
 
         expect(exprSeed0).toMatchSnapshot();
         expect(exprSeed42).toMatchSnapshot();

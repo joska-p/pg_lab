@@ -1,4 +1,4 @@
-import type { Catalog } from '../catalog/Catalog';
+import { catalog } from '../catalog/default';
 import type { Operator } from '../catalog/operators/Operator';
 import { CONFIG } from '../config/config';
 import { createExpression, createNode } from '../expression/expression';
@@ -41,12 +41,12 @@ interface TrunkResult {
  * candidate always exists (the smallest-arity non-terminal before minDepth, a terminal after). The
  * budget is split as m + floor(free / (k - i)); the last child gets the remainder.
  */
-export function generate(catalog: Catalog, grammar: Grammar, seed: Seed): Expression {
+export function generate(grammar: Grammar, seed: Seed): Expression {
     const rng = createRng(seed);
     const { minDepth, maxDepth, maxNodes } = constraintsOf(grammar.size);
     const { shareDepth } = grammar;
 
-    const vocabulary: Operator[] = getVocabulary(catalog, grammar.weights);
+    const vocabulary: Operator[] = getVocabulary(grammar.weights);
 
     function drawOperator(currentDepth: number, budget: number): Operator {
         const candidates = vocabulary.filter((operator) => {

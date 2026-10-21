@@ -1,22 +1,19 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/Catalog';
 import { createGrammar } from '../grammar/grammar';
-import { grammarPresets } from '../grammar/presets';
+import { GRAMMAR_PRESETS } from '../grammar/presets';
 import { deserializeGrammar, serializeGrammar } from './serialize';
-
-const catalog = createDefaultCatalog();
 
 describe('grammar serialization', () => {
     it('round-trips a grammar', () => {
-        const grammar = grammarPresets(catalog)[0].grammar;
-        const restored = deserializeGrammar(catalog, serializeGrammar(grammar));
+        const grammar = GRAMMAR_PRESETS[0].grammar;
+        const restored = deserializeGrammar(serializeGrammar(grammar));
 
         expect(serializeGrammar(restored)).toEqual(serializeGrammar(grammar));
     });
 
     it('writes weight keys in alphabetical order and carries the axes', () => {
-        const grammar = createGrammar(catalog, {
+        const grammar = createGrammar({
             weights: { y: 1, x: 2, const: 1, add: 1 },
             size: 'small',
             shareDepth: 2,
@@ -31,19 +28,19 @@ describe('grammar serialization', () => {
     });
 
     it('rejects wrong shapes with the field path', () => {
-        expect(() => deserializeGrammar(catalog, 42)).toThrow(/grammar: object expected/);
-        expect(() => deserializeGrammar(catalog, { weights: { x: 'a' } })).toThrow(
+        expect(() => deserializeGrammar(42)).toThrow(/grammar: object expected/);
+        expect(() => deserializeGrammar({ weights: { x: 'a' } })).toThrow(
             /grammar\.weights\.x: number expected/,
         );
         expect(() =>
-            deserializeGrammar(catalog, {
+            deserializeGrammar({
                 weights: { x: 1, add: 1 },
                 size: 'medium',
                 shareDepth: 2,
             }),
         ).toThrow(/grammar\.space: unknown color space/);
         expect(() =>
-            deserializeGrammar(catalog, {
+            deserializeGrammar({
                 weights: { x: 1, add: 1 },
                 size: 'nope',
                 shareDepth: 2,
@@ -51,7 +48,7 @@ describe('grammar serialization', () => {
             }),
         ).toThrow(/grammar\.size: unknown size profile/);
         expect(() =>
-            deserializeGrammar(catalog, {
+            deserializeGrammar({
                 weights: { x: 1, add: 1 },
                 size: 'medium',
                 shareDepth: 'a',
@@ -59,7 +56,7 @@ describe('grammar serialization', () => {
             }),
         ).toThrow(/grammar\.shareDepth: number expected/);
         expect(() =>
-            deserializeGrammar(catalog, {
+            deserializeGrammar({
                 weights: { x: 1, add: 1 },
                 size: 'medium',
                 shareDepth: 2,
@@ -73,13 +70,13 @@ describe('grammar serialization', () => {
         const base = { weights: { x: 1, add: 1 }, size: 'medium', shareDepth: 2, space: 'oklch' };
 
         expect(() =>
-            deserializeGrammar(catalog, {
+            deserializeGrammar({
                 ...base,
                 constraints: { minDepth: 1, maxDepth: 4, maxNodes: 20 },
             }),
         ).toThrow(/grammar\.constraints: unknown field/);
         expect(() =>
-            deserializeGrammar(catalog, {
+            deserializeGrammar({
                 ...base,
                 channels: { space: 'oklch', shareDepth: 2 },
             }),
@@ -87,7 +84,7 @@ describe('grammar serialization', () => {
     });
 
     it('repairs shareDepth against the size profile instead of refusing it', () => {
-        const grammar = deserializeGrammar(catalog, {
+        const grammar = deserializeGrammar({
             weights: { x: 1, add: 1 },
             size: 'small',
             shareDepth: 99,
@@ -101,18 +98,18 @@ describe('grammar serialization', () => {
     it('refuses corrupted weights instead of clamping them (throw-vs-repair policy)', () => {
         const base = { size: 'medium', shareDepth: 2, space: 'oklch' };
 
-        expect(() =>
-            deserializeGrammar(catalog, { ...base, weights: { x: Number.NaN, add: 1 } }),
-        ).toThrow('Randomart: weight of operator "x" must be a finite number, received NaN');
+        expect(() => deserializeGrammar({ ...base, weights: { x: Number.NaN, add: 1 } })).toThrow(
+            'Randomart: weight of operator "x" must be a finite number, received NaN',
+        );
 
-        expect(() => deserializeGrammar(catalog, { ...base, weights: { x: 101, add: 1 } })).toThrow(
+        expect(() => deserializeGrammar({ ...base, weights: { x: 101, add: 1 } })).toThrow(
             'Randomart: weight of operator "x" must be an integer in [0, 4], received 101',
         );
     });
 
     it('relays createGrammar errors (unknown operator)', () => {
         expect(() =>
-            deserializeGrammar(catalog, {
+            deserializeGrammar({
                 weights: { x: 1, nope: 1 },
                 size: 'medium',
                 shareDepth: 2,

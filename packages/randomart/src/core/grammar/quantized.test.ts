@@ -6,7 +6,7 @@ import { generate } from '../generator/generator';
 import { createRng } from '../random/rng';
 import { createSeed } from '../random/seed';
 import { constraintsOf, createGrammar, getVocabulary, weightOf } from './grammar';
-import { grammarPresets } from './presets';
+import { GRAMMAR_PRESETS } from './presets';
 import { deriveSeed, drawGrammar, grammarKey, itemSeeds, SIZE_PROFILE_IDS } from './quantized';
 
 const catalog = createDefaultCatalog();
@@ -19,40 +19,39 @@ describe('the quantized axes', () => {
     });
 
     it('grammarKey is stable and distinguishes each axis', () => {
-        const base = grammarPresets(catalog)[0].grammar;
-        const same = createGrammar(catalog, {
+        const base = GRAMMAR_PRESETS[0].grammar;
+        const same = createGrammar({
             weights: base.weights,
             size: base.size,
             shareDepth: base.shareDepth,
             space: base.space,
         });
 
-        expect(grammarKey(catalog, same)).toBe(grammarKey(catalog, base));
+        expect(grammarKey(same)).toBe(grammarKey(base));
         expect(
             grammarKey(
-                catalog,
-                createGrammar(catalog, {
+                createGrammar({
                     weights: base.weights,
                     size: base.size,
                     shareDepth: base.shareDepth + 1,
                     space: base.space,
                 }),
             ),
-        ).not.toBe(grammarKey(catalog, base));
+        ).not.toBe(grammarKey(base));
     });
 });
 
 describe('drawGrammar', () => {
     it('is deterministic for a given rng seed', () => {
-        const a = drawGrammar(catalog, rngAt(7));
-        const b = drawGrammar(catalog, rngAt(7));
+        const a = drawGrammar(rngAt(7));
+        const b = drawGrammar(rngAt(7));
 
-        expect(grammarKey(catalog, a)).toBe(grammarKey(catalog, b));
+        expect(grammarKey(a)).toBe(grammarKey(b));
     });
 
     it('draws integers in [0, maxWeight] and a usable vocabulary', () => {
         for (let seed = 1; seed <= 100; seed++) {
-            const grammar = drawGrammar(catalog, rngAt(seed));
+            const grammar = drawGrammar(rngAt(seed));
 
             for (const operator of catalog.operators()) {
                 const weight = weightOf(grammar.weights, operator.name);
@@ -61,16 +60,16 @@ describe('drawGrammar', () => {
                 expect(weight).toBeLessThanOrEqual(CONFIG.grammar.maxWeight);
             }
 
-            const vocabulary = getVocabulary(catalog, grammar.weights);
+            const vocabulary = getVocabulary(grammar.weights);
             expect(vocabulary.some((operator) => operator.isTerminal)).toBe(true);
             expect(vocabulary.some((operator) => !operator.isTerminal)).toBe(true);
-            expect(() => generate(catalog, grammar, createSeed(seed))).not.toThrow();
+            expect(() => generate(grammar, createSeed(seed))).not.toThrow();
         }
     });
 
     it('honours pinned size, shareDepth and color space', () => {
         for (let seed = 1; seed <= 30; seed++) {
-            const grammar = drawGrammar(catalog, rngAt(seed), {
+            const grammar = drawGrammar(rngAt(seed), {
                 size: 'small',
                 shareDepth: 3,
                 space: 'oklab',
@@ -83,7 +82,7 @@ describe('drawGrammar', () => {
     });
 
     it('clamps a pinned shareDepth to the pinned profile', () => {
-        const grammar = drawGrammar(catalog, rngAt(1), { size: 'small', shareDepth: 99 });
+        const grammar = drawGrammar(rngAt(1), { size: 'small', shareDepth: 99 });
 
         expect(grammar.shareDepth).toBe(constraintsOf('small').maxDepth);
     });
@@ -92,7 +91,7 @@ describe('drawGrammar', () => {
         const weights = new Set<number>();
 
         for (let seed = 1; seed <= 100; seed++) {
-            const grammar = drawGrammar(catalog, rngAt(seed));
+            const grammar = drawGrammar(rngAt(seed));
 
             for (const weight of Object.values(grammar.weights)) {
                 weights.add(weight ?? 0);

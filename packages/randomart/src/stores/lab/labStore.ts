@@ -47,8 +47,8 @@ interface LabState {
 // No default grammar: the first screen draws one, from the initial seed, so it stays reproducible.
 // Animation is a matter of playback (Play/Pause on the clock), not of grammar.
 const initialSeed = createSeed(CONFIG.app.initialSeed);
-const initialGrammar = drawRandomGrammar(catalog, createRng(initialSeed));
-const initialExpression = generate(catalog, initialGrammar, initialSeed);
+const initialGrammar = drawRandomGrammar(createRng(initialSeed));
+const initialExpression = generate(initialGrammar, initialSeed);
 const initialCompiled = compile(catalog, initialExpression, {
     channels: channelModelOf(initialGrammar),
 });
@@ -168,7 +168,7 @@ function commit(
         // A thunk keeps editor validation (createGrammar may refuse a gesture) inside the single
         // error boundary, so a refused edit surfaces as actionError instead of escaping a handler.
         const grammar = typeof grammarOrChange === 'function' ? grammarOrChange() : grammarOrChange;
-        const expression = generate(catalog, grammar, seed);
+        const expression = generate(grammar, seed);
         const compiledShader = compile(catalog, expression, {
             channels: channelModelOf(grammar),
         });
@@ -208,11 +208,11 @@ export function resetSeed(nextSeed: Seed = randomSeed()): void {
 }
 
 export function drawGrammar(): void {
-    commit(drawRandomGrammar(catalog, createRng(randomSeed())), store.getState().seed);
+    commit(drawRandomGrammar(createRng(randomSeed())), store.getState().seed);
 }
 
 export function generateImage(): void {
-    commit(drawRandomGrammar(catalog, createRng(randomSeed())), randomSeed());
+    commit(drawRandomGrammar(createRng(randomSeed())), randomSeed());
 }
 
 export function applyGrammar(grammar: Grammar): void {
@@ -227,7 +227,7 @@ function editGrammar(change: (grammar: Grammar) => Grammar): void {
 
 export function setGrammarWeight(name: OperatorId, weight: number): void {
     editGrammar((grammar) =>
-        createGrammar(catalog, {
+        createGrammar({
             ...grammar,
             weights: { ...grammar.weights, [name]: weight },
         }),
@@ -235,15 +235,15 @@ export function setGrammarWeight(name: OperatorId, weight: number): void {
 }
 
 export function setGrammarSize(size: SizeProfileId): void {
-    editGrammar((grammar) => createGrammar(catalog, { ...grammar, size }));
+    editGrammar((grammar) => createGrammar({ ...grammar, size }));
 }
 
 export function setGrammarShareDepth(shareDepth: number): void {
-    editGrammar((grammar) => createGrammar(catalog, { ...grammar, shareDepth }));
+    editGrammar((grammar) => createGrammar({ ...grammar, shareDepth }));
 }
 
 export function setGrammarSpace(space: ColorSpaceId): void {
-    editGrammar((grammar) => createGrammar(catalog, { ...grammar, space }));
+    editGrammar((grammar) => createGrammar({ ...grammar, space }));
 }
 
 /**

@@ -1,4 +1,4 @@
-import type { Catalog } from '../catalog/Catalog';
+import { catalog } from '../catalog/default';
 import { isRecord } from '../shared/shared';
 import { createExpression, createNode } from './expression';
 import type { Expression, Node } from './types';
@@ -48,13 +48,7 @@ export function serialize(expression: Expression): ExpressionData {
  * hostile file cannot overflow the stack) and a shared node counter (MAX_IMPORT_NODES counts the
  * whole expression, all three channels).
  */
-function readNode(
-    catalog: Catalog,
-    data: unknown,
-    path: string,
-    depth: number,
-    counters: { nodes: number },
-): Node {
+function readNode(data: unknown, path: string, depth: number, counters: { nodes: number }): Node {
     if (depth > MAX_IMPORT_DEPTH) {
         throw new Error(
             `Expression invalid at ${path}: deeper than ${MAX_IMPORT_DEPTH} levels (import limit)`,
@@ -112,9 +106,7 @@ function readNode(
             }
 
             for (const [index, child] of data.in.entries()) {
-                rawInputs.push(
-                    readNode(catalog, child, `${path}.in[${index}]`, depth + 1, counters),
-                );
+                rawInputs.push(readNode(child, `${path}.in[${index}]`, depth + 1, counters));
             }
         }
     }
@@ -134,7 +126,7 @@ function readNode(
  * (e.g. `Expression invalid at g.in[1]: ...`). Limits: MAX_IMPORT_NODES nodes in total,
  * MAX_IMPORT_DEPTH of depth per channel.
  */
-export function deserialize(catalog: Catalog, data: unknown): Expression {
+export function deserialize(data: unknown): Expression {
     if (!isRecord(data)) {
         throw new Error('Expression invalid: object expected');
     }
@@ -146,9 +138,9 @@ export function deserialize(catalog: Catalog, data: unknown): Expression {
     }
 
     const counters = { nodes: 0 };
-    const r = readNode(catalog, data.r, 'r', 1, counters);
-    const g = readNode(catalog, data.g, 'g', 1, counters);
-    const b = readNode(catalog, data.b, 'b', 1, counters);
+    const r = readNode(data.r, 'r', 1, counters);
+    const g = readNode(data.g, 'g', 1, counters);
+    const b = readNode(data.b, 'b', 1, counters);
 
     return createExpression(r, g, b);
 }

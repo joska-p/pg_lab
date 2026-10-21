@@ -4,7 +4,6 @@ import { buildLotView, EMPTY_LOT } from '../../bench/lot/lot';
 import type { LotView } from '../../bench/lot/lot';
 import { createBatch, createCandidate, rateNotebookCandidate } from '../../bench/notebook/notebook';
 import type { NotebookBatch, NotebookRating } from '../../bench/notebook/types';
-import { catalog } from '../../core/catalog/default';
 import { sampleGrammars } from '../../core/grammar/sample';
 import type { Grammar } from '../../core/grammar/types';
 import type { Seed } from '../../core/random/seed';
@@ -70,7 +69,7 @@ export function setOpenInLabHandler(handler: OpenInLabHandler | null): void {
 let renderer: BatchRenderer | null = null;
 
 function renderBatchCandidates(batch: NotebookBatch, cellSize: number): readonly RenderedBatch[] {
-    renderer ??= createBatchRenderer(catalog);
+    renderer ??= createBatchRenderer();
     return renderer.render(
         batch.candidates.map(({ grammar, seeds }) => ({ grammar, seeds })),
         cellSize,
@@ -122,7 +121,7 @@ export function drawBenchBatch(): void {
     try {
         const { count, seedsPerGrammar, cellSize } = getBenchSettings();
 
-        const sampled = sampleGrammars(catalog, count, { baseSeed, seedsPerGrammar });
+        const sampled = sampleGrammars(count, { baseSeed, seedsPerGrammar });
 
         const candidates = sampled.map(({ grammar, seeds }) => createCandidate({ grammar, seeds }));
         const batch = createBatch({ candidates });
@@ -218,7 +217,7 @@ export function toggleCandidateRating(rowIndex: number, rating: NotebookRating):
 
 export async function importNotebook(file: File): Promise<void> {
     try {
-        const notebook = await importNotebookFile(file, catalog);
+        const notebook = await importNotebookFile(file);
         const firstBatch = notebook.batches[0];
 
         if (firstBatch) {
@@ -244,7 +243,7 @@ export async function importNotebook(file: File): Promise<void> {
 
 /** Restores the persisted notebook and draws its active batch, if any. */
 export async function initBench(): Promise<void> {
-    await initBenchNotebook(catalog);
+    await initBenchNotebook();
 
     const activeBatch = getBenchActiveBatch();
 

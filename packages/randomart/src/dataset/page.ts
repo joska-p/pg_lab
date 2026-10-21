@@ -1,6 +1,5 @@
 import { deserializeGrammar, serializeGrammar } from '../core/artwork/serialize';
 import type { GrammarData } from '../core/artwork/serialize';
-import { catalog } from '../core/catalog/default';
 import { GENERATOR_VERSION } from '../core/generator/generator';
 import { sampleGrammars } from '../core/grammar/sample';
 import type { SampleOptions } from '../core/grammar/types';
@@ -14,7 +13,7 @@ import { createBatchRenderer } from '../core/renderer/batch/batch';
  * which drives it through `window.datasetApi`. Images are drawn at phase 0, one program at a time,
  * on the renderer's single reused surface.
  */
-const renderer = createBatchRenderer(catalog);
+const renderer = createBatchRenderer();
 
 function bytesToBase64(bytes: Uint8Array): string {
     const CHUNK = 0x8000;
@@ -39,7 +38,7 @@ function renderGrammar(
     size: number,
 ): RenderedGrammar {
     const [batch] = renderer.render(
-        [{ grammar: deserializeGrammar(catalog, grammarData), seeds: seeds.map(createSeed) }],
+        [{ grammar: deserializeGrammar(grammarData), seeds: seeds.map(createSeed) }],
         size,
     );
 
@@ -67,7 +66,7 @@ function renderGrammar(
 function sample(count: number, options: SampleOptions) {
     return {
         generatorVersion: GENERATOR_VERSION,
-        items: sampleGrammars(catalog, count, options).map(({ grammar, seeds }) => ({
+        items: sampleGrammars(count, options).map(({ grammar, seeds }) => ({
             grammar: serializeGrammar(grammar),
             seeds: [...seeds] as number[],
         })),

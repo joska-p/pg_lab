@@ -8,7 +8,6 @@ import {
 import { parseNotebook, serializeNotebook } from '../../bench/notebook/serialize';
 import type { Notebook, NotebookBatch } from '../../bench/notebook/types';
 import { loadNotebookFromDb, saveNotebookToDb } from '../../bench/storage/notebookDb';
-import type { Catalog } from '../../core/catalog/Catalog';
 
 interface NotebookState {
     notebook: Notebook;
@@ -100,9 +99,9 @@ export function exportNotebookFile(): void {
     downloadBlob(blob, 'randomart-notebook.json');
 }
 
-export async function importNotebookFile(file: File, catalog: Catalog): Promise<Notebook> {
+export async function importNotebookFile(file: File): Promise<Notebook> {
     const text = await file.text();
-    const notebook = parseNotebook(catalog, text);
+    const notebook = parseNotebook(text);
 
     store.setState({
         notebook,
@@ -113,9 +112,9 @@ export async function importNotebookFile(file: File, catalog: Catalog): Promise<
     return notebook;
 }
 
-export async function initBenchNotebook(catalog: Catalog): Promise<void> {
+export async function initBenchNotebook(): Promise<void> {
     try {
-        const loaded = await loadNotebookFromDb(catalog);
+        const loaded = await loadNotebookFromDb();
 
         if (loaded && loaded.batches.length > 0) {
             const activeBatch = loaded.batches[0];

@@ -1,4 +1,3 @@
-import type { Catalog } from '../catalog/Catalog';
 import { CONFIG } from '../config/config';
 import { createRng } from '../random/rng';
 import type { Seed } from '../random/seed';
@@ -18,11 +17,7 @@ const MAX_DEDUPE_ATTEMPTS = 50;
  * seed, so the sample covers the space instead of drifting through it. The dataset and the bench
  * share this single sampler; callers may pin a grammar axis (`size`, `shareDepth`, `space`).
  */
-export function sampleGrammars(
-    catalog: Catalog,
-    count: number,
-    options: SampleOptions = {},
-): SampledGrammar[] {
+export function sampleGrammars(count: number, options: SampleOptions = {}): SampledGrammar[] {
     const {
         baseSeed = CONFIG.sampling.baseSeed,
         seedsPerGrammar = CONFIG.sampling.datasetSeedsPerGrammar,
@@ -33,17 +28,17 @@ export function sampleGrammars(
 
     for (let i = 0; i < count; i++) {
         const rng = createRng(deriveSeed(baseSeed, i));
-        let grammar = drawGrammar(catalog, rng, pins);
+        let grammar = drawGrammar(rng, pins);
 
         for (
             let attempt = 0;
-            seen.has(grammarKey(catalog, grammar)) && attempt < MAX_DEDUPE_ATTEMPTS;
+            seen.has(grammarKey(grammar)) && attempt < MAX_DEDUPE_ATTEMPTS;
             attempt++
         ) {
-            grammar = drawGrammar(catalog, rng, pins);
+            grammar = drawGrammar(rng, pins);
         }
 
-        seen.add(grammarKey(catalog, grammar));
+        seen.add(grammarKey(grammar));
         sampled.push({
             grammar,
             seeds: itemSeeds(baseSeed, i, seedsPerGrammar),

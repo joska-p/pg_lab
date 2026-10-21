@@ -16,7 +16,7 @@ import {
     isLastTerminal,
     weightOf,
 } from '../../core/grammar/grammar';
-import { grammarPresets, presetIdOf } from '../../core/grammar/presets';
+import { GRAMMAR_PRESETS, presetIdOf } from '../../core/grammar/presets';
 import { SIZE_PROFILE_IDS } from '../../core/grammar/quantized';
 import { createSeed } from '../../core/random/seed';
 import {
@@ -31,10 +31,9 @@ import {
     useSeed,
 } from '../../stores/lab/labStore';
 
-const PRESETS = grammarPresets(catalog);
 const CUSTOM_PRESET = 'custom';
 const PRESET_OPTIONS = [
-    ...PRESETS.map((preset) => ({ value: preset.id, label: preset.label })),
+    ...GRAMMAR_PRESETS.map((preset) => ({ value: preset.id, label: preset.label })),
     { value: CUSTOM_PRESET, label: 'Custom' },
 ];
 
@@ -70,15 +69,15 @@ export function GrammarSection() {
     const grammar = useGrammar();
     const seed = useSeed();
 
-    const presetId = presetIdOf(catalog, PRESETS, grammar);
-    const preset = PRESETS.find((candidate) => candidate.id === presetId);
+    const presetId = presetIdOf(grammar);
+    const preset = GRAMMAR_PRESETS.find((candidate) => candidate.id === presetId);
     const maxShareDepth = constraintsOf(grammar.size).maxDepth;
     const mono = grammar.shareDepth >= maxShareDepth;
 
     function mustStayOn(operator: Operator): boolean {
         return operator.isTerminal
-            ? isLastTerminal(catalog, grammar.weights, operator.name)
-            : isLastNonTerminal(catalog, grammar.weights, operator.name);
+            ? isLastTerminal(grammar.weights, operator.name)
+            : isLastNonTerminal(grammar.weights, operator.name);
     }
 
     return (
@@ -106,7 +105,7 @@ export function GrammarSection() {
                     value={presetId ?? CUSTOM_PRESET}
                     options={PRESET_OPTIONS}
                     onValueChange={(id) => {
-                        const chosen = PRESETS.find((candidate) => candidate.id === id);
+                        const chosen = GRAMMAR_PRESETS.find((candidate) => candidate.id === id);
 
                         if (chosen) {
                             applyGrammar(chosen.grammar);

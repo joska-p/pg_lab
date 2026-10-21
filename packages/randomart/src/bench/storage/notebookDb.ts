@@ -1,4 +1,3 @@
-import type { Catalog } from '../../core/catalog/Catalog';
 import { parseNotebook, serializeNotebookData } from '../notebook/serialize';
 import type { Notebook } from '../notebook/types';
 
@@ -49,7 +48,7 @@ export async function saveNotebookToDb(notebook: Notebook): Promise<void> {
     });
 }
 
-export async function loadNotebookFromDb(catalog: Catalog): Promise<Notebook | null> {
+export async function loadNotebookFromDb(): Promise<Notebook | null> {
     const db = await openDatabase();
     if (!db) {
         return null;
@@ -67,7 +66,7 @@ export async function loadNotebookFromDb(catalog: Catalog): Promise<Notebook | n
             }
             try {
                 const text = JSON.stringify(req.result);
-                const notebook = parseNotebook(catalog, text);
+                const notebook = parseNotebook(text);
                 resolve(notebook);
             } catch {
                 resolve(null);

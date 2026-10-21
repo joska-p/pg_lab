@@ -1,4 +1,4 @@
-import type { Catalog } from '../catalog/Catalog';
+import { catalog } from '../catalog/default';
 import type { Operator } from '../catalog/operators/Operator';
 import type { OperatorId } from '../catalog/operators/registry';
 import { COLOR_SPACE_IDS } from '../color/color';
@@ -28,7 +28,7 @@ export const SIZE_PROFILE_IDS = Object.keys(
 ) as readonly SizeProfileId[];
 
 /** Stable identity, for deduplication, caches and preset matching. */
-export function grammarKey(catalog: Catalog, grammar: Grammar): string {
+export function grammarKey(grammar: Grammar): string {
     const weights = catalog
         .operators()
         .map((operator) => `${operator.name}:${weightOf(grammar.weights, operator.name)}`);
@@ -58,10 +58,7 @@ function ensureActive(
  * uniform draws almost never violate either rule; the repair is deterministic and consumes no
  * PRNG.
  */
-function ensureUsableVocabulary(
-    catalog: Catalog,
-    weights: Partial<Record<OperatorId, number>>,
-): void {
+function ensureUsableVocabulary(weights: Partial<Record<OperatorId, number>>): void {
     ensureActive(weights, catalog.operators().filter(isTerminalOperator));
     ensureActive(weights, catalog.operators().filter(isNonTerminalOperator));
 }
@@ -71,21 +68,21 @@ function ensureUsableVocabulary(
  * and color axes. The seed stays comparable across grammars (`drawGrammar` consumes its own RNG).
  * Pins replace an axis instead of drawing it.
  */
-export function drawGrammar(catalog: Catalog, rng: Rng, pins: GrammarPins = {}): Grammar {
+export function drawGrammar(rng: Rng, pins: GrammarPins = {}): Grammar {
     const weights: Partial<Record<OperatorId, number>> = {};
 
     for (const operator of catalog.operators()) {
         weights[operator.name as OperatorId] = rng.int(CONFIG.grammar.maxWeight + 1);
     }
 
-    ensureUsableVocabulary(catalog, weights);
+    ensureUsableVocabulary(weights);
 
     const size = pins.size ?? SIZE_PROFILE_IDS[rng.int(SIZE_PROFILE_IDS.length)];
     const maxDepth = constraintsOf(size).maxDepth;
     const shareDepth = pins.shareDepth ?? rng.int(maxDepth + 1);
     const space = pins.space ?? COLOR_SPACE_IDS[rng.int(COLOR_SPACE_IDS.length)];
 
-    return createGrammar(catalog, { weights, size, shareDepth, space });
+    return createGrammar({ weights, size, shareDepth, space });
 }
 
 /** Golden-ratio multiplicative hash: distinct indices give well-separated 32-bit seeds. */

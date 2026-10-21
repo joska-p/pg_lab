@@ -4,7 +4,7 @@ import { createDefaultCatalog } from '../catalog/Catalog';
 import { createExpression, createNode } from '../expression/expression';
 import { nodeKey } from '../expression/key';
 import { generate, GENERATOR_VERSION } from '../generator/generator';
-import { grammarPresets } from '../grammar/presets';
+import { GRAMMAR_PRESETS } from '../grammar/presets';
 import { createSeed } from '../random/seed';
 import { createArtwork, createRenderSettings, fitRenderSettings } from './create';
 import { checkProvenance } from './provenance';
@@ -29,10 +29,10 @@ interface Fixture {
  * the provenance regenerates it.
  */
 function fixture(provenance = true, seed = 12_345): Fixture {
-    const grammar = grammarPresets(catalog)[0].grammar;
+    const grammar = GRAMMAR_PRESETS[0].grammar;
 
     const expression = provenance
-        ? generate(catalog, grammar, createSeed(seed))
+        ? generate(grammar, createSeed(seed))
         : createExpression(
               createNode(catalog, 'x', [], [0, 0, 0]),
               createNode(catalog, 'y', [], [0, 0, 0]),
@@ -161,7 +161,7 @@ describe('artwork: fitRenderSettings', () => {
 describe('artwork: files', () => {
     it('round-trips (expression by nodeKey, the rest by value)', () => {
         const { artwork } = fixture();
-        const back = parseArtworkFile(catalog, serializeArtworkFile(artwork));
+        const back = parseArtworkFile(serializeArtworkFile(artwork));
 
         expect(nodeKey(back.expression.r)).toBe(nodeKey(artwork.expression.r));
         expect(nodeKey(back.expression.g)).toBe(nodeKey(artwork.expression.g));
@@ -188,7 +188,7 @@ describe('artwork: files', () => {
         ]);
 
         // Round-trip is idempotent: same data → same text (readable diffs in a repository).
-        expect(serializeArtworkFile(parseArtworkFile(catalog, text))).toBe(text);
+        expect(serializeArtworkFile(parseArtworkFile(text))).toBe(text);
     });
 
     it('omits optional fields and keeps a fixed key order with a title', () => {
@@ -209,33 +209,31 @@ describe('artwork: files', () => {
     it('rejects a wrong format, version 2 and invalid JSON', () => {
         const { data } = fixture();
 
-        expect(() =>
-            parseArtworkFile(catalog, JSON.stringify({ ...data, format: 'other' })),
-        ).toThrow(/format "other" not supported/);
-        expect(() => parseArtworkFile(catalog, JSON.stringify({ ...data, version: 2 }))).toThrow(
+        expect(() => parseArtworkFile(JSON.stringify({ ...data, format: 'other' }))).toThrow(
+            /format "other" not supported/,
+        );
+        expect(() => parseArtworkFile(JSON.stringify({ ...data, version: 2 }))).toThrow(
             /version 2 not supported/,
         );
-        expect(() =>
-            parseArtworkFile(catalog, JSON.stringify({ ...data, version: undefined })),
-        ).toThrow(/version undefined not supported/);
-        expect(() => parseArtworkFile(catalog, 'not json at all')).toThrow(/invalid JSON/);
+        expect(() => parseArtworkFile(JSON.stringify({ ...data, version: undefined }))).toThrow(
+            /version undefined not supported/,
+        );
+        expect(() => parseArtworkFile('not json at all')).toThrow(/invalid JSON/);
     });
 
     it('rejects unknown fields with their path', () => {
         const { data } = fixture();
 
-        expect(() => parseArtworkFile(catalog, JSON.stringify({ ...data, extra: 1 }))).toThrow(
+        expect(() => parseArtworkFile(JSON.stringify({ ...data, extra: 1 }))).toThrow(
             /file\.extra: unknown field/,
         );
         expect(() =>
             parseArtworkFile(
-                catalog,
                 JSON.stringify({ ...data, provenance: { ...data.provenance, extra: 1 } }),
             ),
         ).toThrow(/provenance\.extra: unknown field/);
         expect(() =>
             parseArtworkFile(
-                catalog,
                 JSON.stringify({
                     ...data,
                     provenance: {
@@ -253,7 +251,7 @@ describe('artwork: files', () => {
             JSON.stringify({ ...data, render: { ...data.render, width: 99_999, loopMs: 300_000 } }),
         );
 
-        const repaired = parseArtworkFile(catalog, JSON.stringify(corrupt));
+        const repaired = parseArtworkFile(JSON.stringify(corrupt));
 
         expect(repaired.render.width).toBe(8_192);
         expect(repaired.render.loopMs).toBe(120_000);
@@ -263,15 +261,12 @@ describe('artwork: files', () => {
         const { data } = fixture();
 
         expect(() =>
-            parseArtworkFile(
-                catalog,
-                JSON.stringify({ ...data, expression: { r: { op: 'abc' } } }),
-            ),
+            parseArtworkFile(JSON.stringify({ ...data, expression: { r: { op: 'abc' } } })),
         ).toThrow(/Expression invalid at r/);
     });
 
     it('rejects a text over the import limit before parsing it', () => {
-        expect(() => parseArtworkFile(catalog, 'x'.repeat(MAX_ARTWORK_FILE_LENGTH + 1))).toThrow(
+        expect(() => parseArtworkFile('x'.repeat(MAX_ARTWORK_FILE_LENGTH + 1))).toThrow(
             /too large/,
         );
     });
@@ -281,13 +276,13 @@ describe('artwork: provenance', () => {
     it('is "none" without provenance', () => {
         const { artwork } = fixture(false);
 
-        expect(checkProvenance(catalog, artwork)).toBe('none');
+        expect(checkProvenance(artwork)).toBe('none');
     });
 
     it('is "matches" on a regenerated artwork', () => {
         const { artwork } = fixture();
 
-        expect(checkProvenance(catalog, artwork)).toBe('matches');
+        expect(checkProvenance(artwork)).toBe('matches');
     });
 
     it('is "differs" after a manual edit of one channel', () => {
@@ -304,7 +299,7 @@ describe('artwork: provenance', () => {
             ),
         };
 
-        expect(checkProvenance(catalog, edited)).toBe('differs');
+        expect(checkProvenance(edited)).toBe('differs');
 
         // The edited artwork keeps its original provenance in the file.
         const editedText = serializeArtworkFile(edited);
@@ -318,6 +313,6 @@ describe('artwork: provenance', () => {
             provenance: artwork.provenance && { ...artwork.provenance, generatorVersion: 999 },
         };
 
-        expect(checkProvenance(catalog, stale)).toBe('version-mismatch');
+        expect(checkProvenance(stale)).toBe('version-mismatch');
     });
 });

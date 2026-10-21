@@ -1,5 +1,4 @@
 import { deserializeGrammar, serializeGrammar } from '../../core/artwork/serialize';
-import type { Catalog } from '../../core/catalog/Catalog';
 import { createSeed } from '../../core/random/seed';
 import type { Seed } from '../../core/random/seed';
 import { isRecord, rejectUnknownKeys } from '../../core/shared/shared';
@@ -59,7 +58,7 @@ export function serializeNotebook(notebook: Notebook): string {
 // Deserialization / Parsing
 // ---------------------------------------------------------------------------
 
-function readCandidate(catalog: Catalog, data: unknown, path: string): NotebookCandidate {
+function readCandidate(data: unknown, path: string): NotebookCandidate {
     if (!isRecord(data)) {
         throw new Error(`${path}: object expected`);
     }
@@ -74,7 +73,7 @@ function readCandidate(catalog: Catalog, data: unknown, path: string): NotebookC
         throw new Error(`${path}.grammar: object expected`);
     }
 
-    const grammar = deserializeGrammar(catalog, data.grammar, `${path}.grammar`);
+    const grammar = deserializeGrammar(data.grammar, `${path}.grammar`);
 
     if (!Array.isArray(data.seeds)) {
         throw new Error(`${path}.seeds: array expected`);
@@ -110,7 +109,7 @@ function readCandidate(catalog: Catalog, data: unknown, path: string): NotebookC
     };
 }
 
-function readBatch(catalog: Catalog, data: unknown, path: string): NotebookBatch {
+function readBatch(data: unknown, path: string): NotebookBatch {
     if (!isRecord(data)) {
         throw new Error(`${path}: object expected`);
     }
@@ -145,7 +144,7 @@ function readBatch(catalog: Catalog, data: unknown, path: string): NotebookBatch
     }
 
     const candidates = data.candidates.map((cand, index) =>
-        readCandidate(catalog, cand, `${path}.candidates[${index}]`),
+        readCandidate(cand, `${path}.candidates[${index}]`),
     );
 
     return {
@@ -157,7 +156,7 @@ function readBatch(catalog: Catalog, data: unknown, path: string): NotebookBatch
 }
 
 /** Parses and strictly validates a notebook JSON string. */
-export function parseNotebook(catalog: Catalog, text: string): Notebook {
+export function parseNotebook(text: string): Notebook {
     if (text.length > MAX_NOTEBOOK_FILE_LENGTH) {
         throw new Error(
             `Notebook file too large (${text.length} characters, limit ${MAX_NOTEBOOK_FILE_LENGTH})`,
@@ -196,7 +195,7 @@ export function parseNotebook(catalog: Catalog, text: string): Notebook {
     }
 
     const batches = parsed.batches.map((batch, index) =>
-        readBatch(catalog, batch, `notebook.batches[${index}]`),
+        readBatch(batch, `notebook.batches[${index}]`),
     );
 
     return {
