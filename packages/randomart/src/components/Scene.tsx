@@ -1,18 +1,18 @@
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { useEffect } from 'react';
 
-import { BenchStage } from '../../bench/components/BenchStage';
-import { setOpenInLabHandler } from '../../bench/stores/lotStore';
-import { RandomArtCanvas } from '../../lab/components/RandomArtCanvas';
-import { openCellInLab } from '../../lab/stores/artworkStore';
+import { setOpenInLabHandler } from '../stores/bench/lotStore';
+import { openCellInLab } from '../stores/lab/artworkStore';
 import {
     setCanvas,
     setClockStore,
     setShaderError,
     useCompiledShader,
     useDuration,
-} from '../../lab/stores/labStore';
+} from '../stores/lab/labStore';
 import { setMode, useMode } from '../stores/modeStore';
+import { BenchStage } from './bench/BenchStage';
+import { RandomArtCanvas } from './lab/RandomArtCanvas';
 
 export function Scene() {
     const compiledShader = useCompiledShader();

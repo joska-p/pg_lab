@@ -1,10 +1,14 @@
 import { create } from 'zustand';
 
+import {
+    addBatchToNotebook,
+    createNotebook,
+    removeBatchFromNotebook,
+} from '../../bench/notebook/notebook';
+import { parseNotebook, serializeNotebook } from '../../bench/notebook/serialize';
+import type { Notebook, NotebookBatch } from '../../bench/notebook/types';
+import { loadNotebookFromDb, saveNotebookToDb } from '../../bench/storage/notebookDb';
 import type { Catalog } from '../../core/catalog/Catalog';
-import { addBatchToNotebook, createNotebook, removeBatchFromNotebook } from '../notebook/notebook';
-import { parseNotebook, serializeNotebook } from '../notebook/serialize';
-import type { Notebook, NotebookBatch } from '../notebook/types';
-import { loadNotebookFromDb, saveNotebookToDb } from '../storage/notebookDb';
 
 interface NotebookState {
     notebook: Notebook;

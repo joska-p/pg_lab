@@ -7,7 +7,7 @@ import { Text } from '@repo/ui/components/Text';
 import { useSyncExternalStore } from 'react';
 
 import { MAX_LOOP_MS, MIN_LOOP_MS } from '../../core/artwork/types';
-import { exportPng } from '../stores/artworkStore';
+import { exportPng } from '../../stores/lab//artworkStore';
 import {
     parseDurationInput,
     generateImage,
@@ -19,7 +19,7 @@ import {
     useHasClockStore,
     useShaderError,
     useCanvas,
-} from '../stores/labStore';
+} from '../../stores/lab/labStore';
 
 /** Image generation: generates a new artwork from the current grammar. */
 export function SessionSection() {

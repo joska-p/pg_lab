@@ -4,12 +4,19 @@
     "private": true,
     "type": "module",
     "exports": {
-        "./App": "./src/app/App.tsx",
-        "./Scene": "./src/app/components/Scene.tsx",
-        "./Controls": "./src/app/components/Controls.tsx"
+        "./App": "./src/App.tsx",
+        "./Scene": "./src/components/Scene.tsx",
+        "./Controls": "./src/components/Controls.tsx"
     },
     "scripts": {
         "dev": "vp dev",
+        "test": "vp test",
+        "test:measure": "VITE_MEASURE=1 vp test measure",
+        "dataset": "node src/dataset/node/cli.ts run",
+        "dataset:write": "node src/dataset/node/cli.ts write",
+        "dataset:features": "node src/dataset/node/cli.ts features",
+        "dataset:pca": "node src/dataset/node/cli.ts pca",
+        "dataset:sheet": "node src/dataset/node/cli.ts sheet",
         "build": "tsc -b && vp build",
         "lint": "vp lint",
         "preview": "vp preview"

@@ -8,7 +8,7 @@ import { Segmented } from '@repo/ui/components/Segmented';
 import { Select } from '@repo/ui/components/Select';
 import { Text } from '@repo/ui/components/Text';
 
-import type { NotebookBatch, NotebookRating } from '../notebook/types';
+import type { NotebookBatch, NotebookRating } from '../../bench/notebook/types';
 import {
     BENCH_VIEWS,
     CELL_SIZES,
@@ -20,8 +20,8 @@ import {
     setBenchSeeds,
     setBenchView,
     useBenchSettings,
-} from '../stores/benchSettingsStore';
-import type { BenchView } from '../stores/benchSettingsStore';
+} from '../../stores/bench/benchSettingsStore';
+import type { BenchView } from '../../stores/bench/benchSettingsStore';
 import {
     drawBenchBatch,
     importNotebook,
@@ -36,8 +36,12 @@ import {
     useBenchLot,
     useBenchSelectedColIndex,
     useBenchSelectedRowIndex,
-} from '../stores/lotStore';
-import { exportNotebookFile, useBenchActiveBatch, useBenchNotebook } from '../stores/notebookStore';
+} from '../../stores/bench/lotStore';
+import {
+    exportNotebookFile,
+    useBenchActiveBatch,
+    useBenchNotebook,
+} from '../../stores/bench/notebookStore';
 
 const RATINGS: readonly NotebookRating[] = [0, 1, 2, 3, 4, 5];
 

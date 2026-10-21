@@ -29,7 +29,7 @@ import {
     setGrammarWeight,
     useGrammar,
     useSeed,
-} from '../stores/labStore';
+} from '../../stores/lab/labStore';
 
 const PRESETS = grammarPresets(catalog);
 const CUSTOM_PRESET = 'custom';

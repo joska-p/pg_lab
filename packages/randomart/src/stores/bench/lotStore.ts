@@ -1,5 +1,9 @@
 import { create } from 'zustand';
 
+import { buildLotView, EMPTY_LOT } from '../../bench/lot/lot';
+import type { LotView } from '../../bench/lot/lot';
+import { createBatch, createCandidate, rateNotebookCandidate } from '../../bench/notebook/notebook';
+import type { NotebookBatch, NotebookRating } from '../../bench/notebook/types';
 import { catalog } from '../../core/catalog/default';
 import { sampleGrammars } from '../../core/grammar/sample';
 import type { Grammar } from '../../core/grammar/types';
@@ -7,10 +11,6 @@ import type { Seed } from '../../core/random/seed';
 import { randomSeed } from '../../core/random/seed';
 import { createBatchRenderer } from '../../core/renderer/batch/batch';
 import type { BatchRenderer, RenderedBatch } from '../../core/renderer/batch/batch';
-import { buildLotView, EMPTY_LOT } from '../lot/lot';
-import type { LotView } from '../lot/lot';
-import { createBatch, createCandidate, rateNotebookCandidate } from '../notebook/notebook';
-import type { NotebookBatch, NotebookRating } from '../notebook/types';
 import { getBenchSettings, setBenchBaseSeed } from './benchSettingsStore';
 import {
     addBatch,

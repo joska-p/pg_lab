@@ -2,11 +2,11 @@ import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { Segmented } from '@repo/ui/components/Segmented';
 import { Stack } from '@repo/ui/components/Stack';
 
-import { BenchPanel } from '../../bench/components/BenchPanel';
-import { HistoryPanel } from '../../lab/components/HistoryPanel';
-import { LabPanel } from '../../lab/components/LabPanel';
 import { setMode, useMode } from '../stores/modeStore';
 import type { AppMode } from '../stores/modeStore';
+import { BenchPanel } from './bench/BenchPanel';
+import { HistoryPanel } from './lab/HistoryPanel';
+import { LabPanel } from './lab/LabPanel';
 
 export type { AppMode } from '../stores/modeStore';
 

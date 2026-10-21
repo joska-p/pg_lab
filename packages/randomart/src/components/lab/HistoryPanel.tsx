@@ -2,8 +2,8 @@ import { Button } from '@repo/ui/components/Button';
 import { ControlField } from '@repo/ui/components/ControlField';
 import { Stack } from '@repo/ui/components/Stack';
 
-import { useCurrentId, useHistory } from '../stores/historyStore';
-import { restoreEntry } from '../stores/labStore';
+import { useCurrentId, useHistory } from '../../stores/lab/historyStore';
+import { restoreEntry } from '../../stores/lab/labStore';
 
 /** Walks back through past candidates. */
 export function HistoryPanel() {
