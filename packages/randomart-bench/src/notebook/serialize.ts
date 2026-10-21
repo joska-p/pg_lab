@@ -1,8 +1,9 @@
-import { deserializeGrammar, serializeGrammar } from '../artwork/serialize';
-import type { Catalog } from '../catalog/Catalog';
-import { createSeed } from '../random/seed';
-import type { Seed } from '../random/seed';
-import { isRecord, rejectUnknownKeys } from '../shared/shared';
+import { deserializeGrammar, serializeGrammar } from '@repo/randomart-core/artwork/serialize';
+import type { Catalog } from '@repo/randomart-core/catalog/Catalog';
+import { createSeed } from '@repo/randomart-core/random/seed';
+import type { Seed } from '@repo/randomart-core/random/seed';
+import { isRecord, rejectUnknownKeys } from '@repo/randomart-core/shared/shared';
+
 import {
     isNotebookRating,
     MAX_NOTEBOOK_FILE_LENGTH,
@@ -16,8 +17,6 @@ import type {
     NotebookCandidate,
     NotebookCandidateData,
     NotebookData,
-    NotebookRecipe,
-    NotebookRecipeData,
 } from './types';
 
 // ---------------------------------------------------------------------------
@@ -43,24 +42,12 @@ function serializeBatch(batch: NotebookBatch): NotebookBatchData {
     };
 }
 
-function serializeRecipe(recipe: NotebookRecipe): NotebookRecipeData {
-    return {
-        id: recipe.id,
-        label: recipe.label,
-        description: recipe.description,
-        grammar: serializeGrammar(recipe.grammar),
-        createdAt: recipe.createdAt,
-        ...(recipe.candidateId !== undefined ? { candidateId: recipe.candidateId } : {}),
-    };
-}
-
 export function serializeNotebookData(notebook: Notebook): NotebookData {
     return {
         format: NOTEBOOK_FILE_FORMAT,
         version: NOTEBOOK_FILE_VERSION,
         generatorVersion: notebook.generatorVersion,
         batches: notebook.batches.map(serializeBatch),
-        recipes: notebook.recipes.map(serializeRecipe),
     };
 }
 
@@ -170,53 +157,6 @@ function readBatch(catalog: Catalog, data: unknown, path: string): NotebookBatch
     };
 }
 
-function readRecipe(catalog: Catalog, data: unknown, path: string): NotebookRecipe {
-    if (!isRecord(data)) {
-        throw new Error(`${path}: object expected`);
-    }
-
-    rejectUnknownKeys(
-        data,
-        ['id', 'label', 'description', 'grammar', 'createdAt', 'candidateId'],
-        path,
-    );
-
-    if (typeof data.id !== 'string' || data.id.length === 0) {
-        throw new Error(`${path}.id: non-empty string expected`);
-    }
-
-    if (typeof data.label !== 'string') {
-        throw new Error(`${path}.label: string expected`);
-    }
-
-    if (typeof data.description !== 'string') {
-        throw new Error(`${path}.description: string expected`);
-    }
-
-    if (data.grammar === undefined) {
-        throw new Error(`${path}.grammar: object expected`);
-    }
-
-    const grammar = deserializeGrammar(catalog, data.grammar, `${path}.grammar`);
-
-    if (typeof data.createdAt !== 'string') {
-        throw new Error(`${path}.createdAt: string expected`);
-    }
-
-    if (data.candidateId !== undefined && typeof data.candidateId !== 'string') {
-        throw new Error(`${path}.candidateId: string expected`);
-    }
-
-    return {
-        id: data.id,
-        label: data.label,
-        description: data.description,
-        grammar,
-        createdAt: data.createdAt,
-        ...(data.candidateId !== undefined ? { candidateId: data.candidateId } : {}),
-    };
-}
-
 /** Parses and strictly validates a notebook JSON string. */
 export function parseNotebook(catalog: Catalog, text: string): Notebook {
     if (text.length > MAX_NOTEBOOK_FILE_LENGTH) {
@@ -236,11 +176,7 @@ export function parseNotebook(catalog: Catalog, text: string): Notebook {
         throw new Error('Notebook file: object expected');
     }
 
-    rejectUnknownKeys(
-        parsed,
-        ['format', 'version', 'generatorVersion', 'batches', 'recipes'],
-        'notebook',
-    );
+    rejectUnknownKeys(parsed, ['format', 'version', 'generatorVersion', 'batches'], 'notebook');
 
     if (parsed.format !== NOTEBOOK_FILE_FORMAT) {
         throw new Error(
@@ -260,16 +196,8 @@ export function parseNotebook(catalog: Catalog, text: string): Notebook {
         throw new Error('notebook.batches: array expected');
     }
 
-    if (!Array.isArray(parsed.recipes)) {
-        throw new Error('notebook.recipes: array expected');
-    }
-
     const batches = parsed.batches.map((batch, index) =>
         readBatch(catalog, batch, `notebook.batches[${index}]`),
-    );
-
-    const recipes = parsed.recipes.map((recipe, index) =>
-        readRecipe(catalog, recipe, `notebook.recipes[${index}]`),
     );
 
     return {
@@ -277,6 +205,5 @@ export function parseNotebook(catalog: Catalog, text: string): Notebook {
         version: NOTEBOOK_FILE_VERSION,
         generatorVersion: parsed.generatorVersion,
         batches,
-        recipes,
     };
 }

@@ -1,14 +1,9 @@
-import { GENERATOR_VERSION } from '../generator/generator';
-import type { Grammar } from '../grammar/types';
-import type { Seed } from '../random/seed';
+import { GENERATOR_VERSION } from '@repo/randomart-core/generator/generate';
+import type { Grammar } from '@repo/randomart-core/grammar/types';
+import type { Seed } from '@repo/randomart-core/random/seed';
+
 import { isNotebookRating, NOTEBOOK_FILE_FORMAT, NOTEBOOK_FILE_VERSION } from './types';
-import type {
-    Notebook,
-    NotebookBatch,
-    NotebookCandidate,
-    NotebookRating,
-    NotebookRecipe,
-} from './types';
+import type { Notebook, NotebookBatch, NotebookCandidate, NotebookRating } from './types';
 
 let nextLocalId = 1;
 
@@ -62,31 +57,9 @@ export function createBatch(input: BatchInput): NotebookBatch {
     };
 }
 
-export interface RecipeInput {
-    readonly id?: string;
-    readonly label: string;
-    readonly description?: string;
-    readonly grammar: Grammar;
-    readonly createdAt?: string;
-    readonly candidateId?: string;
-}
-
-/** @lintignore */
-export function createRecipe(input: RecipeInput): NotebookRecipe {
-    return {
-        id: input.id ?? generateNotebookId('recipe'),
-        label: input.label,
-        description: input.description ?? '',
-        grammar: input.grammar,
-        createdAt: input.createdAt ?? new Date().toISOString(),
-        ...(input.candidateId !== undefined ? { candidateId: input.candidateId } : {}),
-    };
-}
-
 export interface NotebookInput {
     readonly generatorVersion?: number;
     readonly batches?: readonly NotebookBatch[];
-    readonly recipes?: readonly NotebookRecipe[];
 }
 
 export function createNotebook(input?: NotebookInput): Notebook {
@@ -95,7 +68,6 @@ export function createNotebook(input?: NotebookInput): Notebook {
         version: NOTEBOOK_FILE_VERSION,
         generatorVersion: input?.generatorVersion ?? GENERATOR_VERSION,
         batches: input?.batches ? [...input.batches] : [],
-        recipes: input?.recipes ? [...input.recipes] : [],
     };
 }
 
@@ -155,16 +127,4 @@ export function removeBatchFromNotebook(notebook: Notebook, batchId: string): No
     const batches = notebook.batches.filter((batch) => batch.id !== batchId);
 
     return batches.length === notebook.batches.length ? notebook : { ...notebook, batches };
-}
-
-/**
- * Promotes a candidate or adds a recipe to the notebook.
- *
- * @lintignore
- */
-export function addRecipeToNotebook(notebook: Notebook, recipe: NotebookRecipe): Notebook {
-    return {
-        ...notebook,
-        recipes: [...notebook.recipes, recipe],
-    };
 }

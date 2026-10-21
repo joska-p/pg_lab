@@ -3,8 +3,7 @@
     "extends": "../../tsconfig.app",
     "compilerOptions": {
         "noEmit": true,
-        "composite": false,
-        "types": ["node"]
+        "composite": false
     },
     "include": ["src"]
 }

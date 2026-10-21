@@ -1,13 +1,9 @@
 import type { Catalog } from '@repo/randomart-core/catalog/Catalog';
-import {
-    addBatchToNotebook,
-    createNotebook,
-    removeBatchFromNotebook,
-} from '@repo/randomart-core/notebook/notebook';
-import { parseNotebook, serializeNotebook } from '@repo/randomart-core/notebook/serialize';
-import type { Notebook, NotebookBatch } from '@repo/randomart-core/notebook/types';
 import { create } from 'zustand';
 
+import { addBatchToNotebook, createNotebook, removeBatchFromNotebook } from '../notebook/notebook';
+import { parseNotebook, serializeNotebook } from '../notebook/serialize';
+import type { Notebook, NotebookBatch } from '../notebook/types';
 import { loadNotebookFromDb, saveNotebookToDb } from '../storage/notebookDb';
 
 interface NotebookState {

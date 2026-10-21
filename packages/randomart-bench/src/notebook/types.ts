@@ -1,6 +1,6 @@
-import type { GrammarData } from '../artwork/serialize';
-import type { Grammar } from '../grammar/types';
-import type { Seed } from '../random/seed';
+import type { GrammarData } from '@repo/randomart-core/artwork/serialize';
+import type { Grammar } from '@repo/randomart-core/grammar/types';
+import type { Seed } from '@repo/randomart-core/random/seed';
 
 export const NOTEBOOK_FILE_FORMAT = 'randomart-notebook';
 export const NOTEBOOK_FILE_VERSION = 1;
@@ -37,23 +37,12 @@ export interface NotebookBatch {
     readonly candidates: readonly NotebookCandidate[];
 }
 
-/** A promoted grammar kept as a recipe for reuse or presets. */
-export interface NotebookRecipe {
-    readonly id: string;
-    readonly label: string;
-    readonly description: string;
-    readonly grammar: Grammar;
-    readonly createdAt: string;
-    readonly candidateId?: string;
-}
-
-/** The notebook: persistent collection of evaluated batches and promoted recipes. */
+/** The notebook: persistent collection of evaluated batches. */
 export interface Notebook {
     readonly format: typeof NOTEBOOK_FILE_FORMAT;
     readonly version: typeof NOTEBOOK_FILE_VERSION;
     readonly generatorVersion: number;
     readonly batches: readonly NotebookBatch[];
-    readonly recipes: readonly NotebookRecipe[];
 }
 
 // ---------------------------------------------------------------------------
@@ -75,19 +64,9 @@ export interface NotebookBatchData {
     readonly candidates: readonly NotebookCandidateData[];
 }
 
-export interface NotebookRecipeData {
-    readonly id: string;
-    readonly label: string;
-    readonly description: string;
-    readonly grammar: GrammarData;
-    readonly createdAt: string;
-    readonly candidateId?: string;
-}
-
 export interface NotebookData {
     readonly format: string;
     readonly version: number;
     readonly generatorVersion: number;
     readonly batches: readonly NotebookBatchData[];
-    readonly recipes: readonly NotebookRecipeData[];
 }

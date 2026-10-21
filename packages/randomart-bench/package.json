@@ -6,20 +6,11 @@
     "exports": {
         "./ui/*": "./src/ui/*.tsx",
         "./stores/*": "./src/stores/*.ts",
-        "./dataset/page": "./src/dataset/page.ts",
-        "./dataset/scripts/*": "./src/dataset/scripts/*.ts",
-        "./dataset/analysis/*": "./src/dataset/analysis/*.ts",
-        "./storage/notebookDb": "./src/storage/notebookDb.ts"
+        "./notebook/*": "./src/notebook/*.ts"
     },
     "scripts": {
-        "dev": "vp dev",
         "lint": "vp lint",
-        "test": "vp test",
-        "dataset": "node src/dataset/scripts/cli.ts run",
-        "dataset:write": "node src/dataset/scripts/cli.ts write",
-        "dataset:features": "node src/dataset/scripts/cli.ts features",
-        "dataset:pca": "node src/dataset/scripts/cli.ts pca",
-        "dataset:sheet": "node src/dataset/scripts/cli.ts sheet"
+        "test": "vp test"
     },
     "dependencies": {
         "@repo/randomart-core": "workspace:*",
@@ -30,10 +21,8 @@
         "zustand": "catalog:"
     },
     "devDependencies": {
-        "@types/node": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
-        "playwright-core": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",
         "vite-plus": "catalog:"

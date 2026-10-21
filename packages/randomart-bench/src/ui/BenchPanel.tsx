@@ -1,4 +1,3 @@
-import type { NotebookBatch, NotebookRating } from '@repo/randomart-core/notebook/types';
 import { Button } from '@repo/ui/components/Button';
 import { Checkbox } from '@repo/ui/components/Checkbox';
 import { ControlSection } from '@repo/ui/components/ControlSection';
@@ -9,6 +8,7 @@ import { Segmented } from '@repo/ui/components/Segmented';
 import { Select } from '@repo/ui/components/Select';
 import { Text } from '@repo/ui/components/Text';
 
+import type { NotebookBatch, NotebookRating } from '../notebook/types';
 import {
     BENCH_VIEWS,
     CELL_SIZES,

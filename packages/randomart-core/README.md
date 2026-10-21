@@ -24,13 +24,14 @@ import { generate } from '@repo/randomart-core/generator/generate';
 | `compiler/`   | expression → GLSL (lowering, emit, contract)              |
 | `color/`      | channel models and color spaces                           |
 | `artwork/`    | artwork type, creation, provenance, file format           |
-| `notebook/`   | rated batches of candidate grammars and their file format |
 | `renderer/`   | batch rendering, contract and render gate                 |
 | `config/`     | app-wide bounds and defaults                              |
 | `shared/`     | guards and small shared primitives                        |
 
 The renderer modules are the browser-facing edge of the domain: `contract` and `renderGate` are
 DOM-free, while `batch` creates a canvas through `@repo/glaze` and is meant to run in the browser.
+Everything else is pure TypeScript. The notebook — persisted lots and ratings — belongs to the
+bench, not to core: it is a consumer of the domain, not part of `grammar → expression → GLSL`.
 
 ## Vocabulary
 
@@ -40,7 +41,6 @@ DOM-free, while `batch` creates a canvas through `@repo/glaze` and is meant to r
 - **seed**: picks one expression inside a grammar
 - **expression**: three trees (r, g, b). **node** = tree element, **vertex** = compiler DAG entry
 - **artwork**: expression + optional provenance (grammar, seed). The expression is the reference
-- **notebook / batch**: rated candidates and one draw of them
 
 ## Commands
 
@@ -53,5 +53,5 @@ DOM-free, while `batch` creates a canvas through `@repo/glaze` and is meant to r
 - throw vs repair: `src/shared/shared.ts`
 - operator contract: `src/catalog/operators/types.ts`
 - generator versioning: `src/generator/generator.ts`
-- file formats: `src/artwork/serialize.ts`, `src/notebook/serialize.ts`
+- file formats: `src/artwork/serialize.ts`
 - shared catalog singleton: `src/catalog/default.ts`

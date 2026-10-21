@@ -1,6 +1,6 @@
+import type { RgbImage } from '@repo/randomart-core/renderer/types';
 import { describe, expect, it } from 'vite-plus/test';
 
-import type { RgbImage } from '../dataset/analysis/descriptors';
 import {
     assemblePlanche,
     fitGrid,

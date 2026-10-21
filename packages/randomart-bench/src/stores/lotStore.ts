@@ -1,18 +1,14 @@
 import { catalog } from '@repo/randomart-core/catalog/default';
 import { sampleGrammars } from '@repo/randomart-core/grammar/sample';
 import type { Grammar } from '@repo/randomart-core/grammar/types';
-import {
-    createBatch,
-    createCandidate,
-    rateNotebookCandidate,
-} from '@repo/randomart-core/notebook/notebook';
-import type { NotebookBatch, NotebookRating } from '@repo/randomart-core/notebook/types';
 import type { Seed } from '@repo/randomart-core/random/seed';
 import { randomSeed } from '@repo/randomart-core/random/seed';
 import { createBatchRenderer } from '@repo/randomart-core/renderer/batch';
 import type { BatchRenderer, RenderedBatch } from '@repo/randomart-core/renderer/batch';
 import { create } from 'zustand';
 
+import { createBatch, createCandidate, rateNotebookCandidate } from '../notebook/notebook';
+import type { NotebookBatch, NotebookRating } from '../notebook/types';
 import { buildLotView, EMPTY_LOT } from '../ui/lot';
 import type { LotView } from '../ui/lot';
 import { getBenchSettings, setBenchBaseSeed } from './benchSettingsStore';

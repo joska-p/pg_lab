@@ -4,7 +4,7 @@
  *     vp run dataset            write → features → pca → sheet
  *     vp run dataset:features   one step, from an existing `--out` directory
  *
- * Every step reads and writes the same directory (`/dataset/` by default, git-ignored), so the
+ * Every step reads and writes the same directory (`dataset/` by default, git-ignored), so the
  * pipeline is a chain over one folder rather than five scripts to remember.
  */
 import { readFileSync, writeFileSync } from 'node:fs';

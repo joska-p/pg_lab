@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import type { RgbImage } from '@repo/randomart-core/renderer/types';
 
-export interface DatasetGrammar {
+interface DatasetGrammar {
     readonly grammar: unknown;
     readonly seeds: readonly number[];
     /** False when the image could not be rendered (its pixels are all zeros). */

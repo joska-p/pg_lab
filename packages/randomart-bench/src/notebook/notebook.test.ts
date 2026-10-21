@@ -1,15 +1,13 @@
+import { createDefaultCatalog } from '@repo/randomart-core/catalog/Catalog';
+import { defaultGrammar } from '@repo/randomart-core/grammar/presets';
+import { createSeed } from '@repo/randomart-core/random/seed';
 import { describe, expect, it } from 'vite-plus/test';
 
-import { createDefaultCatalog } from '../catalog/Catalog';
-import { defaultGrammar } from '../grammar/presets';
-import { createSeed } from '../random/seed';
 import {
     addBatchToNotebook,
-    addRecipeToNotebook,
     createBatch,
     createCandidate,
     createNotebook,
-    createRecipe,
     rateNotebookCandidate,
     removeBatchFromNotebook,
     updateCandidateRating,
@@ -79,26 +77,17 @@ describe('notebook core', () => {
             expect(ratedNotebook.batches[0]?.candidates[1]?.rating).toBe(3);
         });
 
-        it('adds batches and recipes to a notebook', () => {
+        it('adds a batch to a notebook', () => {
             const initial = createNotebook();
             expect(initial.batches).toHaveLength(0);
-            expect(initial.recipes).toHaveLength(0);
 
             const batch = createBatch({
                 candidates: [createCandidate({ grammar, seeds })],
             });
-            const recipe = createRecipe({
-                label: 'Spiral dream',
-                description: 'A delicate spiral',
-                grammar,
-            });
 
             const withBatch = addBatchToNotebook(initial, batch);
-            const withRecipe = addRecipeToNotebook(withBatch, recipe);
 
-            expect(withRecipe.batches).toHaveLength(1);
-            expect(withRecipe.recipes).toHaveLength(1);
-            expect(withRecipe.recipes[0]?.label).toBe('Spiral dream');
+            expect(withBatch.batches).toHaveLength(1);
         });
 
         it('drops a batch by id and leaves the notebook untouched when the id is unknown', () => {
@@ -143,19 +132,10 @@ describe('notebook core', () => {
                 parentIds: ['parent-0'],
                 candidates: [candidate1, candidate2],
             });
-            const recipe = createRecipe({
-                id: 'recipe-1',
-                label: 'Favorite',
-                description: 'User favorite recipe',
-                grammar,
-                createdAt: '2026-10-17T20:05:00.000Z',
-                candidateId: 'cand-1',
-            });
 
             const original = createNotebook({
                 generatorVersion: 3,
                 batches: [batch],
-                recipes: [recipe],
             });
 
             const serialized = serializeNotebook(original);
@@ -172,9 +152,6 @@ describe('notebook core', () => {
             expect(parsed.batches[0]?.candidates[0]?.rating).toBe(5);
             expect(parsed.batches[0]?.candidates[0]?.note).toBe('Excellent structure');
             expect(parsed.batches[0]?.candidates[1]?.rating).toBeUndefined();
-            expect(parsed.recipes).toHaveLength(1);
-            expect(parsed.recipes[0]?.label).toBe('Favorite');
-            expect(parsed.recipes[0]?.candidateId).toBe('cand-1');
         });
 
         it('rejects files exceeding MAX_NOTEBOOK_FILE_LENGTH', () => {
@@ -192,7 +169,6 @@ describe('notebook core', () => {
                 version: 1,
                 generatorVersion: 1,
                 batches: [],
-                recipes: [],
             });
             expect(() => parseNotebook(catalog, badFormat)).toThrow(/format.*not supported/);
 
@@ -201,18 +177,16 @@ describe('notebook core', () => {
                 version: 99,
                 generatorVersion: 1,
                 batches: [],
-                recipes: [],
             });
             expect(() => parseNotebook(catalog, badVersion)).toThrow(/version.*not supported/);
         });
 
-        it('rejects unknown fields in notebook, batch, candidate, and recipe', () => {
+        it('rejects unknown fields in notebook, batch, and candidate', () => {
             const withUnknownRoot = JSON.stringify({
                 format: NOTEBOOK_FILE_FORMAT,
                 version: 1,
                 generatorVersion: 1,
                 batches: [],
-                recipes: [],
                 extraRootField: true,
             });
             expect(() => parseNotebook(catalog, withUnknownRoot)).toThrow(

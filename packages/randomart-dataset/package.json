@@ -1,0 +1,27 @@
+{
+    "name": "@repo/randomart-dataset",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vp dev",
+        "lint": "vp lint",
+        "test": "vp test",
+        "dataset": "tsx src/node/cli.ts run",
+        "dataset:write": "tsx src/node/cli.ts write",
+        "dataset:features": "tsx src/node/cli.ts features",
+        "dataset:pca": "tsx src/node/cli.ts pca",
+        "dataset:sheet": "tsx src/node/cli.ts sheet"
+    },
+    "dependencies": {
+        "@repo/randomart-core": "workspace:*"
+    },
+    "devDependencies": {
+        "@types/node": "catalog:",
+        "playwright-core": "catalog:",
+        "tsx": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+        "vite-plus": "catalog:"
+    }
+}

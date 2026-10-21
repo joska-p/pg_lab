@@ -22,6 +22,19 @@
         "packages/randomart": {
             "project": ["src/**/*.{ts,tsx}"]
         },
+        "packages/randomart-core": {
+            "project": ["src/**/*.ts"]
+        },
+        "packages/randomart-lab": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
+        "packages/randomart-bench": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
+        "packages/randomart-dataset": {
+            "project": ["src/**/*.ts"],
+            "entry": ["src/node/cli.ts", "src/page.ts"]
+        },
         "packages/glaze": {
             "project": ["src/**/*.{ts,tsx}"]
         },

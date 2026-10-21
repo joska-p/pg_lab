@@ -6,10 +6,12 @@ stated; each item names the file so a future session can pick it up. Generated d
 
 ## Type placement (observed, not fixed)
 
-1. **`GrammarData` ownership.** Declared in `packages/randomart/src/core/artwork/serialize.ts`
+1. ~~**`GrammarData` ownership.** Declared in `packages/randomart/src/core/artwork/serialize.ts`
    but consumed by `core/notebook/types.ts`: the notebook depends on the artwork's
    serialization type. Pick an owner (a versioned-format module? the notebook?) instead of
-   leaving the cross-dependency.
+   leaving the cross-dependency.~~ Resolved 2026-10-21: the notebook moved to
+   `packages/randomart-bench/src/notebook`; it now depends on core, and core no longer depends
+   on the notebook.
 2. **`LotView` layer inversion.** Declared in `components/bench/lot.ts`, imported by
    `stores/benchStore.ts` — a store depending on a component module. The type (or the store
    contract) should move to a store/app-level file.
@@ -20,8 +22,9 @@ stated; each item names the file so a future session can pick it up. Generated d
    extract the shader contract (`GLSL_*`, `validateShaderContract`) into core.
 4. **Runtime values in `types.ts` files** (tolerated by the agreed rule, listed for the
    record): `catalog/operators/types.ts` exports the `defineOperator` factory;
-   `notebook/types.ts` exports `NOTEBOOK_FILE_FORMAT`/`_VERSION`, `MAX_NOTEBOOK_FILE_LENGTH`
-   and the `isNotebookRating` validator. Validators/factories are code, not types.
+   `randomart-bench/src/notebook/types.ts` exports `NOTEBOOK_FILE_FORMAT`/`_VERSION`,
+   `MAX_NOTEBOOK_FILE_LENGTH` and the `isNotebookRating` validator. Validators/factories are
+   code, not types.
 5. ~~**`grammar/types.ts` ↔ `grammar/quantized.ts` type-only cycle.**~~ Resolved 2026-10-20:
    families and share choices are gone, and `quantized.ts` only imports `types.ts`; no cycle.
 6. **`Seed`/`Phase` brands** stay colocated with their factories (`random/seed.ts`,

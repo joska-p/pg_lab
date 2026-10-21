@@ -1,5 +1,3 @@
-import { MAX_RATING, MIN_RATING } from '@repo/randomart-core/notebook/types';
-import type { NotebookRating } from '@repo/randomart-core/notebook/types';
 import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
 import { surfaceStyles } from '@repo/ui/recipes/surface';
@@ -9,6 +7,8 @@ import { colors } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useRef, useState } from 'react';
 
+import { MAX_RATING, MIN_RATING } from '../notebook/types';
+import type { NotebookRating } from '../notebook/types';
 import { useBenchSettings } from '../stores/benchSettingsStore';
 import {
     initBench,

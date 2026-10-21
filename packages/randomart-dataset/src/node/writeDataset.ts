@@ -4,6 +4,8 @@ import { join } from 'node:path';
 import type { GrammarData } from '@repo/randomart-core/artwork/serialize';
 import { chromium } from 'playwright-core';
 
+import { DATASET_PAGE } from './devServer';
+
 export interface WriteDatasetOptions {
     /** The running app: `dataset.html` is loaded from it. */
     readonly url: string;
@@ -50,7 +52,7 @@ export async function writeDataset(options: WriteDatasetOptions): Promise<void> 
     page.on('pageerror', (error) => console.error('[page]', error.message));
 
     try {
-        await page.goto(`${url}/dataset.html`);
+        await page.goto(`${url}${DATASET_PAGE}`);
         await page.waitForFunction(() => window.datasetApi !== undefined, null, {
             timeout: STARTUP_TIMEOUT_MS,
         });

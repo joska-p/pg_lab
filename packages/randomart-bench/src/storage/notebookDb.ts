@@ -1,6 +1,7 @@
 import type { Catalog } from '@repo/randomart-core/catalog/Catalog';
-import { parseNotebook, serializeNotebookData } from '@repo/randomart-core/notebook/serialize';
-import type { Notebook } from '@repo/randomart-core/notebook/types';
+
+import { parseNotebook, serializeNotebookData } from '../notebook/serialize';
+import type { Notebook } from '../notebook/types';
 
 const DB_NAME = 'randomart-db';
 const DB_VERSION = 1;

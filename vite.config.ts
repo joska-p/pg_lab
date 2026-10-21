@@ -57,6 +57,10 @@ export default defineConfig({
                 ...nodeLint,
             },
             {
+                files: ['packages/randomart-dataset/src/node/**'],
+                ...nodeLint,
+            },
+            {
                 // Config files and CLI templates require default exports.
                 files: ['**/vite.config.ts', 'tools/new-mini-app/src/template.ts'],
                 rules: {

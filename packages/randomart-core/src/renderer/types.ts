@@ -53,10 +53,7 @@ function lumaPlane(image: RgbImage): Float32Array {
     return luma;
 }
 
-/**
- * Share of flat blocks only: the cheap path for callers that need nothing else. Identical to
- * `flatShareOf` in dataset/analysis/descriptors.ts.
- */
+/** Share of flat blocks only: the cheap path for callers that need nothing else. */
 export function flatShareOf(image: RgbImage): number {
     const luma = lumaPlane(image);
     let flat = 0;

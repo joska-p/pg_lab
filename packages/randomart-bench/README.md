@@ -1,7 +1,7 @@
 # @repo/randomart-bench
 
 Exploration at scale: draw many candidate grammars, inspect them as lots and contact sheets, rate
-them into a notebook, and run the offline dataset pipeline.
+them into a notebook, and hand a cell to the Lab.
 
 The Bench is independent of the Lab. Opening a cell in the Lab goes through a callback registered
 by the app shell (`setOpenInLabHandler`), so this package never imports `@repo/randomart-lab`.
@@ -14,10 +14,11 @@ by the app shell (`setOpenInLabHandler`), so this package never imports `@repo/r
 | `src/stores/notebookStore.ts`      | notebook state, IndexedDB persistence, import/export    |
 | `src/stores/lotStore.ts`           | rendering lots, selection, ratings, open-in-lab handoff |
 | `src/ui/`                          | Bench panel, stage, focus/planche views, lot helpers    |
-| `src/dataset/analysis/`            | image descriptors, correlation, PCA                     |
-| `src/dataset/scripts/`             | dataset CLI and the write/features/pca/sheet steps      |
-| `src/dataset/page.ts`              | in-browser renderer driven by the CLI                   |
+| `src/notebook/`                    | notebook model and strict JSON file format              |
 | `src/storage/`                     | IndexedDB notebook storage                              |
+
+There is no node code in this package: it runs in the browser. The offline pipeline lives in
+[`@repo/randomart-dataset`](../randomart-dataset/README.md).
 
 ## Exports
 
@@ -29,42 +30,26 @@ import { BenchPanel } from '@repo/randomart-bench/ui/BenchPanel';
 import { BenchStage } from '@repo/randomart-bench/ui/BenchStage';
 ```
 
-The package exports `./ui/*`, `./stores/*`, `./dataset/page`, `./dataset/scripts/*`,
-`./dataset/analysis/*` and `./storage/notebookDb`.
+The package exports `./ui/*`, `./stores/*` and `./notebook/*`.
 
 ## Notebook
 
-A notebook is the persisted list of drawn batches and their ratings. It is saved to IndexedDB and
-can be exported/imported as JSON. `initBench()` restores the notebook and redraws its active batch
-when the Bench stage mounts.
+A notebook is the persisted journal of drawn **batches** and their **candidate** ratings. It is
+saved to IndexedDB and can be exported/imported as JSON.
 
-## Dataset workflow
+    notebook
+      └─ batch            one lot: grammar × seeds
+           └─ candidate   one grammar, with its seeds
+                └─ rating  0..5, optional
 
-The offline survey of the grammar space: sample grammars, draw them in bulk, describe them — no
-clicking through the bench. The four steps read and write the same directory (`/dataset/`,
-git-ignored), so the pipeline is a chain over one folder:
+The notebook is **not** a dataset: it records subjective ratings. The dataset package records
+objective image descriptors and is analysed with PCA.
 
-| step     | command                   | reads              | writes                          |
-| -------- | ------------------------- | ------------------ | ------------------------------- |
-| write    | `vp run dataset:write`    | the running app    | `dataset.json`, `pixels.bin`    |
-| features | `vp run dataset:features` | the dataset        | `features.json`                 |
-| pca      | `vp run dataset:pca`      | dataset + features | `pca.json` + a report on stdout |
-| sheet    | `vp run dataset:sheet`    | the dataset        | `sheet.png`                     |
-
-Run these from `packages/randomart-bench`. `vp run dataset` runs the four in order. Each step is a
-function (`src/dataset/scripts/*.ts`); the CLI is the only file that touches argv or exits
-(`src/dataset/scripts/cli.ts`).
-
-- `write` drives a headless Chromium against `dataset.html`. The dev server is started and stopped
-  by the command itself when nothing answers on `--url` (default `http://localhost:5173`).
-- Chromium comes from `$CHROMIUM`, defaulting to `/usr/bin/chromium`; `--mode swiftshader` renders
-  in software when there is no usable GPU.
-- Options follow the command:
-  `vp run dataset:write --count 300 --seeds 8 --size 256`, or
-  `vp run dataset:sheet --grammars 3,17,42,8`.
+A batch is drawn with `sampleGrammars()` and rendered with the shared batch renderer from core. The
+seeds of a row are views of one grammar; a rating belongs to the grammar (the row), never to a
+single seed. `initBench()` restores the notebook and redraws its active batch when the stage mounts.
 
 ## Commands
 
     vp lint
-    vp test               # lot, planche and descriptor tests
-    vp run dataset        # full offline pipeline
+    vp test               # lot, planche and notebook tests
