@@ -4,9 +4,9 @@
     "private": true,
     "type": "module",
     "exports": {
-        "./App": "./src/App.tsx",
-        "./Scene": "./src/components/Scene.tsx",
-        "./Controls": "./src/components/Controls.tsx"
+        "./App": "./src/app/App.tsx",
+        "./Scene": "./src/app/components/Scene.tsx",
+        "./Controls": "./src/app/components/Controls.tsx"
     },
     "scripts": {
         "dev": "vp dev",
@@ -15,8 +15,7 @@
         "preview": "vp preview"
     },
     "dependencies": {
-        "@repo/randomart-bench": "workspace:*",
-        "@repo/randomart-lab": "workspace:*",
+        "@repo/glaze": "workspace:*",
         "@repo/ui": "workspace:*",
         "react": "catalog:",
         "react-dom": "catalog:",
@@ -24,6 +23,7 @@
     },
     "devDependencies": {
         "@rolldown/plugin-babel": "catalog:",
+        "@stylexjs/stylex": "catalog:",
         "@stylexjs/unplugin": "catalog:",
         "@types/node": "catalog:",
         "@types/react": "catalog:",

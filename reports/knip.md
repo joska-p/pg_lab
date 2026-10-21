@@ -15,7 +15,7 @@
 | :------ | :-------------------------------- | :------- |
 | zustand | apps/brouillon/package.json:16:10 | error    |
 
-## Unused devDependencies (6)
+## Unused devDependencies (5)
 
 | Name             | Location                             | Severity |
 | :--------------- | :----------------------------------- | :------- |
@@ -24,9 +24,8 @@
 | @stylexjs/stylex | apps/playground/package.json:26:10   | error    |
 | @types/react-dom | packages/glaze/package.json:56:10    | error    |
 | @types/react-dom | packages/ui/package.json:22:10       | error    |
-| playwright-core  | package.json:20:10                   | error    |
 
-## Unused exports (31)
+## Unused exports (35)
 
 | Name                    | Location                                                             | Severity |
 | :---------------------- | :------------------------------------------------------------------- | :------- |
@@ -34,6 +33,7 @@
 | DEFAULT_PARAMS          | packages/fracture/src/modules/mandelbrot-perturbation/store.ts:21:14 | error    |
 | MAX_ZOOM                | packages/fracture/src/modules/mandelbrot-double-split/store.ts:50:14 | error    |
 | MAX_ZOOM                | packages/fracture/src/modules/mandelbrot-perturbation/store.ts:65:14 | error    |
+| resetBenchBaseSeed      | packages/randomart/src/bench/stores/benchSettingsStore.ts:88:17      | error    |
 | DEFAULT_PARAMS          | packages/fracture/src/modules/julia-double-split/store.ts:22:14      | error    |
 | MAX_ZOOM                | packages/fracture/src/modules/julia-double-split/store.ts:54:14      | error    |
 | DEFAULT_PARAMS          | packages/fracture/src/modules/mandelbrot-naive/store.ts:20:14        | error    |
@@ -41,6 +41,9 @@
 | setSymbolType           | packages/art-canvas/src/modules/atlas/store/actions.ts:23:17         | error    |
 | setPalette              | packages/art-canvas/src/modules/atlas/store/actions.ts:15:17         | error    |
 | setGlitch               | packages/art-canvas/src/modules/atlas/store/actions.ts:19:17         | error    |
+| useBenchActiveBatchId   | packages/randomart/src/bench/stores/notebookStore.ts:23:17           | error    |
+| replaceHistory          | packages/randomart/src/lab/stores/historyStore.ts:72:17              | error    |
+| getHistory              | packages/randomart/src/lab/stores/historyStore.ts:45:17              | error    |
 | destroySimulation       | packages/automa/src/stores/automa/actions.ts:23:17                   | error    |
 | DEFAULT_PARAMS          | packages/fracture/src/modules/julia/store.ts:22:14                   | error    |
 | MAX_ZOOM                | packages/fracture/src/modules/julia/store.ts:51:14                   | error    |
@@ -62,14 +65,21 @@
 | experimentKeys          | packages/fracture/src/experiments.ts:50:14                           | error    |
 | experimentKeys          | apps/playground/src/experiments.ts:74:14                             | error    |
 
-## Unused exported types (6)
+## Unused exported types (7)
 
 | Name            | Location                                               | Severity |
 | :-------------- | :----------------------------------------------------- | :------- |
 | MosaicState     | packages/mosaic-maker/src/stores/mosaic/store.ts:13:18 | error    |
+| BenchView       | packages/randomart/src/bench/stores/lotStore.ts:26:15  | error    |
 | PatternNorm     | packages/mol-demo/src/lib/pattern/norm.ts:119:13       | error    |
 | ParamDefinition | packages/art-canvas/src/shaders/types.ts:4:13          | error    |
 | Vec3Tuple       | packages/mol-demo/src/lib/parseMol.ts:6:13             | error    |
 | Bond            | packages/mol-demo/src/lib/parseMol.ts:7:13             | error    |
 | Grid            | packages/automa/src/engine/grid.ts:16:15               | error    |
+
+## Unused catalog entries (1)
+
+| Name | Location            | Severity |
+| :--- | :------------------ | :------- |
+| tsx  | pnpm-workspace.yaml | error    |
 

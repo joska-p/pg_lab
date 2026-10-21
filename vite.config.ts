@@ -16,8 +16,6 @@ const reactPackages = [
     'packages/mol-demo/**',
     'packages/mosaic-maker/**',
     'packages/randomart/**',
-    'packages/randomart-bench/**',
-    'packages/randomart-lab/**',
     'packages/ui/**',
 ];
 
@@ -55,7 +53,7 @@ export default defineConfig({
             {
                 // §1.2: the core must not reach for its environment. @repo/randomart-core is
                 // pure TypeScript except `renderer/batch`, the one browser edge of the domain.
-                files: ['packages/randomart-core/src/**'],
+                files: ['packages/randomart/src/core/**'],
                 rules: {
                     'no-restricted-globals': [
                         'error',
@@ -72,7 +70,7 @@ export default defineConfig({
             {
                 // The single allowed DOM boundary: it creates the offscreen canvas the batch
                 // renderer draws into.
-                files: ['packages/randomart-core/src/renderer/batch/**'],
+                files: ['packages/randomart/src/core/renderer/batch/**'],
                 rules: {
                     'no-restricted-globals': 'off',
                 },
@@ -82,7 +80,7 @@ export default defineConfig({
                 ...nodeLint,
             },
             {
-                files: ['packages/randomart-dataset/src/node/**'],
+                files: ['packages/randomart/src/dataset/node/**'],
                 ...nodeLint,
             },
             {
