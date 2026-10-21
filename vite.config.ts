@@ -16,6 +16,8 @@ const reactPackages = [
     'packages/mol-demo/**',
     'packages/mosaic-maker/**',
     'packages/randomart/**',
+    'packages/randomart-bench/**',
+    'packages/randomart-lab/**',
     'packages/ui/**',
 ];
 

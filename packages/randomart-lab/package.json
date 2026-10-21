@@ -1,0 +1,30 @@
+{
+    "name": "@repo/randomart-lab",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./components/lab/*": "./src/ui/components/lab/*.tsx",
+        "./components/history/*": "./src/ui/components/history/*.tsx",
+        "./stores/*": "./src/stores/*.ts",
+        "./canvas": "./src/renderer/RandomArtCanvas.tsx"
+    },
+    "scripts": {
+        "lint": "vp lint"
+    },
+    "dependencies": {
+        "@repo/glaze": "workspace:*",
+        "@repo/randomart-core": "workspace:*",
+        "@repo/ui": "workspace:*",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "zustand": "catalog:"
+    },
+    "devDependencies": {
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+        "vite-plus": "catalog:"
+    }
+}

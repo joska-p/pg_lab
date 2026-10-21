@@ -1,0 +1,59 @@
+{
+    "name": "@repo/randomart-core",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./artwork/create": "./src/artwork/create.ts",
+        "./artwork/provenance": "./src/artwork/provenance.ts",
+        "./artwork/serialize": "./src/artwork/serialize.ts",
+        "./artwork/types": "./src/artwork/types.ts",
+        "./catalog/Catalog": "./src/catalog/Catalog.ts",
+        "./catalog/default": "./src/catalog/default.ts",
+        "./catalog/operators/Operator": "./src/catalog/operators/Operator.ts",
+        "./catalog/operators/registry": "./src/catalog/operators/registry.ts",
+        "./catalog/operators/types": "./src/catalog/operators/types.ts",
+        "./catalog/format": "./src/catalog/format.ts",
+        "./catalog/dependencies": "./src/catalog/dependencies.ts",
+        "./color/color": "./src/color/color.ts",
+        "./color/types": "./src/color/types.ts",
+        "./compiler/compile": "./src/compiler/compile.ts",
+        "./compiler/types": "./src/compiler/types.ts",
+        "./config/config": "./src/config/config.ts",
+        "./config/types": "./src/config/types.ts",
+        "./expression/expression": "./src/expression/expression.ts",
+        "./expression/serialize": "./src/expression/serialize.ts",
+        "./expression/formula": "./src/expression/formula.ts",
+        "./expression/key": "./src/expression/key.ts",
+        "./expression/types": "./src/expression/types.ts",
+        "./generator/generate": "./src/generator/generator.ts",
+        "./grammar/grammar": "./src/grammar/grammar.ts",
+        "./grammar/sample": "./src/grammar/sample.ts",
+        "./grammar/quantized": "./src/grammar/quantized.ts",
+        "./grammar/presets": "./src/grammar/presets.ts",
+        "./grammar/types": "./src/grammar/types.ts",
+        "./notebook/notebook": "./src/notebook/notebook.ts",
+        "./notebook/serialize": "./src/notebook/serialize.ts",
+        "./notebook/types": "./src/notebook/types.ts",
+        "./random/seed": "./src/random/seed.ts",
+        "./random/rng": "./src/random/rng.ts",
+        "./shared/shared": "./src/shared/shared.ts",
+        "./renderer/batch": "./src/renderer/batch/batch.ts",
+        "./renderer/contract": "./src/renderer/contract/contract.ts",
+        "./renderer/renderGate": "./src/renderer/renderGate/renderGate.ts",
+        "./renderer/types": "./src/renderer/types.ts"
+    },
+    "scripts": {
+        "lint": "vp lint",
+        "test": "vp test",
+        "test:measure": "VITE_MEASURE=1 vp test measure"
+    },
+    "dependencies": {
+        "@repo/glaze": "workspace:*"
+    },
+    "devDependencies": {
+        "typescript": "catalog:",
+        "vite": "catalog:",
+        "vite-plus": "catalog:"
+    }
+}

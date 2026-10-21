@@ -58,19 +58,19 @@
         <div class="dashboard">
           <div class="stat-card stat-blue">
             <h3>Total Files</h3>
-            <div class="val">319</div>
+            <div class="val">325</div>
           </div>
           <div class="stat-card stat-green">
             <h3>Total Lines of Code</h3>
-            <div class="val">27597</div>
+            <div class="val">27814</div>
           </div>
           <div class="stat-card stat-yellow">
             <h3>Number of Clones</h3>
-            <div class="val">38</div>
+            <div class="val">39</div>
           </div>
           <div class="stat-card stat-red">
             <h3>Duplicated Lines</h3>
-            <div class="val">1028 (3.73%)</div>
+            <div class="val">1053 (3.79%)</div>
           </div>
         </div>
       </section>
@@ -122,28 +122,28 @@
             <tr>
               <td><a href="#tsx-clones">tsx</a></td>
               <td>93</td>
-              <td>8797</td>
+              <td>8811</td>
               <td>29</td>
-              <td>770 (8.75%)</td>
-              <td>4621 (10.46%)</td>
+              <td>770 (8.74%)</td>
+              <td>4621 (10.44%)</td>
             </tr>
             
             <tr>
               <td><a href="#typescript-clones">typescript</a></td>
-              <td>214</td>
-              <td>18569</td>
-              <td>8</td>
-              <td>234 (1.26%)</td>
-              <td>1058 (1.06%)</td>
+              <td>220</td>
+              <td>18772</td>
+              <td>9</td>
+              <td>259 (1.38%)</td>
+              <td>1197 (1.19%)</td>
             </tr>
             
             <tr style="font-weight: 700;">
               <td>Total</td>
-              <td>319</td>
-              <td>27597</td>
-              <td>38</td>
-              <td>1028 (3.73%)</td>
-              <td>6006 (4.13%)</td>
+              <td>325</td>
+              <td>27814</td>
+              <td>39</td>
+              <td>1053 (3.79%)</td>
+              <td>6145 (4.20%)</td>
             </tr>
           </tbody>
         </table>
@@ -231,7 +231,7 @@ export function App() {
           <div class="clone-item">
             <div class="clone-info">
               art-canvas/src/App.tsx (Line 2:1 - Line 16:26),
-              randomart/src/ui/App.tsx (Line 1:1 - Line 13:42)
+              randomart/src/App.tsx (Line 1:1 - Line 13:42)
             </div>
             <div>
               <button class="toggle-btn" onclick="toggle('code-tsx-2')">Show code</button>
@@ -1584,6 +1584,41 @@ export function setParam(key: ParamKey, value: number): void {
         ]);
 
         gl.useProgram(this.phongProgram);</pre>
+          </div>
+          
+          <div class="clone-item">
+            <div class="clone-info">
+              randomart-bench/src/dataset/analysis/descriptors.ts (Line 12:26 - Line 36:9),
+              randomart-core/src/renderer/types.ts (Line 18:22 - Line 41:9)
+            </div>
+            <div>
+              <button class="toggle-btn" onclick="toggle('code-typescript-9')">Show code</button>
+            </div>
+            <pre id="code-typescript-9" class="code-block">const HISTOGRAM_BINS = 16;
+
+function mean(values: ArrayLike&#60;number&#62;): number {
+    let sum = 0;
+
+    for (let i = 0; i &#60; values.length; i++) {
+        sum += values[i];
+    }
+
+    return values.length === 0 ? 0 : sum / values.length;
+}
+
+function std(values: ArrayLike&#60;number&#62;): number {
+    const m = mean(values);
+    let sum = 0;
+
+    for (let i = 0; i &#60; values.length; i++) {
+        sum += (values[i] - m) ** 2;
+    }
+
+    return values.length === 0 ? 0 : Math.sqrt(sum / values.length);
+}
+
+/** Per-channel planes in [0, 1]. */
+function planes(image: RgbImage): [Float32Array, Float32Array, Float32Array] {</pre>
           </div>
           
         </div>

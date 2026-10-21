@@ -1,18 +1,12 @@
 # Knip report
 
-## Unused files (10)
+## Unused files (4)
 
 | Name                                                               | Location                                                           | Severity |
 | :----------------------------------------------------------------- | :----------------------------------------------------------------- | :------- |
 | packages/art-canvas/src/shaders/modules/effects/surfaceLighting.ts | packages/art-canvas/src/shaders/modules/effects/surfaceLighting.ts | error    |
-| packages/randomart/src/dataset/scripts/contactSheet.ts             | packages/randomart/src/dataset/scripts/contactSheet.ts             | error    |
-| packages/randomart/src/dataset/scripts/writeDataset.ts             | packages/randomart/src/dataset/scripts/writeDataset.ts             | error    |
-| packages/randomart/src/dataset/scripts/devServer.ts                | packages/randomart/src/dataset/scripts/devServer.ts                | error    |
-| packages/randomart/src/dataset/scripts/cli.ts                      | packages/randomart/src/dataset/scripts/cli.ts                      | error    |
-| packages/randomart/src/dataset/scripts/png.ts                      | packages/randomart/src/dataset/scripts/png.ts                      | error    |
 | packages/worker-pool/src/mock-worker-pool.ts                       | packages/worker-pool/src/mock-worker-pool.ts                       | error    |
 | packages/mol-demo/src/lib/pattern/index.ts                         | packages/mol-demo/src/lib/pattern/index.ts                         | error    |
-| packages/randomart/src/dataset/page.ts                             | packages/randomart/src/dataset/page.ts                             | error    |
 | packages/mol-demo/src/lib/index.ts                                 | packages/mol-demo/src/lib/index.ts                                 | error    |
 
 ## Unused dependencies (1)
@@ -21,18 +15,19 @@
 | :------ | :-------------------------------- | :------- |
 | zustand | apps/brouillon/package.json:16:10 | error    |
 
-## Unused devDependencies (6)
+## Unused devDependencies (7)
 
-| Name             | Location                             | Severity |
-| :--------------- | :----------------------------------- | :------- |
-| @stylexjs/stylex | packages/fracture/package.json:26:10 | error    |
-| @stylexjs/stylex | packages/mol-demo/package.json:26:10 | error    |
-| @stylexjs/stylex | apps/playground/package.json:26:10   | error    |
-| @types/react-dom | packages/glaze/package.json:56:10    | error    |
-| @types/react-dom | packages/ui/package.json:22:10       | error    |
-| playwright-core  | package.json:20:10                   | error    |
+| Name             | Location                              | Severity |
+| :--------------- | :------------------------------------ | :------- |
+| @stylexjs/stylex | packages/randomart/package.json:27:10 | error    |
+| @stylexjs/stylex | packages/fracture/package.json:26:10  | error    |
+| @stylexjs/stylex | packages/mol-demo/package.json:26:10  | error    |
+| @stylexjs/stylex | apps/playground/package.json:26:10    | error    |
+| @types/react-dom | packages/glaze/package.json:56:10     | error    |
+| @types/react-dom | packages/ui/package.json:22:10        | error    |
+| playwright-core  | package.json:20:10                    | error    |
 
-## Unused exports (33)
+## Unused exports (31)
 
 | Name                    | Location                                                             | Severity |
 | :---------------------- | :------------------------------------------------------------------- | :------- |
@@ -40,7 +35,6 @@
 | DEFAULT_PARAMS          | packages/fracture/src/modules/mandelbrot-perturbation/store.ts:21:14 | error    |
 | MAX_ZOOM                | packages/fracture/src/modules/mandelbrot-double-split/store.ts:50:14 | error    |
 | MAX_ZOOM                | packages/fracture/src/modules/mandelbrot-perturbation/store.ts:65:14 | error    |
-| computeFeatures         | packages/randomart/src/dataset/scripts/computeFeatures.ts:24:17      | error    |
 | DEFAULT_PARAMS          | packages/fracture/src/modules/julia-double-split/store.ts:22:14      | error    |
 | MAX_ZOOM                | packages/fracture/src/modules/julia-double-split/store.ts:54:14      | error    |
 | DEFAULT_PARAMS          | packages/fracture/src/modules/mandelbrot-naive/store.ts:20:14        | error    |
@@ -48,7 +42,6 @@
 | setSymbolType           | packages/art-canvas/src/modules/atlas/store/actions.ts:23:17         | error    |
 | setPalette              | packages/art-canvas/src/modules/atlas/store/actions.ts:15:17         | error    |
 | setGlitch               | packages/art-canvas/src/modules/atlas/store/actions.ts:19:17         | error    |
-| loadDataset             | packages/randomart/src/dataset/scripts/loadDataset.ts:22:17          | error    |
 | destroySimulation       | packages/automa/src/stores/automa/actions.ts:23:17                   | error    |
 | DEFAULT_PARAMS          | packages/fracture/src/modules/julia/store.ts:22:14                   | error    |
 | MAX_ZOOM                | packages/fracture/src/modules/julia/store.ts:51:14                   | error    |
@@ -70,15 +63,14 @@
 | experimentKeys          | packages/fracture/src/experiments.ts:50:14                           | error    |
 | experimentKeys          | apps/playground/src/experiments.ts:74:14                             | error    |
 
-## Unused exported types (7)
+## Unused exported types (6)
 
-| Name            | Location                                                   | Severity |
-| :-------------- | :--------------------------------------------------------- | :------- |
-| DatasetGrammar  | packages/randomart/src/dataset/scripts/loadDataset.ts:6:18 | error    |
-| MosaicState     | packages/mosaic-maker/src/stores/mosaic/store.ts:13:18     | error    |
-| PatternNorm     | packages/mol-demo/src/lib/pattern/norm.ts:119:13           | error    |
-| ParamDefinition | packages/art-canvas/src/shaders/types.ts:4:13              | error    |
-| Vec3Tuple       | packages/mol-demo/src/lib/parseMol.ts:6:13                 | error    |
-| Bond            | packages/mol-demo/src/lib/parseMol.ts:7:13                 | error    |
-| Grid            | packages/automa/src/engine/grid.ts:16:15                   | error    |
+| Name            | Location                                               | Severity |
+| :-------------- | :----------------------------------------------------- | :------- |
+| MosaicState     | packages/mosaic-maker/src/stores/mosaic/store.ts:13:18 | error    |
+| PatternNorm     | packages/mol-demo/src/lib/pattern/norm.ts:119:13       | error    |
+| ParamDefinition | packages/art-canvas/src/shaders/types.ts:4:13          | error    |
+| Vec3Tuple       | packages/mol-demo/src/lib/parseMol.ts:6:13             | error    |
+| Bond            | packages/mol-demo/src/lib/parseMol.ts:7:13             | error    |
+| Grid            | packages/automa/src/engine/grid.ts:16:15               | error    |
 

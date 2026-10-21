@@ -5,69 +5,40 @@ You explore grammars more than seeds.
 
     grammar + seed → expression → GLSL → image
 
-## Commands (from `packages/randomart`)
+This package is the app shell. The project is split into four packages:
 
-    vp dev                          # app
-    vp test                         # unit tests
-    vp run test:measure             # opt-in measurement probes (VITE_MEASURE=1)
-    vp run test:shaders             # dump the fuzz shaders in .shaders/
-    vp run test:glsl                # dump + glslangValidator on the fuzz shaders
-    vp run dataset                  # offline dataset pipeline (see below)
+| package                                                 | role                                                            |
+| ------------------------------------------------------- | --------------------------------------------------------------- |
+| [`@repo/randomart-core`](../randomart-core/README.md)   | pure TypeScript domain: grammar, generator, compiler, formats   |
+| [`@repo/randomart-lab`](../randomart-lab/README.md)     | one-artwork workspace: live canvas, grammar controls, history   |
+| [`@repo/randomart-bench`](../randomart-bench/README.md) | exploration: candidate lots, notebook, offline dataset pipeline |
+| `@repo/randomart`                                       | this thin composer                                              |
+
+The three library packages are source-only: consumers import exact module paths, with no build
+step.
+
+## Commands
+
+    vp dev       # app
+    vp build     # typecheck + production build
+    vp check     # format, lint, typecheck
+
+Core tests and the dataset pipeline run from their own packages; see the links above.
 
 ## Layout
 
-- `src/core/`: pure TypeScript, no DOM, no GPU
-    - `catalog`: operators and shader dependencies
-    - `expression`: immutable trees, keys, serialization
-    - `random`: seed and PRNG
-    - `grammar`: quantized grammar, presets, sampling
-    - `generator`: `(grammar, seed) → expression`
-    - `compiler`: expression → GLSL
-    - `color`: channel model and colour spaces
-    - `artwork`: artwork and grammar file formats
-    - `notebook`: rated batches of candidate grammars
-    - `analysis`: image descriptors and PCA
-- `src/renderer/`: WebGL through `@repo/glaze` (live canvas, batch renderer)
-- `src/stores/`, `src/components/`: Zustand state and UI (lab, bench, history)
-- `src/dataset/`, `scripts/dataset/`: offline dataset pipeline and analysis
+- `src/App.tsx`: composes the shell
+- `src/stores/modeStore.ts`: the active mode (Lab, History, Bench)
+- `src/components/Controls.tsx`: mode switch and the Lab/History/Bench panels
+- `src/components/Scene.tsx`: renders the Lab canvas or the Bench stage, and registers the
+  Bench → Lab handoff
+- `src/main.tsx`, `src/style.css`: entry point
 
-## Vocabulary
+`Scene` picks the view from the app's own mode store; Lab and Bench never own the mode. Keeping
+that state in the app package lets the playground mount `@repo/randomart/Scene` and
+`@repo/randomart/Controls` as two separate modules and still have them agree. The Bench hands a
+`(grammar, seed)` pair to the shell through the callback registered by `Scene`, so the two feature
+packages stay independent.
 
-- **grammar**: an integer weight per operator (0 = off, same range for all) + size profile +
-  shared-trunk depth + color space
-- **preset**: a named grammar (`defaultGrammar`, `grammarPresets`); there is no separate recipe type
-- **seed**: picks one expression inside a grammar
-- **expression**: three trees (r, g, b). **node** = tree element, **vertex** = compiler DAG entry
-- **artwork**: expression + optional provenance (grammar, seed). The expression is the reference
-- **notebook / batch / planche**: rated candidates, one rendered lot, its grid
-- **dataset**: the offline pipeline and its git-ignored output
-
-## Dataset workflow
-
-The offline survey of the grammar space: sample grammars, draw them in bulk, describe them — no
-clicking through the bench. The four steps read and write the same directory (`/dataset/`,
-git-ignored), so the pipeline is a chain over one folder:
-
-| step     | command                   | reads              | writes                          |
-| -------- | ------------------------- | ------------------ | ------------------------------- |
-| write    | `vp run dataset:write`    | the running app    | `dataset.json`, `pixels.bin`    |
-| features | `vp run dataset:features` | the dataset        | `features.json`                 |
-| pca      | `vp run dataset:pca`      | dataset + features | `pca.json` + a report on stdout |
-| sheet    | `vp run dataset:sheet`    | the dataset        | `sheet.png`                     |
-
-`vp run dataset` runs the four in order. Each step is a function (`scripts/dataset/*.ts`); the CLI
-is the only file that touches argv or exits (`scripts/dataset/cli.ts`).
-
-- `write` drives a headless Chromium against `dataset.html`. The dev server is started and stopped
-  by the command itself when nothing answers on `--url` (default `http://localhost:5173`).
-- Chromium comes from `$CHROMIUM`, defaulting to `/usr/bin/chromium`; `--mode swiftshader` renders
-  in software when there is no usable GPU.
-- Options follow the command: `vp run dataset:write --count 300 --seeds 8 --size 256`, or
-  `vp run dataset:sheet --grammars 3,17,42,8`.
-
-## Where the rules live
-
-- throw vs repair: `src/core/shared/shared.ts`
-- operator contract: `src/core/catalog/operators/types.ts`
-- generator versioning: `src/core/generator/generator.ts`
-- file formats: `src/core/artwork/serialize.ts`
+See [`@repo/randomart-core`](../randomart-core/README.md) for the domain vocabulary and the rules
+of the pipeline.
