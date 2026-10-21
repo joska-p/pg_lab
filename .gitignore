@@ -2,8 +2,6 @@ _TMP/
 reports/
 .direnv_home/
 .direnv/
-.shaders/
-packages/randomart-dataset/dataset/
 
 # Logs
 logs

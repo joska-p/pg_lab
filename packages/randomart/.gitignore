@@ -1,3 +1,5 @@
+/dataset/
+
 # Logs
 logs
 *.log
@@ -22,7 +24,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-# glslangValidator dump (scripts/validate-glsl.sh)
-.shaders
-/dataset/

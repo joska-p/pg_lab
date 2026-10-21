@@ -33,7 +33,7 @@
 | DEFAULT_PARAMS          | packages/fracture/src/modules/mandelbrot-perturbation/store.ts:21:14 | error    |
 | MAX_ZOOM                | packages/fracture/src/modules/mandelbrot-double-split/store.ts:50:14 | error    |
 | MAX_ZOOM                | packages/fracture/src/modules/mandelbrot-perturbation/store.ts:65:14 | error    |
-| resetBenchBaseSeed      | packages/randomart/src/bench/stores/benchSettingsStore.ts:88:17      | error    |
+| resetBenchBaseSeed      | packages/randomart/src/stores/bench/benchSettingsStore.ts:88:17      | error    |
 | DEFAULT_PARAMS          | packages/fracture/src/modules/julia-double-split/store.ts:22:14      | error    |
 | MAX_ZOOM                | packages/fracture/src/modules/julia-double-split/store.ts:54:14      | error    |
 | DEFAULT_PARAMS          | packages/fracture/src/modules/mandelbrot-naive/store.ts:20:14        | error    |
@@ -41,9 +41,9 @@
 | setSymbolType           | packages/art-canvas/src/modules/atlas/store/actions.ts:23:17         | error    |
 | setPalette              | packages/art-canvas/src/modules/atlas/store/actions.ts:15:17         | error    |
 | setGlitch               | packages/art-canvas/src/modules/atlas/store/actions.ts:19:17         | error    |
-| useBenchActiveBatchId   | packages/randomart/src/bench/stores/notebookStore.ts:23:17           | error    |
-| replaceHistory          | packages/randomart/src/lab/stores/historyStore.ts:72:17              | error    |
-| getHistory              | packages/randomart/src/lab/stores/historyStore.ts:45:17              | error    |
+| useBenchActiveBatchId   | packages/randomart/src/stores/bench/notebookStore.ts:27:17           | error    |
+| replaceHistory          | packages/randomart/src/stores/lab/historyStore.ts:72:17              | error    |
+| getHistory              | packages/randomart/src/stores/lab/historyStore.ts:45:17              | error    |
 | destroySimulation       | packages/automa/src/stores/automa/actions.ts:23:17                   | error    |
 | DEFAULT_PARAMS          | packages/fracture/src/modules/julia/store.ts:22:14                   | error    |
 | MAX_ZOOM                | packages/fracture/src/modules/julia/store.ts:51:14                   | error    |
@@ -70,7 +70,7 @@
 | Name            | Location                                               | Severity |
 | :-------------- | :----------------------------------------------------- | :------- |
 | MosaicState     | packages/mosaic-maker/src/stores/mosaic/store.ts:13:18 | error    |
-| BenchView       | packages/randomart/src/bench/stores/lotStore.ts:26:15  | error    |
+| BenchView       | packages/randomart/src/stores/bench/lotStore.ts:26:15  | error    |
 | PatternNorm     | packages/mol-demo/src/lib/pattern/norm.ts:119:13       | error    |
 | ParamDefinition | packages/art-canvas/src/shaders/types.ts:4:13          | error    |
 | Vec3Tuple       | packages/mol-demo/src/lib/parseMol.ts:6:13             | error    |

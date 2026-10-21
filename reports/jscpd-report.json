@@ -104,7 +104,7 @@
           "line": 13,
           "position": 511
         },
-        "name": "randomart/src/app/App.tsx",
+        "name": "randomart/src/App.tsx",
         "start": 1,
         "startLoc": {
           "column": 0,
@@ -1446,7 +1446,7 @@
     }
   ],
   "statistics": {
-    "detectionDate": "2026-10-21T16:09:29.692Z",
+    "detectionDate": "2026-10-21T16:57:01.805Z",
     "formats": {
       "css": {
         "clones": 0,
@@ -1488,38 +1488,38 @@
         "clones": 29,
         "duplicatedLines": 770,
         "duplicatedTokens": 4621,
-        "lines": 8813,
+        "lines": 8817,
         "newClones": 0,
         "newDuplicatedLines": 0,
-        "percentage": 8.737092930897537,
-        "percentageTokens": 10.43798423347112,
+        "percentage": 8.73312918226154,
+        "percentageTokens": 10.437748464040478,
         "sources": 93,
-        "tokens": 44271
+        "tokens": 44272
       },
       "typescript": {
         "clones": 8,
         "duplicatedLines": 234,
         "duplicatedTokens": 1058,
-        "lines": 18612,
+        "lines": 18616,
         "newClones": 0,
         "newDuplicatedLines": 0,
-        "percentage": 1.2572533849129592,
-        "percentageTokens": 1.0610239181667753,
+        "percentage": 1.2569832402234637,
+        "percentageTokens": 1.0610132777086927,
         "sources": 220,
-        "tokens": 99715
+        "tokens": 99716
       }
     },
     "total": {
       "clones": 38,
       "duplicatedLines": 1028,
       "duplicatedTokens": 6006,
-      "lines": 27656,
+      "lines": 27664,
       "newClones": 0,
       "newDuplicatedLines": 0,
-      "percentage": 3.7170957477581723,
-      "percentageTokens": 4.122649863058833,
+      "percentage": 3.7160208212839794,
+      "percentageTokens": 4.122593266293715,
       "sources": 325,
-      "tokens": 145683
+      "tokens": 145685
     }
   }
 }
