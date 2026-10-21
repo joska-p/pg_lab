@@ -1,8 +1,8 @@
-import type { SizeProfileId } from '../../core/config/types.ts';
-import { constraintsOf } from '../../core/grammar/grammar.ts';
-import { correlation } from '../analysis/correlation.ts';
-import { pca } from '../analysis/pca.ts';
-import type { FeatureRow, Features } from './computeFeatures.ts';
+import type { SizeProfileId } from '../../core/config/types';
+import { constraintsOf } from '../../core/grammar/grammar';
+import { correlation } from '../analysis/correlation';
+import { pca } from '../analysis/pca';
+import type { FeatureRow, Features } from './computeFeatures';
 
 /** What a grammar was made of: operator weights, its size profile, share depth and vocabulary. */
 export interface GrammarInput {

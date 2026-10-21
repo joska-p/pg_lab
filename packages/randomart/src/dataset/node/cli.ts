@@ -11,16 +11,16 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 
-import { computeFeatures } from './computeFeatures.ts';
-import type { Features } from './computeFeatures.ts';
-import { buildContactSheet } from './contactSheet.ts';
-import { withDevServer } from './devServer.ts';
-import { loadDataset } from './loadDataset.ts';
-import { buildPcaReport, formatPcaReport } from './pcaReport.ts';
-import type { GrammarInput } from './pcaReport.ts';
-import { encodePng } from './png.ts';
-import { writeDataset } from './writeDataset.ts';
-import type { WriteDatasetOptions } from './writeDataset.ts';
+import { computeFeatures } from './computeFeatures';
+import type { Features } from './computeFeatures';
+import { buildContactSheet } from './contactSheet';
+import { withDevServer } from './devServer';
+import { loadDataset } from './loadDataset';
+import { buildPcaReport, formatPcaReport } from './pcaReport';
+import type { GrammarInput } from './pcaReport';
+import { encodePng } from './png';
+import { writeDataset } from './writeDataset';
+import type { WriteDatasetOptions } from './writeDataset';
 
 const COMMANDS = ['run', 'write', 'features', 'pca', 'sheet'] as const;
 type Command = (typeof COMMANDS)[number];

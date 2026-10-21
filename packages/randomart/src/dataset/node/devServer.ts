@@ -8,8 +8,8 @@ import { fileURLToPath } from 'node:url';
 const STARTUP_TIMEOUT_MS = 60_000;
 const POLL_MS = 250;
 
-/** This file lives in `src/node/`; the dev server runs from the package root. */
-const PACKAGE_ROOT = fileURLToPath(new URL('../..', import.meta.url));
+/** This file lives in `src/dataset/node/`; the dev server runs from the package root. */
+const PACKAGE_ROOT = fileURLToPath(new URL('../../..', import.meta.url));
 
 /** The page the CLI drives. It is also the healthcheck target: this package has no `index.html`. */
 export const DATASET_PAGE = '/dataset.html';
