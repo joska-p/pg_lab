@@ -24,7 +24,6 @@
     },
     "devDependencies": {
         "@rolldown/plugin-babel": "catalog:",
-        "@stylexjs/stylex": "catalog:",
         "@stylexjs/unplugin": "catalog:",
         "@types/node": "catalog:",
         "@types/react": "catalog:",

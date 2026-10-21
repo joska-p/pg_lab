@@ -15,17 +15,16 @@
 | :------ | :-------------------------------- | :------- |
 | zustand | apps/brouillon/package.json:16:10 | error    |
 
-## Unused devDependencies (7)
+## Unused devDependencies (6)
 
-| Name             | Location                              | Severity |
-| :--------------- | :------------------------------------ | :------- |
-| @stylexjs/stylex | packages/randomart/package.json:27:10 | error    |
-| @stylexjs/stylex | packages/fracture/package.json:26:10  | error    |
-| @stylexjs/stylex | packages/mol-demo/package.json:26:10  | error    |
-| @stylexjs/stylex | apps/playground/package.json:26:10    | error    |
-| @types/react-dom | packages/glaze/package.json:56:10     | error    |
-| @types/react-dom | packages/ui/package.json:22:10        | error    |
-| playwright-core  | package.json:20:10                    | error    |
+| Name             | Location                             | Severity |
+| :--------------- | :----------------------------------- | :------- |
+| @stylexjs/stylex | packages/fracture/package.json:26:10 | error    |
+| @stylexjs/stylex | packages/mol-demo/package.json:26:10 | error    |
+| @stylexjs/stylex | apps/playground/package.json:26:10   | error    |
+| @types/react-dom | packages/glaze/package.json:56:10    | error    |
+| @types/react-dom | packages/ui/package.json:22:10       | error    |
+| playwright-core  | package.json:20:10                   | error    |
 
 ## Unused exports (31)
 

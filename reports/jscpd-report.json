@@ -1294,44 +1294,6 @@
     },
     {
       "firstFile": {
-        "end": 36,
-        "endLoc": {
-          "column": 8,
-          "line": 36,
-          "position": 895
-        },
-        "name": "randomart-bench/src/dataset/analysis/descriptors.ts",
-        "start": 12,
-        "startLoc": {
-          "column": 25,
-          "line": 12,
-          "position": 380
-        }
-      },
-      "format": "typescript",
-      "fragment": "const HISTOGRAM_BINS = 16;\n\nfunction mean(values: ArrayLike<number>): number {\n    let sum = 0;\n\n    for (let i = 0; i < values.length; i++) {\n        sum += values[i];\n    }\n\n    return values.length === 0 ? 0 : sum / values.length;\n}\n\nfunction std(values: ArrayLike<number>): number {\n    const m = mean(values);\n    let sum = 0;\n\n    for (let i = 0; i < values.length; i++) {\n        sum += (values[i] - m) ** 2;\n    }\n\n    return values.length === 0 ? 0 : Math.sqrt(sum / values.length);\n}\n\n/** Per-channel planes in [0, 1]. */\nfunction planes(image: RgbImage): [Float32Array, Float32Array, Float32Array] {",
-      "isNew": false,
-      "kind": "exact",
-      "lines": 25,
-      "secondFile": {
-        "end": 41,
-        "endLoc": {
-          "column": 8,
-          "line": 41,
-          "position": 1021
-        },
-        "name": "randomart-core/src/renderer/types.ts",
-        "start": 18,
-        "startLoc": {
-          "column": 21,
-          "line": 18,
-          "position": 543
-        }
-      },
-      "tokens": 139
-    },
-    {
-      "firstFile": {
         "end": 128,
         "endLoc": {
           "column": 1,
@@ -1484,7 +1446,7 @@
     }
   ],
   "statistics": {
-    "detectionDate": "2026-10-21T12:39:59.624Z",
+    "detectionDate": "2026-10-21T13:46:40.383Z",
     "formats": {
       "css": {
         "clones": 0,
@@ -1535,29 +1497,29 @@
         "tokens": 44281
       },
       "typescript": {
-        "clones": 9,
-        "duplicatedLines": 259,
-        "duplicatedTokens": 1197,
-        "lines": 18772,
+        "clones": 8,
+        "duplicatedLines": 234,
+        "duplicatedTokens": 1058,
+        "lines": 18616,
         "newClones": 0,
         "newDuplicatedLines": 0,
-        "percentage": 1.3797144683571276,
-        "percentageTokens": 1.191080330756142,
+        "percentage": 1.2569832402234637,
+        "percentageTokens": 1.0610239181667753,
         "sources": 220,
-        "tokens": 100497
+        "tokens": 99715
       }
     },
     "total": {
-      "clones": 39,
-      "duplicatedLines": 1053,
-      "duplicatedTokens": 6145,
-      "lines": 27814,
+      "clones": 38,
+      "duplicatedLines": 1028,
+      "duplicatedTokens": 6006,
+      "lines": 27658,
       "newClones": 0,
       "newDuplicatedLines": 0,
-      "percentage": 3.7858632343424174,
-      "percentageTokens": 4.195255162997098,
+      "percentage": 3.7168269578422155,
+      "percentageTokens": 4.122366894771883,
       "sources": 325,
-      "tokens": 146475
+      "tokens": 145693
     }
   }
 }

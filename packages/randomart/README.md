@@ -7,13 +7,13 @@ You explore grammars more than seeds.
 
 This package is the app shell. The project is split into four packages:
 
-| package                                                     | role                                                          |
-| ----------------------------------------------------------- | ------------------------------------------------------------- |
-| [`@repo/randomart-core`](../randomart-core/README.md)       | pure TypeScript domain: grammar, generator, compiler, formats |
-| [`@repo/randomart-lab`](../randomart-lab/README.md)         | one-artwork workspace: live canvas, grammar controls, history |
-| [`@repo/randomart-bench`](../randomart-bench/README.md)     | exploration: candidate lots, notebook, ratings                |
-| [`@repo/randomart-dataset`](../randomart-dataset/README.md) | offline survey: dataset, features, PCA, contact sheet         |
-| `@repo/randomart`                                           | this thin composer                                            |
+| package                                                     | role                                                            |
+| ----------------------------------------------------------- | --------------------------------------------------------------- |
+| [`@repo/randomart-core`](../randomart-core/README.md)       | domain and browser edge: grammar, generator, compiler, renderer |
+| [`@repo/randomart-lab`](../randomart-lab/README.md)         | one-artwork workspace: live canvas, grammar controls, history   |
+| [`@repo/randomart-bench`](../randomart-bench/README.md)     | exploration: candidate lots, notebook, ratings                  |
+| [`@repo/randomart-dataset`](../randomart-dataset/README.md) | offline survey: dataset, features, PCA, contact sheet           |
+| `@repo/randomart`                                           | this thin composer                                              |
 
 The four library packages are source-only: consumers import exact module paths, with no build
 step.

@@ -53,6 +53,31 @@ export default defineConfig({
                 ...reactLint,
             },
             {
+                // §1.2: the core must not reach for its environment. @repo/randomart-core is
+                // pure TypeScript except `renderer/batch`, the one browser edge of the domain.
+                files: ['packages/randomart-core/src/**'],
+                rules: {
+                    'no-restricted-globals': [
+                        'error',
+                        'document',
+                        'window',
+                        'navigator',
+                        'requestAnimationFrame',
+                        'localStorage',
+                        'sessionStorage',
+                        'indexedDB',
+                    ],
+                },
+            },
+            {
+                // The single allowed DOM boundary: it creates the offscreen canvas the batch
+                // renderer draws into.
+                files: ['packages/randomart-core/src/renderer/batch/**'],
+                rules: {
+                    'no-restricted-globals': 'off',
+                },
+            },
+            {
                 files: ['tools/**'],
                 ...nodeLint,
             },

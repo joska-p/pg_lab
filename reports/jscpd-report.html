@@ -62,15 +62,15 @@
           </div>
           <div class="stat-card stat-green">
             <h3>Total Lines of Code</h3>
-            <div class="val">27814</div>
+            <div class="val">27658</div>
           </div>
           <div class="stat-card stat-yellow">
             <h3>Number of Clones</h3>
-            <div class="val">39</div>
+            <div class="val">38</div>
           </div>
           <div class="stat-card stat-red">
             <h3>Duplicated Lines</h3>
-            <div class="val">1053 (3.79%)</div>
+            <div class="val">1028 (3.72%)</div>
           </div>
         </div>
       </section>
@@ -131,19 +131,19 @@
             <tr>
               <td><a href="#typescript-clones">typescript</a></td>
               <td>220</td>
-              <td>18772</td>
-              <td>9</td>
-              <td>259 (1.38%)</td>
-              <td>1197 (1.19%)</td>
+              <td>18616</td>
+              <td>8</td>
+              <td>234 (1.26%)</td>
+              <td>1058 (1.06%)</td>
             </tr>
             
             <tr style="font-weight: 700;">
               <td>Total</td>
               <td>325</td>
-              <td>27814</td>
-              <td>39</td>
-              <td>1053 (3.79%)</td>
-              <td>6145 (4.20%)</td>
+              <td>27658</td>
+              <td>38</td>
+              <td>1028 (3.72%)</td>
+              <td>6006 (4.12%)</td>
             </tr>
           </tbody>
         </table>
@@ -1584,41 +1584,6 @@ export function setParam(key: ParamKey, value: number): void {
         ]);
 
         gl.useProgram(this.phongProgram);</pre>
-          </div>
-          
-          <div class="clone-item">
-            <div class="clone-info">
-              randomart-bench/src/dataset/analysis/descriptors.ts (Line 12:26 - Line 36:9),
-              randomart-core/src/renderer/types.ts (Line 18:22 - Line 41:9)
-            </div>
-            <div>
-              <button class="toggle-btn" onclick="toggle('code-typescript-9')">Show code</button>
-            </div>
-            <pre id="code-typescript-9" class="code-block">const HISTOGRAM_BINS = 16;
-
-function mean(values: ArrayLike&#60;number&#62;): number {
-    let sum = 0;
-
-    for (let i = 0; i &#60; values.length; i++) {
-        sum += values[i];
-    }
-
-    return values.length === 0 ? 0 : sum / values.length;
-}
-
-function std(values: ArrayLike&#60;number&#62;): number {
-    const m = mean(values);
-    let sum = 0;
-
-    for (let i = 0; i &#60; values.length; i++) {
-        sum += (values[i] - m) ** 2;
-    }
-
-    return values.length === 0 ? 0 : Math.sqrt(sum / values.length);
-}
-
-/** Per-channel planes in [0, 1]. */
-function planes(image: RgbImage): [Float32Array, Float32Array, Float32Array] {</pre>
           </div>
           
         </div>

@@ -13,9 +13,13 @@ by the app shell (`setOpenInLabHandler`), so this package never imports `@repo/r
 | `src/stores/benchSettingsStore.ts` | lot size: grammar count, seeds, cell size, view         |
 | `src/stores/notebookStore.ts`      | notebook state, IndexedDB persistence, import/export    |
 | `src/stores/lotStore.ts`           | rendering lots, selection, ratings, open-in-lab handoff |
-| `src/ui/`                          | Bench panel, stage, focus/planche views, lot helpers    |
+| `src/lot/`                         | lot shape and planche geometry: pure, no React          |
+| `src/ui/`                          | Bench panel, stage and planche components               |
 | `src/notebook/`                    | notebook model and strict JSON file format              |
 | `src/storage/`                     | IndexedDB notebook storage                              |
+
+`src/lot/` holds the pure shape of a lot — the view the store owns and the UI paints — so the
+store never depends on the UI folder, and `src/ui/` holds React components only.
 
 There is no node code in this package: it runs in the browser. The offline pipeline lives in
 [`@repo/randomart-dataset`](../randomart-dataset/README.md).
@@ -52,4 +56,4 @@ single seed. `initBench()` restores the notebook and redraws its active batch wh
 ## Commands
 
     vp lint
-    vp test               # lot, planche and notebook tests
+    vp test               # lot, planche, notebook and storage tests

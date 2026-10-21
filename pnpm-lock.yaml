@@ -721,9 +721,6 @@ importers:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7(supports-color@7.2.0))(@babel/runtime@7.29.7)(@types/node@24.19.0)(esbuild@0.28.2)(jiti@2.7.0)(rolldown@1.2.11)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)
-      '@stylexjs/stylex':
-        specifier: 'catalog:'
-        version: 0.19.1
       '@stylexjs/unplugin':
         specifier: 'catalog:'
         version: 0.19.1(supports-color@7.2.0)(unplugin@2.3.11)

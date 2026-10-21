@@ -3,8 +3,9 @@
 The single-artwork workspace: one expression at a time, with its grammar controls, playback and
 history.
 
-Lab owns _playing with an artwork_, not exploring lots. Bulk exploration and the dataset pipeline
-live in [`@repo/randomart-bench`](../randomart-bench/README.md).
+Lab owns _playing with an artwork_, not exploring lots. Bulk exploration lives in
+[`@repo/randomart-bench`](../randomart-bench/README.md); the offline dataset pipeline lives in
+[`@repo/randomart-dataset`](../randomart-dataset/README.md).
 
 ## Layout
 

@@ -7,6 +7,8 @@ import { colors } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useRef, useState } from 'react';
 
+import { focusLotView } from '../lot/lot';
+import { fitGrid } from '../lot/planche';
 import { MAX_RATING, MIN_RATING } from '../notebook/types';
 import type { NotebookRating } from '../notebook/types';
 import { useBenchSettings } from '../stores/benchSettingsStore';
@@ -24,8 +26,6 @@ import {
     useBenchSelectedRowIndex,
 } from '../stores/lotStore';
 import { useBenchActiveBatch } from '../stores/notebookStore';
-import { focusLotView } from './lot';
-import { fitGrid } from './planche';
 import { Planche } from './Planche';
 
 const styles = stylex.create({

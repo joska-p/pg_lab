@@ -1,5 +1,6 @@
-import { flatShareOf } from '@repo/randomart-core/renderer/types';
+import { flatShareOf } from '@repo/randomart-core/renderer/flatness';
 import type { RgbImage } from '@repo/randomart-core/renderer/types';
+import { computeMean, computeStd } from '@repo/randomart-core/shared/shared';
 
 import { correlation } from './correlation';
 
@@ -10,27 +11,6 @@ export type Descriptors = Record<string, number>;
 const BAND_COUNT = 4;
 const EDGE_THRESHOLD = 0.05;
 const HISTOGRAM_BINS = 16;
-
-function mean(values: ArrayLike<number>): number {
-    let sum = 0;
-
-    for (let i = 0; i < values.length; i++) {
-        sum += values[i];
-    }
-
-    return values.length === 0 ? 0 : sum / values.length;
-}
-
-function std(values: ArrayLike<number>): number {
-    const m = mean(values);
-    let sum = 0;
-
-    for (let i = 0; i < values.length; i++) {
-        sum += (values[i] - m) ** 2;
-    }
-
-    return values.length === 0 ? 0 : Math.sqrt(sum / values.length);
-}
 
 /** Per-channel planes in [0, 1]. */
 function planes(image: RgbImage): [Float32Array, Float32Array, Float32Array] {
@@ -187,8 +167,8 @@ function colorStats(r: Float32Array, g: Float32Array, b: Float32Array) {
     }
 
     return {
-        meanSaturation: mean(saturation),
-        stdSaturation: std(saturation),
+        meanSaturation: computeMean(saturation),
+        stdSaturation: computeStd(saturation),
         // 1 = one dominant hue, 0 = hues spread around the wheel (or no color at all).
         hueConcentration: satSum === 0 ? 0 : Math.hypot(hueX, hueY) / satSum,
         channelCorrelation:
@@ -197,7 +177,9 @@ function colorStats(r: Float32Array, g: Float32Array, b: Float32Array) {
                 Math.abs(correlation(r, b))) /
             3,
         // Hasler & Süsstrunk colorfulness, on [0, 1] channels.
-        colorfulness: Math.hypot(std(rg), std(yb)) + 0.3 * Math.hypot(mean(rg), mean(yb)),
+        colorfulness:
+            Math.hypot(computeStd(rg), computeStd(yb)) +
+            0.3 * Math.hypot(computeMean(rg), computeMean(yb)),
     };
 }
 
@@ -229,8 +211,8 @@ export function describeImage(image: RgbImage): Descriptors {
     const symmetryV = symmetry(luma, width, (x, y) => [x, last - y]);
 
     return {
-        lumaMean: mean(luma),
-        lumaStd: std(luma),
+        lumaMean: computeMean(luma),
+        lumaStd: computeStd(luma),
         lumaEntropy: lumaEntropy(luma),
         flatShare: flatShareOf(image),
         ...gradientStats(luma, width, height),

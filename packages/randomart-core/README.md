@@ -1,9 +1,9 @@
 # @repo/randomart-core
 
-The domain of randomart, as pure TypeScript: no React, no app state. Everything that turns a
-grammar into an image lives here.
+The domain of randomart — grammar → expression → GLSL — and the browser edge that turns that GLSL
+into pixels. No React, no app state.
 
-    grammar + seed → expression → GLSL
+    grammar + seed → expression → GLSL → image
 
 Consumers import exact module paths; there is no build step and no barrel `index.ts`.
 
@@ -24,14 +24,26 @@ import { generate } from '@repo/randomart-core/generator/generate';
 | `compiler/`   | expression → GLSL (lowering, emit, contract)              |
 | `color/`      | channel models and color spaces                           |
 | `artwork/`    | artwork type, creation, provenance, file format           |
-| `renderer/`   | batch rendering, contract and render gate                 |
 | `config/`     | app-wide bounds and defaults                              |
 | `shared/`     | guards and small shared primitives                        |
+| `renderer/`   | the browser edge: batch, contract, render gate, image     |
 
-The renderer modules are the browser-facing edge of the domain: `contract` and `renderGate` are
-DOM-free, while `batch` creates a canvas through `@repo/glaze` and is meant to run in the browser.
-Everything else is pure TypeScript. The notebook — persisted lots and ratings — belongs to the
-bench, not to core: it is a consumer of the domain, not part of `grammar → expression → GLSL`.
+## Core and shell
+
+The package follows the core/shell rule of §1.2. Everything here is pure TypeScript **except
+`renderer/batch`**, the one module that reaches for the DOM: it creates an offscreen canvas and
+drives WebGL through `@repo/glaze`. It is the shell's edge of the domain, and the only place
+allowed to.
+
+`renderer/contract` and `renderer/renderGate` are pure too: they hold the WebGL context options,
+the loop phase and the lazy-render decision, not the drawing itself. `renderer/types` and
+`renderer/flatness` read the pixels the renderer produces.
+
+The lint config keeps the seam honest: `no-restricted-globals` bans the browser globals in
+`packages/randomart-core/src/**` except `renderer/batch`.
+
+The notebook — persisted lots and ratings — belongs to the bench, not to core: it is a consumer of
+the domain, not part of `grammar → expression → GLSL`.
 
 ## Vocabulary
 
@@ -55,3 +67,4 @@ bench, not to core: it is a consumer of the domain, not part of `grammar → exp
 - generator versioning: `src/generator/generator.ts`
 - file formats: `src/artwork/serialize.ts`
 - shared catalog singleton: `src/catalog/default.ts`
+- the one DOM boundary: `src/renderer/batch/batch.ts`

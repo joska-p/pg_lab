@@ -37,6 +37,7 @@
         "./shared/shared": "./src/shared/shared.ts",
         "./renderer/batch": "./src/renderer/batch/batch.ts",
         "./renderer/contract": "./src/renderer/contract/contract.ts",
+        "./renderer/flatness": "./src/renderer/flatness.ts",
         "./renderer/renderGate": "./src/renderer/renderGate/renderGate.ts",
         "./renderer/types": "./src/renderer/types.ts"
     },

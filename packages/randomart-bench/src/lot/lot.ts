@@ -1,5 +1,5 @@
 import type { RenderedBatch } from '@repo/randomart-core/renderer/batch';
-import { flatShareOf } from '@repo/randomart-core/renderer/types';
+import { flatShareOf } from '@repo/randomart-core/renderer/flatness';
 import type { RgbImage } from '@repo/randomart-core/renderer/types';
 
 import { plancheColumns } from './planche';

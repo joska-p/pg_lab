@@ -61,6 +61,32 @@ export function assertIntegerInRange(value: number, label: string, min: number, 
     }
 }
 
+/**
+ * Mean of a numeric sequence. An empty sequence has a mean of 0, so a degenerate input never
+ * produces a NaN. Shared with the dataset's image descriptors: one implementation, one answer.
+ */
+export function computeMean(values: ArrayLike<number>): number {
+    let sum = 0;
+
+    for (let i = 0; i < values.length; i++) {
+        sum += values[i];
+    }
+
+    return values.length === 0 ? 0 : sum / values.length;
+}
+
+/** Population standard deviation of a numeric sequence; an empty sequence has a deviation of 0. */
+export function computeStd(values: ArrayLike<number>): number {
+    const m = computeMean(values);
+    let sum = 0;
+
+    for (let i = 0; i < values.length; i++) {
+        sum += (values[i] - m) ** 2;
+    }
+
+    return values.length === 0 ? 0 : Math.sqrt(sum / values.length);
+}
+
 /** True for a plain JSON object: not null, not an array, not a primitive. */
 export function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
