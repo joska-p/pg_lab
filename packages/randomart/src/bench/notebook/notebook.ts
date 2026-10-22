@@ -1,7 +1,6 @@
 import { GENERATOR_VERSION } from '../../core/generator/generator';
 import { NOTEBOOK_FILE_FORMAT, NOTEBOOK_FILE_VERSION } from './constants';
 import { isNotebookRating } from './rating';
-import type { NotebookRating } from './rating';
 import type {
     BatchInput,
     CandidateInput,
@@ -9,6 +8,7 @@ import type {
     NotebookBatch,
     NotebookCandidate,
     NotebookInput,
+    NotebookRating,
 } from './types';
 
 let nextLocalId = 1;

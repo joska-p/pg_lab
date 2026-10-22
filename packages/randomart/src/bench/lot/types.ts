@@ -22,3 +22,17 @@ export interface PlancheOptions {
     /** Per-cell flags, same shape as `rows`: a flagged cell is painted dimmed. */
     readonly dim?: readonly (readonly boolean[])[];
 }
+
+export interface LotView {
+    /** One row per grammar, one column per seed. `null` = the render failed for that cell. */
+    readonly rows: readonly PlancheRow[];
+    /** Flat flags, same shape as `rows` (a failed cell is never flat). */
+    readonly flat: readonly (readonly boolean[])[];
+    /** Column count of the grid: the widest row, so a hole never shifts a column. */
+    readonly columnCount: number;
+    /** Number of grammars drawn: one candidate per row. */
+    readonly grammarCount: number;
+    readonly cellCount: number;
+    readonly failedCount: number;
+    readonly flatCount: number;
+}

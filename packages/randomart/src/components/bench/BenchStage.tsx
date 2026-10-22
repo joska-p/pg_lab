@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import { focusLotView } from '../../bench/lot/lot';
 import { fitGrid } from '../../bench/lot/planche';
 import { MAX_RATING, MIN_RATING } from '../../bench/notebook/constants';
-import type { NotebookRating } from '../../bench/notebook/rating';
+import type { NotebookRating } from '../../bench/notebook/types';
 import { useBenchSettings } from '../../stores/bench/benchSettingsStore';
 import {
     initBench,

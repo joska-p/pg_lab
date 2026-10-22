@@ -1,7 +1,5 @@
 import { MAX_RATING, MIN_RATING } from './constants';
-
-/** A discrete rating; its bounds live in `./constants` next to the values they are derived from. */
-export type NotebookRating = 0 | 1 | 2 | 3 | 4 | 5;
+import type { NotebookRating } from './types';
 
 export function isNotebookRating(value: unknown): value is NotebookRating {
     return (

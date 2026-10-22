@@ -1,6 +1,8 @@
 import type { GrammarData, Grammar } from '../../core/grammar/types';
 import type { Seed } from '../../core/random/types';
-import type { NotebookRating } from './rating';
+
+/** A discrete rating; its bounds live in `./constants` next to the values they are derived from. */
+export type NotebookRating = 0 | 1 | 2 | 3 | 4 | 5;
 
 /** One candidate grammar evaluated across several seeds. */
 export interface NotebookCandidate {

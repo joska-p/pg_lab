@@ -1,11 +1,7 @@
 import { flatShareOf } from '../../core/renderer/flatness';
 import type { RenderedBatch, RgbImage } from '../../core/renderer/types';
 import { plancheColumns } from './planche';
-import type { PlancheCell, PlancheRow } from './types';
-import type { LotView } from './view';
-
-export { EMPTY_LOT } from './view';
-export type { LotView } from './view';
+import type { LotView, PlancheCell, PlancheRow } from './types';
 
 /** Flat block share threshold above which a grammar is considered collapsed. */
 const FLAT_SHARE_THRESHOLD = 0.9;

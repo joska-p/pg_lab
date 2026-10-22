@@ -8,8 +8,7 @@ import { Segmented } from '@repo/ui/components/Segmented';
 import { Select } from '@repo/ui/components/Select';
 import { Text } from '@repo/ui/components/Text';
 
-import type { NotebookRating } from '../../bench/notebook/rating';
-import type { NotebookBatch } from '../../bench/notebook/types';
+import type { NotebookBatch, NotebookRating } from '../../bench/notebook/types';
 import {
     setBenchCellSize,
     setBenchCount,
