@@ -1,14 +1,18 @@
-import type { ColorSpaceId } from '../config/types';
-/**
- * How the raw triplet is read before output: the space, and how deep the three channels share their
- * structure. `shareDepth` is a generator concern, not a render one.
- */
-export interface ChannelModel {
-    /** Interpretation of `(r, g, b)`, applied once at the end of `main`. */
-    readonly space: ColorSpaceId;
+/** A color space definition: how to convert the raw `[-1,1]³` channel triplet to sRGB. */
+export interface ColorSpace {
+    /** Unique identifier, matches registry key. */
+    readonly id: string;
+    /** Name shown in the UI. */
+    readonly label: string;
     /**
-     * Depth of the trunk the three channels share. `0` = independent trees; `>= maxDepth` = one
-     * tree, so `r = g = b`. `createGrammar` repairs it into `[0, maxDepth]`.
+     * Entry-point GLSL function name: `vec3 <fn>(vec3 raw)`. It takes the raw channel triplet (each
+     * component in `[-1, 1]`, the range every catalog operator preserves) and returns the sRGB the
+     * framebuffer expects. The remap from the raw field to the space's parameters and the
+     * conversion to sRGB are both inlined.
      */
-    readonly shareDepth: number;
+    readonly fn: string;
+    /** Full GLSL definition of the entry point, plus any helper it uses. */
+    readonly glsl: string;
+    /** Chroma scale at |g|=1 for OKLCH/OKLab. Only present for those spaces. */
+    readonly chroma?: number;
 }

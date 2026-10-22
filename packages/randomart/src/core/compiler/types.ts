@@ -1,4 +1,4 @@
-import type { ChannelModel } from '../color/types';
+import type { ChannelModel } from '../grammar/types';
 
 /**
  * Sharing policy for lowered vertices.

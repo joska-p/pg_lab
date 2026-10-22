@@ -3,6 +3,20 @@ import type { ColorSpaceId, SizeProfileId } from '../config/types';
 import type { Brand } from '../shared/shared';
 
 /**
+ * How the raw triplet is read before output: the space, and how deep the three channels share their
+ * structure. `shareDepth` is a generator concern, not a render one.
+ */
+export interface ChannelModel {
+    /** Interpretation of `(r, g, b)`, applied once at the end of `main`. */
+    readonly space: ColorSpaceId;
+    /**
+     * Depth of the trunk the three channels share. `0` = independent trees; `>= maxDepth` = one
+     * tree, so `r = g = b`. `createGrammar` repairs it into `[0, maxDepth]`.
+     */
+    readonly shareDepth: number;
+}
+
+/**
  * Weights keyed by operator id, so the static registry makes a mistyped name a compile error.
  * Partial: an absent operator is simply off — a weight of 0 means the same thing. Values are
  * integers in `[0, CONFIG.grammar.maxWeight]`; validation lives in `createGrammar`.

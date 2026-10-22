@@ -1,8 +1,9 @@
 import type { Catalog } from '../catalog/types';
-import { colorSpaceFunction, RAW_CHANNELS } from '../color/color';
-import type { ChannelModel } from '../color/types';
+import { colorSpaceFunction } from '../color/color';
 import { nodeCount } from '../expression/expression';
 import type { Expression } from '../expression/types';
+import { RAW_CHANNELS } from '../grammar/constants';
+import type { ChannelModel } from '../grammar/types';
 import { GLSL_COORD_INIT } from './contract';
 import { emit } from './emit';
 import { lower } from './lower';

@@ -4,7 +4,7 @@ import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { Grid } from '@repo/ui/components/Grid';
 import type { CSSProperties } from 'react';
 
-import { COLOR_SPACES } from '../../core/color/color';
+import { colorSpaceRegistry } from '../../core/color/registry';
 import { formatFormula } from '../../core/expression/formula';
 import type { Channel } from '../../core/expression/types';
 import { constraintsOf } from '../../core/grammar/grammar';
@@ -27,7 +27,7 @@ export function Inspector() {
     const expression = useExpression();
     const grammar = useGrammar();
     const { space, shareDepth } = grammar;
-    const label = COLOR_SPACES[space].label;
+    const label = colorSpaceRegistry[space].label;
     const mono = shareDepth >= constraintsOf(grammar.size).maxDepth;
 
     return (

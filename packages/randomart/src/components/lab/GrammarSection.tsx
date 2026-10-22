@@ -8,7 +8,7 @@ import { TextInput } from '@repo/ui/components/TextInput';
 import { catalog } from '../../core/catalog/default';
 import type { Operator } from '../../core/catalog/operators/Operator';
 import type { OperatorId } from '../../core/catalog/types';
-import { COLOR_SPACE_IDS, COLOR_SPACES } from '../../core/color/color';
+import { colorSpaceIds, colorSpaceRegistry } from '../../core/color/registry';
 import { CONFIG } from '../../core/config/config';
 import {
     constraintsOf,
@@ -57,7 +57,10 @@ const OPERATOR_GROUPS = (Object.keys(GROUP_LABELS) as Operator['group'][])
     }))
     .filter((bucket) => bucket.operators.length > 0);
 
-const SPACE_OPTIONS = COLOR_SPACE_IDS.map((id) => ({ value: id, label: COLOR_SPACES[id].label }));
+const SPACE_OPTIONS = colorSpaceIds.map((id) => ({
+    value: id,
+    label: colorSpaceRegistry[id].label,
+}));
 
 /**
  * The grammar workshop: one point of the quantized space — an integer weight per operator, a size

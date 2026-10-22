@@ -1,12 +1,12 @@
 import { catalog } from '../catalog/default';
 import type { Operator } from '../catalog/operators/Operator';
 import type { OperatorId } from '../catalog/types';
-import { isColorSpaceId, MIN_SHARE_DEPTH } from '../color/color';
-import type { ChannelModel } from '../color/types';
+import { isColorSpaceId } from '../color/color';
 import { CONFIG, isSizeProfileId } from '../config/config';
 import type { Constraints, SizeProfileId, ColorSpaceId } from '../config/types';
 import { assertIntegerInRange } from '../shared/shared';
-import type { Grammar } from './types';
+import { MIN_SHARE_DEPTH } from './constants';
+import type { ChannelModel, Grammar } from './types';
 
 export const isTerminalOperator = (operator: Operator): boolean => operator.isTerminal;
 export const isNonTerminalOperator = (operator: Operator): boolean => !operator.isTerminal;

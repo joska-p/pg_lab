@@ -9,7 +9,7 @@ import { generate } from '../generator/generator';
 import { channelModelOf, constraintsOf, createGrammar } from '../grammar/grammar';
 import { GRAMMAR_PRESETS } from '../grammar/presets';
 import { createSeed } from '../random/seed';
-import { COLOR_SPACE_IDS } from './color';
+import { colorSpaceIds } from './registry';
 
 const catalog = createDefaultCatalog();
 const SIZE = 'medium' as const;
@@ -37,7 +37,7 @@ describe('channel model', () => {
     });
 
     it('keeps every declared color space usable', () => {
-        for (const space of COLOR_SPACE_IDS) {
+        for (const space of colorSpaceIds) {
             const grammar = createGrammar({
                 weights: { x: 1, add: 1 },
                 size: SIZE,
@@ -139,7 +139,7 @@ describe('compile channels', () => {
     });
 
     it('picks the conversion of the requested space', () => {
-        for (const space of COLOR_SPACE_IDS) {
+        for (const space of colorSpaceIds) {
             const compiled = compile(catalog, expression, {
                 channels: { space, shareDepth: 0 },
             });

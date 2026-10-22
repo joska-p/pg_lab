@@ -1,7 +1,7 @@
 import { catalog } from '../catalog/default';
 import type { Operator } from '../catalog/operators/Operator';
 import type { OperatorId } from '../catalog/types';
-import { COLOR_SPACE_IDS } from '../color/color';
+import { colorSpaceIds } from '../color/registry';
 import { CONFIG } from '../config/config';
 import type { SizeProfileId } from '../config/types';
 import type { Rng } from '../random/rng';
@@ -69,7 +69,7 @@ export function drawGrammar(rng: Rng, pins: GrammarPins = {}): Grammar {
     const size = pins.size ?? SIZE_PROFILE_IDS[rng.int(SIZE_PROFILE_IDS.length)];
     const maxDepth = constraintsOf(size).maxDepth;
     const shareDepth = pins.shareDepth ?? rng.int(maxDepth + 1);
-    const space = pins.space ?? COLOR_SPACE_IDS[rng.int(COLOR_SPACE_IDS.length)];
+    const space = pins.space ?? colorSpaceIds[rng.int(colorSpaceIds.length)];
 
     return createGrammar({ weights, size, shareDepth, space });
 }
