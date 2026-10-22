@@ -12,7 +12,7 @@ interface ModeState {
  * which face of randomart is active.
  */
 const store = create<ModeState>(() => ({
-    mode: 'lab',
+    mode: 'toy',
 }));
 
 export function useMode(): AppMode {

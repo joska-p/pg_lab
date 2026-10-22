@@ -3,6 +3,7 @@ import type { DurationSeconds } from '@repo/glaze/core/time';
 import type { ShaderError } from '@repo/glaze/gpu/shader/ShaderError';
 import { createNullClockStore } from '@repo/glaze/react/clockStore';
 import type { ClockStore } from '@repo/glaze/react/types';
+import { useSyncExternalStore } from 'react';
 import { create } from 'zustand';
 
 import type { ProvenanceCheck } from '../../core/artwork/types';
@@ -93,6 +94,19 @@ export function useHasClockStore(): boolean {
     return store((s) => s.clockStore !== nullClockStore);
 }
 
+/**
+ * Playback is owned by the clock store; this bridges its subscription into React. Kept here so Toy
+ * and Lab read the same truth instead of duplicating the subscription wiring.
+ */
+export function useIsPlaying(): boolean {
+    const clockStore = useClockStore();
+
+    return useSyncExternalStore(
+        (onStoreChange) => clockStore.subscribe(onStoreChange),
+        () => clockStore.getIsPlaying(),
+    );
+}
+
 export function useShaderError(): ShaderError | null {
     return store((s) => s.shaderError);
 }
@@ -128,6 +142,14 @@ export function useProvenanceCheck(): ProvenanceCheck {
 
 export function useCompiledShader(): CompiledShader {
     return store((s) => s.compiledShader);
+}
+
+/** True when the current shader drives `u_phase` and a live clock is mounted. */
+export function useCanAnimate(): boolean {
+    const hasClockStore = useHasClockStore();
+    const compiledShader = useCompiledShader();
+
+    return hasClockStore && compiledShader.animated;
 }
 
 export function useCanvas(): HTMLCanvasElement | null {

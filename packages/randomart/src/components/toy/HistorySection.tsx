@@ -1,31 +1,47 @@
 import { Button } from '@repo/ui/components/Button';
 import { ControlField } from '@repo/ui/components/ControlField';
-import { Stack } from '@repo/ui/components/Stack';
+import { Text } from '@repo/ui/components/Text';
+import { space } from '@repo/ui/tokens/const.stylex';
+import * as stylex from '@stylexjs/stylex';
 
 import { useCurrentId, useHistory } from '../../stores/lab/historyStore';
 import { restoreEntry } from '../../stores/lab/labStore';
 
-/** Walks back through past candidates. */
-export function HistoryPanel() {
+const styles = stylex.create({
+    list: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: space['2'],
+    },
+    entry: {
+        justifyContent: 'flex-start',
+    },
+});
+
+/** Walks back through past candidates. Toy's history, always visible under the transport. */
+export function HistorySection() {
     const history = useHistory();
     const currentId = useCurrentId();
 
     return (
         <ControlField label="History">
-            {history.length > 0 && (
-                <Stack direction="horizontal" gap="2">
+            {history.length === 0 ? (
+                <Text variant="muted">No image yet</Text>
+            ) : (
+                <div {...stylex.props(styles.list)}>
                     {history.map((entry) => (
                         <Button
                             key={entry.id}
                             color={entry.id === currentId ? 'aqua' : 'neutral'}
+                            style={styles.entry}
                             onClick={() => {
                                 restoreEntry(entry.id);
                             }}
                         >
-                            {entry.seed} · {entry.nodes}
+                            Seed {entry.seed}
                         </Button>
                     ))}
-                </Stack>
+                </div>
             )}
         </ControlField>
     );
