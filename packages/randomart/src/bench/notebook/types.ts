@@ -1,25 +1,6 @@
 import type { GrammarData, Grammar } from '../../core/grammar/types';
 import type { Seed } from '../../core/random/types';
-import {
-    NOTEBOOK_FILE_FORMAT,
-    NOTEBOOK_FILE_VERSION,
-    MIN_RATING,
-    MAX_RATING,
-    MAX_NOTEBOOK_FILE_LENGTH,
-    isNotebookRating,
-} from './constants';
-import type { NotebookRating } from './constants';
-
-// Re-export for backward compatibility
-export {
-    NOTEBOOK_FILE_FORMAT,
-    NOTEBOOK_FILE_VERSION,
-    MIN_RATING,
-    MAX_RATING,
-    MAX_NOTEBOOK_FILE_LENGTH,
-    isNotebookRating,
-    type NotebookRating,
-};
+import type { NotebookRating } from './rating';
 
 /** One candidate grammar evaluated across several seeds. */
 export interface NotebookCandidate {
@@ -40,10 +21,33 @@ export interface NotebookBatch {
 
 /** The notebook: persistent collection of evaluated batches. */
 export interface Notebook {
-    readonly format: typeof NOTEBOOK_FILE_FORMAT;
-    readonly version: typeof NOTEBOOK_FILE_VERSION;
+    readonly format: string;
+    readonly version: number;
     readonly generatorVersion: number;
     readonly batches: readonly NotebookBatch[];
+}
+
+/** Raw candidate fields accepted by `createCandidate`; ids and copies are filled in. */
+export interface CandidateInput {
+    readonly id?: string;
+    readonly grammar: Grammar;
+    readonly seeds: readonly Seed[];
+    readonly rating?: NotebookRating;
+    readonly note?: string;
+}
+
+/** Raw batch fields accepted by `createBatch`; ids and timestamps are filled in. */
+export interface BatchInput {
+    readonly id?: string;
+    readonly createdAt?: string;
+    readonly parentIds?: readonly string[];
+    readonly candidates: readonly NotebookCandidate[];
+}
+
+/** Raw notebook fields accepted by `createNotebook`; format and version are filled in. */
+export interface NotebookInput {
+    readonly generatorVersion?: number;
+    readonly batches?: readonly NotebookBatch[];
 }
 
 // ---------------------------------------------------------------------------

@@ -2,12 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { grammarRegistry } from '../../core/grammar/registry';
 import { createSeed } from '../../core/random/seed';
-import {
-    isNotebookRating,
-    MAX_NOTEBOOK_FILE_LENGTH,
-    NOTEBOOK_FILE_FORMAT,
-    NOTEBOOK_FILE_VERSION,
-} from './constants';
+import { MAX_NOTEBOOK_FILE_LENGTH, NOTEBOOK_FILE_FORMAT, NOTEBOOK_FILE_VERSION } from './constants';
 import {
     addBatchToNotebook,
     createBatch,
@@ -17,6 +12,7 @@ import {
     removeBatchFromNotebook,
     updateCandidateRating,
 } from './notebook';
+import { isNotebookRating } from './rating';
 import { parseNotebook, serializeNotebook } from './serialize';
 
 describe('notebook core', () => {

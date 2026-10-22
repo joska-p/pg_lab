@@ -51,9 +51,8 @@ export default defineConfig({
                 ...reactLint,
             },
             {
-                // §1.2: the core must not reach for its environment. @repo/randomart-core is
-                // pure TypeScript except `renderer/batchRenderer.ts`, the one browser edge of the
-                // domain.
+                // the core must not reach for its environment. `core` is pure TypeScript
+                // except `renderer/batchRenderer.ts`, the one browser edge of the domain.
                 files: ['packages/randomart/src/core/**'],
                 rules: {
                     'no-restricted-globals': [

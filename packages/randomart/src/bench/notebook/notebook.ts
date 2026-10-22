@@ -1,8 +1,15 @@
 import { GENERATOR_VERSION } from '../../core/generator/generator';
-import type { Grammar } from '../../core/grammar/types';
-import type { Seed } from '../../core/random/types';
-import { isNotebookRating, NOTEBOOK_FILE_FORMAT, NOTEBOOK_FILE_VERSION } from './constants';
-import type { Notebook, NotebookBatch, NotebookCandidate, NotebookRating } from './types';
+import { NOTEBOOK_FILE_FORMAT, NOTEBOOK_FILE_VERSION } from './constants';
+import { isNotebookRating } from './rating';
+import type { NotebookRating } from './rating';
+import type {
+    BatchInput,
+    CandidateInput,
+    Notebook,
+    NotebookBatch,
+    NotebookCandidate,
+    NotebookInput,
+} from './types';
 
 let nextLocalId = 1;
 
@@ -15,14 +22,6 @@ function generateNotebookId(prefix: string): string {
     const counter = (nextLocalId++).toString(36);
     const random = Math.random().toString(36).slice(2, 6);
     return `${prefix}_${time}_${counter}_${random}`;
-}
-
-export interface CandidateInput {
-    readonly id?: string;
-    readonly grammar: Grammar;
-    readonly seeds: readonly Seed[];
-    readonly rating?: NotebookRating;
-    readonly note?: string;
 }
 
 export function createCandidate(input: CandidateInput): NotebookCandidate {
@@ -39,13 +38,6 @@ export function createCandidate(input: CandidateInput): NotebookCandidate {
     };
 }
 
-export interface BatchInput {
-    readonly id?: string;
-    readonly createdAt?: string;
-    readonly parentIds?: readonly string[];
-    readonly candidates: readonly NotebookCandidate[];
-}
-
 export function createBatch(input: BatchInput): NotebookBatch {
     return {
         id: input.id ?? generateNotebookId('batch'),
@@ -55,11 +47,6 @@ export function createBatch(input: BatchInput): NotebookBatch {
             : {}),
         candidates: [...input.candidates],
     };
-}
-
-export interface NotebookInput {
-    readonly generatorVersion?: number;
-    readonly batches?: readonly NotebookBatch[];
 }
 
 export function createNotebook(input?: NotebookInput): Notebook {

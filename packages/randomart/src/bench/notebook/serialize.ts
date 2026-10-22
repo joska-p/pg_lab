@@ -2,12 +2,8 @@ import { deserializeGrammar, serializeGrammar } from '../../core/artwork/seriali
 import { createSeed } from '../../core/random/seed';
 import type { Seed } from '../../core/random/types';
 import { isRecord, rejectUnknownKeys } from '../../core/shared/shared';
-import {
-    isNotebookRating,
-    MAX_NOTEBOOK_FILE_LENGTH,
-    NOTEBOOK_FILE_FORMAT,
-    NOTEBOOK_FILE_VERSION,
-} from './constants';
+import { MAX_NOTEBOOK_FILE_LENGTH, NOTEBOOK_FILE_FORMAT, NOTEBOOK_FILE_VERSION } from './constants';
+import { isNotebookRating } from './rating';
 import type {
     Notebook,
     NotebookBatch,
