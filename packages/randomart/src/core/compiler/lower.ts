@@ -7,7 +7,7 @@
  * folds constants.
  */
 
-import type { Catalog } from '../catalog/Catalog';
+import type { Catalog } from '../catalog/types';
 import type { Expression, Node } from '../expression/types';
 
 /** Vertex in the lowered DAG. Created once per unique (context, operatorName, params, inputIds) key. */

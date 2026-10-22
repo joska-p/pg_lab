@@ -1,5 +1,5 @@
 import type { ParamRange } from '../../config/types';
-import type { OperatorGroup, OperatorSpec } from './types';
+import type { OperatorGroup, OperatorSpec } from '../types';
 
 const count = (haystack: string, needle: string): number => haystack.split(needle).length - 1;
 

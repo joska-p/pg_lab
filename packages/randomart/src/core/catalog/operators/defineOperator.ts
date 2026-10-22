@@ -1,5 +1,4 @@
-import type { DependencyId } from '../dependencies';
-import type { OperatorSpec } from './types';
+import type { DependencyId, OperatorSpec } from '../types';
 
 /** Identity helper: infers `P`, `I`, `N` from the literal so `args` is precisely typed. */
 export const defineOperator = <

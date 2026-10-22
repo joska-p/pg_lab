@@ -1,8 +1,4 @@
-import type { ParamRange } from '../../config/types';
-
-export type OperatorGroup = 'terminal' | 'arithmetic' | 'trigonometry' | 'logic' | 'transform';
-
-type Named<K extends string, V> = Readonly<Record<K, V>>;
+import type { ParamRange } from '../config/types';
 
 /**
  * A registry entry: pure data plus the two text builders. `P`, `I`, `N` are inferred from the
@@ -33,4 +29,31 @@ export interface OperatorSpec<
     /** New coordinates for `inner` inputs; receives the `inputs` only. */
     coords?(c: { p: string; args: Named<I, string>; params: Named<P, number> }): string;
     glsl(c: { p: string; args: Named<I | N, string>; params: Named<P, number> }): string;
+}
+
+type Named<K extends string, V> = Readonly<Record<K, V>>;
+
+export type OperatorGroup = 'terminal' | 'arithmetic' | 'trigonometry' | 'logic' | 'transform';
+
+/** A shader dependency: a GLSL uniform or function with its declared requirements. */
+export type DependencySpec<Id extends string = string> =
+    | { readonly kind: 'uniform'; readonly glslType: 'float' }
+    | { readonly kind: 'function'; readonly code: string; readonly requires?: readonly Id[] };
+
+/** Opaque key into the dependency registry (uniforms: `u_*`, functions: `ra_*`). */
+export type DependencyId = string;
+
+/** Opaque key into the operator registry. */
+export type OperatorId = string;
+
+/** A dependency with its name attached (used by `Catalog.dependencies()`). */
+export type ShaderDependency = DependencySpec & { readonly name: string };
+
+/** Public interface of the Catalog class. */
+export interface Catalog {
+    operator(name: string): import('./operators/Operator').Operator;
+    operators(): readonly import('./operators/Operator').Operator[];
+    terminals(): readonly import('./operators/Operator').Operator[];
+    dependencies(): readonly ShaderDependency[];
+    dependencyClosure(ids: readonly string[]): readonly ShaderDependency[];
 }

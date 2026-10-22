@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { Catalog, createDefaultCatalog } from '../catalog/Catalog';
-import { DEPENDENCIES } from '../catalog/dependencies';
-import type { DependencySpec } from '../catalog/dependencies';
-import { OPERATOR_SPECS } from '../catalog/operators/registry';
-import type { OperatorSpec } from '../catalog/operators/types';
+import { dependencies } from '../catalog/constants';
+import { operatorRegistry } from '../catalog/operators/registry';
+import type { DependencySpec, OperatorSpec } from '../catalog/types';
 import { createExpression, createNode } from '../expression/expression';
 import { generate } from '../generator/generator';
 import { GRAMMAR_PRESETS } from '../grammar/presets';
@@ -223,7 +222,7 @@ describe('compiler', () => {
 
         it('emits function dependencies if present in catalog closure', () => {
             const customDeps = {
-                ...DEPENDENCIES,
+                ...dependencies,
                 ra_custom_noise: {
                     kind: 'function',
                     code: 'float ra_custom_noise(vec2 p) { return sin(p.x * 10.0); }',
@@ -238,7 +237,7 @@ describe('compiler', () => {
             };
 
             const customCatalog = new Catalog(
-                { ...OPERATOR_SPECS, custom_noise: noiseOperator },
+                { ...operatorRegistry, custom_noise: noiseOperator },
                 customDeps,
             );
 
@@ -262,8 +261,8 @@ describe('compiler', () => {
             };
 
             const testCatalog = new Catalog(
-                { ...OPERATOR_SPECS, huge_op: hugeOperator },
-                DEPENDENCIES,
+                { ...operatorRegistry, huge_op: hugeOperator },
+                dependencies,
             );
 
             const hugeNode = createNode(testCatalog, 'huge_op');

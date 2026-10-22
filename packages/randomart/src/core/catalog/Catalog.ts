@@ -1,13 +1,10 @@
-import { DEPENDENCIES } from './dependencies';
-import type { DependencySpec } from './dependencies';
+import { dependencies } from './constants';
 import { Operator } from './operators/Operator';
-import { OPERATOR_SPECS } from './operators/registry';
-import type { OperatorSpec } from './operators/types';
-
-export type ShaderDependency = DependencySpec & { readonly name: string };
+import { operatorRegistry } from './operators/registry';
+import type { Catalog as CatalogType, ShaderDependency } from './types';
 
 /** A registry of operator specs and shader dependencies, keyed by name. */
-export class Catalog {
+export class Catalog implements CatalogType {
     readonly #operators: ReadonlyMap<string, Operator>;
     readonly #dependencies: ReadonlyMap<string, ShaderDependency>;
     readonly #operatorList: readonly Operator[];
@@ -15,8 +12,8 @@ export class Catalog {
     readonly #dependencyList: readonly ShaderDependency[];
 
     constructor(
-        operators: Readonly<Record<string, OperatorSpec>>,
-        dependencies: Readonly<Record<string, DependencySpec>>,
+        operators: Readonly<Record<string, import('./types').OperatorSpec>>,
+        dependencies: Readonly<Record<string, import('./types').DependencySpec>>,
     ) {
         const operatorEntries: [string, Operator][] = Object.entries(operators).map(
             ([name, spec]) => [name, new Operator(name, spec)],
@@ -96,4 +93,4 @@ export class Catalog {
     }
 }
 
-export const createDefaultCatalog = (): Catalog => new Catalog(OPERATOR_SPECS, DEPENDENCIES);
+export const createDefaultCatalog = (): Catalog => new Catalog(operatorRegistry, dependencies);

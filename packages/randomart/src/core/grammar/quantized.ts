@@ -1,6 +1,6 @@
 import { catalog } from '../catalog/default';
 import type { Operator } from '../catalog/operators/Operator';
-import type { OperatorId } from '../catalog/operators/registry';
+import type { OperatorId } from '../catalog/types';
 import { COLOR_SPACE_IDS } from '../color/color';
 import { CONFIG } from '../config/config';
 import type { SizeProfileId } from '../config/types';

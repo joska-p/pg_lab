@@ -7,7 +7,7 @@ import { TextInput } from '@repo/ui/components/TextInput';
 
 import { catalog } from '../../core/catalog/default';
 import type { Operator } from '../../core/catalog/operators/Operator';
-import type { OperatorId } from '../../core/catalog/operators/registry';
+import type { OperatorId } from '../../core/catalog/types';
 import { COLOR_SPACE_IDS, COLOR_SPACES } from '../../core/color/color';
 import { CONFIG } from '../../core/config/config';
 import {

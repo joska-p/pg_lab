@@ -1,12 +1,11 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { Catalog, createDefaultCatalog } from './Catalog';
-import { DEPENDENCIES } from './dependencies';
-import type { DependencySpec } from './dependencies';
+import { dependencies } from './constants';
 import { formatGlslFloat } from './format';
 import { Operator } from './operators/Operator';
-import { OPERATOR_SPECS } from './operators/registry';
-import type { OperatorSpec } from './operators/types';
+import { operatorRegistry } from './operators/registry';
+import type { DependencySpec, OperatorSpec } from './types';
 
 const countIn = (haystack: string, needle: string): number => haystack.split(needle).length - 1;
 
@@ -34,13 +33,13 @@ describe('formatGlslFloat', () => {
 
 describe('registry', () => {
     it('operator ids are lowercase identifiers', () => {
-        for (const id of Object.keys(OPERATOR_SPECS)) {
+        for (const id of Object.keys(operatorRegistry)) {
             expect(id).toMatch(/^[a-z][a-z0-9_]*$/);
         }
     });
 
     it('dependency ids follow u_* / ra_*, and functions declare their own name', () => {
-        for (const [id, dep] of Object.entries(DEPENDENCIES)) {
+        for (const [id, dep] of Object.entries(dependencies) as [string, DependencySpec][]) {
             expect(id).toMatch(dep.kind === 'uniform' ? /^u_[A-Za-z0-9_]+$/ : /^ra_[A-Za-z0-9_]+$/);
             expect(id).not.toContain('__');
             if (dep.kind === 'function') {
@@ -78,7 +77,7 @@ describe('Operator', () => {
         expect(catalog.operator('sqr').multiplicity(0)).toBe(2);
         expect(catalog.operator('warp').multiplicity(0)).toBe(0);
         expect(catalog.operator('warp').coordsMultiplicity(0)).toBe(1);
-        expect(catalog.operators()).toHaveLength(Object.keys(OPERATOR_SPECS).length);
+        expect(catalog.operators()).toHaveLength(Object.keys(operatorRegistry).length);
     });
 
     it('rejects an unused input', () => {
@@ -206,7 +205,7 @@ describe('Catalog', () => {
             glsl: ({ args: { a } }) => `(${a} * ${a} + ${a})`,
         };
 
-        const catalog = new Catalog({ t: terminal('1.0'), triple }, DEPENDENCIES);
+        const catalog = new Catalog({ t: terminal('1.0'), triple }, dependencies);
 
         expect(catalog.operator('triple').multiplicity(0)).toBe(3);
     });

@@ -1,4 +1,4 @@
-import type { Catalog } from '../catalog/Catalog';
+import type { Catalog } from '../catalog/types';
 import { assertFinite } from '../shared/shared';
 import type { Expression, Node } from './types';
 

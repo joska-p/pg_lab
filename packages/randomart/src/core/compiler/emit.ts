@@ -1,4 +1,4 @@
-import type { Catalog } from '../catalog/Catalog';
+import type { Catalog } from '../catalog/types';
 import { isAtom, wrapInput } from './format';
 import { ROOT_CTX } from './lower';
 import type { ContextDef, LowerResult, Vertex } from './lower';

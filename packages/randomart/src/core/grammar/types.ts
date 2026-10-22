@@ -1,4 +1,4 @@
-import type { OperatorId } from '../catalog/operators/registry';
+import type { OperatorId } from '../catalog/types';
 import type { ColorSpaceId, SizeProfileId } from '../config/types';
 import type { Brand } from '../shared/shared';
 

@@ -7,7 +7,7 @@ import { create } from 'zustand';
 
 import type { ProvenanceCheck } from '../../core/artwork/types';
 import { catalog } from '../../core/catalog/default';
-import type { OperatorId } from '../../core/catalog/operators/registry';
+import type { OperatorId } from '../../core/catalog/types';
 import { compile } from '../../core/compiler/compile';
 import type { CompiledShader } from '../../core/compiler/types';
 import { CONFIG } from '../../core/config/config';

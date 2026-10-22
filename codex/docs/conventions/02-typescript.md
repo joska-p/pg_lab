@@ -537,12 +537,35 @@ The serializer imports `*Data` from `./types` and exports only `serializeX`, `de
 
 `OPERATOR_SPECS` → `operatorRegistry` (it's a registry array, not a constant spec).
 
+### 2.7.5.1 Registry key types (`*Id`)
+
+Types like `OperatorId`, `DependencyId`, `ColorSpaceId`, `SizeProfileId` that are **keys of a runtime registry** are exported **from the file that defines the registry**, not from `types.ts`. This allows `keyof typeof registry` to work without import cycles.
+
+```ts
+// operators/registry.ts
+export const operatorRegistry = { ... } satisfies Record<string, OperatorSpec>;
+export type OperatorId = keyof typeof operatorRegistry;  // ✅ inferred from registry
+
+// constants.ts
+export const dependencies = defineDependencies({ ... });
+export type DependencyId = keyof typeof dependencies;    // ✅ inferred from registry
+```
+
+Consumers import directly from the source:
+
+```ts
+import type { DependencyId } from '../catalog/constants';
+import type { OperatorId } from '../catalog/operators/registry';
+```
+
+`types.ts` does **not** re-export these — it only owns domain types that don't depend on runtime values.
+
 ### 2.7.6 Applying the rules to current domains
 
 | Domain         | `types.ts` owns                                                                         | `constants.ts` owns                                                                                                                | Implementation exports                                                         |
 | -------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | `artwork`      | `Artwork`, `ProvenanceCheck`, `GrammarData`, `ArtworkData`                              | `MIN_RENDER_SIZE`, `MAX_RENDER_SIZE`, `MAX_TITLE_LENGTH`, `ARTWORK_FILE_FORMAT`, `ARTWORK_FILE_VERSION`, `MAX_ARTWORK_FILE_LENGTH` | `createArtwork`, `checkProvenance`, `serializeArtworkFile`, `parseArtworkFile` |
-| `catalog`      | `ShaderDependency`, `OperatorSpec`, `OperatorId`, `DependencySpec`, `DependencyId`      | `operatorRegistry`, `dependencies`, `DEPENDENCIES`                                                                                 | `catalog`, `operator()`, `operators()`, `defineOperator`                       |
+| `catalog`      | `ShaderDependency`, `OperatorSpec`, `DependencySpec`                                    | `operatorRegistry`, `dependencies`, `DEPENDENCIES`                                                                                 | `catalog`, `operator()`, `operators()`, `defineOperator`                       |
 | `color`        | `ChannelModel`, `ColorSpace`, `ColorSpaceId`                                            | `COLOR_SPACES`, `COLOR_SPACE_IDS`, `MIN_SHARE_DEPTH`, `RAW_CHANNELS`                                                               | `colorSpaceGlsl`, `channelModelOf`, `isColorSpaceId`                           |
 | `grammar`      | `Grammar`, `GrammarPins`, `GrammarPreset`, `SampleOptions`, `Constraints`               | `SIZE_PROFILE_IDS`, `WEIGHT_LEVELS`, `GRAMMAR_PRESETS`                                                                             | `createGrammar`, `constraintsOf`, `drawGrammar`, `sampleGrammars`              |
 | `expression`   | `Expression`, `Node`, `NodeData`, `ExpressionData`, `Channel`                           | `MAX_IMPORT_NODES`, `MAX_IMPORT_DEPTH`                                                                                             | `createExpression`, `createNode`, `serialize`, `deserialize`                   |
@@ -557,7 +580,7 @@ The serializer imports `*Data` from `./types` and exports only `serializeX`, `de
 When creating or reorganizing a domain:
 
 - [ ] `types.ts` exists and exports **only types** (no `const`, no functions)
-- [ ] `constants.ts` exists and exports **only runtime values** (no types)
+- [ ] `constants.ts` exists and exports **only runtime values** (no types) — **except** registry key types (`*Id`) exported from the registry/constants file itself
 - [ ] Implementation files import types from `./types`, constants from `./constants`
 - [ ] No implementation file exports types (except truly local ones)
 - [ ] No `constants.ts` imports from implementation files
@@ -565,3 +588,4 @@ When creating or reorganizing a domain:
 - [ ] No import cycles (run `vp check --fix` and verify)
 - [ ] Registries use `camelCase` (`operatorRegistry`), constants use `SCREAMING_SNAKE_CASE`
 - [ ] `*Data` DTOs are in `types.ts`
+- [ ] Registry key types (`OperatorId`, `DependencyId`, etc.) are exported from the file defining the registry (allows `keyof typeof`)

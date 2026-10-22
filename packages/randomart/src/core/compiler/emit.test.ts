@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { Catalog, createDefaultCatalog } from '../catalog/Catalog';
-import { DEPENDENCIES } from '../catalog/dependencies';
-import { OPERATOR_SPECS } from '../catalog/operators/registry';
-import type { OperatorSpec } from '../catalog/operators/types';
+import { dependencies } from '../catalog/constants';
+import { operatorRegistry } from '../catalog/operators/registry';
+import type { OperatorSpec } from '../catalog/types';
 import { createExpression, createNode } from '../expression/expression';
 import { emit } from './emit';
 import { lower } from './lower';
@@ -56,7 +56,10 @@ describe('emit', () => {
             requires: ['u_phase'],
             glsl: () => 'sin(2.0*PI*u_phase)',
         };
-        const clockCatalog = new Catalog({ ...OPERATOR_SPECS, clock: clockOperator }, DEPENDENCIES);
+        const clockCatalog = new Catalog(
+            { ...operatorRegistry, clock: clockOperator },
+            dependencies,
+        );
         const clockNode = createNode(clockCatalog, 'clock');
         const xn = createNode(clockCatalog, 'x', [], [0, 0, 0]);
         const clocked = lower(clockCatalog, createExpression(clockNode, xn, xn));

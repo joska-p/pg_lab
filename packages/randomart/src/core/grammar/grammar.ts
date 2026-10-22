@@ -1,6 +1,6 @@
 import { catalog } from '../catalog/default';
 import type { Operator } from '../catalog/operators/Operator';
-import type { OperatorId } from '../catalog/operators/registry';
+import type { OperatorId } from '../catalog/types';
 import { isColorSpaceId, MIN_SHARE_DEPTH } from '../color/color';
 import type { ChannelModel } from '../color/types';
 import { CONFIG, isSizeProfileId } from '../config/config';

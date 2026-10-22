@@ -1,4 +1,4 @@
-import type { Catalog } from '../catalog/Catalog';
+import type { Catalog } from '../catalog/types';
 import { colorSpaceFunction, RAW_CHANNELS } from '../color/color';
 import type { ChannelModel } from '../color/types';
 import { nodeCount } from '../expression/expression';
