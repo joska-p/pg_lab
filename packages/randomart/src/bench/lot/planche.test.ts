@@ -1,13 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import type { RgbImage } from '../../core/renderer/types';
-import {
-    assemblePlanche,
-    fitGrid,
-    PLANCHE_BACKGROUND,
-    PLANCHE_DIM_FACTOR,
-    plancheColumns,
-} from './planche';
+import { PLANCHE_BACKGROUND, PLANCHE_DIM_FACTOR } from './constants';
+import { assemblePlanche, fitGrid, plancheColumns } from './planche';
 
 /** A solid image `size`x`size` filled with one RGB color. */
 function solid(size: number, rgb: readonly [number, number, number]): RgbImage {

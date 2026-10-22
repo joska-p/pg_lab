@@ -1,5 +1,5 @@
-import { assertFinite } from '../../shared/shared';
-import type { Phase } from '../types';
+import { assertFinite } from '../shared/shared';
+import type { Phase } from './types';
 
 /** Normalizes clock progress [0, 1] → loop phase [0, 1): wraps out-of-range, folds 1.0 to 0. */
 export function createPhase(progress: number): Phase {

@@ -2,14 +2,14 @@ import { createDevicePixelRatio } from '@repo/glaze/core/render';
 import { createGpuSurface } from '@repo/glaze/gpu/GpuSurface';
 import type { GpuSurface } from '@repo/glaze/gpu/GpuSurface';
 
-import { catalog } from '../../catalog/default';
-import { compile } from '../../compiler/compile';
-import { generate } from '../../generator/generator';
-import { channelModelOf } from '../../grammar/grammar';
-import type { Grammar } from '../../grammar/types';
-import type { Seed } from '../../random/types';
-import { DEFAULT_CONTEXT_OPTIONS } from '../constants';
-import type { BatchRenderer, RenderedCell } from '../types';
+import { catalog } from '../catalog/default';
+import { compile } from '../compiler/compile';
+import { generate } from '../generator/generator';
+import { channelModelOf } from '../grammar/grammar';
+import type { Grammar } from '../grammar/types';
+import type { Seed } from '../random/types';
+import { DEFAULT_CONTEXT_OPTIONS } from './constants';
+import type { BatchRenderer, RenderedCell } from './types';
 
 interface Stage {
     readonly size: number;

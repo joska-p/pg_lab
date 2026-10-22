@@ -3,14 +3,14 @@ import { GENERATOR_VERSION } from '../core/generator/generator';
 import { sampleGrammars } from '../core/grammar/sample';
 import type { GrammarData, SampleOptions } from '../core/grammar/types';
 import { createSeed } from '../core/random/seed';
-import { createBatchRenderer } from '../core/renderer/batch/batch';
+import { createBatchRenderer } from '../core/renderer/batchRenderer';
 
 /**
  * Dataset page: the in-browser half of the offline dataset pipeline. It owns no rendering of its
- * own any more — the GPU work lives in `@repo/randomart-core/renderer/batch` (the same renderer the
- * bench uses). This file is only the wire adapter: a serialization boundary for `src/node/cli.ts`,
- * which drives it through `window.datasetApi`. Images are drawn at phase 0, one program at a time,
- * on the renderer's single reused surface.
+ * own any more — the GPU work lives in `@repo/randomart-core/renderer/batchRenderer` (the same
+ * renderer the bench uses). This file is only the wire adapter: a serialization boundary for
+ * `src/node/cli.ts`, which drives it through `window.datasetApi`. Images are drawn at phase 0, one
+ * program at a time, on the renderer's single reused surface.
  */
 const renderer = createBatchRenderer();
 

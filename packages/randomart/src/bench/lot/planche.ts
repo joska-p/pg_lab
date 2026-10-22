@@ -1,39 +1,9 @@
-import type { RgbImage } from '../../core/renderer/types';
-
-/**
- * One displayed cell: a rendered image, or `null` when the render failed (the slot is kept so the
- * grid never moves). A row is one grammar, its columns are its seeds — the planche is the
- * render-side twin of `sampleGrammars` (one line per grammar).
- */
-export type PlancheCell = RgbImage | null;
-export type PlancheRow = readonly PlancheCell[];
-
-/** Background of the planche (empty cells and padding), a neutral near-black. */
-export const PLANCHE_BACKGROUND: readonly [number, number, number] = [16, 16, 22];
-
-/**
- * What a dimmed cell keeps of its pixels. Dimming is the non-destructive answer to "this grammar
- * collapsed": the cell stays in its slot, so the grid keeps its shape.
- */
-export const PLANCHE_DIM_FACTOR = 0.35;
-
-export interface Planche {
-    readonly width: number;
-    readonly height: number;
-    /** RGBA bytes, rows top to bottom: the exact payload of `new ImageData(rgba, width, height)`. */
-    readonly rgba: Uint8ClampedArray;
-}
+import { PLANCHE_BACKGROUND, PLANCHE_DIM_FACTOR } from './constants';
+import type { Planche, PlancheOptions, PlancheRow } from './types';
 
 /** Widest row wins: a planche stays rectangular even when rows have different lengths. */
 export function plancheColumns(rows: readonly PlancheRow[]): number {
     return rows.reduce((widest, row) => Math.max(widest, row.length), 0);
-}
-
-export interface PlancheOptions {
-    /** Explicit column count (a grid must not depend on which rows happen to be full). */
-    readonly columns?: number;
-    /** Per-cell flags, same shape as `rows`: a flagged cell is painted dimmed. */
-    readonly dim?: readonly (readonly boolean[])[];
 }
 
 /**

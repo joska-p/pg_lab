@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { HANDWRITTEN_TEST_SHADER } from '../../../components/test/shaders';
-import { DEFAULT_LOOP_DURATION } from '../../config/derived';
-import { DEFAULT_CONTEXT_OPTIONS } from '../constants';
-import { createPhase } from './contract';
+import { HANDWRITTEN_TEST_SHADER } from '../../components/test/shaders';
+import { DEFAULT_LOOP_DURATION } from '../config/derived';
+import { DEFAULT_CONTEXT_OPTIONS } from './constants';
+import { createPhase } from './phase';
 
-describe('renderer / contract & helpers', () => {
+describe('renderer / phase & context options', () => {
     describe('createPhase', () => {
         it('maps progress values strictly into [0, 1)', () => {
             expect(createPhase(0)).toBe(0);

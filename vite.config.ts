@@ -52,7 +52,8 @@ export default defineConfig({
             },
             {
                 // §1.2: the core must not reach for its environment. @repo/randomart-core is
-                // pure TypeScript except `renderer/batch`, the one browser edge of the domain.
+                // pure TypeScript except `renderer/batchRenderer.ts`, the one browser edge of the
+                // domain.
                 files: ['packages/randomart/src/core/**'],
                 rules: {
                     'no-restricted-globals': [
@@ -70,7 +71,7 @@ export default defineConfig({
             {
                 // The single allowed DOM boundary: it creates the offscreen canvas the batch
                 // renderer draws into.
-                files: ['packages/randomart/src/core/renderer/batch/**'],
+                files: ['packages/randomart/src/core/renderer/batchRenderer.ts'],
                 rules: {
                     'no-restricted-globals': 'off',
                 },

@@ -1,4 +1,4 @@
-import type { RenderKey } from '../types';
+import type { RenderKey } from './types';
 
 /**
  * Pure decision of the lazy-render gate. Redraw when nothing has been drawn yet, when the canvas

@@ -8,7 +8,7 @@ import { sampleGrammars } from '../../core/grammar/sample';
 import type { Grammar } from '../../core/grammar/types';
 import { randomSeed } from '../../core/random/seed';
 import type { Seed } from '../../core/random/types';
-import { createBatchRenderer } from '../../core/renderer/batch/batch';
+import { createBatchRenderer } from '../../core/renderer/batchRenderer';
 import type { BatchRenderer, RenderedBatch } from '../../core/renderer/types';
 import { getBenchSettings, setBenchBaseSeed } from './benchSettingsStore';
 import {
