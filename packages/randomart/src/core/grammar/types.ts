@@ -26,10 +26,14 @@ type GrammarWeights = Readonly<Partial<Record<OperatorId, number>>>;
 /**
  * A point of the quantized grammar space: one integer weight per operator, a size profile, a
  * shared-trunk depth and a color space. Everything is discrete by construction — there is no
- * continuous grammar behind it.
+ * continuous grammar behind it. Includes identity metadata so every grammar is self-describing
+ * (presets and generated alike).
  */
 export type Grammar = Brand<
     {
+        readonly id: string;
+        readonly label: string;
+        readonly description: string;
         readonly weights: GrammarWeights;
         readonly size: SizeProfileId;
         /**
@@ -55,15 +59,11 @@ export interface SampleOptions extends GrammarPins {
     readonly seedsPerGrammar?: number;
 }
 
-export interface GrammarPreset {
+/** Plain JSON representation of a Grammar (for serialization, IPC, storage). */
+export interface GrammarData {
     readonly id: string;
     readonly label: string;
     readonly description: string;
-    readonly grammar: Grammar;
-}
-
-/** Plain JSON representation of a Grammar (for serialization, IPC, storage). */
-export interface GrammarData {
     readonly weights: Readonly<Record<string, number>>;
     readonly size: SizeProfileId;
     readonly shareDepth: number;

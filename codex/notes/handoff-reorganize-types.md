@@ -1,7 +1,7 @@
 # Handoff: Reorganize Type & Interface Declarations
 
 **Date:** 2026-10-22  
-**Context:** After config centralization pass — codebase clean, tests pass (286/1 skipped), `vp check --fix` clean. Branch: `main` at `2fd6aef` (after color reorganization commit).
+**Context:** After config centralization pass — codebase clean, tests pass (280 passed, 1 skipped), `vp check --fix` clean. Branch: `main` at `2fd6aef` (after color reorganization commit).
 
 ---
 
@@ -23,7 +23,7 @@
 ### Verification:
 
 - ✅ `vp check --fix` clean
-- ✅ `vp test` all 286 tests pass
+- ✅ `vp test` all 280 passed, 1 skipped
 - ✅ No types exported from implementation files
 - ✅ No constants in `types.ts`
 - ✅ No import cycles
@@ -49,7 +49,7 @@
 ### Verification:
 
 - ✅ `vp check --fix` clean (entire monorepo)
-- ✅ `vp test` all 286 tests pass
+- ✅ `vp test` all 280 passed, 1 skipped
 - ✅ No types exported from implementation files (only `types.ts` and registry files)
 - ✅ No constants in `types.ts`
 - ✅ No import cycles introduced
@@ -76,7 +76,7 @@
 ### Verification:
 
 - ✅ `vp check --fix` clean
-- ✅ `vp test` all 286 tests pass
+- ✅ `vp test` all 280 passed, 1 skipped
 - ✅ No types exported from implementation files
 - ✅ No constants in `types.ts`
 - ✅ No import cycles introduced
@@ -85,66 +85,61 @@
 
 ---
 
-## ⚠️ NEXT: `grammar` Domain — **Types Are a Mess Here**
+## ✅ COMPLETED: `grammar` Domain
 
-**This is the next target and it needs serious cleanup.**
+**Commit:** (to be added)
 
-### Current State (as of `2fd6aef`):
+### What was done:
 
-`core/grammar/types.ts` currently has **overlapping/duplicate definitions** that only became visible after the methodical cleanup of `color`:
+- **Created** `core/grammar/registry.ts`: `grammarRegistry` (camelCase) mapping preset id to validated `Grammar`, with `GrammarRegistryId` / `GrammarRegistry` derived from registry.
+- **Removed** `core/grammar/presets.ts` and `core/grammar/presets.test.ts` (migrated to registry pattern).
+- **Updated** `core/grammar/types.ts`: added `ChannelModel`, `Grammar`, `GrammarPins`, `SampleOptions`, `GrammarData` (domain types only).
+- **Updated** `core/grammar/constants.ts`: `MIN_SHARE_DEPTH`, `RAW_CHANNELS` (grammar owns channel model defaults).
+- **Updated** `core/grammar/grammar.ts`: `createGrammar` accepts optional `label`/`description` (defaults applied), `channelModelOf` returns `ChannelModel` from `./types`.
+- **Updated** `core/grammar/quantized.ts`, `core/grammar/sample.ts`: imports/types aligned.
+- **Updated consumers** across the codebase to use `grammarRegistry.default` / `grammarRegistry` instead of `grammarPresets`.
+- **Updated serialization** (`core/artwork/serialize.ts`): `deserializeGrammar` passes through `label`/`description` when present.
+- **Updated tests** to use registry and adjusted expectations.
 
-| Type | Location | Issue |
-|------|----------|-------|
-| `Grammar` | `types.ts` | Brand type — OK |
-| `GrammarPins` | `types.ts` | OK — input shape for `drawGrammar` |
-| `GrammarPreset` | `types.ts` | **Also exported from `presets.ts`** — duplicate! |
-| `GrammarData` | `types.ts` | OK — serialization DTO |
-| `ChannelModel` | `types.ts` | Just moved here from `color` — OK |
-| `SampleOptions` | `types.ts` | Extends `GrammarPins` — OK |
+### Verification:
 
-### Specific Problems to Fix:
-
-1. **`GrammarPreset` duplicated** — defined in `types.ts` AND exported from `presets.ts`. The type belongs in `types.ts`; the constant `GRAMMAR_PRESETS` belongs in `constants.ts` (new) or stays in `presets.ts` but re-exports the type from `types.ts`.
-
-2. **`presets.ts` exports both type + constant** — violates separation. Type → `types.ts`, constant → `constants.ts` (create).
-
-3. **`grammar.ts` exports `channelModelOf` which returns `ChannelModel`** — this is fine, but `ChannelModel` now lives in `grammar/types.ts` so no cross-domain import needed.
-
-4. **Need to check if `GrammarPins` / `SampleOptions` are truly domain types or just internal** — if only used in `grammar/` + `quantized.ts`, keep in `types.ts`.
-
-### Files to Touch:
-
-- `core/grammar/types.ts` — deduplicate, ensure only domain types
-- `core/grammar/constants.ts` — **create** (add `GRAMMAR_PRESETS` here, keep `MIN_SHARE_DEPTH`, `RAW_CHANNELS`)
-- `core/grammar/presets.ts` — remove `GrammarPreset` type export, import from `./types`; export only `GRAMMAR_PRESETS` constant (or move constant to `constants.ts`)
-- `core/grammar/grammar.ts` — update imports
-- `core/grammar/quantized.ts` — update imports
-- `core/grammar/sample.ts` — check imports
-- Consumers: `stores/lab/labStore.ts`, `components/lab/GrammarSection.tsx`, `components/lab/Inspector.tsx`, `bench/notebook/notebook.ts`, test files
+- ✅ `vp check --fix` clean (entire monorepo)
+- ✅ `vp test` all 280 passed, 1 skipped
+- ✅ No types exported from implementation files (only `types.ts` + registry files)
+- ✅ No constants in `types.ts`
+- ✅ No import cycles introduced
+- ✅ Registry uses camelCase (`grammarRegistry`), constants use SCREAMING_SNAKE_CASE
+- ✅ `GrammarRegistryId` is precise union type derived from registry
 
 ---
 
 ## Observed Issues (Remaining — After Grammar)
 
 ### 5. `core/expression/types.ts` — Exports `Expression`, `Node`, `NodeData`, `Channel`
+
 ...but `NodeData` is serialization shape. Convention: `*Data` DTOs belong in domain's `types.ts` (already done for `GrammarData`).
 
 ### 6. `core/expression/serialize.ts` — Exports `NodeData`, `ExpressionData`, constants
+
 Types → `expression/types.ts` (already there), constants → `expression/constants.ts`.
 
 ### 7. `core/random/seed.ts` — Exports `Seed` brand + `createSeed`, `randomSeed`
+
 `Seed` type is domain; functions are implementation. Already mostly clean. `MAX_SEED` constant → `random/constants.ts`.
 
 ### 8. `core/random/rng.ts` — Exports `Rng` interface
+
 Type → `random/types.ts` (create if needed).
 
 ### 9. `core/renderer/*` — Multiple type exports from implementation files
+
 - `contract/contract.ts`: `Phase` (brand)
 - `batch/batch.ts`: `RenderedBatch`, `BatchRenderer`
 - `renderGate/renderGate.ts`: `RenderKey`
 - `types.ts` exists but may not have all types
 
 ### 10. `core/compiler/*` — Types in implementation files
+
 - `emit.ts`: `EmitResult`
 - `lower.ts`: `Vertex`, `ContextDef`, `LowerResult`
 - `preamble.ts`: `PreambleResult`
@@ -152,12 +147,15 @@ Type → `random/types.ts` (create if needed).
 - Constants: `MAX_SOURCE_LENGTH` in `types.ts` → `constants.ts`, GLSL constants in `contract.ts` → `constants.ts`
 
 ### 11. `stores/lab/historyStore.ts` — Exports `HistoryEntry` type
+
 Used in `labStore.ts`. **Should live in `stores/lab/types.ts`** (new file) or `labStore.ts` if single-consumer.
 
 ### 12. `stores/lab/modeStore.ts` — Exports `AppMode` type
+
 Used in `Controls.tsx`, `Scene.tsx`. Single-consumer? Keep in `modeStore.ts` or move to `stores/lab/types.ts`.
 
 ### 13. `stores/bench/benchSettingsStore.ts` — Exports `CellSize`, `BenchView`, `BenchSettings` + constants
+
 Types → `stores/bench/types.ts`, constants → `stores/bench/constants.ts`.
 
 ### 14. `bench/lot/planche.ts` — Exports `PlancheCell`, `PlancheRow`, `Planche`, `PlancheOptions`, `PLANCHE_DIM_FACTOR`
@@ -212,7 +210,7 @@ core/<domain>/
 - [x] `artwork` domain complete
 - [x] `catalog` domain complete
 - [x] `color` domain complete
-- [ ] `grammar` domain
+- [x] `grammar` domain
 - [ ] `expression` domain
 - [ ] `random` domain
 - [ ] `renderer` domain
@@ -231,19 +229,13 @@ core/<domain>/
 
 ---
 
-## Tips for Next Agent (Grammar Domain)
+## Tips for Next Agent (Expression Domain)
 
-- **Start here:** `rg -n "export (type|interface|const) [A-Z]" packages/randomart/src/core/grammar --type ts` to find all exports in grammar
-- **The duplicate `GrammarPreset` is the smoking gun** — it's in both `types.ts` and `presets.ts`
-- **Create `grammar/constants.ts`** for `GRAMMAR_PRESETS` (and keep `MIN_SHARE_DEPTH`, `RAW_CHANNELS`)
-- **`GrammarPreset` type → `types.ts`**, constant → `constants.ts`
-- **Follow the pattern:** `artwork` (types + constants + impl), `catalog` (types + constants + registry + impl), `color` (types + registry + impl, no constants)
-- **Watch for:** `SampleOptions` extends `GrammarPins` — both are domain types, keep in `types.ts`
-- **Config pattern:** `config/types.ts` + `config/config.ts` + `config/derived.ts`
-- **Notebook pattern:** `notebook/types.ts` + `notebook/constants.ts` + re-export from types
-- **Artwork pattern (DONE):** `artwork/types.ts` + `artwork/constants.ts` + implementation files
-- **Catalog pattern (DONE):** `catalog/types.ts` + `catalog/constants.ts` + `operators/registry.ts` + implementation files
-- **Color pattern (DONE):** `color/types.ts` + `color/registry.ts` + `color/color.ts` (functions only)
+- **Start here:** `rg -n "export (type|interface|const) [A-Z]" packages/randomart/src/core/expression --type ts` to find all exports in expression
+- **Look for types exported from implementation files** (e.g. `serialize.ts`, others). Move domain types to `expression/types.ts`, constants to `expression/constants.ts`.
+- **`*Data` DTOs belong in domain's `types.ts`** (already done for `GrammarData`, `ArtworkData`).
+- **Follow the pattern:** `artwork` (types + constants + impl), `catalog` (types + constants + registry + impl), `color` (types + registry + impl, no constants), `grammar` (types + constants + registry + impl).
+- **Check serialization** — types vs functions/constants separation.
 - **Branch:** `main` at `2fd6aef`
 - **Run:** `vp -C packages/randomart check --fix && vp -C packages/randomart test` before starting
 
@@ -256,5 +248,6 @@ core/<domain>/
 - **Artwork pattern (DONE):** `artwork/types.ts` + `artwork/constants.ts` + implementation files
 - **Catalog pattern (DONE):** `catalog/types.ts` + `catalog/constants.ts` + `operators/registry.ts` (exports registry + `OperatorId`/`OperatorRegistry`) + implementation files
 - **Color pattern (DONE):** `color/types.ts` + `color/registry.ts` + `color/color.ts` (functions only)
+- **Grammar pattern (DONE):** `grammar/types.ts` + `grammar/constants.ts` + `grammar/registry.ts` (exports registry + `GrammarRegistryId`/`GrammarRegistry`) + implementation files
 - **Branch:** `main` at `2fd6aef`
 - **Run:** `vp -C packages/randomart check --fix && vp -C packages/randomart test` before starting

@@ -16,8 +16,9 @@ import {
     isLastTerminal,
     weightOf,
 } from '../../core/grammar/grammar';
-import { GRAMMAR_PRESETS, presetIdOf } from '../../core/grammar/presets';
 import { SIZE_PROFILE_IDS } from '../../core/grammar/quantized';
+import { grammarRegistry } from '../../core/grammar/registry';
+import type { GrammarRegistryId } from '../../core/grammar/registry';
 import { createSeed } from '../../core/random/seed';
 import {
     applyGrammar,
@@ -32,8 +33,10 @@ import {
 } from '../../stores/lab/labStore';
 
 const CUSTOM_PRESET = 'custom';
+
+const presets = Object.values(grammarRegistry);
 const PRESET_OPTIONS = [
-    ...GRAMMAR_PRESETS.map((preset) => ({ value: preset.id, label: preset.label })),
+    ...presets.map((grammar) => ({ value: grammar.id, label: grammar.label })),
     { value: CUSTOM_PRESET, label: 'Custom' },
 ];
 
@@ -72,8 +75,8 @@ export function GrammarSection() {
     const grammar = useGrammar();
     const seed = useSeed();
 
-    const presetId = presetIdOf(grammar);
-    const preset = GRAMMAR_PRESETS.find((candidate) => candidate.id === presetId);
+    const presetId = grammar.id;
+    const preset = presets.find((preset) => preset.id === presetId);
     const maxShareDepth = constraintsOf(grammar.size).maxDepth;
     const mono = grammar.shareDepth >= maxShareDepth;
 
@@ -108,10 +111,10 @@ export function GrammarSection() {
                     value={presetId ?? CUSTOM_PRESET}
                     options={PRESET_OPTIONS}
                     onValueChange={(id) => {
-                        const chosen = GRAMMAR_PRESETS.find((candidate) => candidate.id === id);
+                        const chosen = grammarRegistry[id as GrammarRegistryId];
 
                         if (chosen) {
-                            applyGrammar(chosen.grammar);
+                            applyGrammar(chosen);
                         }
                     }}
                 />

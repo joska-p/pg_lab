@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { createDefaultCatalog } from '../catalog/Catalog';
 import { generate } from '../generator/generator';
-import { GRAMMAR_PRESETS } from '../grammar/presets';
+import { grammarRegistry } from '../grammar/registry';
 import { createSeed } from '../random/seed';
 import { createExpression, createNode, nodeCount } from './expression';
 import { formatNodeLabel, formatFormula } from './formula';
@@ -129,7 +129,7 @@ describe('addresses, walk, getNode', () => {
 
     it('finds every walked node again with getNode', () => {
         const seed = createSeed(42);
-        const generated = generate(GRAMMAR_PRESETS[0].grammar, seed);
+        const generated = generate(grammarRegistry.default, seed);
         let count = 0;
 
         walk(generated, (node, address) => {

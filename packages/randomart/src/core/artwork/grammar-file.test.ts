@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { createGrammar } from '../grammar/grammar';
-import { GRAMMAR_PRESETS } from '../grammar/presets';
+import { grammarRegistry } from '../grammar/registry';
 import { deserializeGrammar, serializeGrammar } from './serialize';
 
 describe('grammar serialization', () => {
     it('round-trips a grammar', () => {
-        const grammar = GRAMMAR_PRESETS[0].grammar;
+        const grammar = grammarRegistry.default;
         const restored = deserializeGrammar(serializeGrammar(grammar));
 
         expect(serializeGrammar(restored)).toEqual(serializeGrammar(grammar));

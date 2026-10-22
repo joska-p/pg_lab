@@ -4,7 +4,7 @@ import { createDefaultCatalog } from '../catalog/Catalog';
 import { createExpression, createNode } from '../expression/expression';
 import { nodeKey } from '../expression/key';
 import { generate, GENERATOR_VERSION } from '../generator/generator';
-import { GRAMMAR_PRESETS } from '../grammar/presets';
+import { grammarRegistry } from '../grammar/registry';
 import { createSeed } from '../random/seed';
 import { ARTWORK_FILE_FORMAT, MAX_ARTWORK_FILE_LENGTH } from './constants';
 import { createArtwork, createRenderSettings, fitRenderSettings } from './create';
@@ -24,7 +24,7 @@ interface Fixture {
  * the provenance regenerates it.
  */
 function fixture(provenance = true, seed = 12_345): Fixture {
-    const grammar = GRAMMAR_PRESETS[0].grammar;
+    const grammar = grammarRegistry.default;
 
     const expression = provenance
         ? generate(grammar, createSeed(seed))

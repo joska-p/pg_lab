@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { GRAMMAR_PRESETS } from '../../core/grammar/presets';
+import { grammarRegistry } from '../../core/grammar/registry';
 import { createSeed } from '../../core/random/seed';
 import {
     isNotebookRating,
@@ -20,7 +20,7 @@ import {
 import { parseNotebook, serializeNotebook } from './serialize';
 
 describe('notebook core', () => {
-    const grammar = GRAMMAR_PRESETS[0].grammar;
+    const grammar = grammarRegistry.default;
     const seeds = [createSeed(42), createSeed(43)];
 
     describe('types and validation', () => {

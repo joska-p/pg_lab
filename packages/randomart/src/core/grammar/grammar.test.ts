@@ -10,7 +10,7 @@ import {
     isLastTerminal,
     minSize,
 } from './grammar';
-import { GRAMMAR_PRESETS } from './presets';
+import { grammarRegistry } from './registry';
 
 /** Copies a grammar's partial weights into a mutable full record, absent entries becoming 0. */
 function mutableWeights(grammar: {
@@ -191,7 +191,7 @@ describe('grammar: structure preset', () => {
     const catalog = createDefaultCatalog();
 
     it('builds the default vocabulary (calibrated for structure)', () => {
-        const grammar = GRAMMAR_PRESETS[0].grammar;
+        const grammar = grammarRegistry.default;
         expect(grammar.weights.x).toBe(CONFIG.grammar.maxWeight);
         expect(grammar.weights.y).toBe(CONFIG.grammar.maxWeight);
         expect(grammar.weights.max).toBe(2);
@@ -201,12 +201,12 @@ describe('grammar: structure preset', () => {
         expect(grammar.weights.select).toBe(1);
         expect(grammar.weights.warp).toBe(1);
         expect(grammar.size).toBe('medium');
-        expect(grammar.shareDepth).toBe(CONFIG.channels.shareDepth);
-        expect(grammar.space).toBe(CONFIG.channels.space);
+        expect(grammar.shareDepth).toBe(2);
+        expect(grammar.space).toBe('oklch');
     });
 
     it('covers the whole catalog and uses the medium budget', () => {
-        const grammar = GRAMMAR_PRESETS[0].grammar;
+        const grammar = grammarRegistry.default;
 
         for (const operator of catalog.operators()) {
             expect(Object.hasOwn(grammar.weights, operator.name)).toBe(true);
@@ -222,7 +222,7 @@ describe('grammar: viability predicates', () => {
     const nonTerminals = catalog.operators().filter((operator) => !operator.isTerminal);
 
     it('isLastTerminal is false while several terminals are active', () => {
-        const { weights } = GRAMMAR_PRESETS[0].grammar;
+        const { weights } = grammarRegistry.default;
 
         for (const terminal of terminals) {
             expect(isLastTerminal(weights, terminal.name)).toBe(false);
@@ -230,7 +230,7 @@ describe('grammar: viability predicates', () => {
     });
 
     it('isLastTerminal is true for the only active terminal, false for an inactive one', () => {
-        const weights = mutableWeights(GRAMMAR_PRESETS[0].grammar);
+        const weights = mutableWeights(grammarRegistry.default);
 
         for (const terminal of terminals) {
             weights[terminal.name] = terminal.name === 'x' ? 1 : 0;
@@ -241,7 +241,7 @@ describe('grammar: viability predicates', () => {
     });
 
     it('isLastNonTerminal is true for the only active non-terminal', () => {
-        const weights = mutableWeights(GRAMMAR_PRESETS[0].grammar);
+        const weights = mutableWeights(grammarRegistry.default);
 
         for (const operator of nonTerminals) {
             weights[operator.name] = operator.name === 'add' ? 1 : 0;
@@ -252,7 +252,7 @@ describe('grammar: viability predicates', () => {
     });
 
     it('tracks what createGrammar refuses when emptying a kind', () => {
-        const weights = mutableWeights(GRAMMAR_PRESETS[0].grammar);
+        const weights = mutableWeights(grammarRegistry.default);
 
         for (const terminal of terminals) {
             weights[terminal.name] = terminal.name === 'x' ? 1 : 0;
@@ -263,7 +263,7 @@ describe('grammar: viability predicates', () => {
             /at least one terminal/,
         );
 
-        const onlyAdd = mutableWeights(GRAMMAR_PRESETS[0].grammar);
+        const onlyAdd = mutableWeights(grammarRegistry.default);
         for (const operator of nonTerminals) {
             onlyAdd[operator.name] = operator.name === 'add' ? 1 : 0;
         }

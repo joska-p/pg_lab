@@ -2,7 +2,7 @@ import { describe, it } from 'vite-plus/test';
 
 import type { Node } from '../expression/types';
 import { constraintsOf, createGrammar } from '../grammar/grammar';
-import { GRAMMAR_PRESETS } from '../grammar/presets';
+import { grammarRegistry } from '../grammar/registry';
 import { createSeed } from '../random/seed';
 import { generate } from './generator';
 
@@ -33,7 +33,7 @@ describe('generator budget', () => {
     it.skipIf(!enabled)(
         'reports child-size bias and tree stats',
         () => {
-            const grammar = GRAMMAR_PRESETS[0].grammar;
+            const grammar = grammarRegistry.default;
             const { minDepth, maxDepth, maxNodes } = constraintsOf(grammar.size);
             /** Mean child size normalised by the node's total child size, per child index. */
             const binarySharesFirst: number[] = [];

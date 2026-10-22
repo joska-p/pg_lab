@@ -19,6 +19,9 @@ export function serializeGrammar(grammar: Grammar): GrammarData {
     }
 
     return {
+        id: grammar.id,
+        label: grammar.label,
+        description: grammar.description,
         weights,
         size: grammar.size,
         shareDepth: grammar.shareDepth,
@@ -32,7 +35,11 @@ export function deserializeGrammar(data: unknown, path = 'grammar'): Grammar {
         throw new Error(`${path}: object expected`);
     }
 
-    rejectUnknownKeys(data, ['weights', 'size', 'shareDepth', 'space'], path);
+    rejectUnknownKeys(
+        data,
+        ['id', 'label', 'description', 'weights', 'size', 'shareDepth', 'space'],
+        path,
+    );
 
     const rawWeights = data.weights;
 
@@ -68,6 +75,8 @@ export function deserializeGrammar(data: unknown, path = 'grammar'): Grammar {
 
     try {
         return createGrammar({
+            label: typeof data.label === 'string' ? data.label : undefined,
+            description: typeof data.description === 'string' ? data.description : undefined,
             weights,
             size: data.size,
             shareDepth: data.shareDepth,

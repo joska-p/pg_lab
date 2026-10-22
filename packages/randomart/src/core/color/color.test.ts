@@ -7,7 +7,7 @@ import { CONFIG } from '../config/config';
 import { nodeCount } from '../expression/expression';
 import { generate } from '../generator/generator';
 import { channelModelOf, constraintsOf, createGrammar } from '../grammar/grammar';
-import { GRAMMAR_PRESETS } from '../grammar/presets';
+import { grammarRegistry } from '../grammar/registry';
 import { createSeed } from '../random/seed';
 import { colorSpaceIds } from './registry';
 
@@ -22,7 +22,7 @@ function fullWeights(): Record<string, number> {
 
 describe('channel model', () => {
     it('defaultGrammar shares a shallow trunk read as OKLCH', () => {
-        expect(channelModelOf(GRAMMAR_PRESETS[0].grammar)).toEqual(CONFIG.channels);
+        expect(channelModelOf(grammarRegistry.default)).toEqual(CONFIG.channels);
     });
 
     it('refuses an unknown color space (content, not a repair)', () => {
@@ -161,7 +161,7 @@ describe('compile channels', () => {
 
 describe('channel serialization', () => {
     it('round-trips the grammar axes', () => {
-        const grammar = GRAMMAR_PRESETS[0].grammar;
+        const grammar = grammarRegistry.default;
         const data = serializeGrammar(grammar);
 
         expect(data.space).toBe(CONFIG.channels.space);

@@ -86,17 +86,35 @@ function clampInt(value: number, min: number, max: number, fallback: number): nu
     return Number.isFinite(value) ? Math.min(max, Math.max(min, Math.round(value))) : fallback;
 }
 
+/** Generates a stable short id from the sorted weights. */
+function generateGrammarId(weights: Readonly<Partial<Record<OperatorId, number>>>): string {
+    const weightStr = Object.entries(weights)
+        .map(([name, weight]) => `${name}:${weight}`)
+        .join('|');
+    let hash = 0;
+    for (let i = 0; i < weightStr.length; i++) {
+        hash = ((hash << 5) - hash + weightStr.charCodeAt(i)) | 0;
+    }
+    return `grammar-${Math.abs(hash).toString(36)}`;
+}
+
 /**
  * Creates a Grammar. Weights/size/space are content (throw on invalid); shareDepth is an editing
  * quantity, so it is rounded/clamped to [0, maxDepth]. Invariants checked (not repaired): at least
- * one terminal and one non-terminal must be active.
+ * one terminal and one non-terminal must be active. Generates identity metadata: id from weights
+ * hash, label/description as "Random grammar".
  */
 export function createGrammar({
+    label = 'Random',
+    description = 'Randomly generated grammar',
+
     weights,
     size,
     shareDepth,
     space,
 }: {
+    readonly label?: string;
+    readonly description?: string;
     readonly weights: Readonly<Record<string, number | undefined>>;
     readonly size: SizeProfileId;
     readonly shareDepth: number;
@@ -163,8 +181,14 @@ export function createGrammar({
         sortedWeights[name as OperatorId] = weightOf(weights, name);
     }
 
+    const frozenWeights = Object.freeze(sortedWeights);
+    const id = generateGrammarId(frozenWeights);
+
     return Object.freeze({
-        weights: Object.freeze(sortedWeights),
+        id,
+        label,
+        description,
+        weights: frozenWeights,
         size,
         shareDepth: resolvedShareDepth,
         space,

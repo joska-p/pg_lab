@@ -4,7 +4,7 @@ import type { SizeProfileId } from '../config/types';
 import { depth, nodeCount } from '../expression/expression';
 import type { Node } from '../expression/types';
 import { constraintsOf, createGrammar, getVocabulary } from '../grammar/grammar';
-import { GRAMMAR_PRESETS } from '../grammar/presets';
+import { grammarRegistry } from '../grammar/registry';
 import type { Grammar } from '../grammar/types';
 import { createSeed } from '../random/seed';
 import { GENERATOR_VERSION, generate } from './generator';
@@ -57,7 +57,7 @@ describe('generator', () => {
     });
 
     it('generates expressions satisfying all grammar invariants across various seeds', () => {
-        const grammar = GRAMMAR_PRESETS[0].grammar;
+        const grammar = grammarRegistry.default;
 
         for (const seed of [1, 42, 999, 314159]) {
             checkExpression(grammar, seed);
@@ -65,7 +65,7 @@ describe('generator', () => {
     });
 
     it('respects every size profile budget', () => {
-        const base = GRAMMAR_PRESETS[0].grammar;
+        const base = grammarRegistry.default;
         const sizes: readonly SizeProfileId[] = ['small', 'medium', 'large'];
 
         for (const size of sizes) {
@@ -83,7 +83,7 @@ describe('generator', () => {
     });
 
     it('respects the invariants at every shared-trunk depth (0 … maxDepth)', () => {
-        const base = GRAMMAR_PRESETS[0].grammar;
+        const base = grammarRegistry.default;
         const { maxDepth } = constraintsOf(base.size);
 
         for (let shareDepth = 0; shareDepth <= maxDepth; shareDepth++) {
@@ -122,7 +122,7 @@ describe('generator', () => {
     });
 
     it('is strictly deterministic: same seed produces identical expression', () => {
-        const grammar = GRAMMAR_PRESETS[0].grammar;
+        const grammar = grammarRegistry.default;
         const seed = createSeed(1337);
 
         const expr1 = generate(grammar, seed);
@@ -132,7 +132,7 @@ describe('generator', () => {
     });
 
     it('different seeds produce different expressions', () => {
-        const grammar = GRAMMAR_PRESETS[0].grammar;
+        const grammar = grammarRegistry.default;
         const expr1 = generate(grammar, createSeed(1));
         const expr2 = generate(grammar, createSeed(2));
 
@@ -140,7 +140,7 @@ describe('generator', () => {
     });
 
     it('reproducibility snapshots on fixed seeds', () => {
-        const grammar = GRAMMAR_PRESETS[0].grammar;
+        const grammar = grammarRegistry.default;
 
         const exprSeed0 = generate(grammar, createSeed(0));
         const exprSeed42 = generate(grammar, createSeed(42));

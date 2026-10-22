@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { GRAMMAR_PRESETS } from '../../core/grammar/presets';
+import { grammarRegistry } from '../../core/grammar/registry';
 import type { RenderedBatch } from '../../core/renderer/batch/batch';
 import type { RgbImage } from '../../core/renderer/types';
 import { buildLotView, EMPTY_LOT, isFlat } from './lot';
 
-const grammar = GRAMMAR_PRESETS[0].grammar;
+const grammar = grammarRegistry.default;
 
 /** A flat image: every block has zero variance, so the grammar has collapsed. */
 function solid(size: number, level: number): RgbImage {

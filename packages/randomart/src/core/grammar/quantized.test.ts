@@ -6,8 +6,8 @@ import { generate } from '../generator/generator';
 import { createRng } from '../random/rng';
 import { createSeed } from '../random/seed';
 import { constraintsOf, createGrammar, getVocabulary, weightOf } from './grammar';
-import { GRAMMAR_PRESETS } from './presets';
 import { deriveSeed, drawGrammar, grammarKey, itemSeeds, SIZE_PROFILE_IDS } from './quantized';
+import { grammarRegistry } from './registry';
 
 const catalog = createDefaultCatalog();
 const rngAt = (seed: number) => createRng(createSeed(seed));
@@ -19,7 +19,7 @@ describe('the quantized axes', () => {
     });
 
     it('grammarKey is stable and distinguishes each axis', () => {
-        const base = GRAMMAR_PRESETS[0].grammar;
+        const base = grammarRegistry.default;
         const same = createGrammar({
             weights: base.weights,
             size: base.size,
