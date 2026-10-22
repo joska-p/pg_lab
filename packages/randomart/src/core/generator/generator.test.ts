@@ -139,13 +139,15 @@ describe('generator', () => {
         expect(JSON.stringify(expr1)).not.toBe(JSON.stringify(expr2));
     });
 
-    it('reproducibility snapshots on fixed seeds', () => {
+    // The version rides with the output it describes: a bump without regenerating this snapshot
+    // fails, and a draw-affecting CONFIG change without a bump shows the stale version in the diff.
+    it('reproducibility snapshot on fixed seeds, stamped with the generator version', () => {
         const grammar = grammarRegistry.default;
 
-        const exprSeed0 = generate(grammar, createSeed(0));
-        const exprSeed42 = generate(grammar, createSeed(42));
-
-        expect(exprSeed0).toMatchSnapshot();
-        expect(exprSeed42).toMatchSnapshot();
+        expect({
+            generatorVersion: GENERATOR_VERSION,
+            seed0: generate(grammar, createSeed(0)),
+            seed42: generate(grammar, createSeed(42)),
+        }).toMatchSnapshot();
     });
 });

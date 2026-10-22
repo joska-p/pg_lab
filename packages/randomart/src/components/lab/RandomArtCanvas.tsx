@@ -12,11 +12,10 @@ import { DEFAULT_CONTEXT_OPTIONS } from '../../core/renderer/constants';
 import { createPhase } from '../../core/renderer/phase';
 import { needsRender } from '../../core/renderer/renderGate';
 import type { RenderKey } from '../../core/renderer/types';
-import { HANDWRITTEN_TEST_SHADER } from '../test/shaders';
 
 interface RandomArtCanvasProps {
     /** Fragment shader source code adhering to randomart's GLSL contract. */
-    fragmentShader?: string;
+    fragmentShader: string;
     /** True when the shader reads `u_phase` (CompiledShader.animated). Defaults to true. */
     animated?: boolean;
     /** Animation loop duration. Defaults to `DEFAULT_LOOP_DURATION`. */
@@ -37,7 +36,7 @@ interface RandomArtCanvasProps {
  * on `preserveDrawingBuffer: true`; gate redraws on phase change, resize, context restore.
  */
 export function RandomArtCanvas({
-    fragmentShader = HANDWRITTEN_TEST_SHADER,
+    fragmentShader,
     animated = true,
     duration = DEFAULT_LOOP_DURATION,
     onShaderError,

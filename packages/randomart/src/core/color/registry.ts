@@ -36,7 +36,6 @@ vec3 ra_oklch(vec3 raw) {
     float h = (raw.z * 0.5 + 0.5) * 6.283185307179586;
     return ra_oklabToSrgb(vec3(L, C * cos(h), C * sin(h)));
 }`,
-        chroma: 0.4,
     },
     oklab: {
         id: 'oklab',
@@ -62,7 +61,6 @@ vec3 ra_oklab(vec3 raw) {
     float L = clamp(raw.x * 0.5 + 0.5, 0.0, 1.0);
     return ra_oklabToSrgb(vec3(L, raw.y * 0.4, raw.z * 0.4));
 }`,
-        chroma: 0.4,
     },
     hsl: {
         id: 'hsl',

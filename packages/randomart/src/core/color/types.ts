@@ -13,6 +13,4 @@ export interface ColorSpace {
     readonly fn: string;
     /** Full GLSL definition of the entry point, plus any helper it uses. */
     readonly glsl: string;
-    /** Chroma scale at |g|=1 for OKLCH/OKLab. Only present for those spaces. */
-    readonly chroma?: number;
 }

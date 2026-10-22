@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { HANDWRITTEN_TEST_SHADER } from '../../components/test/shaders';
 import { DEFAULT_LOOP_DURATION } from '../config/derived';
 import { DEFAULT_CONTEXT_OPTIONS } from './constants';
 import { createPhase } from './phase';
@@ -36,20 +35,8 @@ describe('renderer / phase & context options', () => {
         });
     });
 
-    describe('handwritten test shader', () => {
-        it('references v_p.x, v_p.y, and u_phase', () => {
-            expect(HANDWRITTEN_TEST_SHADER).toContain('v_p.x');
-            expect(HANDWRITTEN_TEST_SHADER).toContain('v_p.y');
-            expect(HANDWRITTEN_TEST_SHADER).toContain('u_phase');
-        });
-
-        it('has precision highp float', () => {
-            expect(HANDWRITTEN_TEST_SHADER).toContain('precision highp float;');
-        });
-    });
-
     describe('defaults', () => {
-        it('has an 60-seconds default duration', () => {
+        it('has an 60-second default duration', () => {
             expect(DEFAULT_LOOP_DURATION).toBe(60);
         });
 

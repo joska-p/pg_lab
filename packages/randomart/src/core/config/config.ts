@@ -9,10 +9,11 @@ import type { ParamRange, ColorSpaceId, SizeProfiles, SizeProfileId } from './ty
  * Guards (hard limits) live next to the invariants they protect, not here — they're not for tuning.
  *
  * PRNG sensitivity: a seed reproduces an image only with same grammar AND draw-affecting values.
- * Changing `terminals` or `generator` → bump `GENERATOR_VERSION` and regenerate snapshots. Changing
- * `grammar`/`sampling` alters sampler exploration, not `generate()` output for fixed grammar.
- * Editing an existing `sizeProfiles` entry is draw-affecting. `color` changes shader output only.
- * Pinning tests in `config.test.ts` fail on any change.
+ * Changing `terminals`, `generator`, or an existing `sizeProfiles` entry → bump `GENERATOR_VERSION`
+ * (`core/generator/generator.ts`) and regenerate the `generator.test.ts` snapshots, which fail on
+ * any such change. Changing `grammar`/`sampling` alters sampler exploration, not `generate()`
+ * output for a fixed grammar. `artwork`/`channels`/`app` change the default image, not the
+ * expression.
  */
 interface Config {
     /** Time terminals `x`/`y`. Draw-affecting. */
@@ -58,8 +59,6 @@ interface Config {
         readonly height: number;
         readonly loopMs: number;
     };
-    /** Raw triplet → color (shader only, not draw-affecting). */
-    readonly color: {};
     /** App curated defaults (color space + trunk depth), shared with presets. */
     readonly channels: {
         readonly space: ColorSpaceId;
@@ -107,7 +106,6 @@ export const CONFIG = {
         height: 1_024,
         loopMs: 60_000,
     },
-    color: {},
     channels: {
         space: 'oklch',
         shareDepth: 2,
