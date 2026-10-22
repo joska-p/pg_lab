@@ -1,4 +1,5 @@
 import { createGrammar } from './grammar';
+import { grammarKey } from './quantized';
 import type { Grammar } from './types';
 
 /** Registry of grammar presets, keyed by preset id. Validated by `createGrammar` at module load. */
@@ -36,3 +37,16 @@ export type GrammarRegistryId = keyof typeof grammarRegistry;
 
 /** Type of the grammar registry (for internal use). */
 export type GrammarRegistry = typeof grammarRegistry;
+
+/**
+ * Registry id of the preset whose content matches `grammar`, or undefined when the point is custom.
+ * Matching is content-based (weights, size, shareDepth, space): a grammar's `id` is a hash of its
+ * weights only, so it cannot tell apart two points that differ on another axis.
+ */
+export function presetOf(grammar: Grammar): GrammarRegistryId | undefined {
+    const key = grammarKey(grammar);
+
+    return (Object.keys(grammarRegistry) as GrammarRegistryId[]).find(
+        (id) => grammarKey(grammarRegistry[id]) === key,
+    );
+}

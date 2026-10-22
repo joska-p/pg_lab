@@ -17,7 +17,7 @@ import {
     weightOf,
 } from '../../core/grammar/grammar';
 import { SIZE_PROFILE_IDS } from '../../core/grammar/quantized';
-import { grammarRegistry } from '../../core/grammar/registry';
+import { grammarRegistry, presetOf } from '../../core/grammar/registry';
 import type { GrammarRegistryId } from '../../core/grammar/registry';
 import { createSeed } from '../../core/random/seed';
 import {
@@ -32,12 +32,20 @@ import {
     useSeed,
 } from '../../stores/lab/labStore';
 
-const CUSTOM_PRESET = 'custom';
+const CUSTOM_PRESET = {
+    id: 'custom',
+    label: 'Custom',
+    description: "'A grammar that is not one of the presets.'",
+} as const;
 
-const presets = Object.values(grammarRegistry);
-const PRESET_OPTIONS = [
-    ...presets.map((grammar) => ({ value: grammar.id, label: grammar.label })),
-    { value: CUSTOM_PRESET, label: 'Custom' },
+type PresetOptionValue = GrammarRegistryId | typeof CUSTOM_PRESET.id;
+
+const PRESET_OPTIONS: readonly { value: PresetOptionValue; label: string }[] = [
+    ...(Object.keys(grammarRegistry) as GrammarRegistryId[]).map((id) => ({
+        value: id,
+        label: grammarRegistry[id].label,
+    })),
+    { value: CUSTOM_PRESET.id, label: CUSTOM_PRESET.label },
 ];
 
 /**
@@ -75,8 +83,9 @@ export function GrammarSection() {
     const grammar = useGrammar();
     const seed = useSeed();
 
-    const presetId = grammar.id;
-    const preset = presets.find((preset) => preset.id === presetId);
+    const presetId = presetOf(grammar);
+    const preset = presetId ? grammarRegistry[presetId] : CUSTOM_PRESET;
+
     const maxShareDepth = constraintsOf(grammar.size).maxDepth;
     const mono = grammar.shareDepth >= maxShareDepth;
 
@@ -106,16 +115,16 @@ export function GrammarSection() {
                     ⟳
                 </Button>
 
-                <Select
-                    title={preset?.description ?? 'A grammar that is not one of the presets.'}
-                    value={presetId ?? CUSTOM_PRESET}
+                <Select<PresetOptionValue>
+                    title={preset.description}
+                    value={presetId ?? CUSTOM_PRESET.id}
                     options={PRESET_OPTIONS}
                     onValueChange={(id) => {
-                        const chosen = grammarRegistry[id as GrammarRegistryId];
-
-                        if (chosen) {
-                            applyGrammar(chosen);
+                        if (id === CUSTOM_PRESET.id) {
+                            return;
                         }
+
+                        applyGrammar(grammarRegistry[id]);
                     }}
                 />
 
