@@ -70,7 +70,6 @@ const styles = stylex.create({
 
 export function App() {
     const [theme, setTheme] = useTheme();
-    const [panelPlacement, setPanelPlacement] = useState<'docked' | 'floating'>('docked');
 
     // Surface Studio state (live interactive card testing)
     const [activeColor, setActiveColor] = useState<ColorNames>('aurora');
@@ -94,7 +93,6 @@ export function App() {
         <ErrorBoundary showStack={import.meta.env.DEV}>
             <ShellWrapper>
                 <ExperimentShell
-                    panelPlacement={panelPlacement}
                     panel={
                         <ControlPanel title="Workbench" label="Laboratory Workbench Controls">
                             <ControlSection title="Environment & Shell">
@@ -108,17 +106,7 @@ export function App() {
                                         { value: 'dark', label: 'Dark' },
                                     ]}
                                 />
-                                <Segmented
-                                    label="Panel Placement"
-                                    value={panelPlacement}
-                                    onValueChange={(val) =>
-                                        setPanelPlacement(val as 'docked' | 'floating')
-                                    }
-                                    options={[
-                                        { value: 'docked', label: 'Docked' },
-                                        { value: 'floating', label: 'Floating' },
-                                    ]}
-                                />
+
                                 <Toggle
                                     label="Simulate Disabled State"
                                     checked={isDisabled}

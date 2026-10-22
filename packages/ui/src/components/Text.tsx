@@ -1,8 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { fieldText } from '../recipes/typography';
 import { layout } from '../tokens/const.stylex';
-import type { LayoutStyle } from '../types';
 
 const styles = stylex.create({
     base: {
@@ -21,7 +21,7 @@ const variants = stylex.create({
 
 interface TextProps {
     variant?: keyof typeof variants;
-    style?: LayoutStyle;
+    style?: StyleXStyles;
     children?: React.ReactNode;
 }
 

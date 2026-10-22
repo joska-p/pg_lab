@@ -1,10 +1,10 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId } from 'react';
 
 import { wellStyles } from '../recipes/fields';
 import { fieldText } from '../recipes/typography';
 import { interaction, layout, space } from '../tokens/const.stylex';
-import type { LayoutStyle } from '../types';
 
 interface SelectOption<T extends string> {
     value: T;
@@ -23,7 +23,7 @@ interface SelectProps<T extends string> extends Omit<
     defaultValue?: T;
     placeholder?: string;
     onValueChange?: (value: T) => void;
-    style?: LayoutStyle;
+    style?: StyleXStyles;
 }
 
 const styles = stylex.create({

@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId } from 'react';
 
 import { interactionStyles } from '../recipes/interactions';
@@ -6,7 +7,6 @@ import { surfaceStyles } from '../recipes/surface';
 import type { SurfaceProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { interaction, layout, space } from '../tokens/const.stylex';
-import type { LayoutStyle } from '../types';
 
 // Masque alpha pur : le SVG est entièrement blanc opaque (fill seul, pas de stroke coloré),
 // donc le masque découpe la forme et laisse backgroundColor — c'est-à-dire `currentColor`
@@ -76,7 +76,7 @@ interface CheckboxProps
         SurfaceProps {
     label?: string;
     onCheckedChange?: (checked: boolean) => void;
-    style?: LayoutStyle;
+    style?: StyleXStyles;
 }
 
 export function Checkbox({

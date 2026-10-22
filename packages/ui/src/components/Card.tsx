@@ -1,9 +1,9 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { surfaceStyles } from '../recipes/surface';
 import type { SurfaceProps } from '../recipes/surface';
 import { space } from '../tokens/const.stylex';
-import type { LayoutStyle } from '../types';
 
 const styles = stylex.create({
     base: {
@@ -16,7 +16,7 @@ const styles = stylex.create({
 
 interface CardProps
     extends Omit<React.ComponentProps<'div'>, 'style' | 'className' | 'color'>, SurfaceProps {
-    style?: LayoutStyle;
+    style?: StyleXStyles;
 }
 
 export function Card({

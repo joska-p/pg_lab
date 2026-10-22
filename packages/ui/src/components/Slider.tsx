@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
 import { surfaceStyles } from '../recipes/surface';
@@ -6,7 +7,6 @@ import type { SurfaceProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { layout, space } from '../tokens/const.stylex';
 import { tintVars } from '../tokens/tint.stylex';
-import type { LayoutStyle } from '../types';
 
 // Dimensions locales (px). À remplacer par des tokens `layout.*` si tu les agrandis.
 const RAIL = 6;
@@ -129,7 +129,7 @@ interface SliderProps
     value?: number;
     defaultValue?: number;
     onValueChange?: (value: number) => void;
-    style?: LayoutStyle;
+    style?: StyleXStyles;
 }
 
 export function Slider({

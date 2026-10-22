@@ -1,10 +1,10 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { interactionStyles } from '../recipes/interactions';
 import { surfaceStyles } from '../recipes/surface';
 import type { SurfaceProps } from '../recipes/surface';
 import { layout, typography, space } from '../tokens/const.stylex';
-import type { LayoutStyle } from '../types';
 
 const styles = stylex.create({
     base: {
@@ -26,7 +26,7 @@ const styles = stylex.create({
 interface ButtonProps
     extends Omit<React.ComponentProps<'button'>, 'style' | 'className' | 'color'>, SurfaceProps {
     disabled?: boolean;
-    style?: LayoutStyle;
+    style?: StyleXStyles;
 }
 
 export function Button({

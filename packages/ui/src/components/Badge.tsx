@@ -1,9 +1,9 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { surfaceStyles } from '../recipes/surface';
 import type { SurfaceProps } from '../recipes/surface';
 import { layout, typography, space } from '../tokens/const.stylex';
-import type { LayoutStyle } from '../types';
 
 const styles = stylex.create({
     base: {
@@ -22,7 +22,7 @@ const styles = stylex.create({
 interface BadgeProps
     extends Omit<React.ComponentProps<'span'>, 'style' | 'className' | 'color'>, SurfaceProps {
     disabled?: boolean;
-    style?: LayoutStyle;
+    style?: StyleXStyles;
     children?: React.ReactNode;
 }
 

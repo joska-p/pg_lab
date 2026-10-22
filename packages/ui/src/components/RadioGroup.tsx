@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId } from 'react';
 
 import { interactionStyles } from '../recipes/interactions';
@@ -6,7 +7,6 @@ import { surfaceStyles } from '../recipes/surface';
 import type { SurfaceProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { interaction, layout, space } from '../tokens/const.stylex';
-import type { LayoutStyle } from '../types';
 
 interface RadioOption<T extends string> {
     value: T;
@@ -23,7 +23,7 @@ interface RadioGroupProps<T extends string> extends SurfaceProps {
     name?: string;
     disabled?: boolean;
     id?: string;
-    style?: LayoutStyle;
+    style?: StyleXStyles;
 }
 
 const styles = stylex.create({

@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId, useRef } from 'react';
 
 import { interactionStyles } from '../recipes/interactions';
@@ -6,7 +7,6 @@ import { surfaceStyles } from '../recipes/surface';
 import type { SurfaceProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { interaction, layout, space, typography } from '../tokens/const.stylex';
-import type { LayoutStyle } from '../types';
 
 const styles = stylex.create({
     col: {
@@ -53,7 +53,7 @@ export interface FileInputProps extends SurfaceProps {
     readonly onFile?: (file: File) => void;
     readonly onFiles?: (files: FileList) => void;
     readonly children?: React.ReactNode;
-    readonly style?: LayoutStyle;
+    readonly style?: StyleXStyles;
     readonly id?: string;
 }
 

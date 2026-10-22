@@ -1,10 +1,10 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { surfaceStyles } from '../recipes/surface';
 import type { SurfaceProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { layout, space } from '../tokens/const.stylex';
-import type { LayoutStyle } from '../types';
 
 const styles = stylex.create({
     base: {
@@ -24,7 +24,7 @@ const styles = stylex.create({
 interface SwatchProps extends SurfaceProps {
     name?: string;
     meta?: string;
-    style?: LayoutStyle;
+    style?: StyleXStyles;
 }
 
 export function Swatch({

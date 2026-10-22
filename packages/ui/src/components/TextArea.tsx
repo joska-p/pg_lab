@@ -1,10 +1,10 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId } from 'react';
 
 import { wellStyles } from '../recipes/fields';
 import { fieldText } from '../recipes/typography';
 import { interaction, space } from '../tokens/const.stylex';
-import type { LayoutStyle } from '../types';
 
 const styles = stylex.create({
     col: {
@@ -30,7 +30,7 @@ interface TextAreaProps extends Omit<
     value?: string;
     defaultValue?: string;
     onValueChange?: (value: string) => void;
-    style?: LayoutStyle;
+    style?: StyleXStyles;
 }
 
 export function TextArea({

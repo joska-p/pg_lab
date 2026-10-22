@@ -1,10 +1,10 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
 import { wellStyles } from '../recipes/fields';
 import { fieldText } from '../recipes/typography';
 import { interaction, space } from '../tokens/const.stylex';
-import type { LayoutStyle } from '../types';
 
 const styles = stylex.create({
     base: {
@@ -45,7 +45,7 @@ interface NumberFieldProps extends Omit<
     value?: number;
     defaultValue?: number;
     onValueChange?: (value: number) => void;
-    style?: LayoutStyle;
+    style?: StyleXStyles;
 }
 
 export function NumberField({

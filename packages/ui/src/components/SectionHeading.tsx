@@ -1,9 +1,9 @@
 import * as stylex from '@stylexjs/stylex';
+import type { StyleXStyles } from '@stylexjs/stylex';
 
 import type { SurfaceProps } from '../recipes/surface';
 import { heading } from '../recipes/typography';
 import { space } from '../tokens/const.stylex';
-import type { LayoutStyle } from '../types';
 import { Led } from './Led';
 
 const styles = stylex.create({
@@ -18,7 +18,7 @@ interface SectionHeadingProps {
     index?: string;
     title: string;
     color?: SurfaceProps['color'];
-    style?: LayoutStyle;
+    style?: StyleXStyles;
 }
 
 export function SectionHeading({ index, title, color = 'neutral', style }: SectionHeadingProps) {
