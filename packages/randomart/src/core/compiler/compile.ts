@@ -4,11 +4,10 @@ import { nodeCount } from '../expression/expression';
 import type { Expression } from '../expression/types';
 import { RAW_CHANNELS } from '../grammar/constants';
 import type { ChannelModel } from '../grammar/types';
-import { GLSL_COORD_INIT } from './contract';
+import { GLSL_COORD_INIT, MAX_SOURCE_LENGTH } from './constants';
 import { emit } from './emit';
 import { lower } from './lower';
 import { buildPreamble } from './preamble';
-import { MAX_SOURCE_LENGTH } from './types';
 import type { CompiledShader, CompileOptions } from './types';
 
 /**

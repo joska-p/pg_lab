@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { GLSL_COORD_INIT, GLSL_IN_UV, GLSL_OUT_COLOR } from './contract';
+import { GLSL_COORD_INIT, GLSL_IN_UV, GLSL_OUT_COLOR } from './constants';
 
 /**
  * Validates that a fragment shader adheres to the GLSL contract:

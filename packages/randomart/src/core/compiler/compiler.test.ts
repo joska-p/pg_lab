@@ -9,9 +9,9 @@ import { generate } from '../generator/generator';
 import { grammarRegistry } from '../grammar/registry';
 import { createSeed } from '../random/seed';
 import { compile } from './compile';
+import { MAX_SOURCE_LENGTH } from './constants';
 import { validateShaderContract } from './contract.test';
 import { isAtom, isEnclosedInParens, wrapInput } from './format';
-import { MAX_SOURCE_LENGTH } from './types';
 
 describe('compiler', () => {
     describe('isAtom', () => {

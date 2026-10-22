@@ -1,9 +1,9 @@
-/**
- * The GLSL contract the compiler guarantees for every fragment shader it emits: `vUv` as the UV
- * input, `v_p` as the centered coordinates initialized at the start of `main`, and `o_color` as the
- * final color output. The renderer provides the vertex stage and the context; it consumes this
- * shape rather than owning it (§2.4: core is the source of the shader, the renderer plumb it).
- */
+/** Hard upper bound on emitted GLSL source length (see `SharingPolicy`). */
+export const MAX_SOURCE_LENGTH = 200_000;
+
+/* -------------------------------------------------------------------------- */
+/* GLSL renderer contract                                                      */
+/* -------------------------------------------------------------------------- */
 
 /** Contract snippet: vertex-to-fragment UV coordinate input. */
 export const GLSL_IN_UV = 'in vec2 vUv;';
@@ -19,3 +19,6 @@ export const GLSL_OUT_COLOR = 'out vec4 o_color;';
  * its shape; color values are written as-is and read as sRGB, no linear conversion.
  */
 export const GLSL_COORD_INIT = 'vec2 v_p = vUv * 2.0 - 1.0;';
+
+/** Name of the root coordinate context in the lowered DAG. */
+export const ROOT_CTX = 'root';

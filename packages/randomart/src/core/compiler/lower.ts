@@ -9,42 +9,8 @@
 
 import type { Catalog } from '../catalog/types';
 import type { Expression, Node } from '../expression/types';
-
-/** Vertex in the lowered DAG. Created once per unique (context, operatorName, params, inputIds) key. */
-export interface Vertex {
-    readonly id: number;
-    readonly operatorName: string;
-    readonly params: readonly number[];
-    readonly inputIds: readonly number[];
-    readonly context: string;
-    readonly requires: readonly string[];
-}
-
-/** Child coordinate context definition from a transformer operator. */
-export interface ContextDef {
-    readonly id: number;
-    readonly name: string;
-    readonly parentName: string;
-    readonly operatorName: string;
-    readonly params: readonly number[];
-    readonly currentInputIds: readonly number[];
-    readonly requires: readonly string[];
-}
-
-/** Item in the topographically ordered execution program. */
-type ProgramItem =
-    | { readonly kind: 'vertex'; readonly vertex: Vertex }
-    | { readonly kind: 'context'; readonly context: ContextDef };
-
-export interface LowerResult {
-    readonly vertices: readonly Vertex[];
-    readonly contexts: readonly ContextDef[];
-    readonly program: readonly ProgramItem[];
-    readonly usages: readonly number[];
-    readonly roots: readonly [number, number, number];
-}
-
-export const ROOT_CTX = 'root';
+import { ROOT_CTX } from './constants';
+import type { ContextDef, LowerResult, ProgramItem, Vertex } from './types';
 
 export function lower(catalog: Catalog, expression: Expression): LowerResult {
     const vertices: Vertex[] = [];

@@ -1,15 +1,7 @@
 import type { Catalog } from '../catalog/types';
+import { ROOT_CTX } from './constants';
 import { isAtom, wrapInput } from './format';
-import { ROOT_CTX } from './lower';
-import type { ContextDef, LowerResult, Vertex } from './lower';
-import type { SharingPolicy } from './types';
-
-export interface EmitResult {
-    readonly lines: readonly string[];
-    readonly varCount: number;
-    readonly channelTexts: readonly [string, string, string];
-    readonly usedDeps: ReadonlySet<string>;
-}
+import type { ContextDef, EmitResult, LowerResult, SharingPolicy, Vertex } from './types';
 
 function inputText(
     id: number,

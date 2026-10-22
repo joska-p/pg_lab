@@ -9,13 +9,8 @@
 import type { Catalog, ShaderDependency } from '../catalog/types';
 import { colorSpaceGlsl } from '../color/color';
 import type { ColorSpaceId } from '../config/types';
-import { GLSL_IN_UV, GLSL_OUT_COLOR } from './contract';
-
-export interface PreambleResult {
-    readonly preambleLines: readonly string[];
-    readonly animated: boolean;
-    readonly uniforms: readonly { name: string; glslType: 'float' }[];
-}
+import { GLSL_IN_UV, GLSL_OUT_COLOR } from './constants';
+import type { PreambleResult } from './types';
 
 /**
  * Builds the preamble lines from the set of used dependency names, plus the color space's
