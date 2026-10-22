@@ -1,6 +1,6 @@
 import { CONFIG } from '../config/config';
 import { createRng } from '../random/rng';
-import type { Seed } from '../random/seed';
+import type { Seed } from '../random/types';
 import { deriveSeed, drawGrammar, grammarKey, itemSeeds } from './quantized';
 import type { Grammar, SampleOptions } from './types';
 

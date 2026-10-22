@@ -10,7 +10,7 @@ import { CONFIG } from '../../core/config/config';
 import { generate, GENERATOR_VERSION } from '../../core/generator/generator';
 import { channelModelOf } from '../../core/grammar/grammar';
 import type { Grammar } from '../../core/grammar/types';
-import type { Seed } from '../../core/random/seed';
+import type { Seed } from '../../core/random/types';
 import { getLabState, publishLabState, setActionError, setDuration } from './labStore';
 
 function downloadBlob(blob: Blob, filename: string): void {

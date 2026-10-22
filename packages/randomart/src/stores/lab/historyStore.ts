@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import type { ProvenanceCheck } from '../../core/artwork/types';
 import type { Expression } from '../../core/expression/types';
 import type { Grammar } from '../../core/grammar/types';
-import type { Seed } from '../../core/random/seed';
+import type { Seed } from '../../core/random/types';
 
 /** One explored state: replay from (grammar, seed); imported artworks keep expression as reference. */
 export interface HistoryEntry {

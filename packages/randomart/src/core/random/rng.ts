@@ -1,11 +1,5 @@
 import { assertFinite, assertInteger } from '../shared/shared';
-import type { Seed } from './seed';
-
-export interface Rng {
-    readonly next: () => number;
-    readonly int: (maxExclusive: number) => number;
-    readonly weighted: <T>(items: readonly T[], weightOf: (item: T) => number) => T;
-}
+import type { Rng, Seed } from './types';
 
 /**
  * Draws `int(maxExclusive)` and `weighted` internal helpers: their arguments are core-internal

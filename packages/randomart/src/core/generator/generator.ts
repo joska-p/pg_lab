@@ -6,7 +6,7 @@ import type { Expression, Node } from '../expression/types';
 import { constraintsOf, getVocabulary, minSize, weightOf } from '../grammar/grammar';
 import type { Grammar } from '../grammar/types';
 import { createRng } from '../random/rng';
-import type { Seed } from '../random/seed';
+import type { Seed } from '../random/types';
 
 // Increment on any change altering output for a given seed: PRNG algorithm, draw order, rule, or rounding.
 export const GENERATOR_VERSION = 4;

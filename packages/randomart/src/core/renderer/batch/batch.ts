@@ -7,7 +7,7 @@ import { compile } from '../../compiler/compile';
 import { generate } from '../../generator/generator';
 import { channelModelOf } from '../../grammar/grammar';
 import type { Grammar } from '../../grammar/types';
-import type { Seed } from '../../random/seed';
+import type { Seed } from '../../random/types';
 import { DEFAULT_CONTEXT_OPTIONS } from '../contract/contract';
 import type { RgbImage } from '../types';
 

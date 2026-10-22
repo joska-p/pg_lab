@@ -4,9 +4,8 @@ import type { OperatorId } from '../catalog/types';
 import { colorSpaceIds } from '../color/registry';
 import { CONFIG } from '../config/config';
 import type { SizeProfileId } from '../config/types';
-import type { Rng } from '../random/rng';
 import { createSeed } from '../random/seed';
-import type { Seed } from '../random/seed';
+import type { Rng, Seed } from '../random/types';
 import {
     constraintsOf,
     createGrammar,

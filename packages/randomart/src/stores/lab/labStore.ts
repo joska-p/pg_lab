@@ -20,7 +20,7 @@ import { drawGrammar as drawRandomGrammar } from '../../core/grammar/quantized';
 import type { Grammar } from '../../core/grammar/types';
 import { createRng } from '../../core/random/rng';
 import { createSeed, randomSeed } from '../../core/random/seed';
-import type { Seed } from '../../core/random/seed';
+import type { Seed } from '../../core/random/types';
 import {
     getCurrentId,
     getHistoryEntry,

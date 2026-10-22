@@ -1,9 +1,6 @@
 import { assertIntegerInRange } from '../shared/shared';
-import type { Brand } from '../shared/shared';
-
-export type Seed = Brand<number, 'Seed'>;
-
-export const MAX_SEED = 0xffff_ffff; // 4294967295 (2^32 - 1)
+import { MAX_SEED } from './constants';
+import type { Seed } from './types';
 
 /**
  * `Seed` is identity, not an editing quantity (throw-vs-repair policy in shared/index.ts): an

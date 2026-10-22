@@ -1,6 +1,6 @@
 import { deserializeGrammar, serializeGrammar } from '../../core/artwork/serialize';
 import { createSeed } from '../../core/random/seed';
-import type { Seed } from '../../core/random/seed';
+import type { Seed } from '../../core/random/types';
 import { isRecord, rejectUnknownKeys } from '../../core/shared/shared';
 import {
     isNotebookRating,

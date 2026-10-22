@@ -4,7 +4,7 @@ import { deserialize, serialize } from '../expression/serialize';
 import { createGrammar, weightOf } from '../grammar/grammar';
 import type { Grammar, GrammarData } from '../grammar/types';
 import { createSeed } from '../random/seed';
-import type { Seed } from '../random/seed';
+import type { Seed } from '../random/types';
 import { isRecord, rejectUnknownKeys } from '../shared/shared';
 import { ARTWORK_FILE_FORMAT, ARTWORK_FILE_VERSION, MAX_ARTWORK_FILE_LENGTH } from './constants';
 import { createArtwork, fitRenderSettings } from './create';

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 import { CONFIG } from '../../core/config/config';
 import { createSeed, randomSeed } from '../../core/random/seed';
-import type { Seed } from '../../core/random/seed';
+import type { Seed } from '../../core/random/types';
 
 /** Cell sizes offered: square powers of two ≥ 16, so the analysis descriptors accept them. */
 export type CellSize = '64' | '128' | '256';

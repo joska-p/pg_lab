@@ -1,6 +1,6 @@
 import type { Expression, ExpressionData } from '../expression/types';
 import type { Grammar, GrammarData } from '../grammar/types';
-import type { Seed } from '../random/seed';
+import type { Seed } from '../random/types';
 import type { Brand } from '../shared/shared';
 
 /**

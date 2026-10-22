@@ -6,8 +6,8 @@ import { createBatch, createCandidate, rateNotebookCandidate } from '../../bench
 import type { NotebookBatch, NotebookRating } from '../../bench/notebook/types';
 import { sampleGrammars } from '../../core/grammar/sample';
 import type { Grammar } from '../../core/grammar/types';
-import type { Seed } from '../../core/random/seed';
 import { randomSeed } from '../../core/random/seed';
+import type { Seed } from '../../core/random/types';
 import { createBatchRenderer } from '../../core/renderer/batch/batch';
 import type { BatchRenderer, RenderedBatch } from '../../core/renderer/batch/batch';
 import { getBenchSettings, setBenchBaseSeed } from './benchSettingsStore';
