@@ -34,31 +34,32 @@ Do not introduce a synonym for an existing concept:
 
 ```text
 create / make / build / assemble   pick one per meaning (see the verb table)
-draw / pick / sample / choose      draw and sample consume the PRNG; choose is a UI decision
+draw / sample / choose             draw and sample consume the random source; choose is a decision
 get / read / load                  get is a pure lookup; read is a shape check; load crosses an I/O boundary
-grammar / vocabulary / preset      a grammar is a point of the quantized space; the vocabulary is its
-                                   positive-weight operators; a preset is a named grammar
-seed / baseSeed                    a seed is one image; baseSeed is the root of a sample draw
-weight / shareDepth                weight is one operator's integer on the grid; shareDepth is the
-                                   resolved shared-trunk depth, bounded by the size profile
-size / profile                     size is the profile id carried by a grammar; profile is the point
-                                   on the size axis that supplies constraints
-planche / sheet                    planche is the in-app grid; sheet is the dataset's contact sheet
+name / id / key                    name is human-readable; id is opaque and stable; key is a lookup field
+size / length / count              size is a capacity or dimension; length is the number of items;
+                                   count is a tally
+settings / config / state          settings are user-editable and persisted; config is construction-time;
+                                   state is the current internal value
+source / input / target / output   source is where data comes from; input is what a boundary accepts;
+                                   target is what is written to; output is what a boundary returns
+value / item / entry               value is the data itself; item is one element of a list;
+                                   entry is one element of a keyed collection
 ```
 
-Use the glossary in the package README as the source of truth for domain words. A new synonym is a new concept until proven otherwise.
+Each project keeps a short glossary of its own overloaded domain words, next to that project's docs. A new synonym is a new concept until proven otherwise. §2.1.8 describes what that glossary must contain.
 
 ### 2.1.2 Casing
 
-| Kind                                                  | Convention               | Examples                                                            |
-| ----------------------------------------------------- | ------------------------ | ------------------------------------------------------------------- |
-| Variables, parameters, properties, functions, methods | `camelCase`              | `shareDepth`, `drawOperator`, `renderSettings`                      |
-| Types, interfaces, classes, React components, brands  | `PascalCase`             | `Grammar`, `ChannelModel`, `RandomArtCanvas`, `Seed`                |
-| Module-level constants, registries, config, id arrays | `SCREAMING_SNAKE_CASE`   | `MAX_RENDER_SIZE`, `DEFAULT_CHANNELS`, `CONFIG`, `SIZE_PROFILE_IDS` |
-| Module-level singletons and live instances            | `camelCase`              | `catalog`, `store`, `renderer`                                      |
-| Type parameters                                       | `PascalCase`             | `T`, `K`, `V`, `TSurface`                                           |
-| File names: modules                                   | `camelCase.ts`           | `randomGrammar.ts`, `appStore.ts`                                   |
-| File names: React components and classes              | `PascalCase.tsx` / `.ts` | `BenchPanel.tsx`, `ShaderError.ts`                                  |
+| Kind                                                  | Convention               | Examples                                                |
+| ----------------------------------------------------- | ------------------------ | ------------------------------------------------------- |
+| Variables, parameters, properties, functions, methods | `camelCase`              | `userName`, `drawFrame`, `renderSettings`               |
+| Types, interfaces, classes, React components, brands  | `PascalCase`             | `Document`, `UserProfile`, `MainPanel`, `UserId`        |
+| Module-level constants, registries, config, id arrays | `SCREAMING_SNAKE_CASE`   | `MAX_RETRIES`, `DEFAULT_TIMEOUT`, `CONFIG`, `COLOR_IDS` |
+| Module-level singletons and live instances            | `camelCase`              | `catalog`, `store`, `renderer`                          |
+| Type parameters                                       | `PascalCase`             | `T`, `K`, `V`, `TSurface`                               |
+| File names: modules                                   | `camelCase.ts`           | `documentParser.ts`, `appStore.ts`                      |
+| File names: React components and classes              | `PascalCase.tsx` / `.ts` | `MainPanel.tsx`, `ParseError.ts`                        |
 
 `SCREAMING_SNAKE_CASE` is for values fixed at module load: bounds, defaults, registries, config objects, id arrays. A local `const` stays `camelCase`. A singleton that owns state or a lifecycle (`catalog`, `store`) stays `camelCase` even when it is module-level.
 
@@ -69,36 +70,36 @@ No `_` prefix for private members: use module-local (non-exported) names. No `I`
 Use `interface` for object shapes that are part of a contract or may be extended. Use `type` for unions, intersections, mapped types, tuples, function types, branded primitives, and aliases of another type.
 
 ```ts
-interface Grammar { … }                 // object shape
-type ColorSpaceId = 'srgb' | 'oklch';   // union
-type Seed = Brand<number, 'Seed'>;       // branded primitive
-type NodeVisitor = (node: Node) => void; // function type
+interface Document { … }                  // object shape
+type LayoutId = 'grid' | 'list';          // union
+type UserId = Brand<number, 'UserId'>;    // branded primitive
+type NodeVisitor = (node: Node) => void;  // function type
 ```
 
 Do not encode mutability or implementation in the name. `readonly` belongs in the type, not in a `ReadonlyFoo` name.
 
 Role suffixes are part of the vocabulary:
 
-| Suffix / prefix      | Meaning                                                               | Examples                                      |
-| -------------------- | --------------------------------------------------------------------- | --------------------------------------------- |
-| `*Input`             | Raw, untrusted shape accepted at a boundary, before validation/repair | `ArtworkInput`, `RenderSettingsInput`         |
-| `*Data`              | Plain serializable shape (JSON-like), not a domain value              | `ArtworkData`, `GrammarData`                  |
-| `*Options`           | Optional arguments of one call                                        | `CompileOptions`, `SampleOptions`             |
-| `*Config`            | Required construction/environment configuration                       | `GpuSurfaceConfig`                            |
-| `*Settings`          | User-editable, persisted state                                        | `BenchSettings`, `RenderSettings`             |
-| `*State`             | The internal state of a store                                         | `AppStoreState`, `BenchState`                 |
-| `*View`              | A display-oriented projection of domain data                          | `LotView`                                     |
-| `*Summary`           | A derived, human-readable description                                 | `GrammarSummary`                              |
-| `*Check` / `*Status` | The outcome of a check                                                | `ProvenanceCheck`                             |
-| `*Model`             | A domain interpretation of several values                             | `ChannelModel`                                |
-| `*Id`                | An opaque key into a registry                                         | `ColorSpaceId`, `SizeProfileId`, `OperatorId` |
-| `*Entry`             | One element of a collection                                           | `HistoryEntry`                                |
-| `*Cell`, `*Row`      | One part of a grid                                                    | `PlancheCell`, `PlancheRow`                   |
-| `*Props`             | React component props                                                 | `RandomArtCanvasProps`                        |
+| Suffix / prefix      | Meaning                                                               | Examples                            |
+| -------------------- | --------------------------------------------------------------------- | ----------------------------------- |
+| `*Input`             | Raw, untrusted shape accepted at a boundary, before validation/repair | `UserInput`, `FormInput`            |
+| `*Data`              | Plain serializable shape (JSON-like), not a domain value              | `DocumentData`, `UserData`          |
+| `*Options`           | Optional arguments of one call                                        | `FetchOptions`, `ParseOptions`      |
+| `*Config`            | Required construction/environment configuration                       | `ServerConfig`, `SurfaceConfig`     |
+| `*Settings`          | User-editable, persisted state                                        | `DisplaySettings`, `EditorSettings` |
+| `*State`             | The internal state of a store                                         | `AppState`, `FormState`             |
+| `*View`              | A display-oriented projection of domain data                          | `OrderView`, `RowView`              |
+| `*Summary`           | A derived, human-readable description                                 | `ReportSummary`                     |
+| `*Check` / `*Status` | The outcome of a check                                                | `HealthCheck`, `SyncStatus`         |
+| `*Model`             | A domain interpretation of several values                             | `PriceModel`, `PricingModel`        |
+| `*Id`                | An opaque key into a registry                                         | `LayoutId`, `PageId`, `GroupId`     |
+| `*Entry`             | One element of a collection                                           | `HistoryEntry`                      |
+| `*Cell`, `*Row`      | One part of a grid                                                    | `GridCell`, `TableRow`              |
+| `*Props`             | React component props                                                 | `ButtonProps`, `PanelProps`         |
 
-Named points of an ordered axis keep the axis noun rather than `Id`: `BenchView`, `CellSize`, `OperatorGroup`. The `Id` suffix is for opaque registry keys, not for every string union.
+Named points of an ordered axis keep the axis noun rather than `Id`: `ViewMode`, `CellSize`, `GroupKind`. The `Id` suffix is for opaque registry keys, not for every string union.
 
-Branded types are named after the concept they guarantee, with no suffix: `Seed`, `Grammar`, `Expression`, `Artwork`, `Constraints`, `Phase`. The raw shape is `XInput`, the throwing factory is `createX`, and the repairing entry point is `fitX` (§2.1.4). Do not brand a value merely to make a signature look precise; the brand must correspond to a boundary that actually establishes it.
+Branded types are named after the concept they guarantee, with no suffix: `Email`, `Slug`, `UserId`. The raw shape is `XInput`, the throwing factory is `createX`, and the repairing entry point is `fitX` (§2.1.4). Do not brand a value merely to make a signature look precise; the brand must correspond to a boundary that actually establishes it.
 
 ### 2.1.4 Functions and prefixes
 
@@ -106,47 +107,47 @@ Functions are verb-first. The prefix states the contract, not just the implement
 
 | Prefix                                         | Contract                                                                                    | Examples                                                |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| `createX`                                      | Establish a branded/invariant-carrying value; throws on invalid vouched input               | `createGrammar`, `createSeed`, `createArtwork`          |
-| `fitX`                                         | Repair untrusted input into a valid value; clamps/defaults, no throw for editing quantities | `fitRenderSettings`                                     |
-| `parseX` / `parseXFile`                        | External text (or unknown) → domain; refuses malformed structure                            | `parseArtwork`, `parseNotebook`, `parseGrammarFile`     |
-| `deserializeX`                                 | Plain data object → domain; refuses malformed structure                                     | `deserializeGrammar`, `deserialize`                     |
-| `serializeX`                                   | Domain → plain data object                                                                  | `serializeGrammar`                                      |
-| `serializeXFile`                               | Domain → text                                                                               | `serializeGrammarFile`                                  |
-| `readX`                                        | Internal field-level shape check of unknown data; not exported                              | `readRender`                                            |
+| `createX`                                      | Establish a branded/invariant-carrying value; throws on invalid vouched input               | `createUser`, `createSession`                           |
+| `fitX`                                         | Repair untrusted input into a valid value; clamps/defaults, no throw for editing quantities | `fitSettings`, `fitUrl`                                 |
+| `parseX` / `parseXFile`                        | External text (or unknown) → domain; refuses malformed structure                            | `parseDocument`, `parseConfigFile`                      |
+| `deserializeX`                                 | Plain data object → domain; refuses malformed structure                                     | `deserializeDocument`                                   |
+| `serializeX`                                   | Domain → plain data object                                                                  | `serializeDocument`                                     |
+| `serializeXFile`                               | Domain → text                                                                               | `serializeDocumentFile`                                 |
+| `readX`                                        | Internal field-level shape check of unknown data; not exported                              | `readPayload`                                           |
 | `assertX`                                      | Throw when an invariant does not hold; no meaningful return                                 | `assertFinite`, `assertIntegerInRange`                  |
-| `checkX`                                       | Compute a status/boolean without throwing                                                   | `checkProvenance`, `checkShaderStructure`               |
-| `isX` / `hasX` / `canX` / `shouldX` / `needsX` | Boolean predicate, no side effects                                                          | `isTerminalOperator`, `hasClockStore`, `needsRender`    |
-| `getX`                                         | Pure lookup/read; no side effects                                                           | `getVocabulary`, `getNode`, `getIsPlaying`              |
-| `xOf(y)`                                       | Pure projection/derivation (`get` would read awkwardly)                                     | `weightOf`, `grammarKey`, `presetIdOf`, `flatShareOf`   |
-| `xCount` / `xLength`                           | Numeric count or length                                                                     | `nodeCount`, `sourceLength`                             |
-| `setX` / `patchX` / `toggleX`                  | Replace a value / update part of it / flip a boolean                                        | `setDuration`, `patchSettings`, `toggleCandidateRating` |
-| `useX`                                         | React hook; follows the Rules of Hooks                                                      | `useGrammar`, `useBenchLot`                             |
-| `drawX`                                        | Consume the PRNG and return one value                                                       | `drawOperator`, `drawParams`, `drawGrammar`             |
-| `sampleX`                                      | Draw a point or a collection from a distribution                                            | `sampleGrammars`                                        |
-| `stepX`                                        | Move a value by one notch/delta; consumes the PRNG                                          | `stepGrammar`, `stepCell`                               |
-| `generateX`                                    | Deterministic domain construction from its inputs; may consume the PRNG                     | `generate`                                              |
-| `deriveX`                                      | Deterministic derivation from an input                                                      | `deriveSeed`                                            |
-| `buildX`                                       | Assemble a domain value from parts; no I/O                                                  | `buildLotView`, `buildPreamble`                         |
-| `assembleX`                                    | Combine visual parts into one composite surface                                             | `assemblePlanche`                                       |
-| `computeX`                                     | Pure calculation from existing data                                                         | `computeFeatures`                                       |
-| `renderX`                                      | Produce pixels or GPU output; side effects allowed                                          | `renderGrammar`                                         |
-| `loadX` / `saveX`                              | Cross an I/O boundary (storage, files, assets)                                              | `loadNotebookFromDb`, `saveNotebookToDb`                |
-| `initX`                                        | One-time setup with side effects                                                            | `initBenchNotebook`                                     |
-| `applyX`                                       | Apply a prepared value to the current state                                                 | `applyGrammar`                                          |
-| `publishX`                                     | Make a value the current app state                                                          | `publishArtwork`                                        |
-| `openX`                                        | Reveal or navigate to a value                                                               | `openCellInLab`                                         |
-| `selectX` / `stepX`                            | Choose the current item / move by a delta                                                   | `selectRow`, `stepCell`                                 |
-| `addXToY` / `removeXFromY`                     | Collection update                                                                           | `addBatchToNotebook`, `removeBatchFromNotebook`         |
-| `withX`                                        | Run a callback with a resource/context                                                      | `withDevServer`                                         |
+| `checkX`                                       | Compute a status/boolean without throwing                                                   | `checkPermissions`, `checkStructure`                    |
+| `isX` / `hasX` / `canX` / `shouldX` / `needsX` | Boolean predicate, no side effects                                                          | `isTerminal`, `hasSelection`, `canRetry`, `needsRender` |
+| `getX`                                         | Pure lookup/read; no side effects                                                           | `getItem`, `getNode`, `getValue`                        |
+| `xOf(y)`                                       | Pure projection/derivation (`get` would read awkwardly)                                     | `lengthOf`, `indexOf`, `idOf`, `totalOf`                |
+| `xCount` / `xLength`                           | Numeric count or length                                                                     | `itemCount`, `bufferLength`                             |
+| `setX` / `patchX` / `toggleX`                  | Replace a value / update part of it / flip a boolean                                        | `setDuration`, `patchSettings`, `toggleEnabled`         |
+| `useX`                                         | React hook; follows the Rules of Hooks                                                      | `useDocument`, `useSelection`                           |
+| `drawX`                                        | Consume the random source and return one value                                              | `drawNumber`, `drawItem`                                |
+| `sampleX`                                      | Draw a point or a collection from a distribution                                            | `sampleItems`                                           |
+| `stepX`                                        | Move a value by one notch/delta; consumes the random source                                 | `stepFrame`, `stepSelection`                            |
+| `generateX`                                    | Deterministic domain construction from its inputs; may consume the random source            | `generateReport`                                        |
+| `deriveX`                                      | Deterministic derivation from an input                                                      | `deriveKey`, `deriveSlug`                               |
+| `buildX`                                       | Assemble a domain value from parts; no I/O                                                  | `buildTree`, `buildRequest`                             |
+| `assembleX`                                    | Combine parts into one composite surface                                                    | `assemblePage`                                          |
+| `computeX`                                     | Pure calculation from existing data                                                         | `computeTotals`                                         |
+| `renderX`                                      | Produce pixels or GPU output; side effects allowed                                          | `renderFrame`                                           |
+| `loadX` / `saveX`                              | Cross an I/O boundary (storage, files, assets)                                              | `loadDocument`, `saveDocument`                          |
+| `initX`                                        | One-time setup with side effects                                                            | `initApp`                                               |
+| `applyX`                                       | Apply a prepared value to the current state                                                 | `applyTheme`                                            |
+| `publishX`                                     | Make a value the current app state                                                          | `publishResult`                                         |
+| `openX`                                        | Reveal or navigate to a value                                                               | `openDocument`                                          |
+| `selectX`                                      | Choose the current item                                                                     | `selectRow`, `selectTab`                                |
+| `addXToY` / `removeXFromY`                     | Collection update                                                                           | `addItemToCart`, `removeItemFromCart`                   |
+| `withX`                                        | Run a callback with a resource/context                                                      | `withTransaction`                                       |
 
-`createX` and `fitX` are the two rungs of the throw-vs-repair policy (`shared/index.ts`): the prefix tells the caller which one they are calling. Do not use `make`, `new`, or `build` for a validating factory.
+`createX` and `fitX` are the two rungs of the throw-vs-repair policy: the prefix tells the caller which one they are calling. Do not use `make`, `new`, or `build` for a validating factory.
 
 `serializeX` returns the plain data shape; `serializeXFile` returns text. A domain with only one text form may use `serializeX`/`parseX` as a symmetric pair, but it must not also export a second `serializeX` with a different return type. When both forms exist, use the four-name set: `serializeX` (data), `serializeXFile` (text), `deserializeX` (data → domain), `parseXFile` (text → domain).
 
 Documented exceptions to verb-first naming:
 
-- `defaultX` returns a canonical value (`defaultGrammar`);
-- `randomX` returns a random scalar (`randomSeed`);
+- `defaultX` returns a canonical value (`defaultLayout`);
+- `randomX` returns a random scalar (`randomId`);
 - `xOf`, `xCount`, `xLength` are projections (see table);
 - React event props use `onX`, and local handlers use `handleX`.
 
@@ -157,7 +158,7 @@ Async functions do not take an `Async` suffix; the `Promise` return type carries
 Predicate functions start with `is`, `has`, `can`, `should`, or `needs`. Boolean properties read as an assertion or a state, not as a bare noun:
 
 ```ts
-readonly allowsAnchors: boolean; // not `anchor`
+readonly allowsEditing: boolean; // not `edit`
 readonly enabled: boolean;
 readonly animated: boolean;
 readonly failed: boolean;
@@ -169,47 +170,54 @@ Avoid double negatives (`isNotReady`) unless the negative is the domain concept 
 
 Module constants use meaningful prefixes and suffixes:
 
-| Pattern                   | Meaning                                      | Examples                                    |
-| ------------------------- | -------------------------------------------- | ------------------------------------------- |
-| `MAX_*` / `MIN_*`         | Domain bounds enforced by validation         | `MAX_ARTWORK_FILE_LENGTH`, `MIN_LOOP_MS`    |
-| `DEFAULT_*`               | Fallback/default value                       | `DEFAULT_CHANNELS`, `DEFAULT_LOOP_DURATION` |
-| `EMPTY_*`                 | Identity/empty value                         | `EMPTY_LOT`                                 |
-| `RAW_*`                   | Unprocessed base model                       | `RAW_CHANNELS`                              |
-| `*_LIMIT`                 | Capacity or attempt cap (not a domain bound) | `HISTORY_LIMIT`                             |
-| `*_VERSION`               | Format/generator version                     | `GENERATOR_VERSION`, `ARTWORK_FILE_VERSION` |
-| `*_FORMAT`                | File format identifier                       | `ARTWORK_FILE_FORMAT`                       |
-| `*_IDS`                   | Ids of a registry, in canonical/draw order   | `SIZE_PROFILE_IDS`, `COLOR_SPACE_IDS`       |
-| `*_CHOICES`               | Allowed values of a user axis                | `BENCH_VIEWS`, `CELL_SIZES`                 |
-| `*_LEVELS` / `*_PROFILES` | Named points of an axis                      | `WEIGHT_LEVELS`, `SIZE_PROFILES`            |
-| `*_REGISTRY`              | Map of implementations                       | `PREAMBLE_REGISTRY`, `SPACE_REGISTRY`       |
-| `*_GLSL` / `GLSL_*`       | GLSL source or contract snippet              | `OKLCH_GLSL`, `GLSL_IN_UV`                  |
-| `*_MS`                    | Raw duration in milliseconds                 | `MIN_LOOP_MS`, `MAX_LOOP_MS`                |
-| `*Count`                  | Numeric count                                | `nodeCount`, `failedCount`                  |
+| Pattern                   | Meaning                                      | Examples                               |
+| ------------------------- | -------------------------------------------- | -------------------------------------- |
+| `MAX_*` / `MIN_*`         | Domain bounds enforced by validation         | `MAX_FILE_SIZE`, `MIN_ZOOM`            |
+| `DEFAULT_*`               | Fallback/default value                       | `DEFAULT_PAGE_SIZE`, `DEFAULT_TIMEOUT` |
+| `EMPTY_*`                 | Identity/empty value                         | `EMPTY_RESULT`                         |
+| `RAW_*`                   | Unprocessed base model                       | `RAW_PAYLOAD`                          |
+| `*_LIMIT`                 | Capacity or attempt cap (not a domain bound) | `HISTORY_LIMIT`                        |
+| `*_VERSION`               | Format/generator version                     | `SCHEMA_VERSION`, `BUILD_VERSION`      |
+| `*_FORMAT`                | File format identifier                       | `FILE_FORMAT`                          |
+| `*_IDS`                   | Ids of a registry, in canonical order        | `PAGE_IDS`, `COLOR_IDS`                |
+| `*_CHOICES`               | Allowed values of a user axis                | `LAYOUTS`, `PAGE_SIZES`                |
+| `*_LEVELS` / `*_PROFILES` | Named points of an axis                      | `LOG_LEVELS`, `SIZE_PROFILES`          |
+| `*_REGISTRY`              | Map of implementations                       | `PLUGIN_REGISTRY`, `OPCODE_REGISTRY`   |
+| `*_TEMPLATE` / `*_SOURCE` | Embedded source text or contract snippet     | `EMAIL_TEMPLATE`, `SHADER_SOURCE`      |
+| `*_MS`                    | Raw duration in milliseconds                 | `MIN_DELAY_MS`, `MAX_DELAY_MS`         |
+| `*Count`                  | Numeric count                                | `itemCount`, `errorCount`              |
 
-Plural nouns name collections (`rows`, `weights`, `COLOR_SPACES`); a number is a `*Count` (`cellCount`, not `cells`). A range is a `<quantity>Range` or the quantity itself when the type is `ParamRange` (`amp`, `cycleCounts`); it is not a list.
+Plural nouns name collections (`rows`, `weights`, `COLOR_SPACES`); a number is a `*Count` (`cellCount`, not `cells`). A range is a `<quantity>Range` or the quantity itself when the type is a dedicated range (`amplitude`, `cycleCounts`); it is not a list.
 
 Include a unit suffix on raw numbers when the unit is not obvious from the name or the nearby code (`loopMs`, `timeoutMs`). When the type carries the unit (`DurationSeconds`, `Milliseconds`), the name may omit it (`duration`, `timeout`).
 
 ### 2.1.7 Abbreviations and acronyms
 
-Treat acronyms as words in `camelCase` and `PascalCase`: `Id`, `Url`, `Api`, `Glsl`, `Gpu`, `Cpu`, `Uv`, `Rgb`, `Rgba`, `Oklab`, `Oklch`, `Hsl`, `Rng`, `Pca`, `Ms`, `Db`, `Ui`. Never write `ID`, `URL`, `API`, `GLSLSource`, or `RNG` in an identifier; keep all-caps only in `SCREAMING_SNAKE_CASE` constants (`GLSL_IN_UV`, `XRAY_LUT`).
+Treat acronyms as words in `camelCase` and `PascalCase`: `Id`, `Url`, `Api`, `Http`, `Json`, `Html`, `Css`, `Svg`, `Pdf`, `Uuid`, `Ui`, `Db`, `Ms`. Never write `ID`, `URL`, `API`, `JSONParser`, or `UUID` in an identifier; keep all-caps only in `SCREAMING_SNAKE_CASE` constants (`HTTP_TIMEOUT`, `PDF_HEADER`).
 
 Do not invent abbreviations for local convenience. Use a full word unless the abbreviation is the public domain name or appears in the approved list above.
 
 ### 2.1.8 Domain vocabulary
 
-These distinctions are easy to lose and expensive to rediscover:
+Overloaded domain words are expensive to rediscover. Each project therefore keeps a glossary, and that glossary is the source of truth for its vocabulary. The convention is about what the glossary must contain, not about any particular domain.
 
-- **grammar** — weights + constraints + channels. **vocabulary** — the operators with a positive weight.
-- **seed** — one expression inside a grammar. **baseSeed** — the root of a deterministic sample draw.
-- **expression** — three trees (r, g, b). **node** — a tree element. **vertex** — a compiler DAG entry.
-- **grammar** — a point in the quantized space: one integer weight per operator, a size profile, a share depth and a colour space. **preset** — a named grammar. **profile** — a point on the size axis, supplying the constraints.
-- **artwork** — expression + optional provenance + render settings. **provenance** — informative origin; the expression is the reference.
-- **batch** — one drawn lot. **candidate** — one grammar with its seeds. **planche** — the grid of a lot. **sheet** — the dataset's contact sheet.
-- **channel** — one scalar tree / one component of colour. **space** — how the triplet is read. **shareDepth** — how deep the channels share structure.
-- **phase** — normalized loop position in `[0, 1)`. **duration** — loop length in seconds (`DurationSeconds`).
+A useful glossary records:
 
-When a name could mean two of these, qualify it (`colorSpace`, `sizeProfile`, `shareDepth`) rather than relying on context.
+- the canonical word for each concept, and the synonyms that are forbidden;
+- the distinctions between near-synonyms that are genuinely different concepts;
+- the unit or range carried by a numeric name when it is not obvious.
+
+Example of the kind of distinction worth writing down:
+
+```text
+user / account        a user authenticates; an account owns billing and membership
+document / file       a document is the editable value; a file is its serialized form on disk
+session / connection  a session is an authenticated window; a connection is the transport
+order / cart          an order is a commercial intent; a cart is the mutable pre-checkout collection
+price / cost / total  price is what the customer pays; cost is what the seller paid; total is after adjustments
+```
+
+When a name could mean two of these, qualify it (`userAccount`, `filePath`, `sessionToken`) rather than relying on context.
 
 ### 2.1.9 Coherence and renames
 
@@ -217,7 +225,7 @@ A rename is a coherence change, not a cosmetic one:
 
 - rename every layer in one change (core, store, component, tests, docs);
 - do not keep an alias unless a migration window genuinely exists;
-- update the glossary/note when the concept changes, not just the identifier;
+- update the glossary when the concept changes, not just the identifier;
 - if two concepts are genuinely different, name the difference instead of merging the words.
 
 Prefer an explicit, slightly longer name over a short ambiguous one. `data`, `info`, `manager`, `helper`, `util`, `common`, `base`, and `handle` are not names: they describe the absence of a concept.
@@ -226,9 +234,8 @@ Prefer an explicit, slightly longer name over a short ambiguous one. `data`, `in
 
 External conventions win at their boundary:
 
-- React: `onX` props, `handleX` handlers, `useX` hooks;
-- GLSL: uniforms `u_*`, varyings/contract locals `v_*`, entry points `ra_*`;
-- DOM/WebGL: `vUv`, `o_color`, `canvas`, `context`;
+- frameworks: `onX` props, `handleX` handlers, `useX` hooks;
+- platform APIs: DOM, Canvas, and WebGL identifiers keep their native casing;
 - external libraries: keep their names when re-exporting them.
 
 Math-heavy local code may use short names (`x`, `y`, `r`, `g`, `b`, `k` for arity, `m` for minimum size, `u` for a uniform draw, `i`/`j` for indices). Keep the scope small enough that the meaning is obvious.
@@ -254,7 +261,7 @@ getX             pure lookup
 xOf/xCount       projection/count
 set/patch/toggle write state
 useX             React hook
-draw/sample/...  consume the PRNG
+draw/sample/...  consume the random source
 build/assemble   construct / compose
 load/save        I/O
 ```
@@ -449,23 +456,23 @@ It is not a structure to create in advance.
 Dependencies flow in one direction (relaxed DAG):
 
 ```text
-kernel (config, shared, random)          ← no deps on domains
+kernel (config, shared, utils)           ← no deps on domains
     │
     ▼
-domains (artwork, catalog, color, grammar, expression, renderer)
+domains (…)
     │           ↑              ↑
     │           └──────────────┘  cross-domain allowed if clear ownership
     ▼
-stores (lab, bench)                  ← import from domains + kernel
+stores                                  ← import from domains + kernel
     │
     ▼
-components / app                     ← import from stores + domains + kernel
+components / app                        ← import from stores + domains + kernel
 ```
 
 **Rules:**
 
-- **Kernel** (`core/config`, `core/shared`, `core/random`) — no imports from domains, stores, or app.
-- **Domains** — may import from kernel and from other domains **only when there is a clear owner** (e.g., `artwork` imports `Grammar` from `grammar` because `grammar` owns the grammar concept). No cycles.
+- **Kernel** (`core/config`, `core/shared`, `core/utils`) — no imports from domains, stores, or app.
+- **Domains** — may import from kernel and from other domains **only when there is a clear owner** (e.g., an `order` module imports `Customer` from `customer` because `customer` owns the customer concept). No cycles.
 - **Stores** — import from domains and kernel. Do not import from other stores (use domain types as the contract).
 - **Components** — import from stores (for state/actions), domains (for types/constants), and kernel.
 - **Cycles are forbidden.** If a cycle appears, the ownership is wrong — move the shared type to the owner or to kernel.
@@ -485,26 +492,26 @@ core/<domain>/
 
 **`types.ts` exports:**
 
-- Branded types: `Seed`, `Grammar`, `Expression`, `Artwork`, `Phase`, `Constraints`
-- Interface shapes: `Grammar`, `Expression`, `ColorSpace`, `OperatorSpec`
-- Type aliases: `ColorSpaceId`, `SizeProfileId`, `OperatorId`, `ChannelModel`
-- Serialization DTOs (`*Data`): `GrammarData`, `ArtworkData`, `NodeData`, `ExpressionData` — these are part of the domain's public contract
+- Branded types: `Email`, `Slug`, `UserId`
+- Interface shapes: `Document`, `UserProfile`, `ColorSpace`, `PluginSpec`
+- Type aliases: `LayoutId`, `PageId`, `GroupId`, `PriceModel`
+- Serialization DTOs (`*Data`): `DocumentData`, `UserData`, `NodeData`, `OrderData` — these are part of the domain's public contract
 - **No runtime values** (no `const`, no `export const`)
 
 **`constants.ts` exports:**
 
-- All `SCREAMING_SNAKE_CASE` module constants: `MAX_RENDER_SIZE`, `ARTWORK_FILE_FORMAT`, `SIZE_PROFILE_IDS`, `COLOR_SPACE_IDS`, `OPERATOR_REGISTRY` (camelCase for registries), `GENERATOR_VERSION`
+- All `SCREAMING_SNAKE_CASE` module constants: `MAX_PAGE_SIZE`, `FILE_FORMAT`, `PAGE_IDS`, `COLOR_IDS`, `PLUGIN_REGISTRY` (camelCase for registries), `SCHEMA_VERSION`
 - Configuration objects: `CONFIG` (camelCase — it's a live singleton)
 - **No types**
 
-**Implementation files (`serialize.ts`, `grammar.ts`, `provenance.ts`, etc.):**
+**Implementation files (`serialize.ts`, `document.ts`, `validation.ts`, etc.):**
 
 - Export functions, not types (except truly local types used only in that file)
 - Import types from `./types`, constants from `./constants`
 
 ### 2.7.3 Serialization DTOs (*Data types)
 
-Types suffixed with `*Data` (`GrammarData`, `ArtworkData`, `NodeData`, `ExpressionData`, `NotebookData`) are **plain serializable shapes** — they belong in the **domain's `types.ts`** because:
+Types suffixed with `*Data` (`DocumentData`, `UserData`, `NodeData`, `OrderData`, `WorkspaceData`) are **plain serializable shapes** — they belong in the **domain's `types.ts`** because:
 
 - They are part of the domain's public contract (file format, IPC, storage)
 - Multiple consumers need them (serialize, stores, components, dataset)
@@ -516,35 +523,34 @@ The serializer imports `*Data` from `./types` and exports only `serializeX`, `de
 
 - **No barrel exports (`index.ts`)** for cross-module imports. Import from the source file:
     ```ts
-    import { SIZE_PROFILE_IDS } from '../grammar/constants';
-    import { createGrammar } from '../grammar/grammar';
-    import type { Grammar } from '../grammar/types';
+    import { PAGE_IDS } from '../document/constants';
+    import { createDocument } from '../document/document';
+    import type { Document } from '../document/types';
     ```
 - **Within the same domain**, relative imports from the actual file are fine. An `index.ts` may re-export for internal convenience but is not required.
-- **Kernel modules** (`config`, `shared`, `random`) are imported directly:
+- **Kernel modules** (`config`, `shared`, `utils`) are imported directly:
     ```ts
     import { CONFIG } from '../config/config';
     import type { ColorSpaceId } from '../config/types';
-    import { createSeed } from '../random/seed';
-    import type { Seed } from '../random/seed';
+    import { assertFinite } from '../shared/guards';
     ```
 - **Do not create `types.ts` barrels** that re-export from other domains' `types.ts`. Each domain owns its types.
 
 ### 2.7.5 Naming: registries vs constants
 
 - `SCREAMING_SNAKE_CASE` = **immutable values fixed at module load**: bounds, defaults, id arrays, format strings, version numbers.
-- `camelCase` = **registries, maps, live singletons, config objects**: `operatorRegistry`, `dependencyRegistry`, `catalog`, `store`, `renderer`, `CONFIG`.
+- `camelCase` = **registries, maps, live singletons, config objects**: `pluginRegistry`, `dependencyRegistry`, `catalog`, `store`, `renderer`, `CONFIG`.
 
-`OPERATOR_SPECS` → `operatorRegistry` (it's a registry array, not a constant spec).
+`PLUGIN_SPECS` → `pluginRegistry` (it's a registry array, not a constant spec).
 
 ### 2.7.5.1 Registry key types (`*Id`)
 
-Types like `OperatorId`, `DependencyId`, `ColorSpaceId`, `SizeProfileId` that are **keys of a runtime registry** are exported **from the file that defines the registry**, not from `types.ts`. This allows `keyof typeof registry` to work without import cycles.
+Types like `PluginId`, `DependencyId`, `ColorSpaceId`, `LayoutId` that are **keys of a runtime registry** are exported **from the file that defines the registry**, not from `types.ts`. This allows `keyof typeof registry` to work without import cycles.
 
 ```ts
-// operators/registry.ts
-export const operatorRegistry = { ... } satisfies Record<string, OperatorSpec>;
-export type OperatorId = keyof typeof operatorRegistry;  // ✅ inferred from registry
+// plugins/registry.ts
+export const pluginRegistry = { ... } satisfies Record<string, PluginSpec>;
+export type PluginId = keyof typeof pluginRegistry;  // ✅ inferred from registry
 
 // constants.ts
 export const dependencies = defineDependencies({ ... });
@@ -554,42 +560,36 @@ export type DependencyId = keyof typeof dependencies;    // ✅ inferred from re
 Consumers import directly from the source:
 
 ```ts
-import type { DependencyId } from '../catalog/constants';
-import type { OperatorId } from '../catalog/operators/registry';
+import type { DependencyId } from '../dependencies/constants';
+import type { PluginId } from '../plugins/registry';
 ```
 
 `types.ts` does **not** re-export these — it only owns domain types that don't depend on runtime values.
 
-### 2.7.6 Applying the rules to current domains
+### 2.7.6 Applying the rules to a domain
 
-| Domain           | `types.ts` owns                                                                         | `constants.ts` / registry owns                                                                                                     | Implementation exports                                                                |
-| ---------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `artwork`        | `Artwork`, `ProvenanceCheck`, `GrammarData`, `ArtworkData`                              | `MIN_RENDER_SIZE`, `MAX_RENDER_SIZE`, `MAX_TITLE_LENGTH`, `ARTWORK_FILE_FORMAT`, `ARTWORK_FILE_VERSION`, `MAX_ARTWORK_FILE_LENGTH` | `createArtwork`, `checkProvenance`, `serializeArtworkFile`, `parseArtworkFile`        |
-| `catalog`        | `ShaderDependency`, `OperatorSpec`, `DependencySpec`                                    | `operatorRegistry`, `dependencies` (+ `OperatorId`, `DependencyId`)                                                                | `catalog`, `operator()`, `operators()`, `defineOperator`                              |
-| `color`          | `ColorSpace`                                                                            | `colorSpaceRegistry` (+ `ColorSpaceId`, `colorSpaceIds`)                                                                           | `colorSpaceGlsl`, `isColorSpaceId`                                                    |
-| `grammar`        | `Grammar`, `GrammarPins`, `ChannelModel`, `SampleOptions`, `GrammarData`                | `grammarRegistry` (+ `GrammarRegistryId`), `MIN_SHARE_DEPTH`, `RAW_CHANNELS`                                                       | `createGrammar`, `constraintsOf`, `drawGrammar`, `sampleGrammars`                     |
-| `expression`     | `Expression`, `Node`, `ExpressionData`, `NodeData`, `Channel`                           | `MAX_IMPORT_NODES`, `MAX_IMPORT_DEPTH`                                                                                             | `createExpression`, `createNode`, `serialize`, `deserialize`                          |
-| `random`         | `Seed`, `Rng`                                                                           | `MAX_SEED`                                                                                                                         | `createSeed`, `randomSeed`, `createRng`                                               |
-| `renderer`       | `RgbImage`, `Phase`, `RenderKey`, `RenderedBatch`, `BatchRequest`, `BatchRenderer`      | `DEFAULT_CONTEXT_OPTIONS`                                                                                                          | `createPhase`, `createBatchRenderer`, `needsRender`                                   |
-| `compiler`       | `CompiledShader`, `EmitResult`, `LowerResult`, `PreambleResult`, `Vertex`, `ContextDef` | `MAX_SOURCE_LENGTH`, `GLSL_IN_UV`, `GLSL_OUT_COLOR`, `GLSL_COORD_INIT`, `ROOT_CTX`                                                 | `compile`, `emit`, `lower`, `buildPreamble`                                           |
-| `stores`         | `AppMode`                                                                               | —                                                                                                                                  | `modeStore`                                                                           |
-| `stores/lab`     | `HistoryEntry`                                                                          | —                                                                                                                                  | `labStore`, `historyStore`, `artworkStore`                                            |
-| `stores/bench`   | `BenchSettings`, `BenchView`, `CellSize`                                                | `CELL_SIZES`, `MAX_BENCH_COUNT`, `MAX_BENCH_SEEDS`, `BENCH_VIEWS`                                                                  | `benchSettingsStore`, `lotStore`, `notebookStore`                                     |
-| `bench/lot`      | `PlancheCell`, `PlancheRow`, `Planche`, `PlancheOptions`, `LotView`                     | `PLANCHE_BACKGROUND`, `PLANCHE_DIM_FACTOR`                                                                                         | `assemblePlanche`, `fitGrid`, `plancheColumns`, `buildLotView`, `isFlat`, `EMPTY_LOT` |
-| `bench/notebook` | `Notebook`, `NotebookBatch`, `NotebookCandidate`, `NotebookRating`, `*Input`, `*Data`   | `NOTEBOOK_FILE_*`, `MIN_RATING`, `MAX_RATING`                                                                                      | `createCandidate`, `createBatch`, `createNotebook`, `serializeNotebook`               |
+The split is a shape, not an inventory. A domain applies it like this:
+
+| Module role      | `types.ts` owns                             | `constants.ts` / registry owns                            | Implementation exports                                              |
+| ---------------- | ------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------- |
+| Domain module    | Branded types, interfaces, aliases, `*Data` | `MAX_*`, `DEFAULT_*`, `*_IDS`, registries and their `*Id` | `createX`, `fitX`, `serializeX`, `parseXFile`, `checkX`, predicates |
+| Store module     | `*State`, `*Settings`, view projections     | Axis choices (`*_CHOICES`, `*_VIEWS`), limits             | Store instances, actions, selectors                                 |
+| Component module | `*Props`, display-only projections          | Display constants (`*_SIZE`, `*_COLORS`)                  | Components, hooks                                                   |
+
+The concrete contents of each domain belong to that project's architecture docs, not to this convention. Two rules keep the shape honest:
 
 **`types.ts` stays exhaustive.** A domain type belongs in `types.ts` even when a value shares its
-name: `LotView` lives in `bench/lot/types.ts` while `EMPTY_LOT` lives in `bench/lot/view.ts`, and
-`NotebookRating` lives in `bench/notebook/types.ts` while `isNotebookRating` lives in
-`bench/notebook/rating.ts`. The type module is the single place a reader looks for shapes; splitting
-a type out to sit next to its companion value costs a second import path and buys nothing.
+name: `OrderView` lives in `order/types.ts` while `EMPTY_ORDER` lives in `order/view.ts`, and
+`Rating` lives in `review/types.ts` while `isRating` lives in `review/rating.ts`. The type module is
+the single place a reader looks for shapes; splitting a type out to sit next to its companion value
+costs a second import path and buys nothing.
 
 **Single-`const` modules may be collapsed.** When a module owns exactly one runtime constant, it may
 stay flat in `<module>.ts` rather than split into a `constants.ts` of its own.
 
 **No gratuitous directories.** A subdirectory that holds a single file with no sibling is flattened:
-`renderer/batch/batch.ts` → `renderer/batchRenderer.ts`, `renderer/contract/contract.ts` →
-`renderer/phase.ts`, `renderer/renderGate/renderGate.ts` → `renderer/renderGate.ts`.
+`user/profile/profile.ts` → `user/profileLoader.ts`, `api/client/client.ts` → `api/client.ts`,
+`renderer/batch/batch.ts` → `renderer/batchRenderer.ts`.
 
 ### 2.7.7 Checklist for a new domain module
 
@@ -601,7 +601,7 @@ When creating or reorganizing a domain:
 - [ ] No implementation file exports types (except truly local ones)
 - [ ] No `constants.ts` imports from implementation files
 - [ ] Cross-domain imports follow the DAG (kernel → domain → store → component)
-- [ ] No import cycles (run `vp check --fix` and verify)
-- [ ] Registries use `camelCase` (`operatorRegistry`), constants use `SCREAMING_SNAKE_CASE`
+- [ ] No import cycles (run the project's check command and verify)
+- [ ] Registries use `camelCase` (`pluginRegistry`), constants use `SCREAMING_SNAKE_CASE`
 - [ ] `*Data` DTOs are in `types.ts`
-- [ ] Registry key types (`OperatorId`, `DependencyId`, etc.) are exported from the file defining the registry (allows `keyof typeof`)
+- [ ] Registry key types (`PluginId`, `DependencyId`, etc.) are exported from the file defining the registry (allows `keyof typeof`)
