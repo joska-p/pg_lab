@@ -10,7 +10,7 @@ interface appStore {
 
 const appStore = create<appStore>(() => ({
     experimentKey: 'home',
-    shellBackground: 'auroral-fluid',
+    shellBackground: 'lava-flow',
 }));
 
 export function useExperimentKey(): ExperimentKey {

@@ -1,10 +1,16 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 
 import { surfaceStyles } from '../recipes/surface';
 import { layout, radius, space, motion, typography } from '../tokens/const.stylex';
 import { Button } from './Button';
+
+const COLLAPSED_PANEL_HEIGHT = 16;
+const DRAG_THRESHOLD = 5;
+const COLLAPSE_THRESHOLD = COLLAPSED_PANEL_HEIGHT + 8;
+
+const PORTRAIT_QUERY = '(orientation: portrait)';
 
 const styles = stylex.create({
     base: {
@@ -49,15 +55,15 @@ const styles = stylex.create({
         maxHeight: '100%',
         overflow: 'visible',
         borderRadius: radius.md,
-        transitionProperty: 'width, max-height',
+        transitionProperty: 'width, height, max-height',
         transitionDuration: '180ms',
         transitionTimingFunction: 'ease',
         '@media (orientation: portrait)': {
             flexDirection: 'column',
             width: 'auto',
-            height: 'auto',
+            height: 'var(--panel-height, auto)',
             maxHeight: layout.panelMaxMobileHeight,
-            transitionProperty: 'max-height',
+            transitionProperty: 'height, max-height',
         },
         '@media (prefers-reduced-motion: reduce)': {
             transitionDuration: '0ms',
@@ -68,9 +74,11 @@ const styles = stylex.create({
         width: '1rem',
         '@media (orientation: portrait)': {
             width: 'auto',
-            height: '1rem',
-            maxHeight: layout.controlTouchTarget,
         },
+    },
+
+    panelDragging: {
+        transitionDuration: '0ms',
     },
 
     panelContent: {
@@ -107,6 +115,11 @@ const styles = stylex.create({
         transitionDuration: motion.durationNormal,
         transitionTimingFunction: motion.easingInOut,
         borderRadius: radius.full,
+        touchAction: 'none',
+        cursor: {
+            default: 'pointer',
+            '@media (orientation: portrait)': 'ns-resize',
+        },
         transform: 'translate(-50%, -50%)',
         '@media (orientation: portrait)': {
             top: '-0.5rem',
@@ -114,6 +127,18 @@ const styles = stylex.create({
         },
     },
 });
+
+function resolveMaxHeight(element: HTMLElement, fallback: number): number {
+    const raw = window.getComputedStyle(element).maxHeight;
+    const value = Number.parseFloat(raw);
+    if (!Number.isFinite(value)) {
+        return fallback;
+    }
+    if (raw.endsWith('%')) {
+        return (fallback * value) / 100;
+    }
+    return value;
+}
 
 interface ExperimentShellProps extends Omit<React.ComponentProps<'div'>, 'style' | 'className'> {
     children: React.ReactNode;
@@ -123,7 +148,113 @@ interface ExperimentShellProps extends Omit<React.ComponentProps<'div'>, 'style'
 
 export function ExperimentShell({ children, panel, style, ...props }: ExperimentShellProps) {
     const panelId = useId();
-    const [panelExpanded, setPanelExpanded] = useState(true);
+    const panelRef = useRef<HTMLDivElement>(null);
+    const dragStartRef = useRef({ pointerY: 0, height: 0, maxHeight: 0 });
+    const currentHeightRef = useRef(COLLAPSED_PANEL_HEIGHT);
+    const draggingRef = useRef(false);
+    const hasMovedRef = useRef(false);
+    const suppressClickRef = useRef(false);
+
+    // Source de vérité unique : null = hauteur naturelle (ouvert), 16 = replié, autre = hauteur choisie au drag.
+    const [panelHeight, setPanelHeight] = useState<number | null>(null);
+    // Sert uniquement à couper la transition pendant le drag.
+    const [isDragging, setIsDragging] = useState(false);
+
+    const panelExpanded = panelHeight !== COLLAPSED_PANEL_HEIGHT;
+
+    const handlePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
+        if (event.button !== 0 || !window.matchMedia(PORTRAIT_QUERY).matches) {
+            return;
+        }
+
+        const panelElement = panelRef.current;
+        if (!panelElement) {
+            return;
+        }
+
+        const bounds = panelElement.getBoundingClientRect();
+        const parentHeight =
+            panelElement.parentElement?.getBoundingClientRect().height ?? bounds.height;
+        const maxHeight = resolveMaxHeight(panelElement, parentHeight);
+
+        dragStartRef.current = {
+            pointerY: event.clientY,
+            height: bounds.height,
+            maxHeight: Math.max(COLLAPSED_PANEL_HEIGHT, maxHeight),
+        };
+        currentHeightRef.current = bounds.height;
+        hasMovedRef.current = false;
+        suppressClickRef.current = false;
+        draggingRef.current = true;
+        event.currentTarget.setPointerCapture(event.pointerId);
+        setIsDragging(true);
+    };
+
+    const handlePointerMove = (event: React.PointerEvent<HTMLButtonElement>) => {
+        // Ref (et non le state) : pas de closure périmé sur les premiers events.
+        if (!draggingRef.current) {
+            return;
+        }
+
+        const delta = dragStartRef.current.pointerY - event.clientY;
+        if (Math.abs(delta) > DRAG_THRESHOLD) {
+            hasMovedRef.current = true;
+        }
+        if (!hasMovedRef.current) {
+            return;
+        }
+
+        const nextHeight = Math.min(
+            dragStartRef.current.maxHeight,
+            Math.max(COLLAPSED_PANEL_HEIGHT, dragStartRef.current.height + delta),
+        );
+        currentHeightRef.current = nextHeight;
+        setPanelHeight(nextHeight);
+    };
+
+    const finishPointerDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
+        if (!draggingRef.current) {
+            return;
+        }
+        draggingRef.current = false;
+
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+        }
+
+        setIsDragging(false);
+        if (!hasMovedRef.current) {
+            return;
+        }
+
+        // Le click synthétique suit le pointerup dans la même tâche : on l'ignore,
+        // puis on réarme le flag pour ne pas avaler un clic ultérieur.
+        suppressClickRef.current = true;
+        window.setTimeout(() => {
+            suppressClickRef.current = false;
+        }, 0);
+
+        if (currentHeightRef.current <= COLLAPSE_THRESHOLD) {
+            currentHeightRef.current = COLLAPSED_PANEL_HEIGHT;
+            setPanelHeight(COLLAPSED_PANEL_HEIGHT);
+        }
+    };
+
+    const handleClick = () => {
+        if (suppressClickRef.current) {
+            suppressClickRef.current = false;
+            {
+                return;
+            }
+        }
+
+        if (panelExpanded) {
+            currentHeightRef.current = COLLAPSED_PANEL_HEIGHT;
+            setPanelHeight(COLLAPSED_PANEL_HEIGHT);
+        } else {
+            setPanelHeight(null);
+        }
+    };
 
     return (
         <div {...props} {...stylex.props(styles.base, style)}>
@@ -138,6 +269,7 @@ export function ExperimentShell({ children, panel, style, ...props }: Experiment
 
             {panel != null && (
                 <div
+                    ref={panelRef}
                     {...stylex.props(
                         surfaceStyles({
                             background: 'soft',
@@ -146,10 +278,15 @@ export function ExperimentShell({ children, panel, style, ...props }: Experiment
                         }),
                         styles.panel,
                         !panelExpanded && styles.panelCollapsed,
+                        isDragging && styles.panelDragging,
                     )}
+                    style={
+                        {
+                            '--panel-height': panelHeight != null ? `${panelHeight}px` : undefined,
+                        } as React.CSSProperties
+                    }
                 >
                     <Button
-                        title={panelExpanded ? 'Collapse control panel' : 'Expand control panel'}
                         color="aurora"
                         background="solid"
                         style={styles.handle}
@@ -158,7 +295,11 @@ export function ExperimentShell({ children, panel, style, ...props }: Experiment
                         aria-label={
                             panelExpanded ? 'Collapse control panel' : 'Expand control panel'
                         }
-                        onClick={() => setPanelExpanded((expanded) => !expanded)}
+                        onClick={handleClick}
+                        onPointerDown={handlePointerDown}
+                        onPointerMove={handlePointerMove}
+                        onPointerUp={finishPointerDrag}
+                        onPointerCancel={finishPointerDrag}
                     >
                         ≶
                     </Button>
@@ -169,7 +310,6 @@ export function ExperimentShell({ children, panel, style, ...props }: Experiment
                             styles.panelContent,
                             !panelExpanded && styles.panelContentHidden,
                         )}
-                        aria-hidden={!panelExpanded}
                     >
                         {panel}
                     </div>

@@ -156,7 +156,7 @@ export const motion = stylex.defineConsts({
 
 export const layout = stylex.defineConsts({
     panelWidth: '320px',
-    panelMaxMobileHeight: '300px',
+    panelMaxMobileHeight: '50%',
     panelGap: '12px',
 
     controlTouchTarget: '44px',

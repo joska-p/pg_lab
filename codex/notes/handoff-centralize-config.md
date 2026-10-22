@@ -22,14 +22,14 @@
 ```ts
 // packages/randomart/src/core/config/config.ts
 export const CONFIG = {
-  terminals: { amp, phase, cycles, cycleCounts },      // draw-affecting
-  generator: { paramDecimals },                          // draw-affecting
-  grammar: { maxWeight, sizeProfiles },                  // sampler-affecting
-  sampling: { baseSeed, changeRate, benchSeedsPerGrammar, datasetSeedsPerGrammar },
-  artwork: { width, height, loopMs },                    // shell defaults
-  color: { oklabChroma },                                // shader-only
-  channels: { space, shareDepth },                       // shared with presets
-  app: { historyLimit, initialSeed },                    // lab workspace
+    terminals: { amp, phase, cycles, cycleCounts }, // draw-affecting
+    generator: { paramDecimals }, // draw-affecting
+    grammar: { maxWeight, sizeProfiles }, // sampler-affecting
+    sampling: { baseSeed, changeRate, benchSeedsPerGrammar, datasetSeedsPerGrammar },
+    artwork: { width, height, loopMs }, // shell defaults
+    color: { oklabChroma }, // shader-only
+    channels: { space, shareDepth }, // shared with presets
+    app: { historyLimit, initialSeed }, // lab workspace
 } as const;
 ```
 
@@ -37,17 +37,17 @@ export const CONFIG = {
 
 ### The Juggling (What Actually Happens)
 
-| Location | What it does | Problem |
-|----------|--------------|---------|
-| `core/color/color.ts` | Imports `CONFIG.color.oklabChroma` at **module init**, interpolates into GLSL template strings (`OKLCH_GLSL`, `OKLAB_GLSL`) | Only place config → shader source. Is chroma a taste value (config) or color-space parameter (belongs in `COLOR_SPACES`)? |
-| `core/renderer/contract/contract.ts` | `DEFAULT_LOOP_DURATION = createDurationSeconds(CONFIG.artwork.loopMs / 1000)` | Derived value, but lives in renderer layer. `parseDurationInput` in `labStore` now reads this instead of duplicating `/1000`. |
-| `core/artwork/types.ts` | `MIN_LOOP_MS = 100`, `MAX_LOOP_MS = 300_000` | **Guards** (UI slider bounds + file validation), not config. But `parseDurationInput` uses them. |
-| `core/grammar/grammar.ts` | `constraintsOf(size)` reads `CONFIG.grammar.sizeProfiles[size]` | Good — this is the intended "derived model" pattern. |
-| `core/grammar/quantized.ts` | `SIZE_PROFILE_IDS = Object.keys(CONFIG.grammar.sizeProfiles)` | Good — derives from config. |
-| `core/generator/generator.ts` | `PARAM_SCALE = 10 ** CONFIG.generator.paramDecimals` | Good — module-level constant derived from config. |
-| `core/config/types.ts` | Exports `ParamRange`, `SizeProfileId`, `ColorSpaceId`, `SizeProfiles` | Types only — fine. |
-| `core/catalog/operators/types.ts` | Exports `defineOperator` factory | **Runtime value in types.ts** (flagged in findings). |
-| `bench/notebook/types.ts` | Exports `NOTEBOOK_FILE_FORMAT`, `NOTEBOOK_FILE_VERSION`, `MAX_NOTEBOOK_FILE_LENGTH`, `isNotebookRating` | **Runtime values in types.ts** (flagged in findings). |
+| Location                             | What it does                                                                                                                | Problem                                                                                                                       |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `core/color/color.ts`                | Imports `CONFIG.color.oklabChroma` at **module init**, interpolates into GLSL template strings (`OKLCH_GLSL`, `OKLAB_GLSL`) | Only place config → shader source. Is chroma a taste value (config) or color-space parameter (belongs in `COLOR_SPACES`)?     |
+| `core/renderer/contract/contract.ts` | `DEFAULT_LOOP_DURATION = createDurationSeconds(CONFIG.artwork.loopMs / 1000)`                                               | Derived value, but lives in renderer layer. `parseDurationInput` in `labStore` now reads this instead of duplicating `/1000`. |
+| `core/artwork/types.ts`              | `MIN_LOOP_MS = 100`, `MAX_LOOP_MS = 300_000`                                                                                | **Guards** (UI slider bounds + file validation), not config. But `parseDurationInput` uses them.                              |
+| `core/grammar/grammar.ts`            | `constraintsOf(size)` reads `CONFIG.grammar.sizeProfiles[size]`                                                             | Good — this is the intended "derived model" pattern.                                                                          |
+| `core/grammar/quantized.ts`          | `SIZE_PROFILE_IDS = Object.keys(CONFIG.grammar.sizeProfiles)`                                                               | Good — derives from config.                                                                                                   |
+| `core/generator/generator.ts`        | `PARAM_SCALE = 10 ** CONFIG.generator.paramDecimals`                                                                        | Good — module-level constant derived from config.                                                                             |
+| `core/config/types.ts`               | Exports `ParamRange`, `SizeProfileId`, `ColorSpaceId`, `SizeProfiles`                                                       | Types only — fine.                                                                                                            |
+| `core/catalog/operators/types.ts`    | Exports `defineOperator` factory                                                                                            | **Runtime value in types.ts** (flagged in findings).                                                                          |
+| `bench/notebook/types.ts`            | Exports `NOTEBOOK_FILE_FORMAT`, `NOTEBOOK_FILE_VERSION`, `MAX_NOTEBOOK_FILE_LENGTH`, `isNotebookRating`                     | **Runtime values in types.ts** (flagged in findings).                                                                         |
 
 ### The Import Graph (Simplified)
 
@@ -85,7 +85,9 @@ config.ts (CONFIG)
 ## Suggested Strategy
 
 ### Phase 1: Audit & Classify
+
 Run a search for all hardcoded numbers/strings that should be configurable or are duplicated. Categorize each:
+
 - **Config** (tunable, curated defaults) → `CONFIG`
 - **Guard** (hard limit, invariant protection) → next to the brand/invariant
 - **Derived** (computed from config) → single derivation site, re-exported
@@ -93,11 +95,13 @@ Run a search for all hardcoded numbers/strings that should be configurable or ar
 - **Test fixture** → test file
 
 ### Phase 2: Centralize Config
+
 - Ensure every `CONFIG` value has exactly **one** definition
 - Every consumer reads `CONFIG.<section>.<key>` — no local copies
 - Derived models (`constraintsOf`, `DEFAULT_LOOP_DURATION`, `PARAM_SCALE`, `SIZE_PROFILE_IDS`, `channelModelOf`) are **functions/constants in their domain module**, not in config
 
 ### Phase 3: Clean Up Juggling
+
 - Move `oklabChroma` decision (config vs. color-space)
 - Move `MIN/MAX_LOOP_MS` to clear home (config or guards)
 - Move `DEFAULT_LOOP_DURATION` to single derivation site
@@ -105,6 +109,7 @@ Run a search for all hardcoded numbers/strings that should be configurable or ar
 - Move runtime values out of `types.ts` files
 
 ### Phase 4: Enforce
+
 - Add lint rule or test that pins `CONFIG` values (already have `config.test.ts`)
 - Document the "one value, one name" rule in conventions
 
@@ -112,20 +117,20 @@ Run a search for all hardcoded numbers/strings that should be configurable or ar
 
 ## Files to Touch (Likely)
 
-| File | Role |
-|------|------|
-| `core/config/config.ts` | The SSOT — audit every key |
-| `core/config/types.ts` | Types only — remove runtime exports |
-| `core/color/color.ts` | `oklabChroma` decision, `COLOR_SPACES` |
-| `core/artwork/types.ts` | `MIN/MAX_LOOP_MS` — guard vs config |
-| `core/renderer/contract/contract.ts` | `DEFAULT_LOOP_DURATION`, `HANDWRITTEN_TEST_SHADER` |
-| `core/grammar/grammar.ts` | `constraintsOf`, `channelModelOf` (keep), fix catalog import |
-| `core/grammar/quantized.ts` | `SIZE_PROFILE_IDS`, `drawGrammar` (keep derivations) |
-| `core/generator/generator.ts` | `PARAM_SCALE` (keep) |
-| `core/catalog/operators/types.ts` | Move `defineOperator` out |
-| `bench/notebook/types.ts` | Move runtime values out |
-| `stores/lab/labStore.ts` | `parseDurationInput` — single source for bounds |
-| `components/lab/RandomArtCanvas.tsx` | Default `fragmentShader` — use test shader import |
+| File                                 | Role                                                         |
+| ------------------------------------ | ------------------------------------------------------------ |
+| `core/config/config.ts`              | The SSOT — audit every key                                   |
+| `core/config/types.ts`               | Types only — remove runtime exports                          |
+| `core/color/color.ts`                | `oklabChroma` decision, `COLOR_SPACES`                       |
+| `core/artwork/types.ts`              | `MIN/MAX_LOOP_MS` — guard vs config                          |
+| `core/renderer/contract/contract.ts` | `DEFAULT_LOOP_DURATION`, `HANDWRITTEN_TEST_SHADER`           |
+| `core/grammar/grammar.ts`            | `constraintsOf`, `channelModelOf` (keep), fix catalog import |
+| `core/grammar/quantized.ts`          | `SIZE_PROFILE_IDS`, `drawGrammar` (keep derivations)         |
+| `core/generator/generator.ts`        | `PARAM_SCALE` (keep)                                         |
+| `core/catalog/operators/types.ts`    | Move `defineOperator` out                                    |
+| `bench/notebook/types.ts`            | Move runtime values out                                      |
+| `stores/lab/labStore.ts`             | `parseDurationInput` — single source for bounds              |
+| `components/lab/RandomArtCanvas.tsx` | Default `fragmentShader` — use test shader import            |
 
 ---
 
