@@ -27,23 +27,31 @@ The open findings below, smallest first.
 
 ## Open
 
-1. **Loop bounds ownership.** `CONFIG.app.minLoopMs` / `maxLoopMs` (`core/config/config.ts:75`)
-   are read in three roles: UI slider range (`components/lab/SessionSection.tsx:87`), file
-   validation bound (`core/artwork/create.ts:21`, throws) and input clamp
-   (`stores/lab/labStore.ts:312`). They are not a safety guard. Decide whether the accepted
-   range belongs to the artwork render contract (and `app` merely renders it) or whether UI
-   range and accepted range are two different values.
-2. **ms ↔ s conversion duplicated.** The `/ 1000` lives in `labStore.ts:312` and again in
-   `SessionSection.tsx:87-88`. `DEFAULT_LOOP_DURATION` is derived once in
-   `core/config/derived.ts`; the bounds deserve the same treatment (derived duration constants)
-   so a fourth copy cannot appear.
-3. **Stale cross-package reference.** `dataset/page.ts:10` still cites
-   `@repo/randomart-core/renderer/batchRenderer`, a package that no longer exists.
-4. **Test run hangs on close.** `vp test` in randomart finishes in ~0.6 s, then waits 10 s on
-   "close timed out … something prevents 2 Vite servers from exiting". Cause unidentified; worth
-   a look because it taxes every local run and any CI job that runs the package tests.
+1. **Test run hangs on close (upstream, non-blocking).** `vp test` in randomart finishes in
+   ~0.6 s, then waits 10 s on "close timed out … something prevents 2 Vite servers from
+   exiting". Cause identified by bisection: `@stylexjs/unplugin` 0.19.1. Its `configureServer`
+   starts a 150 ms polling `setInterval` and clears it only on `server.httpServer` close, but
+   Vitest's middleware-mode server has no `httpServer`, so the timer is never cleared. The fix
+   (`interval.unref()`) is upstream on `main` but not in the published 0.19.1
+   (facebook/stylex#1533, fixed after that release). Not worth a local workaround; revisit when a
+   fixed version ships. Costs ~10 s per run, nothing is leaked after `process.exit`.
 
 ## Resolved since the 2026-10-22 revision
+
+Loop bounds (findings 1–2, `3699cda`):
+
+- `MIN_LOOP_MS` / `MAX_LOOP_MS` live in `core/artwork/constants.ts`, next to the render size
+  bounds. `CONFIG.app` no longer owns them: they were guards, not workspace knobs, and
+  `core/artwork` used to depend on the `app` section for a file-format rule. The stale
+  `[MIN_LOOP_MS, MAX_LOOP_MS]` doc in `core/artwork/types.ts` is now true.
+- `MIN_LOOP_DURATION` / `MAX_LOOP_DURATION` are derived in `core/config/derived.ts` beside
+  `DEFAULT_LOOP_DURATION`; the UI slider clamp and `parseDurationInput` read them, so the ms→s
+  conversion exists once.
+
+Notes (finding 3, `3699cda`):
+
+- `dataset/page.ts` cites `../core/renderer/batchRenderer` and `./node/cli.ts`, not the deleted
+  `@repo/randomart-core` package and not `src/node/cli.ts`.
 
 Layout:
 
