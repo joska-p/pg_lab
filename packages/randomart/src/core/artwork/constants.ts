@@ -1,6 +1,9 @@
 /** Render settings bounds. */
 export const MIN_RENDER_SIZE = 1;
 export const MAX_RENDER_SIZE = 8_192;
+/** Loop duration accepted by the render contract (ms); UI range and import clamp share it. */
+export const MIN_LOOP_MS = 500;
+export const MAX_LOOP_MS = 120_000;
 export const MAX_TITLE_LENGTH = 200;
 
 /** Artwork file format. */

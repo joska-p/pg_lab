@@ -6,7 +6,7 @@ import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
 import { useSyncExternalStore } from 'react';
 
-import { CONFIG } from '../../core/config/config';
+import { MAX_LOOP_DURATION, MIN_LOOP_DURATION } from '../../core/config/derived';
 import { exportPng } from '../../stores/lab//artworkStore';
 import {
     parseDurationInput,
@@ -84,8 +84,8 @@ export function SessionSection() {
                 <NumberField
                     direction="horizontal"
                     label="loop (s)"
-                    min={CONFIG.app.minLoopMs / 1000}
-                    max={CONFIG.app.maxLoopMs / 1000}
+                    min={MIN_LOOP_DURATION}
+                    max={MAX_LOOP_DURATION}
                     step={0.5}
                     value={duration}
                     onValueChange={(val) => {

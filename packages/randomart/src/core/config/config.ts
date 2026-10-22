@@ -70,10 +70,6 @@ interface Config {
         readonly historyLimit: number;
         /** Initial artwork seed for reproducible first screen. */
         readonly initialSeed: number;
-        /** UI slider minimum for loop duration (ms). */
-        readonly minLoopMs: number;
-        /** UI slider maximum for loop duration (ms). */
-        readonly maxLoopMs: number;
     };
 }
 
@@ -113,8 +109,6 @@ export const CONFIG = {
     app: {
         historyLimit: 30,
         initialSeed: 42,
-        minLoopMs: 500,
-        maxLoopMs: 120_000,
     },
 } as const satisfies Config;
 

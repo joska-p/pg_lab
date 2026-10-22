@@ -7,10 +7,10 @@ import { createBatchRenderer } from '../core/renderer/batchRenderer';
 
 /**
  * Dataset page: the in-browser half of the offline dataset pipeline. It owns no rendering of its
- * own any more — the GPU work lives in `@repo/randomart-core/renderer/batchRenderer` (the same
- * renderer the bench uses). This file is only the wire adapter: a serialization boundary for
- * `src/node/cli.ts`, which drives it through `window.datasetApi`. Images are drawn at phase 0, one
- * program at a time, on the renderer's single reused surface.
+ * own — the GPU work lives in `../core/renderer/batchRenderer` (the same renderer the bench uses).
+ * This file is only the wire adapter: a serialization boundary for `./node/cli.ts`, which drives it
+ * through `window.datasetApi`. Images are drawn at phase 0, one program at a time, on the
+ * renderer's single reused surface.
  */
 const renderer = createBatchRenderer();
 

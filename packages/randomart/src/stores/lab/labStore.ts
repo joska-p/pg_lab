@@ -11,7 +11,11 @@ import type { OperatorId } from '../../core/catalog/types';
 import { compile } from '../../core/compiler/compile';
 import type { CompiledShader } from '../../core/compiler/types';
 import { CONFIG } from '../../core/config/config';
-import { DEFAULT_LOOP_DURATION } from '../../core/config/derived';
+import {
+    DEFAULT_LOOP_DURATION,
+    MAX_LOOP_DURATION,
+    MIN_LOOP_DURATION,
+} from '../../core/config/derived';
 import type { ColorSpaceId, SizeProfileId } from '../../core/config/types';
 import type { Expression } from '../../core/expression/types';
 import { generate } from '../../core/generator/generator';
@@ -309,7 +313,7 @@ export function publishLabState(published: {
 export function parseDurationInput(raw: string): DurationSeconds {
     const n = parseFloat(raw);
     const clamped = Number.isFinite(n)
-        ? Math.min(CONFIG.app.maxLoopMs / 1000, Math.max(CONFIG.app.minLoopMs / 1000, n))
+        ? Math.min(MAX_LOOP_DURATION, Math.max(MIN_LOOP_DURATION, n))
         : DEFAULT_LOOP_DURATION;
 
     return createDurationSeconds(clamped);
