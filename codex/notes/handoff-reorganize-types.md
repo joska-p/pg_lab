@@ -1,7 +1,7 @@
 # Handoff: Reorganize Type & Interface Declarations
 
 **Date:** 2026-10-22  
-**Context:** After config centralization pass — codebase clean, tests pass (286/1 skipped), `vp check --fix` clean. Branch: `main` at `586221b` (after catalog reorganization commit).
+**Context:** After config centralization pass — codebase clean, tests pass (286/1 skipped), `vp check --fix` clean. Branch: `main` at `2fd6aef` (after color reorganization commit).
 
 ---
 
@@ -58,49 +58,93 @@
 
 ---
 
-## Observed Issues (Remaining)
+## ✅ COMPLETED: `color` Domain
 
-### 1. `core/color/types.ts` — Already has `ChannelModel` but...
+**Commit:** `2fd6aef` — "reorganize: centralize color types & constants; move ChannelModel to grammar"
 
-...`MIN_SHARE_DEPTH` and `RAW_CHANNELS` are in `color.ts` (implementation). Should they be in `types.ts` or `constants.ts`?
+### What was done:
 
-### 2. `core/color/color.ts` — Exports many constants + `ColorSpace` interface
+- **Created** `core/color/registry.ts`: `colorSpaceRegistry` (camelCase), `ColorSpaceId` (`keyof typeof colorSpaceRegistry`), `colorSpaceIds`, `ColorSpaceRegistry`
+- **Updated** `core/color/types.ts`: `ColorSpace` interface only (no `ChannelModel`, no `ColorSpaceId` — that lives in registry)
+- **Removed** `core/color/constants.ts` — `MIN_SHARE_DEPTH` and `RAW_CHANNELS` were grammar-axis constants, not color constants
+- **Updated** `core/color/color.ts`: exports only functions (`isColorSpaceId`, `colorSpaceFunction`, `colorSpaceGlsl`)
+- **Moved** `ChannelModel` → `core/grammar/types.ts` (belongs with grammar axes: `space` + `shareDepth`)
+- **Created** `core/grammar/constants.ts`: `MIN_SHARE_DEPTH`, `RAW_CHANNELS` (grammar owns its channel model defaults)
+- **Updated consumers**: `grammar/grammar.ts`, `grammar/quantized.ts`, `compiler/compile.ts`, `compiler/types.ts`, `artwork/serialize.ts`, `components/lab/GrammarSection.tsx`, `components/lab/Inspector.tsx`, `color/color.test.ts`
+- **`ColorSpaceId` now derived from registry** (like `OperatorId`/`DependencyId` pattern) — allows `keyof typeof registry` without cycles
 
-`COLOR_SPACES`, `COLOR_SPACE_IDS`, `MIN_SHARE_DEPTH`, `RAW_CHANNELS`, `ColorSpace` interface.
+### Verification:
 
-### 3. `core/grammar/types.ts` — Has `Grammar`, `GrammarPins`, `GrammarData` (added), `GrammarPreset`...
+- ✅ `vp check --fix` clean
+- ✅ `vp test` all 286 tests pass
+- ✅ No types exported from implementation files
+- ✅ No constants in `types.ts`
+- ✅ No import cycles introduced
+- ✅ Registry uses camelCase (`colorSpaceRegistry`), constants use SCREAMING_SNAKE_CASE
+- ✅ `ColorSpaceId` is precise union type (`'srgb' | 'oklch' | 'oklab' | 'hsl'`)
 
-...`GrammarPreset` is in `presets.ts`. Should be in `types.ts`.
+---
 
-### 4. `core/grammar/presets.ts` — Exports `GRAMMAR_PRESETS` (constant) + `GrammarPreset` (type)
+## ⚠️ NEXT: `grammar` Domain — **Types Are a Mess Here**
 
-Type → `types.ts`, constant → `constants.ts`.
+**This is the next target and it needs serious cleanup.**
+
+### Current State (as of `2fd6aef`):
+
+`core/grammar/types.ts` currently has **overlapping/duplicate definitions** that only became visible after the methodical cleanup of `color`:
+
+| Type | Location | Issue |
+|------|----------|-------|
+| `Grammar` | `types.ts` | Brand type — OK |
+| `GrammarPins` | `types.ts` | OK — input shape for `drawGrammar` |
+| `GrammarPreset` | `types.ts` | **Also exported from `presets.ts`** — duplicate! |
+| `GrammarData` | `types.ts` | OK — serialization DTO |
+| `ChannelModel` | `types.ts` | Just moved here from `color` — OK |
+| `SampleOptions` | `types.ts` | Extends `GrammarPins` — OK |
+
+### Specific Problems to Fix:
+
+1. **`GrammarPreset` duplicated** — defined in `types.ts` AND exported from `presets.ts`. The type belongs in `types.ts`; the constant `GRAMMAR_PRESETS` belongs in `constants.ts` (new) or stays in `presets.ts` but re-exports the type from `types.ts`.
+
+2. **`presets.ts` exports both type + constant** — violates separation. Type → `types.ts`, constant → `constants.ts` (create).
+
+3. **`grammar.ts` exports `channelModelOf` which returns `ChannelModel`** — this is fine, but `ChannelModel` now lives in `grammar/types.ts` so no cross-domain import needed.
+
+4. **Need to check if `GrammarPins` / `SampleOptions` are truly domain types or just internal** — if only used in `grammar/` + `quantized.ts`, keep in `types.ts`.
+
+### Files to Touch:
+
+- `core/grammar/types.ts` — deduplicate, ensure only domain types
+- `core/grammar/constants.ts` — **create** (add `GRAMMAR_PRESETS` here, keep `MIN_SHARE_DEPTH`, `RAW_CHANNELS`)
+- `core/grammar/presets.ts` — remove `GrammarPreset` type export, import from `./types`; export only `GRAMMAR_PRESETS` constant (or move constant to `constants.ts`)
+- `core/grammar/grammar.ts` — update imports
+- `core/grammar/quantized.ts` — update imports
+- `core/grammar/sample.ts` — check imports
+- Consumers: `stores/lab/labStore.ts`, `components/lab/GrammarSection.tsx`, `components/lab/Inspector.tsx`, `bench/notebook/notebook.ts`, test files
+
+---
+
+## Observed Issues (Remaining — After Grammar)
 
 ### 5. `core/expression/types.ts` — Exports `Expression`, `Node`, `NodeData`, `Channel`
-
 ...but `NodeData` is serialization shape. Convention: `*Data` DTOs belong in domain's `types.ts` (already done for `GrammarData`).
 
 ### 6. `core/expression/serialize.ts` — Exports `NodeData`, `ExpressionData`, constants
-
 Types → `expression/types.ts` (already there), constants → `expression/constants.ts`.
 
 ### 7. `core/random/seed.ts` — Exports `Seed` brand + `createSeed`, `randomSeed`
-
 `Seed` type is domain; functions are implementation. Already mostly clean. `MAX_SEED` constant → `random/constants.ts`.
 
 ### 8. `core/random/rng.ts` — Exports `Rng` interface
-
 Type → `random/types.ts` (create if needed).
 
 ### 9. `core/renderer/*` — Multiple type exports from implementation files
-
 - `contract/contract.ts`: `Phase` (brand)
 - `batch/batch.ts`: `RenderedBatch`, `BatchRenderer`
 - `renderGate/renderGate.ts`: `RenderKey`
 - `types.ts` exists but may not have all types
 
 ### 10. `core/compiler/*` — Types in implementation files
-
 - `emit.ts`: `EmitResult`
 - `lower.ts`: `Vertex`, `ContextDef`, `LowerResult`
 - `preamble.ts`: `PreambleResult`
@@ -108,15 +152,12 @@ Type → `random/types.ts` (create if needed).
 - Constants: `MAX_SOURCE_LENGTH` in `types.ts` → `constants.ts`, GLSL constants in `contract.ts` → `constants.ts`
 
 ### 11. `stores/lab/historyStore.ts` — Exports `HistoryEntry` type
-
 Used in `labStore.ts`. **Should live in `stores/lab/types.ts`** (new file) or `labStore.ts` if single-consumer.
 
 ### 12. `stores/lab/modeStore.ts` — Exports `AppMode` type
-
 Used in `Controls.tsx`, `Scene.tsx`. Single-consumer? Keep in `modeStore.ts` or move to `stores/lab/types.ts`.
 
 ### 13. `stores/bench/benchSettingsStore.ts` — Exports `CellSize`, `BenchView`, `BenchSettings` + constants
-
 Types → `stores/bench/types.ts`, constants → `stores/bench/constants.ts`.
 
 ### 14. `bench/lot/planche.ts` — Exports `PlancheCell`, `PlancheRow`, `Planche`, `PlancheOptions`, `PLANCHE_DIM_FACTOR`
@@ -162,24 +203,7 @@ core/<domain>/
 - `*Data` DTOs in domain's `types.ts` (part of public contract)
 - Registries = `camelCase` (`operatorRegistry`), true constants = `SCREAMING_SNAKE_CASE`
 - Each domain owns its types — no `types.ts` barrels re-exporting other domains' types
-- **Registry key types (`OperatorId`, `DependencyId`, etc.) exported from the file defining the registry** — allows `keyof typeof registry` without cycles
-
----
-
-## Next Recommended Domain: `color`
-
-**Why:**
-
-- Clear ownership: `ColorSpace` interface in `color.ts`, `COLOR_SPACES`/`COLOR_SPACE_IDS` constants
-- Used by `artwork`, `compiler`, `generator`, `renderer` — centralizing helps consumers
-- `color.ts` already mixes types + constants + implementation
-
-**Files to touch:**
-
-- `core/color/types.ts` (update) ← `ColorSpace`, `ChannelModel`, `ColorSpaceId` (move from `color.ts`)
-- `core/color/constants.ts` (create) ← `COLOR_SPACES`, `COLOR_SPACE_IDS`, `MIN_SHARE_DEPTH`, `RAW_CHANNELS`
-- `core/color/color.ts` — remove type/constant exports, keep only implementation functions
-- Update consumers: `artwork/types.ts`, `artwork/serialize.ts`, `compiler/preamble.ts`, `generator/generator.ts`, `renderer/batch/batch.ts`, `grammar/grammar.ts`, tests
+- **Registry key types (`OperatorId`, `DependencyId`, `ColorSpaceId`, etc.) exported from the file defining the registry** — allows `keyof typeof registry` without cycles
 
 ---
 
@@ -187,7 +211,7 @@ core/<domain>/
 
 - [x] `artwork` domain complete
 - [x] `catalog` domain complete
-- [ ] `color` domain
+- [x] `color` domain complete
 - [ ] `grammar` domain
 - [ ] `expression` domain
 - [ ] `random` domain
@@ -207,16 +231,21 @@ core/<domain>/
 
 ---
 
-## Tips for Next Agent
+## Tips for Next Agent (Grammar Domain)
 
-- Start with `rg -n "export (type|interface|const) [A-Z]" packages/randomart/src --type ts` to find all exports
-- The `bench/notebook/constants.ts` pattern is the model to follow
-- Don't over-abstract: if a type is truly only used in one file, keep it local
-- Watch for import cycles when centralizing — may need barrel files
-- The `config/` module is already clean (types.ts + config.ts + derived.ts) — use as reference
-- **New:** `artwork` domain is the reference for the pattern (types.ts + constants.ts + implementation files)
-- **New:** `GrammarData` lives in `grammar/types.ts` (owner of `Grammar`) — follow this for other `*Data` DTOs
-- **New:** `catalog` domain shows registry key type pattern — `OperatorId`/`DependencyId` exported from registry/constants file with `keyof typeof registry`
+- **Start here:** `rg -n "export (type|interface|const) [A-Z]" packages/randomart/src/core/grammar --type ts` to find all exports in grammar
+- **The duplicate `GrammarPreset` is the smoking gun** — it's in both `types.ts` and `presets.ts`
+- **Create `grammar/constants.ts`** for `GRAMMAR_PRESETS` (and keep `MIN_SHARE_DEPTH`, `RAW_CHANNELS`)
+- **`GrammarPreset` type → `types.ts`**, constant → `constants.ts`
+- **Follow the pattern:** `artwork` (types + constants + impl), `catalog` (types + constants + registry + impl), `color` (types + registry + impl, no constants)
+- **Watch for:** `SampleOptions` extends `GrammarPins` — both are domain types, keep in `types.ts`
+- **Config pattern:** `config/types.ts` + `config/config.ts` + `config/derived.ts`
+- **Notebook pattern:** `notebook/types.ts` + `notebook/constants.ts` + re-export from types
+- **Artwork pattern (DONE):** `artwork/types.ts` + `artwork/constants.ts` + implementation files
+- **Catalog pattern (DONE):** `catalog/types.ts` + `catalog/constants.ts` + `operators/registry.ts` + implementation files
+- **Color pattern (DONE):** `color/types.ts` + `color/registry.ts` + `color/color.ts` (functions only)
+- **Branch:** `main` at `2fd6aef`
+- **Run:** `vp -C packages/randomart check --fix && vp -C packages/randomart test` before starting
 
 ---
 
@@ -226,5 +255,6 @@ core/<domain>/
 - **Notebook pattern:** `notebook/types.ts` (types) + `notebook/constants.ts` (values) + re-export from types
 - **Artwork pattern (DONE):** `artwork/types.ts` + `artwork/constants.ts` + implementation files
 - **Catalog pattern (DONE):** `catalog/types.ts` + `catalog/constants.ts` + `operators/registry.ts` (exports registry + `OperatorId`/`OperatorRegistry`) + implementation files
-- **Branch:** `main` at `586221b`
+- **Color pattern (DONE):** `color/types.ts` + `color/registry.ts` + `color/color.ts` (functions only)
+- **Branch:** `main` at `2fd6aef`
 - **Run:** `vp -C packages/randomart check --fix && vp -C packages/randomart test` before starting
