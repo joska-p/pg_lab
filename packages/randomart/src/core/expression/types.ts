@@ -19,3 +19,20 @@ export type Expression = Brand<
     },
     'Expression'
 >;
+
+// ---------------------------------------------------------------------------
+// Serialization DTOs (plain JSON representations)
+// ---------------------------------------------------------------------------
+
+/** Plain JSON form of a node: `op` first, then optional `params` and `in` when non-empty. */
+export interface NodeData {
+    readonly op: string;
+    readonly params?: readonly number[];
+    readonly in?: readonly NodeData[];
+}
+
+export interface ExpressionData {
+    readonly r: NodeData;
+    readonly g: NodeData;
+    readonly b: NodeData;
+}

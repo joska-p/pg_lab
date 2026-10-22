@@ -1,4 +1,4 @@
-import type { Expression } from '../expression/types';
+import type { Expression, ExpressionData } from '../expression/types';
 import type { Grammar, GrammarData } from '../grammar/types';
 import type { Seed } from '../random/seed';
 import type { Brand } from '../shared/shared';
@@ -63,5 +63,5 @@ export interface ArtworkData {
         readonly seed: number;
         readonly grammar: GrammarData;
     };
-    readonly expression: import('../expression/serialize').ExpressionData;
+    readonly expression: ExpressionData;
 }

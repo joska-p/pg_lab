@@ -1,24 +1,8 @@
 import { catalog } from '../catalog/default';
 import { isRecord } from '../shared/shared';
+import { MAX_IMPORT_DEPTH, MAX_IMPORT_NODES } from './constants';
 import { createExpression, createNode } from './expression';
-import type { Expression, Node } from './types';
-
-/** Import guards: checked while reading, so a hostile file never reaches the compiler. */
-export const MAX_IMPORT_NODES = 5_000;
-export const MAX_IMPORT_DEPTH = 64;
-
-/** Plain JSON form of a node: `op` first, then optional `params` and `in` when non-empty. */
-export interface NodeData {
-    readonly op: string;
-    readonly params?: readonly number[];
-    readonly in?: readonly NodeData[];
-}
-
-export interface ExpressionData {
-    readonly r: NodeData;
-    readonly g: NodeData;
-    readonly b: NodeData;
-}
+import type { Expression, ExpressionData, Node, NodeData } from './types';
 
 function serializeNode(node: Node): NodeData {
     const data: { op: string; params?: number[]; in?: NodeData[] } = { op: node.operatorName };
