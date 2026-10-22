@@ -8,9 +8,7 @@ import type { Grammar } from '../grammar/types';
 import { createRng } from '../random/rng';
 import type { Seed } from '../random/seed';
 
-// Increment on any change that alters the output for a given seed: PRNG algorithm, order in which
-// random numbers are consumed (operator draw, then one draw per param, then children left to right,
-// channels r, g, b), the draw rule, or rounding. A seed is only meaningful with one version.
+// Increment on any change altering output for a given seed: PRNG algorithm, draw order, rule, or rounding.
 export const GENERATOR_VERSION = 4;
 
 /** Integer scale of the param rounding: `PARAM_DECIMALS` decimal places. */
@@ -23,23 +21,12 @@ interface TrunkResult {
 }
 
 /**
- * Generates the three-channel expression of a grammar for a seed.
+ * Generates a three-channel expression from a grammar and seed.
  *
- * The three channels correlate through `grammar.shareDepth`: the top `shareDepth` levels are the
- * **shared trunk** — their operator and params are drawn once, so all channels agree there — and
- * below it each channel diverges on operators _and_ params (diverging on values alone would only
- * leave grey zones). `0` gives the historical three independent trees; `>= maxDepth` gives a single
- * tree, hence `r = g = b`.
- *
- * A terminal drawn inside the trunk ends its branch for good, so the deeper the trunk (or the
- * earlier a terminal falls), the more the channels coincide — this is the cost of correlation. The
- * budget is still per channel: the shared levels hand each channel the same budget, and a divergent
- * slot is accounted for at its widest channel, so every channel satisfies `maxNodes` and
- * `minDepth`.
- *
- * It cannot get stuck on a valid grammar: each node receives a budget B >= minSize(depth), so a
- * candidate always exists (the smallest-arity non-terminal before minDepth, a terminal after). The
- * budget is split as m + floor(free / (k - i)); the last child gets the remainder.
+ * Channels share the top `shareDepth` levels (same operator + params). Below that, they diverge on
+ * both operators and params. `shareDepth = 0` = three independent trees; `>= maxDepth` = single
+ * tree. Budget is per-channel; shared levels give each channel the same budget. Cannot get stuck on
+ * a valid grammar: each node gets budget >= minSize(depth), so a candidate always exists.
  */
 export function generate(grammar: Grammar, seed: Seed): Expression {
     const rng = createRng(seed);
@@ -137,8 +124,7 @@ export function generate(grammar: Grammar, seed: Seed): Expression {
     }
 
     function generateTrunk(currentDepth: number, budget: number): TrunkResult {
-        // Below the trunk the channels diverge: three independent draws from the same stream. The
-        // parent accounts for the widest channel, so each channel still fits the shared budget.
+        // Below trunk: channels diverge; parent accounts for widest channel so each fits shared budget.
         if (currentDepth > shareDepth) {
             const r = generateNode(currentDepth, budget);
             const g = generateNode(currentDepth, budget);
@@ -151,7 +137,7 @@ export function generate(grammar: Grammar, seed: Seed): Expression {
             };
         }
 
-        // Inside the trunk the operator and params are drawn once, so the channels agree here.
+        // Inside trunk: operator and params drawn once, channels agree here.
         const operator = drawOperator(currentDepth, budget);
         const paramValues = drawParams(operator);
         const childResults =
@@ -165,8 +151,7 @@ export function generate(grammar: Grammar, seed: Seed): Expression {
         const childrenAt = (channel: number): readonly Node[] =>
             childResults.map((child) => child.nodes[channel]);
 
-        // A subtree that never diverges is built once and handed to all three channels, so the
-        // mono case (`shareDepth >= maxDepth`) really is a single tree.
+        // Mono case (shareDepth >= maxDepth): single tree built once, handed to all three channels.
         if (childResults.every((child) => child.shared)) {
             const node = createNode(catalog, operator.name, childrenAt(0), paramValues);
 

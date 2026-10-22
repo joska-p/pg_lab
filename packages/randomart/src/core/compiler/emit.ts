@@ -18,17 +18,14 @@ function inputText(
 ): string {
     const varName = varNames.get(id);
     if (varName !== undefined) {
-        // Variable names are atoms (identifiers); no wrapping needed.
         return varName;
-    }
-    // Inline text: wrap if not atom/paren-enclosed. A vertex is either named or inlined when it is
-    // emitted, so a missing text means the program order broke — fail loudly, never emit `undefined`.
-    const inline = inlineTexts.get(id);
+    } // atoms need no wrapping
 
+    // Inline text: wrap if not atom/paren-enclosed. Missing text = program order broken.
+    const inline = inlineTexts.get(id);
     if (inline === undefined) {
         throw new Error(`Emit: vertex ${id} has neither a variable nor inline text`);
     }
-
     return wrapInput(inline);
 }
 
@@ -52,10 +49,7 @@ function shouldHaveVariable(
     }
 }
 
-/**
- * Emits GLSL statements in topological program order. Returns lines, variable count, channel roots,
- * and used dependencies.
- */
+/** Emits GLSL in topological program order. Returns lines, var count, channel roots, used deps. */
 export function emit(
     catalog: Catalog,
     { program, vertices, usages, roots }: LowerResult,

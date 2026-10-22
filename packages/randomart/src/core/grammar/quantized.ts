@@ -16,12 +16,7 @@ import {
 } from './grammar';
 import type { Grammar, GrammarPins } from './types';
 
-/**
- * The quantized grammar space: every operator weight is an integer in `[0,
- * CONFIG.grammar.maxWeight]`, the size profile fixes the constraints, and `shareDepth` is bounded
- * by that profile's `maxDepth`. Everything is discrete by construction; there is no continuous
- * recipe behind a grammar.
- */
+/** Quantized grammar space: weights are integers in [0, maxWeight]; size profile fixes constraints. */
 
 export const SIZE_PROFILE_IDS = Object.keys(
     CONFIG.grammar.sizeProfiles,
@@ -36,7 +31,7 @@ export function grammarKey(grammar: Grammar): string {
     return JSON.stringify([weights, grammar.size, grammar.shareDepth, grammar.space]);
 }
 
-/** Raises the first operator of the list to weight 1 when the whole list is off. */
+/** Raises first operator to weight 1 when all are off. */
 function ensureActive(
     weights: Partial<Record<OperatorId, number>>,
     operators: readonly Operator[],
@@ -52,21 +47,15 @@ function ensureActive(
     }
 }
 
-/**
- * A drawn grammar is always usable: at least one terminal (a tree can end) and one non-terminal
- * (every size profile has `minDepth > 1`, so a terminal-only vocabulary cannot grow). Independent
- * uniform draws almost never violate either rule; the repair is deterministic and consumes no
- * PRNG.
- */
+/** Ensures at least one terminal and one non-terminal are active (repair is deterministic, no PRNG). */
 function ensureUsableVocabulary(weights: Partial<Record<OperatorId, number>>): void {
     ensureActive(weights, catalog.operators().filter(isTerminalOperator));
     ensureActive(weights, catalog.operators().filter(isNonTerminalOperator));
 }
 
 /**
- * A random point of the space: one independent uniform weight per operator, then the size, share
- * and color axes. The seed stays comparable across grammars (`drawGrammar` consumes its own RNG).
- * Pins replace an axis instead of drawing it.
+ * Random point in grammar space: uniform weight per operator, then size/share/color axes. Pins
+ * replace axes.
  */
 export function drawGrammar(rng: Rng, pins: GrammarPins = {}): Grammar {
     const weights: Partial<Record<OperatorId, number>> = {};
@@ -85,12 +74,12 @@ export function drawGrammar(rng: Rng, pins: GrammarPins = {}): Grammar {
     return createGrammar({ weights, size, shareDepth, space });
 }
 
-/** Golden-ratio multiplicative hash: distinct indices give well-separated 32-bit seeds. */
+/** Golden-ratio hash: distinct indices give well-separated 32-bit seeds. */
 export function deriveSeed(base: number, index: number): Seed {
     return createSeed((Math.imul(index + 1, 0x9e37_79b1) ^ base) >>> 0);
 }
 
-/** The image seeds of one sampled item: index-stable, so the whole sample is deterministic. */
+/** Image seeds for one sampled item: index-stable for deterministic sampling. */
 export function itemSeeds(baseSeed: number, index: number, seedsPerItem: number): readonly Seed[] {
     return Array.from({ length: seedsPerItem }, (_, k) =>
         deriveSeed(baseSeed ^ 0x5bd1_e995, index * seedsPerItem + k),

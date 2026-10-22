@@ -44,8 +44,7 @@ interface LabState {
     canvas: HTMLCanvasElement | null;
 }
 
-// No default grammar: the first screen draws one, from the initial seed, so it stays reproducible.
-// Animation is a matter of playback (Play/Pause on the clock), not of grammar.
+// No default grammar: first screen draws from initial seed (reproducible). Animation = clock playback, not grammar.
 const initialSeed = createSeed(CONFIG.app.initialSeed);
 const initialGrammar = drawRandomGrammar(createRng(initialSeed));
 const initialExpression = generate(initialGrammar, initialSeed);
@@ -76,10 +75,7 @@ const store = create<LabState>(() => ({
 
 pushHistoryEntry(initialEntry, false, CONFIG.app.historyLimit);
 
-/**
- * Id of the history entry created by the current run of grammar edits (weights, size, share,
- * space), if any.
- */
+// History entry id from current grammar edit run (weights/size/share/space), if any.
 let grammarEditId: number | null = null;
 
 export function useClockStore(): ClockStore {
@@ -152,11 +148,8 @@ export function setActionError(error: unknown): void {
 }
 
 /**
- * The single write point for "a new image": generate → compile → publish, all or nothing. On
- * failure (compiler guard, bug, bad import) the previous state is kept and the error is shown.
- * Without `restoreId` a new history entry is recorded; with it, the entry is simply re-selected.
- * With `coalesce`, consecutive calls (while sliding a grammar knob) replace each other's entry
- * instead of flooding the history.
+ * Single write point for "new image": generate → compile → publish, all or nothing. On failure,
+ * keeps previous state. `restoreId` re-selects entry; `coalesce` replaces consecutive edits.
  */
 function commit(
     grammarOrChange: Grammar | (() => Grammar),
@@ -165,8 +158,7 @@ function commit(
     coalesce = false,
 ): void {
     try {
-        // A thunk keeps editor validation (createGrammar may refuse a gesture) inside the single
-        // error boundary, so a refused edit surfaces as actionError instead of escaping a handler.
+        // Thunk keeps editor validation (createGrammar may refuse) inside single error boundary.
         const grammar = typeof grammarOrChange === 'function' ? grammarOrChange() : grammarOrChange;
         const expression = generate(grammar, seed);
         const compiledShader = compile(catalog, expression, {
@@ -246,10 +238,7 @@ export function setGrammarSpace(space: ColorSpaceId): void {
     editGrammar((grammar) => createGrammar({ ...grammar, space }));
 }
 
-/**
- * Restores an imported artwork by its expression, without regenerating: the expression is the
- * reference, and regeneration would lose a hand-edited import.
- */
+/** Restores imported artwork by expression (no regeneration; would lose hand-edited import). */
 function restoreImportedEntry(entry: HistoryEntry): void {
     const expression = entry.expression;
 
@@ -281,7 +270,7 @@ export function restoreEntry(id: number): void {
         return;
     }
 
-    // Imported artworks whose provenance does not replay keep their expression.
+    // Imported artworks with non-replaying provenance keep their expression.
     if (entry.expression) {
         restoreImportedEntry(entry);
         return;
@@ -291,8 +280,8 @@ export function restoreEntry(id: number): void {
 }
 
 /**
- * Publishes an already-compiled artwork into the workspace. Used by artwork imports and by the
- * bench's "open in Lab": the expression is shown as-is, and history records a new entry.
+ * Publishes compiled artwork (imports, bench "open in Lab"): expression shown as-is, new history
+ * entry.
  */
 export function publishLabState(published: {
     grammar: Grammar;
@@ -315,10 +304,8 @@ export function publishLabState(published: {
 }
 
 /**
- * Parses a raw string into a valid DurationSeconds — a repair entry with the _concept_ bounds: the
- * loop duration has one bound set, the artwork's render bounds, so the UI can now represent
- * anything a file may carry. A non-finite input is garbage, not an intent: it takes the concept
- * default (`DEFAULT_LOOP_DURATION`).
+ * Parses string to DurationSeconds with concept bounds (artwork render bounds). Non-finite →
+ * default.
  */
 export function parseDurationInput(raw: string): DurationSeconds {
     const n = parseFloat(raw);

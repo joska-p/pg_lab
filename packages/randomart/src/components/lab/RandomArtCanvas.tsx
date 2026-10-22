@@ -34,12 +34,9 @@ interface RandomArtCanvasProps {
 }
 
 /**
- * Thin adapter around @repo/glaze GpuCanvas tailored for randomart. Configures timed clock looping
- * (paused at phase 0 until the user presses Play), WebGL context flags, and supplies `u_phase`.
- *
- * Rendering is lazy: a still image, a paused animation or a static shader costs no GPU time. This
- * relies on `preserveDrawingBuffer: true` (the picture survives between frames); the gate redraws
- * on phase changes, canvas resizes (which clear the buffer) and context restoration.
+ * Thin adapter around @repo/glaze GpuCanvas for randomart. Timed clock (paused at phase 0), WebGL
+ * context flags, supplies `u_phase`. Lazy rendering: still/paused/static costs no GPU time. Relies
+ * on `preserveDrawingBuffer: true`; gate redraws on phase change, resize, context restore.
  */
 export function RandomArtCanvas({
     fragmentShader = HANDWRITTEN_TEST_SHADER,
@@ -77,13 +74,11 @@ export function RandomArtCanvas({
             shouldRender={(surface) => {
                 const key: RenderKey = {
                     phase: createPhase(surface.clock.progress),
-                    // Safe within a frame: glaze's `#resize()` runs before the frame subscribers
-                    // and clamps the CSS size to >= 1, so the brand invariant holds here. Never
-                    // build these in an eager path (onMount, effects): the surface dimensions are
-                    // still 0 before the first frame.
+                    // Safe in-frame: glaze's resize() runs before subscribers, clamps CSS size >= 1.
+                    // Never build in eager paths (onMount, effects): surface dims are 0 before first frame.
                     width: createCanvasDimension(surface.width),
                     height: createCanvasDimension(surface.height),
-                    // Already a DevicePixelRatio glaze-side: carried, not de-branded.
+                    // DPR carried from glaze, not de-branded.
                     dpr: surface.dpr,
                     animated,
                 };

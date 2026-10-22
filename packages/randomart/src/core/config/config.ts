@@ -1,123 +1,78 @@
 import type { ParamRange, ColorSpaceId, SizeProfiles, SizeProfileId } from './types';
 
 /**
- * The curated values of the package, in one typed module: every number a caller never passes and
- * every value the app starts from. Edit + HMR, no code change.
+ * Package curated values — single source of truth for quantized axes. Edit + HMR, no code change.
  *
- * This file is the **single source of truth of the quantized axes**: the weight range and the size
- * ids come from its `grammar` section, so adding a profile (`xx-large`, …) is adding an entry here
- * — the compiler then points at every site that must handle it.
+ * One value, one name: consumers read `CONFIG.<section>.<key>`; no re-declaration. Derived models
+ * (e.g., `constraintsOf`) are composition, not renaming. Keys are bare (no `default` prefix).
  *
- * **One value, one name.** A consumer reads `CONFIG.<section>.<key>`; it does not re-declare the
- * value under a second name. A domain may _derive_ a model from these values (`DEFAULT_CHANNELS`,
- * `constraintsOf`, `DEFAULT_LOOP_DURATION`), which is composition, not renaming. The `default`
- * prefix is redundant on the keys themselves: a value hardcoded here is, by construction, the
- * default of its section — so the keys are bare (`artwork.width`, `channels.space`).
+ * Guards (hard limits) live next to the invariants they protect, not here — they're not for tuning.
  *
- * This is NOT where guards live. Hard limits that keep the system safe (`MAX_SOURCE_LENGTH`,
- * `MAX_RENDER_SIZE`, `MAX_ARTWORK_FILE_LENGTH`…) stay next to the invariants they protect: they are
- * not meant to be tuned, and putting them here would invite tuning them. A `types.ts` may carry the
- * guards of its concept; it must never carry a config value or an alias of one.
- *
- * PRNG sensitivity (see `GENERATOR_VERSION` in `../generator`): a seed reproduces an image only
- * with the same grammar AND the same draw-affecting values. Changing anything under `terminals` or
- * `generator` alters the numbers every seed produces → **bump `GENERATOR_VERSION` and regenerate
- * the generator snapshots**. Changing `grammar` (the weight range, the set of profiles) or
- * `sampling` alters which grammars and seeds the sampler explores, but not what `generate()` draws
- * for a grammar whose fields are unchanged. Editing an existing `sizeProfiles` entry is the
- * exception: it changes the constraints of grammars already using that profile, so treat it as
- * draw-affecting. `color` changes the rendered image without changing the expression (a shader
- * change, not a generator one); `artwork` and `app` are shell/render policy and affect no PRNG
- * stream. The pinning tests in `config.test.ts` fail on any change, as the reminder.
+ * PRNG sensitivity: a seed reproduces an image only with same grammar AND draw-affecting values.
+ * Changing `terminals` or `generator` → bump `GENERATOR_VERSION` and regenerate snapshots. Changing
+ * `grammar`/`sampling` alters sampler exploration, not `generate()` output for fixed grammar.
+ * Editing an existing `sizeProfiles` entry is draw-affecting. `color` changes shader output only.
+ * Pinning tests in `config.test.ts` fail on any change.
  */
 interface Config {
-    /** Time terminals `x`/`y` (catalog/operators/terminals.ts). Draw-affecting. */
+    /** Time terminals `x`/`y`. Draw-affecting. */
     readonly terminals: {
-        /**
-         * Oscillator amplitude. At most 0.7: a pure oscillator would be constant in space and
-         * flatten its subtree.
-         */
+        /** Oscillator amplitude. At most 0.7 to avoid constant-in-space flattening. */
         readonly amp: ParamRange;
-        /** Oscillator phase, drawn as a share of [-1, 1] and emitted as `PI * phase`. */
+        /** Oscillator phase, drawn as share of [-1, 1], emitted as `PI * phase`. */
         readonly phase: ParamRange;
-        /**
-         * Cycle-count share in [0, 1], mapped to whole cycles per loop through `cycleCounts` (`min +
-         * round((max - min) * share)`). Whole cycles keep the loop exactly periodic.
-         */
+        /** Cycle-count share in [0, 1], mapped to whole cycles per loop via `cycleCounts`. */
         readonly cycles: ParamRange;
-        /** Whole cycles per loop produced by the `cycles` share. */
+        /** Whole cycles per loop from the `cycles` share. */
         readonly cycleCounts: ParamRange;
     };
-    /** Drawn operator params (generator/generator.ts). Draw-affecting. */
+    /** Drawn operator params. Draw-affecting. */
     readonly generator: {
         /**
-         * Decimal places every drawn param is rounded to. Rounding is part of the draw: changing it
-         * changes the expression a seed produces (see the `GENERATOR_VERSION` note above).
+         * Decimal places for drawn params. Rounding is part of the draw; changing it bumps
+         * GENERATOR_VERSION.
          */
         readonly paramDecimals: number;
     };
-    /** Quantized grammar space (core/grammar/quantized.ts). Sampler-affecting. */
+    /** Quantized grammar space. Sampler-affecting. */
     readonly grammar: {
-        /**
-         * Finesse of the weight axis: every operator weight is an integer in `[0, maxWeight]`, with
-         * the same range for every operator.
-         */
+        /** Weight axis finesse: every operator weight is an integer in `[0, maxWeight]`. */
         readonly maxWeight: number;
-        /**
-         * Size axis: one coherent depth/node budget per profile. A profile is a named point on the
-         * axis; constraints are always derived from it, never stored free-form in a grammar.
-         */
+        /** Size axis: one depth/node budget per profile; constraints derived from it. */
         readonly sizeProfiles: SizeProfiles;
     };
-    /** Sampling policy shared by the app and the dataset. Sampler-affecting. */
+    /** Sampling policy (app + dataset). Sampler-affecting. */
     readonly sampling: {
-        /** Base seed of every deterministic sample draw. */
+        /** Base seed for deterministic sample draws. */
         readonly baseSeed: number;
-        /**
-         * Probability that one operator moves one notch in a walk step. 0 = the walk freezes; 1 =
-         * every operator moves at every step.
-         */
+        /** Probability an operator moves one notch per walk step. 0 = freeze; 1 = always move. */
         readonly changeRate: number;
-        /** Seeds per grammar in the bench's contact sheet (a 6×6 deck). */
+        /** Seeds per grammar in bench contact sheet (6×6). */
         readonly benchSeedsPerGrammar: number;
-        /** Seeds per grammar in the offline dataset (a 4×4 deck). */
+        /** Seeds per grammar in offline dataset (4×4). */
         readonly datasetSeedsPerGrammar: number;
     };
-    /**
-     * Artwork/render defaults (core/artwork). Shell-level curation: the values a new artwork
-     * carries when the caller says nothing. The render bounds stay guards, next to the artwork
-     * brand.
-     */
+    /** Artwork/render defaults. Render bounds are guards next to the artwork brand. */
     readonly artwork: {
         readonly width: number;
         readonly height: number;
         readonly loopMs: number;
     };
-    /**
-     * How the raw triplet becomes color (core/color/index.ts). Not draw-affecting: the expression
-     * is unchanged, the shader's output is.
-     */
+    /** Raw triplet → color (shader only, not draw-affecting). */
     readonly color: {
-        /**
-         * OKLab chroma at `|g| = 1`, used by the OKLCH and OKLab spaces. 0.4 exceeds the sRGB gamut
-         * at most lightnesses, so the final clamp does real per-channel work.
-         */
+        /** OKLab chroma at `|g|=1` for OKLCH/OKLab. 0.4 exceeds sRGB gamut; clamp does real work. */
         readonly oklabChroma: number;
     };
-    /**
-     * The app's curated defaults (core/color/index.ts, grammar/presets.ts). The color space and
-     * trunk depth appear in both `DEFAULT_CHANNELS` and the `Structure` preset, so they live here
-     * once.
-     */
+    /** App curated defaults (color space + trunk depth), shared with presets. */
     readonly channels: {
         readonly space: ColorSpaceId;
         readonly shareDepth: number;
     };
     /** Lab workspace bounds. Not draw-affecting. */
     readonly app: {
-        /** Maximum number of entries kept in the exploration history. */
+        /** Max entries in exploration history. */
         readonly historyLimit: number;
-        /** Seed of the initial artwork, so the first screen is reproducible. */
+        /** Initial artwork seed for reproducible first screen. */
         readonly initialSeed: number;
     };
 }

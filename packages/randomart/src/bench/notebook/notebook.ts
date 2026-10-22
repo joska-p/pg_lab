@@ -6,9 +6,10 @@ import type { Notebook, NotebookBatch, NotebookCandidate, NotebookRating } from 
 
 let nextLocalId = 1;
 
-/** Generates a unique, readable string identifier with a prefix. */
-// Generation is deterministic. This is one of the only non-deterministic sources (with
-// randomSeed); callers in the UI use it, the generator never does.
+/**
+ * Generates a unique, readable ID with prefix. Used by UI (non-deterministic); generator never uses
+ * it.
+ */
 function generateNotebookId(prefix: string): string {
     const time = Date.now().toString(36);
     const counter = (nextLocalId++).toString(36);
@@ -70,7 +71,7 @@ export function createNotebook(input?: NotebookInput): Notebook {
     };
 }
 
-/** Updates a candidate's rating in a batch, returning an immutable copy of the batch. */
+/** Updates a candidate's rating in a batch (immutable copy). */
 export function updateCandidateRating(
     batch: NotebookBatch,
     candidateId: string,
@@ -113,7 +114,7 @@ export function rateNotebookCandidate(
     };
 }
 
-/** Appends a new batch to a notebook. */
+/** Appends a batch to a notebook. */
 export function addBatchToNotebook(notebook: Notebook, batch: NotebookBatch): Notebook {
     return {
         ...notebook,

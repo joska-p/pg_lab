@@ -1,8 +1,8 @@
 # Findings (inbox)
 
-Things noticed while working on the config/SSOT pass (2026-10-19). Not addressed unless
-stated; each item names the file so a future session can pick it up. Generated during the
-`tuning.ts` → `config.ts` rename (see `codex/notes/randomart-config-knobs.md`).
+Things noticed while working on the randomart codebase (2026-10-22). Not addressed unless
+stated; each item names the file so a future session can pick it up. Generated during
+comment cleanup pass.
 
 ## Where to start next
 
@@ -87,6 +87,32 @@ Decided 2026-10-21, after the split into core / lab / bench / dataset.
 7. **`DEFAULT_LOOP_DURATION` vs `CONFIG.artwork.loopMs / 1000`**: the division was duplicated
    in `appStore.parseDurationInput`; now it reads `DEFAULT_LOOP_DURATION`. Watch for the
    conversion reappearing.
+
+## Comment cleanup (2026-10-22)
+
+During the comment cleanup pass, the following issues were addressed:
+
+1. **Verbose JSDoc comments** shortened to concise summaries in:
+    - `core/grammar/grammar.ts` (weightOf, constraintsOf, channelModelOf, getVocabulary, isLastTerminal, isLastNonTerminal, clampInt, createGrammar)
+    - `core/generator/generator.ts` (GENERATOR_VERSION note, generate function, generateTrunk inline comments)
+    - `core/config/config.ts` (Config interface header, all section/field comments)
+    - `core/color/color.ts` (module header, SRGB_GLSL, OKLAB_TO_SRGB_GLSL, OKLCH_GLSL, colorSpaceFunction, colorSpaceGlsl, RAW_CHANNELS)
+    - `core/renderer/contract/contract.ts` (Phase brand, createPhase, HANDWRITTEN_TEST_SHADER)
+    - `core/compiler/compile.ts` (compile function, inline single-color-path comment)
+    - `core/compiler/lower.ts` (module header, Vertex, ContextDef, ProgramItem, inline multiplicity comment)
+    - `core/compiler/emit.ts` (inputText inline comments, emit function)
+    - `core/grammar/quantized.ts` (module header, ensureActive, ensureUsableVocabulary, drawGrammar, deriveSeed, itemSeeds)
+    - `stores/lab/labStore.ts` (initial seed comment, grammarEditId, commit, restoreImportedEntry, restoreEntry, publishLabState, parseDurationInput)
+    - `stores/lab/historyStore.ts` (HistoryEntry, pushHistoryEntry)
+    - `components/lab/RandomArtCanvas.tsx` (component header, shouldRender inline comments)
+    - `bench/lot/lot.ts` (FLAT_SHARE_THRESHOLD, LotView, buildLotView, focusLotView)
+    - `bench/notebook/notebook.ts` (generateNotebookId, updateCandidateRating, addBatchToNotebook)
+
+2. **Outdated file reference removed** from `core/color/color.ts`: the comment for `OKLCH_GLSL` referenced
+   `_TMP/oldy/randomart/src/core/glsl-color-spaces.ts` which no longer exists.
+
+3. **Test fixture in production code** confirmed: `HANDWRITTEN_TEST_SHADER` in `core/renderer/contract/contract.ts`
+   is a test shader used by `RandomArtCanvas` as default. It should move to a test file.
 
 ## Docs
 

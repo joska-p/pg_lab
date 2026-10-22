@@ -1,18 +1,11 @@
 /**
  * Channels — how the generated expression becomes the color the shader writes.
  *
- * Two orthogonal axes, both carried by the grammar (they describe the image space, like the
- * vocabulary does) and travelling with it through serialization and the artwork provenance:
+ * Two orthogonal axes carried by the grammar:
  *
- * - `space`: how the `(r, g, b)` triplet the expression produces is interpreted before output — plain
- *   sRGB, or a perceptual/cylindrical space (OKLCH, OKLab, HSL). The conversion is applied
- *   **once**, at the end of `main`: constant cost, independent of the expression size (no LUT).
- * - `shareDepth`: how deep the three channels share their structure. `0` = three independent trees
- *   (the historical model); `>= maxDepth` = a single tree, hence `r = g = b`. This is the
- *   correlation axis (uncorrelated ↔ correlated), replacing the old palette model.
- *
- * The identifiers are core data (part of the grammar); the GLSL is core text too — plain strings,
- * no DOM, no GPU — and the compiler owns only the call site.
+ * - `space`: interprets the `(r, g, b)` triplet (sRGB, OKLCH, OKLab, HSL). Applied once in `main`.
+ * - `shareDepth`: channel structure sharing. `0` = independent trees; `>= maxDepth` = single tree.
+ *   Correlation axis replacing the old palette model.
  */
 
 import { formatGlslFloat } from '../catalog/format';
@@ -37,20 +30,12 @@ export interface ColorSpace {
     readonly glsl: string;
 }
 
-/**
- * Raw triplet → sRGB, the identity space: exactly the historical "three channels in, RGB out"
- * behaviour. The `clamp` is boundary assurance only (the triplet is provably in `[-1, 1]`; the
- * compiler accepts any catalog, so it guards the edge of the render).
- */
+/** Raw triplet → sRGB (identity space). Clamp guards the render edge. */
 const SRGB_GLSL = `vec3 ra_srgb(vec3 raw) {
     return clamp(raw * 0.5 + 0.5, 0.0, 1.0);
 }`;
 
-/**
- * OKLab → sRGB (Björn Ottosson): through the LMS cube roots, then the linear-RGB matrix and the
- * sRGB transfer function. Shared by the OKLCH and OKLab entry points — only one space is ever
- * emitted per shader, so the fixed helper name cannot collide.
- */
+/** OKLab → sRGB (Ottosson). Shared helper for OKLCH/OKLab; one space per shader, no collision. */
 const OKLAB_TO_SRGB_GLSL = `vec3 ra_oklabToSrgb(vec3 lab) {
     float l_ = lab.x + 0.3963377774 * lab.y + 0.2158037573 * lab.z;
     float m_ = lab.x - 0.1055613458 * lab.y - 0.0638541728 * lab.z;
@@ -68,12 +53,7 @@ const OKLAB_TO_SRGB_GLSL = `vec3 ra_oklabToSrgb(vec3 lab) {
     return clamp(mix(hi, lo, lessThanEqual(linear, vec3(0.0031308))), 0.0, 1.0);
 }`;
 
-/**
- * The remaps, all from the raw triplet in `[-1, 1]`: lightness gets `x * 0.5 + 0.5`,
- * chroma/saturation `abs(y)`, and the hue is the third channel wrapped onto a full turn. These are
- * the coordinates the old color-space reference used
- * (`_TMP/oldy/randomart/src/core/glsl-color-spaces.ts`).
- */
+/** Remaps from raw triplet `[-1,1]`: L = x*0.5+0.5, C = abs(y), h = z wrapped to full turn. */
 const OKLCH_GLSL = `${OKLAB_TO_SRGB_GLSL}
 vec3 ra_oklch(vec3 raw) {
     float L = clamp(raw.x * 0.5 + 0.5, 0.0, 1.0);
@@ -117,12 +97,12 @@ export function isColorSpaceId(value: unknown): value is ColorSpaceId {
     return typeof value === 'string' && Object.hasOwn(COLOR_SPACES, value);
 }
 
-/** The GLSL function name the compiled `main` ends with, e.g. `ra_oklch`. */
+/** GLSL function name the compiled `main` ends with (e.g., `ra_oklch`). */
 export function colorSpaceFunction(space: ColorSpaceId): string {
     return COLOR_SPACES[space].fn;
 }
 
-/** The GLSL definition block(s) the preamble must carry for this space. */
+/** GLSL definition block(s) the preamble must carry for this space. */
 export function colorSpaceGlsl(space: ColorSpaceId): string {
     return COLOR_SPACES[space].glsl;
 }
@@ -130,9 +110,5 @@ export function colorSpaceGlsl(space: ColorSpaceId): string {
 /** Depth floor of a shared trunk: `0` = three independent trees. */
 export const MIN_SHARE_DEPTH = 0;
 
-/**
- * The compiler's default when the caller passes no channel model: three independent channels in raw
- * sRGB — the plain model. A grammar always carries its own `space`/`shareDepth`, so `compile` is
- * the only remaining consumer of this fallback.
- */
+/** Compiler default channel model: independent channels in raw sRGB. Grammar always carries its own. */
 export const RAW_CHANNELS: ChannelModel = { space: 'srgb', shareDepth: MIN_SHARE_DEPTH };

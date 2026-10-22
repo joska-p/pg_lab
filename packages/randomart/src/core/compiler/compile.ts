@@ -11,21 +11,17 @@ import { MAX_SOURCE_LENGTH } from './types';
 import type { CompiledShader, CompileOptions } from './types';
 
 /**
- * Compiles a randomart Expression into a complete GLSL ES 3.00 fragment shader.
+ * Compiles an Expression into a GLSL ES 3.00 fragment shader respecting the renderer contract:
  *
- * The output respects the renderer contract:
- *
- * - `in vec2 vUv;` as UV input (not `in vec2 v_p` directly)
- * - `vec2 v_p = vUv * 2.0 - 1.0;` at the start of main()
- * - `out vec4 o_color;` as color output
+ * - `in vec2 vUv;` UV input
+ * - `vec2 v_p = vUv * 2.0 - 1.0;` in main()
+ * - `out vec4 o_color;` color output
  * - `uniform float u_phase;` always declared
  *
- * There is a single color path: whatever the channels' shape, `main` ends with the one conversion
- * of the `(r, g, b)` triplet — `o_color = vec4(<space>(vec3(r, g, b)), 1.0);` — and the preamble
- * carries that space's GLSL. `shareDepth` never reaches the compiler: it shapes the expression, not
- * the emission.
+ * Single color path: `main` ends with one `(r,g,b)` triplet conversion via the space's GLSL.
+ * `shareDepth` shapes the expression, not the emission.
  *
- * @throws If the assembled source exceeds MAX_SOURCE_LENGTH.
+ * @throws If source exceeds MAX_SOURCE_LENGTH.
  */
 export function compile(
     catalog: Catalog,
@@ -55,8 +51,7 @@ export function compile(
     }
 
     mainLines.push('');
-    // Single color path: triplet through the space's conversion (remap for sRGB).
-    // The conversion's `clamp` is boundary assurance, not a correcting transform.
+    // Single color path: triplet through space conversion (clamp = boundary assurance).
     mainLines.push(
         `  o_color = vec4(${colorSpaceFunction(channels.space)}(vec3(${rText}, ${gText}, ${bText})), 1.0);`,
     );

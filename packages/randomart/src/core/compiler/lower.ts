@@ -1,22 +1,16 @@
 /**
- * Lower.ts — DAG lowering pass.
+ * DAG lowering pass. Multiplicities owned by `Operator` (probed at catalog construction). Lowers
+ * three-channel expression into shared DAG with interned coordinate contexts.
  *
- * Multiplicities are owned by `Operator` (probed once, at catalog construction), so lowering only
- * walks the three-channel expression into a shared DAG and interned coordinate contexts.
- *
- * Vocabulary: a _node_ is an element of an expression tree; a _vertex_ is an entry of the shared
- * DAG (key = context, operator, params, input ids); a _value_ is a number in [-1, 1]. A terminal
- * that does not depend on coordinates is duplicated per context; harmless, the driver folds
- * constants.
+ * Vocabulary: node = expression tree element; vertex = DAG entry (context, operator, params, input
+ * ids); value = number in [-1, 1]. Coordinate-independent terminals duplicated per context; driver
+ * folds constants.
  */
 
 import type { Catalog } from '../catalog/Catalog';
 import type { Expression, Node } from '../expression/types';
 
-/**
- * A vertex in the lowered DAG. Created once per unique (context, operatorName, params, inputIds)
- * key.
- */
+/** Vertex in the lowered DAG. Created once per unique (context, operatorName, params, inputIds) key. */
 export interface Vertex {
     readonly id: number;
     readonly operatorName: string;
@@ -26,7 +20,7 @@ export interface Vertex {
     readonly requires: readonly string[];
 }
 
-/** A child coordinate context definition created by a transformer operator. */
+/** Child coordinate context definition from a transformer operator. */
 export interface ContextDef {
     readonly id: number;
     readonly name: string;
@@ -37,7 +31,7 @@ export interface ContextDef {
     readonly requires: readonly string[];
 }
 
-/** An item in the topographically ordered execution program. */
+/** Item in the topographically ordered execution program. */
 type ProgramItem =
     | { readonly kind: 'vertex'; readonly vertex: Vertex }
     | { readonly kind: 'context'; readonly context: ContextDef };

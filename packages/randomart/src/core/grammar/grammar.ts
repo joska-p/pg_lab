@@ -11,11 +11,7 @@ import type { Grammar } from './types';
 export const isTerminalOperator = (operator: Operator): boolean => operator.isTerminal;
 export const isNonTerminalOperator = (operator: Operator): boolean => !operator.isTerminal;
 
-/**
- * Reads a weight by name with the grammar's own convention: an absent entry (or an explicit
- * `undefined`) means "off", i.e. 0. The single reader every consumer shares, so `GrammarWeights`
- * (partial, id-keyed) never has to be narrowed ad hoc.
- */
+/** Reads a weight by name: absent or undefined means 0 (off). Single shared reader. */
 export function weightOf(
     weights: Readonly<Record<string, number | undefined>>,
     name: string,
@@ -23,12 +19,12 @@ export function weightOf(
     return weights[name] ?? 0;
 }
 
-/** The depth/node budget of a size profile — the only way to constraints. */
+/** Depth/node budget for a size profile. */
 export function constraintsOf(size: SizeProfileId): Constraints {
     return CONFIG.grammar.sizeProfiles[size];
 }
 
-/** The channel model a grammar implies: the color space and the shared-trunk depth. */
+/** Channel model implied by a grammar: color space and shared-trunk depth. */
 export function channelModelOf(grammar: Grammar): ChannelModel {
     return { space: grammar.space, shareDepth: grammar.shareDepth };
 }
@@ -49,10 +45,7 @@ export function minSize(
     return 1 + k * minSize(currentDepth + 1, minDepth, operators);
 }
 
-/**
- * The vocabulary of a grammar: the operators it may draw, i.e. those with a strictly positive
- * weight, by alphabetical name. A weight of 0 means the operator is off.
- */
+/** Active operators (weight > 0), sorted alphabetically. */
 export function getVocabulary(weights: Readonly<Record<string, number | undefined>>): Operator[] {
     return Object.keys(weights)
         .sort()
@@ -72,11 +65,7 @@ function isLastOfKind(
     return getVocabulary(weights).filter(isKind).length === 1;
 }
 
-/**
- * True when switching `name` off would empty the terminals — the generator could no longer finish a
- * tree, so `createGrammar` refuses the gesture. A derived reading of `weights`, never a stored
- * flag: the UI uses it to disable a control that has no valid outcome.
- */
+/** True if turning `name` off would leave no active terminals. */
 export function isLastTerminal(
     weights: Readonly<Record<string, number | undefined>>,
     name: string,
@@ -84,10 +73,7 @@ export function isLastTerminal(
     return isLastOfKind(weights, name, isTerminalOperator);
 }
 
-/**
- * True when switching `name` off would empty the non-terminals — every size profile has `minDepth >
- * 1`, so a terminal-only vocabulary cannot grow a tree.
- */
+/** True if turning `name` off would leave no active non-terminals (every profile has minDepth > 1). */
 export function isLastNonTerminal(
     weights: Readonly<Record<string, number | undefined>>,
     name: string,
@@ -95,26 +81,15 @@ export function isLastNonTerminal(
     return isLastOfKind(weights, name, isNonTerminalOperator);
 }
 
-/**
- * Field-level repair for one bounded integer (throw-vs-repair policy in shared/index.ts): a finite
- * value is rounded and clamped into [min, max]; a non-finite value is garbage, not an intent, and
- * takes the fallback.
- */
+/** Clamps a finite integer to [min, max]; non-finite falls back. */
 function clampInt(value: number, min: number, max: number, fallback: number): number {
     return Number.isFinite(value) ? Math.min(max, Math.max(min, Math.round(value))) : fallback;
 }
 
 /**
- * The only way to a `Grammar`. Weights and the size/space axes are content (throw on invalid input:
- * no canonical repair); `shareDepth` is an editing quantity with an order, so it is rounded and
- * clamped into `[0, maxDepth]` of the size profile.
- *
- * The two structural invariants are checked, not repaired (there is no honest way to invent which
- * operator the author meant):
- *
- * 1. At least one terminal is active — otherwise no tree can end;
- * 2. At least one non-terminal is active — every size profile has `minDepth > 1`, so a terminal-only
- *    vocabulary cannot grow a tree.
+ * Creates a Grammar. Weights/size/space are content (throw on invalid); shareDepth is an editing
+ * quantity, so it is rounded/clamped to [0, maxDepth]. Invariants checked (not repaired): at least
+ * one terminal and one non-terminal must be active.
  */
 export function createGrammar({
     weights,
@@ -129,7 +104,7 @@ export function createGrammar({
 }): Grammar {
     const operatorNames = Object.keys(weights);
 
-    // Weights are checked, never repaired: clamping garbage into "off" or saturating at maxWeight would silently rewrite the vocabulary.
+    // Weights are checked, never repaired: clamping would silently rewrite the vocabulary.
     if (operatorNames.length === 0) {
         throw new Error('Randomart: grammar weights must not be empty');
     }
@@ -181,8 +156,8 @@ export function createGrammar({
         Math.min(CONFIG.channels.shareDepth, constraints.maxDepth),
     );
 
-    // Freeze and sort weights deterministically. The names were validated against the catalog above,
-    // so narrowing the literal key type to `OperatorId` is sound.
+    // Freeze and sort weights deterministically; names validated above,
+    // so OperatorId narrowing is sound.
     const sortedWeights: Partial<Record<OperatorId, number>> = {};
     for (const name of [...operatorNames].sort()) {
         sortedWeights[name as OperatorId] = weightOf(weights, name);

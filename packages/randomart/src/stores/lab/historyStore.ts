@@ -5,10 +5,7 @@ import type { Expression } from '../../core/expression/types';
 import type { Grammar } from '../../core/grammar/types';
 import type { Seed } from '../../core/random/seed';
 
-/**
- * One explored state: enough to get the exact same image back. Generated entries replay from
- * `(grammar, seed)`; imported artworks keep their expression (it is the reference).
- */
+/** One explored state: replay from (grammar, seed); imported artworks keep expression as reference. */
 export interface HistoryEntry {
     readonly id: number;
     readonly seed: Seed;
@@ -59,8 +56,8 @@ export function selectHistoryEntry(id: number): void {
 }
 
 /**
- * Prepends a new entry. When `replaces` is true the current entry is dropped first: consecutive
- * grammar edits coalesce instead of flooding the history. The list is capped at `limit`.
+ * Prepends entry. `replaces=true` drops current entry first (coalesces grammar edits). Capped at
+ * `limit`.
  */
 export function pushHistoryEntry(entry: HistoryEntry, replaces: boolean, limit: number): void {
     const { history, currentId } = store.getState();
