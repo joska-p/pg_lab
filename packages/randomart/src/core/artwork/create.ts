@@ -1,7 +1,7 @@
 import { CONFIG } from '../config/config';
 import { assertFinite, assertIntegerInRange } from '../shared/shared';
+import { MAX_RENDER_SIZE, MAX_TITLE_LENGTH, MIN_RENDER_SIZE } from './constants';
 import type { Artwork, ArtworkInput, RenderSettings, RenderSettingsInput } from './types';
-import { MAX_RENDER_SIZE, MAX_TITLE_LENGTH, MIN_RENDER_SIZE } from './types';
 
 /**
  * The only way to a `RenderSettings` brand: constrains the render block numbers and applies

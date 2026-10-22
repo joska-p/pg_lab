@@ -1,5 +1,4 @@
-import type { GrammarData } from '../../core/artwork/serialize';
-import type { Grammar } from '../../core/grammar/types';
+import type { GrammarData, Grammar } from '../../core/grammar/types';
 import type { Seed } from '../../core/random/seed';
 import {
     NOTEBOOK_FILE_FORMAT,

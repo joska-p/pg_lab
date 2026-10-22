@@ -1,8 +1,7 @@
 import { deserializeGrammar, serializeGrammar } from '../core/artwork/serialize';
-import type { GrammarData } from '../core/artwork/serialize';
 import { GENERATOR_VERSION } from '../core/generator/generator';
 import { sampleGrammars } from '../core/grammar/sample';
-import type { SampleOptions } from '../core/grammar/types';
+import type { GrammarData, SampleOptions } from '../core/grammar/types';
 import { createSeed } from '../core/random/seed';
 import { createBatchRenderer } from '../core/renderer/batch/batch';
 

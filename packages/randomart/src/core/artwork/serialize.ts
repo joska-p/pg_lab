@@ -1,27 +1,14 @@
 import { isColorSpaceId } from '../color/color';
 import { isSizeProfileId } from '../config/config';
-import type { ColorSpaceId, SizeProfileId } from '../config/types';
 import { deserialize, serialize } from '../expression/serialize';
-import type { ExpressionData } from '../expression/serialize';
 import { createGrammar, weightOf } from '../grammar/grammar';
-import type { Grammar } from '../grammar/types';
+import type { Grammar, GrammarData } from '../grammar/types';
 import { createSeed } from '../random/seed';
 import type { Seed } from '../random/seed';
 import { isRecord, rejectUnknownKeys } from '../shared/shared';
+import { ARTWORK_FILE_FORMAT, ARTWORK_FILE_VERSION, MAX_ARTWORK_FILE_LENGTH } from './constants';
 import { createArtwork, fitRenderSettings } from './create';
-import type { Artwork, Provenance, RenderSettingsInput } from './types';
-
-export const ARTWORK_FILE_FORMAT = 'random-art';
-const ARTWORK_FILE_VERSION = 1;
-/** Import guard: checked before any `JSON.parse`. */
-export const MAX_ARTWORK_FILE_LENGTH = 1_000_000;
-
-export interface GrammarData {
-    readonly weights: Readonly<Record<string, number>>;
-    readonly size: SizeProfileId;
-    readonly shareDepth: number;
-    readonly space: ColorSpaceId;
-}
+import type { Artwork, ArtworkData, Provenance, RenderSettingsInput } from './types';
 
 /** Plain JSON object; weight keys in alphabetical order so equal grammars give equal text. */
 export function serializeGrammar(grammar: Grammar): GrammarData {
@@ -91,20 +78,6 @@ export function deserializeGrammar(data: unknown, path = 'grammar'): Grammar {
             cause: error,
         });
     }
-}
-
-/** `.randomart.json` content; key order: format, version, title, render, provenance, expression. */
-export interface ArtworkData {
-    readonly format: string;
-    readonly version: number;
-    readonly title?: string;
-    readonly render?: RenderSettingsInput;
-    readonly provenance?: {
-        readonly generatorVersion: number;
-        readonly seed: number;
-        readonly grammar: GrammarData;
-    };
-    readonly expression: ExpressionData;
 }
 
 /**

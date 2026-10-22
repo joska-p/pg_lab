@@ -3,7 +3,7 @@ import { FileInput } from '@repo/ui/components/FileInput';
 import { Grid } from '@repo/ui/components/Grid';
 import { Text } from '@repo/ui/components/Text';
 
-import type { ProvenanceCheck } from '../../core/artwork/provenance';
+import type { ProvenanceCheck } from '../../core/artwork/types';
 import { exportArtworkFile, importArtworkFile } from '../../stores/lab/artworkStore';
 import { useProvenanceCheck } from '../../stores/lab/labStore';
 

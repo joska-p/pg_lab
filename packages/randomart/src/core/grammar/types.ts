@@ -47,3 +47,11 @@ export interface GrammarPreset {
     readonly description: string;
     readonly grammar: Grammar;
 }
+
+/** Plain JSON representation of a Grammar (for serialization, IPC, storage). */
+export interface GrammarData {
+    readonly weights: Readonly<Record<string, number>>;
+    readonly size: SizeProfileId;
+    readonly shareDepth: number;
+    readonly space: ColorSpaceId;
+}

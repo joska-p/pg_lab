@@ -439,3 +439,129 @@ cannot reach back into either consumer. Do not read this as "move every type to 
 that one module owns stays with it, and a `types.ts` is a placement rule, not a dumping ground.
 
 It is not a structure to create in advance.
+
+---
+
+## 2.7 Module Structure & Dependency DAG
+
+### 2.7.1 Layered dependency direction
+
+Dependencies flow in one direction (relaxed DAG):
+
+```text
+kernel (config, shared, random)          ← no deps on domains
+    │
+    ▼
+domains (artwork, catalog, color, grammar, expression, renderer)
+    │           ↑              ↑
+    │           └──────────────┘  cross-domain allowed if clear ownership
+    ▼
+stores (lab, bench)                  ← import from domains + kernel
+    │
+    ▼
+components / app                     ← import from stores + domains + kernel
+```
+
+**Rules:**
+
+- **Kernel** (`core/config`, `core/shared`, `core/random`) — no imports from domains, stores, or app.
+- **Domains** — may import from kernel and from other domains **only when there is a clear owner** (e.g., `artwork` imports `Grammar` from `grammar` because `grammar` owns the grammar concept). No cycles.
+- **Stores** — import from domains and kernel. Do not import from other stores (use domain types as the contract).
+- **Components** — import from stores (for state/actions), domains (for types/constants), and kernel.
+- **Cycles are forbidden.** If a cycle appears, the ownership is wrong — move the shared type to the owner or to kernel.
+
+### 2.7.2 File roles within a domain module
+
+Each domain directory follows this pattern:
+
+```
+core/<domain>/
+├── types.ts          # Domain types ONLY (brands, interfaces, type aliases, *Id, *Data)
+├── constants.ts      # Runtime constants ONLY (MAX_*, DEFAULT_*, *_IDS, *_VERSION, *_FORMAT, *_REGISTRY)
+├── index.ts          # (optional) internal barrel for same-domain imports only
+├── <implementation>.ts
+└── ...
+```
+
+**`types.ts` exports:**
+
+- Branded types: `Seed`, `Grammar`, `Expression`, `Artwork`, `Phase`, `Constraints`
+- Interface shapes: `Grammar`, `Expression`, `ColorSpace`, `OperatorSpec`
+- Type aliases: `ColorSpaceId`, `SizeProfileId`, `OperatorId`, `ChannelModel`
+- Serialization DTOs (`*Data`): `GrammarData`, `ArtworkData`, `NodeData`, `ExpressionData` — these are part of the domain's public contract
+- **No runtime values** (no `const`, no `export const`)
+
+**`constants.ts` exports:**
+
+- All `SCREAMING_SNAKE_CASE` module constants: `MAX_RENDER_SIZE`, `ARTWORK_FILE_FORMAT`, `SIZE_PROFILE_IDS`, `COLOR_SPACE_IDS`, `OPERATOR_REGISTRY` (camelCase for registries), `GENERATOR_VERSION`
+- Configuration objects: `CONFIG` (camelCase — it's a live singleton)
+- **No types**
+
+**Implementation files (`serialize.ts`, `grammar.ts`, `provenance.ts`, etc.):**
+
+- Export functions, not types (except truly local types used only in that file)
+- Import types from `./types`, constants from `./constants`
+
+### 2.7.3 Serialization DTOs (*Data types)
+
+Types suffixed with `*Data` (`GrammarData`, `ArtworkData`, `NodeData`, `ExpressionData`, `NotebookData`) are **plain serializable shapes** — they belong in the **domain's `types.ts`** because:
+
+- They are part of the domain's public contract (file format, IPC, storage)
+- Multiple consumers need them (serialize, stores, components, dataset)
+- They are not implementation details of the serializer
+
+The serializer imports `*Data` from `./types` and exports only `serializeX`, `deserializeX`, `parseXFile`, `serializeXFile`.
+
+### 2.7.4 Import patterns
+
+- **No barrel exports (`index.ts`)** for cross-module imports. Import from the source file:
+    ```ts
+    import { SIZE_PROFILE_IDS } from '../grammar/constants';
+    import { createGrammar } from '../grammar/grammar';
+    import type { Grammar } from '../grammar/types';
+    ```
+- **Within the same domain**, relative imports from the actual file are fine. An `index.ts` may re-export for internal convenience but is not required.
+- **Kernel modules** (`config`, `shared`, `random`) are imported directly:
+    ```ts
+    import { CONFIG } from '../config/config';
+    import type { ColorSpaceId } from '../config/types';
+    import { createSeed } from '../random/seed';
+    import type { Seed } from '../random/seed';
+    ```
+- **Do not create `types.ts` barrels** that re-export from other domains' `types.ts`. Each domain owns its types.
+
+### 2.7.5 Naming: registries vs constants
+
+- `SCREAMING_SNAKE_CASE` = **immutable values fixed at module load**: bounds, defaults, id arrays, format strings, version numbers.
+- `camelCase` = **registries, maps, live singletons, config objects**: `operatorRegistry`, `dependencyRegistry`, `catalog`, `store`, `renderer`, `CONFIG`.
+
+`OPERATOR_SPECS` → `operatorRegistry` (it's a registry array, not a constant spec).
+
+### 2.7.6 Applying the rules to current domains
+
+| Domain         | `types.ts` owns                                                                         | `constants.ts` owns                                                                                                                | Implementation exports                                                         |
+| -------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `artwork`      | `Artwork`, `ProvenanceCheck`, `GrammarData`, `ArtworkData`                              | `MIN_RENDER_SIZE`, `MAX_RENDER_SIZE`, `MAX_TITLE_LENGTH`, `ARTWORK_FILE_FORMAT`, `ARTWORK_FILE_VERSION`, `MAX_ARTWORK_FILE_LENGTH` | `createArtwork`, `checkProvenance`, `serializeArtworkFile`, `parseArtworkFile` |
+| `catalog`      | `ShaderDependency`, `OperatorSpec`, `OperatorId`, `DependencySpec`, `DependencyId`      | `operatorRegistry`, `dependencies`, `DEPENDENCIES`                                                                                 | `catalog`, `operator()`, `operators()`, `defineOperator`                       |
+| `color`        | `ChannelModel`, `ColorSpace`, `ColorSpaceId`                                            | `COLOR_SPACES`, `COLOR_SPACE_IDS`, `MIN_SHARE_DEPTH`, `RAW_CHANNELS`                                                               | `colorSpaceGlsl`, `channelModelOf`, `isColorSpaceId`                           |
+| `grammar`      | `Grammar`, `GrammarPins`, `GrammarPreset`, `SampleOptions`, `Constraints`               | `SIZE_PROFILE_IDS`, `WEIGHT_LEVELS`, `GRAMMAR_PRESETS`                                                                             | `createGrammar`, `constraintsOf`, `drawGrammar`, `sampleGrammars`              |
+| `expression`   | `Expression`, `Node`, `NodeData`, `ExpressionData`, `Channel`                           | `MAX_IMPORT_NODES`, `MAX_IMPORT_DEPTH`                                                                                             | `createExpression`, `createNode`, `serialize`, `deserialize`                   |
+| `random`       | `Seed`, `Rng`                                                                           | `MAX_SEED`                                                                                                                         | `createSeed`, `randomSeed`, `createRng`                                        |
+| `renderer`     | `RgbImage`, `Phase`, `RenderKey`, `RenderedBatch`, `BatchRenderer`                      | `DEFAULT_CONTEXT_OPTIONS`                                                                                                          | `createPhase`, `createBatchRenderer`, `needsRender`                            |
+| `compiler`     | `CompiledShader`, `EmitResult`, `LowerResult`, `PreambleResult`, `Vertex`, `ContextDef` | `MAX_SOURCE_LENGTH`, `GLSL_IN_UV`, `GLSL_OUT_COLOR`, `GLSL_COORD_INIT`, `ROOT_CTX`                                                 | `compile`, `emit`, `lower`, `preamble`                                         |
+| `stores/lab`   | `HistoryEntry`, `AppMode` (or move to `modeStore.ts` if single-consumer)                | —                                                                                                                                  | `labStore`, `historyStore`, `artworkStore`, `modeStore`                        |
+| `stores/bench` | `BenchSettings`, `BenchView`, `CellSize`                                                | `CELL_SIZES`, `MAX_BENCH_COUNT`, `MAX_BENCH_SEEDS`, `BENCH_VIEWS`                                                                  | `benchSettingsStore`, `lotStore`, `notebookStore`                              |
+
+### 2.7.7 Checklist for a new domain module
+
+When creating or reorganizing a domain:
+
+- [ ] `types.ts` exists and exports **only types** (no `const`, no functions)
+- [ ] `constants.ts` exists and exports **only runtime values** (no types)
+- [ ] Implementation files import types from `./types`, constants from `./constants`
+- [ ] No implementation file exports types (except truly local ones)
+- [ ] No `constants.ts` imports from implementation files
+- [ ] Cross-domain imports follow the DAG (kernel → domain → store → component)
+- [ ] No import cycles (run `vp check --fix` and verify)
+- [ ] Registries use `camelCase` (`operatorRegistry`), constants use `SCREAMING_SNAKE_CASE`
+- [ ] `*Data` DTOs are in `types.ts`

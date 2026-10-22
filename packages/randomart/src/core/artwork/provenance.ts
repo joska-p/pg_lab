@@ -1,7 +1,7 @@
 import { equals } from '../expression/key';
 import type { Expression } from '../expression/types';
 import { GENERATOR_VERSION, generate } from '../generator/generator';
-import type { Artwork } from './types';
+import type { Artwork, ProvenanceCheck } from './types';
 
 /**
  * - `none`: no provenance (nothing to check).
@@ -10,7 +10,6 @@ import type { Artwork } from './types';
  * - `matches` / `differs`: regenerate with `(grammar, seed)` and compare the `nodeKey` of the three
  *   channels.
  */
-export type ProvenanceCheck = 'none' | 'matches' | 'differs' | 'version-mismatch';
 
 function sameExpression(a: Expression, b: Expression): boolean {
     return equals(a.r, b.r) && equals(a.g, b.g) && equals(a.b, b.b);

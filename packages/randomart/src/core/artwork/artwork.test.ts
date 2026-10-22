@@ -6,16 +6,11 @@ import { nodeKey } from '../expression/key';
 import { generate, GENERATOR_VERSION } from '../generator/generator';
 import { GRAMMAR_PRESETS } from '../grammar/presets';
 import { createSeed } from '../random/seed';
+import { ARTWORK_FILE_FORMAT, MAX_ARTWORK_FILE_LENGTH } from './constants';
 import { createArtwork, createRenderSettings, fitRenderSettings } from './create';
 import { checkProvenance } from './provenance';
-import {
-    parseArtworkFile,
-    serializeArtworkFile,
-    ARTWORK_FILE_FORMAT,
-    MAX_ARTWORK_FILE_LENGTH,
-} from './serialize';
-import type { ArtworkData } from './serialize';
-import type { Artwork } from './types';
+import { parseArtworkFile, serializeArtworkFile } from './serialize';
+import type { ArtworkData, Artwork } from './types';
 
 const catalog = createDefaultCatalog();
 

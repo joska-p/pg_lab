@@ -1,5 +1,5 @@
 import type { Expression } from '../expression/types';
-import type { Grammar } from '../grammar/types';
+import type { Grammar, GrammarData } from '../grammar/types';
 import type { Seed } from '../random/seed';
 import type { Brand } from '../shared/shared';
 
@@ -28,6 +28,9 @@ export interface Provenance {
     readonly generatorVersion: number;
 }
 
+/** Outcome of a provenance check. */
+export type ProvenanceCheck = 'none' | 'matches' | 'differs' | 'version-mismatch';
+
 export interface ArtworkInput {
     readonly expression: Expression;
     readonly render?: Partial<RenderSettingsInput>;
@@ -45,6 +48,20 @@ export type Artwork = Brand<
     'Artwork'
 >;
 
-export const MIN_RENDER_SIZE = 1;
-export const MAX_RENDER_SIZE = 8_192;
-export const MAX_TITLE_LENGTH = 200;
+// ---------------------------------------------------------------------------
+// Serialization DTOs (plain JSON representations)
+// ---------------------------------------------------------------------------
+
+/** `.randomart.json` content; key order: format, version, title, render, provenance, expression. */
+export interface ArtworkData {
+    readonly format: string;
+    readonly version: number;
+    readonly title?: string;
+    readonly render?: RenderSettingsInput;
+    readonly provenance?: {
+        readonly generatorVersion: number;
+        readonly seed: number;
+        readonly grammar: GrammarData;
+    };
+    readonly expression: import('../expression/serialize').ExpressionData;
+}

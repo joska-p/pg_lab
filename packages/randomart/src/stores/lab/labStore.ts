@@ -5,7 +5,7 @@ import { createNullClockStore } from '@repo/glaze/react/clockStore';
 import type { ClockStore } from '@repo/glaze/react/types';
 import { create } from 'zustand';
 
-import type { ProvenanceCheck } from '../../core/artwork/provenance';
+import type { ProvenanceCheck } from '../../core/artwork/types';
 import { catalog } from '../../core/catalog/default';
 import type { OperatorId } from '../../core/catalog/operators/registry';
 import { compile } from '../../core/compiler/compile';
