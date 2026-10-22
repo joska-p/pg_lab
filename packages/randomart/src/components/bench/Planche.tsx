@@ -4,8 +4,8 @@ import { colors } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useRef, useState } from 'react';
 
-import type { LotView } from '../../bench/lot/lot';
 import { assemblePlanche } from '../../bench/lot/planche';
+import type { LotView } from '../../bench/lot/view';
 
 const styles = stylex.create({
     // `margin: auto` centres the planche in its viewport without clipping it when it overflows —

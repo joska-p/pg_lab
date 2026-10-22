@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 
-import { buildLotView, EMPTY_LOT } from '../../bench/lot/lot';
-import type { LotView } from '../../bench/lot/lot';
+import { buildLotView } from '../../bench/lot/lot';
+import { EMPTY_LOT } from '../../bench/lot/view';
+import type { LotView } from '../../bench/lot/view';
 import { createBatch, createCandidate, rateNotebookCandidate } from '../../bench/notebook/notebook';
 import type { NotebookRating } from '../../bench/notebook/rating';
 import type { NotebookBatch } from '../../bench/notebook/types';

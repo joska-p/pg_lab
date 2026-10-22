@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { grammarRegistry } from '../../core/grammar/registry';
 import type { RenderedBatch, RgbImage } from '../../core/renderer/types';
-import { buildLotView, EMPTY_LOT, isFlat } from './lot';
+import { buildLotView, isFlat } from './lot';
+import { EMPTY_LOT } from './view';
 
 const grammar = grammarRegistry.default;
 
