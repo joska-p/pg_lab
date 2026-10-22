@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type AppMode = 'lab' | 'history' | 'bench';
+import type { AppMode } from './types';
 
 interface ModeState {
     mode: AppMode;

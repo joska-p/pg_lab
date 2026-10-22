@@ -3,12 +3,12 @@ import { Segmented } from '@repo/ui/components/Segmented';
 import { Stack } from '@repo/ui/components/Stack';
 
 import { setMode, useMode } from '../stores/modeStore';
-import type { AppMode } from '../stores/modeStore';
+import type { AppMode } from '../stores/types';
 import { BenchPanel } from './bench/BenchPanel';
 import { HistoryPanel } from './lab/HistoryPanel';
 import { LabPanel } from './lab/LabPanel';
 
-export type { AppMode } from '../stores/modeStore';
+export type { AppMode } from '../stores/types';
 
 const MODE_OPTIONS = [
     { value: 'lab', label: 'Lab' },

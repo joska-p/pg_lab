@@ -28,7 +28,7 @@ import {
     pushHistoryEntry,
     selectHistoryEntry,
 } from './historyStore';
-import type { HistoryEntry } from './historyStore';
+import type { HistoryEntry } from './types';
 
 interface LabState {
     clockStore: ClockStore;
