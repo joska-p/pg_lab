@@ -1,7 +1,8 @@
 # Handoff: Reorganize Type & Interface Declarations
 
-**Date:** 2026-10-22  
-**Context:** After config centralization pass — codebase clean, tests pass (280 passed, 1 skipped), `vp check --fix` clean. Branch: `main` at `2fd6aef` (after color reorganization commit).
+**Date:** 2026-10-23  
+**Status:** ✅ COMPLETE — every domain listed below is done. `vp check --fix` clean across the
+monorepo, `vp test` 280 passed / 1 skipped. Branch: `main` after `d20f162`.
 
 ---
 
@@ -113,60 +114,99 @@
 
 ---
 
-## Observed Issues (Remaining — After Grammar)
+## ✅ COMPLETED: `expression` Domain
 
-### 5. `core/expression/types.ts` — Exports `Expression`, `Node`, `NodeData`, `Channel`
+**Commit:** `116644f` — "reorganize: centralize expression types & constants"
 
-...but `NodeData` is serialization shape. Convention: `*Data` DTOs belong in domain's `types.ts` (already done for `GrammarData`).
-
-### 6. `core/expression/serialize.ts` — Exports `NodeData`, `ExpressionData`, constants
-
-Types → `expression/types.ts` (already there), constants → `expression/constants.ts`.
-
-### 7. `core/random/seed.ts` — Exports `Seed` brand + `createSeed`, `randomSeed`
-
-`Seed` type is domain; functions are implementation. Already mostly clean. `MAX_SEED` constant → `random/constants.ts`.
-
-### 8. `core/random/rng.ts` — Exports `Rng` interface
-
-Type → `random/types.ts` (create if needed).
-
-### 9. `core/renderer/*` — Multiple type exports from implementation files
-
-- `contract/contract.ts`: `Phase` (brand)
-- `batch/batch.ts`: `RenderedBatch`, `BatchRenderer`
-- `renderGate/renderGate.ts`: `RenderKey`
-- `types.ts` exists but may not have all types
-
-### 10. `core/compiler/*` — Types in implementation files
-
-- `emit.ts`: `EmitResult`
-- `lower.ts`: `Vertex`, `ContextDef`, `LowerResult`
-- `preamble.ts`: `PreambleResult`
-- `types.ts` exists — consolidate there
-- Constants: `MAX_SOURCE_LENGTH` in `types.ts` → `constants.ts`, GLSL constants in `contract.ts` → `constants.ts`
-
-### 11. `stores/lab/historyStore.ts` — Exports `HistoryEntry` type
-
-Used in `labStore.ts`. **Should live in `stores/lab/types.ts`** (new file) or `labStore.ts` if single-consumer.
-
-### 12. `stores/lab/modeStore.ts` — Exports `AppMode` type
-
-Used in `Controls.tsx`, `Scene.tsx`. Single-consumer? Keep in `modeStore.ts` or move to `stores/lab/types.ts`.
-
-### 13. `stores/bench/benchSettingsStore.ts` — Exports `CellSize`, `BenchView`, `BenchSettings` + constants
-
-Types → `stores/bench/types.ts`, constants → `stores/bench/constants.ts`.
-
-### 14. `bench/lot/planche.ts` — Exports `PlancheCell`, `PlancheRow`, `Planche`, `PlancheOptions`, `PLANCHE_DIM_FACTOR`
-
-### 15. `bench/lot/lot.ts` — Exports `LotView`
-
-### 16. `bench/notebook/notebook.ts` — Exports `CandidateInput`, `BatchInput`, `NotebookInput`
-
-### 17. `components/*` — Some type exports (`PlancheProps`, `AppMode` re-export)
+- **Created** `core/expression/constants.ts`: `MAX_IMPORT_NODES`, `MAX_IMPORT_DEPTH`
+- **Updated** `core/expression/types.ts`: added `NodeData`, `ExpressionData` (serialization DTOs)
+- **Updated** `core/expression/serialize.ts`: imports types from `./types`, constants from `./constants`; exports only `serialize`/`deserialize`
+- **Updated** `core/artwork/types.ts`: `ArtworkData.expression` now uses the imported `ExpressionData` type instead of an inline `import(...)` type
 
 ---
+
+## ✅ COMPLETED: `random` Domain
+
+**Commit:** `d71dc3b` — "reorganize: centralize random types & constants"
+
+- **Created** `core/random/types.ts`: `Seed`, `Rng`
+- **Created** `core/random/constants.ts`: `MAX_SEED`
+- **Updated** `core/random/seed.ts`: exports only `createSeed`, `randomSeed`
+- **Updated** `core/random/rng.ts`: exports only `createRng`
+- **Updated all consumers** to import `Seed` / `Rng` from `random/types`
+
+---
+
+## ✅ COMPLETED: `renderer` Domain
+
+**Commit:** `99d9791` — "reorganize: centralize renderer types & constants"
+**Commit:** `d6b7f6c` — "reorganize: flatten renderer subdirectories (batch/contract/renderGate)"
+
+- **Updated** `core/renderer/types.ts`: `RgbImage`, `BatchRequest`, `RenderedCell`, `RenderedBatch`, `BatchRenderer`, `Phase`, `RenderKey`
+- **Created** `core/renderer/constants.ts`: `DEFAULT_CONTEXT_OPTIONS`
+- **Flattened** single-file directories: `batch/batch.ts` → `batchRenderer.ts`, `contract/contract.ts` → `phase.ts`, `renderGate/renderGate.ts` → `renderGate.ts`
+- **Updated** `vite.config.ts`: the DOM-boundary lint exception now targets `renderer/batchRenderer.ts`
+
+---
+
+## ✅ COMPLETED: `compiler` Domain
+
+**Commit:** `ca80c1b` — "reorganize: centralize compiler types & constants"
+
+- **Updated** `core/compiler/types.ts`: added `Vertex`, `ContextDef`, `ProgramItem`, `LowerResult`, `EmitResult`, `PreambleResult`
+- **Created** `core/compiler/constants.ts`: `MAX_SOURCE_LENGTH`, `GLSL_IN_UV`, `GLSL_OUT_COLOR`, `GLSL_COORD_INIT`, `ROOT_CTX`
+- **Removed** `core/compiler/contract.ts` (constants → `constants.ts`); `contract.test.ts` imports from `./constants`
+
+---
+
+## ✅ COMPLETED: `stores/lab` Domain
+
+**Commit:** `fbfa166` — "reorganize: centralize lab store types"
+
+- **Created** `stores/lab/types.ts`: `HistoryEntry`
+- **Created** `stores/types.ts`: `AppMode` (shared by `modeStore`, `Controls`, `Scene`)
+- **Updated** `historyStore.ts`, `modeStore.ts`, `labStore.ts`, `Controls.tsx`
+
+---
+
+## ✅ COMPLETED: `stores/bench` Domain
+
+**Commit:** `e6c8f75` — "reorganize: centralize bench store types & constants"
+
+- **Created** `stores/bench/types.ts`: `CellSize`, `BenchView`, `BenchSettings`
+- **Created** `stores/bench/constants.ts`: `CELL_SIZES`, `MAX_BENCH_COUNT`, `MAX_BENCH_SEEDS`, `BENCH_VIEWS`
+- **Removed** the `BenchView` re-export from `lotStore.ts`
+
+---
+
+## ✅ COMPLETED: `bench/notebook` Domain
+
+**Commit:** `6dcca28` — "reorganize: centralize notebook types & constants; move rating to its own module"
+
+- **Updated** `bench/notebook/types.ts`: domain types only (`Notebook*`, `NotebookBatch`, `NotebookCandidate`, `*Input`, `*Data`); removed the constants re-export block
+- **Created** `bench/notebook/rating.ts`: `NotebookRating` + `isNotebookRating` (a value + its type, so it owns its module)
+- **Updated** `bench/notebook/constants.ts`: values only (`NOTEBOOK_FILE_*`, `MIN_RATING`, `MAX_RATING`)
+- **Updated** `notebook.ts`, `serialize.ts`, `notebook.test.ts`, `BenchStage.tsx`, `BenchPanel.tsx`, `lotStore.ts`
+
+---
+
+## ✅ COMPLETED: `bench/lot` Domain
+
+**Commit:** `d20f162` — "reorganize: move lot view to its own module"
+
+- **Created** `bench/lot/types.ts`: `PlancheCell`, `PlancheRow`, `Planche`, `PlancheOptions`
+- **Created** `bench/lot/constants.ts`: `PLANCHE_BACKGROUND`, `PLANCHE_DIM_FACTOR`
+- **Created** `bench/lot/view.ts`: `LotView` + `EMPTY_LOT` (a value-spanning type stays with its value)
+- **Updated** `planche.ts`, `lot.ts`, `planche.test.ts`, `lot.test.ts`, `Planche.tsx`, `lotStore.ts`
+
+---
+
+## Observed Issues (Remaining — none)
+
+All domains from the original list are done. Remaining tidiness, not blocking:
+
+- `core/renderer/phase.ts` holds both `Phase` and `createPhase`: acceptable (one brand + its factory).
+- `core/expression/types.ts` still carries `Channel`, which is an expression-axis type; correct.
 
 ## Conventions Established (in `codex/docs/conventions/02-typescript.md` §2.7)
 
@@ -210,44 +250,35 @@ core/<domain>/
 - [x] `artwork` domain complete
 - [x] `catalog` domain complete
 - [x] `color` domain complete
-- [x] `grammar` domain
-- [ ] `expression` domain
-- [ ] `random` domain
-- [ ] `renderer` domain
-- [ ] `compiler` domain
-- [ ] `stores/lab` domain
-- [ ] `stores/bench` domain
-- [ ] `bench/lot` domain
-- [ ] `bench/notebook` domain
-- [ ] `vp check --fix` clean
-- [ ] `vp test` all pass
-- [ ] No types exported from implementation files (only `types.ts` + registry files)
-- [ ] No constants exported from `types.ts` (only `constants.ts` + registry files for `*Id` types)
-- [ ] No import cycles introduced
-- [ ] Consistent naming: camelCase for registry/objects, SCREAMING_SNAKE for true constants
-- [ ] Documentation updated in `codex/docs/conventions/typescript.md`
-
----
-
-## Tips for Next Agent (Expression Domain)
-
-- **Start here:** `rg -n "export (type|interface|const) [A-Z]" packages/randomart/src/core/expression --type ts` to find all exports in expression
-- **Look for types exported from implementation files** (e.g. `serialize.ts`, others). Move domain types to `expression/types.ts`, constants to `expression/constants.ts`.
-- **`*Data` DTOs belong in domain's `types.ts`** (already done for `GrammarData`, `ArtworkData`).
-- **Follow the pattern:** `artwork` (types + constants + impl), `catalog` (types + constants + registry + impl), `color` (types + registry + impl, no constants), `grammar` (types + constants + registry + impl).
-- **Check serialization** — types vs functions/constants separation.
-- **Branch:** `main` at `2fd6aef`
-- **Run:** `vp -C packages/randomart check --fix && vp -C packages/randomart test` before starting
+- [x] `grammar` domain complete
+- [x] `expression` domain complete
+- [x] `random` domain complete
+- [x] `renderer` domain complete
+- [x] `compiler` domain complete
+- [x] `stores/lab` domain complete
+- [x] `stores/bench` domain complete
+- [x] `bench/lot` domain complete
+- [x] `bench/notebook` domain complete
+- [x] `vp check --fix` clean (452 files, whole monorepo)
+- [x] `vp test` all pass (280 passed, 1 skipped)
+- [x] No types exported from implementation files (only `types.ts`, registry files, and value-spanning modules such as `bench/lot/view.ts`)
+- [x] No constants exported from `types.ts` (only `constants.ts` + registry files for `*Id` types)
+- [x] No import cycles introduced
+- [x] Consistent naming: camelCase for registry/objects, SCREAMING_SNAKE for true constants
+- [x] Documentation updated in `codex/docs/conventions/02-typescript.md` (§2.7.6)
 
 ---
 
 ## Current State Reference
 
 - **Config pattern:** `config/types.ts` (types) + `config/config.ts` (values) + `config/derived.ts` (computed)
-- **Notebook pattern:** `notebook/types.ts` (types) + `notebook/constants.ts` (values) + re-export from types
+- **Notebook pattern (DONE):** `notebook/types.ts` (types) + `notebook/constants.ts` (values) + `notebook/rating.ts` (value + its type) + implementation files
 - **Artwork pattern (DONE):** `artwork/types.ts` + `artwork/constants.ts` + implementation files
 - **Catalog pattern (DONE):** `catalog/types.ts` + `catalog/constants.ts` + `operators/registry.ts` (exports registry + `OperatorId`/`OperatorRegistry`) + implementation files
 - **Color pattern (DONE):** `color/types.ts` + `color/registry.ts` + `color/color.ts` (functions only)
 - **Grammar pattern (DONE):** `grammar/types.ts` + `grammar/constants.ts` + `grammar/registry.ts` (exports registry + `GrammarRegistryId`/`GrammarRegistry`) + implementation files
-- **Branch:** `main` at `2fd6aef`
-- **Run:** `vp -C packages/randomart check --fix && vp -C packages/randomart test` before starting
+- **Expression / random / renderer / compiler (DONE):** `types.ts` + `constants.ts` + implementation files; `renderer/` flattened (no subdirectories)
+- **Stores (DONE):** `stores/types.ts` (`AppMode`), `stores/lab/types.ts` (`HistoryEntry`), `stores/bench/types.ts` + `constants.ts`
+- **Bench (DONE):** `bench/lot/{types,constants,view}.ts`, `bench/notebook/{types,constants,rating}.ts`
+- **Branch:** `main` after `d20f162`
+- **Run:** `vp check --fix && vp -C packages/randomart test`
