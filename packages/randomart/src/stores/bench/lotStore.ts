@@ -9,7 +9,7 @@ import type { Grammar } from '../../core/grammar/types';
 import { randomSeed } from '../../core/random/seed';
 import type { Seed } from '../../core/random/types';
 import { createBatchRenderer } from '../../core/renderer/batch/batch';
-import type { BatchRenderer, RenderedBatch } from '../../core/renderer/batch/batch';
+import type { BatchRenderer, RenderedBatch } from '../../core/renderer/types';
 import { getBenchSettings, setBenchBaseSeed } from './benchSettingsStore';
 import {
     addBatch,

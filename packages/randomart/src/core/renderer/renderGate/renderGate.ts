@@ -1,20 +1,4 @@
-import type { CanvasDimension, DevicePixelRatio } from '@repo/glaze/core/render';
-
-import type { Phase } from '../contract/contract';
-
-/**
- * What the last drawn frame depended on. Every field is a validated brand: the phase in [0, 1)
- * comes from `createPhase`, the CSS dimensions from `createCanvasDimension` (glaze) and the DPR is
- * carried from the surface untouched instead of being widened back to `number`.
- */
-export interface RenderKey {
-    readonly phase: Phase;
-    readonly width: CanvasDimension;
-    readonly height: CanvasDimension;
-    readonly dpr: DevicePixelRatio;
-    /** True when the shader reads `u_phase`, so a phase change alters the picture. */
-    readonly animated: boolean;
-}
+import type { RenderKey } from '../types';
 
 /**
  * Pure decision of the lazy-render gate. Redraw when nothing has been drawn yet, when the canvas

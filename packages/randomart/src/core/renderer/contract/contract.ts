@@ -1,19 +1,5 @@
 import { assertFinite } from '../../shared/shared';
-import type { Brand } from '../../shared/shared';
-
-/** WebGL context flags for the randomart context. */
-export const DEFAULT_CONTEXT_OPTIONS: WebGLContextAttributes = {
-    antialias: false,
-    preserveDrawingBuffer: true,
-};
-
-/**
- * Normalized loop phase in [0, 1). Brand guarantees wrapping: only `createPhase` produces a
- * `Phase`, so nothing can inject 0.999… or stale 1.0 into `RenderKey` or `u_phase`.
- *
- * `Phase` brand is randomart-owned; glaze has none, its `Clock.progress` is raw [0, 1].
- */
-export type Phase = Brand<number, 'Phase'>;
+import type { Phase } from '../types';
 
 /** Normalizes clock progress [0, 1] → loop phase [0, 1): wraps out-of-range, folds 1.0 to 0. */
 export function createPhase(progress: number): Phase {

@@ -1,6 +1,5 @@
-import type { RenderedBatch } from '../../core/renderer/batch/batch';
 import { flatShareOf } from '../../core/renderer/flatness';
-import type { RgbImage } from '../../core/renderer/types';
+import type { RenderedBatch, RgbImage } from '../../core/renderer/types';
 import { plancheColumns } from './planche';
 import type { PlancheRow, PlancheCell } from './planche';
 

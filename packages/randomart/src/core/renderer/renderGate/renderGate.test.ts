@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { createPhase } from '../contract/contract';
+import type { RenderKey } from '../types';
 import { needsRender } from './renderGate';
-import type { RenderKey } from './renderGate';
 
 const base: RenderKey = {
     phase: createPhase(0.25),

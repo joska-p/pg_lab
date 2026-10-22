@@ -8,9 +8,10 @@ import { useRef } from 'react';
 import type { CSSProperties } from 'react';
 
 import { DEFAULT_LOOP_DURATION } from '../../core/config/derived';
-import { createPhase, DEFAULT_CONTEXT_OPTIONS } from '../../core/renderer/contract/contract';
+import { DEFAULT_CONTEXT_OPTIONS } from '../../core/renderer/constants';
+import { createPhase } from '../../core/renderer/contract/contract';
 import { needsRender } from '../../core/renderer/renderGate/renderGate';
-import type { RenderKey } from '../../core/renderer/renderGate/renderGate';
+import type { RenderKey } from '../../core/renderer/types';
 import { HANDWRITTEN_TEST_SHADER } from '../test/shaders';
 
 interface RandomArtCanvasProps {

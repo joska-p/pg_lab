@@ -8,35 +8,8 @@ import { generate } from '../../generator/generator';
 import { channelModelOf } from '../../grammar/grammar';
 import type { Grammar } from '../../grammar/types';
 import type { Seed } from '../../random/types';
-import { DEFAULT_CONTEXT_OPTIONS } from '../contract/contract';
-import type { RgbImage } from '../types';
-
-interface BatchRequest {
-    readonly grammar: Grammar;
-    readonly seeds: readonly Seed[];
-}
-
-interface RenderedCell {
-    readonly error: string | null;
-    readonly image: RgbImage | null;
-}
-
-export interface RenderedBatch {
-    readonly grammar: Grammar;
-    readonly cells: readonly RenderedCell[];
-}
-
-/**
- * Renders `(grammar, seed)` images on a reused offscreen surface. Used by the bench and the offline
- * dataset pipeline so both go through the exact same pixels.
- *
- * Failures are values per cell, not exceptions: a shader the driver refuses is a normal outcome,
- * and one dead cell must not abort a lot. Only surface creation can throw (e.g., no WebGL2).
- */
-export interface BatchRenderer {
-    render(requests: readonly BatchRequest[], size: number): readonly RenderedBatch[];
-    destroy(): void;
-}
+import { DEFAULT_CONTEXT_OPTIONS } from '../constants';
+import type { BatchRenderer, RenderedCell } from '../types';
 
 interface Stage {
     readonly size: number;
