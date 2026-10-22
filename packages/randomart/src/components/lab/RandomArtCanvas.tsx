@@ -7,14 +7,11 @@ import type { ClockStore } from '@repo/glaze/react/types';
 import { useRef } from 'react';
 import type { CSSProperties } from 'react';
 
-import {
-    createPhase,
-    DEFAULT_CONTEXT_OPTIONS,
-    DEFAULT_LOOP_DURATION,
-    HANDWRITTEN_TEST_SHADER,
-} from '../../core/renderer/contract/contract';
+import { DEFAULT_LOOP_DURATION } from '../../core/config/derived';
+import { createPhase, DEFAULT_CONTEXT_OPTIONS } from '../../core/renderer/contract/contract';
 import { needsRender } from '../../core/renderer/renderGate/renderGate';
 import type { RenderKey } from '../../core/renderer/renderGate/renderGate';
+import { HANDWRITTEN_TEST_SHADER } from '../test/shaders';
 
 interface RandomArtCanvasProps {
     /** Fragment shader source code adhering to randomart's GLSL contract. */

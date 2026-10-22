@@ -43,9 +43,7 @@ describe('config pins', () => {
             height: 1_024,
             loopMs: 60_000,
         });
-        expect(CONFIG.color).toEqual({
-            oklabChroma: 0.4,
-        });
+        expect(CONFIG.color).toEqual({});
         expect(CONFIG.channels).toEqual({
             space: 'oklch',
             shareDepth: 2,
@@ -53,6 +51,8 @@ describe('config pins', () => {
         expect(CONFIG.app).toEqual({
             historyLimit: 30,
             initialSeed: 42,
+            minLoopMs: 500,
+            maxLoopMs: 120_000,
         });
     });
 });

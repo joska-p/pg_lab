@@ -59,10 +59,7 @@ interface Config {
         readonly loopMs: number;
     };
     /** Raw triplet → color (shader only, not draw-affecting). */
-    readonly color: {
-        /** OKLab chroma at `|g|=1` for OKLCH/OKLab. 0.4 exceeds sRGB gamut; clamp does real work. */
-        readonly oklabChroma: number;
-    };
+    readonly color: {};
     /** App curated defaults (color space + trunk depth), shared with presets. */
     readonly channels: {
         readonly space: ColorSpaceId;
@@ -74,6 +71,10 @@ interface Config {
         readonly historyLimit: number;
         /** Initial artwork seed for reproducible first screen. */
         readonly initialSeed: number;
+        /** UI slider minimum for loop duration (ms). */
+        readonly minLoopMs: number;
+        /** UI slider maximum for loop duration (ms). */
+        readonly maxLoopMs: number;
     };
 }
 
@@ -106,9 +107,7 @@ export const CONFIG = {
         height: 1_024,
         loopMs: 60_000,
     },
-    color: {
-        oklabChroma: 0.4,
-    },
+    color: {},
     channels: {
         space: 'oklch',
         shareDepth: 2,
@@ -116,6 +115,8 @@ export const CONFIG = {
     app: {
         historyLimit: 30,
         initialSeed: 42,
+        minLoopMs: 500,
+        maxLoopMs: 120_000,
     },
 } as const satisfies Config;
 

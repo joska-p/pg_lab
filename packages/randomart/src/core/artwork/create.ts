@@ -1,13 +1,7 @@
 import { CONFIG } from '../config/config';
 import { assertFinite, assertIntegerInRange } from '../shared/shared';
 import type { Artwork, ArtworkInput, RenderSettings, RenderSettingsInput } from './types';
-import {
-    MAX_LOOP_MS,
-    MAX_RENDER_SIZE,
-    MAX_TITLE_LENGTH,
-    MIN_LOOP_MS,
-    MIN_RENDER_SIZE,
-} from './types';
+import { MAX_RENDER_SIZE, MAX_TITLE_LENGTH, MIN_RENDER_SIZE } from './types';
 
 /**
  * The only way to a `RenderSettings` brand: constrains the render block numbers and applies
@@ -24,9 +18,9 @@ export function createRenderSettings(render?: Partial<RenderSettingsInput>): Ren
     assertIntegerInRange(height, 'render.height', MIN_RENDER_SIZE, MAX_RENDER_SIZE);
     assertFinite(loopMs, 'render.loopMs');
 
-    if (loopMs < MIN_LOOP_MS || loopMs > MAX_LOOP_MS) {
+    if (loopMs < CONFIG.app.minLoopMs || loopMs > CONFIG.app.maxLoopMs) {
         throw new Error(
-            `Randomart: render.loopMs must be between ${MIN_LOOP_MS} and ${MAX_LOOP_MS}, received ${String(loopMs)}`,
+            `Randomart: render.loopMs must be between ${CONFIG.app.minLoopMs} and ${CONFIG.app.maxLoopMs}, received ${String(loopMs)}`,
         );
     }
 
@@ -58,7 +52,12 @@ export function fitRenderSettings(render?: Partial<RenderSettingsInput>): Render
             MAX_RENDER_SIZE,
             CONFIG.artwork.height,
         ),
-        loopMs: clampBounded(render?.loopMs, MIN_LOOP_MS, MAX_LOOP_MS, CONFIG.artwork.loopMs),
+        loopMs: clampBounded(
+            render?.loopMs,
+            CONFIG.app.minLoopMs,
+            CONFIG.app.maxLoopMs,
+            CONFIG.artwork.loopMs,
+        ),
     });
 }
 

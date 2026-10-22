@@ -1,4 +1,4 @@
-import { defineOperator } from './types';
+import { defineOperator } from './defineOperator';
 
 export const transforms = {
     warp: defineOperator({

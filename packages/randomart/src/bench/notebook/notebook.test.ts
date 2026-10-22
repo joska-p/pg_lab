@@ -3,6 +3,12 @@ import { describe, expect, it } from 'vite-plus/test';
 import { GRAMMAR_PRESETS } from '../../core/grammar/presets';
 import { createSeed } from '../../core/random/seed';
 import {
+    isNotebookRating,
+    MAX_NOTEBOOK_FILE_LENGTH,
+    NOTEBOOK_FILE_FORMAT,
+    NOTEBOOK_FILE_VERSION,
+} from './constants';
+import {
     addBatchToNotebook,
     createBatch,
     createCandidate,
@@ -12,12 +18,6 @@ import {
     updateCandidateRating,
 } from './notebook';
 import { parseNotebook, serializeNotebook } from './serialize';
-import {
-    isNotebookRating,
-    MAX_NOTEBOOK_FILE_LENGTH,
-    NOTEBOOK_FILE_FORMAT,
-    NOTEBOOK_FILE_VERSION,
-} from './types';
 
 describe('notebook core', () => {
     const grammar = GRAMMAR_PRESETS[0].grammar;

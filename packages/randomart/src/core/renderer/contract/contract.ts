@@ -1,14 +1,5 @@
-import { createDurationSeconds } from '@repo/glaze/core/time';
-import type { DurationSeconds } from '@repo/glaze/core/time';
-
-import { CONFIG } from '../../config/config';
 import { assertFinite } from '../../shared/shared';
 import type { Brand } from '../../shared/shared';
-
-/** Default loop duration in seconds, derived from `CONFIG.artwork.loopMs`. */
-export const DEFAULT_LOOP_DURATION: DurationSeconds = createDurationSeconds(
-    CONFIG.artwork.loopMs / 1000,
-);
 
 /** WebGL context flags for the randomart context. */
 export const DEFAULT_CONTEXT_OPTIONS: WebGLContextAttributes = {
@@ -33,25 +24,3 @@ export function createPhase(progress: number): Phase {
     // Guard against FP rounding where wrapped might be 1.
     return (wrapped >= 1 ? 0 : wrapped) as Phase;
 }
-
-/** Test shader verifying GPU pipeline + coordinate conventions (gradient + phase animation). */
-export const HANDWRITTEN_TEST_SHADER = /* glsl */ `
-precision highp float;
-
-in vec2 vUv;
-out vec4 o_color;
-
-uniform float u_phase;
-
-const float TWO_PI = 6.283185307179586;
-
-void main() {
-    vec2 v_p = vUv * 2.0 - 1.0;
-
-    float r = v_p.x * 0.5 + 0.5;
-    float g = v_p.y * 0.5 + 0.5;
-    float b = 0.5 + 0.5 * sin(u_phase * TWO_PI);
-
-    o_color = vec4(r, g, b, 1.0);
-}
-`.trim();

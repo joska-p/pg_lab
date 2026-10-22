@@ -7,7 +7,7 @@ import {
     MAX_NOTEBOOK_FILE_LENGTH,
     NOTEBOOK_FILE_FORMAT,
     NOTEBOOK_FILE_VERSION,
-} from './types';
+} from './constants';
 import type {
     Notebook,
     NotebookBatch,

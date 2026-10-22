@@ -6,12 +6,12 @@ import type { ClockStore } from '@repo/glaze/react/types';
 import { create } from 'zustand';
 
 import type { ProvenanceCheck } from '../../core/artwork/provenance';
-import { MAX_LOOP_MS, MIN_LOOP_MS } from '../../core/artwork/types';
 import { catalog } from '../../core/catalog/default';
 import type { OperatorId } from '../../core/catalog/operators/registry';
 import { compile } from '../../core/compiler/compile';
 import type { CompiledShader } from '../../core/compiler/types';
 import { CONFIG } from '../../core/config/config';
+import { DEFAULT_LOOP_DURATION } from '../../core/config/derived';
 import type { ColorSpaceId, SizeProfileId } from '../../core/config/types';
 import type { Expression } from '../../core/expression/types';
 import { generate } from '../../core/generator/generator';
@@ -21,7 +21,6 @@ import type { Grammar } from '../../core/grammar/types';
 import { createRng } from '../../core/random/rng';
 import { createSeed, randomSeed } from '../../core/random/seed';
 import type { Seed } from '../../core/random/seed';
-import { DEFAULT_LOOP_DURATION } from '../../core/renderer/contract/contract';
 import {
     getCurrentId,
     getHistoryEntry,
@@ -310,7 +309,7 @@ export function publishLabState(published: {
 export function parseDurationInput(raw: string): DurationSeconds {
     const n = parseFloat(raw);
     const clamped = Number.isFinite(n)
-        ? Math.min(MAX_LOOP_MS / 1000, Math.max(MIN_LOOP_MS / 1000, n))
+        ? Math.min(CONFIG.app.maxLoopMs / 1000, Math.max(CONFIG.app.minLoopMs / 1000, n))
         : DEFAULT_LOOP_DURATION;
 
     return createDurationSeconds(clamped);

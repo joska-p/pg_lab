@@ -1,6 +1,6 @@
 import { CONFIG } from '../../config/config';
 import { formatGlslFloat } from '../format';
-import { defineOperator } from './types';
+import { defineOperator } from './defineOperator';
 
 /**
  * `x` and `y` carry the time. Each occurrence blends its coordinate with its own oscillator

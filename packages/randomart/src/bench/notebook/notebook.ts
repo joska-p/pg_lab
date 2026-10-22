@@ -1,7 +1,7 @@
 import { GENERATOR_VERSION } from '../../core/generator/generator';
 import type { Grammar } from '../../core/grammar/types';
 import type { Seed } from '../../core/random/seed';
-import { isNotebookRating, NOTEBOOK_FILE_FORMAT, NOTEBOOK_FILE_VERSION } from './types';
+import { isNotebookRating, NOTEBOOK_FILE_FORMAT, NOTEBOOK_FILE_VERSION } from './constants';
 import type { Notebook, NotebookBatch, NotebookCandidate, NotebookRating } from './types';
 
 let nextLocalId = 1;

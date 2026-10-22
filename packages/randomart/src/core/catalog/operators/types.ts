@@ -1,5 +1,4 @@
 import type { ParamRange } from '../../config/types';
-import type { DependencyId } from '../dependencies';
 
 export type OperatorGroup = 'terminal' | 'arithmetic' | 'trigonometry' | 'logic' | 'transform';
 
@@ -35,12 +34,3 @@ export interface OperatorSpec<
     coords?(c: { p: string; args: Named<I, string>; params: Named<P, number> }): string;
     glsl(c: { p: string; args: Named<I | N, string>; params: Named<P, number> }): string;
 }
-
-/** Identity helper: infers `P`, `I`, `N` from the literal so `args` is precisely typed. */
-export const defineOperator = <
-    P extends string = never,
-    I extends string = never,
-    N extends string = never,
->(
-    spec: OperatorSpec<P, I, N, DependencyId>,
-): OperatorSpec<P, I, N, DependencyId> => spec;

@@ -9,7 +9,6 @@
  */
 
 import { formatGlslFloat } from '../catalog/format';
-import { CONFIG } from '../config/config';
 import type { ColorSpaceId } from '../config/types';
 import type { ChannelModel } from './types';
 
@@ -28,6 +27,8 @@ export interface ColorSpace {
     readonly fn: string;
     /** Full GLSL definition of the entry point, plus any helper it uses. */
     readonly glsl: string;
+    /** Chroma scale at |g|=1 for OKLCH/OKLab. Only present for those spaces. */
+    readonly chroma?: number;
 }
 
 /** Raw triplet → sRGB (identity space). Clamp guards the render edge. */
@@ -53,11 +54,17 @@ const OKLAB_TO_SRGB_GLSL = `vec3 ra_oklabToSrgb(vec3 lab) {
     return clamp(mix(hi, lo, lessThanEqual(linear, vec3(0.0031308))), 0.0, 1.0);
 }`;
 
+/** OKLCH chroma at |g|=1. Exceeds sRGB gamut; clamp in shader does real work. */
+const OKLCH_CHROMA = 0.4;
+
+/** OKLab chroma at |g|=1. Exceeds sRGB gamut; clamp in shader does real work. */
+const OKLAB_CHROMA = 0.4;
+
 /** Remaps from raw triplet `[-1,1]`: L = x*0.5+0.5, C = abs(y), h = z wrapped to full turn. */
 const OKLCH_GLSL = `${OKLAB_TO_SRGB_GLSL}
 vec3 ra_oklch(vec3 raw) {
     float L = clamp(raw.x * 0.5 + 0.5, 0.0, 1.0);
-    float C = abs(raw.y) * ${formatGlslFloat(CONFIG.color.oklabChroma)};
+    float C = abs(raw.y) * ${formatGlslFloat(OKLCH_CHROMA)};
     float h = (raw.z * 0.5 + 0.5) * 6.283185307179586;
     return ra_oklabToSrgb(vec3(L, C * cos(h), C * sin(h)));
 }`;
@@ -65,7 +72,7 @@ vec3 ra_oklch(vec3 raw) {
 const OKLAB_GLSL = `${OKLAB_TO_SRGB_GLSL}
 vec3 ra_oklab(vec3 raw) {
     float L = clamp(raw.x * 0.5 + 0.5, 0.0, 1.0);
-    return ra_oklabToSrgb(vec3(L, raw.y * ${formatGlslFloat(CONFIG.color.oklabChroma)}, raw.z * ${formatGlslFloat(CONFIG.color.oklabChroma)}));
+    return ra_oklabToSrgb(vec3(L, raw.y * ${formatGlslFloat(OKLAB_CHROMA)}, raw.z * ${formatGlslFloat(OKLAB_CHROMA)}));
 }`;
 
 const HSL_TO_SRGB_GLSL = `vec3 ra_hslToSrgb(vec3 hsl) {
@@ -86,8 +93,8 @@ vec3 ra_hsl(vec3 raw) {
 
 export const COLOR_SPACES = {
     srgb: { id: 'srgb', label: 'sRGB', fn: 'ra_srgb', glsl: SRGB_GLSL },
-    oklch: { id: 'oklch', label: 'OKLCH', fn: 'ra_oklch', glsl: OKLCH_GLSL },
-    oklab: { id: 'oklab', label: 'OKLab', fn: 'ra_oklab', glsl: OKLAB_GLSL },
+    oklch: { id: 'oklch', label: 'OKLCH', fn: 'ra_oklch', glsl: OKLCH_GLSL, chroma: OKLCH_CHROMA },
+    oklab: { id: 'oklab', label: 'OKLab', fn: 'ra_oklab', glsl: OKLAB_GLSL, chroma: OKLAB_CHROMA },
     hsl: { id: 'hsl', label: 'HSL', fn: 'ra_hsl', glsl: HSL_GLSL },
 } satisfies Record<ColorSpaceId, ColorSpace>;
 

@@ -47,6 +47,4 @@ export type Artwork = Brand<
 
 export const MIN_RENDER_SIZE = 1;
 export const MAX_RENDER_SIZE = 8_192;
-export const MIN_LOOP_MS = 500;
-export const MAX_LOOP_MS = 120_000;
 export const MAX_TITLE_LENGTH = 200;

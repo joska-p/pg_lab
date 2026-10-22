@@ -1,11 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import {
-    createPhase,
-    DEFAULT_CONTEXT_OPTIONS,
-    DEFAULT_LOOP_DURATION,
-    HANDWRITTEN_TEST_SHADER,
-} from './contract';
+import { HANDWRITTEN_TEST_SHADER } from '../../../components/test/shaders';
+import { DEFAULT_LOOP_DURATION } from '../../config/derived';
+import { createPhase, DEFAULT_CONTEXT_OPTIONS } from './contract';
 
 describe('renderer / contract & helpers', () => {
     describe('createPhase', () => {
