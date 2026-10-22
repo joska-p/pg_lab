@@ -10,10 +10,6 @@ import { Text } from '@repo/ui/components/Text';
 
 import type { NotebookBatch, NotebookRating } from '../../bench/notebook/types';
 import {
-    BENCH_VIEWS,
-    CELL_SIZES,
-    MAX_BENCH_COUNT,
-    MAX_BENCH_SEEDS,
     setBenchCellSize,
     setBenchCount,
     setBenchDimFlats,
@@ -21,7 +17,12 @@ import {
     setBenchView,
     useBenchSettings,
 } from '../../stores/bench/benchSettingsStore';
-import type { BenchView } from '../../stores/bench/benchSettingsStore';
+import {
+    BENCH_VIEWS,
+    CELL_SIZES,
+    MAX_BENCH_COUNT,
+    MAX_BENCH_SEEDS,
+} from '../../stores/bench/constants';
 import {
     drawBenchBatch,
     importNotebook,
@@ -42,6 +43,7 @@ import {
     useBenchActiveBatch,
     useBenchNotebook,
 } from '../../stores/bench/notebookStore';
+import type { BenchView } from '../../stores/bench/types';
 
 const RATINGS: readonly NotebookRating[] = [0, 1, 2, 3, 4, 5];
 

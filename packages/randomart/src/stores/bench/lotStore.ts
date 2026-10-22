@@ -22,8 +22,6 @@ import {
     setBenchNotebook,
 } from './notebookStore';
 
-export type { BenchView } from './benchSettingsStore';
-
 interface LotState {
     selectedRowIndex: number;
     selectedColIndex: number;
