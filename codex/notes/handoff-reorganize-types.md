@@ -184,7 +184,7 @@ monorepo, `vp test` 280 passed / 1 skipped. Branch: `main` after `d20f162`.
 **Commit:** `6dcca28` — "reorganize: centralize notebook types & constants; move rating to its own module"
 
 - **Updated** `bench/notebook/types.ts`: domain types only (`Notebook*`, `NotebookBatch`, `NotebookCandidate`, `*Input`, `*Data`); removed the constants re-export block
-- **Created** `bench/notebook/rating.ts`: `NotebookRating` + `isNotebookRating` (a value + its type, so it owns its module)
+- **Created** `bench/notebook/rating.ts`: `isNotebookRating` only; `NotebookRating` stays in `bench/notebook/types.ts`
 - **Updated** `bench/notebook/constants.ts`: values only (`NOTEBOOK_FILE_*`, `MIN_RATING`, `MAX_RATING`)
 - **Updated** `notebook.ts`, `serialize.ts`, `notebook.test.ts`, `BenchStage.tsx`, `BenchPanel.tsx`, `lotStore.ts`
 
@@ -196,7 +196,7 @@ monorepo, `vp test` 280 passed / 1 skipped. Branch: `main` after `d20f162`.
 
 - **Created** `bench/lot/types.ts`: `PlancheCell`, `PlancheRow`, `Planche`, `PlancheOptions`
 - **Created** `bench/lot/constants.ts`: `PLANCHE_BACKGROUND`, `PLANCHE_DIM_FACTOR`
-- **Created** `bench/lot/view.ts`: `LotView` + `EMPTY_LOT` (a value-spanning type stays with its value)
+- **Created** `bench/lot/view.ts`: `EMPTY_LOT` only; `LotView` stays in `bench/lot/types.ts`
 - **Updated** `planche.ts`, `lot.ts`, `planche.test.ts`, `lot.test.ts`, `Planche.tsx`, `lotStore.ts`
 
 ---
@@ -205,8 +205,8 @@ monorepo, `vp test` 280 passed / 1 skipped. Branch: `main` after `d20f162`.
 
 All domains from the original list are done. Remaining tidiness, not blocking:
 
-- `core/renderer/phase.ts` holds both `Phase` and `createPhase`: acceptable (one brand + its factory).
-- `core/expression/types.ts` still carries `Channel`, which is an expression-axis type; correct.
+- Nothing outstanding. `types.ts` is exhaustive per domain; companion values live in their own
+  modules (`bench/lot/view.ts`, `bench/notebook/rating.ts`).
 
 ## Conventions Established (in `codex/docs/conventions/02-typescript.md` §2.7)
 
@@ -261,7 +261,7 @@ core/<domain>/
 - [x] `bench/notebook` domain complete
 - [x] `vp check --fix` clean (452 files, whole monorepo)
 - [x] `vp test` all pass (280 passed, 1 skipped)
-- [x] No types exported from implementation files (only `types.ts`, registry files, and value-spanning modules such as `bench/lot/view.ts`)
+- [x] No types exported from implementation files (only `types.ts` and registry files)
 - [x] No constants exported from `types.ts` (only `constants.ts` + registry files for `*Id` types)
 - [x] No import cycles introduced
 - [x] Consistent naming: camelCase for registry/objects, SCREAMING_SNAKE for true constants
@@ -272,13 +272,13 @@ core/<domain>/
 ## Current State Reference
 
 - **Config pattern:** `config/types.ts` (types) + `config/config.ts` (values) + `config/derived.ts` (computed)
-- **Notebook pattern (DONE):** `notebook/types.ts` (types) + `notebook/constants.ts` (values) + `notebook/rating.ts` (value + its type) + implementation files
+- **Notebook pattern (DONE):** `notebook/types.ts` (types) + `notebook/constants.ts` (values) + `notebook/rating.ts` (guard value) + implementation files
 - **Artwork pattern (DONE):** `artwork/types.ts` + `artwork/constants.ts` + implementation files
 - **Catalog pattern (DONE):** `catalog/types.ts` + `catalog/constants.ts` + `operators/registry.ts` (exports registry + `OperatorId`/`OperatorRegistry`) + implementation files
 - **Color pattern (DONE):** `color/types.ts` + `color/registry.ts` + `color/color.ts` (functions only)
 - **Grammar pattern (DONE):** `grammar/types.ts` + `grammar/constants.ts` + `grammar/registry.ts` (exports registry + `GrammarRegistryId`/`GrammarRegistry`) + implementation files
 - **Expression / random / renderer / compiler (DONE):** `types.ts` + `constants.ts` + implementation files; `renderer/` flattened (no subdirectories)
 - **Stores (DONE):** `stores/types.ts` (`AppMode`), `stores/lab/types.ts` (`HistoryEntry`), `stores/bench/types.ts` + `constants.ts`
-- **Bench (DONE):** `bench/lot/{types,constants,view}.ts`, `bench/notebook/{types,constants,rating}.ts`
-- **Branch:** `main` after `d20f162`
+- **Bench (DONE):** `bench/lot/{types,constants,view}.ts` (`LotView` in types, `EMPTY_LOT` in view), `bench/notebook/{types,constants,rating}.ts` (`NotebookRating` in types, guard in rating)
+- **Branch:** `main` after `67dd527`
 - **Run:** `vp check --fix && vp -C packages/randomart test`
