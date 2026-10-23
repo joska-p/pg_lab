@@ -3,7 +3,13 @@ import { create } from 'zustand';
 import { buildLotView } from '../../bench/lot/lot';
 import type { LotView } from '../../bench/lot/types';
 import { EMPTY_LOT } from '../../bench/lot/view';
-import { createBatch, createCandidate } from '../../bench/notebook/notebook';
+import {
+    createBatch,
+    createCandidate,
+    addBatchToNotebook,
+    removeBatchFromNotebook,
+} from '../../bench/notebook/notebook';
+import { parseNotebook, serializeNotebook } from '../../bench/notebook/serialize';
 import type { NotebookBatch, NotebookRating, Notebook } from '../../bench/notebook/types';
 import { CONFIG } from '../../core/config/config';
 import { sampleGrammars } from '../../core/grammar/sample';
@@ -131,25 +137,12 @@ async function loadPersistedNotebook(): Promise<Notebook | null> {
 
 // Internal: add batch to notebook and persist
 function addBatchToNotebookState(notebook: Notebook, batch: NotebookBatch): Notebook {
-    const { addBatchToNotebook } = require('../../bench/notebook/notebook');
     return addBatchToNotebook(notebook, batch);
 }
 
 // Internal: remove batch from notebook and persist
 function removeBatchFromNotebookState(notebook: Notebook, batchId: string): Notebook {
-    const { removeBatchFromNotebook } = require('../../bench/notebook/notebook');
     return removeBatchFromNotebook(notebook, batchId);
-}
-
-// Internal: parse/serialize notebook
-function parseNotebook(text: string): Notebook {
-    const { parseNotebook } = require('../../bench/notebook/serialize');
-    return parseNotebook(text);
-}
-
-function serializeNotebook(notebook: Notebook): string {
-    const { serializeNotebook } = require('../../bench/notebook/serialize');
-    return serializeNotebook(notebook);
 }
 
 // Public hooks
