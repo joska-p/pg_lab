@@ -9,10 +9,10 @@ import { useEffect, useRef, useState } from 'react';
 
 import { focusLotView } from '../../bench/lot/lot';
 import { fitGrid } from '../../bench/lot/planche';
-import { MAX_RATING, MIN_RATING } from '../../bench/notebook/constants';
 import type { NotebookRating } from '../../bench/notebook/types';
-import { useBenchSettings } from '../../stores/bench/benchSettingsStore';
 import {
+    MAX_RATING,
+    MIN_RATING,
     initBench,
     openSelectedInLab,
     rateCandidateRow,
@@ -20,12 +20,13 @@ import {
     stepCell,
     stepRow,
     toggleCandidateRating,
+    useBenchActiveBatch,
     useBenchError,
     useBenchLot,
     useBenchSelectedColIndex,
     useBenchSelectedRowIndex,
-} from '../../stores/bench/lotStore';
-import { useBenchActiveBatch } from '../../stores/bench/notebookStore';
+    useBenchSettings,
+} from '../../stores/bench/benchStore';
 import { Planche } from './Planche';
 
 const styles = stylex.create({

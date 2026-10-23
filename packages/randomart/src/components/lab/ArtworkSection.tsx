@@ -4,8 +4,13 @@ import { Grid } from '@repo/ui/components/Grid';
 import { Text } from '@repo/ui/components/Text';
 
 import type { ProvenanceCheck } from '../../core/artwork/types';
-import { exportArtworkFile, exportPng, importArtworkFile } from '../../stores/lab/artworkStore';
-import { useCanvas, useProvenanceCheck } from '../../stores/lab/labStore';
+import {
+    exportArtworkFile,
+    exportPng,
+    importArtworkFile,
+    useCanvas,
+    useProvenanceCheck,
+} from '../../stores/lab/labStore';
 
 const PROVENANCE_LABELS: Record<ProvenanceCheck, string> = {
     none: 'No provenance: this artwork was made or edited by hand',

@@ -10,21 +10,12 @@ import { Text } from '@repo/ui/components/Text';
 
 import type { NotebookBatch, NotebookRating } from '../../bench/notebook/types';
 import {
-    setBenchCellSize,
-    setBenchCount,
-    setBenchDimFlats,
-    setBenchSeeds,
-    setBenchView,
-    useBenchSettings,
-} from '../../stores/bench/benchSettingsStore';
-import {
-    BENCH_VIEWS,
     CELL_SIZES,
     MAX_BENCH_COUNT,
     MAX_BENCH_SEEDS,
-} from '../../stores/bench/constants';
-import {
+    BENCH_VIEWS,
     drawBenchBatch,
+    exportNotebookFile,
     importNotebook,
     openSelectedInLab,
     rateCandidateRow,
@@ -33,16 +24,19 @@ import {
     selectBatch,
     stepRow,
     toggleCandidateRating,
+    useBenchActiveBatch,
     useBenchError,
     useBenchLot,
+    useBenchNotebook,
     useBenchSelectedColIndex,
     useBenchSelectedRowIndex,
-} from '../../stores/bench/lotStore';
-import {
-    exportNotebookFile,
-    useBenchActiveBatch,
-    useBenchNotebook,
-} from '../../stores/bench/notebookStore';
+    useBenchSettings,
+    setBenchCellSize,
+    setBenchCount,
+    setBenchDimFlats,
+    setBenchSeeds,
+    setBenchView,
+} from '../../stores/bench/benchStore';
 import type { BenchView } from '../../stores/bench/types';
 
 const RATINGS: readonly NotebookRating[] = [0, 1, 2, 3, 4, 5];

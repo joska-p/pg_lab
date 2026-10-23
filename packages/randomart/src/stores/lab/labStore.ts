@@ -6,7 +6,10 @@ import type { ClockStore } from '@repo/glaze/react/types';
 import { useSyncExternalStore } from 'react';
 import { create } from 'zustand';
 
-import type { ProvenanceCheck } from '../../core/artwork/types';
+import { createArtwork } from '../../core/artwork/create';
+import { checkProvenance } from '../../core/artwork/provenance';
+import { parseArtworkFile, serializeArtworkFile } from '../../core/artwork/serialize';
+import type { ProvenanceCheck, Artwork } from '../../core/artwork/types';
 import { catalog } from '../../core/catalog/default';
 import type { OperatorId } from '../../core/catalog/types';
 import { compile } from '../../core/compiler/compile';
@@ -19,33 +22,43 @@ import {
 } from '../../core/config/derived';
 import type { ColorSpaceId, SizeProfileId } from '../../core/config/types';
 import type { Expression } from '../../core/expression/types';
-import { generate } from '../../core/generator/generator';
+import { generate, GENERATOR_VERSION } from '../../core/generator/generator';
 import { channelModelOf, createGrammar } from '../../core/grammar/grammar';
 import { drawGrammar as drawRandomGrammar } from '../../core/grammar/quantized';
 import type { Grammar } from '../../core/grammar/types';
 import { createRng } from '../../core/random/rng';
 import { createSeed, randomSeed } from '../../core/random/seed';
 import type { Seed } from '../../core/random/types';
-import {
-    getCurrentId,
-    getHistoryEntry,
-    nextHistoryId,
-    pushHistoryEntry,
-    selectHistoryEntry,
-} from './historyStore';
-import type { HistoryEntry } from './types';
+
+interface HistoryEntry {
+    readonly id: number;
+    readonly seed: Seed;
+    readonly grammar: Grammar;
+    readonly nodes: number;
+    readonly expression?: Expression;
+    readonly provenanceCheck?: ProvenanceCheck;
+}
 
 interface LabState {
+    // Clock & playback
     clockStore: ClockStore;
     shaderError: ShaderError | null;
     actionError: string | null;
     duration: DurationSeconds;
+
+    // Current artwork
     grammar: Grammar;
     seed: Seed;
     expression: Expression;
     provenanceCheck: ProvenanceCheck;
     compiledShader: CompiledShader;
     canvas: HTMLCanvasElement | null;
+
+    // History
+    history: readonly HistoryEntry[];
+    currentId: number;
+    nextEntryId: number;
+    grammarEditId: number | null;
 }
 
 // No default grammar: first screen draws from initial seed (reproducible). Animation = clock playback, not grammar.
@@ -75,12 +88,22 @@ const store = create<LabState>(() => ({
     provenanceCheck: 'matches',
     compiledShader: initialCompiled,
     canvas: null,
+    history: [initialEntry],
+    currentId: 0,
+    nextEntryId: 1,
+    grammarEditId: null,
 }));
 
-pushHistoryEntry(initialEntry, false, CONFIG.app.historyLimit);
-
-// History entry id from current grammar edit run (weights/size/share/space), if any.
-let grammarEditId: number | null = null;
+function downloadBlob(blob: Blob, filename: string): void {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.setTimeout(() => {
+        URL.revokeObjectURL(url);
+    }, 1000);
+}
 
 export function useClockStore(): ClockStore {
     return store((s) => s.clockStore);
@@ -164,7 +187,15 @@ export function useGrammar(): Grammar {
     return store((s) => s.grammar);
 }
 
-export function getLabState(): LabState {
+export function useHistory(): readonly HistoryEntry[] {
+    return store((s) => s.history);
+}
+
+export function useCurrentId(): number {
+    return store((s) => s.currentId);
+}
+
+export function getLabState() {
     return store.getState();
 }
 
@@ -192,19 +223,27 @@ function commit(
 
         if (restoreId === undefined) {
             const entry: HistoryEntry = {
-                id: nextHistoryId(),
+                id: store.getState().nextEntryId,
                 seed,
                 grammar,
                 nodes: compiledShader.stats.nodes,
             };
 
-            const replaces = coalesce && grammarEditId === getCurrentId();
+            const state = store.getState();
+            const replaces = coalesce && state.grammarEditId === state.currentId;
 
-            pushHistoryEntry(entry, replaces, CONFIG.app.historyLimit);
-            grammarEditId = coalesce ? entry.id : null;
+            const kept = replaces
+                ? state.history.filter((candidate) => candidate.id !== state.currentId)
+                : state.history;
+
+            store.setState({
+                history: [entry, ...kept].slice(0, CONFIG.app.historyLimit),
+                currentId: entry.id,
+                nextEntryId: state.nextEntryId + 1,
+                grammarEditId: coalesce ? entry.id : null,
+            });
         } else {
-            grammarEditId = null;
-            selectHistoryEntry(restoreId);
+            store.setState({ grammarEditId: null, currentId: restoreId });
         }
 
         store.setState({
@@ -282,14 +321,14 @@ function restoreImportedEntry(entry: HistoryEntry): void {
             }),
             actionError: null,
         });
-        selectHistoryEntry(entry.id);
+        store.setState({ currentId: entry.id });
     } catch (error) {
         setActionError(error);
     }
 }
 
 export function restoreEntry(id: number): void {
-    const entry = getHistoryEntry(id);
+    const entry = store.getState().history.find((candidate) => candidate.id === id);
 
     if (!entry) {
         return;
@@ -316,7 +355,7 @@ export function publishLabState(published: {
     compiledShader: CompiledShader;
 }): void {
     const entry: HistoryEntry = {
-        id: nextHistoryId(),
+        id: store.getState().nextEntryId,
         seed: published.seed,
         grammar: published.grammar,
         nodes: published.compiledShader.stats.nodes,
@@ -324,8 +363,101 @@ export function publishLabState(published: {
         provenanceCheck: published.provenanceCheck,
     };
 
-    pushHistoryEntry(entry, false, CONFIG.app.historyLimit);
-    store.setState({ ...published, actionError: null });
+    const state = store.getState();
+    store.setState({
+        history: [entry, ...state.history].slice(0, CONFIG.app.historyLimit),
+        currentId: entry.id,
+        nextEntryId: state.nextEntryId + 1,
+        ...published,
+        actionError: null,
+    });
+}
+
+/**
+ * Publishes an imported artwork: the expression is shown as-is, the grammar and seed come from its
+ * provenance when present, and the liveness of its provenance is computed once. Render size is
+ * ignored: render size = canvas size until the artwork is resized; the loop duration is adopted
+ * when the UI bounds allow it.
+ */
+export function publishArtwork(artwork: Artwork): void {
+    const { expression, provenance, render } = artwork;
+    const state = store.getState();
+    const grammar = provenance?.grammar ?? state.grammar;
+    const seed = provenance?.seed ?? state.seed;
+    const compiledShader = compile(catalog, expression, {
+        channels: channelModelOf(grammar),
+    });
+    const provenanceCheck = checkProvenance(artwork);
+
+    publishLabState({ grammar, seed, expression, provenanceCheck, compiledShader });
+
+    // Adopt loop duration directly; render.loopMs is already validated within bounds.
+    if (render.loopMs / 1000 !== state.duration) {
+        setDuration(createDurationSeconds(render.loopMs / 1000));
+    }
+}
+
+/** Publishes `(grammar, seed)` as a fresh artwork: the bench's "open in Lab" entry point. */
+export function openCellInLab(grammar: Grammar, seed: Seed): void {
+    const artwork = createArtwork({
+        expression: generate(grammar, seed),
+        provenance: { grammar, seed, generatorVersion: GENERATOR_VERSION },
+    });
+
+    publishArtwork(artwork);
+}
+
+export function exportArtworkFile(): void {
+    const state = store.getState();
+    const artwork = createArtwork({
+        expression: state.expression,
+        // Retains default render size so exported files stay consistent across displays.
+        render: {
+            width: CONFIG.artwork.width,
+            height: CONFIG.artwork.height,
+            loopMs: Math.round(state.duration * 1000),
+        },
+        provenance: {
+            grammar: state.grammar,
+            seed: state.seed,
+            generatorVersion: GENERATOR_VERSION,
+        },
+    });
+
+    downloadBlob(
+        new Blob([serializeArtworkFile(artwork)], { type: 'application/json' }),
+        `randomart-${Date.now()}.randomart.json`,
+    );
+}
+
+/**
+ * Imports an artwork file and publishes its expression as-is; invalid files leave the state
+ * untouched (the error is shown).
+ */
+export async function importArtworkFile(file: File): Promise<void> {
+    try {
+        publishArtwork(parseArtworkFile(await file.text()));
+    } catch (error) {
+        setActionError(error);
+    }
+}
+
+export async function exportPng(): Promise<void> {
+    const { canvas } = store.getState();
+
+    if (!canvas) {
+        return;
+    }
+
+    const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob((b) => resolve(b), 'image/png');
+    });
+
+    if (!blob) {
+        return;
+    }
+
+    downloadBlob(blob, `randomart-${Date.now()}.png`);
 }
 
 /**

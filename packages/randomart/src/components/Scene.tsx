@@ -1,9 +1,9 @@
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { useEffect } from 'react';
 
-import { setOpenInLabHandler } from '../stores/bench/lotStore';
-import { openCellInLab } from '../stores/lab/artworkStore';
+import { setOpenInLabHandler } from '../stores/bench/benchStore';
 import {
+    openCellInLab,
     setCanvas,
     setClockStore,
     setShaderError,

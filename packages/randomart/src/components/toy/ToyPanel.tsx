@@ -1,8 +1,7 @@
 import { Button } from '@repo/ui/components/Button';
 import { Grid } from '@repo/ui/components/Grid';
 
-import { exportPng } from '../../stores/lab/artworkStore';
-import { generateImage, useCanvas } from '../../stores/lab/labStore';
+import { exportPng, generateImage, useCanvas } from '../../stores/lab/labStore';
 import { ErrorReadout } from '../ErrorReadout';
 import { PlayToggleButton } from '../PlayToggleButton';
 import { HistorySection } from './HistorySection';

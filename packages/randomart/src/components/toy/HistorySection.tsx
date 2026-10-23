@@ -4,8 +4,7 @@ import { Text } from '@repo/ui/components/Text';
 import { space } from '@repo/ui/tokens/const.stylex';
 import * as stylex from '@stylexjs/stylex';
 
-import { useCurrentId, useHistory } from '../../stores/lab/historyStore';
-import { restoreEntry } from '../../stores/lab/labStore';
+import { restoreEntry, useCurrentId, useHistory } from '../../stores/lab/labStore';
 
 const styles = stylex.create({
     list: {
