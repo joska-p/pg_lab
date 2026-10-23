@@ -1,16 +1,15 @@
 import { ControlPanel } from '@repo/ui/components/ControlPanel';
-import { ControlSection } from '@repo/ui/components/ControlSection';
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { Select } from '@repo/ui/components/Select';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
 import { Suspense, use, useEffect } from 'react';
+import { Routes, Route, useParams, useNavigate } from 'react-router';
 
 import { EXPERIMENTS, loadControls, loadScene } from './experiments';
 import type { ExperimentKey } from './experiments';
-import { useHashRoute } from './hooks/useHashRoute';
-import { setExperimentKey, useExperimentKey, useShellBackground } from './stores/appStore';
+import { useShellBackground } from './stores/appStore';
 
 function LoadingFallback() {
     const shellBackground = useShellBackground();
@@ -24,24 +23,31 @@ function LoadingFallback() {
     );
 }
 
-const OPTIONS = Object.entries(EXPERIMENTS).map(([value, { label }]) => ({
-    value: value as ExperimentKey,
-    label,
+const experimentKeys = Object.keys(EXPERIMENTS) as ExperimentKey[];
+const OPTIONS = experimentKeys.map((value) => ({
+    value,
+    label: EXPERIMENTS[value].label,
 }));
 
-export function App() {
-    const experimentKey = useExperimentKey();
-    const sceneModule = use(loadScene(experimentKey));
-    const controlsModule = use(loadControls(experimentKey));
-    const { Scene, stageProps } = sceneModule;
-    const { Controls } = controlsModule;
+function ExperimentLayout() {
     const shellBackground = useShellBackground();
-
-    useHashRoute();
+    const { experiment } = useParams<{ experiment: ExperimentKey }>();
+    const navigate = useNavigate();
+    const currentKey = experiment ?? 'home';
+    const exp = EXPERIMENTS[currentKey];
 
     useEffect(() => {
-        document.title = `${EXPERIMENTS[experimentKey].label} · PG_LAB`;
-    }, [experimentKey]);
+        document.title = `${exp.label} · PG_LAB`;
+    }, [exp]);
+
+    const handleSelectChange = (value: ExperimentKey) => {
+        navigate(`/${value === 'home' ? '' : value}`);
+    };
+
+    const sceneModule = use(loadScene(currentKey));
+    const controlsModule = use(loadControls(currentKey));
+    const { Scene, stageProps } = sceneModule;
+    const { Controls } = controlsModule;
 
     return (
         <Suspense fallback={<LoadingFallback />}>
@@ -49,24 +55,31 @@ export function App() {
                 <ShellWrapper background={shellBackground}>
                     <ExperimentShell
                         panel={
-                            <ControlPanel title={EXPERIMENTS[experimentKey].panelTitle}>
-                                <ControlSection title="Navigation">
-                                    <Select
-                                        value={experimentKey}
-                                        onValueChange={setExperimentKey}
-                                        options={OPTIONS}
-                                    />
-                                </ControlSection>
+                            <ControlPanel>
+                                <Select
+                                    value={currentKey}
+                                    onValueChange={handleSelectChange}
+                                    options={OPTIONS}
+                                />
                                 <Controls />
                             </ControlPanel>
                         }
                     >
-                        <Stage label={EXPERIMENTS[experimentKey].stageLabel} {...stageProps}>
+                        <Stage label={exp.stageLabel} {...stageProps}>
                             <Scene />
                         </Stage>
                     </ExperimentShell>
                 </ShellWrapper>
             </ErrorBoundary>
         </Suspense>
+    );
+}
+
+export function App() {
+    return (
+        <Routes>
+            <Route path="/" element={<ExperimentLayout />} />
+            <Route path="/:experiment" element={<ExperimentLayout />} />
+        </Routes>
     );
 }
