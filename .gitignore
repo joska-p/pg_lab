@@ -1,7 +1,5 @@
-_TMP/
-reports/
-.direnv_home/
-.direnv/
+/_TMP/
+/reports/
 
 # Logs
 logs
