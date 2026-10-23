@@ -44,8 +44,6 @@ interface Config {
     readonly sampling: {
         /** Base seed for deterministic sample draws. */
         readonly baseSeed: number;
-        /** Probability an operator moves one notch per walk step. 0 = freeze; 1 = always move. */
-        readonly changeRate: number;
         /** Seeds per grammar in bench contact sheet (6×6). */
         readonly benchSeedsPerGrammar: number;
         /** Seeds per grammar in offline dataset (4×4). */
@@ -90,7 +88,6 @@ export const CONFIG = {
     },
     sampling: {
         baseSeed: 1,
-        changeRate: 0.3,
         benchSeedsPerGrammar: 36,
         datasetSeedsPerGrammar: 16,
     },
