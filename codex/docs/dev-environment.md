@@ -60,11 +60,11 @@ you intend to rebuild everything.
 
 ### Paths inside the container
 
-| What                   | Path                                                              |
-| ---------------------- | ----------------------------------------------------------------- |
+| What                          | Path                                                          |
+| ----------------------------- | ------------------------------------------------------------- |
 | Container home (`$HOME`, `~`) | `/home/<user>/Work/dev/dev_home` — dotfiles, caches, SSH keys |
-| Host home              | `/home/<user>` and `/run/host/home/<user>` (same directory)       |
-| Project                | `/home/<user>/Work/dev/pg_lab`                                    |
+| Host home                     | `/home/<user>` and `/run/host/home/<user>` (same directory)   |
+| Project                       | `/home/<user>/Work/dev/pg_lab`                                |
 
 Consequences:
 

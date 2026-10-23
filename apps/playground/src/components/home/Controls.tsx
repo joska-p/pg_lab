@@ -1,4 +1,3 @@
-import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Select } from '@repo/ui/components/Select';
 import { useTheme } from '@repo/ui/hooks/useTheme';
 import type { Theme } from '@repo/ui/hooks/useTheme';
@@ -20,7 +19,7 @@ export function Controls() {
     const shellBackground = useShellBackground();
 
     return (
-        <ControlSection title="Theme">
+        <>
             <Select
                 label="Theme"
                 value={theme}
@@ -37,6 +36,6 @@ export function Controls() {
                 onValueChange={(val: ShellBackground) => setShellBackground(val)}
                 options={shellBackgroundOptions}
             />
-        </ControlSection>
+        </>
     );
 }
