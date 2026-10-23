@@ -85,8 +85,8 @@ describe('compiler', () => {
             createNode(cat, 'x', [], [0.5, 0, cycles]);
 
         it('compiles a plain-coordinate terminal expression conforming to shader contract', () => {
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
-            const y = createNode(catalog, 'y', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
+            const y = createNode(catalog, 'y', [], [0, 0, 1]);
             const c = createNode(catalog, 'const', [], [0.25]);
 
             const expr = createExpression(x, y, c);
@@ -125,8 +125,7 @@ describe('compiler', () => {
         });
 
         it('emits a time terminal as its oscillator reading u_phase', () => {
-            // amp=0.5, phase=0, cycles=0 → 1 whole cycle; the coordinate is blended with a sine.
-            const x = createNode(catalog, 'x', [], [0.5, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0.5, 0, 1]);
 
             const compiled = compile(catalog, createExpression(x, x, x));
 
@@ -136,8 +135,8 @@ describe('compiler', () => {
         });
 
         it('falls back to the plain coordinate when amp is 0 (still a u_phase reader)', () => {
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
-            const y = createNode(catalog, 'y', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
+            const y = createNode(catalog, 'y', [], [0, 0, 1]);
 
             const compiled = compile(catalog, createExpression(x, y, x));
 
@@ -150,8 +149,7 @@ describe('compiler', () => {
             expect(compiled.uniforms).toEqual([{ name: 'u_phase', glslType: 'float' }]);
         });
 
-        it('maps the cycles share to 1..3 whole cycles, keeping the loop periodic', () => {
-            // cycles share 0 → 1 cycle, 0.25 → 1, 0.5 → 2, 1 → 3.
+        it('emits the cycle count as given, keeping the loop periodic', () => {
             const at = (cycles: number) =>
                 compile(
                     catalog,
@@ -162,16 +160,16 @@ describe('compiler', () => {
                     ),
                 ).source;
 
-            expect(at(0)).toContain('1.0*u_phase');
-            expect(at(0.5)).toContain('2.0*u_phase');
-            expect(at(1)).toContain('3.0*u_phase');
+            expect(at(1)).toContain('1.0*u_phase');
+            expect(at(2)).toContain('2.0*u_phase');
+            expect(at(3)).toContain('3.0*u_phase');
         });
 
         it('handles operator nesting and protects against double negations (--)', () => {
             const negConst = createNode(catalog, 'const', [], [-0.5]);
             const negNode = createNode(catalog, 'neg', [negConst]);
             const doubleNeg = createNode(catalog, 'neg', [negNode]);
-            const y = createNode(catalog, 'y', [], [0, 0, 0]);
+            const y = createNode(catalog, 'y', [], [0, 0, 1]);
 
             const expr = createExpression(doubleNeg, y, y);
             const compiled = compile(catalog, expr);
@@ -182,8 +180,8 @@ describe('compiler', () => {
         });
 
         it('correctly parenthesizes arithmetic compositions', () => {
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
-            const y = createNode(catalog, 'y', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
+            const y = createNode(catalog, 'y', [], [0, 0, 1]);
             const add = createNode(catalog, 'add', [x, y]);
             const mul = createNode(catalog, 'mul', [add, x]);
 
@@ -195,8 +193,8 @@ describe('compiler', () => {
         });
 
         it('is completely deterministic', () => {
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
-            const y = createNode(catalog, 'y', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
+            const y = createNode(catalog, 'y', [], [0, 0, 1]);
             const sin = createNode(catalog, 'sin', [x]);
             const expr = createExpression(sin, y, x);
 
@@ -242,7 +240,7 @@ describe('compiler', () => {
             );
 
             const noiseNode = createNode(customCatalog, 'custom_noise');
-            const x = createNode(customCatalog, 'x', [], [0, 0, 0]);
+            const x = createNode(customCatalog, 'x', [], [0, 0, 1]);
             const expr = createExpression(noiseNode, x, x);
 
             const compiled = compile(customCatalog, expr);
@@ -272,9 +270,9 @@ describe('compiler', () => {
         });
 
         it('shares a sub-expression used in two channels (policy=shared)', () => {
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
             const sinX = createNode(catalog, 'sin', [x]);
-            const y = createNode(catalog, 'y', [], [0, 0, 0]);
+            const y = createNode(catalog, 'y', [], [0, 0, 1]);
 
             // r = sin(x), g = add(sin(x), y), b = y
             const add = createNode(catalog, 'add', [sinX, y]);
@@ -290,7 +288,7 @@ describe('compiler', () => {
         });
 
         it('cross-channel sharing: vertices < nodes when sharing is effective', () => {
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
             const sinX = createNode(catalog, 'sin', [x]);
             const add = createNode(catalog, 'add', [sinX, sinX]);
             // r = add(sin(x), sin(x)) shared — but same node reference so same vertex
@@ -303,7 +301,7 @@ describe('compiler', () => {
         });
 
         it('policy=none never emits variables', () => {
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
             const sinX = createNode(catalog, 'sin', [x]);
             const add = createNode(catalog, 'add', [sinX, sinX]);
             const expr = createExpression(add, sinX, x);
@@ -315,7 +313,7 @@ describe('compiler', () => {
         });
 
         it('policy=all emits a variable for every vertex', () => {
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
             const sinX = createNode(catalog, 'sin', [x]);
             const expr = createExpression(sinX, x, x);
             const compiled = compile(catalog, expr, { sharing: 'all' });
@@ -325,8 +323,8 @@ describe('compiler', () => {
         });
 
         it('all three policies produce valid GLSL and consistent stats.vertices', () => {
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
-            const y = createNode(catalog, 'y', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
+            const y = createNode(catalog, 'y', [], [0, 0, 1]);
             const sinX = createNode(catalog, 'sin', [x]);
             const add = createNode(catalog, 'add', [sinX, y]);
             const expr = createExpression(sinX, add, y);
@@ -366,7 +364,7 @@ describe('compiler', () => {
         it('formats integer as float (adds .0)', () => {
             // const operator with value 1 → should emit "1.0"
             const c = createNode(catalog, 'const', [], [1]);
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
             const expr = createExpression(c, x, x);
             const compiled = compile(catalog, expr, { sharing: 'none' });
             expect(compiled.source).toContain('1.0');
@@ -374,7 +372,7 @@ describe('compiler', () => {
 
         it('formats negative number as parenthesized literal', () => {
             const c = createNode(catalog, 'const', [], [-0.3]);
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
             const expr = createExpression(c, x, x);
             const compiled = compile(catalog, expr, { sharing: 'none' });
             expect(compiled.source).toContain('(-0.3)');
@@ -385,7 +383,7 @@ describe('compiler', () => {
             // formatGlslFloat for a number like 1e-7 — no .0 added since it has 'e'
             // We test via neg(const) to exercise the path
             const c = createNode(catalog, 'const', [], [0.3]);
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
             const expr = createExpression(c, x, x);
             const compiled = compile(catalog, expr, { sharing: 'none' });
             expect(compiled.source).toContain('0.3');
@@ -394,7 +392,7 @@ describe('compiler', () => {
         // ── sqr multiplicity ─────────────────────────────────────────────────
 
         it('sqr uses shared policy to avoid duplicating its input in inline mode', () => {
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
             const sinX = createNode(catalog, 'sin', [x]);
             const sqrSin = createNode(catalog, 'sqr', [sinX]); // glsl: a*a → multiplicity 2
             const expr = createExpression(sqrSin, x, x);
@@ -412,9 +410,9 @@ describe('compiler', () => {
         it('compiles warp transformer and produces valid shader contract', () => {
             const dx = createNode(catalog, 'const', [], [0.25]);
             const dy = createNode(catalog, 'const', [], [-0.5]);
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
             const warpNode = createNode(catalog, 'warp', [dx, dy, x]);
-            const y = createNode(catalog, 'y', [], [0, 0, 0]);
+            const y = createNode(catalog, 'y', [], [0, 0, 1]);
             const expr = createExpression(warpNode, y, y);
 
             const compiled = compile(catalog, expr);
@@ -441,8 +439,8 @@ describe('compiler', () => {
         it('two identical transforms in different channels create only 1 context', () => {
             const dx = createNode(catalog, 'const', [], [0.1]);
             const dy = createNode(catalog, 'const', [], [0.2]);
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
-            const y = createNode(catalog, 'y', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
+            const y = createNode(catalog, 'y', [], [0, 0, 1]);
             const warp1 = createNode(catalog, 'warp', [dx, dy, x]);
             const warp2 = createNode(catalog, 'warp', [dx, dy, y]);
             const expr = createExpression(warp1, warp2, x);
@@ -463,7 +461,7 @@ describe('compiler', () => {
             const dy1 = createNode(catalog, 'const', [], [0.2]);
             const dx2 = createNode(catalog, 'const', [], [0.3]);
             const dy2 = createNode(catalog, 'const', [], [0.4]);
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
             const warp1 = createNode(catalog, 'warp', [dx1, dy1, x]);
             const warp2 = createNode(catalog, 'warp', [dx2, dy2, x]);
             const expr = createExpression(warp1, warp2, x);
@@ -481,12 +479,12 @@ describe('compiler', () => {
             const dy1 = createNode(catalog, 'const', [], [0.2]);
             const dx2 = createNode(catalog, 'const', [], [0.3]);
             const dy2 = createNode(catalog, 'const', [], [0.4]);
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
 
             // warp1(dx1, dy1, warp2(dx2, dy2, x))
             const innerWarp = createNode(catalog, 'warp', [dx2, dy2, x]);
             const outerWarp = createNode(catalog, 'warp', [dx1, dy1, innerWarp]);
-            const y = createNode(catalog, 'y', [], [0, 0, 0]);
+            const y = createNode(catalog, 'y', [], [0, 0, 1]);
             const expr = createExpression(outerWarp, y, y);
 
             const compiled = compile(catalog, expr);
@@ -506,7 +504,7 @@ describe('compiler', () => {
         it('compiles warp expressions under all sharing policies (none, shared, all)', () => {
             const dx = createNode(catalog, 'const', [], [0.1]);
             const dy = createNode(catalog, 'const', [], [0.2]);
-            const x = createNode(catalog, 'x', [], [0, 0, 0]);
+            const x = createNode(catalog, 'x', [], [0, 0, 1]);
             const sinX = createNode(catalog, 'sin', [x]);
             const warpNode = createNode(catalog, 'warp', [dx, dy, sinX]);
             const expr = createExpression(warpNode, warpNode, dx);

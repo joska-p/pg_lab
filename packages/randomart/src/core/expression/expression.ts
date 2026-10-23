@@ -26,12 +26,27 @@ export function createNode(
     const normalizedParams: number[] = [];
     for (let i = 0; i < params.length; i++) {
         const val = params[i];
-        assertFinite(val, `Param ${expectedParams[i].name} of operator "${operatorName}"`);
-        if (val < expectedParams[i].min || val > expectedParams[i].max) {
+        const { name, min, max, step } = expectedParams[i];
+
+        assertFinite(val, `Param ${name} of operator "${operatorName}"`);
+
+        if (val < min || val > max) {
             throw new Error(
-                `Param "${expectedParams[i].name}" of operator "${operatorName}" out of range: ${val} not in [${expectedParams[i].min}, ${expectedParams[i].max}]`,
+                `Param "${name}" of operator "${operatorName}" out of range: ${val} not in [${min}, ${max}]`,
             );
         }
+
+        // Stepped params live on the grid min + k*step: an off-grid value is refused, not rounded.
+        if (step !== undefined) {
+            const index = (val - min) / step;
+
+            if (Math.abs(index - Math.round(index)) > 1e-9) {
+                throw new Error(
+                    `Param "${name}" of operator "${operatorName}" must be on the grid ${min} + k*${step}, received ${val}`,
+                );
+            }
+        }
+
         normalizedParams.push(Object.is(val, -0) || val === 0 ? 0 : val);
     }
 

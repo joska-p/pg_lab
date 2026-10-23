@@ -1,6 +1,7 @@
 import { catalog } from '../catalog/default';
 import type { Operator } from '../catalog/operators/Operator';
 import { CONFIG } from '../config/config';
+import type { ParamRange } from '../config/types';
 import { createExpression, createNode } from '../expression/expression';
 import type { Expression, Node } from '../expression/types';
 import { constraintsOf, getVocabulary, minSize, weightOf } from '../grammar/grammar';
@@ -66,19 +67,28 @@ export function generate(grammar: Grammar, seed: Seed): Expression {
         return rng.weighted(candidates, (candidate) => weightOf(grammar.weights, candidate.name));
     }
 
+    function drawContinuous(param: ParamRange): number {
+        const raw = param.min + rng.next() * (param.max - param.min);
+        const rounded = Math.round(raw * PARAM_SCALE) / PARAM_SCALE;
+
+        return Math.min(param.max, Math.max(param.min, rounded));
+    }
+
+    function drawStepped(param: ParamRange & { readonly step: number }): number {
+        const levels = Math.round((param.max - param.min) / param.step) + 1;
+
+        return param.min + rng.int(levels) * param.step;
+    }
+
     function drawParams(operator: Operator): number[] {
-        const paramValues: number[] = [];
+        return operator.params.map((param) => {
+            const value =
+                param.step === undefined
+                    ? drawContinuous(param)
+                    : drawStepped({ ...param, step: param.step });
 
-        for (const param of operator.params) {
-            const u = rng.next();
-            const raw = param.min + u * (param.max - param.min);
-            const rounded = Math.round(raw * PARAM_SCALE) / PARAM_SCALE;
-            const clamped = Math.min(param.max, Math.max(param.min, rounded));
-
-            paramValues.push(Object.is(clamped, -0) || clamped === 0 ? 0 : clamped);
-        }
-
-        return paramValues;
+            return Object.is(value, -0) || value === 0 ? 0 : value;
+        });
     }
 
     function buildChildren<T extends { size: number }>(

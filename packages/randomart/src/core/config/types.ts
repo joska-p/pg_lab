@@ -1,6 +1,11 @@
 export interface ParamRange {
     readonly min: number;
     readonly max: number;
+    /**
+     * When set, the param is a whole grid `min, min + step, …, max` (drawn by index, never
+     * rounded); `(max - min) / step` must be an integer. Absent = continuous.
+     */
+    readonly step?: number;
 }
 
 /** How the `(r, g, b)` triplet the expression produces is interpreted before output. */

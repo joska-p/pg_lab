@@ -23,12 +23,9 @@ function spatialAxis(axis: 'x' | 'y') {
                 return `${p}.${axis}`;
             }
 
-            const { min: cycleMin, max: cycleMax } = CONFIG.terminals.cycleCounts;
             const rest = formatGlslFloat(1 - params.amp);
             const amp = formatGlslFloat(params.amp);
-            const cycles = formatGlslFloat(
-                cycleMin + Math.round((cycleMax - cycleMin) * params.cycles),
-            );
+            const cycles = formatGlslFloat(params.cycles);
             const phase = formatGlslFloat(params.phase);
 
             return `(${rest}*${p}.${axis}+${amp}*sin(2.0*PI*${cycles}*u_phase+PI*${phase}))`;

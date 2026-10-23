@@ -24,8 +24,6 @@ interface Config {
         readonly phase: ParamRange;
         /** Cycle-count share in [0, 1], mapped to whole cycles per loop via `cycleCounts`. */
         readonly cycles: ParamRange;
-        /** Whole cycles per loop from the `cycles` share. */
-        readonly cycleCounts: ParamRange;
     };
     /** Drawn operator params. Draw-affecting. */
     readonly generator: {
@@ -77,8 +75,7 @@ export const CONFIG = {
     terminals: {
         amp: { min: 0, max: 0.7 },
         phase: { min: -1, max: 1 },
-        cycles: { min: 0, max: 1 },
-        cycleCounts: { min: 1, max: 3 },
+        cycles: { min: 1, max: 3, step: 1 },
     },
     generator: {
         paramDecimals: 3,

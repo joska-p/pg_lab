@@ -13,8 +13,8 @@ describe('emit', () => {
 
     // r = sin(x), g = add(sin(x), y), b = const(0.5)
     // Vertex ids: x = 0, sin(x) = 1, y = 2, add = 3, const = 4. sin(x) has 2 usages.
-    const x = createNode(catalog, 'x', [], [0, 0, 0]);
-    const y = createNode(catalog, 'y', [], [0, 0, 0]);
+    const x = createNode(catalog, 'x', [], [0, 0, 1]);
+    const y = createNode(catalog, 'y', [], [0, 0, 1]);
     const sinX = createNode(catalog, 'sin', [x]);
     const add = createNode(catalog, 'add', [sinX, y]);
     const konst = createNode(catalog, 'const', [], [0.5]);
@@ -61,7 +61,7 @@ describe('emit', () => {
             dependencies,
         );
         const clockNode = createNode(clockCatalog, 'clock');
-        const xn = createNode(clockCatalog, 'x', [], [0, 0, 0]);
+        const xn = createNode(clockCatalog, 'x', [], [0, 0, 1]);
         const clocked = lower(clockCatalog, createExpression(clockNode, xn, xn));
 
         expect(emit(clockCatalog, clocked, 'shared').usedDeps.has('u_phase')).toBe(true);

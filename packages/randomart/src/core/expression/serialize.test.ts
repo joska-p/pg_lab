@@ -13,27 +13,27 @@ describe('expression: serialize', () => {
     it('writes canonical data: op first, params/in omitted when empty, op/params/in order', () => {
         const constNode = createNode(catalog, 'const', [], [0.3]);
         const sum = createNode(catalog, 'add', [
-            createNode(catalog, 'x', [], [0, 0, 0]),
+            createNode(catalog, 'x', [], [0, 0, 1]),
             constNode,
         ]);
-        const expr = createExpression(sum, createNode(catalog, 'y', [], [0, 0, 0]), constNode);
+        const expr = createExpression(sum, createNode(catalog, 'y', [], [0, 0, 1]), constNode);
 
         expect(serialize(expr)).toEqual({
             r: {
                 op: 'add',
                 in: [
-                    { op: 'x', params: [0, 0, 0] },
+                    { op: 'x', params: [0, 0, 1] },
                     { op: 'const', params: [0.3] },
                 ],
             },
-            g: { op: 'y', params: [0, 0, 0] },
+            g: { op: 'y', params: [0, 0, 1] },
             b: { op: 'const', params: [0.3] },
         });
     });
 
     it('round-trips through nodeKey for a varied expression', () => {
         const a = createNode(catalog, 'const', [], [0.5]);
-        const b = createNode(catalog, 'y', [], [0, 0, 0]);
+        const b = createNode(catalog, 'y', [], [0, 0, 1]);
         const mix = createNode(catalog, 'mix', [a, b, a]);
         const expr = createExpression(mix, a, b);
 
@@ -46,8 +46,8 @@ describe('expression: serialize', () => {
     it('normalizes -0 back to 0 on import', () => {
         const data: ExpressionData = {
             r: { op: 'const', params: [0] },
-            g: { op: 'x', params: [0, 0, 0] },
-            b: { op: 'y', params: [0, 0, 0] },
+            g: { op: 'x', params: [0, 0, 1] },
+            b: { op: 'y', params: [0, 0, 1] },
         };
 
         const back = deserialize(serialize(deserialize(data)));
@@ -57,8 +57,8 @@ describe('expression: serialize', () => {
 
 describe('expression: deserialize rejections', () => {
     const valid: ExpressionData = {
-        r: { op: 'x', params: [0, 0, 0] },
-        g: { op: 'y', params: [0, 0, 0] },
+        r: { op: 'x', params: [0, 0, 1] },
+        g: { op: 'y', params: [0, 0, 1] },
         b: { op: 'const', params: [0] },
     };
 
@@ -89,7 +89,7 @@ describe('expression: deserialize rejections', () => {
         expect(() =>
             deserialize({
                 r: valid.r,
-                g: { op: 'add', in: [{ op: 'x', params: [0, 0, 0] }] },
+                g: { op: 'add', in: [{ op: 'x', params: [0, 0, 1] }] },
                 b: valid.b,
             }),
         ).toThrow('Expression invalid at g: Operator "add" expects 2 inputs, received 1');
@@ -100,7 +100,7 @@ describe('expression: deserialize rejections', () => {
                 g: {
                     op: 'add',
                     in: [
-                        { op: 'x', params: [0, 0, 0] },
+                        { op: 'x', params: [0, 0, 1] },
                         { op: 'const', params: [2] },
                     ],
                 },
@@ -112,7 +112,7 @@ describe('expression: deserialize rejections', () => {
             deserialize({
                 r: {
                     op: 'add',
-                    in: [{ op: 'x', params: [0, 0, 0] }, [{ op: 'y' }]],
+                    in: [{ op: 'x', params: [0, 0, 1] }, [{ op: 'y' }]],
                 },
                 g: valid.g,
                 b: valid.b,
@@ -133,7 +133,7 @@ describe('expression: deserialize rejections', () => {
     it('rejects more than MAX_IMPORT_NODES nodes in total (all channels)', () => {
         const tree = (d: number): NodeData =>
             d === 0
-                ? { op: 'x', params: [0, 0, 0] }
+                ? { op: 'x', params: [0, 0, 1] }
                 : { op: 'add', in: [tree(d - 1), tree(d - 1)] };
 
         // A full binary tree of depth 13 holds 2^13 - 1 = 8191 nodes.
@@ -147,7 +147,7 @@ describe('expression: deserialize rejections', () => {
 
     it('rejects a depth above MAX_IMPORT_DEPTH before building any node', () => {
         const chain = (d: number): NodeData =>
-            d === 0 ? { op: 'x', params: [0, 0, 0] } : { op: 'sin', in: [chain(d - 1)] };
+            d === 0 ? { op: 'x', params: [0, 0, 1] } : { op: 'sin', in: [chain(d - 1)] };
 
         expect(() =>
             deserialize({ r: chain(MAX_IMPORT_DEPTH + 1), g: valid.g, b: valid.b }),

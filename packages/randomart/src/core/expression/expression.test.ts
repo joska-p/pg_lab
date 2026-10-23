@@ -7,10 +7,10 @@ describe('expression: createNode & createExpression', () => {
     const catalog = createDefaultCatalog();
 
     it('creates terminal node and freezes it', () => {
-        const xNode = createNode(catalog, 'x', [], [0, 0, 0]);
+        const xNode = createNode(catalog, 'x', [], [0, 0, 1]);
         expect(xNode.operatorName).toBe('x');
         expect(xNode.inputs).toEqual([]);
-        expect(xNode.params).toEqual([0, 0, 0]);
+        expect(xNode.params).toEqual([0, 0, 1]);
         expect(Object.isFrozen(xNode)).toBe(true);
         expect(Object.isFrozen(xNode.inputs)).toBe(true);
         expect(Object.isFrozen(xNode.params)).toBe(true);
@@ -27,7 +27,7 @@ describe('expression: createNode & createExpression', () => {
     });
 
     it('rejects input arity mismatch', () => {
-        const xNode = createNode(catalog, 'x', [], [0, 0, 0]);
+        const xNode = createNode(catalog, 'x', [], [0, 0, 1]);
         expect(() => createNode(catalog, 'add', [xNode])).toThrow(
             /Operator "add" expects 2 inputs, received 1/,
         );
@@ -45,9 +45,14 @@ describe('expression: createNode & createExpression', () => {
         expect(() => createNode(catalog, 'const', [], [Number.NaN])).toThrow(/finite number/);
     });
 
+    it('rejects a stepped param that is off its grid', () => {
+        expect(() => createNode(catalog, 'x', [], [0, 0, 1.5])).toThrow(/must be on the grid/);
+        expect(() => createNode(catalog, 'x', [], [0, 0, 2])).not.toThrow();
+    });
+
     it('creates an expression and calculates metrics', () => {
-        const x = createNode(catalog, 'x', [], [0, 0, 0]);
-        const y = createNode(catalog, 'y', [], [0, 0, 0]);
+        const x = createNode(catalog, 'x', [], [0, 0, 1]);
+        const y = createNode(catalog, 'y', [], [0, 0, 1]);
         const sum = createNode(catalog, 'add', [x, y]);
         const sinSum = createNode(catalog, 'sin', [sum]);
 

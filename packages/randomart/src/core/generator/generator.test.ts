@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
+import { catalog } from '../catalog/default';
 import type { SizeProfileId } from '../config/types';
 import { depth, nodeCount } from '../expression/expression';
 import type { Node } from '../expression/types';
@@ -27,13 +28,17 @@ function checkNodeInvariants(
         }
     }
 
-    for (const param of node.params) {
-        expect(Number.isFinite(param)).toBe(true);
-        expect(param).toBeGreaterThanOrEqual(-1);
-        expect(param).toBeLessThanOrEqual(1);
-        const rounded = Math.round(param * 1000) / 1000;
-        expect(param).toBe(rounded);
-    }
+    const operator = catalog.operator(node.operatorName);
+
+    node.params.forEach((param, i) => {
+        const { min, max, step } = operator.params[i];
+
+        expect(param).toBeGreaterThanOrEqual(min);
+        expect(param).toBeLessThanOrEqual(max);
+        expect(param).toBe(
+            step === undefined ? Math.round(param * 1000) / 1000 : Math.round(param),
+        );
+    });
 }
 
 function checkExpression(grammar: Grammar, seed: number): void {
@@ -51,6 +56,39 @@ function checkExpression(grammar: Grammar, seed: number): void {
 }
 
 describe('generator', () => {
+    it('draws cycles uniformly over 1, 2 and 3', () => {
+        const grammar = grammarRegistry.default;
+        const counts = new Map<number, number>();
+        let total = 0;
+
+        const visit = (node: Node): void => {
+            if (node.operatorName === 'x' || node.operatorName === 'y') {
+                const cycles = node.params[2];
+
+                counts.set(cycles, (counts.get(cycles) ?? 0) + 1);
+                total++;
+            }
+
+            node.inputs.forEach(visit);
+        };
+
+        for (let seed = 0; seed < 3000; seed++) {
+            const expression = generate(grammar, createSeed(seed));
+
+            visit(expression.r);
+            visit(expression.g);
+            visit(expression.b);
+        }
+
+        expect([...counts.keys()].sort()).toEqual([1, 2, 3]);
+
+        for (const count of counts.values()) {
+            // Uniform is 1/3 each; the old 25/50/25 law would put 2 cycles near 0.5.
+            expect(count / total).toBeGreaterThan(0.28);
+            expect(count / total).toBeLessThan(0.38);
+        }
+    });
+
     it('exports GENERATOR_VERSION as a number', () => {
         expect(typeof GENERATOR_VERSION).toBe('number');
         expect(GENERATOR_VERSION).toBeGreaterThanOrEqual(1);

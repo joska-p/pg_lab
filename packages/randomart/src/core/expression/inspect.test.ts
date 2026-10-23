@@ -65,20 +65,20 @@ function usedOperators(expression: Expression): ReadonlySet<string> {
 }
 
 const catalog = createDefaultCatalog();
-const x = createNode(catalog, 'x', [], [0, 0, 0]);
-const y = createNode(catalog, 'y', [], [0, 0, 0]);
+const x = createNode(catalog, 'x', [], [0, 0, 1]);
+const y = createNode(catalog, 'y', [], [0, 0, 1]);
 const c03 = createNode(catalog, 'const', [], [0.3]);
 
 describe('nodeKey / equals', () => {
     it('writes the canonical form', () => {
         expect(nodeKey(createNode(catalog, 'add', [x, c03]))).toBe(
-            'add[](x[0,0,0](),const[0.3]())',
+            'add[](x[0,0,1](),const[0.3]())',
         );
     });
 
     it('gives the same key to separately built, structurally equal nodes', () => {
-        const a = createNode(catalog, 'sin', [createNode(catalog, 'x', [], [0, 0, 0])]);
-        const b = createNode(catalog, 'sin', [createNode(catalog, 'x', [], [0, 0, 0])]);
+        const a = createNode(catalog, 'sin', [createNode(catalog, 'x', [], [0, 0, 1])]);
+        const b = createNode(catalog, 'sin', [createNode(catalog, 'x', [], [0, 0, 1])]);
 
         expect(a).not.toBe(b);
         expect(nodeKey(a)).toBe(nodeKey(b));
@@ -156,7 +156,7 @@ describe('formatFormula / formatNodeLabel', () => {
     const tree = createNode(catalog, 'add', [createNode(catalog, 'sin', [x]), c03]);
 
     it('writes automatic functional notation', () => {
-        expect(formatFormula(tree)).toBe('add(sin(x(0, 0, 0)), const(0.3))');
+        expect(formatFormula(tree)).toBe('add(sin(x(0, 0, 1)), const(0.3))');
     });
 
     it('elides non-terminals below maxDepth but keeps terminals', () => {
@@ -165,7 +165,7 @@ describe('formatFormula / formatNodeLabel', () => {
     });
 
     it('labels a node alone', () => {
-        expect(formatNodeLabel(x)).toBe('x(0, 0, 0)');
+        expect(formatNodeLabel(x)).toBe('x(0, 0, 1)');
         expect(formatNodeLabel(c03)).toBe('const(0.3)');
         expect(formatNodeLabel(tree)).toBe('add');
     });
