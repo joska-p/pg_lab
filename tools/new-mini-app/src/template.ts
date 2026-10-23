@@ -16,9 +16,7 @@ function packageJson(name: string): string {
             type: 'module',
             scripts: {
                 dev: 'vp dev',
-                build: 'tsc -b && vp build',
                 lint: 'vp lint',
-                preview: 'vp preview',
             },
             dependencies: {
                 '@repo/ui': 'workspace:*',
@@ -27,14 +25,9 @@ function packageJson(name: string): string {
                 zustand: 'catalog:',
             },
             devDependencies: {
-                '@rolldown/plugin-babel': 'catalog:',
                 '@stylexjs/stylex': 'catalog:',
-                '@stylexjs/unplugin': 'catalog:',
                 '@types/react': 'catalog:',
                 '@types/react-dom': 'catalog:',
-                '@vitejs/plugin-react': 'catalog:',
-                'babel-plugin-react-compiler': 'catalog:',
-                lightningcss: 'catalog:',
                 typescript: 'catalog:',
                 vite: 'catalog:',
                 'vite-plus': 'catalog:',
@@ -62,27 +55,9 @@ function indexHtml(name: string): string {
 `;
 }
 
-const viteConfig = `import babel from '@rolldown/plugin-babel';
-import stylex from '@stylexjs/unplugin';
-import react, { reactCompilerPreset } from '@vitejs/plugin-react';
-import { Features } from 'lightningcss';
-import { defineConfig, lazyPlugins } from 'vite-plus';
+const viteConfig = `import { defineAppConfig } from '../../vite.config.ts';
 
-export default defineConfig({
-    plugins: lazyPlugins(() => [
-        stylex.vite({
-            dev: true,
-            useCSSLayers: true,
-            lightningcssOptions: {
-                exclude: Features.LightDark,
-            },
-        }),
-        react(),
-        babel({
-            presets: [reactCompilerPreset()],
-        }),
-    ]),
-});`;
+export default defineAppConfig();`;
 
 const tsconfig = `{
     "$schema": "https://json.schemastore.org/tsconfig",

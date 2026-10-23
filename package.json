@@ -4,12 +4,11 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "ready": "vp check && vp run -r test && vp run -r build",
+        "ready": "vp check && vp test && vp run -r build",
         "dev": "vp dev",
         "prepare": "vp config"
     },
     "devDependencies": {
-        "@rolldown/plugin-babel": "catalog:",
         "@stylexjs/unplugin": "catalog:",
         "@types/node": "catalog:",
         "@vitejs/plugin-react": "catalog:",
@@ -17,6 +16,7 @@
         "knip": "catalog:",
         "lightningcss": "catalog:",
         "madge": "catalog:",
+        "oxc-transform-react": "catalog:",
         "playwright-core": "catalog:",
         "typescript": "catalog:",
         "vite-plus": "catalog:"

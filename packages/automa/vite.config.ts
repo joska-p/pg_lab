@@ -1,9 +1,3 @@
-import { defineConfig } from 'vite-plus';
+import { defineAppConfig } from '../../vite.config.ts';
 
-import { reactPlugins } from '../../tools/vite/react.ts';
-import { sharedViteConfig } from '../../tools/vite/shared.ts';
-
-export default defineConfig({
-    ...sharedViteConfig,
-    plugins: reactPlugins(),
-});
+export default defineAppConfig();

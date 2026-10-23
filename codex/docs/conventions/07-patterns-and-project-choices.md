@@ -94,8 +94,9 @@ Why: Vite hashes/emits the files, rewrites URLs with the consumer's `base` autom
 
 ## 12.4 React Compiler
 
-The React Compiler is enabled in every package (`reactCompilerPreset()` in the
-package `vite.config.ts`).
+The React Compiler is enabled in every app (`react({ compiler: true })` in the
+root `vite.config.ts`, through `defineAppConfig`). It runs through Oxc, not
+Babel.
 
 Do not write `useMemo`, `useCallback`, or `React.memo` by hand. The compiler
 memoizes derived values and stabilizes callbacks automatically; manual memo hooks

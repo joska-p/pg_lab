@@ -2,11 +2,10 @@
     "$schema": "https://unpkg.com/knip@6/schema.json",
     "tags": ["-lintignore"],
     "ignoreDependencies": [
-        "@rolldown/plugin-babel",
         "@stylexjs/unplugin",
         "@vitejs/plugin-react",
-        "babel-plugin-react-compiler",
         "lightningcss",
+        "oxc-transform-react",
         "vite"
     ],
     "workspaces": {

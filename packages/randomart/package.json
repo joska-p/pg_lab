@@ -10,16 +10,13 @@
     },
     "scripts": {
         "dev": "vp dev",
-        "test": "vp test",
         "test:measure": "VITE_MEASURE=1 vp test measure",
-        "dataset": "tsx src/dataset/node/cli.ts run",
-        "dataset:write": "tsx src/dataset/node/cli.ts write",
-        "dataset:features": "tsx src/dataset/node/cli.ts features",
-        "dataset:pca": "tsx src/dataset/node/cli.ts pca",
-        "dataset:sheet": "tsx src/dataset/node/cli.ts sheet",
-        "build": "tsc -b && vp build",
-        "lint": "vp lint",
-        "preview": "vp preview"
+        "dataset": "vpx src/dataset/node/cli.ts run",
+        "dataset:write": "vpx src/dataset/node/cli.ts write",
+        "dataset:features": "vpx src/dataset/node/cli.ts features",
+        "dataset:pca": "vpx src/dataset/node/cli.ts pca",
+        "dataset:sheet": "vpx src/dataset/node/cli.ts sheet",
+        "lint": "vp lint"
     },
     "dependencies": {
         "@repo/glaze": "workspace:*",
@@ -29,16 +26,10 @@
         "zustand": "catalog:"
     },
     "devDependencies": {
-        "@rolldown/plugin-babel": "catalog:",
         "@stylexjs/stylex": "catalog:",
-        "@stylexjs/unplugin": "catalog:",
         "@types/node": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
-        "@vitejs/plugin-react": "catalog:",
-        "babel-plugin-react-compiler": "catalog:",
-        "lightningcss": "catalog:",
-        "tsx": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",
         "vite-plus": "catalog:"
