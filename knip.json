@@ -35,6 +35,9 @@
         "packages/mosaic-maker": {
             "project": ["src/**/*.{ts,tsx}"]
         },
+        "packages/palette": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
         "packages/worker-pool": {
             "project": ["src/**/*.{ts,tsx}"]
         },
@@ -52,6 +55,9 @@
         },
         "tools/new-mini-app": {
             "project": ["src/**/*.ts", "bin/**/*.ts"]
+        },
+        "packages/oeis-sgnal": {
+            "project": ["src/**/*.{ts,tsx}"]
         }
     }
 }

@@ -68,6 +68,20 @@ export const EXPERIMENTS = {
         loadScene: () => import('@repo/randomart/Scene'),
         loadControls: () => import('@repo/randomart/Controls'),
     },
+    'oeis-signal': {
+        label: 'oeis-signal',
+        panelTitle: 'oeis-signal',
+        stageLabel: 'oeis-signal',
+        loadScene: () => import('@repo/oeis-signal/Scene'),
+        loadControls: () => import('@repo/oeis-signal/Controls'),
+    },
+    palette: {
+        label: 'Palette generator',
+        panelTitle: 'Palette generator',
+        stageLabel: 'Palette generator',
+        loadScene: () => import('@repo/palette/Scene'),
+        loadControls: () => import('@repo/palette/Controls'),
+    },
 } as const satisfies Record<string, Experiment>;
 
 export type ExperimentKey = keyof typeof EXPERIMENTS;

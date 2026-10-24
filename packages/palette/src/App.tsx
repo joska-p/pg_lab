@@ -7,6 +7,8 @@ import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
 import { useEffect } from 'react';
 
+import { Controls } from './components/Controls';
+import { Scene } from './components/Scene';
 import { useTheme, setTheme } from './stores/appStore';
 
 export function App() {
@@ -29,11 +31,12 @@ export function App() {
                                     onValueChange={setTheme}
                                 />
                             </ControlSection>
+                            <Controls />
                         </ControlPanel>
                     }
                 >
                     <Stage label="palette">
-                        <h1>palette</h1>
+                        <Scene />
                     </Stage>
                 </ExperimentShell>
             </ErrorBoundary>

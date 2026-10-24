@@ -290,6 +290,7 @@ const reactPackages = [
     'packages/glaze/**',
     'packages/mol-demo/**',
     'packages/mosaic-maker/**',
+    'packages/palette/**',
     'packages/randomart/**',
     'packages/ui/**',
 ];
