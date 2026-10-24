@@ -18,46 +18,48 @@
         "apps/brouillon": {
             "project": ["src/**/*.{ts,tsx}"]
         },
-        "packages/randomart": {
-            "project": ["src/**/*.{ts,tsx}"],
-            "entry": ["src/dataset/node/cli.ts", "src/dataset/page.ts"]
+        "packages/art-canvas": {
+            "project": ["src/**/*.{ts,tsx}"]
         },
-
+        "packages/automa": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
+        "packages/fracture": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
         "packages/glaze": {
             "project": ["src/**/*.{ts,tsx}"]
         },
         "packages/glaze3d": {
             "project": ["src/**/*.{ts,tsx}"]
         },
-        "packages/automa": {
+        "packages/mol-demo": {
             "project": ["src/**/*.{ts,tsx}"]
         },
         "packages/mosaic-maker": {
             "project": ["src/**/*.{ts,tsx}"]
         },
+        "packages/oeis-sgnal": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
         "packages/palette": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
+        "packages/pixel": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
+        "packages/randomart": {
+            "project": ["src/**/*.{ts,tsx}"],
+            "entry": ["src/dataset/node/cli.ts", "src/dataset/page.ts"]
+        },
+        "packages/ui": {
             "project": ["src/**/*.{ts,tsx}"]
         },
         "packages/worker-pool": {
             "project": ["src/**/*.{ts,tsx}"]
         },
-        "packages/ui": {
-            "project": ["src/**/*.{ts,tsx}"]
-        },
-        "packages/fracture": {
-            "project": ["src/**/*.{ts,tsx}"]
-        },
-        "packages/mol-demo": {
-            "project": ["src/**/*.{ts,tsx}"]
-        },
-        "packages/art-canvas": {
-            "project": ["src/**/*.{ts,tsx}"]
-        },
         "tools/new-mini-app": {
             "project": ["src/**/*.ts", "bin/**/*.ts"]
-        },
-        "packages/oeis-sgnal": {
-            "project": ["src/**/*.{ts,tsx}"]
         }
     }
 }
