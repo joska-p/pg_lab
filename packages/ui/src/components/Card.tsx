@@ -7,6 +7,7 @@ import { space } from '../tokens/const.stylex';
 
 const styles = stylex.create({
     base: {
+        position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         gap: space['3'],
@@ -14,7 +15,7 @@ const styles = stylex.create({
     },
 });
 
-interface CardProps
+export interface CardProps
     extends Omit<React.ComponentProps<'div'>, 'style' | 'className' | 'color'>, SurfaceProps {
     style?: StyleXStyles;
 }

@@ -8,6 +8,7 @@ import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
+import { Grid } from '@repo/ui/components/Grid';
 import { Led } from '@repo/ui/components/Led';
 import { NumberField } from '@repo/ui/components/NumberField';
 import { RadioGroup } from '@repo/ui/components/RadioGroup';
@@ -27,6 +28,7 @@ import type { Theme } from '@repo/ui/hooks/useTheme';
 import type { Background, Borders, Elevation, Radius } from '@repo/ui/recipes/surface';
 import { space } from '@repo/ui/tokens/const.stylex';
 import type { ColorNames } from '@repo/ui/tokens/tint.stylex';
+import { AtlasPaths } from '@repo/ui/visuals/atlas/AtlasPaths';
 import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
@@ -42,6 +44,11 @@ const ALL_COLORS: readonly ColorNames[] = [
 ];
 
 const styles = stylex.create({
+    AtlasPaths: {
+        minHeight: '20rem',
+        minWidth: '20rem',
+        aspectRatio: 1,
+    },
     cardContent: {
         display: 'flex',
         flexDirection: 'column',
@@ -209,6 +216,14 @@ export function App() {
                     }
                 >
                     <Stage label="Component Workbench Stage">
+                        <Grid columns="2" gap="4">
+                            {ALL_COLORS.map((color, index) => (
+                                <Card key={color} style={styles.AtlasPaths}>
+                                    <AtlasPaths seed={index} color={color} />
+                                </Card>
+                            ))}
+                        </Grid>
+
                         {/* Section 1: Live Composition Studio */}
                         <Card
                             color={activeColor}

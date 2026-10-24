@@ -9,7 +9,8 @@
         "./components/*": "./src/components/*.tsx",
         "./hooks/*": "./src/hooks/*.ts",
         "./recipes/*": "./src/recipes/*.ts",
-        "./tokens/*": "./src/tokens/*.ts"
+        "./tokens/*": "./src/tokens/*.ts",
+        "./visuals/*": "./src/visuals/*.tsx"
     },
     "scripts": {
         "lint": "vp lint"

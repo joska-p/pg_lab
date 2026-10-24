@@ -23,7 +23,7 @@ interface ShellWrapperProps extends Omit<React.ComponentProps<'div'>, 'style' | 
 
 export function ShellWrapper({
     children,
-    background = 'auroral-fluid',
+    background = 'lava-flow',
     style,
     ...props
 }: ShellWrapperProps) {
