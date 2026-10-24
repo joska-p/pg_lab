@@ -52,6 +52,9 @@
             "project": ["src/**/*.{ts,tsx}"],
             "entry": ["src/dataset/node/cli.ts", "src/dataset/page.ts"]
         },
+        "packages/smith-tutle": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
         "packages/ui": {
             "project": ["src/**/*.{ts,tsx}"]
         },
