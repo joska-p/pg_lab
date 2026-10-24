@@ -1,39 +1,25 @@
 import { ControlPanel } from '@repo/ui/components/ControlPanel';
-import { ControlSection } from '@repo/ui/components/ControlSection';
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
-import { Segmented } from '@repo/ui/components/Segmented';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
-import { useEffect } from 'react';
 
-import { useTheme, setTheme } from './stores/appStore';
+import { ControlsPanel } from './components/layout/ControlsPanel';
+import { Outputs } from './components/output/Outputs';
 
 export function App() {
-    const theme = useTheme();
-
-    useEffect(() => {
-        document.documentElement.style.colorScheme = theme === 'system' ? 'light dark' : theme;
-    }, [theme]);
-
     return (
         <ShellWrapper>
             <ErrorBoundary showStack={import.meta.env.DEV}>
                 <ExperimentShell
                     panel={
                         <ControlPanel title="pixel-manipulator controls">
-                            <ControlSection title="Theme">
-                                <Segmented<'light' | 'dark' | 'system'>
-                                    options={['light', 'dark', 'system']}
-                                    value={theme}
-                                    onValueChange={setTheme}
-                                />
-                            </ControlSection>
+                            <ControlsPanel />
                         </ControlPanel>
                     }
                 >
                     <Stage label="pixel-manipulator">
-                        <h1>pixel-manipulator</h1>
+                        <Outputs />
                     </Stage>
                 </ExperimentShell>
             </ErrorBoundary>

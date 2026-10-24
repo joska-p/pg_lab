@@ -291,6 +291,7 @@ const reactPackages = [
     'packages/mol-demo/**',
     'packages/mosaic-maker/**',
     'packages/palette/**',
+    'packages/pixel-manipulator/**',
     'packages/randomart/**',
     'packages/ui/**',
 ];

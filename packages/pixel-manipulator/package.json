@@ -8,6 +8,7 @@
         "lint": "vp lint"
     },
     "dependencies": {
+        "@repo/pixel": "workspace:*",
         "@repo/ui": "workspace:*",
         "react": "catalog:",
         "react-dom": "catalog:",

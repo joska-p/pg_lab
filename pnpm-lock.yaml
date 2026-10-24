@@ -714,6 +714,9 @@ importers:
 
   packages/pixel-manipulator:
     dependencies:
+      '@repo/pixel':
+        specifier: workspace:*
+        version: link:../pixel
       '@repo/ui':
         specifier: workspace:*
         version: link:../ui
