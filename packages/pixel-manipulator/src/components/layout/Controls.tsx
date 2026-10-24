@@ -16,7 +16,7 @@ import { useIsProcessing } from '../../stores/manipulator/selectors';
 import { ImageSourceControls } from '../upload/ImageSourceControls';
 import { WorkflowControls } from '../workflow/WorkflowControls';
 
-function ControlsPanel() {
+function Controls() {
     const isProcessing = useIsProcessing();
     const [selectedManip, setSelectedManip] = useState(
         () => Object.keys(getManipulations())[0] ?? '',
@@ -93,4 +93,4 @@ function ControlsPanel() {
     );
 }
 
-export { ControlsPanel };
+export { Controls };

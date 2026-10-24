@@ -332,6 +332,9 @@ importers:
       '@repo/pixel':
         specifier: workspace:*
         version: link:../../packages/pixel
+      '@repo/pixel-manipulator':
+        specifier: workspace:*
+        version: link:../../packages/pixel-manipulator
       '@repo/randomart':
         specifier: workspace:*
         version: link:../../packages/randomart

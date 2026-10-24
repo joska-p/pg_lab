@@ -3,6 +3,11 @@
     "version": "0.0.0",
     "private": true,
     "type": "module",
+    "exports": {
+        "./App": "./src/App.tsx",
+        "./Scene": "./src/components/layout/Scene.tsx",
+        "./Controls": "./src/components/layout/Controls.tsx"
+    },
     "scripts": {
         "dev": "vp dev",
         "lint": "vp lint"

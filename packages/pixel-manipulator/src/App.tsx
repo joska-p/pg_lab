@@ -4,8 +4,8 @@ import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
 
-import { ControlsPanel } from './components/layout/ControlsPanel';
-import { Outputs } from './components/output/Outputs';
+import { Controls } from './components/layout/Controls';
+import { Scene } from './components/layout/Scene';
 
 export function App() {
     return (
@@ -14,12 +14,12 @@ export function App() {
                 <ExperimentShell
                     panel={
                         <ControlPanel title="pixel-manipulator controls">
-                            <ControlsPanel />
+                            <Controls />
                         </ControlPanel>
                     }
                 >
                     <Stage label="pixel-manipulator">
-                        <Outputs />
+                        <Scene />
                     </Stage>
                 </ExperimentShell>
             </ErrorBoundary>

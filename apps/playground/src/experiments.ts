@@ -89,6 +89,13 @@ export const EXPERIMENTS = {
         loadScene: () => import('@repo/pixel/Scene'),
         loadControls: () => import('@repo/pixel/Controls'),
     },
+    'pixel-manipulator': {
+        label: 'pixel-manipulator',
+        panelTitle: 'Pixel manipulator',
+        stageLabel: 'Pixel manipulator',
+        loadScene: () => import('@repo/pixel-manipulator/Scene'),
+        loadControls: () => import('@repo/pixel-manipulator/Controls'),
+    },
 } as const satisfies Record<string, Experiment>;
 
 export type ExperimentKey = keyof typeof EXPERIMENTS;

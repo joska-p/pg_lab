@@ -3,11 +3,11 @@ import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
 import { useImageSource, useOutputs } from '../../stores/manipulator/selectors';
+import { CompareSlider } from '../output/CompareSlider';
+import { CompareToggle } from '../output/CompareToggle';
+import { OutputCard } from '../output/OutputCard';
+import { ProcessingOverlay } from '../output/ProcessingOverlay';
 import { EmptyState } from '../shared/EmptyState';
-import { CompareSlider } from './CompareSlider';
-import { CompareToggle } from './CompareToggle';
-import { OutputCard } from './OutputCard';
-import { ProcessingOverlay } from './ProcessingOverlay';
 
 const styles = stylex.create({
     root: {
@@ -39,7 +39,7 @@ const styles = stylex.create({
     },
 });
 
-function Outputs() {
+function Scene() {
     const imageSource = useImageSource();
     const outputs = useOutputs();
     const [mode, setMode] = useState<'grid' | 'compare'>('grid');
@@ -100,4 +100,4 @@ function Outputs() {
     );
 }
 
-export { Outputs };
+export { Scene };
