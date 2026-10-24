@@ -1,18 +1,96 @@
+import { Badge } from '@repo/ui/components/Badge';
 import { Card } from '@repo/ui/components/Card';
+import { SectionHeading } from '@repo/ui/components/SectionHeading';
+import { surfaceStyles } from '@repo/ui/recipes/surface';
+import { space, typography } from '@repo/ui/tokens/const.stylex';
+import { surface } from '@repo/ui/tokens/surface.stylex';
+import * as stylex from '@stylexjs/stylex';
 
 import { CodeBlock } from '../CodeBlock';
 import type { ManipInfo } from '../data/pipeline-docs-data';
 import { TryItOut } from '../demos/TryItOut';
 import { ParamTable } from '../ParamTable';
 
-const TYPE_ACCENT: Record<string, string> = {
-    pixel: 'var(--utility-6)',
-    neighborhood: 'var(--utility-3)',
-    global: 'var(--utility-2)',
-    pipeline: 'var(--utility-1)',
-    internals: 'var(--utility-8)',
-    overview: 'var(--utility-4)',
+const TYPE_COLOR: Record<
+    string,
+    'neutral' | 'aurora' | 'solder' | 'purple' | 'amber' | 'aqua' | 'orange'
+> = {
+    pixel: 'aurora',
+    neighborhood: 'solder',
+    global: 'aqua',
+    pipeline: 'aurora',
+    internals: 'purple',
+    overview: 'neutral',
 };
+
+const TYPE_LABEL: Record<string, string> = {
+    pixel: 'PIXEL',
+    neighborhood: 'NEIGHBOR',
+    global: 'GLOBAL',
+    pipeline: 'PIPELINE',
+    internals: 'INTERNALS',
+    overview: 'OVERVIEW',
+};
+
+const styles = stylex.create({
+    root: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: space['6'],
+    },
+    header: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: space['3'],
+    },
+    title: {
+        margin: 0,
+        fontSize: typography.fontSize2xl,
+        fontWeight: typography.fontWeightBold,
+        color: surface.foreground,
+    },
+    description: {
+        margin: 0,
+        maxWidth: '48ch',
+        fontSize: typography.fontSizeSm,
+        color: `color-mix(in oklab, ${surface.foreground} 60%, transparent)`,
+    },
+    path: {
+        margin: 0,
+        fontSize: typography.fontSizeXs,
+        color: `color-mix(in oklab, ${surface.foreground} 50%, transparent)`,
+    },
+    noteBox: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: space['2'],
+        borderRadius: '8px',
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: `color-mix(in oklab, ${surface.foreground} 20%, transparent)`,
+        backgroundColor: `color-mix(in oklab, ${surface.foreground} 10%, transparent)`,
+        padding: space['4'],
+        maxWidth: '48ch',
+    },
+    noteHeading: {
+        margin: 0,
+        fontSize: typography.fontSizeXs,
+        fontWeight: typography.fontWeightSemibold,
+        letterSpacing: typography.letterSpacingWide,
+        textTransform: 'uppercase',
+        color: surface.foreground,
+    },
+    noteText: {
+        margin: 0,
+        fontSize: typography.fontSizeSm,
+        color: `color-mix(in oklab, ${surface.foreground} 60%, transparent)`,
+    },
+    codeSample: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: space['2'],
+    },
+});
 
 function ManipView({
     manip,
@@ -25,6 +103,8 @@ function ManipView({
     paramValues: Record<string, number>;
     onParamChange: (id: string, key: string, value: number) => void;
 }) {
+    const color = TYPE_COLOR[manip.type] ?? 'neutral';
+
     const codeLines = [
         `pipelineGateway.run({`,
         `  sourceImageData: source,`,
@@ -45,55 +125,47 @@ function ManipView({
     ];
 
     return (
-        <div
-            className="space-y-6"
-            style={
-                {
-                    '--accent': TYPE_ACCENT[manip.type] ?? 'var(--utility-4)',
-                } as React.CSSProperties
-            }
-        >
-            <div className="flex items-center gap-3">
-                <span className="bg-accent inline-flex shrink-0 items-center rounded px-2 py-0.5 text-xs font-bold text-background uppercase">
-                    {manip.type === 'neighborhood' ? 'NEIGHBOR' : manip.type.toUpperCase()}
-                </span>
-                <h2 className="text-2xl font-bold">{manip.label}</h2>
+        <div {...stylex.props(styles.root)}>
+            <div {...stylex.props(styles.header)}>
+                <Badge color={color} background="solid" radius="full">
+                    {TYPE_LABEL[manip.type] ?? manip.type}
+                </Badge>
+                <h1 {...stylex.props(styles.title)}>{manip.label}</h1>
             </div>
-            <p className="text-muted-foreground max-w-2xl text-sm">{manip.description}</p>
-            <p className="text-xs opacity-60">{manip.path}</p>
+            <p {...stylex.props(styles.description)}>{manip.description}</p>
+            <p {...stylex.props(styles.path)}>{manip.path}</p>
 
-            <div className="border-border bg-muted/30 border-l-accent max-w-2xl rounded-lg border border-l-2 p-4">
-                <h3 className="mb-1.5 text-xs font-semibold uppercase">How It Works</h3>
-                <p className="text-muted-foreground text-sm">{manip.longDescription}</p>
+            <div
+                {...stylex.props(
+                    styles.noteBox,
+                    surfaceStyles({ color, background: 'soft', border: 'strong', radius: 'md' }),
+                )}
+            >
+                <p {...stylex.props(styles.noteHeading)}>How It Works</p>
+                <p {...stylex.props(styles.noteText)}>{manip.longDescription}</p>
             </div>
 
             {manip.params && manip.params.length > 0 && (
                 <section>
-                    <h3 className="mb-3 text-sm font-semibold uppercase">Parameters</h3>
+                    <SectionHeading title="Parameters" color={color} />
                     <ParamTable params={manip.params} />
                 </section>
             )}
 
             <section>
-                <h3 className="border-b-accent mb-3 inline-block border-b-2 pb-1 text-sm font-semibold uppercase">
-                    Try It Out
-                </h3>
-                <Card>
-                    <div className="p-4">
-                        <TryItOut
-                            sourceData={sourceData}
-                            manip={manip}
-                            paramValues={paramValues}
-                            onParamChange={onParamChange}
-                        />
-                    </div>
+                <SectionHeading title="Try It Out" color={color} />
+                <Card color={color} background="soft" border="strong" radius="md">
+                    <TryItOut
+                        sourceData={sourceData}
+                        manip={manip}
+                        paramValues={paramValues}
+                        onParamChange={onParamChange}
+                    />
                 </Card>
             </section>
 
-            <section>
-                <h3 className="border-b-accent mb-3 inline-block border-b-2 pb-1 text-sm font-semibold uppercase">
-                    Code Sample
-                </h3>
+            <section {...stylex.props(styles.codeSample)}>
+                <SectionHeading title="Code Sample" color={color} />
                 <CodeBlock code={codeLines.join('\n')} />
             </section>
         </div>

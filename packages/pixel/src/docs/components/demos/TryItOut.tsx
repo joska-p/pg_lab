@@ -1,4 +1,9 @@
+import { Card } from '@repo/ui/components/Card';
 import { Slider } from '@repo/ui/components/Slider';
+import { Text } from '@repo/ui/components/Text';
+import { space, typography } from '@repo/ui/tokens/const.stylex';
+import { surface } from '@repo/ui/tokens/surface.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 
 import { processImageInWorker } from '../../../worker/process-image-in-worker';
@@ -11,6 +16,72 @@ interface TryItOutProps {
     paramValues: Record<string, number>;
     onParamChange: (id: string, key: string, value: number) => void;
 }
+
+const styles = stylex.create({
+    root: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: space['4'],
+    },
+    params: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: space['3'],
+    },
+    param: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: space['1'],
+    },
+    labelRow: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    label: {
+        fontSize: typography.fontSizeXs,
+        fontWeight: typography.fontWeightMedium,
+        color: surface.foreground,
+    },
+    value: {
+        fontSize: typography.fontSizeXs,
+        fontFamily: typography.fontFamilyMono,
+        color: `color-mix(in oklab, ${surface.foreground} 60%, transparent)`,
+    },
+    error: {
+        borderRadius: '6px',
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        padding: space['3'],
+        fontSize: typography.fontSizeXs,
+    },
+    errorBorder: {
+        borderColor: `color-mix(in oklab, ${surface.foreground} 30%, transparent)`,
+        backgroundColor: `color-mix(in oklab, ${surface.foreground} 10%, transparent)`,
+        color: surface.foreground,
+    },
+    result: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: space['4'],
+    },
+    image: {
+        width: '80px',
+        height: '80px',
+        flexShrink: 0,
+        borderRadius: '6px',
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: `color-mix(in oklab, ${surface.foreground} 20%, transparent)`,
+        imageRendering: 'pixelated',
+        display: 'block',
+    },
+    size: {
+        margin: 0,
+        fontSize: typography.fontSizeXs,
+        color: `color-mix(in oklab, ${surface.foreground} 60%, transparent)`,
+    },
+});
 
 function TryItOut({ sourceData, manip, paramValues, onParamChange }: TryItOutProps) {
     const [result, setResult] = useState<ImageData | null>(null);
@@ -52,23 +123,23 @@ function TryItOut({ sourceData, manip, paramValues, onParamChange }: TryItOutPro
     }, [sourceData, manip.id, manip.params, paramValues, manip]);
 
     return (
-        <div className="space-y-4">
+        <div {...stylex.props(styles.root)}>
             {manip.params && manip.params.length > 0 && (
-                <div className="space-y-3">
+                <div {...stylex.props(styles.params)}>
                     {manip.params.map((parameter) => {
                         const value: number =
                             paramValues[`${manip.id}:${parameter.key}`] ?? parameter.default;
 
                         return (
-                            <div key={parameter.key}>
-                                <div className="mb-1 flex items-center justify-between text-xs">
+                            <div key={parameter.key} {...stylex.props(styles.param)}>
+                                <div {...stylex.props(styles.labelRow)}>
                                     <label
                                         htmlFor={`${manip.id}-${parameter.key}`}
-                                        className="font-medium"
+                                        {...stylex.props(styles.label)}
                                     >
                                         {parameter.label}
                                     </label>
-                                    <span className="text-muted-foreground tabular-nums">
+                                    <span {...stylex.props(styles.value)}>
                                         {value.toFixed(parameter.step >= 1 ? 0 : 2)}
                                     </span>
                                 </div>
@@ -89,24 +160,23 @@ function TryItOut({ sourceData, manip, paramValues, onParamChange }: TryItOutPro
             )}
 
             {error && (
-                <div className="text-destructive rounded-md border border-red-400/30 bg-red-950/20 p-3 text-xs">
-                    {error}
-                </div>
+                <Card color="error" background="soft" border="strong" radius="md">
+                    <Text variant="muted">{error}</Text>
+                </Card>
             )}
 
             {result && (
-                <div className="flex items-center gap-4">
-                    <div className="w-20 shrink-0">
+                <div {...stylex.props(styles.result)}>
+                    <div>
                         <img
                             src={imageDataToUrl(result) ?? ''}
                             alt={`${manip.label} result`}
-                            className="border-border w-full rounded border"
-                            style={{ imageRendering: 'pixelated' }}
+                            {...stylex.props(styles.image)}
                         />
                     </div>
-                    <div className="text-muted-foreground text-xs">
+                    <p {...stylex.props(styles.size)}>
                         {result.width}×{result.height}
-                    </div>
+                    </p>
                 </div>
             )}
         </div>

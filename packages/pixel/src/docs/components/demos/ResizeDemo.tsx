@@ -1,4 +1,7 @@
 import { Button } from '@repo/ui/components/Button';
+import { space, typography } from '@repo/ui/tokens/const.stylex';
+import { surface } from '@repo/ui/tokens/surface.stylex';
+import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
 import { usePixel } from '../../../react/usePixel';
@@ -26,6 +29,40 @@ const MODES = [
 
 type ModeId = (typeof MODES)[number]['id'];
 
+const styles = stylex.create({
+    root: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: space['4'],
+    },
+    modes: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: space['2'],
+    },
+    result: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: space['4'],
+    },
+    image: {
+        width: '80px',
+        height: '80px',
+        flexShrink: 0,
+        borderRadius: '6px',
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: `color-mix(in oklab, ${surface.foreground} 20%, transparent)`,
+        imageRendering: 'pixelated',
+        display: 'block',
+    },
+    size: {
+        margin: 0,
+        fontSize: typography.fontSizeXs,
+        color: `color-mix(in oklab, ${surface.foreground} 60%, transparent)`,
+    },
+});
+
 function ResizeDemo({ sourceData }: { sourceData: ImageData | null }) {
     const [selected, setSelected] = useState<ModeId>('width');
     const mode = MODES.find((m) => m.id === selected) ?? MODES[0];
@@ -33,13 +70,14 @@ function ResizeDemo({ sourceData }: { sourceData: ImageData | null }) {
     const result = usePixel(sourceData, steps);
 
     return (
-        <div className="space-y-4">
-            <div className="flex flex-wrap gap-2">
+        <div {...stylex.props(styles.root)}>
+            <div {...stylex.props(styles.modes)}>
                 {MODES.map((m) => (
                     <Button
                         key={m.id}
                         color={selected === m.id ? 'aurora' : 'neutral'}
                         background={selected === m.id ? 'solid' : 'soft'}
+                        border="subtle"
                         onClick={() => {
                             setSelected(m.id);
                         }}
@@ -49,18 +87,17 @@ function ResizeDemo({ sourceData }: { sourceData: ImageData | null }) {
                 ))}
             </div>
 
-            <div className="flex items-center gap-4">
-                <div className="w-20 shrink-0">
+            <div {...stylex.props(styles.result)}>
+                <div>
                     <img
                         src={result[0] ? (imageDataToUrl(result[0]) ?? '') : ''}
                         alt="resized"
-                        className="border-border w-full rounded border"
-                        style={{ imageRendering: 'pixelated' }}
+                        {...stylex.props(styles.image)}
                     />
                 </div>
-                <div className="text-muted-foreground text-xs">
+                <p {...stylex.props(styles.size)}>
                     {result[0]?.width}×{result[0]?.height}
-                </div>
+                </p>
             </div>
         </div>
     );
