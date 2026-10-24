@@ -293,6 +293,7 @@ const reactPackages = [
     'packages/randomart/**',
     'packages/ui/**',
 ];
+const nodePackages = ['packages/palette-engine'];
 
 export default defineConfig({
     defaultPackage: { dev: './apps/playground', build: './apps/playground' },
@@ -351,7 +352,7 @@ export default defineConfig({
                 },
             },
             {
-                files: ['tools/**'],
+                files: nodePackages,
                 ...nodeLint,
             },
             {

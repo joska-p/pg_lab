@@ -25,11 +25,7 @@ Generators and viz live in the **same package** because they are tightly related
 - **Viz pulls what it needs:** a viz's `render(signal, surface)` is called every frame and is free to `signal.take(maxTerms)` — the signal is stateless between pulls beyond the counter.
 - **DOM-free core:** `core`/`modules` never touch the browser, so the generation logic runs in Node tests (`pnpm --filter @repo/oeis-signal test`).
 
-## 📚 References
+## References
 
 - [OEIS — On-Line Encyclopedia of Integer Sequences](https://oeis.org/)
 - [Iterators and generators — MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_Generators)
-
----
-
-_Part of the [Creative Playground](https://joska-p.github.io/playground). Technical API reference generated at `/docs/api/oeis-signal/`._
