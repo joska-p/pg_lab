@@ -623,15 +623,36 @@ importers:
         specifier: 'catalog:'
         version: 1.4.0(@types/node@24.19.2)(@vitest/ui@5.0.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)
 
-  packages/palette-engine:
+  packages/palette:
     dependencies:
-      colorjs.io:
+      '@repo/ui':
+        specifier: workspace:*
+        version: link:../ui
+      react:
         specifier: 'catalog:'
-        version: 0.7.1
+        version: 19.3.1
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.3.1(react@19.3.1)
+      zustand:
+        specifier: 'catalog:'
+        version: 5.0.16(@types/react@19.3.0)(react@19.3.1)
     devDependencies:
+      '@stylexjs/stylex':
+        specifier: 'catalog:'
+        version: 0.19.1
       '@types/node':
         specifier: 'catalog:'
         version: 24.19.2
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.3.0(@types/react@19.3.0)
+      colorjs.io:
+        specifier: 'catalog:'
+        version: 0.7.1
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
