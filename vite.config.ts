@@ -292,6 +292,7 @@ const reactPackages = [
     'packages/mosaic-maker/**',
     'packages/palette/**',
     'packages/pixel-manipulator/**',
+    'packages/radu-machine-learning/**',
     'packages/randomart/**',
     'packages/sequencer/**',
     'packages/smith-tutle/**',

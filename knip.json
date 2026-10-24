@@ -48,6 +48,9 @@
         "packages/pixel": {
             "project": ["src/**/*.{ts,tsx}"]
         },
+        "packages/radu-machine-learning": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
         "packages/randomart": {
             "project": ["src/**/*.{ts,tsx}"],
             "entry": ["src/dataset/node/cli.ts", "src/dataset/page.ts"]
