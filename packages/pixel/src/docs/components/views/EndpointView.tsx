@@ -1,10 +1,5 @@
-import { Text } from '@repo/ui/components/Text';
-import { space, typography } from '@repo/ui/tokens/const.stylex';
-import { surface } from '@repo/ui/tokens/surface.stylex';
-import * as stylex from '@stylexjs/stylex';
-
-import { findManipById } from '../data/pipeline-docs-data';
-import type { EndpointId } from '../data/pipeline-docs-data';
+import { findManipById } from '../../data/pipeline-docs-data';
+import type { EndpointId } from '../../data/pipeline-docs-data';
 import { InternalsView } from './InternalsView';
 import { ManipView } from './ManipView';
 import { OverviewView } from './OverviewView';
@@ -16,15 +11,6 @@ interface EndpointViewProps {
     paramValues: Record<string, number>;
     onParamChange: (id: string, key: string, value: number) => void;
 }
-
-const styles = stylex.create({
-    notFound: {
-        paddingBlock: space['6'],
-        textAlign: 'center',
-        fontSize: typography.fontSizeSm,
-        color: `color-mix(in oklab, ${surface.foreground} 50%, transparent)`,
-    },
-});
 
 function EndpointView({
     activeEndpoint,
@@ -47,11 +33,7 @@ function EndpointView({
     const manip = findManipById(activeEndpoint.id);
 
     if (!manip) {
-        return (
-            <div {...stylex.props(styles.notFound)}>
-                <Text variant="muted">Endpoint not found</Text>
-            </div>
-        );
+        return <div>Endpoint not found</div>;
     }
 
     return (

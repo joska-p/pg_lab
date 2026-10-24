@@ -1,53 +1,44 @@
-import { borderWidth, space, typography } from '@repo/ui/tokens/const.stylex';
+import { surfaceStyles } from '@repo/ui/recipes/surface';
+import { typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
 import * as stylex from '@stylexjs/stylex';
 
-import type { ParamDef } from './data/pipeline-docs-data';
+import type { ParamDef } from '../data/pipeline-docs-data';
 
 const styles = stylex.create({
-    base: {
-        borderWidth: borderWidth.hairline,
-        borderStyle: 'solid',
-        borderColor: `color-mix(in oklab, ${surface.foreground} 20%, transparent)`,
-        borderRadius: '6px',
+    wrapper: {
         overflow: 'hidden',
+        borderRadius: '0.5rem',
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: `color-mix(in oklab, ${surface.foreground} 12%, transparent)`,
     },
     table: {
         width: '100%',
-        borderCollapse: 'collapse',
         textAlign: 'left',
         fontSize: typography.fontSizeSm,
-        color: surface.foreground,
+        borderCollapse: 'collapse',
     },
-    head: {
-        backgroundColor: `color-mix(in oklab, ${surface.foreground} 10%, transparent)`,
-        color: `color-mix(in oklab, ${surface.foreground} 60%, transparent)`,
+    th: {
+        padding: '0.625rem 1rem',
         fontSize: typography.fontSizeXs,
         fontWeight: typography.fontWeightSemibold,
+        textTransform: 'uppercase' as const,
         letterSpacing: typography.letterSpacingWide,
-        textTransform: 'uppercase',
+        opacity: 0.6,
     },
-    headCell: {
-        paddingBlock: space['2'],
-        paddingInline: space['4'],
-        borderBottom: `${borderWidth.hairline} solid`,
-        borderBottomColor: `color-mix(in oklab, ${surface.foreground} 20%, transparent)`,
-    },
-    bodyCell: {
-        paddingBlock: space['2'],
-        paddingInline: space['4'],
-        borderBottom: `${borderWidth.hairline} solid`,
-        borderBottomColor: `color-mix(in oklab, ${surface.foreground} 20%, transparent)`,
+    td: {
+        padding: '0.625rem 1rem',
         fontSize: typography.fontSizeXs,
-        fontWeight: typography.fontWeightMedium,
-        color: `color-mix(in oklab, ${surface.foreground} 80%, transparent)`,
+        borderTopWidth: '1px',
+        borderTopStyle: 'solid' as const,
+        borderTopColor: `color-mix(in oklab, ${surface.foreground} 10%, transparent)`,
     },
-    bodyCellLast: {
-        borderBottom: 'none',
-    },
-    bodyCellName: {
-        color: surface.foreground,
+    tdPrimary: {
         fontWeight: typography.fontWeightMedium,
+    },
+    tdMuted: {
+        opacity: 0.7,
     },
 });
 
@@ -57,25 +48,23 @@ interface ParamTableProps {
 
 function ParamTable({ params }: ParamTableProps) {
     return (
-        <div {...stylex.props(styles.base)}>
+        <div {...stylex.props(styles.wrapper)}>
             <table {...stylex.props(styles.table)}>
                 <thead>
-                    <tr {...stylex.props(styles.head)}>
-                        <th {...stylex.props(styles.headCell)}>Name</th>
-                        <th {...stylex.props(styles.headCell)}>Type</th>
-                        <th {...stylex.props(styles.headCell)}>Default</th>
-                        <th {...stylex.props(styles.headCell)}>Description</th>
+                    <tr {...stylex.props(surfaceStyles({ background: 'soft' }))}>
+                        <th {...stylex.props(styles.th)}>Name</th>
+                        <th {...stylex.props(styles.th)}>Type</th>
+                        <th {...stylex.props(styles.th)}>Default</th>
+                        <th {...stylex.props(styles.th)}>Description</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {params.map((parameter) => (
-                        <tr key={parameter.key}>
-                            <td {...stylex.props(styles.bodyCell, styles.bodyCellName)}>
-                                {parameter.key}
-                            </td>
-                            <td {...stylex.props(styles.bodyCell)}>number</td>
-                            <td {...stylex.props(styles.bodyCell)}>{parameter.default}</td>
-                            <td {...stylex.props(styles.bodyCell)}>{parameter.label}</td>
+                    {params.map((param) => (
+                        <tr key={param.key}>
+                            <td {...stylex.props(styles.td, styles.tdPrimary)}>{param.key}</td>
+                            <td {...stylex.props(styles.td, styles.tdMuted)}>number</td>
+                            <td {...stylex.props(styles.td, styles.tdMuted)}>{param.default}</td>
+                            <td {...stylex.props(styles.td, styles.tdMuted)}>{param.label}</td>
                         </tr>
                     ))}
                 </tbody>

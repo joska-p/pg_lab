@@ -1,21 +1,14 @@
-import { Card } from '@repo/ui/components/Card';
 import { Slider } from '@repo/ui/components/Slider';
-import { Text } from '@repo/ui/components/Text';
+import { surfaceStyles } from '@repo/ui/recipes/surface';
+import { fieldText } from '@repo/ui/recipes/typography';
 import { space, typography } from '@repo/ui/tokens/const.stylex';
-import { surface } from '@repo/ui/tokens/surface.stylex';
+import { colors } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 
 import { processImageInWorker } from '../../../worker/process-image-in-worker';
-import type { ManipInfo } from '../data/pipeline-docs-data';
-import { imageDataToUrl } from '../helpers';
-
-interface TryItOutProps {
-    sourceData: ImageData | null;
-    manip: ManipInfo;
-    paramValues: Record<string, number>;
-    onParamChange: (id: string, key: string, value: number) => void;
-}
+import type { ManipInfo } from '../../data/pipeline-docs-data';
+import { imageDataToUrl } from '../../imageLoader';
 
 const styles = stylex.create({
     root: {
@@ -23,65 +16,64 @@ const styles = stylex.create({
         flexDirection: 'column',
         gap: space['4'],
     },
-    params: {
+    sliderBlock: {
         display: 'flex',
         flexDirection: 'column',
         gap: space['3'],
     },
-    param: {
+    sliderRow: {
         display: 'flex',
         flexDirection: 'column',
         gap: space['1'],
     },
-    labelRow: {
+    sliderHeader: {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-    },
-    label: {
         fontSize: typography.fontSizeXs,
-        fontWeight: typography.fontWeightMedium,
-        color: surface.foreground,
     },
-    value: {
-        fontSize: typography.fontSizeXs,
-        fontFamily: typography.fontFamilyMono,
-        color: `color-mix(in oklab, ${surface.foreground} 60%, transparent)`,
+    valueReadout: {
+        fontVariantNumeric: 'tabular-nums',
+        opacity: 0.6,
     },
-    error: {
-        borderRadius: '6px',
+    errorBox: {
+        borderRadius: '0.375rem',
         borderWidth: '1px',
         borderStyle: 'solid',
-        padding: space['3'],
+        borderColor: `color-mix(in oklab, ${colors.error} 30%, transparent)`,
+        backgroundColor: `color-mix(in oklab, ${colors.error} 10%, transparent)`,
+        padding: '0.75rem',
         fontSize: typography.fontSizeXs,
+        color: colors.error,
     },
-    errorBorder: {
-        borderColor: `color-mix(in oklab, ${surface.foreground} 30%, transparent)`,
-        backgroundColor: `color-mix(in oklab, ${surface.foreground} 10%, transparent)`,
-        color: surface.foreground,
-    },
-    result: {
+    resultRow: {
         display: 'flex',
         alignItems: 'center',
         gap: space['4'],
     },
-    image: {
-        width: '80px',
-        height: '80px',
+    imageWrapper: {
+        width: '5rem',
         flexShrink: 0,
-        borderRadius: '6px',
-        borderWidth: '1px',
-        borderStyle: 'solid',
-        borderColor: `color-mix(in oklab, ${surface.foreground} 20%, transparent)`,
-        imageRendering: 'pixelated',
-        display: 'block',
     },
-    size: {
-        margin: 0,
+    image: {
+        width: '100%',
+        borderRadius: '0.25rem',
+        borderWidth: '1px',
+        borderStyle: 'solid' as const,
+        borderColor: `color-mix(in oklab, ${colors.neutral} 25%, transparent)`,
+    },
+    dimensions: {
+        opacity: 0.6,
         fontSize: typography.fontSizeXs,
-        color: `color-mix(in oklab, ${surface.foreground} 60%, transparent)`,
     },
 });
+
+interface TryItOutProps {
+    sourceData: ImageData | null;
+    manip: ManipInfo;
+    paramValues: Record<string, number>;
+    onParamChange: (id: string, key: string, value: number) => void;
+}
 
 function TryItOut({ sourceData, manip, paramValues, onParamChange }: TryItOutProps) {
     const [result, setResult] = useState<ImageData | null>(null);
@@ -125,32 +117,32 @@ function TryItOut({ sourceData, manip, paramValues, onParamChange }: TryItOutPro
     return (
         <div {...stylex.props(styles.root)}>
             {manip.params && manip.params.length > 0 && (
-                <div {...stylex.props(styles.params)}>
-                    {manip.params.map((parameter) => {
+                <div {...stylex.props(styles.sliderBlock)}>
+                    {manip.params.map((param) => {
                         const value: number =
-                            paramValues[`${manip.id}:${parameter.key}`] ?? parameter.default;
+                            paramValues[`${manip.id}:${param.key}`] ?? param.default;
 
                         return (
-                            <div key={parameter.key} {...stylex.props(styles.param)}>
-                                <div {...stylex.props(styles.labelRow)}>
+                            <div key={param.key} {...stylex.props(styles.sliderRow)}>
+                                <div {...stylex.props(styles.sliderHeader)}>
                                     <label
-                                        htmlFor={`${manip.id}-${parameter.key}`}
-                                        {...stylex.props(styles.label)}
+                                        htmlFor={`${manip.id}-${param.key}`}
+                                        {...stylex.props(fieldText.label)}
                                     >
-                                        {parameter.label}
+                                        {param.label}
                                     </label>
-                                    <span {...stylex.props(styles.value)}>
-                                        {value.toFixed(parameter.step >= 1 ? 0 : 2)}
+                                    <span {...stylex.props(fieldText.value, styles.valueReadout)}>
+                                        {value.toFixed(param.step >= 1 ? 0 : 2)}
                                     </span>
                                 </div>
                                 <Slider
-                                    id={`${manip.id}-${parameter.key}`}
-                                    min={parameter.min}
-                                    max={parameter.max}
-                                    step={parameter.step}
+                                    id={`${manip.id}-${param.key}`}
+                                    min={param.min}
+                                    max={param.max}
+                                    step={param.step}
                                     value={value}
-                                    onValueChange={(value: number) => {
-                                        onParamChange(manip.id, parameter.key, value);
+                                    onValueChange={(v) => {
+                                        onParamChange(manip.id, param.key, v);
                                     }}
                                 />
                             </div>
@@ -159,24 +151,24 @@ function TryItOut({ sourceData, manip, paramValues, onParamChange }: TryItOutPro
                 </div>
             )}
 
-            {error && (
-                <Card color="error" background="soft" border="strong" radius="md">
-                    <Text variant="muted">{error}</Text>
-                </Card>
-            )}
+            {error && <div {...stylex.props(styles.errorBox)}>{error}</div>}
 
             {result && (
-                <div {...stylex.props(styles.result)}>
-                    <div>
+                <div {...stylex.props(styles.resultRow)}>
+                    <div {...stylex.props(styles.imageWrapper)}>
                         <img
                             src={imageDataToUrl(result) ?? ''}
                             alt={`${manip.label} result`}
-                            {...stylex.props(styles.image)}
+                            style={{ imageRendering: 'pixelated' }}
+                            {...stylex.props(
+                                styles.image,
+                                surfaceStyles({ background: 'none', border: 'subtle' }),
+                            )}
                         />
                     </div>
-                    <p {...stylex.props(styles.size)}>
+                    <div {...stylex.props(styles.dimensions)}>
                         {result.width}×{result.height}
-                    </p>
+                    </div>
                 </div>
             )}
         </div>

@@ -3,6 +3,11 @@
     "version": "0.0.0",
     "private": true,
     "description": "Interactive API documentation for the browser-based image manipulation pipeline with live visual examples.",
+    "keywords": [
+        "docs",
+        "image",
+        "pipeline"
+    ],
     "type": "module",
     "exports": {
         "./processor": "./src/processor/process-image.ts",
@@ -11,23 +16,23 @@
         "./react": "./src/react/usePixel.ts",
         "./react/*": "./src/react/*",
         "./docs/*": "./src/docs/*",
-        "./App": "./src/App.tsx"
+        "./App": "./src/docs/App.tsx",
+        "./Scene": "./src/docs/components/Scene.tsx",
+        "./Controls": "./src/docs/components/Controls.tsx"
     },
     "scripts": {
         "dev": "vp dev",
-        "lint": "vp lint",
-        "check": "vp check"
+        "lint": "vp lint"
     },
     "dependencies": {
         "@repo/ui": "workspace:*",
         "@repo/worker-pool": "workspace:*",
+        "@stylexjs/stylex": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
         "zustand": "catalog:"
     },
     "devDependencies": {
-        "@stylexjs/stylex": "catalog:",
-        "@types/node": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
         "typescript": "catalog:",

@@ -17,6 +17,7 @@
         "@repo/mosaic-maker": "workspace:*",
         "@repo/oeis-signal": "workspace:*",
         "@repo/palette": "workspace:*",
+        "@repo/pixel": "workspace:*",
         "@repo/randomart": "workspace:*",
         "@repo/ui": "workspace:*",
         "react": "catalog:",

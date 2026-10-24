@@ -1,4 +1,4 @@
-import { ALL_MANIPULATIONS } from '../../../processor/manipulations/manifest';
+import { ALL_MANIPULATIONS } from '../../processor/manipulations/manifest';
 
 export interface ParamDef {
     key: string;

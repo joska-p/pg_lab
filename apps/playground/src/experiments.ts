@@ -82,6 +82,13 @@ export const EXPERIMENTS = {
         loadScene: () => import('@repo/palette/Scene'),
         loadControls: () => import('@repo/palette/Controls'),
     },
+    pixel: {
+        label: 'pixel',
+        panelTitle: 'Pixel docs',
+        stageLabel: 'Pixel docs',
+        loadScene: () => import('@repo/pixel/Scene'),
+        loadControls: () => import('@repo/pixel/Controls'),
+    },
 } as const satisfies Record<string, Experiment>;
 
 export type ExperimentKey = keyof typeof EXPERIMENTS;

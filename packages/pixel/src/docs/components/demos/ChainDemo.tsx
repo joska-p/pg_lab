@@ -1,9 +1,9 @@
 import { space, typography } from '@repo/ui/tokens/const.stylex';
-import { surface } from '@repo/ui/tokens/surface.stylex';
+import { colors } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
 
 import { usePixel } from '../../../react/usePixel';
-import { imageDataToUrl } from '../helpers';
+import { imageDataToUrl } from '../../imageLoader';
 
 const STEPS = [
     { id: 'brightness', options: { value: 1.2 } },
@@ -11,21 +11,22 @@ const STEPS = [
     { id: 'sharpen', options: { strength: 1.5 } },
 ] as const;
 
+const STEP_LABELS = ['brightness', 'contrast', 'sharpen'] as const;
+
 const styles = stylex.create({
     root: {
         display: 'flex',
         flexDirection: 'column',
         gap: space['3'],
     },
-    intro: {
-        margin: 0,
+    description: {
+        opacity: 0.6,
         fontSize: typography.fontSizeXs,
-        color: `color-mix(in oklab, ${surface.foreground} 60%, transparent)`,
     },
     grid: {
         display: 'grid',
+        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
         gap: space['3'],
-        gridTemplateColumns: 'repeat(4, 1fr)',
     },
     cell: {
         display: 'flex',
@@ -33,28 +34,22 @@ const styles = stylex.create({
         gap: space['1'],
     },
     label: {
-        margin: 0,
-        fontSize: '10px',
+        fontSize: '0.625rem',
         fontWeight: typography.fontWeightMedium,
+        textTransform: 'uppercase' as const,
         letterSpacing: typography.letterSpacingWide,
-        textTransform: 'uppercase',
-        color: `color-mix(in oklab, ${surface.foreground} 60%, transparent)`,
+        opacity: 0.6,
     },
     image: {
         width: '100%',
-        height: 'auto',
-        borderRadius: '6px',
+        borderRadius: '0.25rem',
         borderWidth: '1px',
-        borderStyle: 'solid',
-        borderColor: `color-mix(in oklab, ${surface.foreground} 20%, transparent)`,
-        imageRendering: 'pixelated',
-        display: 'block',
+        borderStyle: 'solid' as const,
+        borderColor: `color-mix(in oklab, ${colors.neutral} 25%, transparent)`,
     },
-    size: {
-        margin: 0,
-        marginTop: space['1'],
-        fontSize: '10px',
-        color: `color-mix(in oklab, ${surface.foreground} 60%, transparent)`,
+    dimensions: {
+        fontSize: '0.625rem',
+        opacity: 0.5,
     },
 });
 
@@ -63,7 +58,7 @@ function ChainDemo({ sourceData }: { sourceData: ImageData | null }) {
 
     return (
         <div {...stylex.props(styles.root)}>
-            <p {...stylex.props(styles.intro)}>
+            <p {...stylex.props(styles.description)}>
                 Runs brightness → contrast → sharpen in a single off-thread invocation. All three
                 pixel ops are fused into one pass.
             </p>
@@ -71,14 +66,15 @@ function ChainDemo({ sourceData }: { sourceData: ImageData | null }) {
                 {result.map((imageData, index) => (
                     <div key={index} {...stylex.props(styles.cell)}>
                         <p {...stylex.props(styles.label)}>
-                            {index === 0 ? 'Source' : (STEPS[index - 1]?.id ?? '')}
+                            {index === 0 ? 'Source' : (STEP_LABELS[index - 1] ?? '')}
                         </p>
                         <img
                             src={imageDataToUrl(imageData) ?? ''}
                             alt={`step ${String(index)}`}
+                            style={{ imageRendering: 'pixelated' }}
                             {...stylex.props(styles.image)}
                         />
-                        <p {...stylex.props(styles.size)}>
+                        <p {...stylex.props(styles.dimensions)}>
                             {imageData.width}×{imageData.height}
                         </p>
                     </div>

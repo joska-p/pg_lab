@@ -1,11 +1,11 @@
 import { Button } from '@repo/ui/components/Button';
 import { space, typography } from '@repo/ui/tokens/const.stylex';
-import { surface } from '@repo/ui/tokens/surface.stylex';
+import { colors } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
 import { usePixel } from '../../../react/usePixel';
-import { imageDataToUrl } from '../helpers';
+import { imageDataToUrl } from '../../imageLoader';
 
 const MODES = [
     { id: 'width', label: 'Width (100px)', options: { width: 100 } as const },
@@ -40,26 +40,25 @@ const styles = stylex.create({
         flexWrap: 'wrap',
         gap: space['2'],
     },
-    result: {
+    resultRow: {
         display: 'flex',
         alignItems: 'center',
         gap: space['4'],
     },
-    image: {
-        width: '80px',
-        height: '80px',
+    imageWrapper: {
+        width: '5rem',
         flexShrink: 0,
-        borderRadius: '6px',
-        borderWidth: '1px',
-        borderStyle: 'solid',
-        borderColor: `color-mix(in oklab, ${surface.foreground} 20%, transparent)`,
-        imageRendering: 'pixelated',
-        display: 'block',
     },
-    size: {
-        margin: 0,
+    image: {
+        width: '100%',
+        borderRadius: '0.25rem',
+        borderWidth: '1px',
+        borderStyle: 'solid' as const,
+        borderColor: `color-mix(in oklab, ${colors.neutral} 25%, transparent)`,
+    },
+    dimensions: {
+        opacity: 0.6,
         fontSize: typography.fontSizeXs,
-        color: `color-mix(in oklab, ${surface.foreground} 60%, transparent)`,
     },
 });
 
@@ -77,7 +76,6 @@ function ResizeDemo({ sourceData }: { sourceData: ImageData | null }) {
                         key={m.id}
                         color={selected === m.id ? 'aurora' : 'neutral'}
                         background={selected === m.id ? 'solid' : 'soft'}
-                        border="subtle"
                         onClick={() => {
                             setSelected(m.id);
                         }}
@@ -87,17 +85,18 @@ function ResizeDemo({ sourceData }: { sourceData: ImageData | null }) {
                 ))}
             </div>
 
-            <div {...stylex.props(styles.result)}>
-                <div>
+            <div {...stylex.props(styles.resultRow)}>
+                <div {...stylex.props(styles.imageWrapper)}>
                     <img
                         src={result[0] ? (imageDataToUrl(result[0]) ?? '') : ''}
                         alt="resized"
+                        style={{ imageRendering: 'pixelated' }}
                         {...stylex.props(styles.image)}
                     />
                 </div>
-                <p {...stylex.props(styles.size)}>
+                <div {...stylex.props(styles.dimensions)}>
                     {result[0]?.width}×{result[0]?.height}
-                </p>
+                </div>
             </div>
         </div>
     );

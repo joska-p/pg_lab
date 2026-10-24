@@ -1,35 +1,27 @@
 import { Badge } from '@repo/ui/components/Badge';
 import { Card } from '@repo/ui/components/Card';
-import { SectionHeading } from '@repo/ui/components/SectionHeading';
+import { Stack } from '@repo/ui/components/Stack';
+import { Text } from '@repo/ui/components/Text';
 import { surfaceStyles } from '@repo/ui/recipes/surface';
+import { heading } from '@repo/ui/recipes/typography';
 import { space, typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
+import type { ColorNames } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
 
+import type { ManipInfo } from '../../data/pipeline-docs-data';
 import { CodeBlock } from '../CodeBlock';
-import type { ManipInfo } from '../data/pipeline-docs-data';
 import { TryItOut } from '../demos/TryItOut';
 import { ParamTable } from '../ParamTable';
 
-const TYPE_COLOR: Record<
-    string,
-    'neutral' | 'aurora' | 'solder' | 'purple' | 'amber' | 'aqua' | 'orange'
-> = {
-    pixel: 'aurora',
+// Maps manipulation access type → ui color name
+const TYPE_COLOR: Record<string, ColorNames> = {
+    pixel: 'purple',
     neighborhood: 'solder',
-    global: 'aqua',
-    pipeline: 'aurora',
-    internals: 'purple',
-    overview: 'neutral',
-};
-
-const TYPE_LABEL: Record<string, string> = {
-    pixel: 'PIXEL',
-    neighborhood: 'NEIGHBOR',
-    global: 'GLOBAL',
-    pipeline: 'PIPELINE',
-    internals: 'INTERNALS',
-    overview: 'OVERVIEW',
+    global: 'aurora',
+    pipeline: 'amber',
+    internals: 'orange',
+    overview: 'aqua',
 };
 
 const styles = stylex.create({
@@ -38,7 +30,7 @@ const styles = stylex.create({
         flexDirection: 'column',
         gap: space['6'],
     },
-    header: {
+    badgeRow: {
         display: 'flex',
         alignItems: 'center',
         gap: space['3'],
@@ -47,48 +39,34 @@ const styles = stylex.create({
         margin: 0,
         fontSize: typography.fontSize2xl,
         fontWeight: typography.fontWeightBold,
-        color: surface.foreground,
-    },
-    description: {
-        margin: 0,
-        maxWidth: '48ch',
-        fontSize: typography.fontSizeSm,
-        color: `color-mix(in oklab, ${surface.foreground} 60%, transparent)`,
     },
     path: {
-        margin: 0,
+        opacity: 0.45,
         fontSize: typography.fontSizeXs,
-        color: `color-mix(in oklab, ${surface.foreground} 50%, transparent)`,
     },
-    noteBox: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: space['2'],
-        borderRadius: '8px',
+    howItWorks: {
+        borderRadius: '0.5rem',
         borderWidth: '1px',
         borderStyle: 'solid',
-        borderColor: `color-mix(in oklab, ${surface.foreground} 20%, transparent)`,
-        backgroundColor: `color-mix(in oklab, ${surface.foreground} 10%, transparent)`,
+        borderLeftWidth: '2px',
+        borderColor: `color-mix(in oklab, ${surface.foreground} 12%, transparent)`,
         padding: space['4'],
-        maxWidth: '48ch',
+        maxWidth: '42rem',
     },
-    noteHeading: {
-        margin: 0,
-        fontSize: typography.fontSizeXs,
-        fontWeight: typography.fontWeightSemibold,
-        letterSpacing: typography.letterSpacingWide,
-        textTransform: 'uppercase',
-        color: surface.foreground,
+    howItWorksTitle: {
+        marginBottom: space['2'],
     },
-    noteText: {
-        margin: 0,
-        fontSize: typography.fontSizeSm,
-        color: `color-mix(in oklab, ${surface.foreground} 60%, transparent)`,
-    },
-    codeSample: {
+    section: {
         display: 'flex',
         flexDirection: 'column',
-        gap: space['2'],
+        gap: space['3'],
+    },
+    sectionTitle: {
+        display: 'inline-block',
+        borderBottomWidth: '2px',
+        borderBottomStyle: 'solid' as const,
+        borderBottomColor: `color-mix(in oklab, ${surface.foreground} 30%, transparent)`,
+        paddingBottom: space['1'],
     },
 });
 
@@ -125,36 +103,37 @@ function ManipView({
     ];
 
     return (
-        <div {...stylex.props(styles.root)}>
-            <div {...stylex.props(styles.header)}>
-                <Badge color={color} background="solid" radius="full">
-                    {TYPE_LABEL[manip.type] ?? manip.type}
+        <Stack gap="6" {...stylex.props(styles.root)}>
+            <div {...stylex.props(styles.badgeRow)}>
+                <Badge color={color}>
+                    {manip.type === 'neighborhood' ? 'NEIGHBOR' : manip.type.toUpperCase()}
                 </Badge>
-                <h1 {...stylex.props(styles.title)}>{manip.label}</h1>
+                <h2 {...stylex.props(styles.title)}>{manip.label}</h2>
             </div>
-            <p {...stylex.props(styles.description)}>{manip.description}</p>
+
+            <Text variant="muted">{manip.description}</Text>
             <p {...stylex.props(styles.path)}>{manip.path}</p>
 
             <div
                 {...stylex.props(
-                    styles.noteBox,
-                    surfaceStyles({ color, background: 'soft', border: 'strong', radius: 'md' }),
+                    styles.howItWorks,
+                    surfaceStyles({ color, background: 'soft', border: 'subtle' }),
                 )}
             >
-                <p {...stylex.props(styles.noteHeading)}>How It Works</p>
-                <p {...stylex.props(styles.noteText)}>{manip.longDescription}</p>
+                <h3 {...stylex.props(heading.level3, styles.howItWorksTitle)}>How It Works</h3>
+                <Text variant="muted">{manip.longDescription}</Text>
             </div>
 
             {manip.params && manip.params.length > 0 && (
-                <section>
-                    <SectionHeading title="Parameters" color={color} />
+                <section {...stylex.props(styles.section)}>
+                    <h3 {...stylex.props(heading.level3)}>Parameters</h3>
                     <ParamTable params={manip.params} />
                 </section>
             )}
 
-            <section>
-                <SectionHeading title="Try It Out" color={color} />
-                <Card color={color} background="soft" border="strong" radius="md">
+            <section {...stylex.props(styles.section)}>
+                <h3 {...stylex.props(heading.level3, styles.sectionTitle)}>Try It Out</h3>
+                <Card>
                     <TryItOut
                         sourceData={sourceData}
                         manip={manip}
@@ -164,11 +143,11 @@ function ManipView({
                 </Card>
             </section>
 
-            <section {...stylex.props(styles.codeSample)}>
-                <SectionHeading title="Code Sample" color={color} />
+            <section {...stylex.props(styles.section)}>
+                <h3 {...stylex.props(heading.level3, styles.sectionTitle)}>Code Sample</h3>
                 <CodeBlock code={codeLines.join('\n')} />
             </section>
-        </div>
+        </Stack>
     );
 }
 
