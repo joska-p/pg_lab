@@ -293,6 +293,7 @@ const reactPackages = [
     'packages/palette/**',
     'packages/pixel-manipulator/**',
     'packages/randomart/**',
+    'packages/sequencer/**',
     'packages/smith-tutle/**',
     'packages/ui/**',
 ];

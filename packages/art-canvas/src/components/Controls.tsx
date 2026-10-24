@@ -1,3 +1,4 @@
+import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Select } from '@repo/ui/components/Select';
 import { Suspense } from 'react';
@@ -16,7 +17,7 @@ export function Controls() {
     const { Controls, label } = EXPERIMENTS[experimentKey];
 
     return (
-        <>
+        <ControlPanel>
             <Select
                 label="Experiment"
                 value={experimentKey}
@@ -30,6 +31,6 @@ export function Controls() {
                     </Suspense>
                 </ControlSection>
             )}
-        </>
+        </ControlPanel>
     );
 }
