@@ -19,6 +19,25 @@ const styles = stylex.create({
     },
 });
 
+const openStyle = stylex.create({
+    path: {
+        animationName: animation,
+        animationDuration: '20s',
+        animationTimingFunction: 'linear',
+        animationIterationCount: 'infinite',
+    },
+});
+
+const closedStyle = stylex.create({
+    path: {
+        animationName: animation,
+        animationDuration: '15s',
+        animationTimingFunction: 'linear',
+        animationIterationCount: 'infinite',
+        animationDirection: 'reverse',
+    },
+});
+
 interface AtlasPathsProps extends React.ComponentProps<'svg'> {
     seed?: number;
     color?: ColorNames;
@@ -26,28 +45,8 @@ interface AtlasPathsProps extends React.ComponentProps<'svg'> {
 
 export function AtlasPaths({ seed = 42, color = 'amber' }: AtlasPathsProps) {
     const paths = generateAtlasPaths(seed);
+
     const pathColor = colors[color];
-
-    const openStyle = stylex.create({
-        path: {
-            strokeDasharray: `${paths.openPathsLength} ${paths.openPathsLength}`,
-            animationName: animation,
-            animationDuration: '20s',
-            animationTimingFunction: 'linear',
-            animationIterationCount: 'infinite',
-        },
-    });
-
-    const closedStyle = stylex.create({
-        path: {
-            strokeDasharray: `${paths.closedPathsLength} ${paths.closedPathsLength}`,
-            animationName: animation,
-            animationDuration: '15s',
-            animationTimingFunction: 'linear',
-            animationIterationCount: 'infinite',
-            animationDirection: 'reverse',
-        },
-    });
 
     return (
         <svg viewBox="0 0 300 300" preserveAspectRatio="none" {...stylex.props(styles.base)}>
@@ -58,6 +57,7 @@ export function AtlasPaths({ seed = 42, color = 'amber' }: AtlasPathsProps) {
                 strokeWidth="0.6"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                style={{ strokeDasharray: `${paths.openPathsLength} ${paths.openPathsLength}` }}
                 {...stylex.props(openStyle.path)}
             />
             <path
@@ -67,6 +67,7 @@ export function AtlasPaths({ seed = 42, color = 'amber' }: AtlasPathsProps) {
                 strokeWidth="0.6"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                style={{ strokeDasharray: `${paths.closedPathsLength} ${paths.closedPathsLength}` }}
                 {...stylex.props(closedStyle.path)}
             />
             {paths.dots.map((dot, i) => (
