@@ -3,15 +3,15 @@ import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { shellBackground } from '../recipes/shellBackground';
 import type { ShellBackground } from '../recipes/shellBackground';
-import { surface } from '../tokens/surface.stylex';
+import { colors, onColors } from '../tokens/tint.stylex';
 
 const styles = stylex.create({
     base: {
         width: '100%',
         height: '100dvh',
         boxSizing: 'border-box',
-        backgroundColor: surface.background,
-        color: surface.foreground,
+        backgroundColor: colors.neutral,
+        color: onColors.neutral,
     },
 });
 
