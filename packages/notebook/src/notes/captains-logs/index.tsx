@@ -536,6 +536,221 @@ export function CaptainsLogs() {
             <p>
                 <strong>Fin du journal.</strong>
             </p>
+
+            <hr />
+
+            <h2>Captain's Log: Stardate 2026.264</h2>
+
+            <p>
+                <strong>Date:</strong> 2026-09-21
+                <br />
+                <strong>Localisation :</strong> Atelier des mini-apps & Forge glaze3d
+                <br />
+                <strong>Sujet :</strong> Rentrée de septembre — migrations en rafale et naissance de
+                glaze3d
+            </p>
+
+            <p>
+                Septembre a ouvert ses portes à une troupe d'immigrants. Le module{' '}
+                <code>automa</code> a quitté son nid solo pour devenir un paquet à part entière :
+                moteur, grilles, créatures et stores transplantés, imports <code>glaze</code>{' '}
+                rééclatés en <code>core/render</code>, <code>core/time</code>,{' '}
+                <code>core/geometry</code>, sans plus aucune trace de <code>core/types</code>{' '}
+                orphelin. Le canvas <code>CellMesh</code> bat déjà au rythme de la simulation.
+            </p>
+
+            <p>
+                <code>art-canvas</code> s'est installé pour de bon : chargement paresseux des
+                expériences, transparence, boutons colorés, démonstrations dans l'environnement de
+                développement, et un premier <code>ErrorBoundary</code> de garde.{' '}
+                <code>mosaic-maker</code>, de son côté, a subi les critiques une à une : plans de
+                migration écrits puis purgés, assets réorganisés en <code>src/assets</code> via{' '}
+                <code>import.meta.glob</code>, navigation minimale par bouton Menu, et plusieurs
+                passes de critique qui ont affûté l'interface.
+            </p>
+
+            <p>
+                Parallèlement, <code>glaze3d</code> s'est forgé de toutes pièces — de S1 à S9 :
+                objets, caméras, géométries sphères et cylindres, matériau Phong, renderer avec
+                éclairage directionnel, contrôles d'orbite. Les démos moléculaires sont les
+                premières à en profiter.
+            </p>
+
+            <p>
+                <code>mol-demo</code> a posé ses atomes : parsing V2000 strict, facteurs de forme,
+                maillages construits, viewer à contrôles d'orbite, puis un pattern de diffraction en
+                WebGL2 calé sur la caméra, jusqu'à un profil GPU qui clôt le budget basse priorité
+                sans effort. Un générateur de mini-apps est né au passage, standardisant la mise en
+                cale des futurs vaisseaux.
+            </p>
+
+            <p>
+                <em>Journal clos.</em>
+            </p>
+
+            <hr />
+
+            <h2>Captain's Log: Stardate 2026.265</h2>
+
+            <p>
+                <strong>Date:</strong> 2026-09-22
+                <br />
+                <strong>Localisation :</strong> Secteur Fracture & Salle des machines automa
+                <br />
+                <strong>Sujet :</strong> Précision infinie et contrôles à visages multiples
+            </p>
+
+            <p>
+                Le secteur <code>Fracture</code> a livré une réécriture complète du navigateur
+                Mandelbrot. Quatre microscopes de précision — naïf f32, double-split, perturbation
+                et référence partagée — cohabitent désormais. Chaque module porte son store complet
+                et auto-suffisant ; plus aucun emprunt entre eux.
+            </p>
+
+            <p>
+                Les shaders ont été portés avec un diff sémantique nul ; les surfaces{' '}
+                <code>GpuSurface</code> et les caméras partagées synchronisent les variations. Les
+                paramètres d'orbite (zooms jusqu'à 1e15) et les presets de points remarquables font
+                de chaque module un poste d'observation autonome.
+            </p>
+
+            <p>
+                Côté <code>automa</code>, les sections de contrôle — Edit, Rule, Creature — ont été
+                refaites selon la même recette, avec six familles colorées pour distinguer les
+                commandes. Le monorepo respire mieux, et les builds paresseux découpent proprement
+                les chunks lourds.
+            </p>
+
+            <p>
+                <em>Journal clos.</em>
+            </p>
+
+            <hr />
+
+            <h2>Captain's Log: Stardate 2026.272</h2>
+
+            <p>
+                <strong>Date:</strong> 2026-09-29
+                <br />
+                <strong>Localisation :</strong> Baie de configuration du monorepo
+                <br />
+                <strong>Sujet :</strong> Socle Vite+ consolidé et exports uniformes
+            </p>
+
+            <p>
+                Fin septembre, le chantier a porté sur les fondations. Les exports des paquets ont
+                été unifiés sous une condition <code>source → ./src</code>, avec des cartes
+                d'exports explicites et <code>dist/</code> construit. Chaque module expose désormais{' '}
+                <code>Scene</code> et <code>Controls</code> séparément, laissant le terrain de jeu
+                recomposer menus et navigation par hash sans connaître les paquets.
+            </p>
+
+            <p>
+                Le socle TypeScript s'est éclaté en bases app, node et lib ; le paquet{' '}
+                <code>internal-config</code> abrite les présents partagés ; les conditions custom
+                sont enfin respectées, sans plus obliger à builder les libs avant de typer
+                l'application.
+            </p>
+
+            <p>
+                La charte des règles s'est durcie : lint sur les imports et les hooks React,
+                conditions workspace explicites, et un générateur de mini-apps aligné sur le modèle.{' '}
+                <code>ui-next</code> a quitté son berceau pour devenir son propre paquet ; les cases
+                à cocher sont des natives survolées par un hook <code>useTheme</code>, et le
+                sélecteur de thème s'installe dans la coque.
+            </p>
+
+            <p>
+                <em>Journal clos.</em>
+            </p>
+
+            <hr />
+
+            <h2>Captain's Log: Stardate 2026.296</h2>
+
+            <p>
+                <strong>Date:</strong> 2026-10-23
+                <br />
+                <strong>Localisation :</strong> Forge randomart & Raffinerie des types
+                <br />
+                <strong>Sujet :</strong> Randomart — grande forge, quantification et purification
+            </p>
+
+            <p>
+                <code>randomart</code> a été remis sur cale le 9 octobre. Un nouveau moteur sans
+                état prend forme : catalogue de 19 opérateurs, expression, grammaire et générateur
+                purs (MP1), puis un abaissement en DAG, la multiplicité des contextes et l'émission
+                GLSL (MP2), enfin l'animation et la lecture (MP3). Les politiques de partage des
+                contextes (none/shared/all), les contextes internés et l'isolation sont éprouvés par
+                plus d'une centaine de tests.
+            </p>
+
+            <p>
+                Puis le lot quantification : une grammaire unique par défaut remplace le couple
+                static/animated, le temps revient dans les terminaux <code>x</code> et{' '}
+                <code>y</code>, et la recette d'opérateur est partagée entre banc et labo. La
+                grammaire devient un état de premier rang : quatre actions, historique de 30 pas,
+                import/export JSON versionné, résumé dans le panneau.
+            </p>
+
+            <p>
+                La purification suit : suppression des barrels morts, centralisation des types et
+                constantes module par module, renommage des concepts (<code>color</code>,{' '}
+                <code>CUSTOM_PRESET</code>), suppression des mots français résiduels, et un audit de
+                cohérence dédié accompagné d'un skill de dry-refactoring.
+            </p>
+
+            <p>
+                Le panneau se scinde en visages toy, lab et bench ; un composant <code>Grid</code>
+                s'installe ; le pipeline couleur se documente dans son propre carnet. Les fondations
+                techniques accompagnent le tout : passage à Vite+ renové, activation du lint
+                import/react et conformité monorepo (15 octobre), puis React Router en HashRouter,
+                configuration centralisée et compilateur Oxc React. Les tests fuzz (300 cas) et les
+                dumps GLSL gardent la mécanique honnête.
+            </p>
+
+            <p>
+                <em>Journal clos.</em>
+            </p>
+
+            <hr />
+
+            <h2>Captain's Log: Stardate 2026.298</h2>
+
+            <p>
+                <strong>Date:</strong> 2026-10-25
+                <br />
+                <strong>Localisation :</strong> Tous secteurs — grand débarquement
+                <br />
+                <strong>Sujet :</strong> La moisson d'octobre : ports en rafale et carnet branché
+            </p>
+
+            <p>
+                Les 24 et 25, les derniers paquets sont montés à bord. <code>palette</code> fusionne
+                enfin moteur et générateur ; <code>oeis-signal</code> bascule ; <code>pixel</code>{' '}
+                et son frère <code>pixel-manipulator</code> débarquent en StyleX ;{' '}
+                <code>sequencer</code> embarque son moteur et son renderer ; <code>string-art</code>{' '}
+                porte son app de référence aux conventions du repo ; <code>three-stage</code> et{' '}
+                <code>smith-tuttle</code> prennent place tels quels ;{' '}
+                <code>radu-machine-learning</code> revient en paquet avec son atelier. Un premier
+                visuel <code>atlaspaths</code> s'accroche au mur des chartes.
+            </p>
+
+            <p>
+                Le playground s'équipe pour le voyage lointain : configuration Vite taillée pour
+                Vercel et GitHub Pages, et un carnet de bord cru mais branché, sans style encore,
+                pour lire ces lignes le matin. Le vaisseau est complet ; il ne reste qu'à le polir.
+            </p>
+
+            <p>
+                <em>
+                    Prochain objectif : polir le carnet de bord et reprendre les affûtages de rendu.
+                </em>
+            </p>
+
+            <p>
+                <strong>Fin du journal.</strong>
+            </p>
         </article>
     );
 }
