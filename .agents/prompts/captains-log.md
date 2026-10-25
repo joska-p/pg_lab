@@ -22,42 +22,53 @@ Zéro faute d'orthographe. Zéro commentaire méta sur le processus d'écriture 
 
 # Archives & structure
 
-## Une seule page, un seul composant
+## Une page composée, un fichier par entrée
 
-Le Journal tient dans un unique composant React :
+Le Journal est rendu par `packages/notebook/src/notes/captains-logs/index.tsx` → `CaptainsLogs`, mais **chaque entrée vit dans son propre fichier** sous `packages/notebook/src/notes/captains-logs/logs/` (ex. `stardate-YYYY-NNN.tsx`). L'index n'est qu'un registre triant les entrées par date.
 
-`packages/notebook/src/notes/captains-logs/index.tsx` → `CaptainsLogs`
+Pour ajouter une entrée :
 
-Toute nouvelle entrée s'écrit dans ce fichier, à la suite des précédentes. Découpage par épisode si besoin, pas de frontmatter.
+1. Créer `logs/stardate-YYYY-NNN.tsx` selon le template ci-dessous.
+2. L'importer et l'ajouter à `CAPTAIN_LOGS` dans `logs.ts`, dans l'ordre chronologique.
 
-## Markup d'une entrée
+La date reste la SSOT. Les entrées dupliquées (même stardate) sont à éviter — si besoin, prends un jour supplémentaire et le stardate correspondant.
 
-HTML sémantique brut, sans classes ni styles — le design viendra plus tard. Ne produis jamais de Markdown : la source est le TSX.
+## Markup d'une entrée (format data-driven)
+
+Chaque fichier exporte une valeur `CaptainLog` (voir `types.ts`). Contenu JSX brut (pas de classes ni styles), pas de Markdown.
 
 ```tsx
-<h2>Captain's Log: Stardate YYYY.NNN</h2>
+import type { CaptainLog } from '../types';
 
-<p>
-    <strong>Date:</strong> YYYY-MM-DD
-    <br />
-    <strong>Localisation :</strong> Secteur …
-    <br />
-    <strong>Sujet :</strong> …
-</p>
+export const logYYYYNNN: CaptainLog = {
+    id: 'stardate-YYYY-NNN',
+    stardate: 'YYYY.NNN',
+    date: 'YYYY-MM-DD',
+    headingSuffix: undefined, // ex. 'Supplément', optionnel
+    details: [
+        { label: 'Localisation', value: <>Secteur …</> },
+        { label: 'Sujet', value: <>…</> },
+    ],
+    content: (
+        <>
+            <p>…</p>
 
-<p>…</p>
-
-<p>
-    <em>Journal clos.</em>
-</p>
-
-<hr />
+            <p>
+                <em>Journal clos.</em>
+            </p>
+        </>
+    ),
+};
 ```
 
-- `Date` est obligatoire. `Localisation` et `Sujet` sont optionnels.
+- `Date` est obligatoire (champ `date: 'YYYY-MM-DD'`). `Localisation` et `Sujet` sont optionnels (omettre du tableau `details`).
 - Les paragraphes peuvent contenir `<strong>`, `<em>`, `<code>`, `<ul>`/`<li>`, `<blockquote>`.
-- Les entrées sont séparées par `<hr />`.
+- `content` utilise du HTML sémantique brut.
 - Respecte l'indentation de 4 espaces et le formatage déjà en place.
+- Ne pas ajouter de `<hr />` : la séparation et le tri sont gérés par `index.tsx`.
+```
+
+Need replace the old block from "## Markup d'une entrée" through end of Markup section (up to Fenêtre temporelle). I'll do another edit for the old Markup section.
 
 # Fenêtre temporelle — précision d'horloger, jamais de devinette
 
@@ -89,7 +100,7 @@ N'entretiens **aucun** fichier "bible" séparé. Les logs sont le canon.
 # Workflow d'exécution
 
 1. **Figer la date** — `date +%F`. Convertir en stardate si besoin de référence (`date -d … +%j`).
-2. **Contexte** — lire les dernières entrées de `packages/notebook/src/notes/captains-logs/index.tsx`.
+2. **Contexte** — lire les dernières entrées via `packages/notebook/src/notes/captains-logs/logs.ts` et les fichiers `logs/*.tsx` correspondants.
 3. **Fenêtre** — appliquer le calcul ci-dessus, puis :
     ```bash
     git log --since="${DELTA} days ago" --pretty=format:"%ad | %s" --date=short
@@ -100,7 +111,7 @@ N'entretiens **aucun** fichier "bible" séparé. Les logs sont le canon.
     ```
 5. **Résumé console** — en français, affiche en console un résumé factuel de ce que montre le `git log` : période couverte, arcs thématiques repérés, commits clés. C'est pour ton contexte, pas pour le fichier.
 6. **Clustering** — regroupe les commits en 3-6 arcs thématiques. Chaque arc devient une entrée. Un arc "anomalie isolée" peut rester une entrée courte.
-7. **Écriture** — insère les nouvelles entrées à la fin du `<article>`, après les entrées existantes, en respectant le markup ci-dessus.
+7. **Écriture** — pour chaque arc, créer `logs/stardate-YYYY-NNN.tsx`, puis l'importer et l'ajouter à `CAPTAIN_LOGS` dans `logs.ts` (ordre chronologique). Respecter le template ci-dessus.
 8. **Vérification** — lance :
     ```bash
     vp -C packages/notebook check
@@ -113,6 +124,6 @@ Des contraintes, non pas pour entraver, mais pour sculpter — c'est dans leur c
 
 - **Aucune inspection de code complète** : ne relis pas des fichiers source entiers. Base-toi uniquement sur les sorties `git log` (messages + `--stat` ciblé) pour déduire anomalies, sector sweeps et warp core upgrades. Tu peux néanmoins lire les docs/notes associées à un commit si le besoin narratif l'exige — et le Journal lui-même pour la continuité.
 - **La date est la SSOT** : l'horloge est l'ancre immuable de la timeline.
-- **Une seule page** : tout le Journal vit dans `captains-logs/index.tsx`. Pas de pagination, pas de fichier par épisode, pas de navigation supplémentaire.
+- **Un fichier par entrée** : chaque log vit dans `captains-logs/logs/stardate-YYYY-NNN.tsx` ; tout le Journal est composé dans `captains-logs/index.tsx` via `logs.ts`. Pas de pagination. Le tri par date est géré par le store dédié.
 - **HTML sémantique brut** : pas de classes, pas de styles, pas de composants décoratifs. Le design viendra après.
 - **Pas de commentaires non sollicités** : pas de méta-commentaire sur le processus d'écriture dans les fichiers du journal.

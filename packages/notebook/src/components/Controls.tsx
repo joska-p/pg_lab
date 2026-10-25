@@ -1,6 +1,7 @@
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Segmented } from '@repo/ui/components/Segmented';
 
+import { Commands } from '../notes/captains-logs/commands';
 import type { NoteSlug } from '../stores/appStore';
 import { useSelectedNoteSlug, setSelectedNoteSlug } from '../stores/appStore';
 
@@ -19,6 +20,7 @@ export function Controls() {
                     { value: 'captains-logs', label: 'captains logs' },
                 ]}
             />
+            {selectedNoteSlug === 'captains-logs' ? <Commands /> : null}
         </ControlSection>
     );
 }
