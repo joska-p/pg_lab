@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type NoteSlug = 'birth-of-complexity';
+export type NoteSlug = 'birth-of-complexity' | 'genese' | 'captains-logs';
 
 interface appStore {
     selectedNoteSlug: NoteSlug;

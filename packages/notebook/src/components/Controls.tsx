@@ -13,7 +13,11 @@ export function Controls() {
                 color="orange"
                 value={selectedNoteSlug}
                 onValueChange={(val) => setSelectedNoteSlug(val as NoteSlug)}
-                options={[{ value: 'birth-of-complexity', label: 'birth of complexity' }]}
+                options={[
+                    { value: 'birth-of-complexity', label: 'birth of complexity' },
+                    { value: 'genese', label: 'généalogie' },
+                    { value: 'captains-logs', label: 'captains logs' },
+                ]}
             />
         </ControlSection>
     );

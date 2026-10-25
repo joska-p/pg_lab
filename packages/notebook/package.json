@@ -6,7 +6,7 @@
     "exports": {
         "./App": "./src/App.tsx",
         "./Scene": "./src/components/Scene.tsx",
-        "./Controls": "./src/components/controls/Controls.tsx"
+        "./Controls": "./src/components/Controls.tsx"
     },
     "scripts": {
         "dev": "vp dev",
