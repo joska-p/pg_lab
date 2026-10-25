@@ -58,6 +58,9 @@
         "packages/sequencer": {
             "project": ["src/**/*.{ts,tsx}"]
         },
+        "packages/three-stage": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
         "packages/smith-tutle": {
             "project": ["src/**/*.{ts,tsx}"]
         },

@@ -7,6 +7,7 @@ import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
 import { useEffect } from 'react';
 
+import { GetStarted } from './components/GetStarted';
 import { useTheme, setTheme } from './stores/appStore';
 
 export function App() {
@@ -33,7 +34,7 @@ export function App() {
                     }
                 >
                     <Stage label="three-stage">
-                        <h1>three-stage</h1>
+                        <GetStarted />
                     </Stage>
                 </ExperimentShell>
             </ErrorBoundary>
