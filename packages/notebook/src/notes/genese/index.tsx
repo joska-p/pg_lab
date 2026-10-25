@@ -3,7 +3,6 @@ export function Genese() {
         <article>
             <header>
                 <h1>Généalogie d'un Système</h1>
-                <p>Hallucination collective.</p>
             </header>
 
             <h2>1. La Graine (Note originale, il y a quelques années)</h2>
@@ -56,8 +55,7 @@ export function Genese() {
 
             <h2>3. Dump de l'hallucination</h2>
 
-            <pre>
-                <code>{`# Primordial Noise
+            <code>{`# Primordial Noise
 
 _A generative movement — noise as the seed of all cosmic structure._
 
@@ -72,7 +70,6 @@ The algorithm resolves at the intersection of cosmology and generative art. A no
 This is not random scatter. It is controlled chaos, the product of deeply calibrated noise mathematics tuned by a master hand. The distribution of stars follows a rigorous physical metaphor — not placed, but _condensed_ from the noise field. Clusters exhibit realistic falloffs. Voids are truly void. The color temperature shifts across the canvas as though observed through different interstellar media. Every parameter adjusts a real degree of freedom in this virtual cosmology, and the interplay between them produces an infinite family of unique but related universes — each one a snapshot of structure emerging from noise.
 
 What we offer is not a static image but a cosmology engine. The viewer adjusts a seed and watches an entire patch of sky re-form from primordial fluctuations. They tweak the noise scale and watch the cosmic web stretch or contract. They adjust the color palette and see the stars age from blue-white giants to red dwarfs. The algorithm is the universe; the parameters are the laws of physics; the seed is the initial condition. Every run is a new genesis, computationally rendered from the same elegant, meticulously crafted source.`}</code>
-            </pre>
         </article>
     );
 }

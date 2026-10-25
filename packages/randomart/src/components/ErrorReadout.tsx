@@ -2,7 +2,7 @@ import { ControlField } from '@repo/ui/components/ControlField';
 import { Grid } from '@repo/ui/components/Grid';
 import { Text } from '@repo/ui/components/Text';
 
-import { useActionError, useShaderError } from '../stores/lab/labStore';
+import { useActionError, useShaderError } from '../stores/labStore';
 
 /**
  * Action and shader failures, kept visible in every face: in Toy a broken shader must not be silent

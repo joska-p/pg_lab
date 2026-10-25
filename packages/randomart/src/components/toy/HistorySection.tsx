@@ -4,7 +4,7 @@ import { Text } from '@repo/ui/components/Text';
 import { space } from '@repo/ui/tokens/const.stylex';
 import * as stylex from '@stylexjs/stylex';
 
-import { restoreEntry, useCurrentId, useHistory } from '../../stores/lab/labStore';
+import { restoreEntry, useCurrentId, useHistory } from '../../stores/labStore';
 
 const styles = stylex.create({
     list: {
@@ -17,7 +17,6 @@ const styles = stylex.create({
     },
 });
 
-/** Walks back through past candidates. Toy's history, always visible under the transport. */
 export function HistorySection() {
     const history = useHistory();
     const currentId = useCurrentId();

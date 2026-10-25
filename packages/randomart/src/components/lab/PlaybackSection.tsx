@@ -10,10 +10,9 @@ import {
     useCanAnimate,
     useClockStore,
     useDuration,
-} from '../../stores/lab/labStore';
+} from '../../stores/labStore';
 import { PlayToggleButton } from '../PlayToggleButton';
 
-/** Playback: play/pause, reset and the loop duration. Generation and export live elsewhere. */
 export function PlaybackSection() {
     const clockStore = useClockStore();
     const canAnimate = useCanAnimate();

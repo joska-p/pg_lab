@@ -1,16 +1,11 @@
 import { create } from 'zustand';
 
-import type { AppMode } from './types';
+export type AppMode = 'toy' | 'lab';
 
 interface ModeState {
     mode: AppMode;
 }
 
-/**
- * The app's own mode. It lives in the app package — not in Lab or Bench — so `Scene` and `Controls`
- * can be mounted independently (the playground imports each module on its own) while still sharing
- * which face of randomart is active.
- */
 const store = create<ModeState>(() => ({
     mode: 'toy',
 }));

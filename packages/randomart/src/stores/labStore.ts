@@ -6,29 +6,29 @@ import type { ClockStore } from '@repo/glaze/react/types';
 import { useSyncExternalStore } from 'react';
 import { create } from 'zustand';
 
-import { createArtwork } from '../../core/artwork/create';
-import { checkProvenance } from '../../core/artwork/provenance';
-import { parseArtworkFile, serializeArtworkFile } from '../../core/artwork/serialize';
-import type { ProvenanceCheck, Artwork } from '../../core/artwork/types';
-import { catalog } from '../../core/catalog/default';
-import type { OperatorId } from '../../core/catalog/types';
-import { compile } from '../../core/compiler/compile';
-import type { CompiledShader } from '../../core/compiler/types';
-import { CONFIG } from '../../core/config/config';
+import { createArtwork } from '../core/artwork/create';
+import { checkProvenance } from '../core/artwork/provenance';
+import { parseArtworkFile, serializeArtworkFile } from '../core/artwork/serialize';
+import type { ProvenanceCheck, Artwork } from '../core/artwork/types';
+import { catalog } from '../core/catalog/default';
+import type { OperatorId } from '../core/catalog/types';
+import { compile } from '../core/compiler/compile';
+import type { CompiledShader } from '../core/compiler/types';
+import { CONFIG } from '../core/config/config';
 import {
     DEFAULT_LOOP_DURATION,
     MAX_LOOP_DURATION,
     MIN_LOOP_DURATION,
-} from '../../core/config/derived';
-import type { ColorSpaceId, SizeProfileId } from '../../core/config/types';
-import type { Expression } from '../../core/expression/types';
-import { generate, GENERATOR_VERSION } from '../../core/generator/generator';
-import { channelModelOf, createGrammar } from '../../core/grammar/grammar';
-import { drawGrammar as drawRandomGrammar } from '../../core/grammar/quantized';
-import type { Grammar } from '../../core/grammar/types';
-import { createRng } from '../../core/random/rng';
-import { createSeed, randomSeed } from '../../core/random/seed';
-import type { Seed } from '../../core/random/types';
+} from '../core/config/derived';
+import type { ColorSpaceId, SizeProfileId } from '../core/config/types';
+import type { Expression } from '../core/expression/types';
+import { generate, GENERATOR_VERSION } from '../core/generator/generator';
+import { channelModelOf, createGrammar } from '../core/grammar/grammar';
+import { drawGrammar as drawRandomGrammar } from '../core/grammar/quantized';
+import type { Grammar } from '../core/grammar/types';
+import { createRng } from '../core/random/rng';
+import { createSeed, randomSeed } from '../core/random/seed';
+import type { Seed } from '../core/random/types';
 
 interface HistoryEntry {
     readonly id: number;

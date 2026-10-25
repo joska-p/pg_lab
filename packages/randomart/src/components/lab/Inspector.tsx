@@ -8,7 +8,7 @@ import { colorSpaceRegistry } from '../../core/color/registry';
 import { formatFormula } from '../../core/expression/formula';
 import type { Channel } from '../../core/expression/types';
 import { constraintsOf } from '../../core/grammar/grammar';
-import { useExpression, useGrammar } from '../../stores/lab/labStore';
+import { useExpression, useGrammar } from '../../stores/labStore';
 
 const CHANNELS: readonly Channel[] = ['r', 'g', 'b'];
 

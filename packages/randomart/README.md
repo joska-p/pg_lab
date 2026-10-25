@@ -9,4 +9,3 @@ grammar + seed → expression → GLSL → image
 
 - **Toy** — new image, play/pause, PNG export, and the history of what was seen.
 - **Lab** — seed, grammar weights, size/share, color space, playback, artwork I/O, expression inspector.
-- **Bench** — contact sheets of grammar × seed lots.

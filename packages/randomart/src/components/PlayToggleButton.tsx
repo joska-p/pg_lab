@@ -1,6 +1,6 @@
 import { Button } from '@repo/ui/components/Button';
 
-import { useCanAnimate, useClockStore, useIsPlaying } from '../stores/lab/labStore';
+import { useCanAnimate, useClockStore, useIsPlaying } from '../stores/labStore';
 
 /**
  * The single play/pause control, shared by Toy and Lab. Playback belongs to the clock store, so

@@ -30,7 +30,7 @@ import {
     setGrammarWeight,
     useGrammar,
     useSeed,
-} from '../../stores/lab/labStore';
+} from '../../stores/labStore';
 
 const CUSTOM_PRESET = {
     id: 'custom',

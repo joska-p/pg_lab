@@ -1,15 +1,11 @@
 import { Button } from '@repo/ui/components/Button';
 import { Grid } from '@repo/ui/components/Grid';
 
-import { exportPng, generateImage, useCanvas } from '../../stores/lab/labStore';
+import { exportPng, generateImage, useCanvas } from '../../stores/labStore';
 import { ErrorReadout } from '../ErrorReadout';
 import { PlayToggleButton } from '../PlayToggleButton';
 import { HistorySection } from './HistorySection';
 
-/**
- * The toy face: play with what randomart produces, nothing to configure. Three gestures (new image,
- * play/pause, export) plus the history of what was seen. The grammar workshop lives in Lab.
- */
 export function ToyPanel() {
     const canvas = useCanvas();
 

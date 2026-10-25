@@ -10,7 +10,7 @@ import {
     importArtworkFile,
     useCanvas,
     useProvenanceCheck,
-} from '../../stores/lab/labStore';
+} from '../../stores/labStore';
 
 const PROVENANCE_LABELS: Record<ProvenanceCheck, string> = {
     none: 'No provenance: this artwork was made or edited by hand',
