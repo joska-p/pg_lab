@@ -61,6 +61,13 @@ export const EXPERIMENTS = {
         loadScene: () => import('@repo/fracture/Scene'),
         loadControls: () => import('@repo/fracture/Controls'),
     },
+    'radu-machine-learning': {
+        label: 'radu-machine-learning',
+        panelTitle: 'Radu machine learning',
+        stageLabel: 'Radu machine learning',
+        loadScene: () => import('@repo/radu-machine-learning/Scene'),
+        loadControls: () => import('@repo/radu-machine-learning/Controls'),
+    },
     randomart: {
         label: 'Randomart',
         panelTitle: 'randomart',
