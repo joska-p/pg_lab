@@ -15,6 +15,7 @@
         "@repo/fracture": "workspace:*",
         "@repo/mol-demo": "workspace:*",
         "@repo/mosaic-maker": "workspace:*",
+        "@repo/notebook": "workspace:*",
         "@repo/oeis-signal": "workspace:*",
         "@repo/palette": "workspace:*",
         "@repo/pixel": "workspace:*",

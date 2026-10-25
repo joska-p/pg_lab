@@ -103,6 +103,13 @@ export const EXPERIMENTS = {
         loadScene: () => import('@repo/pixel-manipulator/Scene'),
         loadControls: () => import('@repo/pixel-manipulator/Controls'),
     },
+    notebook: {
+        label: 'Notebook',
+        panelTitle: 'notebook controls',
+        stageLabel: 'notebook',
+        loadScene: () => import('@repo/notebook/Scene'),
+        loadControls: () => import('@repo/notebook/Controls'),
+    },
     sequencer: {
         label: 'sequencer',
         panelTitle: 'Sequencer',
