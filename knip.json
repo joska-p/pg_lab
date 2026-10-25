@@ -39,6 +39,9 @@
         "packages/mosaic-maker": {
             "project": ["src/**/*.{ts,tsx}"]
         },
+        "packages/notebook": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
         "packages/oeis-sgnal": {
             "project": ["src/**/*.{ts,tsx}"]
         },

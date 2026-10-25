@@ -290,6 +290,8 @@ const reactPackages = [
     'packages/glaze/**',
     'packages/mol-demo/**',
     'packages/mosaic-maker/**',
+    'packages/notebook/**',
+    'packages/oeis-sgnal/**',
     'packages/three-stage/**',
     'packages/palette/**',
     'packages/pixel-manipulator/**',
