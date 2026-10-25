@@ -4,7 +4,7 @@ import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { Select } from '@repo/ui/components/Select';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
-import { Suspense, use, useEffect } from 'react';
+import { Activity, Suspense, use, useEffect } from 'react';
 import { Routes, Route, useParams, useNavigate } from 'react-router';
 
 import { EXPERIMENTS, loadControls, loadScene } from './experiments';
@@ -55,18 +55,22 @@ function ExperimentLayout() {
                 <ShellWrapper background={shellBackground}>
                     <ExperimentShell
                         panel={
-                            <ControlPanel>
-                                <Select
-                                    value={currentKey}
-                                    onValueChange={handleSelectChange}
-                                    options={OPTIONS}
-                                />
-                                <Controls />
-                            </ControlPanel>
+                            <Activity>
+                                <ControlPanel>
+                                    <Select
+                                        value={currentKey}
+                                        onValueChange={handleSelectChange}
+                                        options={OPTIONS}
+                                    />
+                                    <Controls />
+                                </ControlPanel>
+                            </Activity>
                         }
                     >
                         <Stage label={exp.stageLabel} {...stageProps}>
-                            <Scene />
+                            <Activity>
+                                <Scene />
+                            </Activity>
                         </Stage>
                     </ExperimentShell>
                 </ShellWrapper>
