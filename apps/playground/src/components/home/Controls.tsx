@@ -1,6 +1,4 @@
 import { Select } from '@repo/ui/components/Select';
-import { useTheme } from '@repo/ui/hooks/useTheme';
-import type { Theme } from '@repo/ui/hooks/useTheme';
 import { shellBackground } from '@repo/ui/recipes/shellBackground';
 import type { ShellBackground } from '@repo/ui/recipes/shellBackground';
 
@@ -15,27 +13,14 @@ const shellBackgroundOptions: {
 }));
 
 export function Controls() {
-    const [theme, setTheme] = useTheme();
     const shellBackground = useShellBackground();
 
     return (
-        <>
-            <Select
-                label="Theme"
-                value={theme}
-                onValueChange={(val) => setTheme(val as Theme)}
-                options={[
-                    { value: 'system', label: 'System' },
-                    { value: 'light', label: 'Light' },
-                    { value: 'dark', label: 'Dark' },
-                ]}
-            />
-            <Select
-                label="Background"
-                value={shellBackground}
-                onValueChange={(val: ShellBackground) => setShellBackground(val)}
-                options={shellBackgroundOptions}
-            />
-        </>
+        <Select
+            label="Background"
+            value={shellBackground}
+            onValueChange={(val: ShellBackground) => setShellBackground(val)}
+            options={shellBackgroundOptions}
+        />
     );
 }

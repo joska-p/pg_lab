@@ -160,6 +160,7 @@ export const layout = stylex.defineConsts({
     panelGap: '12px',
 
     controlTouchTarget: '44px',
+    iconSize: '18px',
 
     toggleTrackWidth: '34px',
     toggleTrackHeight: '20px',

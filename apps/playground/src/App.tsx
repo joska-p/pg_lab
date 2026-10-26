@@ -4,6 +4,7 @@ import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { Select } from '@repo/ui/components/Select';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
+import { ThemeToggle } from '@repo/ui/components/ThemeToggle';
 import { AtlasPaths } from '@repo/ui/visuals/atlas/AtlasPaths';
 import { Activity, Suspense, use, useEffect } from 'react';
 import { Routes, Route, useParams, useNavigate } from 'react-router';
@@ -32,8 +33,7 @@ const OPTIONS = experimentKeys.map((value) => ({
     label: EXPERIMENTS[value].label,
 }));
 
-function ExperimentLayout() {
-    const shellBackground = useShellBackground();
+function Navbar() {
     const { experiment } = useParams<{ experiment: ExperimentKey }>();
     const navigate = useNavigate();
     const currentKey = experiment ?? 'home';
@@ -46,6 +46,24 @@ function ExperimentLayout() {
     const handleSelectChange = (value: ExperimentKey) => {
         navigate(`/${value === 'home' ? '' : value}`);
     };
+
+    return (
+        <>
+            <Select value={currentKey} onValueChange={handleSelectChange} options={OPTIONS} />
+            <ThemeToggle />
+        </>
+    );
+}
+
+function ExperimentLayout() {
+    const shellBackground = useShellBackground();
+    const { experiment } = useParams<{ experiment: ExperimentKey }>();
+    const currentKey = experiment ?? 'home';
+    const exp = EXPERIMENTS[currentKey];
+
+    useEffect(() => {
+        document.title = `${exp.label} · PG_LAB`;
+    }, [exp]);
 
     const sceneModule = use(loadScene(currentKey));
     const controlsModule = use(loadControls(currentKey));
@@ -61,12 +79,7 @@ function ExperimentLayout() {
                     <ExperimentShell
                         panel={
                             <Activity>
-                                <ControlPanel>
-                                    <Select
-                                        value={currentKey}
-                                        onValueChange={handleSelectChange}
-                                        options={OPTIONS}
-                                    />
+                                <ControlPanel action={<Navbar />}>
                                     <Controls />
                                 </ControlPanel>
                             </Activity>
