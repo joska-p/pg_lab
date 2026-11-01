@@ -5,7 +5,6 @@ import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
 
 interface VmCanvasProps {
     fragmentShader: string;
-    animated?: boolean;
     duration?: DurationSeconds;
     onShaderError?: (error: ShaderError | null) => void;
     onMount?: (surface: GpuSurface) => void;
@@ -13,8 +12,6 @@ interface VmCanvasProps {
 
 export function VmCanvas({
     fragmentShader,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    animated: _animated = true,
     duration = 4 as DurationSeconds,
     onShaderError,
     onMount,
