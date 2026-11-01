@@ -302,6 +302,13 @@ const reactPackages = [
     'packages/ui/**',
 ];
 
+const nodePackages = [
+    'packages/randomart/src/dataset/node/**',
+    'packages/palette/core',
+    'packages/randomart-vm/**',
+    'tools/new-mini-app/**',
+];
+
 export default defineConfig({
     defaultPackage: { dev: './apps/playground', build: './apps/playground' },
     test: testConfig,
@@ -359,13 +366,10 @@ export default defineConfig({
                 },
             },
             {
-                files: ['tools/**'],
+                files: nodePackages,
                 ...nodeLint,
             },
-            {
-                files: ['packages/randomart/src/dataset/node/**', 'packages/palette/core'],
-                ...nodeLint,
-            },
+
             {
                 // Config files and CLI templates require default exports.
                 files: ['**/vite.config.ts', 'tools/new-mini-app/src/template.ts'],
