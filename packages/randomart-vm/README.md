@@ -1,4 +1,4 @@
-# Analyse : RandomArt VM & UI
+# RandomArt VM & UI
 
 ## TL;DR
 
