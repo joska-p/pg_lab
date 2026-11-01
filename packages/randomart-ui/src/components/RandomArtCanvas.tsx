@@ -7,9 +7,9 @@ import type { ClockStore } from '@repo/glaze/react/types';
 import { useRef } from 'react';
 import type { CSSProperties } from 'react';
 
-import { createPhase, needsRender } from '../../renderer/renderGate';
-import type { RenderKey } from '../../renderer/renderGate';
-import { DEFAULT_LOOP_DURATION } from '../../stores/vmStore';
+import { createPhase, needsRender } from '../renderer/renderGate';
+import type { RenderKey } from '../renderer/renderGate';
+import { DEFAULT_LOOP_DURATION } from '../stores/vmStore';
 
 const DEFAULT_CONTEXT_OPTIONS: WebGLContextAttributes = {
     antialias: false,

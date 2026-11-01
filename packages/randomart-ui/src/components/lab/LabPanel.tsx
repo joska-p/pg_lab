@@ -1,6 +1,5 @@
 import { Grid } from '@repo/ui/components/Grid';
 
-import { ErrorReadout } from '../ErrorReadout';
 import { ArtworkSection } from './ArtworkSection';
 import { GrammarSection } from './GrammarSection';
 import { Inspector } from './Inspector';
@@ -13,7 +12,6 @@ export function LabPanel() {
             <GrammarSection />
             <ArtworkSection />
             <Inspector />
-            <ErrorReadout />
         </Grid>
     );
 }

@@ -7,7 +7,7 @@ import {
     useCompiledShader,
     useDuration,
 } from '../stores/vmStore';
-import { RandomArtCanvas } from './lab/RandomArtCanvas';
+import { RandomArtCanvas } from './RandomArtCanvas';
 
 export function Scene() {
     const compiledShader = useCompiledShader();

@@ -5,6 +5,7 @@ import { Activity } from 'react';
 
 import { setMode, useMode } from '../stores/modeStore';
 import type { AppMode } from '../stores/modeStore';
+import { ErrorReadout } from './ErrorReadout';
 import { LabPanel } from './lab/LabPanel';
 import { ToyPanel } from './toy/ToyPanel';
 
@@ -27,6 +28,8 @@ export function Controls() {
                 <Activity mode={mode === 'lab' ? 'visible' : 'hidden'}>
                     <LabPanel />
                 </Activity>
+
+                <ErrorReadout />
             </Stack>
         </ErrorBoundary>
     );
