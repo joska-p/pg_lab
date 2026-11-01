@@ -3,6 +3,7 @@ export * from './spec';
 export * from './rng';
 export * from './isa';
 export * from './ir';
+export * from './color';
 export * from './grammar';
 export * from './gen';
 export * from './codegen';

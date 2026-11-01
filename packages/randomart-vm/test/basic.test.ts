@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { vm, createRng, serialize, deserialize } from '../src/index';
+import {
+    createRng,
+    deserialize,
+    drawGrammar,
+    formatFormula,
+    grammarRegistry,
+    presetOf,
+    serialize,
+    vm,
+} from '../src/index';
 
 describe('vm basic', () => {
     it('creates grammar with weights', () => {
@@ -31,6 +40,43 @@ describe('vm basic', () => {
         expect(res.compiled.source).toContain('out vec4 o_color');
         expect(res.compiled.source).toContain('uniform float u_phase');
         expect(res.compiled.source).toContain('void main()');
+    });
+
+    it('compiles with color space', () => {
+        const g = vm.createGrammar({
+            weights: { x: 1, y: 1, add: 1 },
+            size: 'small',
+            shareDepth: 1,
+            space: 'oklch',
+        });
+        const res = vm.render(g, 42);
+        expect(res.compiled.source).toContain('ra_oklch');
+        expect(res.compiled.source).toContain('ra_oklabToSrgb');
+    });
+
+    it('formats formula', () => {
+        const g = vm.createGrammar({
+            weights: { x: 1, const: 1, add: 1 },
+            size: 'tiny',
+            shareDepth: 0,
+        });
+        const expr = vm.generate(g, 42);
+        const f = formatFormula(expr.r);
+        expect(typeof f).toBe('string');
+        expect(f.length).toBeGreaterThan(0);
+    });
+
+    it('preset recognition works', () => {
+        const def = grammarRegistry.default;
+        expect(presetOf(def)).toBe('default');
+    });
+
+    it('drawGrammar produces valid grammar', () => {
+        const rng = createRng(100);
+        const g = drawGrammar(rng);
+        expect(g.weights).toBeDefined();
+        const expr = vm.generate(g, 100);
+        expect(expr.r).toBeDefined();
     });
 
     it('serializes and deserializes', () => {

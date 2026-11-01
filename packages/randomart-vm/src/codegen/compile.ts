@@ -1,3 +1,5 @@
+import { colorSpaceFunction, colorSpaceGlsl, isColorSpaceId } from '../color';
+import type { ColorSpaceId } from '../color';
 import { nodeCount } from '../ir/ir';
 import type { Expression } from '../ir/types';
 import type { Catalog } from '../isa/catalog';
@@ -7,6 +9,10 @@ import { wrapInput } from './format';
 import type { Compiled, SharingPolicy } from './types';
 
 const ROOT = 'v_p';
+
+const DEPENDENCY_CODE: Record<string, string> = {
+    ra_fold2: 'vec2 ra_fold2(vec2 v) { return abs(mod(v + 3.0, 4.0) - 2.0) - 1.0; }',
+};
 
 interface EmitCtx {
     vars: Map<number, string>;
@@ -27,17 +33,35 @@ function getInputText(id: number, ctx: EmitCtx): string {
     return wrapInput(inl);
 }
 
-export function compile(
-    catalog: Catalog,
-    expr: Expression,
-    opts: { sharing?: SharingPolicy } = {},
-): Compiled {
+export interface CompileOptions {
+    sharing?: SharingPolicy;
+    space?: ColorSpaceId | string;
+}
+
+export function compile(catalog: Catalog, expr: Expression, opts: CompileOptions = {}): Compiled {
     const policy: SharingPolicy = opts.sharing ?? 'shared';
-    const vertices: any[] = [];
-    // Map<vertexId, usageCount> — grows dynamically, no size assumptions needed
+    const space: ColorSpaceId = isColorSpaceId(opts.space) ? opts.space : 'srgb';
+
+    const vertices: Array<{
+        id: number;
+        op: string;
+        params: readonly number[];
+        inputs: readonly number[];
+        ctx: string;
+    }> = [];
     const usages = new Map<number, number>();
     const vmap = new Map<string, number>();
     let vid = 0;
+    let nextContextId = 1;
+    const contextMap = new Map<string, string>();
+    const contextDefs: Array<{
+        id: number;
+        name: string;
+        parent: string;
+        op: string;
+        params: readonly number[];
+        currentInputIds: readonly number[];
+    }> = [];
 
     function addUsage(id: number, count = 1): void {
         usages.set(id, (usages.get(id) ?? 0) + count);
@@ -48,18 +72,46 @@ export function compile(
         const pstr = (node.params ?? []).join(',');
         const current = (node.inputs ?? []).slice(0, op.currentCount);
         const inner = (node.inputs ?? []).slice(op.currentCount);
-        const cids = current.map((ch: any) => lowerNode(ch, cctx));
-        const all = [...cids, ...inner.map((ch: any) => lowerNode(ch, cctx))];
+        const currentIds = current.map((ch: any) => lowerNode(ch, cctx));
+
+        let innerContext = cctx;
+        if (op.hasInner) {
+            const contextKey = `${cctx}|${node.op}[${pstr}](${currentIds.join(',')})`;
+            const known = contextMap.get(contextKey);
+            if (known === undefined) {
+                const id = nextContextId++;
+                innerContext = `c${id}`;
+                contextMap.set(contextKey, innerContext);
+                contextDefs.push({
+                    id,
+                    name: innerContext,
+                    parent: cctx,
+                    op: node.op,
+                    params: node.params ?? [],
+                    currentInputIds: currentIds,
+                });
+                for (const cid of currentIds) {
+                    addUsage(cid);
+                }
+            } else {
+                innerContext = known;
+            }
+        }
+
+        const innerIds = inner.map((ch: any) => lowerNode(ch, innerContext));
+        const all = [...currentIds, ...innerIds];
         const key = `${cctx}|${node.op}[${pstr}](${all.join(',')})`;
         const existing = vmap.get(key);
         if (existing !== undefined) {
             return existing;
         }
         const id = vid++;
-        all.forEach((aid) => addUsage(aid));
+        for (const aid of all) {
+            addUsage(aid);
+        }
         vertices.push({ id, op: node.op, params: node.params ?? [], inputs: all, ctx: cctx });
         vmap.set(key, id);
-        addUsage(id, 0); // initialize to 0 if not yet tracked
+        addUsage(id, 0);
         return id;
     }
 
@@ -69,9 +121,24 @@ export function compile(
     }
 
     const ectx: EmitCtx = { vars: new Map(), inlines: new Map(), varCount: 0, lines: [] };
-    // simple emission in vertex order
+    const usedDeps = new Set<string>();
+
+    for (const ctx of contextDefs) {
+        const op = catalog.operator(ctx.op);
+        for (const req of op.requires) {
+            usedDeps.add(req);
+        }
+        const parentP = ctx.parent === ROOT ? 'v_p' : ctx.parent;
+        const currentTexts = ctx.currentInputIds.map((aid) => getInputText(aid, ectx));
+        const coordsText = op.coords(currentTexts, ctx.params, parentP);
+        ectx.lines.push(`  vec2 ${ctx.name} = ${coordsText};`);
+    }
+
     for (const v of vertices) {
         const op = catalog.operator(v.op);
+        for (const req of op.requires) {
+            usedDeps.add(req);
+        }
         const itexts = v.inputs.map((aid: number) => getInputText(aid, ectx));
         const pctx = v.ctx === ROOT ? 'v_p' : v.ctx;
         const raw = op.glsl(itexts, v.params, pctx);
@@ -83,7 +150,6 @@ export function compile(
                 return true;
             }
             const u = usages.get(v.id) ?? 0;
-            // simple atom check
             const isAtom =
                 /^v_p\.[xy]$/.test(raw) ||
                 /^u_phase$/.test(raw) ||
@@ -101,14 +167,25 @@ export function compile(
     }
 
     const rtexts = roots.map((rid) => getInputText(rid, ectx)) as [string, string, string];
-    const preamble = [
+    const preamble: string[] = [
         'precision highp float;',
+        '',
         'in vec2 vUv;',
         'out vec4 o_color;',
+        '',
         'uniform float u_phase;',
         'const float PI = 3.141592653589793;',
-        'vec3 ra_srgb(vec3 c){ c = clamp(c,0.0,1.0); vec3 lo=c/12.92; vec3 hi=pow((c+0.055)/1.055,vec3(2.4)); return mix(lo,hi,step(vec3(0.0031308),c)); }',
     ];
+
+    for (const dep of usedDeps) {
+        const code = DEPENDENCY_CODE[dep];
+        if (code) {
+            preamble.push('', code);
+        }
+    }
+
+    preamble.push('', colorSpaceGlsl(space));
+
     const main = ['void main() {', '  vec2 v_p = vUv * 2.0 - 1.0;'];
     if (ectx.lines.length > 0) {
         main.push('');
@@ -117,7 +194,9 @@ export function compile(
         }
     }
     main.push('');
-    main.push(`  o_color = vec4(ra_srgb(vec3(${rtexts[0]}, ${rtexts[1]}, ${rtexts[2]})), 1.0);`);
+    main.push(
+        `  o_color = vec4(${colorSpaceFunction(space)}(vec3(${rtexts[0]}, ${rtexts[1]}, ${rtexts[2]})), 1.0);`,
+    );
     main.push('}');
     const source = [...preamble, '', ...main].join('\n');
     if (source.length > MAX_SOURCE_LENGTH) {
@@ -132,7 +211,7 @@ export function compile(
             nodes: nodeCount(expr),
             vertices: vertices.length,
             variables: ectx.varCount,
-            contexts: 1,
+            contexts: 1 + contextDefs.length,
             sourceLength: source.length,
         },
     };

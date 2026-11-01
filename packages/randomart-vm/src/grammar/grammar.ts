@@ -1,4 +1,5 @@
 import type { Catalog } from '../isa/catalog';
+import { defaultCatalog } from '../isa/default';
 import { assertIntegerInRange } from '../shared/asserts';
 import { MIN_SHARE_DEPTH } from '../spec/constants';
 import { GrammarError } from '../spec/errors';
@@ -63,7 +64,7 @@ export function createGrammar(
     },
 ): Grammar {
     const { weights, size } = opts;
-    const space = opts.space ?? 'raw';
+    const space = opts.space ?? 'srgb';
 
     if (!isSizeProfile(size)) {
         throw new GrammarError(`Unknown size profile: ${size}`);
@@ -136,4 +137,26 @@ export function isTerminal(op: any) {
 
 export function isNonTerminal(op: any) {
     return op?.isTerminal === false;
+}
+
+export function isLastTerminal(
+    weights: GrammarWeights,
+    name: string,
+    catalog: Catalog = defaultCatalog,
+): boolean {
+    if (weightOf(weights, name) <= 0) {
+        return false;
+    }
+    return getVocabulary(catalog, weights).filter((op) => op.isTerminal).length === 1;
+}
+
+export function isLastNonTerminal(
+    weights: GrammarWeights,
+    name: string,
+    catalog: Catalog = defaultCatalog,
+): boolean {
+    if (weightOf(weights, name) <= 0) {
+        return false;
+    }
+    return getVocabulary(catalog, weights).filter((op) => !op.isTerminal).length === 1;
 }

@@ -1,66 +1,67 @@
-# Analyse : RandomArt VM
+# Analyse : RandomArt VM & UI
 
 ## TL;DR
 
-**Le concept de VM est solide et cohérent** — il mérite d'être gardé. Mais la progression a outrepassé la compréhension. L'objectif de ce document : te donner le modèle mental pour comprendre ce que tu as construit.
+**Le concept de VM est solide et cohérent** — il sépare la synthèse procédurale pure (la VM) de la restitution visuelle et du contrôle utilisateur (l'UI).
+
+Ce document décrit en termes simples et clairs l'architecture, le flux de données et le rôle de chaque composant du projet.
 
 ---
 
 ## 1. C'est quoi RandomArt, vraiment ?
 
-L'app originale fait une chose précise :
+L'application transforme un couple `(règles, graine)` en image procédurale animée :
 
 ```
-(grammar, seed)  →  Expression  →  GLSL  →  Image
+(grammar, seed)  →  Expression (IR)  →  GLSL  →  GPU / Image
 ```
 
 Étape par étape :
 
-| Étape               | Ce qui se passe                                                               |
-| ------------------- | ----------------------------------------------------------------------------- |
-| **Grammar**         | Tu définis les règles : quels opérateurs utiliser, quelle complexité          |
-| **Generate**        | Un algorithme aléatoire mais _déterministe_ fabrique une formule mathématique |
-| **Expression (IR)** | La formule est stockée sous forme d'arbre (`Node`)                            |
-| **Codegen**         | L'arbre est traduit en code GLSL (shader GPU)                                 |
-| **Canvas**          | Le GPU exécute le shader pixel par pixel → image                              |
+| Étape               | Ce qui se passe                                                                         |
+| ------------------- | --------------------------------------------------------------------------------------- |
+| **Grammar**         | Définit les probabilités d'opérateurs, la complexité, le partage et l'espace de couleur |
+| **Seed**            | Un simple nombre entier qui pilote tout le déterminisme pseudo-aléatoire                |
+| **Generate**        | Un algorithme récursif synthétise un arbre mathématique respectant la grammaire         |
+| **Expression (IR)** | La formule est stockée sous forme d'arbre immuable (`Node` pour chaque canal R, G, B)   |
+| **Codegen**         | L'arbre est compilé en shader fragment GLSL ES 3.00 optimisé                            |
+| **Canvas**          | Le GPU exécute le shader pixel par pixel en temps réel (avec animation `u_phase`)       |
 
-Le même `(grammar, seed)` donne **toujours** la même image. C'est la règle fondamentale.
+Le même `(grammar, seed)` produit **toujours** la même image au pixel près. C'est l'invariant fondamental.
 
 ---
 
 ## 2. Pourquoi parler de "VM" ?
 
-L'idée est bonne et pas gratuite. Voilà pourquoi ça tient :
+Le parallèle avec une machine virtuelle ou un compilateur classique est direct :
 
 ```
-CPU classique    →   opcode + opérandes  →  registres/mémoire  →  résultat
-RandomArt VM     →   opérateur + params  →  arbre (IR)         →  pixel GLSL
+CPU classique    →   opcode + opérandes  →  registres / mémoire  →  résultat
+RandomArt VM     →   opérateur + params  →  arbre IR             →  pixel GLSL
 ```
 
-- **ISA** (Instruction Set Architecture) : la liste des opérateurs (`sin`, `mul`, `x`, `y`...). C'est le jeu d'instructions.
-- **IR** (Intermediate Representation) : l'arbre `Node/Expression`. C'est le "programme compilé".
-- **Grammar** : c'est le "compilateur source → IR" — il contrôle quelles instructions sont disponibles et avec quelle fréquence.
-- **Codegen** : traduit l'IR en GLSL. C'est le "backend" de ta VM.
-- **VM** : l'orchestrateur qui connecte tout.
-
-> [!NOTE]
-> Une vraie VM (comme la JVM) exécute des instructions à la volée. Ici, la VM _génère_ un programme statique (l'arbre) puis le _compile_ vers un backend (GLSL). C'est plus proche d'un **compilateur ahead-of-time** que d'une VM interprétée — mais le terme reste valide pour désigner l'ensemble du pipeline.
+- **ISA** (Instruction Set Architecture) : le catalogue des opérateurs mathématiques (`x`, `y`, `sin`, `mul`, `div`, `warp`, `select`...).
+- **IR** (Intermediate Representation) : l'arbre `Node` / `Expression`. C'est le programme compilé neutre, sérialisable et inspectable.
+- **Grammar** : le synthétiseur de programme — il gouverne quelles instructions sont sélectionnables et selon quel profil de taille.
+- **Codegen / Lowering** : le backend du compilateur qui transforme le graphe (DAG) en code GLSL avec mise en commun des sous-expressions (`shared` variables) et injection des fonctions mathématiques / espaces de couleur.
+- **VM** : la façade orchestratrice de haut niveau (`createGrammar`, `generate`, `compile`, `render`).
 
 ---
 
-## 3. Architecture actuelle de `randomart-vm`
+## 3. Architecture détaillée de `randomart-vm`
 
 ```mermaid
 flowchart TD
     G["Grammar\n(weights, size, shareDepth, space)"]
     S["Seed\n(nombre entier)"]
-    RNG["RNG\n(src/rng/)"]
+    RNG["RNG déterministe\n(src/rng/)"]
     GEN["Generator\n(src/gen/)"]
     IR["Expression = {r, g, b: Node}\n(src/ir/)"]
-    ISA["Catalog / Operators\n(src/isa/)"]
-    CG["Codegen\n(src/codegen/)"]
-    GLSL["GLSL source"]
-    VM["Vm class\n(src/vm/)"]
+    ISA["Catalog / Opérateurs\n(src/isa/)"]
+    COL["Espaces de couleurs\n(src/color/)"]
+    CG["Codegen & Lowering\n(src/codegen/)"]
+    GLSL["Code GLSL optimisé"]
+    VM["Façade Vm\n(src/vm/)"]
 
     VM --> G
     VM --> S
@@ -69,71 +70,79 @@ flowchart TD
     ISA --> GEN
     GEN --> IR
     ISA --> CG
+    COL --> CG
     IR --> CG
     CG --> GLSL
 ```
 
-### Les modules en 2 phrases chacun
+### Rôle des modules (`randomart-vm`)
 
-**`src/spec/`** — Les règles du jeu. Définit les erreurs (`GenError`, `IrError`...) et les constantes limites (taille max du source GLSL, etc.).
-
-**`src/shared/`** — Utilitaires TypeScript. Types `Brand<T>` (pour rendre les types nominaux, donc impossibles à confondre), `asserts`, `guards`.
-
-**`src/rng/`** — Le générateur de nombres aléatoires. Prend un `seed`, produit des nombres déterministes. C'est la seule source d'aléatoire du système.
-
-**`src/isa/`** — Le catalogue d'opérateurs. Chaque opérateur (`sin`, `mul`, `x`...) a : un nombre d'entrées (`arity`), des paramètres (`params`), et une fonction qui génère du GLSL (`glsl()`).
-
-**`src/grammar/`** — La configuration d'une génération. Poids sur les opérateurs + profil de taille + shareDepth. La grammar est immuable (frozen) et identifiée par un hash.
-
-**`src/ir/`** — La représentation interne du programme. Un `Node` = `{ op, params, inputs[] }`. Une `Expression` = `{ r: Node, g: Node, b: Node }` (les 3 canaux RGB). Tout est immuable.
-
-**`src/gen/`** — L'algorithme de génération. Parcourt récursivement en dessinant des opérateurs au hasard (via le RNG), en respectant le budget (profondeur/taille) et le `shareDepth` (partage de structure entre canaux RGB).
-
-**`src/codegen/`** — Traduit l'arbre IR en code GLSL. Gère le partage de variables (`shared` policy) et émet le contrat GLSL standard (`vUv`, `v_p`, `o_color`, etc.).
-
-**`src/vm/`** — La façade publique. La classe `Vm` orchestre tout : `createGrammar()`, `generate()`, `compile()`, `render()`.
-
----
-
-## 4. Ce que fait `shareDepth` (concept clé)
-
-C'est la chose la plus subtile. Imagine que tu génères l'arbre pour le rouge (R), le vert (G) et le bleu (B).
-
-- Si `shareDepth = 0` : R, G, B sont **complètement indépendants** → image colorée, chaotique
-- Si `shareDepth` est élevé : R, G, B **partagent la même structure** jusqu'à une certaine profondeur → image plus cohérente, souvent plus "grise" ou harmonieuse
-
-```
-shareDepth = 0 :
-  R = sin(mul(x, y))
-  G = add(x, const)    ← différent !
-  B = cos(x)           ← différent !
-
-shareDepth = 2 :
-  R = sin(mul(x, y))
-  G = sin(mul(x, y))   ← même structure partagée
-  B = sin(mul(x, y))   ← même structure partagée
-```
+- **`src/spec/`** — Les contrats fondamentaux : erreurs typées (`GenError`, `IrError`, `CodegenError`), limites strictes (taille max GLSL, profondeur max).
+- **`src/shared/`** — Types `Brand<T>` pour garantir la sécurité à la compilation (un `Seed` ne peut pas être confondu avec un simple `number`), assertions et guards.
+- **`src/rng/`** — Générateur pseudo-aléatoire pur et déterministe (PCG32) + utilitaire `randomSeed()`.
+- **`src/isa/`** — Le jeu d'instructions (catalogue d'opérateurs) complet :
+    - _Terminaux_ : `x`, `y`, `const` (avec modulation temporelle optionnelle pour l'animation).
+    - _Arithmétique_ : `add`, `sub`, `mul`, `div`, `neg`, `abs`, `sqr`, `min`, `max`, `mix`.
+    - _Trigonométrie_ : `sin`, `cos`.
+    - _Logique_ : `gt`, `select`.
+    - _Transformation_ : `warp` (déformation non-linéaire avec repliement d'espace `ra_fold2`).
+- **`src/color/`** — Conversion du triplet brut `[-1, 1]³` vers le format d'affichage sRGB final :
+    - Supporte `sRGB`, `OKLCH`, `OKLab`, `HSL`.
+- **`src/grammar/`** — Configuration de la synthèse :
+    - Poids des opérateurs, contraintes de taille (`tiny`, `small`, `medium`, `large`), profondeur de partage (`shareDepth`).
+    - Espace quantifié (`drawGrammar`, `grammarKey`).
+    - Presets d'usine (`grammarRegistry`) et reconnaissance de presets (`presetOf`).
+    - Invariants de sécurité (`isLastTerminal`, `isLastNonTerminal` pour garantir une grammaire toujours fonctionnelle).
+- **`src/ir/`** — Représentation intermédiaire :
+    - Nœuds immuables (`Node`) et triplets de canaux (`Expression`).
+    - Sérialisation/désérialisation canonique JSON.
+    - Inspecteur textuel (`formatFormula`) pour lire les formules générées en notation fonctionnelle.
+- **`src/gen/`** — L'algorithme de synthèse récursive avec contrôle de budget de complexité et de partage de structure.
+- **`src/codegen/`** — Traducteur GLSL :
+    - Lowering en DAG (évite de recalculer plusieurs fois les mêmes sous-expressions via variables temporaires `v0`, `v1`...).
+    - Gestion des contextes de coordonnées pour les opérateurs comme `warp`.
+    - Émission du contrat GLSL (`vUv`, `v_p`, `u_phase`, `o_color`).
+- **`src/vm/`** — Point d'entrée utilisateur unifié (`Vm` et singleton `vm`).
 
 ---
 
-## 5. Ce que `randomart-ui` apporte
+## 4. Concepts clés à retenir
 
-C'est l'interface React qui utilise `randomart-vm`. Elle :
+### Le `shareDepth` (corrélation chromatique)
 
-- Stocke l'état (`seed`, `shareDepth`, `size`, `weights`) dans un store Zustand
-- Appelle `vm.render()` pour obtenir le GLSL
-- Passe le GLSL au composant `GpuCanvas` (de la lib `@repo/glaze`) qui l'exécute sur le GPU
+Génère l'arbre pour les 3 canaux R, G et B :
 
-```
-vmStore (Zustand) → vm.render() → GLSL → GpuCanvas → image
-```
+- **`shareDepth = 0`** : R, G et B sont générés indépendamment. Les formes et textures de chaque couleur sont différentes → image très multicolore et éclatée.
+- **`shareDepth` modéré (ex: 2)** : Le tronc commun de la formule est partagé entre R, G et B jusqu'à la profondeur indiquée, puis les branches divergent → cohérence structurelle et harmonie des teintes.
+- **`shareDepth >= maxDepth` (mono)** : Les 3 canaux partagent exactement le même arbre → l'image devient monochrome (ou modulée uniquement par l'espace de couleur).
+
+### Les espaces de couleurs
+
+L'arbre mathématique calcule 3 valeurs `(r, g, b)` dans `[-1, 1]`. L'espace de couleur dicte la manière dont ces 3 nombres sont interprétés :
+
+- **sRGB** : direct (chaque canal contrôle l'intensité RGB).
+- **OKLCH** : `r` = clarté (L), `g` = chromaticité/saturation (C), `b` = teinte/hue (h). Produit des dégradés perceptuellement uniformes et très riches.
+- **OKLab** : clarté + axes vert/rouge et bleu/jaune.
+- **HSL** : teinte, saturation, luminosité classique.
 
 ---
 
-## 6. Ce qui est bien ✅
+## 5. Ce que fait `randomart-ui`
 
-- **Le concept est cohérent** : grammar → IR → codegen est une vraie architecture pipeline.
-- **L'isolation est respectée** : `randomart-vm` n'a aucune dépendance React/DOM — c'est pur TypeScript.
-- **Les types sont bons** : le type `Brand<T>` pour `Node`, `Expression`, `Grammar`, `Seed` empêche les erreurs de confusion.
-- **La structure des fichiers est claire** : chaque dossier a une responsabilité unique.
-- **Les tests de base existent** et couvrent les cas fondamentaux (déterminisme, sérialisation, contrat GLSL).
+`randomart-ui` est la vitrine interactive construite au-dessus de `@repo/randomart-vm` et `@repo/glaze` :
+
+1. **Mode Toy** (découverte / jeu) :
+    - Génération instantanée en 1 clic ("New image").
+    - Historique des créations récentes avec retour immédiat sur une graine antérieure.
+    - Lecture / Pause de l'animation.
+    - Export PNG de l'image en pleine résolution.
+
+2. **Mode Lab** (atelier d'exploration) :
+    - **Lecture & Rythme** : Contrôle du temps, remise à zéro, réglage fin de la durée de la boucle d'animation.
+    - **Atelier de Grammaire** : Choix des presets ou grammaire sur mesure, réglage de la graine, sélecteur d'espace de couleur, curseurs de pondération par famille d'opérateurs, profils de taille et curseur de partage `shareDepth`.
+    - **Inspecteur de Formule** : Affichage de la formule mathématique générée par canal (avec mise en page claire).
+    - **Affichage des Erreurs** : Remontée visuelle immédiate des erreurs d'actions ou de compilation de shader.
+
+3. **Moteur de Rendu (`RandomArtCanvas`)** :
+    - Optimisation _lazy-rendering_ (`needsRender`) : si l'image est statique ou en pause, aucun calcul GPU n'est gaspillé.
+    - Préservation du buffer WebGL pour permettre l'export direct vers image PNG.

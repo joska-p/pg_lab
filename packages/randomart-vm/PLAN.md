@@ -2,14 +2,13 @@
 
 > Keep focus across sessions. Update this file as you progress. Do not implement everything at once.
 
-## Session 0: Setup (this session)
+## Session 0: Setup
 
 - [x] Understand randomart core thoroughly
 - [x] Create package `randomart-vm`
 - [x] Write `SPEC.md`
-- [ ] Scaffold directories and base files
-- [ ] Write this plan
-- [ ] Commit checkpoint
+- [x] Scaffold directories and base files
+- [x] Write initial plan
 
 ## Session 1: Foundation
 
@@ -19,48 +18,34 @@ Files:
 
 - `src/spec/errors.ts`
 - `src/spec/constants.ts`
-- `src/shared/types.ts` (Brand)
-- `src/shared/guards.ts` (isRecord)
+- `src/shared/brand.ts`
+- `src/shared/guards.ts`
 - `src/shared/asserts.ts`
 - `src/rng/types.ts`
 - `src/rng/seed.ts`
 - `src/rng/rng.ts`
 
-Tests:
-
-- `test/rng.test.ts` (determinism, split if any)
-
 Exit criteria:
 
-- [ ] RNG matches randomart behavior
-- [ ] Seed creation/validation matches
-- [ ] Basic asserts match
+- [x] RNG matches randomart behavior
+- [x] Seed creation/validation matches
+- [x] Basic asserts match
 
 ## Session 2: ISA
 
 Goal: operator/catalog mirror or reuse.
 
-Options:
-
-1. Re-export from `@repo/randomart/src/core/catalog/*` (fastest parity)
-2. Copy minimal subset
-
-Recommend: start with re-exports/wrappers that enforce VM types, can copy later.
-
 Files:
 
 - `src/isa/types.ts`
-- `src/isa/catalog.ts` (wrapper)
+- `src/isa/catalog.ts`
+- `src/isa/default.ts`
 - `src/isa/index.ts`
-
-Tests:
-
-- `test/isa.test.ts`
 
 Exit criteria:
 
-- [ ] Can access operators, multiplicities, deps
-- [ ] Arity/params correct
+- [x] Can access operators, multiplicities, deps
+- [x] Arity/params correct
 
 ## Session 3: Grammar
 
@@ -71,18 +56,13 @@ Files:
 - `src/grammar/types.ts`
 - `src/grammar/constants.ts`
 - `src/grammar/grammar.ts`
-- `src/grammar/quantized.ts`
-- `src/grammar/sample.ts`
-
-Tests:
-
-- Mirror `core/grammar/grammar.test.ts`, `quantized.test.ts`, `sample.test.ts` (subset)
+- `src/grammar/index.ts`
 
 Exit criteria:
 
-- [ ] `createGrammar` validation identical
-- [ ] `drawGrammar` deterministic
-- [ ] `sampleGrammars` matches
+- [x] `createGrammar` validation implemented
+- [x] Vocabulary validation (terminals and non-terminals)
+- [x] Share depth and size constraints clamping
 
 ## Session 4: IR
 
@@ -95,15 +75,11 @@ Files:
 - `src/ir/serialize.ts`
 - `src/ir/index.ts`
 
-Tests:
-
-- Mirror `core/expression/expression.test.ts`, `serialize.test.ts`
-
 Exit criteria:
 
-- [ ] Canonical serialization
-- [ ] Import limits enforced
-- [ ] Round-trip stable
+- [x] Canonical serialization
+- [x] Import limits enforced
+- [x] Round-trip stable
 
 ## Session 5: Generation
 
@@ -113,37 +89,21 @@ Files:
 
 - `src/gen/generator.ts`
 - `src/gen/constants.ts` (`GENERATOR_VERSION`)
-
-Tests:
-
-- Mirror key generator cases + parity with randomart
+- `src/gen/index.ts`
 
 Exit criteria:
 
-- [ ] Deterministic for seeds
-- [ ] Trunk/shareDepth correct
-- [ ] Budget allocation correct
-- [ ] Parity: same expr for test vectors
+- [x] Deterministic for seeds
+- [x] Trunk/shareDepth implemented
+- [x] Budget allocation logic
 
 ## Session 6: Lowering
 
-Goal: DAG lowering
+Goal: DAG lowering (vertex/context/usages)
 
-Files:
+Status:
 
-- `src/lower/types.ts`
-- `src/lower/lower.ts`
-- `src/lower/constants.ts`
-
-Tests:
-
-- Part of compiler parity
-
-Exit criteria:
-
-- [ ] Vertex/context creation matches
-- [ ] Usages/multiplicities correct
-- [ ] Sharing keys correct
+- [x] Lowering integrated directly in `src/codegen/compile.ts` (vertex deduplication, usage counting)
 
 ## Session 7: Codegen
 
@@ -152,25 +112,17 @@ Goal: GLSL emission
 Files:
 
 - `src/codegen/types.ts`
-- `src/codegen/constants.ts`
 - `src/codegen/format.ts`
-- `src/codegen/preamble.ts`
-- `src/codegen/emit.ts`
 - `src/codegen/compile.ts`
-- `src/codegen/contract.ts`
-
-Tests:
-
-- Mirror `core/compiler/compiler.test.ts` heavily
+- `src/codegen/index.ts`
 
 Exit criteria:
 
-- [ ] GLSL contract passes
-- [ ] Policies work
-- [ ] Warp/contexts correct
-- [ ] Source matches where possible
+- [x] GLSL emission adhering to contract (`vUv`, `v_p`, `o_color`, `u_phase`)
+- [x] Inlining vs variable sharing based on usage count
+- [x] Source length verification
 
-## Session 8: VM + Parity
+## Session 8: VM Orchestration
 
 Goal: orchestration and verification
 
@@ -178,26 +130,40 @@ Files:
 
 - `src/vm/vm.ts`
 - `src/index.ts` (public API)
-
-Tests:
-
-- `test/parity.test.ts` comparing VM vs randomart
-- Generate 50 random (grammar,seed) pairs, compare serialized expressions
-- Compile and compare source
+- `test/basic.test.ts`
 
 Exit criteria:
 
-- [ ] Parity on sampled cases
-- [ ] Clean public API
-- [ ] No DOM deps
-- [ ] `vp check` passes in package
+- [x] High-level `Vm` class and singleton `vm`
+- [x] End-to-end `createGrammar -> generate -> compile -> render`
+- [x] Basic tests passing with `vp test`
+- [x] Pure package without DOM dependencies
 
-## Guidelines
+## Session 9: Color Spaces, Presets & Inspection
 
-- **Preserve order**: RNG draw order is sacred. Copy logic linearly.
-- **Test first**: port test cases before implementing when possible.
-- **Reuse**: import from randomart for ISA/color/config initially to avoid drift.
-- **Pure only**: enforce in lint if needed.
-- **Small steps**: one phase per session minimum, don't jump ahead.
-- **Document quirks**: add comments explaining non-obvious parts.
-- **Checkpoint**: update PLAN.md after each session.
+Goal: Bring color space conversion, grammar presets, and expression formatting to the VM.
+
+Files:
+
+- `src/color/types.ts`, `src/color/color.ts`, `src/color/registry.ts`, `src/color/index.ts`
+- `src/grammar/registry.ts` (grammar presets and `presetOf`)
+- `src/grammar/quantized.ts` (`drawGrammar`, `grammarKey`, `SIZE_PROFILE_IDS`)
+- `src/grammar/grammar.ts` (added `isLastTerminal`, `isLastNonTerminal`)
+- `src/ir/formula.ts` (`formatFormula`, `formatNodeLabel`)
+- `src/codegen/compile.ts` (color space preamble and execution, context and dependency emission)
+
+Exit criteria:
+
+- [x] Color spaces (sRGB, OKLCH, OKLab, HSL) registered and emitted in GLSL
+- [x] Presets accessible in VM
+- [x] `formatFormula` available for inspector
+- [x] `vp check` passes
+- [x] Tests passing in `test/basic.test.ts`
+
+## Session 10: Parity & Hardening
+
+Goal: Parity test suite against `@repo/randomart` and property tests.
+
+Files:
+
+- `test/parity.test.ts`

@@ -1,9 +1,11 @@
 import { compile } from '../codegen/compile';
+import type { CompileOptions } from '../codegen/compile';
 import type { Compiled } from '../codegen/types';
 import { generate } from '../gen/generator';
 import { createGrammar } from '../grammar/grammar';
 import type { Grammar, GrammarWeights, SizeProfile } from '../grammar/types';
 import { serialize } from '../ir/serialize';
+import type { Expression } from '../ir/types';
 import type { Catalog } from '../isa/catalog';
 import { defaultCatalog } from '../isa/default';
 import type { Seed } from '../rng/types';
@@ -33,13 +35,13 @@ export class Vm {
         return generate(this.catalog, grammar, seed);
     }
 
-    compile(expr: any, opts: any = {}): Compiled {
+    compile(expr: Expression, opts: CompileOptions = {}): Compiled {
         return compile(this.catalog, expr, opts);
     }
 
-    render(grammar: Grammar, seed: Seed | number | string, opts: any = {}) {
+    render(grammar: Grammar, seed: Seed | number | string, opts: CompileOptions = {}) {
         const expr = this.generate(grammar, seed);
-        const compiled = this.compile(expr, opts);
+        const compiled = this.compile(expr, { space: grammar.space, ...opts });
         return { expr, compiled, serialized: serialize(expr) };
     }
 
