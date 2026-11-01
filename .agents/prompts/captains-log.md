@@ -66,7 +66,8 @@ export const logYYYYNNN: CaptainLog = {
 - `content` utilise du HTML sémantique brut.
 - Respecte l'indentation de 4 espaces et le formatage déjà en place.
 - Ne pas ajouter de `<hr />` : la séparation et le tri sont gérés par `index.tsx`.
-```
+
+````
 
 Need replace the old block from "## Markup d'une entrée" through end of Markup section (up to Fenêtre temporelle). I'll do another edit for the old Markup section.
 
@@ -127,3 +128,4 @@ Des contraintes, non pas pour entraver, mais pour sculpter — c'est dans leur c
 - **Un fichier par entrée** : chaque log vit dans `captains-logs/logs/stardate-YYYY-NNN.tsx` ; tout le Journal est composé dans `captains-logs/index.tsx` via `logs.ts`. Pas de pagination. Le tri par date est géré par le store dédié.
 - **HTML sémantique brut** : pas de classes, pas de styles, pas de composants décoratifs. Le design viendra après.
 - **Pas de commentaires non sollicités** : pas de méta-commentaire sur le processus d'écriture dans les fichiers du journal.
+````

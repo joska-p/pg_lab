@@ -359,6 +359,9 @@ importers:
       '@repo/randomart':
         specifier: workspace:*
         version: link:../../packages/randomart
+      '@repo/randomart-ui':
+        specifier: workspace:*
+        version: link:../../packages/randomart-ui
       '@repo/sequencer':
         specifier: workspace:*
         version: link:../../packages/sequencer

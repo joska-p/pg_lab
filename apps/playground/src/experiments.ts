@@ -75,6 +75,13 @@ export const EXPERIMENTS = {
         loadScene: () => import('@repo/randomart/Scene'),
         loadControls: () => import('@repo/randomart/Controls'),
     },
+    'randomart-vm': {
+        label: 'Randomart vm',
+        panelTitle: 'randomart vm',
+        stageLabel: 'randomart vm',
+        loadScene: () => import('@repo/randomart-ui/Scene'),
+        loadControls: () => import('@repo/randomart-ui/Controls'),
+    },
     'oeis-signal': {
         label: 'oeis-signal',
         panelTitle: 'oeis-signal',
