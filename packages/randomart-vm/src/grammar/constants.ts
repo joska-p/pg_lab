@@ -8,3 +8,6 @@ export const SIZE_PROFILES: Record<SizeProfile, SizeConstraints> = {
 };
 
 export const DEFAULT_SHARE_DEPTH = 1;
+
+/** Fixed maximum weight for all grammars and draws. */
+export const MAX_WEIGHT = 16;

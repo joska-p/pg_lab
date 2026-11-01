@@ -21,6 +21,27 @@ interface EmitCtx {
     lines: string[];
 }
 
+interface Vertex {
+    readonly id: number;
+    readonly op: string;
+    readonly params: readonly number[];
+    readonly inputs: readonly number[];
+    readonly ctx: string;
+}
+
+interface ContextDef {
+    readonly id: number;
+    readonly name: string;
+    readonly parent: string;
+    readonly op: string;
+    readonly params: readonly number[];
+    readonly currentInputIds: readonly number[];
+}
+
+type Emission =
+    | { readonly kind: 'context'; readonly context: ContextDef }
+    | { readonly kind: 'vertex'; readonly vertex: Vertex };
+
 function getInputText(id: number, ctx: EmitCtx): string {
     const v = ctx.vars.get(id);
     if (v !== undefined) {
@@ -42,26 +63,14 @@ export function compile(catalog: Catalog, expr: Expression, opts: CompileOptions
     const policy: SharingPolicy = opts.sharing ?? 'shared';
     const space: ColorSpaceId = isColorSpaceId(opts.space) ? opts.space : 'srgb';
 
-    const vertices: Array<{
-        id: number;
-        op: string;
-        params: readonly number[];
-        inputs: readonly number[];
-        ctx: string;
-    }> = [];
+    const vertices: Vertex[] = [];
+    const emissions: Emission[] = [];
     const usages = new Map<number, number>();
     const vmap = new Map<string, number>();
     let vid = 0;
     let nextContextId = 1;
     const contextMap = new Map<string, string>();
-    const contextDefs: Array<{
-        id: number;
-        name: string;
-        parent: string;
-        op: string;
-        params: readonly number[];
-        currentInputIds: readonly number[];
-    }> = [];
+    const contextDefs: ContextDef[] = [];
 
     function addUsage(id: number, count = 1): void {
         usages.set(id, (usages.get(id) ?? 0) + count);
@@ -82,14 +91,16 @@ export function compile(catalog: Catalog, expr: Expression, opts: CompileOptions
                 const id = nextContextId++;
                 innerContext = `c${id}`;
                 contextMap.set(contextKey, innerContext);
-                contextDefs.push({
+                const context: ContextDef = {
                     id,
                     name: innerContext,
                     parent: cctx,
                     op: node.op,
                     params: node.params ?? [],
                     currentInputIds: currentIds,
-                });
+                };
+                contextDefs.push(context);
+                emissions.push({ kind: 'context', context });
                 for (const cid of currentIds) {
                     addUsage(cid);
                 }
@@ -109,7 +120,15 @@ export function compile(catalog: Catalog, expr: Expression, opts: CompileOptions
         for (const aid of all) {
             addUsage(aid);
         }
-        vertices.push({ id, op: node.op, params: node.params ?? [], inputs: all, ctx: cctx });
+        const vertex: Vertex = {
+            id,
+            op: node.op,
+            params: node.params ?? [],
+            inputs: all,
+            ctx: cctx,
+        };
+        vertices.push(vertex);
+        emissions.push({ kind: 'vertex', vertex });
         vmap.set(key, id);
         addUsage(id, 0);
         return id;
@@ -123,18 +142,21 @@ export function compile(catalog: Catalog, expr: Expression, opts: CompileOptions
     const ectx: EmitCtx = { vars: new Map(), inlines: new Map(), varCount: 0, lines: [] };
     const usedDeps = new Set<string>();
 
-    for (const ctx of contextDefs) {
-        const op = catalog.operator(ctx.op);
-        for (const req of op.requires) {
-            usedDeps.add(req);
+    for (const emission of emissions) {
+        if (emission.kind === 'context') {
+            const ctx = emission.context;
+            const op = catalog.operator(ctx.op);
+            for (const req of op.requires) {
+                usedDeps.add(req);
+            }
+            const parentP = ctx.parent === ROOT ? 'v_p' : ctx.parent;
+            const currentTexts = ctx.currentInputIds.map((aid) => getInputText(aid, ectx));
+            const coordsText = op.coords(currentTexts, ctx.params, parentP);
+            ectx.lines.push(`  vec2 ${ctx.name} = ${coordsText};`);
+            continue;
         }
-        const parentP = ctx.parent === ROOT ? 'v_p' : ctx.parent;
-        const currentTexts = ctx.currentInputIds.map((aid) => getInputText(aid, ectx));
-        const coordsText = op.coords(currentTexts, ctx.params, parentP);
-        ectx.lines.push(`  vec2 ${ctx.name} = ${coordsText};`);
-    }
 
-    for (const v of vertices) {
+        const v = emission.vertex;
         const op = catalog.operator(v.op);
         for (const req of op.requires) {
             usedDeps.add(req);

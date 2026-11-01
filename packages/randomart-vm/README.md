@@ -89,7 +89,7 @@ flowchart TD
 - **`src/color/`** — Conversion du triplet brut `[-1, 1]³` vers le format d'affichage sRGB final :
     - Supporte `sRGB`, `OKLCH`, `OKLab`, `HSL`.
 - **`src/grammar/`** — Configuration de la synthèse :
-    - Poids des opérateurs, contraintes de taille (`tiny`, `small`, `medium`, `large`), profondeur de partage (`shareDepth`).
+    - Poids des opérateurs (0..16), contraintes de taille (`tiny`, `small`, `medium`, `large`), profondeur de partage (`shareDepth`).
     - Espace quantifié (`drawGrammar`, `grammarKey`).
     - Presets d'usine (`grammarRegistry`) et reconnaissance de presets (`presetOf`).
     - Invariants de sécurité (`isLastTerminal`, `isLastNonTerminal` pour garantir une grammaire toujours fonctionnelle).

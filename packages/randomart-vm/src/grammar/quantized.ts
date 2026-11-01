@@ -3,6 +3,7 @@ import type { ColorSpaceId } from '../color/registry';
 import type { Catalog } from '../isa/catalog';
 import { defaultCatalog } from '../isa/default';
 import type { Rng } from '../rng/types';
+import { MAX_WEIGHT } from './constants';
 import { constraintsOf, createGrammar, weightOf } from './grammar';
 import type { Grammar, SizeProfile } from './types';
 
@@ -13,6 +14,17 @@ export function grammarKey(grammar: Grammar, catalog: Catalog = defaultCatalog):
         .operators()
         .map((op) => `${op.name}:${weightOf(grammar.weights, op.name)}`);
     return JSON.stringify([weights, grammar.size, grammar.shareDepth, grammar.space]);
+}
+
+/** Largest weight actually used by a grammar. */
+export function maxWeightOf(grammar: Grammar): number {
+    let max = 0;
+    for (const weight of Object.values(grammar.weights)) {
+        if (typeof weight === 'number' && Number.isFinite(weight) && weight > max) {
+            max = weight;
+        }
+    }
+    return max;
 }
 
 export interface GrammarPins {
@@ -28,7 +40,7 @@ export function drawGrammar(
 ): Grammar {
     const weights: Record<string, number> = {};
     for (const op of catalog.operators()) {
-        weights[op.name] = rng.int(5); // 0..4
+        weights[op.name] = rng.int(MAX_WEIGHT + 1); // 0..MAX_WEIGHT
     }
 
     const terminals = catalog.operators().filter((op) => op.isTerminal);

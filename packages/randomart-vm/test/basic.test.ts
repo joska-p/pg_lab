@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import {
+    createExpression,
+    createNode,
     createRng,
     deserialize,
     drawGrammar,
     formatFormula,
     grammarRegistry,
+    MAX_WEIGHT,
+    MAX_WEIGHT_LIMIT,
+    maxWeightOf,
     presetOf,
     serialize,
     vm,
@@ -16,6 +21,23 @@ describe('vm basic', () => {
         const g = vm.createGrammar({ weights: { x: 1, add: 1 }, size: 'medium', shareDepth: 1 });
         expect(g.weights.x).toBe(1);
         expect(g.size).toBe('medium');
+    });
+
+    it('accepts weights up to the global limit', () => {
+        const g = vm.createGrammar({
+            weights: { x: MAX_WEIGHT_LIMIT, add: 1 },
+            size: 'small',
+            shareDepth: 1,
+        });
+        expect(g.weights.x).toBe(MAX_WEIGHT_LIMIT);
+
+        expect(() =>
+            vm.createGrammar({
+                weights: { x: MAX_WEIGHT_LIMIT + 1, add: 1 },
+                size: 'small',
+                shareDepth: 1,
+            }),
+        ).toThrow();
     });
 
     it('generates deterministic expression', () => {
@@ -40,6 +62,16 @@ describe('vm basic', () => {
         expect(res.compiled.source).toContain('out vec4 o_color');
         expect(res.compiled.source).toContain('uniform float u_phase');
         expect(res.compiled.source).toContain('void main()');
+    });
+
+    it('compiles warp inputs before the context that consumes them', () => {
+        const x = createNode('x');
+        const y = createNode('y');
+        const warp = createNode('warp', [x, y, createNode('add', [x, y])]);
+        const compiled = vm.compile(createExpression(warp, warp, warp));
+
+        expect(compiled.source).toContain('ra_fold2');
+        expect(compiled.stats.contexts).toBe(2);
     });
 
     it('compiles with color space', () => {
@@ -71,10 +103,12 @@ describe('vm basic', () => {
         expect(presetOf(def)).toBe('default');
     });
 
-    it('drawGrammar produces valid grammar', () => {
+    it('drawGrammar produces valid grammar with fixed MAX_WEIGHT', () => {
         const rng = createRng(100);
         const g = drawGrammar(rng);
         expect(g.weights).toBeDefined();
+        expect('maxWeight' in g).toBe(false);
+        expect(maxWeightOf(g)).toBeLessThanOrEqual(MAX_WEIGHT);
         const expr = vm.generate(g, 100);
         expect(expr.r).toBeDefined();
     });

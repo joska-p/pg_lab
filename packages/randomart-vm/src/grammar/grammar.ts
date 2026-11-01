@@ -1,7 +1,7 @@
 import type { Catalog } from '../isa/catalog';
 import { defaultCatalog } from '../isa/default';
 import { assertIntegerInRange } from '../shared/asserts';
-import { MIN_SHARE_DEPTH } from '../spec/constants';
+import { MAX_WEIGHT_LIMIT, MIN_SHARE_DEPTH } from '../spec/constants';
 import { GrammarError } from '../spec/errors';
 import { SIZE_PROFILES } from './constants';
 import type { Grammar, GrammarWeights, SizeConstraints, SizeProfile } from './types';
@@ -85,7 +85,7 @@ export function createGrammar(
         if (w === undefined) {
             continue;
         }
-        assertIntegerInRange(w, `weight of ${k}`, 0, 4);
+        assertIntegerInRange(w, `weight of ${k}`, 0, MAX_WEIGHT_LIMIT);
     }
 
     const vocab = catalog.operators().filter((op) => weightOf(weights, op.name) > 0);

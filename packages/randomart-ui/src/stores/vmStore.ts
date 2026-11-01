@@ -9,6 +9,7 @@ import {
     createSeed,
     drawGrammar as drawRandomGrammar,
     grammarRegistry,
+    MAX_WEIGHT,
     randomSeed,
     vm,
 } from '@repo/randomart-vm';
@@ -57,7 +58,7 @@ export interface VmState {
     grammarEditId: number | null;
 }
 
-const initialSeed = createSeed(12345);
+const initialSeed = createSeed(42);
 const initialGrammar = grammarRegistry.default;
 const initialExpression = vm.generate(initialGrammar, initialSeed);
 const initialCompiled = vm.compile(initialExpression, { space: initialGrammar.space });
@@ -174,6 +175,11 @@ export function useGrammar(): Grammar {
     return store((s) => s.grammar);
 }
 
+/** Fixed maximum weight for all weight sliders (0..MAX_WEIGHT). */
+export function useMaxWeight(): number {
+    return MAX_WEIGHT;
+}
+
 export function useHistory(): readonly HistoryEntry[] {
     return store((s) => s.history);
 }
@@ -186,12 +192,18 @@ export function getVmState(): VmState {
     return store.getState();
 }
 
+interface CommitOptions {
+    restoreId?: number;
+    coalesce?: boolean;
+}
+
 function commit(
     grammarOrChange: Grammar | (() => Grammar),
     seed: Seed,
-    restoreId?: number,
-    coalesce = false,
+    opts: CommitOptions = {},
 ): void {
+    const { restoreId, coalesce = false } = opts;
+
     try {
         const grammar = typeof grammarOrChange === 'function' ? grammarOrChange() : grammarOrChange;
         const expression = vm.generate(grammar, seed);
@@ -238,8 +250,8 @@ export function resetSeed(nextSeed: Seed = randomSeed()): void {
     commit(store.getState().grammar, nextSeed);
 }
 
-export function drawGrammar(): void {
-    commit(drawRandomGrammar(createRng(randomSeed())), store.getState().seed);
+export function drawGrammar(pins: Parameters<typeof drawRandomGrammar>[1] = {}): void {
+    commit(drawRandomGrammar(createRng(randomSeed()), pins), store.getState().seed);
 }
 
 export function generateImage(): void {
@@ -252,7 +264,7 @@ export function applyGrammar(grammar: Grammar): void {
 
 function editGrammar(change: (grammar: Grammar) => Grammar): void {
     const { grammar, seed } = store.getState();
-    commit(() => change(grammar), seed, undefined, true);
+    commit(() => change(grammar), seed, { coalesce: true });
 }
 
 export function setGrammarWeight(name: string, weight: number): void {
@@ -281,7 +293,7 @@ export function restoreEntry(id: number): void {
     if (!entry) {
         return;
     }
-    commit(entry.grammar, entry.seed, entry.id);
+    commit(entry.grammar, entry.seed, { restoreId: entry.id });
 }
 
 export async function exportPng(): Promise<void> {

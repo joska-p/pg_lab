@@ -28,6 +28,7 @@ import {
     setGrammarSpace,
     setGrammarWeight,
     useGrammar,
+    useMaxWeight,
     useSeed,
 } from '../../stores/vmStore';
 
@@ -71,6 +72,7 @@ const SPACE_OPTIONS = colorSpaceIds.map((id) => ({
 export function GrammarSection() {
     const grammar = useGrammar();
     const seed = useSeed();
+    const maxWeight = useMaxWeight();
 
     const presetId = presetOf(grammar);
     const preset = presetId ? grammarRegistry[presetId] : CUSTOM_PRESET;
@@ -145,7 +147,7 @@ export function GrammarSection() {
                                 label={operator.name}
                                 value={weightOf(grammar.weights, operator.name)}
                                 min={mustStayOn(operator) ? 1 : 0}
-                                max={4}
+                                max={maxWeight}
                                 onValueChange={(weight) => {
                                     setGrammarWeight(operator.name, weight);
                                 }}
