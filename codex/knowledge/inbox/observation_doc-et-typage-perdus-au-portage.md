@@ -1,0 +1,5 @@
+# La documentation et la précision de type fondent silencieusement au portage
+
+## **Corps :** Les portages mécaniques de fichiers érodent la doc et le typage sans que personne ne décide de les perdre. Constat chiffré sur la migration randomart : 701 lignes de commentaires en v1 → 37 en v2 ; `RandomArtCanvas.tsx` perd ses commentaires critiques (invariant `preserveDrawingBuffer`, « resize() runs before subscribers ») ; `GROUP_LABELS` dégradé de `Record<Operator['group'], string>` à `Record<string, string>` (`GrammarSection.tsx:59`) ; `Inspector.tsx:24` contourne un typage plus lâche de l'API avec `space as ColorSpaceId`. Biais à surveiller : considérer un portage « 1:1 » comme gratuit alors qu'il emporte les invariants documentés — un diff qui ne change que des imports peut quand même perdre de l'information.
+
+**Exemple session :** Revue comparative du jour — les deux agents UI (v1 et v2) ont relevé indépendamment la perte de doc/typage ; l'utilisateur a par ailleurs confirmé que l'UI est identique dans les deux apps, donc ces pertes ne sont dues qu'au portage lui-même.
