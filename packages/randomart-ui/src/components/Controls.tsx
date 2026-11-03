@@ -7,6 +7,7 @@ import { setMode, useMode } from '../stores/modeStore';
 import type { AppMode } from '../stores/modeStore';
 import { ErrorReadout } from './ErrorReadout';
 import { LabPanel } from './lab/LabPanel';
+import { ShaderSource } from './ShaderSource';
 import { ToyPanel } from './toy/ToyPanel';
 
 const MODE_OPTIONS = [
@@ -30,6 +31,7 @@ export function Controls() {
                 </Activity>
 
                 <ErrorReadout />
+                <ShaderSource />
             </Stack>
         </ErrorBoundary>
     );

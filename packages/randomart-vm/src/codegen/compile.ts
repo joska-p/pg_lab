@@ -6,12 +6,14 @@ import type { Catalog } from '../isa/catalog';
 import { MAX_SOURCE_LENGTH } from '../spec/constants';
 import { CodegenError } from '../spec/errors';
 import { wrapInput, isGlslAtom } from './format';
+import shaderHeader from './shader/header.glsl?raw';
+import raFold2Glsl from './shader/ra_fold2.glsl?raw';
 import type { Compiled, SharingPolicy } from './types';
 
 const ROOT = 'v_p';
 
 const DEPENDENCY_CODE: Record<string, string> = {
-    ra_fold2: 'vec2 ra_fold2(vec2 v) { return abs(mod(v + 3.0, 4.0) - 2.0) - 1.0; }',
+    ra_fold2: raFold2Glsl,
 };
 
 interface EmitCtx {
@@ -189,15 +191,7 @@ export function compile(catalog: Catalog, expr: Expression, opts: CompileOptions
     }
 
     const rtexts = roots.map((rid) => getInputText(rid, ectx)) as [string, string, string];
-    const preamble: string[] = [
-        'precision highp float;',
-        '',
-        'in vec2 vUv;',
-        'out vec4 o_color;',
-        '',
-        'uniform float u_phase;',
-        'const float PI = 3.141592653589793;',
-    ];
+    const preamble: string[] = shaderHeader.split('\n');
 
     for (const dep of usedDeps) {
         const code = DEPENDENCY_CODE[dep];
