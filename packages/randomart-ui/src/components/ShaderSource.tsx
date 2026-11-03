@@ -11,7 +11,6 @@ const POPOVER_ID = 'shader-source-popover';
 
 const styles = stylex.create({
     panel: {
-        width: 'min(90vw, 720px)',
         maxHeight: '85vh',
         display: 'flex',
         flexDirection: 'column',
@@ -24,6 +23,7 @@ const styles = stylex.create({
     },
     monospace: {
         flex: 1,
+        width: 'min(90vw, 100ch)',
         minHeight: 0,
         fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
         overflow: 'auto',
