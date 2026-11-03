@@ -68,17 +68,10 @@ export const EXPERIMENTS = {
         loadScene: () => import('@repo/radu-machine-learning/Scene'),
         loadControls: () => import('@repo/radu-machine-learning/Controls'),
     },
-    'randomart-v1': {
-        label: 'Randomart v1',
-        panelTitle: 'randomart v1',
-        stageLabel: 'randomart v1',
-        loadScene: () => import('@repo/randomart-v1/Scene'),
-        loadControls: () => import('@repo/randomart-v1/Controls'),
-    },
-    'randomart-vm': {
-        label: 'Randomart vm',
-        panelTitle: 'randomart vm',
-        stageLabel: 'randomart vm',
+    randomart: {
+        label: 'Randomart',
+        panelTitle: 'randomart',
+        stageLabel: 'randomart',
         loadScene: () => import('@repo/randomart-ui/Scene'),
         loadControls: () => import('@repo/randomart-ui/Controls'),
     },

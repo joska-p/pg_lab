@@ -22,7 +22,6 @@
         "@repo/pixel-manipulator": "workspace:*",
         "@repo/radu-machine-learning": "workspace:*",
         "@repo/randomart-ui": "workspace:*",
-        "@repo/randomart-v1": "workspace:*",
         "@repo/sequencer": "workspace:*",
         "@repo/ui": "workspace:*",
         "react": "catalog:",

@@ -1,18 +1,17 @@
-import type { ColorSpaceId } from '@repo/randomart-vm/color/registry';
-import { colorSpaceIds, colorSpaceRegistry } from '@repo/randomart-vm/color/registry';
+import type { ColorSpaceId } from '@repo/randomart-core/colors';
+import { COLOR_SPACE_IDS, colorSpaces } from '@repo/randomart-core/colors';
 import {
-    constraintsOf,
-    isLastNonTerminal,
-    isLastTerminal,
+    SIZE_PROFILE_IDS,
+    SIZE_PROFILES,
+    grammarRegistry,
+    isOnlyNonTerminal,
+    isOnlyTerminal,
+    presetOf,
     weightOf,
-} from '@repo/randomart-vm/grammar/grammar';
-import { SIZE_PROFILE_IDS } from '@repo/randomart-vm/grammar/quantized';
-import { grammarRegistry, presetOf } from '@repo/randomart-vm/grammar/registry';
-import type { GrammarRegistryId } from '@repo/randomart-vm/grammar/registry';
-import type { OperatorId } from '@repo/randomart-vm/isa/default';
-import type { IsaOperator } from '@repo/randomart-vm/isa/types';
-import { createSeed } from '@repo/randomart-vm/rng/seed';
-import { vm } from '@repo/randomart-vm/vm/vm';
+} from '@repo/randomart-core/grammar';
+import type { GrammarRegistryId } from '@repo/randomart-core/grammar';
+import { OP_NAMES, ops } from '@repo/randomart-core/ops';
+import type { OpName } from '@repo/randomart-core/ops';
 import { Button } from '@repo/ui/components/Button';
 import { Grid } from '@repo/ui/components/Grid';
 import { Segmented } from '@repo/ui/components/Segmented';
@@ -20,10 +19,12 @@ import { Select } from '@repo/ui/components/Select';
 import { Slider } from '@repo/ui/components/Slider';
 import { TextInput } from '@repo/ui/components/TextInput';
 
+import { MAX_SEED, createSeed } from '../../seeds';
 import {
     applyGrammar,
     drawGrammar,
     resetSeed,
+    setActionError,
     setGrammarShareDepth,
     setGrammarSize,
     setGrammarSpace,
@@ -49,26 +50,52 @@ const PRESET_OPTIONS: readonly { value: PresetOptionValue; label: string }[] = [
     { value: CUSTOM_PRESET.id, label: CUSTOM_PRESET.label },
 ];
 
-const GROUP_LABELS: Record<IsaOperator['group'], string> = {
+const GROUP_LABELS = {
     terminal: 'terminals',
     arithmetic: 'arithmetic',
     trigonometry: 'trigonometry',
     logic: 'logic',
     transform: 'warp',
-};
+} as const;
 
-const OPERATOR_GROUPS = (Object.keys(GROUP_LABELS) as IsaOperator['group'][])
+type OperatorGroup = keyof typeof GROUP_LABELS;
+
+function groupOf(name: OpName): OperatorGroup {
+    const { arity, family } = ops[name];
+    return arity === 0 ? 'terminal' : (family ?? 'arithmetic');
+}
+
+const OPERATOR_GROUPS = (Object.keys(GROUP_LABELS) as OperatorGroup[])
     .map((group) => ({
         group,
         label: GROUP_LABELS[group],
-        operators: vm.catalog.operators().filter((operator) => operator.group === group),
+        operators: OP_NAMES.filter((name) => groupOf(name) === group),
     }))
     .filter((bucket) => bucket.operators.length > 0);
 
-const SPACE_OPTIONS = colorSpaceIds.map((id) => ({
+const SPACE_OPTIONS = COLOR_SPACE_IDS.map((id) => ({
     value: id,
-    label: colorSpaceRegistry[id].label,
+    label: colorSpaces[id].label,
 }));
+
+/**
+ * Parses a raw seed input into a valid seed number, or null when the input is invalid (empty,
+ * non-numeric, non-integer, or out of range). Invalid input is reported through the store instead
+ * of throwing, per the throw-vs-repair policy.
+ */
+function parseSeedInput(value: string): number | null {
+    const trimmed = value.trim();
+    if (trimmed === '') {
+        return null;
+    }
+
+    const numeric = Number(trimmed);
+    if (!Number.isInteger(numeric) || numeric < 0 || numeric > MAX_SEED) {
+        return null;
+    }
+
+    return numeric;
+}
 
 export function GrammarSection() {
     const grammar = useGrammar();
@@ -78,14 +105,13 @@ export function GrammarSection() {
     const presetId = presetOf(grammar);
     const preset = presetId ? grammarRegistry[presetId] : CUSTOM_PRESET;
 
-    const maxShareDepth = constraintsOf(grammar.size).maxDepth;
+    const maxShareDepth = SIZE_PROFILES[grammar.size].maxDepth;
     const mono = grammar.shareDepth >= maxShareDepth;
 
-    function mustStayOn(operator: IsaOperator): boolean {
-        const name = operator.name as OperatorId;
-        return operator.isTerminal
-            ? isLastTerminal(grammar.weights, name)
-            : isLastNonTerminal(grammar.weights, name);
+    function mustStayOn(name: OpName): boolean {
+        return ops[name].arity === 0
+            ? isOnlyTerminal(grammar, name)
+            : isOnlyNonTerminal(grammar, name);
     }
 
     return (
@@ -95,7 +121,14 @@ export function GrammarSection() {
                     title="type a seed number"
                     value={String(seed)}
                     onValueChange={(value) => {
-                        resetSeed(createSeed(Number(value)));
+                        const numeric = parseSeedInput(value);
+                        if (numeric === null) {
+                            setActionError(
+                                `Invalid seed "${value}": must be an integer in [0, ${MAX_SEED}].`,
+                            );
+                            return;
+                        }
+                        resetSeed(createSeed(numeric));
                     }}
                 />
                 <Button
@@ -142,16 +175,16 @@ export function GrammarSection() {
 
                 {OPERATOR_GROUPS.map(({ group, operators }) => (
                     <Grid key={group} columns="1" gap="2" justifyItem="stretch" alignItem="stretch">
-                        {operators.map((operator) => (
+                        {operators.map((name) => (
                             <Slider
                                 color="orange"
-                                key={operator.name}
-                                label={operator.name}
-                                value={weightOf(grammar.weights, operator.name as OperatorId)}
-                                min={mustStayOn(operator) ? 1 : 0}
+                                key={name}
+                                label={name}
+                                value={weightOf(grammar, name)}
+                                min={mustStayOn(name) ? 1 : 0}
                                 max={maxWeight}
                                 onValueChange={(weight) => {
-                                    setGrammarWeight(operator.name as OperatorId, weight);
+                                    setGrammarWeight(name, weight);
                                 }}
                             />
                         ))}

@@ -1,6 +1,6 @@
-import { colorSpaceRegistry } from '@repo/randomart-vm/color/registry';
-import { constraintsOf } from '@repo/randomart-vm/grammar/grammar';
-import { formatFormula } from '@repo/randomart-vm/ir/formula';
+import { colorSpaces } from '@repo/randomart-core/colors';
+import { SIZE_PROFILES } from '@repo/randomart-core/grammar';
+import { formatFormula } from '@repo/randomart-core/tree';
 import { ControlField } from '@repo/ui/components/ControlField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
@@ -21,8 +21,8 @@ export function Inspector() {
     const expression = useExpression();
     const grammar = useGrammar();
     const { space, shareDepth } = grammar;
-    const label = colorSpaceRegistry[space].label;
-    const mono = shareDepth >= constraintsOf(grammar.size).maxDepth;
+    const label = colorSpaces[space].label;
+    const mono = shareDepth >= SIZE_PROFILES[grammar.size].maxDepth;
 
     return (
         <ErrorBoundary showStack={import.meta.env.DEV}>

@@ -3,21 +3,26 @@ import type { DurationSeconds } from '@repo/glaze/core/time';
 import type { ShaderError } from '@repo/glaze/gpu/shader/ShaderError';
 import { createNullClockStore } from '@repo/glaze/react/clockStore';
 import type { ClockStore } from '@repo/glaze/react/types';
-import type { Compiled } from '@repo/randomart-vm/codegen/types';
-import type { ColorSpaceId } from '@repo/randomart-vm/color/registry';
-import { MAX_WEIGHT } from '@repo/randomart-vm/grammar/constants';
-import { createGrammar } from '@repo/randomart-vm/grammar/grammar';
-import { drawGrammar as drawRandomGrammar } from '@repo/randomart-vm/grammar/quantized';
-import { grammarRegistry } from '@repo/randomart-vm/grammar/registry';
-import type { Grammar, SizeProfile } from '@repo/randomart-vm/grammar/types';
-import type { Expression } from '@repo/randomart-vm/ir/types';
-import type { OperatorId } from '@repo/randomart-vm/isa/default';
-import { createRng } from '@repo/randomart-vm/rng/rng';
-import { createSeed, randomSeed } from '@repo/randomart-vm/rng/seed';
-import type { Seed } from '@repo/randomart-vm/rng/types';
-import { vm } from '@repo/randomart-vm/vm/vm';
+import type { ColorSpaceId } from '@repo/randomart-core/colors';
+import { compile } from '@repo/randomart-core/emit';
+import type { Compiled } from '@repo/randomart-core/emit';
+import { generate } from '@repo/randomart-core/generate';
+import {
+    MAX_WEIGHT,
+    SIZE_PROFILES,
+    createGrammar,
+    drawGrammar as drawRandomGrammar,
+    grammarRegistry,
+} from '@repo/randomart-core/grammar';
+import type { Grammar, SizeProfile } from '@repo/randomart-core/grammar';
+import type { OpName } from '@repo/randomart-core/ops';
+import { createRng } from '@repo/randomart-core/rng';
+import type { Expression } from '@repo/randomart-core/tree';
 import { useSyncExternalStore } from 'react';
 import { create } from 'zustand';
+
+import { createSeed, randomSeed } from '../seeds';
+import type { Seed } from '../seeds';
 
 export const DEFAULT_LOOP_DURATION = createDurationSeconds(60);
 export const MIN_LOOP_DURATION = 0.5;
@@ -55,8 +60,8 @@ export interface VmState {
 
 const initialSeed = createSeed(42);
 const initialGrammar = grammarRegistry.default;
-const initialExpression = vm.generate(initialGrammar, initialSeed);
-const initialCompiled = vm.compile(initialExpression, { space: initialGrammar.space });
+const initialExpression = generate(initialGrammar, initialSeed);
+const initialCompiled = compile(initialExpression, { space: initialGrammar.space });
 const initialEntry: HistoryEntry = {
     id: 0,
     seed: initialSeed,
@@ -211,8 +216,8 @@ function runCommit(
     const { restoreId, coalesce = false } = opts;
 
     const grammar = typeof grammarOrChange === 'function' ? grammarOrChange() : grammarOrChange;
-    const expression = vm.generate(grammar, seed);
-    const compiledShader = vm.compile(expression, { space: grammar.space });
+    const expression = generate(grammar, seed);
+    const compiledShader = compile(expression, { space: grammar.space });
 
     if (restoreId === undefined) {
         const entry: HistoryEntry = {
@@ -298,9 +303,9 @@ function editGrammar(change: (grammar: Grammar) => Grammar): void {
     commit(() => change(grammar), seed, { coalesce: true });
 }
 
-export function setGrammarWeight(name: OperatorId, weight: number): void {
+export function setGrammarWeight(name: OpName, weight: number): void {
     editGrammar((grammar) =>
-        createGrammar(vm.catalog, {
+        createGrammar({
             ...grammar,
             weights: { ...grammar.weights, [name]: weight },
         }),
@@ -308,15 +313,23 @@ export function setGrammarWeight(name: OperatorId, weight: number): void {
 }
 
 export function setGrammarSize(size: SizeProfile): void {
-    editGrammar((grammar) => createGrammar(vm.catalog, { ...grammar, size }));
+    editGrammar((grammar) =>
+        createGrammar({
+            ...grammar,
+            size,
+            // Shrinking the profile also shrinks the deepest shareable level; clamp instead of
+            // letting createGrammar reject the whole edit.
+            shareDepth: Math.min(grammar.shareDepth, SIZE_PROFILES[size].maxDepth),
+        }),
+    );
 }
 
 export function setGrammarShareDepth(shareDepth: number): void {
-    editGrammar((grammar) => createGrammar(vm.catalog, { ...grammar, shareDepth }));
+    editGrammar((grammar) => createGrammar({ ...grammar, shareDepth }));
 }
 
 export function setGrammarSpace(space: ColorSpaceId): void {
-    editGrammar((grammar) => createGrammar(vm.catalog, { ...grammar, space }));
+    editGrammar((grammar) => createGrammar({ ...grammar, space }));
 }
 
 export function restoreEntry(id: number): void {
@@ -326,7 +339,7 @@ export function restoreEntry(id: number): void {
     }
     // Replay the stored expression when available (skip generate+compile); otherwise regenerate.
     if (entry.expression) {
-        const compiledShader = vm.compile(entry.expression, { space: entry.grammar.space });
+        const compiledShader = compile(entry.expression, { space: entry.grammar.space });
         store.setState({
             grammar: entry.grammar,
             seed: entry.seed,
@@ -355,7 +368,7 @@ export async function exportPng(): Promise<void> {
         return;
     }
 
-    downloadBlob(blob, `randomart-vm-${Date.now()}.png`);
+    downloadBlob(blob, `randomart-${Date.now()}.png`);
 }
 
 export function parseDurationInput(raw: string): DurationSeconds {

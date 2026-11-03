@@ -306,7 +306,6 @@ const nodePackages = [
     'packages/randomart/src/dataset/node/**',
     'packages/palette/core',
     'packages/randomart-core/**',
-    'packages/randomart-vm/**',
     'tools/new-mini-app/**',
 ];
 

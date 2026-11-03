@@ -1,7 +1,6 @@
 # randomart-core
 
-Procedural formula generator and GLSL compiler. It replaces `randomart-vm`, which stays in the
-repository until `randomart-ui` is migrated.
+Procedural formula generator and GLSL compiler, consumed by `randomart-ui`.
 
 ```
 (grammar, seed) ──▶ Expression ──▶ GLSL ──▶ GPU
@@ -75,6 +74,6 @@ lowered in that context. Adding a second operator of this kind means generalisin
 
 ## Not covered yet
 
-The determinism and CPU/GPU agreement invariants are not enforced by a test suite. `evaluate` exists
-precisely to become that oracle: compare `compile(...).source` rendered on a few pixels against
-`evaluate(...)` on the same points.
+CPU/GPU agreement is not enforced by the suite. `evaluate` exists precisely to become that oracle:
+compare `compile(...).source` rendered on a few pixels against `evaluate(...)` on the same points,
+with headless GL and/or `glslangValidator` in CI.

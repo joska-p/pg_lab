@@ -14,7 +14,7 @@
     },
     "dependencies": {
         "@repo/glaze": "workspace:*",
-        "@repo/randomart-vm": "workspace:*",
+        "@repo/randomart-core": "workspace:*",
         "@repo/ui": "workspace:*",
         "react": "catalog:",
         "react-dom": "catalog:",
