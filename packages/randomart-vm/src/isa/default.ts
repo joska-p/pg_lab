@@ -20,7 +20,7 @@ function fmtNum(n: number): string {
     return s.includes('.') ? s : `${s}.0`;
 }
 
-const defs: OperatorDef[] = [
+const defs = [
     {
         name: 'x',
         label: 'x',
@@ -183,7 +183,7 @@ const defs: OperatorDef[] = [
         coords: ({ p, args }) => `ra_fold2(${p}+0.5*vec2(${args.dx},${args.dy}))`,
         glsl: ({ args }) => args.f,
     },
-];
+] as const satisfies OperatorDef[];
 
 export function createDefaultCatalog(): Catalog {
     const cat = new Catalog();
@@ -194,3 +194,10 @@ export function createDefaultCatalog(): Catalog {
 }
 
 export const defaultCatalog = createDefaultCatalog();
+
+/**
+ * Identifiant d'opérateur du catalogue par défaut. Déclaré ici (source de vérité ancrée sur le
+ * catalogue concret) plutôt que dans `isa/types.ts`, afin que le type des poids de grammaire puisse
+ * y faire référence sans import circulaire.
+ */
+export type OperatorId = (typeof defs)[number]['name'];

@@ -9,6 +9,7 @@ import {
 import { SIZE_PROFILE_IDS } from '@repo/randomart-vm/grammar/quantized';
 import { grammarRegistry, presetOf } from '@repo/randomart-vm/grammar/registry';
 import type { GrammarRegistryId } from '@repo/randomart-vm/grammar/registry';
+import type { OperatorId } from '@repo/randomart-vm/isa/default';
 import type { IsaOperator } from '@repo/randomart-vm/isa/types';
 import { createSeed } from '@repo/randomart-vm/rng/seed';
 import { vm } from '@repo/randomart-vm/vm/vm';
@@ -81,9 +82,10 @@ export function GrammarSection() {
     const mono = grammar.shareDepth >= maxShareDepth;
 
     function mustStayOn(operator: IsaOperator): boolean {
+        const name = operator.name as OperatorId;
         return operator.isTerminal
-            ? isLastTerminal(grammar.weights, operator.name)
-            : isLastNonTerminal(grammar.weights, operator.name);
+            ? isLastTerminal(grammar.weights, name)
+            : isLastNonTerminal(grammar.weights, name);
     }
 
     return (
@@ -145,11 +147,11 @@ export function GrammarSection() {
                                 color="orange"
                                 key={operator.name}
                                 label={operator.name}
-                                value={weightOf(grammar.weights, operator.name)}
+                                value={weightOf(grammar.weights, operator.name as OperatorId)}
                                 min={mustStayOn(operator) ? 1 : 0}
                                 max={maxWeight}
                                 onValueChange={(weight) => {
-                                    setGrammarWeight(operator.name, weight);
+                                    setGrammarWeight(operator.name as OperatorId, weight);
                                 }}
                             />
                         ))}

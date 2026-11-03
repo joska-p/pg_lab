@@ -2,6 +2,7 @@ import { colorSpaceIds } from '../color/registry';
 import type { ColorSpaceId } from '../color/registry';
 import type { Catalog } from '../isa/catalog';
 import { defaultCatalog } from '../isa/default';
+import type { OperatorId } from '../isa/default';
 import type { Rng } from '../rng/types';
 import { MAX_WEIGHT } from './constants';
 import { constraintsOf, createGrammar, weightOf } from './grammar';
@@ -12,7 +13,7 @@ export const SIZE_PROFILE_IDS: readonly SizeProfile[] = ['tiny', 'small', 'mediu
 export function grammarKey(grammar: Grammar, catalog: Catalog = defaultCatalog): string {
     const weights = catalog
         .operators()
-        .map((op) => `${op.name}:${weightOf(grammar.weights, op.name)}`);
+        .map((op) => `${op.name}:${weightOf(grammar.weights, op.name as OperatorId)}`);
     return JSON.stringify([weights, grammar.size, grammar.shareDepth, grammar.space]);
 }
 
@@ -38,18 +39,21 @@ export function drawGrammar(
     pins: GrammarPins = {},
     catalog: Catalog = defaultCatalog,
 ): Grammar {
-    const weights: Record<string, number> = {};
+    const weights: Partial<Record<OperatorId, number>> = {};
     for (const op of catalog.operators()) {
-        weights[op.name] = rng.int(MAX_WEIGHT + 1); // 0..MAX_WEIGHT
+        weights[op.name as OperatorId] = rng.int(MAX_WEIGHT + 1); // 0..MAX_WEIGHT
     }
 
     const terminals = catalog.operators().filter((op) => op.isTerminal);
     const nonTerminals = catalog.operators().filter((op) => !op.isTerminal);
-    if (!terminals.some((op) => weightOf(weights, op.name) > 0) && terminals[0]) {
-        weights[terminals[0].name] = 1;
+    if (!terminals.some((op) => weightOf(weights, op.name as OperatorId) > 0) && terminals[0]) {
+        weights[terminals[0].name as OperatorId] = 1;
     }
-    if (!nonTerminals.some((op) => weightOf(weights, op.name) > 0) && nonTerminals[0]) {
-        weights[nonTerminals[0].name] = 1;
+    if (
+        !nonTerminals.some((op) => weightOf(weights, op.name as OperatorId) > 0) &&
+        nonTerminals[0]
+    ) {
+        weights[nonTerminals[0].name as OperatorId] = 1;
     }
 
     const size = pins.size ?? SIZE_PROFILE_IDS[rng.int(SIZE_PROFILE_IDS.length)];

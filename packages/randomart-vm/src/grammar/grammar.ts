@@ -1,6 +1,7 @@
 import type { ColorSpaceId } from '../color/registry';
 import type { Catalog, Operator } from '../isa/catalog';
 import { defaultCatalog } from '../isa/default';
+import type { OperatorId } from '../isa/default';
 import { assertIntegerInRange } from '../shared/asserts';
 import { MAX_WEIGHT_LIMIT, MIN_SHARE_DEPTH } from '../spec/constants';
 import { GrammarError } from '../spec/errors';
@@ -15,7 +16,7 @@ export function constraintsOf(size: SizeProfile): SizeConstraints {
     return SIZE_PROFILES[size];
 }
 
-export function weightOf(weights: GrammarWeights, name: string): number {
+export function weightOf(weights: GrammarWeights, name: OperatorId): number {
     const w = weights[name];
     return typeof w === 'number' && Number.isFinite(w) ? w : 0;
 }
@@ -41,7 +42,7 @@ function generateGrammarId(
     space: ColorSpaceId,
 ): string {
     const parts: string[] = [];
-    const keys = Object.keys(weights).sort();
+    const keys = Object.keys(weights).sort() as OperatorId[];
     for (const k of keys) {
         parts.push(`${k}:${weightOf(weights, k)}`);
     }
@@ -89,7 +90,7 @@ export function createGrammar(
         assertIntegerInRange(w, `weight of ${k}`, 0, MAX_WEIGHT_LIMIT);
     }
 
-    const vocab = catalog.operators().filter((op) => weightOf(weights, op.name) > 0);
+    const vocab = catalog.operators().filter((op) => weightOf(weights, op.name as OperatorId) > 0);
     if (vocab.length === 0) {
         throw new GrammarError('Grammar vocabulary is empty');
     }
@@ -110,7 +111,7 @@ export function createGrammar(
 
     // sort weights
     const sorted: Record<string, number> = {};
-    for (const k of [...keys].sort()) {
+    for (const k of [...keys].sort() as OperatorId[]) {
         sorted[k] = weightOf(weights, k);
     }
 
@@ -128,7 +129,7 @@ export function createGrammar(
 export function getVocabulary(catalog: Catalog, weights: GrammarWeights) {
     return catalog
         .operators()
-        .filter((op) => weightOf(weights, op.name) > 0)
+        .filter((op) => weightOf(weights, op.name as OperatorId) > 0)
         .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
 }
 
@@ -142,7 +143,7 @@ export function isNonTerminal(op: Operator): boolean {
 
 export function isLastTerminal(
     weights: GrammarWeights,
-    name: string,
+    name: OperatorId,
     catalog: Catalog = defaultCatalog,
 ): boolean {
     if (weightOf(weights, name) <= 0) {
@@ -153,7 +154,7 @@ export function isLastTerminal(
 
 export function isLastNonTerminal(
     weights: GrammarWeights,
-    name: string,
+    name: OperatorId,
     catalog: Catalog = defaultCatalog,
 ): boolean {
     if (weightOf(weights, name) <= 0) {

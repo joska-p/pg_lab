@@ -11,6 +11,7 @@ import { drawGrammar as drawRandomGrammar } from '@repo/randomart-vm/grammar/qua
 import { grammarRegistry } from '@repo/randomart-vm/grammar/registry';
 import type { Grammar, SizeProfile } from '@repo/randomart-vm/grammar/types';
 import type { Expression } from '@repo/randomart-vm/ir/types';
+import type { OperatorId } from '@repo/randomart-vm/isa/default';
 import { createRng } from '@repo/randomart-vm/rng/rng';
 import { createSeed, randomSeed } from '@repo/randomart-vm/rng/seed';
 import type { Seed } from '@repo/randomart-vm/rng/types';
@@ -297,7 +298,7 @@ function editGrammar(change: (grammar: Grammar) => Grammar): void {
     commit(() => change(grammar), seed, { coalesce: true });
 }
 
-export function setGrammarWeight(name: string, weight: number): void {
+export function setGrammarWeight(name: OperatorId, weight: number): void {
     editGrammar((grammar) =>
         createGrammar(vm.catalog, {
             ...grammar,

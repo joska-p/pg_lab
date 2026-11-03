@@ -1,4 +1,5 @@
 import type { ColorSpaceId } from '../color/registry';
+import type { OperatorId } from '../isa/default';
 import type { Brand } from '../shared/brand';
 
 export type SizeProfile = 'tiny' | 'small' | 'medium' | 'large';
@@ -9,9 +10,7 @@ export interface SizeConstraints {
     readonly maxNodes: number;
 }
 
-export interface GrammarWeights {
-    readonly [op: string]: number | undefined;
-}
+export type GrammarWeights = Readonly<Partial<Record<OperatorId, number>>>;
 
 export type Grammar = Brand<
     {

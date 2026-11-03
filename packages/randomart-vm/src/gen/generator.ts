@@ -3,6 +3,7 @@ import type { Grammar } from '../grammar/types';
 import { createExpression, createNode } from '../ir/ir';
 import type { Expression, Node } from '../ir/types';
 import type { Catalog } from '../isa/catalog';
+import type { OperatorId } from '../isa/default';
 import type { IsaOperator } from '../isa/types';
 import { createRng } from '../rng/rng';
 import { seedToNumber } from '../rng/seed';
@@ -78,7 +79,7 @@ export function generate(
             throw new GenError(`No candidates at depth ${depth} budget ${budget}`);
         }
         // deterministic tie by name not necessary; weighted is enough
-        return rng.weighted(candidates, (c) => weightOf(grammar.weights, c.name));
+        return rng.weighted(candidates, (c) => weightOf(grammar.weights, c.name as OperatorId));
     }
 
     function drawContinuous(min: number, max: number): number {
