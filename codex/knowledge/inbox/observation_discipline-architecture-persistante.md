@@ -1,5 +1,0 @@
-# Discipline d'architecture constante à travers les générations de code
-
-## **Corps :** Les deux générations du codebase (monolithe v1 et split v2) montrent la même discipline au-dessus de la moyenne : stratification stricte sans cycles de imports, IR/objets gelés (`Object.freeze` systématique), branded types (`Seed`, `DurationSeconds`, `OperatorId`), invariants **écrits dans le code** (politique throw-vs-repair documentée dans `shared/shared.ts:20-37` : contenu = throw, quantités d'édition = clamp, rien ne throw par frame), et des tests à assertions fortes (GLSL exact, invariants génératifs) plutôt que cosmétiques. Habitude à préserver. Point de vigilance du même biais : le code **le plus récent** démarre plus lâche qu'il ne finit — `any` résiduel dans le codegen v2, format sérialisé non versionné — la discipline est acquise en cours de route, pas dès l'écriture.
-
-**Exemple session :** Revue à 5 agents (core v1, vm, UI ×2, parité) : notes 7–8,5/10 partout, zéro `any` côté v1, mêmes patterns (freeze, brands, erreurs typées hiérarchisées) retrouvés des deux côtés — alors que les deux codebases ont été écrites à des moments différents.
