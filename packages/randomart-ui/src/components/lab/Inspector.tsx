@@ -1,4 +1,6 @@
-import { colorSpaceRegistry, constraintsOf, formatFormula } from '@repo/randomart-vm';
+import { colorSpaceRegistry } from '@repo/randomart-vm/color/registry';
+import { constraintsOf } from '@repo/randomart-vm/grammar/grammar';
+import { formatFormula } from '@repo/randomart-vm/ir/formula';
 import { ControlField } from '@repo/ui/components/ControlField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';

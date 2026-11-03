@@ -1,4 +1,4 @@
-import type { ColorSpaceId } from '../color';
+import type { ColorSpaceId } from '../color/registry';
 import type { Catalog, Operator } from '../isa/catalog';
 import { defaultCatalog } from '../isa/default';
 import { assertIntegerInRange } from '../shared/asserts';

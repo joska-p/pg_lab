@@ -1,5 +1,5 @@
-import { colorSpaceFunction, colorSpaceGlsl, isColorSpaceId } from '../color';
-import type { ColorSpaceId } from '../color';
+import { colorSpaceFunction, colorSpaceGlsl, isColorSpaceId } from '../color/color';
+import type { ColorSpaceId } from '../color/registry';
 import { nodeCount } from '../ir/ir';
 import type { Expression, Node } from '../ir/types';
 import type { Catalog } from '../isa/catalog';

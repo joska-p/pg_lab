@@ -1,17 +1,17 @@
+import type { ColorSpaceId } from '@repo/randomart-vm/color/registry';
+import { colorSpaceIds, colorSpaceRegistry } from '@repo/randomart-vm/color/registry';
 import {
-    colorSpaceIds,
-    colorSpaceRegistry,
     constraintsOf,
-    createSeed,
-    grammarRegistry,
     isLastNonTerminal,
     isLastTerminal,
-    presetOf,
-    SIZE_PROFILE_IDS,
-    vm,
     weightOf,
-} from '@repo/randomart-vm';
-import type { ColorSpaceId, GrammarRegistryId, IsaOperator } from '@repo/randomart-vm';
+} from '@repo/randomart-vm/grammar/grammar';
+import { SIZE_PROFILE_IDS } from '@repo/randomart-vm/grammar/quantized';
+import { grammarRegistry, presetOf } from '@repo/randomart-vm/grammar/registry';
+import type { GrammarRegistryId } from '@repo/randomart-vm/grammar/registry';
+import type { IsaOperator } from '@repo/randomart-vm/isa/types';
+import { createSeed } from '@repo/randomart-vm/rng/seed';
+import { vm } from '@repo/randomart-vm/vm/vm';
 import { Button } from '@repo/ui/components/Button';
 import { Grid } from '@repo/ui/components/Grid';
 import { Segmented } from '@repo/ui/components/Segmented';

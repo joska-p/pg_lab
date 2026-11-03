@@ -1,4 +1,4 @@
-import type { ColorSpaceId } from '../color';
+import type { ColorSpaceId } from '../color/registry';
 import type { Brand } from '../shared/brand';
 
 export type SizeProfile = 'tiny' | 'small' | 'medium' | 'large';

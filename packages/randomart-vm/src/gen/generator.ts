@@ -7,8 +7,8 @@ import type { IsaOperator } from '../isa/types';
 import { createRng } from '../rng/rng';
 import { seedToNumber } from '../rng/seed';
 import type { Seed } from '../rng/types';
+import { PARAM_DECIMALS } from '../spec/constants';
 import { GenError } from '../spec/errors';
-import { PARAM_DECIMALS } from './constants';
 
 const PARAM_SCALE = 10 ** PARAM_DECIMALS;
 

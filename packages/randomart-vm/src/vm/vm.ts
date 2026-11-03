@@ -1,7 +1,7 @@
 import { compile } from '../codegen/compile';
 import type { CompileOptions } from '../codegen/compile';
 import type { Compiled } from '../codegen/types';
-import type { ColorSpaceId } from '../color';
+import type { ColorSpaceId } from '../color/registry';
 import { generate } from '../gen/generator';
 import { createGrammar } from '../grammar/grammar';
 import type { Grammar, GrammarWeights, SizeProfile } from '../grammar/types';

@@ -4,7 +4,16 @@
     "private": true,
     "type": "module",
     "exports": {
-        ".": "./src/index.ts"
+        "./codegen/*": "./src/codegen/*.ts",
+        "./color/*": "./src/color/*.ts",
+        "./gen/*": "./src/gen/*.ts",
+        "./grammar/*": "./src/grammar/*.ts",
+        "./ir/*": "./src/ir/*.ts",
+        "./isa/*": "./src/isa/*.ts",
+        "./rng/*": "./src/rng/*.ts",
+        "./shared/*": "./src/shared/*.ts",
+        "./spec/*": "./src/spec/*.ts",
+        "./vm/*": "./src/vm/*.ts"
     },
     "scripts": {
         "dev": "vp dev",

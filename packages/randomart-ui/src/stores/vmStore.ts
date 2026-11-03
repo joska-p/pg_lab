@@ -3,24 +3,18 @@ import type { DurationSeconds } from '@repo/glaze/core/time';
 import type { ShaderError } from '@repo/glaze/gpu/shader/ShaderError';
 import { createNullClockStore } from '@repo/glaze/react/clockStore';
 import type { ClockStore } from '@repo/glaze/react/types';
-import {
-    createGrammar,
-    createRng,
-    createSeed,
-    drawGrammar as drawRandomGrammar,
-    grammarRegistry,
-    MAX_WEIGHT,
-    randomSeed,
-    vm,
-} from '@repo/randomart-vm';
-import type {
-    ColorSpaceId,
-    Compiled,
-    Expression,
-    Grammar,
-    Seed,
-    SizeProfile,
-} from '@repo/randomart-vm';
+import type { Compiled } from '@repo/randomart-vm/codegen/types';
+import type { ColorSpaceId } from '@repo/randomart-vm/color/registry';
+import { MAX_WEIGHT } from '@repo/randomart-vm/grammar/constants';
+import { createGrammar } from '@repo/randomart-vm/grammar/grammar';
+import { drawGrammar as drawRandomGrammar } from '@repo/randomart-vm/grammar/quantized';
+import { grammarRegistry } from '@repo/randomart-vm/grammar/registry';
+import type { Grammar, SizeProfile } from '@repo/randomart-vm/grammar/types';
+import type { Expression } from '@repo/randomart-vm/ir/types';
+import { createRng } from '@repo/randomart-vm/rng/rng';
+import { createSeed, randomSeed } from '@repo/randomart-vm/rng/seed';
+import type { Seed } from '@repo/randomart-vm/rng/types';
+import { vm } from '@repo/randomart-vm/vm/vm';
 import { useSyncExternalStore } from 'react';
 import { create } from 'zustand';
 
