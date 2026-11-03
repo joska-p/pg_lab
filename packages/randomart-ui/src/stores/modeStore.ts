@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type AppMode = 'toy' | 'lab';
+export type AppMode = 'toy' | 'lab' | 'history';
 
 interface ModeState {
     mode: AppMode;

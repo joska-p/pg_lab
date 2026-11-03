@@ -3,26 +3,20 @@ import { COLOR_SPACE_IDS, colorSpaces } from '@repo/randomart-core/colors';
 import {
     SIZE_PROFILE_IDS,
     SIZE_PROFILES,
-    grammarRegistry,
     isOnlyNonTerminal,
     isOnlyTerminal,
-    presetOf,
     weightOf,
 } from '@repo/randomart-core/grammar';
-import type { GrammarRegistryId } from '@repo/randomart-core/grammar';
 import { OP_NAMES, ops } from '@repo/randomart-core/ops';
 import type { OpName } from '@repo/randomart-core/ops';
-import { Button } from '@repo/ui/components/Button';
+import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Grid } from '@repo/ui/components/Grid';
 import { Segmented } from '@repo/ui/components/Segmented';
-import { Select } from '@repo/ui/components/Select';
 import { Slider } from '@repo/ui/components/Slider';
 import { TextInput } from '@repo/ui/components/TextInput';
 
 import { MAX_SEED, createSeed } from '../../seeds';
 import {
-    applyGrammar,
-    drawGrammar,
     resetSeed,
     setActionError,
     setGrammarShareDepth,
@@ -33,22 +27,6 @@ import {
     useMaxWeight,
     useSeed,
 } from '../../stores/vmStore';
-
-const CUSTOM_PRESET = {
-    id: 'custom',
-    label: 'Custom',
-    description: "'A grammar that is not one of the presets.'",
-} as const;
-
-type PresetOptionValue = GrammarRegistryId | typeof CUSTOM_PRESET.id;
-
-const PRESET_OPTIONS: readonly { value: PresetOptionValue; label: string }[] = [
-    ...(Object.keys(grammarRegistry) as GrammarRegistryId[]).map((id) => ({
-        value: id,
-        label: grammarRegistry[id].label,
-    })),
-    { value: CUSTOM_PRESET.id, label: CUSTOM_PRESET.label },
-];
 
 const GROUP_LABELS = {
     terminal: 'terminals',
@@ -102,9 +80,6 @@ export function GrammarSection() {
     const seed = useSeed();
     const maxWeight = useMaxWeight();
 
-    const presetId = presetOf(grammar);
-    const preset = presetId ? grammarRegistry[presetId] : CUSTOM_PRESET;
-
     const maxShareDepth = SIZE_PROFILES[grammar.size].maxDepth;
     const mono = grammar.shareDepth >= maxShareDepth;
 
@@ -115,10 +90,11 @@ export function GrammarSection() {
     }
 
     return (
-        <Grid columns="1" gap="3" justifyItem="stretch" alignItem="stretch">
-            <Grid columns="2" gap="2">
+        <Grid columns="1" gap="6">
+            <ControlSection title="seed">
                 <TextInput
-                    title="type a seed number"
+                    aria-label="seed"
+                    title={`an integer in [0, ${MAX_SEED}]`}
                     value={String(seed)}
                     onValueChange={(value) => {
                         const numeric = parseSeedInput(value);
@@ -131,50 +107,20 @@ export function GrammarSection() {
                         resetSeed(createSeed(numeric));
                     }}
                 />
-                <Button
-                    title="generate a new random seed"
-                    color="solder"
-                    onClick={() => {
-                        resetSeed();
-                    }}
-                >
-                    ⟳
-                </Button>
+            </ControlSection>
 
-                <Select<PresetOptionValue>
-                    title={preset.description}
-                    value={presetId ?? CUSTOM_PRESET.id}
-                    options={PRESET_OPTIONS}
-                    onValueChange={(id) => {
-                        if (id === CUSTOM_PRESET.id) {
-                            return;
-                        }
-
-                        applyGrammar(grammarRegistry[id]);
-                    }}
-                />
-
-                <Button
-                    title="generate a new random grammar"
-                    color="orange"
-                    onClick={() => {
-                        drawGrammar();
-                    }}
-                >
-                    ⟳
-                </Button>
-            </Grid>
-
-            <Grid columns="1" gap="6">
+            <ControlSection title="color">
                 <Segmented<ColorSpaceId>
                     color="orange"
                     value={grammar.space as ColorSpaceId}
                     options={SPACE_OPTIONS}
                     onValueChange={setGrammarSpace}
                 />
+            </ControlSection>
 
-                {OPERATOR_GROUPS.map(({ group, operators }) => (
-                    <Grid key={group} columns="1" gap="2" justifyItem="stretch" alignItem="stretch">
+            {OPERATOR_GROUPS.map(({ group, label, operators }) => (
+                <ControlSection key={group} title={label}>
+                    <Grid columns="1" gap="2" justifyItem="stretch" alignItem="stretch">
                         {operators.map((name) => (
                             <Slider
                                 color="orange"
@@ -189,26 +135,30 @@ export function GrammarSection() {
                             />
                         ))}
                     </Grid>
-                ))}
-            </Grid>
+                </ControlSection>
+            ))}
 
-            <Slider
-                color="orange"
-                label="size"
-                value={SIZE_PROFILE_IDS.indexOf(grammar.size)}
-                min={0}
-                max={SIZE_PROFILE_IDS.length - 1}
-                onValueChange={(value) => setGrammarSize(SIZE_PROFILE_IDS[value])}
-            />
+            <ControlSection title="structure">
+                <Grid columns="1" gap="2">
+                    <Slider
+                        color="orange"
+                        label="size"
+                        value={SIZE_PROFILE_IDS.indexOf(grammar.size)}
+                        min={0}
+                        max={SIZE_PROFILE_IDS.length - 1}
+                        onValueChange={(value) => setGrammarSize(SIZE_PROFILE_IDS[value])}
+                    />
 
-            <Slider
-                color="orange"
-                label={mono ? 'share (mono)' : 'share'}
-                value={grammar.shareDepth}
-                min={0}
-                max={maxShareDepth}
-                onValueChange={setGrammarShareDepth}
-            />
+                    <Slider
+                        color="orange"
+                        label={mono ? 'share (mono)' : 'share'}
+                        value={grammar.shareDepth}
+                        min={0}
+                        max={maxShareDepth}
+                        onValueChange={setGrammarShareDepth}
+                    />
+                </Grid>
+            </ControlSection>
         </Grid>
     );
 }

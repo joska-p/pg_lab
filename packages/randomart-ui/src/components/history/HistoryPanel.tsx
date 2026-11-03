@@ -1,7 +1,7 @@
 import { Button } from '@repo/ui/components/Button';
-import { ControlField } from '@repo/ui/components/ControlField';
+import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Text } from '@repo/ui/components/Text';
-import { space } from '@repo/ui/tokens/const.stylex';
+import { space, typography } from '@repo/ui/tokens/const.stylex';
 import * as stylex from '@stylexjs/stylex';
 
 import { restoreEntry, useCurrentId, useHistory } from '../../stores/vmStore';
@@ -13,16 +13,21 @@ const styles = stylex.create({
         gap: space['2'],
     },
     entry: {
-        justifyContent: 'flex-start',
+        justifyContent: 'space-between',
+    },
+    meta: {
+        fontSize: typography.fontSizeXs,
+        fontVariantNumeric: 'tabular-nums',
+        opacity: 0.7,
     },
 });
 
-export function HistorySection() {
+export function HistoryPanel() {
     const history = useHistory();
     const currentId = useCurrentId();
 
     return (
-        <ControlField label="History">
+        <ControlSection title="history">
             {history.length === 0 ? (
                 <Text variant="muted">No image yet</Text>
             ) : (
@@ -32,15 +37,17 @@ export function HistorySection() {
                             key={entry.id}
                             color={entry.id === currentId ? 'aqua' : 'neutral'}
                             style={styles.entry}
+                            title={`seed ${entry.seed} · ${entry.nodes} nodes`}
                             onClick={() => {
                                 restoreEntry(entry.id);
                             }}
                         >
-                            Seed {entry.seed}
+                            <span>Seed {entry.seed}</span>
+                            <span {...stylex.props(styles.meta)}>{entry.nodes} nodes</span>
                         </Button>
                     ))}
                 </div>
             )}
-        </ControlField>
+        </ControlSection>
     );
 }
