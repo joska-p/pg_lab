@@ -16,12 +16,10 @@
         "./vm/*": "./src/vm/*.ts"
     },
     "scripts": {
-        "dev": "vp dev",
         "lint": "vp lint"
     },
     "devDependencies": {
         "typescript": "catalog:",
-        "vite": "catalog:",
         "vite-plus": "catalog:"
     }
 }

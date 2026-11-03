@@ -1,0 +1,24 @@
+{
+    "name": "@repo/randomart-core",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./colors": "./src/colors.ts",
+        "./emit": "./src/emit.ts",
+        "./errors": "./src/errors.ts",
+        "./evaluate": "./src/evaluate.ts",
+        "./generate": "./src/generate.ts",
+        "./grammar": "./src/grammar.ts",
+        "./ops": "./src/ops.ts",
+        "./rng": "./src/rng.ts",
+        "./tree": "./src/tree.ts"
+    },
+    "scripts": {
+        "lint": "vp lint"
+    },
+    "devDependencies": {
+        "typescript": "catalog:",
+        "vite-plus": "catalog:"
+    }
+}
