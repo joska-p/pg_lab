@@ -9,9 +9,15 @@ package. There is no external consumer and no artwork to preserve.
 
 - `randomart-core` is implemented and self-contained: `ops`, `tree`, `rng`, `grammar`, `generate`,
   `evaluate`, `lower`, `emit`, `colors`, `glsl`.
-- Verified with `vp -C packages/randomart-core check`, temporary determinism/round-trip tests, and
-  `glslangValidator` on 80 generated shaders. Those temporary tests were removed.
-- No test suite yet. No `index.ts`: consumers import explicit subpaths by decision.
+- Verified with `vp -C packages/randomart-core check`.
+- Test suite in place (`vp -C packages/randomart-core test`):
+    - `generate.test.ts`: same seed → same formula, distinct seeds → distinct formulas, snapshot of
+      the formulas for seeds 0/42/1234, size-profile and vocabulary invariants, parameter ranges;
+    - `tree.test.ts`: `serialize → JSON → deserialize` preserves formulas, canonical JSON and the
+      compiled shader, plus the boundary rejections of `deserialize`;
+    - `emit.test.ts`: 4 sizes × 4 spaces × 6 seeds compile to well-formed shaders and `evaluate` stays
+      finite and inside `[-1, 1]` on a probe grid.
+- No `index.ts`: consumers import explicit subpaths by decision.
 - `randomart-vm` and `randomart-ui` are untouched and still use the v1 API.
 
 ## Decisions worth keeping
@@ -27,17 +33,12 @@ package. There is no external consumer and no artwork to preserve.
 
 ## Next action
 
-Add the Vitest suite in `packages/randomart-core`:
-
-1. determinism snapshot of `formatFormula(generate(grammar, seed))` for fixed seeds;
-2. `serialize → deserialize → compile` round-trip;
-3. property check over N seeds × sizes × spaces: compile does not throw, no `undefined`/`NaN`,
-   `evaluate` stays within [-1, 1];
-4. GLSL vs `evaluate` on a few pixels (headless GL), and/or `glslangValidator` in CI.
-
-Then migrate `randomart-ui`: the compiler now takes `compile(expr, { space })`, `vm`/`Vm` are gone,
+Migrate `randomart-ui`: the compiler now takes `compile(expr, { space })`, `vm`/`Vm` are gone,
 `randomSeed` and seed creation move to the UI, and weight sliders must clamp `shareDepth` on size
 changes. Finally delete `randomart-vm` and this handoff file.
+
+Optional, not covered by the suite yet: `evaluate` vs real GLSL on a few pixels (headless GL) and/or
+`glslangValidator` in CI.
 
 ## Notes
 
