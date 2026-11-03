@@ -19,11 +19,13 @@ import {
 import { SIZE_PROFILE_IDS } from '../../core/grammar/quantized';
 import { grammarRegistry, presetOf } from '../../core/grammar/registry';
 import type { GrammarRegistryId } from '../../core/grammar/registry';
+import { MAX_SEED } from '../../core/random/constants';
 import { createSeed } from '../../core/random/seed';
 import {
     applyGrammar,
     drawGrammar,
     resetSeed,
+    setActionError,
     setGrammarShareDepth,
     setGrammarSize,
     setGrammarSpace,
@@ -73,6 +75,25 @@ const SPACE_OPTIONS = colorSpaceIds.map((id) => ({
     label: colorSpaceRegistry[id].label,
 }));
 
+/*
+ * Parses a raw seed input into a valid seed number, or null when the input is invalid
+ * (empty, non-numeric, non-integer, or out of range). Invalid input is reported to the
+ * user via setActionError instead of throwing, per the throw-vs-repair policy.
+ */
+function parseSeedInput(value: string): number | null {
+    const trimmed = value.trim();
+    if (trimmed === '') {
+        return null;
+    }
+
+    const n = Number(trimmed);
+    if (!Number.isFinite(n) || !Number.isInteger(n) || n < 0 || n > MAX_SEED) {
+        return null;
+    }
+
+    return n;
+}
+
 /**
  * The grammar workshop: one point of the quantized space — an integer weight per operator, a size
  * profile, a shared-trunk depth and a color space. A preset is a named grammar; the select reads
@@ -102,7 +123,14 @@ export function GrammarSection() {
                     title="type a seed number"
                     value={String(seed)}
                     onValueChange={(value) => {
-                        resetSeed(createSeed(Number(value)));
+                        const seedValue = parseSeedInput(value);
+                        if (seedValue === null) {
+                            setActionError(
+                                `Randomart: invalid seed "${value}": must be an integer in [0, ${MAX_SEED}].`,
+                            );
+                            return;
+                        }
+                        resetSeed(createSeed(seedValue));
                     }}
                 />
                 <Button

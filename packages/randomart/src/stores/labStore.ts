@@ -207,46 +207,52 @@ export function setActionError(error: unknown): void {
  * Single write point for "new image": generate → compile → publish, all or nothing. On failure,
  * keeps previous state. `restoreId` re-selects entry; `coalesce` replaces consecutive edits.
  */
-function commit(
+/**
+ * Frame-throttled commit: rapid slider ticks coalesce into a single generate+compile per rAF frame
+ * instead of running the CPU+GPU work on every tick. Only the last queued commit runs.
+ */
+let commitFrame: number | null = null;
+let commitQueued: {
+    grammarOrChange: Grammar | (() => Grammar);
+    seed: Seed;
+    restoreId?: number;
+    coalesce: boolean;
+} | null = null;
+
+function runCommit(
     grammarOrChange: Grammar | (() => Grammar),
     seed: Seed,
     restoreId?: number,
     coalesce = false,
 ): void {
-    try {
-        // Thunk keeps editor validation (createGrammar may refuse) inside single error boundary.
-        const grammar = typeof grammarOrChange === 'function' ? grammarOrChange() : grammarOrChange;
-        const expression = generate(grammar, seed);
-        const compiledShader = compile(catalog, expression, {
-            channels: channelModelOf(grammar),
-        });
+    // Thunk keeps editor validation (createGrammar may refuse) inside single error boundary.
+    const grammar = typeof grammarOrChange === 'function' ? grammarOrChange() : grammarOrChange;
+    const expression = generate(grammar, seed);
+    const compiledShader = compile(catalog, expression, {
+        channels: channelModelOf(grammar),
+    });
 
-        if (restoreId === undefined) {
-            const entry: HistoryEntry = {
-                id: store.getState().nextEntryId,
-                seed,
-                grammar,
-                nodes: compiledShader.stats.nodes,
-            };
+    if (restoreId === undefined) {
+        const entry: HistoryEntry = {
+            id: store.getState().nextEntryId,
+            seed,
+            grammar,
+            expression,
+            nodes: compiledShader.stats.nodes,
+        };
 
-            const state = store.getState();
-            const replaces = coalesce && state.grammarEditId === state.currentId;
+        const state = store.getState();
+        const replaces = coalesce && state.grammarEditId === state.currentId;
 
-            const kept = replaces
-                ? state.history.filter((candidate) => candidate.id !== state.currentId)
-                : state.history;
-
-            store.setState({
-                history: [entry, ...kept].slice(0, CONFIG.app.historyLimit),
-                currentId: entry.id,
-                nextEntryId: state.nextEntryId + 1,
-                grammarEditId: coalesce ? entry.id : null,
-            });
-        } else {
-            store.setState({ grammarEditId: null, currentId: restoreId });
-        }
+        const kept = replaces
+            ? state.history.filter((candidate) => candidate.id !== state.currentId)
+            : state.history;
 
         store.setState({
+            history: [entry, ...kept].slice(0, CONFIG.app.historyLimit),
+            currentId: entry.id,
+            nextEntryId: state.nextEntryId + 1,
+            grammarEditId: coalesce ? entry.id : null,
             grammar,
             seed,
             expression,
@@ -254,8 +260,41 @@ function commit(
             compiledShader,
             actionError: null,
         });
-    } catch (error) {
-        setActionError(error);
+    } else {
+        store.setState({
+            grammarEditId: null,
+            currentId: restoreId,
+            grammar,
+            seed,
+            expression,
+            provenanceCheck: 'matches',
+            compiledShader,
+            actionError: null,
+        });
+    }
+}
+
+function commit(
+    grammarOrChange: Grammar | (() => Grammar),
+    seed: Seed,
+    restoreId?: number,
+    coalesce = false,
+): void {
+    commitQueued = { grammarOrChange, seed, restoreId, coalesce };
+    if (commitFrame === null) {
+        commitFrame = requestAnimationFrame(() => {
+            commitFrame = null;
+            const queued = commitQueued;
+            commitQueued = null;
+            if (!queued) {
+                return;
+            }
+            try {
+                runCommit(queued.grammarOrChange, queued.seed, queued.restoreId, queued.coalesce);
+            } catch (error) {
+                setActionError(error);
+            }
+        });
     }
 }
 

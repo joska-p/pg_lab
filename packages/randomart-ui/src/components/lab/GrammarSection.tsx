@@ -48,7 +48,7 @@ const PRESET_OPTIONS: readonly { value: PresetOptionValue; label: string }[] = [
     { value: CUSTOM_PRESET.id, label: CUSTOM_PRESET.label },
 ];
 
-const GROUP_LABELS: Record<string, string> = {
+const GROUP_LABELS: Record<IsaOperator['group'], string> = {
     terminal: 'terminals',
     arithmetic: 'arithmetic',
     trigonometry: 'trigonometry',
@@ -56,7 +56,7 @@ const GROUP_LABELS: Record<string, string> = {
     transform: 'warp',
 };
 
-const OPERATOR_GROUPS = Object.keys(GROUP_LABELS)
+const OPERATOR_GROUPS = (Object.keys(GROUP_LABELS) as IsaOperator['group'][])
     .map((group) => ({
         group,
         label: GROUP_LABELS[group],

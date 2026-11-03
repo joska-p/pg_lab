@@ -30,7 +30,7 @@ export function createRng(seed: number | string): Rng {
 
     const int = (max: number): number => {
         if (max <= 0) {
-            return 0;
+            throw new Error(`rng.int: max must be positive, got ${max}`);
         }
         return Math.floor(next() * max);
     };

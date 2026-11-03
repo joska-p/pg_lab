@@ -5,6 +5,7 @@ import type { Expression, Node } from '../ir/types';
 import type { Catalog } from '../isa/catalog';
 import type { IsaOperator } from '../isa/types';
 import { createRng } from '../rng/rng';
+import { seedToNumber } from '../rng/seed';
 import type { Seed } from '../rng/types';
 import { GenError } from '../spec/errors';
 import { PARAM_DECIMALS } from './constants';
@@ -48,7 +49,9 @@ export function generate(
     seed: Seed | number | string,
 ): Expression {
     const rng = createRng(
-        typeof seed === 'object' && 'brand' in (seed as any) ? (seed as any).toString() : seed,
+        typeof seed === 'object' && seed !== null && 'brand' in seed
+            ? seedToNumber(seed as Seed)
+            : seed,
     );
     const { minDepth, maxDepth, maxNodes } = constraintsOf(grammar.size);
     const shareDepth = grammar.shareDepth;

@@ -1,8 +1,8 @@
 import { IsaError } from '../spec/errors';
 import type { IsaOperator, OperatorDef, ParamRange } from './types';
 
-function zipRecord(names: readonly string[], values: readonly any[]): Record<string, any> {
-    const out: Record<string, any> = {};
+function zipRecord<T>(names: readonly string[], values: readonly T[]): Record<string, T> {
+    const out: Record<string, T> = {};
     for (let i = 0; i < names.length; i++) {
         out[names[i]] = values[i];
     }

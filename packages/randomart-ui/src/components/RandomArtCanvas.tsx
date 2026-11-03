@@ -17,16 +17,29 @@ const DEFAULT_CONTEXT_OPTIONS: WebGLContextAttributes = {
 };
 
 interface RandomArtCanvasProps {
+    /** Fragment shader source code adhering to randomart's GLSL contract. */
     fragmentShader: string;
+    /** True when the shader reads `u_phase` (CompiledShader.animated). Defaults to true. */
     animated?: boolean;
+    /** Animation loop duration. Defaults to `DEFAULT_LOOP_DURATION`. */
     duration?: DurationSeconds;
+    /** Callback invoked whenever shader compilation succeeds (null) or fails (ShaderError). */
     onShaderError?: (error: ShaderError | null) => void;
+    /** Callback connecting the clock store to the UI store. */
     onClockStore?: (clockStore: ClockStore) => void;
+    /** Called once on mount — use to capture surface.canvas for export. */
     onMount?: (surface: GpuSurface) => void;
+    /** CSS class name forwarded to the canvas element. */
     className?: string;
+    /** Inline styles forwarded to the canvas element. */
     style?: CSSProperties;
 }
 
+/**
+ * Thin adapter around @repo/glaze GpuCanvas for randomart. Timed clock (paused at phase 0), WebGL
+ * context flags, supplies `u_phase`. Lazy rendering: still/paused/static costs no GPU time. Relies
+ * on `preserveDrawingBuffer: true`; gate redraws on phase change, resize, context restore.
+ */
 export function RandomArtCanvas({
     fragmentShader,
     animated = true,

@@ -1,3 +1,4 @@
+import type { ColorSpaceId } from '../color';
 import type { Brand } from '../shared/brand';
 
 export type SizeProfile = 'tiny' | 'small' | 'medium' | 'large';
@@ -20,7 +21,7 @@ export type Grammar = Brand<
         readonly weights: GrammarWeights;
         readonly size: SizeProfile;
         readonly shareDepth: number;
-        readonly space: string;
+        readonly space: ColorSpaceId;
     },
     'Grammar'
 >;
@@ -32,5 +33,5 @@ export interface GrammarData {
     readonly weights: Record<string, number>;
     readonly size: SizeProfile;
     readonly shareDepth: number;
-    readonly space: string;
+    readonly space: ColorSpaceId;
 }

@@ -1,6 +1,7 @@
 import { compile } from '../codegen/compile';
 import type { CompileOptions } from '../codegen/compile';
 import type { Compiled } from '../codegen/types';
+import type { ColorSpaceId } from '../color';
 import { generate } from '../gen/generator';
 import { createGrammar } from '../grammar/grammar';
 import type { Grammar, GrammarWeights, SizeProfile } from '../grammar/types';
@@ -15,7 +16,7 @@ export interface VmOptions {
 }
 
 export class Vm {
-    catalog: Catalog;
+    readonly catalog: Catalog;
     constructor(opts: VmOptions = {}) {
         this.catalog = opts.catalog ?? defaultCatalog;
     }
@@ -24,7 +25,7 @@ export class Vm {
         weights: GrammarWeights;
         size: SizeProfile;
         shareDepth: number;
-        space?: string;
+        space?: ColorSpaceId;
         label?: string;
         description?: string;
     }): Grammar {

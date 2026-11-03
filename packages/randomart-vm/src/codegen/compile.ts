@@ -1,11 +1,11 @@
 import { colorSpaceFunction, colorSpaceGlsl, isColorSpaceId } from '../color';
 import type { ColorSpaceId } from '../color';
 import { nodeCount } from '../ir/ir';
-import type { Expression } from '../ir/types';
+import type { Expression, Node } from '../ir/types';
 import type { Catalog } from '../isa/catalog';
 import { MAX_SOURCE_LENGTH } from '../spec/constants';
 import { CodegenError } from '../spec/errors';
-import { wrapInput } from './format';
+import { wrapInput, isGlslAtom } from './format';
 import type { Compiled, SharingPolicy } from './types';
 
 const ROOT = 'v_p';
@@ -56,12 +56,17 @@ function getInputText(id: number, ctx: EmitCtx): string {
 
 export interface CompileOptions {
     sharing?: SharingPolicy;
-    space?: ColorSpaceId | string;
+    space?: ColorSpaceId;
 }
 
 export function compile(catalog: Catalog, expr: Expression, opts: CompileOptions = {}): Compiled {
     const policy: SharingPolicy = opts.sharing ?? 'shared';
-    const space: ColorSpaceId = isColorSpaceId(opts.space) ? opts.space : 'srgb';
+    if (!isColorSpaceId(opts.space)) {
+        throw new CodegenError(
+            `Randomart: invalid color space at "compile.space" — got ${JSON.stringify(opts.space)}`,
+        );
+    }
+    const space: ColorSpaceId = opts.space;
 
     const vertices: Vertex[] = [];
     const emissions: Emission[] = [];
@@ -76,12 +81,12 @@ export function compile(catalog: Catalog, expr: Expression, opts: CompileOptions
         usages.set(id, (usages.get(id) ?? 0) + count);
     }
 
-    function lowerNode(node: any, cctx: string): number {
+    function lowerNode(node: Node, cctx: string): number {
         const op = catalog.operator(node.op);
         const pstr = (node.params ?? []).join(',');
         const current = (node.inputs ?? []).slice(0, op.currentCount);
         const inner = (node.inputs ?? []).slice(op.currentCount);
-        const currentIds = current.map((ch: any) => lowerNode(ch, cctx));
+        const currentIds = current.map((ch: Node) => lowerNode(ch, cctx));
 
         let innerContext = cctx;
         if (op.hasInner) {
@@ -109,7 +114,7 @@ export function compile(catalog: Catalog, expr: Expression, opts: CompileOptions
             }
         }
 
-        const innerIds = inner.map((ch: any) => lowerNode(ch, innerContext));
+        const innerIds = inner.map((ch: Node) => lowerNode(ch, innerContext));
         const all = [...currentIds, ...innerIds];
         const key = `${cctx}|${node.op}[${pstr}](${all.join(',')})`;
         const existing = vmap.get(key);
@@ -172,12 +177,7 @@ export function compile(catalog: Catalog, expr: Expression, opts: CompileOptions
                 return true;
             }
             const u = usages.get(v.id) ?? 0;
-            const isAtom =
-                /^v_p\.[xy]$/.test(raw) ||
-                /^u_phase$/.test(raw) ||
-                /^-?[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$/.test(raw) ||
-                /^\(-[0-9]+/.test(raw);
-            return u >= 2 && !isAtom;
+            return u >= 2 && !isGlslAtom(raw);
         })();
         if (useVar) {
             const name = `v${ectx.varCount++}`;

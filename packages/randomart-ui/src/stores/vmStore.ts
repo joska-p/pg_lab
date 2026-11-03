@@ -197,52 +197,88 @@ interface CommitOptions {
     coalesce?: boolean;
 }
 
-function commit(
+/**
+ * Frame-throttled commit: rapid slider ticks coalesce into a single generate+compile per rAF frame
+ * instead of running the CPU+GPU work on every tick. Only the last queued commit runs.
+ */
+let commitFrame: number | null = null;
+let commitQueued: {
+    grammarOrChange: Grammar | (() => Grammar);
+    seed: Seed;
+    opts: CommitOptions;
+} | null = null;
+
+function runCommit(
     grammarOrChange: Grammar | (() => Grammar),
     seed: Seed,
-    opts: CommitOptions = {},
+    opts: CommitOptions,
 ): void {
     const { restoreId, coalesce = false } = opts;
 
-    try {
-        const grammar = typeof grammarOrChange === 'function' ? grammarOrChange() : grammarOrChange;
-        const expression = vm.generate(grammar, seed);
-        const compiledShader = vm.compile(expression, { space: grammar.space });
+    const grammar = typeof grammarOrChange === 'function' ? grammarOrChange() : grammarOrChange;
+    const expression = vm.generate(grammar, seed);
+    const compiledShader = vm.compile(expression, { space: grammar.space });
 
-        if (restoreId === undefined) {
-            const entry: HistoryEntry = {
-                id: store.getState().nextEntryId,
-                seed,
-                grammar,
-                nodes: compiledShader.stats.nodes,
-            };
+    if (restoreId === undefined) {
+        const entry: HistoryEntry = {
+            id: store.getState().nextEntryId,
+            seed,
+            grammar,
+            expression,
+            nodes: compiledShader.stats.nodes,
+        };
 
-            const state = store.getState();
-            const replaces = coalesce && state.grammarEditId === state.currentId;
+        const state = store.getState();
+        const replaces = coalesce && state.grammarEditId === state.currentId;
 
-            const kept = replaces
-                ? state.history.filter((candidate) => candidate.id !== state.currentId)
-                : state.history;
-
-            store.setState({
-                history: [entry, ...kept].slice(0, HISTORY_LIMIT),
-                currentId: entry.id,
-                nextEntryId: state.nextEntryId + 1,
-                grammarEditId: coalesce ? entry.id : null,
-            });
-        } else {
-            store.setState({ grammarEditId: null, currentId: restoreId });
-        }
+        const kept = replaces
+            ? state.history.filter((candidate) => candidate.id !== state.currentId)
+            : state.history;
 
         store.setState({
+            history: [entry, ...kept].slice(0, HISTORY_LIMIT),
+            currentId: entry.id,
+            nextEntryId: state.nextEntryId + 1,
+            grammarEditId: coalesce ? entry.id : null,
             grammar,
             seed,
             expression,
             compiledShader,
             actionError: null,
         });
-    } catch (error) {
-        setActionError(error);
+    } else {
+        store.setState({
+            grammarEditId: null,
+            currentId: restoreId,
+            grammar,
+            seed,
+            expression,
+            compiledShader,
+            actionError: null,
+        });
+    }
+}
+
+function commit(
+    grammarOrChange: Grammar | (() => Grammar),
+    seed: Seed,
+    opts: CommitOptions = {},
+): void {
+    commitQueued = { grammarOrChange, seed, opts };
+    if (commitFrame === null) {
+        commitFrame = requestAnimationFrame(() => {
+            commitFrame = null;
+            const queued = commitQueued;
+            commitQueued = null;
+            if (!queued) {
+                return;
+            }
+            try {
+                runCommit(queued.grammarOrChange, queued.seed, queued.opts);
+            } catch (error) {
+                setActionError(error);
+            }
+        });
     }
 }
 
@@ -291,6 +327,20 @@ export function setGrammarSpace(space: ColorSpaceId): void {
 export function restoreEntry(id: number): void {
     const entry = store.getState().history.find((candidate) => candidate.id === id);
     if (!entry) {
+        return;
+    }
+    // Replay the stored expression when available (skip generate+compile); otherwise regenerate.
+    if (entry.expression) {
+        const compiledShader = vm.compile(entry.expression, { space: entry.grammar.space });
+        store.setState({
+            grammar: entry.grammar,
+            seed: entry.seed,
+            expression: entry.expression,
+            compiledShader,
+            currentId: entry.id,
+            grammarEditId: null,
+            actionError: null,
+        });
         return;
     }
     commit(entry.grammar, entry.seed, { restoreId: entry.id });

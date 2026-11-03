@@ -7,7 +7,7 @@ export function formatNumber(value: number): string {
 
 /** One-line label of a node alone: `sin`, `const(0.3)`. No knowledge of specific operators. */
 export function formatNodeLabel(node: Node): string {
-    const name = (node as any).operatorName ?? node.op;
+    const name = node.op;
     if (node.params.length === 0) {
         return name;
     }
@@ -21,7 +21,7 @@ export function formatNodeLabel(node: Node): string {
  * always shown in full.
  */
 export function formatFormula(node: Node, maxDepth: number = Number.POSITIVE_INFINITY): string {
-    const name = (node as any).operatorName ?? node.op;
+    const name = node.op;
     if (node.inputs.length === 0) {
         return formatNodeLabel(node);
     }

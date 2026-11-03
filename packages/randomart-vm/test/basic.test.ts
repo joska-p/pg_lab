@@ -68,7 +68,7 @@ describe('vm basic', () => {
         const x = createNode('x');
         const y = createNode('y');
         const warp = createNode('warp', [x, y, createNode('add', [x, y])]);
-        const compiled = vm.compile(createExpression(warp, warp, warp));
+        const compiled = vm.compile(createExpression(warp, warp, warp), { space: 'srgb' });
 
         expect(compiled.source).toContain('ra_fold2');
         expect(compiled.stats.contexts).toBe(2);

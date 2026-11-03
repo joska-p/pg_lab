@@ -1,4 +1,5 @@
-import type { Catalog } from '../isa/catalog';
+import type { ColorSpaceId } from '../color';
+import type { Catalog, Operator } from '../isa/catalog';
 import { defaultCatalog } from '../isa/default';
 import { assertIntegerInRange } from '../shared/asserts';
 import { MAX_WEIGHT_LIMIT, MIN_SHARE_DEPTH } from '../spec/constants';
@@ -37,7 +38,7 @@ function generateGrammarId(
     weights: GrammarWeights,
     size: SizeProfile,
     shareDepth: number,
-    space: string,
+    space: ColorSpaceId,
 ): string {
     const parts: string[] = [];
     const keys = Object.keys(weights).sort();
@@ -60,7 +61,7 @@ export function createGrammar(
         weights: GrammarWeights;
         size: SizeProfile;
         shareDepth: number;
-        space?: string;
+        space?: ColorSpaceId;
     },
 ): Grammar {
     const { weights, size } = opts;
@@ -131,12 +132,12 @@ export function getVocabulary(catalog: Catalog, weights: GrammarWeights) {
         .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
 }
 
-export function isTerminal(op: any) {
-    return op?.isTerminal === true;
+export function isTerminal(op: Operator): boolean {
+    return op.isTerminal === true;
 }
 
-export function isNonTerminal(op: any) {
-    return op?.isTerminal === false;
+export function isNonTerminal(op: Operator): boolean {
+    return op.isTerminal === false;
 }
 
 export function isLastTerminal(

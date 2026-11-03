@@ -1,5 +1,5 @@
 import { isRecord } from '../shared/guards';
-import { MAX_IMPORT_DEPTH, MAX_IMPORT_NODES } from '../spec/constants';
+import { GENERATOR_VERSION, MAX_IMPORT_DEPTH, MAX_IMPORT_NODES } from '../spec/constants';
 import { IrError } from '../spec/errors';
 import { createExpression, createNode } from './ir';
 import type { Expression, ExpressionData, Node, NodeData } from './types';
@@ -14,6 +14,7 @@ function serializeNode(node: Node): NodeData {
 
 export function serialize(expression: Expression): ExpressionData {
     return {
+        version: GENERATOR_VERSION,
         r: serializeNode(expression.r),
         g: serializeNode(expression.g),
         b: serializeNode(expression.b),
@@ -83,8 +84,14 @@ export function deserialize(data: unknown): Expression {
     if (!isRecord(data)) {
         throw new IrError('Expression invalid: object expected');
     }
+    const version = data.version;
+    if (version !== GENERATOR_VERSION) {
+        throw new IrError(
+            `Expression invalid: version mismatch — expected ${GENERATOR_VERSION}, got ${version}`,
+        );
+    }
     for (const key of Object.keys(data)) {
-        if (key !== 'r' && key !== 'g' && key !== 'b') {
+        if (key !== 'r' && key !== 'g' && key !== 'b' && key !== 'version') {
             throw new IrError(`Expression invalid: unknown field ${JSON.stringify(key)}`);
         }
     }

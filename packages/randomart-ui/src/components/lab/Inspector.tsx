@@ -1,5 +1,4 @@
 import { colorSpaceRegistry, constraintsOf, formatFormula } from '@repo/randomart-vm';
-import type { ColorSpaceId } from '@repo/randomart-vm';
 import { ControlField } from '@repo/ui/components/ControlField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
@@ -20,8 +19,7 @@ export function Inspector() {
     const expression = useExpression();
     const grammar = useGrammar();
     const { space, shareDepth } = grammar;
-    const spaceInfo = colorSpaceRegistry[space as ColorSpaceId];
-    const label = spaceInfo ? spaceInfo.label : space;
+    const label = colorSpaceRegistry[space].label;
     const mono = shareDepth >= constraintsOf(grammar.size).maxDepth;
 
     return (

@@ -25,6 +25,7 @@ export interface NodeData {
 }
 
 export interface ExpressionData {
+    readonly version: number;
     readonly r: NodeData;
     readonly g: NodeData;
     readonly b: NodeData;
