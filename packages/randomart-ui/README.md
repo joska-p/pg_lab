@@ -24,7 +24,7 @@ Scene       Controls
 | Store           | Responsibility                                                                                                                                                                |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `artworkStore`  | Single source of truth: `Artwork { grammar, seed, expression, shader }`. Mutations go through `editGrammar`, `newSeed`, `randomizeGrammar`, `applyGrammar` (batched via RAF). |
-| `surfaceStore`  | Holds the live `HTMLCanvasElement` and `ClockStore` for export / duration sync.                                                                                               |
+| `surfaceStore`  | Holds the live `ClockStore` for playback controls and duration sync.                                                                                                          |
 | `playbackStore` | Animation loop duration.                                                                                                                                                      |
 | `modeStore`     | UI mode: `'toy' \| 'lab'`.                                                                                                                                                    |
 | `errorStore`    | Single action error (`actionError`), cleared by the next successful action.                                                                                                   |
@@ -46,9 +46,9 @@ App
 
 ### Commands
 
-| Command     | File                    | Notes                                                                                  |
-| ----------- | ----------------------- | -------------------------------------------------------------------------------------- |
-| `exportPng` | `commands/exportPng.ts` | High-res offscreen (2× DPR, max 4096px). Does **not** require `preserveDrawingBuffer`. |
+| Command     | File                    | Notes                                                                                                                                                     |
+| ----------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `exportPng` | `commands/exportPng.ts` | Renders the compiled shader offscreen (WebGL2 `OffscreenCanvas`, `EXPORT_SIZE` px square, capped by the GPU limits). Independent of the displayed canvas. |
 
 ### Rendering
 
@@ -93,7 +93,7 @@ Add a `preset(label, description, options)` entry to `grammarRegistry` in
 
 ### PNG export
 
-`exportPng(canvas, seed)` renders to an `OffscreenCanvas` at 2× DPR (clamped to 4096px), avoiding `preserveDrawingBuffer: true` on the main canvas (perf win). Filename: `randomart-<sanitized-seed>.png`.
+`exportPng` renders the compiled shader offscreen in a dedicated WebGL2 `OffscreenCanvas` at `EXPORT_SIZE` px square (capped by the GPU viewport limits), independent of the displayed canvas. The phase is the current clock progress for animated shaders, `0` otherwise. Filename: `randomart-<sanitized-seed>.png`.
 
 ### Conventions
 

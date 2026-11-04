@@ -4,19 +4,14 @@ import { useCallback, useSyncExternalStore } from 'react';
 import { create } from 'zustand';
 
 interface SurfaceState {
-    readonly canvas: HTMLCanvasElement | null;
     /** Null until the canvas is mounted: there is no dead placeholder clock to compare against. */
     readonly clockStore: ClockStore | null;
     readonly shaderError: ShaderError | null;
 }
 
-const INITIAL: SurfaceState = { canvas: null, clockStore: null, shaderError: null };
+const INITIAL: SurfaceState = { clockStore: null, shaderError: null };
 
 const store = create<SurfaceState>(() => INITIAL);
-
-export function useCanvas(): HTMLCanvasElement | null {
-    return store((state) => state.canvas);
-}
 
 export function useClockStore(): ClockStore | null {
     return store((state) => state.clockStore);
@@ -24,10 +19,6 @@ export function useClockStore(): ClockStore | null {
 
 export function useShaderError(): ShaderError | null {
     return store((state) => state.shaderError);
-}
-
-export function attachCanvas(canvas: HTMLCanvasElement): void {
-    store.setState({ canvas });
 }
 
 export function attachClock(clockStore: ClockStore): void {
@@ -38,7 +29,7 @@ export function setShaderError(shaderError: ShaderError | null): void {
     store.setState({ shaderError });
 }
 
-/** Called when the surface unmounts, so no handler can reach a disposed canvas or clock. */
+/** Called when the surface unmounts, so no handler can reach a disposed clock. */
 export function detachSurface(): void {
     store.setState(INITIAL);
 }
