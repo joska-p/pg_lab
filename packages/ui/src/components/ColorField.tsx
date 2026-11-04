@@ -32,6 +32,11 @@ function asHex(value: string) {
         return DEFAULT_HEX;
     }
     const hex = match[1];
+    if (hex === undefined) {
+        // Ce cas est impossible avec cette regex (groupe de capture obligatoire),
+        // mais le type system l'exige : on rend la valeur telle quelle.
+        return value;
+    }
     return hex.length === 3 ? `#${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}` : value;
 }
 

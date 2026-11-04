@@ -146,6 +146,11 @@ export function getSpawnPoints({
 
     // 3. Handle pure mathematical vertex processing
     const rawVertices = VERTEX_PRESETS[preset];
+
+    if (rawVertices === undefined) {
+        throw Error(`Expected vertices got: ${rawVertices}`);
+    }
+
     const vertexVec = new Vector3();
     let idCounter = 0;
 
