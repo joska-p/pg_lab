@@ -26,7 +26,7 @@ export interface CreateGrammarOptions {
     readonly maxDepth: number;
     readonly maxNodes: number;
     readonly shareDepth: number;
-    readonly space: ColorSpaceId;
+    readonly space?: ColorSpaceId;
 }
 
 /** A registry entry: a grammar plus its presentational label and description. */

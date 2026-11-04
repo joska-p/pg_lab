@@ -10,7 +10,7 @@ import {
     weightOf,
 } from '@repo/randomart-core/grammar';
 import { OP_NAMES, isTerminal, groupOf } from '@repo/randomart-core/ops';
-import type { OpName } from '@repo/randomart-core/ops';
+import type { OpFamily, OpName } from '@repo/randomart-core/ops';
 import { MAX_SEED_LENGTH, parseSeed } from '@repo/randomart-core/seed';
 import type { Seed } from '@repo/randomart-core/seed';
 import { ControlSection } from '@repo/ui/components/ControlSection';
@@ -36,7 +36,7 @@ const GROUP_LABELS = {
     trigonometry: 'trigonometry',
     logic: 'logic',
     transform: 'warp',
-} as const;
+} as const satisfies Record<OpFamily, string>;
 
 type OperatorGroup = keyof typeof GROUP_LABELS;
 
@@ -122,7 +122,7 @@ export function GrammarSection() {
             <ControlSection title="color">
                 <Segmented<ColorSpaceId>
                     color="orange"
-                    value={grammar.space as ColorSpaceId}
+                    value={grammar.space}
                     options={SPACE_OPTIONS}
                     onValueChange={(space) => {
                         editGrammar((current) => withSpace(current, space));

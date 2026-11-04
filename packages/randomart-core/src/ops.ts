@@ -33,8 +33,8 @@ export interface EvalArgs {
 export type OpFamily = 'terminal' | 'arithmetic' | 'trigonometry' | 'logic' | 'transform';
 
 interface BaseOp {
-    /** Grouping hint for operator pickers. Terminals are recognised by `arity === 0`. */
-    readonly family?: OpFamily;
+    /** Operator family for pickers; `family === 'terminal'` is equivalent to `arity === 0`. */
+    readonly family: OpFamily;
     readonly params?: Readonly<Record<string, ParamSpec>>;
     /** True when the operator reads `u_phase` with these parameters. */
     readonly usesTime?: (params: Readonly<Record<string, number>>) => boolean;
@@ -270,6 +270,5 @@ export function isTerminal(name: OpName): boolean {
 
 /** Grouping hint for operator pickers, matching the UI taxonomy. */
 export function groupOf(name: OpName): OpFamily {
-    const op = opTable[name];
-    return op.family ?? 'arithmetic';
+    return opTable[name].family;
 }
