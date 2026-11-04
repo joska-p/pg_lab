@@ -1,3 +1,4 @@
+import { getOrThrow } from '../core/getOrThrow';
 import type { Quat } from './quat';
 import type { Vec3 } from './vec3';
 
@@ -99,39 +100,39 @@ export class Mat4 {
         const be = b.elements;
         const te = this.elements;
 
-        const a11 = ae[0];
-        const a12 = ae[4];
-        const a13 = ae[8];
-        const a14 = ae[12];
-        const a21 = ae[1];
-        const a22 = ae[5];
-        const a23 = ae[9];
-        const a24 = ae[13];
-        const a31 = ae[2];
-        const a32 = ae[6];
-        const a33 = ae[10];
-        const a34 = ae[14];
-        const a41 = ae[3];
-        const a42 = ae[7];
-        const a43 = ae[11];
-        const a44 = ae[15];
+        const a11 = getOrThrow(ae, 0);
+        const a12 = getOrThrow(ae, 4);
+        const a13 = getOrThrow(ae, 8);
+        const a14 = getOrThrow(ae, 12);
+        const a21 = getOrThrow(ae, 1);
+        const a22 = getOrThrow(ae, 5);
+        const a23 = getOrThrow(ae, 9);
+        const a24 = getOrThrow(ae, 13);
+        const a31 = getOrThrow(ae, 2);
+        const a32 = getOrThrow(ae, 6);
+        const a33 = getOrThrow(ae, 10);
+        const a34 = getOrThrow(ae, 14);
+        const a41 = getOrThrow(ae, 3);
+        const a42 = getOrThrow(ae, 7);
+        const a43 = getOrThrow(ae, 11);
+        const a44 = getOrThrow(ae, 15);
 
-        const b11 = be[0];
-        const b12 = be[4];
-        const b13 = be[8];
-        const b14 = be[12];
-        const b21 = be[1];
-        const b22 = be[5];
-        const b23 = be[9];
-        const b24 = be[13];
-        const b31 = be[2];
-        const b32 = be[6];
-        const b33 = be[10];
-        const b34 = be[14];
-        const b41 = be[3];
-        const b42 = be[7];
-        const b43 = be[11];
-        const b44 = be[15];
+        const b11 = getOrThrow(be, 0);
+        const b12 = getOrThrow(be, 4);
+        const b13 = getOrThrow(be, 8);
+        const b14 = getOrThrow(be, 12);
+        const b21 = getOrThrow(be, 1);
+        const b22 = getOrThrow(be, 5);
+        const b23 = getOrThrow(be, 9);
+        const b24 = getOrThrow(be, 13);
+        const b31 = getOrThrow(be, 2);
+        const b32 = getOrThrow(be, 6);
+        const b33 = getOrThrow(be, 10);
+        const b34 = getOrThrow(be, 14);
+        const b41 = getOrThrow(be, 3);
+        const b42 = getOrThrow(be, 7);
+        const b43 = getOrThrow(be, 11);
+        const b44 = getOrThrow(be, 15);
 
         te[0] = a11 * b11 + a12 * b21 + a13 * b31 + a14 * b41;
         te[4] = a11 * b12 + a12 * b22 + a13 * b32 + a14 * b42;
@@ -158,22 +159,22 @@ export class Mat4 {
 
     invert(): this {
         const te = this.elements;
-        const n11 = te[0];
-        const n21 = te[1];
-        const n31 = te[2];
-        const n41 = te[3];
-        const n12 = te[4];
-        const n22 = te[5];
-        const n32 = te[6];
-        const n42 = te[7];
-        const n13 = te[8];
-        const n23 = te[9];
-        const n33 = te[10];
-        const n43 = te[11];
-        const n14 = te[12];
-        const n24 = te[13];
-        const n34 = te[14];
-        const n44 = te[15];
+        const n11 = getOrThrow(te, 0);
+        const n21 = getOrThrow(te, 1);
+        const n31 = getOrThrow(te, 2);
+        const n41 = getOrThrow(te, 3);
+        const n12 = getOrThrow(te, 4);
+        const n22 = getOrThrow(te, 5);
+        const n32 = getOrThrow(te, 6);
+        const n42 = getOrThrow(te, 7);
+        const n13 = getOrThrow(te, 8);
+        const n23 = getOrThrow(te, 9);
+        const n33 = getOrThrow(te, 10);
+        const n43 = getOrThrow(te, 11);
+        const n14 = getOrThrow(te, 12);
+        const n24 = getOrThrow(te, 13);
+        const n34 = getOrThrow(te, 14);
+        const n44 = getOrThrow(te, 15);
 
         const t11 =
             n23 * n34 * n42 -
