@@ -85,6 +85,11 @@ function clamp(v: number, min = 0, max = 1): number {
     return Math.max(min, Math.min(max, v));
 }
 
+/** Compression gamma sRGB d'une valeur linéaire déjà hors du tube. */
+function encodeSrgb(linear: number): number {
+    return linear <= 0.0031308 ? linear * 12.92 : 1.055 * Math.max(linear, 0) ** (1 / 2.4) - 0.055;
+}
+
 function oklabToSrgb(L: number, a: number, b: number): [number, number, number] {
     const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
     const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
@@ -92,35 +97,20 @@ function oklabToSrgb(L: number, a: number, b: number): [number, number, number] 
     const l = l_ * l_ * l_;
     const m = m_ * m_ * m_;
     const s = s_ * s_ * s_;
-    let r = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
-    let g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
-    let b_ = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
-    // sRGB gamma compression
-    const lo = [r * 12.92, g * 12.92, b_ * 12.92];
-    const hi = [
-        1.055 * Math.max(r, 0) ** (1.0 / 2.4) - 0.055,
-        1.055 * Math.max(g, 0) ** (1.0 / 2.4) - 0.055,
-        1.055 * Math.max(b_, 0) ** (1.0 / 2.4) - 0.055,
+    return [
+        clamp(encodeSrgb(+4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s)),
+        clamp(encodeSrgb(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s)),
+        clamp(encodeSrgb(-0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s)),
     ];
-    const linear = [r, g, b_];
-    r = linear[0] <= 0.0031308 ? lo[0] : hi[0];
-    g = linear[1] <= 0.0031308 ? lo[1] : hi[1];
-    b_ = linear[2] <= 0.0031308 ? lo[2] : hi[2];
-    return [clamp(r), clamp(g), clamp(b_)];
 }
 
 function hslToRgb(h: number, s: number, l: number): [number, number, number] {
-    const h6 = h * 6;
-    const rgb = [
-        Math.abs(((h6 + 0) % 6) - 3) - 1,
-        Math.abs(((h6 + 4) % 6) - 3) - 1,
-        Math.abs(((h6 + 2) % 6) - 3) - 1,
-    ].map((c) => Math.max(0, Math.min(1, c)));
-    return [
-        l + s * (rgb[0] - 0.5) * (1 - Math.abs(2 * l - 1)),
-        l + s * (rgb[1] - 0.5) * (1 - Math.abs(2 * l - 1)),
-        l + s * (rgb[2] - 0.5) * (1 - Math.abs(2 * l - 1)),
-    ] as [number, number, number];
+    const chroma = 1 - Math.abs(2 * l - 1);
+    const channel = (offset: number): number => {
+        const k = Math.max(0, Math.min(1, Math.abs(((h * 6 + offset) % 6) - 3) - 1));
+        return l + s * (k - 0.5) * chroma;
+    };
+    return [channel(0), channel(4), channel(2)];
 }
 
 /**
@@ -154,8 +144,8 @@ export function toSrgb(
             const h = rx * 0.5 + 0.5;
             const s = Math.abs(ry);
             const l = clamp(rz * 0.5 + 0.5, 0, 1);
-            const rgb = hslToRgb(h, s, l);
-            return [clamp(rgb[0]), clamp(rgb[1]), clamp(rgb[2])];
+            const [r, g, b] = hslToRgb(h, s, l);
+            return [clamp(r), clamp(g), clamp(b)];
         }
     }
 }
