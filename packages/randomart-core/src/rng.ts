@@ -1,4 +1,5 @@
 import { RandomArtError } from './errors';
+import type { Seed } from './seed';
 
 export interface Rng {
     /** Uniform draw in [0, 1). */
@@ -34,9 +35,9 @@ function mulberry32(seed: number): () => number {
     };
 }
 
-/** Deterministic stream keyed by a number or a string. Same seed, same sequence, forever. */
-export function createRng(seed: number | string): Rng {
-    const next = mulberry32(xmur3(String(seed))());
+/** Deterministic stream keyed by a seed. Same seed, same sequence, forever. */
+export function createRng(seed: Seed): Rng {
+    const next = mulberry32(xmur3(seed)());
 
     function int(max: number): number {
         if (!Number.isInteger(max) || max <= 0) {

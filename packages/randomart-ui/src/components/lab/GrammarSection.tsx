@@ -3,16 +3,17 @@ import { COLOR_SPACE_IDS, colorSpaces } from '@repo/randomart-core/colors';
 import { isOnlyNonTerminal, isOnlyTerminal, weightOf } from '@repo/randomart-core/grammar';
 import { OP_NAMES, ops } from '@repo/randomart-core/ops';
 import type { OpName } from '@repo/randomart-core/ops';
+import { MAX_SEED_LENGTH, parseSeed } from '@repo/randomart-core/seed';
+import type { Seed } from '@repo/randomart-core/seed';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Grid } from '@repo/ui/components/Grid';
 import { Segmented } from '@repo/ui/components/Segmented';
 import { Slider } from '@repo/ui/components/Slider';
 import { TextInput } from '@repo/ui/components/TextInput';
+import { useState } from 'react';
 
-import { MAX_SEED, createSeed } from '../../seeds';
 import {
     resetSeed,
-    setActionError,
     setGrammarShareDepth,
     setGrammarSpace,
     setGrammarWeight,
@@ -53,22 +54,48 @@ const SPACE_OPTIONS = COLOR_SPACE_IDS.map((id) => ({
 }));
 
 /**
- * Parses a raw seed input into a valid seed number, or null when the input is invalid (empty,
- * non-numeric, non-integer, or out of range). Invalid input is reported through the store instead
- * of throwing, per the throw-vs-repair policy.
+ * Seed input is a draft until the user leaves the field or presses Enter. Each keystroke used to
+ * commit (and create an "entry"); now intermediate values stay local, so the field can be cleared
+ * and retyped without an error or a commit.
  */
-function parseSeedInput(value: string): number | null {
-    const trimmed = value.trim();
-    if (trimmed === '') {
-        return null;
+function SeedInput({ seed }: { readonly seed: Seed }) {
+    const [draft, setDraft] = useState<string>(seed);
+    const [error, setError] = useState<string | null>(null);
+
+    function commit(): void {
+        const parsed = parseSeed(draft);
+        if (parsed === null) {
+            setError(`Enter a non-empty seed of at most ${MAX_SEED_LENGTH} characters.`);
+            return;
+        }
+
+        setError(null);
+        if (parsed === seed) {
+            setDraft(seed); // canonicalise the whitespace the user typed
+            return;
+        }
+        resetSeed(parsed);
     }
 
-    const numeric = Number(trimmed);
-    if (!Number.isInteger(numeric) || numeric < 0 || numeric > MAX_SEED) {
-        return null;
-    }
-
-    return numeric;
+    return (
+        <TextInput
+            aria-label="seed"
+            title={`any non-empty string of at most ${MAX_SEED_LENGTH} characters`}
+            value={draft}
+            invalid={error !== null}
+            errorMessage={error ?? undefined}
+            onValueChange={(value) => {
+                setDraft(value);
+                setError(null);
+            }}
+            onBlur={commit}
+            onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                    event.currentTarget.blur();
+                }
+            }}
+        />
+    );
 }
 
 export function GrammarSection() {
@@ -87,21 +114,7 @@ export function GrammarSection() {
     return (
         <Grid columns="1" gap="6">
             <ControlSection title="seed">
-                <TextInput
-                    aria-label="seed"
-                    title={`an integer in [0, ${MAX_SEED}]`}
-                    value={String(seed)}
-                    onValueChange={(value) => {
-                        const numeric = parseSeedInput(value);
-                        if (numeric === null) {
-                            setActionError(
-                                `Invalid seed "${value}": must be an integer in [0, ${MAX_SEED}].`,
-                            );
-                            return;
-                        }
-                        resetSeed(createSeed(numeric));
-                    }}
-                />
+                <SeedInput key={seed} seed={seed} />
             </ControlSection>
 
             <ControlSection title="color">

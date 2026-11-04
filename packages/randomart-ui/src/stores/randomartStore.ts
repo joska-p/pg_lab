@@ -16,12 +16,13 @@ import {
 import type { Grammar } from '@repo/randomart-core/grammar';
 import type { OpName } from '@repo/randomart-core/ops';
 import { createRng } from '@repo/randomart-core/rng';
+import { createSeed } from '@repo/randomart-core/seed';
+import type { Seed } from '@repo/randomart-core/seed';
 import type { Expression } from '@repo/randomart-core/tree';
 import { useSyncExternalStore } from 'react';
 import { create } from 'zustand';
 
-import { createSeed, randomSeed } from '../seeds';
-import type { Seed } from '../seeds';
+import { randomSeed } from '../randomSeed';
 
 export const DEFAULT_LOOP_DURATION = createDurationSeconds(60);
 export const MIN_LOOP_DURATION = 0.5;
@@ -57,7 +58,7 @@ export interface RandomartState {
     grammarEditId: number | null;
 }
 
-const initialSeed = createSeed(42);
+const initialSeed = createSeed('42');
 const initialGrammar = grammarRegistry.default;
 const initialExpression = generate(initialGrammar, initialSeed);
 const initialCompiled = compile(initialExpression, { space: initialGrammar.space });

@@ -7,11 +7,15 @@ import { evaluate } from './evaluate';
 import { generate } from './generate';
 import { createGrammar, grammarRegistry } from './grammar';
 import type { Point } from './ops';
+import { createSeed } from './seed';
 import { usesTime } from './tree';
 import type { Expression } from './tree';
 
 /** Property matrix: every size, every color space, a spread of seeds. */
 const SEEDS = [0, 1, 2, 7, 42, 99] as const;
+
+/** Numeric seeds are convenience labels here; the identity is their decimal string. */
+const seedOf = (value: number) => createSeed(String(value));
 const CHANNELS = ['r', 'g', 'b'] as const;
 
 /** Deterministic probes covering the corners and the interior of [-1, 1]², at several phases. */
@@ -61,7 +65,7 @@ function drawSamples(): readonly Sample[] {
                 samples.push({
                     label: `${grammar.minDepth}/${grammar.maxDepth}/${grammar.maxNodes}/${space}/seed ${seed}`,
                     space,
-                    expression: generate(grammar, seed),
+                    expression: generate(grammar, seedOf(seed)),
                 });
             }
         }

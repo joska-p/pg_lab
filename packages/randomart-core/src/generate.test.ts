@@ -4,10 +4,14 @@ import { generate } from './generate';
 import { createGrammar, grammarRegistry, vocabulary } from './grammar';
 import { ops } from './ops';
 import type { OpName } from './ops';
+import { createSeed } from './seed';
 import { formatFormula } from './tree';
 import type { Expression, Node } from './tree';
 
 const DEFAULT_GRAMMAR = grammarRegistry.default;
+
+/** Numeric seeds are convenience labels here; the identity is their decimal string. */
+const seedOf = (value: number) => createSeed(String(value));
 
 /** Seeds whose formulas are pinned by the snapshot: changing one is a deliberate act. */
 const SNAPSHOT_SEEDS = [0, 42, 1234] as const;
@@ -61,15 +65,17 @@ function channels(expression: Expression): readonly Node[] {
 describe('generate', () => {
     it('reproduces the same formula for the same seed', () => {
         for (const seed of SNAPSHOT_SEEDS) {
-            expect(formulas(generate(DEFAULT_GRAMMAR, seed))).toEqual(
-                formulas(generate(DEFAULT_GRAMMAR, seed)),
+            expect(formulas(generate(DEFAULT_GRAMMAR, seedOf(seed)))).toEqual(
+                formulas(generate(DEFAULT_GRAMMAR, seedOf(seed))),
             );
         }
     });
 
     it('draws distinct formulas for distinct seeds', () => {
         const drawn = new Set(
-            DISTINCT_SEEDS.map((seed) => JSON.stringify(formulas(generate(DEFAULT_GRAMMAR, seed)))),
+            DISTINCT_SEEDS.map((seed) =>
+                JSON.stringify(formulas(generate(DEFAULT_GRAMMAR, seedOf(seed)))),
+            ),
         );
 
         expect(drawn.size).toBe(DISTINCT_SEEDS.length);
@@ -79,7 +85,7 @@ describe('generate', () => {
         const snapshot = Object.fromEntries(
             SNAPSHOT_SEEDS.map((seed) => [
                 `seed${seed}`,
-                formulas(generate(DEFAULT_GRAMMAR, seed)),
+                formulas(generate(DEFAULT_GRAMMAR, seedOf(seed))),
             ]),
         );
 
@@ -118,7 +124,7 @@ describe('generate', () => {
             const enabled = new Set<OpName>(vocabulary(grammar));
 
             for (const seed of [0, 7, 99]) {
-                for (const channel of channels(generate(grammar, seed))) {
+                for (const channel of channels(generate(grammar, seedOf(seed)))) {
                     expect(countNodes(channel)).toBeLessThanOrEqual(grammar.maxNodes);
                     expect(depthOf(channel)).toBeGreaterThanOrEqual(grammar.minDepth);
                     expect(depthOf(channel)).toBeLessThanOrEqual(grammar.maxDepth);
@@ -132,7 +138,7 @@ describe('generate', () => {
 
     it('draws parameters inside their declared range and on their step grid', () => {
         for (const seed of SNAPSHOT_SEEDS) {
-            for (const channel of channels(generate(DEFAULT_GRAMMAR, seed))) {
+            for (const channel of channels(generate(DEFAULT_GRAMMAR, seedOf(seed)))) {
                 eachNode(channel, checkParams);
             }
         }
@@ -150,7 +156,7 @@ describe('generate', () => {
         const minDepth = 2;
 
         for (const seed of [1, 2, 3]) {
-            for (const channel of channels(generate(grammar, seed))) {
+            for (const channel of channels(generate(grammar, seedOf(seed)))) {
                 // `neg` is the only non-terminal, so it must root every channel.
                 expect(channel.op).toBe('neg');
                 expect(depthOf(channel)).toBeGreaterThanOrEqual(minDepth);

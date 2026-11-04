@@ -12,6 +12,7 @@
         "./grammar": "./src/grammar.ts",
         "./ops": "./src/ops.ts",
         "./rng": "./src/rng.ts",
+        "./seed": "./src/seed.ts",
         "./tree": "./src/tree.ts"
     },
     "scripts": {

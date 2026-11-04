@@ -5,8 +5,15 @@ import { ops } from './ops';
 import type { OpName } from './ops';
 import { createRng } from './rng';
 import type { Rng } from './rng';
+import type { Seed } from './seed';
 import { createExpression, createNode } from './tree';
 import type { Expression, Node } from './tree';
+
+/**
+ * Bumped whenever a change to generation would make an existing `(grammar, seed)` produce a
+ * different expression. Persisted seeds must be replayed with the version they were created with.
+ */
+export const GENERATOR_VERSION = 1;
 
 const PARAM_DECIMALS = 3;
 const PARAM_SCALE = 10 ** PARAM_DECIMALS;
@@ -192,7 +199,7 @@ function generateTrunk(state: GenState, depth: number, budget: number): Trunk {
  * Synthesize one expression from a grammar and a seed. The generator grows a three-channel trunk:
  * down to `shareDepth` the channels pick the same operator, below it they diverge.
  */
-export function generate(grammar: Grammar, seed: number | string): Expression {
+export function generate(grammar: Grammar, seed: Seed): Expression {
     const state: GenState = {
         grammar,
         vocabulary: vocabulary(grammar),

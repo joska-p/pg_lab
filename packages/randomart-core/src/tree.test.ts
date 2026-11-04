@@ -5,8 +5,12 @@ import { compile } from './emit';
 import { RandomArtError } from './errors';
 import { generate } from './generate';
 import { createGrammar, grammarRegistry } from './grammar';
+import { createSeed } from './seed';
 import { deserialize, formatFormula, serialize } from './tree';
 import type { Expression } from './tree';
+
+/** Numeric seeds are convenience labels here; the identity is their decimal string. */
+const seedOf = (value: number) => createSeed(String(value));
 
 function canonical(expression: Expression): string {
     return JSON.stringify(serialize(expression));
@@ -52,7 +56,7 @@ describe('tree serialization', () => {
 
         for (const grammar of grammars) {
             for (const seed of [0, 42]) {
-                const expression = generate(grammar, seed);
+                const expression = generate(grammar, seedOf(seed));
 
                 expect(formulas(throughJson(expression))).toEqual(formulas(expression));
             }
@@ -60,7 +64,7 @@ describe('tree serialization', () => {
     });
 
     it('produces byte-identical JSON and shader after a round-trip', () => {
-        const expression = generate(grammarRegistry.default, 2024);
+        const expression = generate(grammarRegistry.default, seedOf(2024));
         const restored = throughJson(expression);
 
         expect(canonical(restored)).toBe(canonical(expression));
