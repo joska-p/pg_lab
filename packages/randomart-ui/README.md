@@ -1,0 +1,103 @@
+# randomart-ui
+
+Interactive playground for the **randomart** procedural art generator. Consumes `randomart-core` for grammar, generation, and GLSL compilation; renders via `@repo/glaze` WebGL abstraction.
+
+## Architecture
+
+```
+(randomart-core grammar, seed)
+        │
+        ▼
+┌───────────────────┐
+│   artworkStore    │  ──▶ builds Artwork (expression, compiled shader)
+│  (zustand + batch)│
+└─────────┬─────────┘
+          │
+    ┌─────┴─────┐
+    ▼           ▼
+Scene       Controls
+(RandomArtCanvas)  (GrammarSection, Inspector, ShaderSource, …)
+```
+
+### Stores
+
+| Store           | Responsibility                                                                                                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `artworkStore`  | Single source of truth: `Artwork { grammar, seed, expression, shader }`. Mutations go through `editGrammar`, `newSeed`, `drawGrammar`, `applyGrammar` (batched via RAF). |
+| `surfaceStore`  | Holds the live `HTMLCanvasElement` and `ClockStore` for export / duration sync.                                                                                          |
+| `playbackStore` | Animation loop duration.                                                                                                                                                 |
+| `modeStore`     | UI mode: `'toy'                                                                                                                                                          | 'lab'`. |
+| `errorStore`    | Transient action errors (toast-style).                                                                                                                                   |
+
+### Components
+
+```
+App
+├── Scene (RandomArtCanvas)
+├── Controls
+│   ├── ToyPanel (GrammarSelect, seed input, draw button)
+│   └── LabPanel
+│       ├── GrammarSection (weights, structure, color space, seed)
+│       ├── Inspector (formatted formulas)
+│       ├── ShaderSource (popover with compiled GLSL)
+│       └── PlaybackSection (duration, loop toggle)
+└── ErrorReadout
+```
+
+### Commands
+
+| Command     | File                    | Notes                                                                                  |
+| ----------- | ----------------------- | -------------------------------------------------------------------------------------- |
+| `exportPng` | `commands/exportPng.ts` | High-res offscreen (2× DPR, max 4096px). Does **not** require `preserveDrawingBuffer`. |
+
+### Rendering
+
+`RandomArtCanvas` wraps `@repo/glaze/react/GpuCanvas`:
+
+- **Timed clock** (paused at `phase = 0`), duration from `playbackStore`.
+- **Lazy rendering**: `shouldRender` gate only redraws on phase change, resize, or context restore.
+- **Square canvas** via CSS `aspect-ratio: 1/1` (shader coordinates unchanged).
+- **Uniforms**: `u_phase` from clock progress; `v_p` in `[-1, 1]²` provided by glaze.
+
+### Color spaces
+
+Raw channel triplets `[-1, 1]³` → sRGB via `randomart-core/colors.ts`:
+
+| ID      | Label | GLSL entry point |
+| ------- | ----- | ---------------- |
+| `srgb`  | sRGB  | `ra_srgb`        |
+| `oklch` | OKLCH | `ra_oklch`       |
+| `oklab` | OKLab | `ra_oklab`       |
+| `hsl`   | HSL   | `ra_hsl`         |
+
+CPU reference `toSrgb(id, raw)` exists in core for testing / headless rendering.
+
+### Development
+
+```bash
+# From repo root
+vp -C packages/randomart-ui dev        # Dev server
+vp -C packages/randomart-ui build      # Production build
+vp check --fix                         # Format, lint, type-check (all packages)
+vp test                                # All tests
+```
+
+### Adding a grammar preset
+
+1. Add entry to `grammarRegistry` in `randomart-core/src/grammar.ts`.
+2. It appears automatically in `GrammarSelect` (toy) and can be drawn in lab.
+
+### Shader export
+
+`ShaderSource` popover shows the compiled fragment shader. "Copy source" uses Clipboard API (fail-soft).
+
+### PNG export
+
+`exportPng(canvas, seed)` renders to an `OffscreenCanvas` at 2× DPR (clamped to 4096px), avoiding `preserveDrawingBuffer: true` on the main canvas (perf win). Filename: `randomart-<sanitized-seed>.png`.
+
+### Conventions
+
+- **English** for all UI copy, comments, docs.
+- **"Artwork"** = the central concept (grammar + seed + compiled output).
+- **StyleX** for component styles (no inline `CSSProperties`).
+- **Seed** = trimmed non-empty string ≤ 64 chars (`randomart-core/seed.ts`).

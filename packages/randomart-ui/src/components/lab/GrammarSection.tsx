@@ -2,11 +2,12 @@ import type { ColorSpaceId } from '@repo/randomart-core/colors';
 import { COLOR_SPACE_IDS, colorSpaces } from '@repo/randomart-core/colors';
 import {
     MAX_WEIGHT,
+    isMono,
     isOnlyNonTerminal,
     isOnlyTerminal,
     weightOf,
 } from '@repo/randomart-core/grammar';
-import { OP_NAMES, ops } from '@repo/randomart-core/ops';
+import { OP_NAMES, isTerminal, groupOf } from '@repo/randomart-core/ops';
 import type { OpName } from '@repo/randomart-core/ops';
 import { MAX_SEED_LENGTH, parseSeed } from '@repo/randomart-core/seed';
 import type { Seed } from '@repo/randomart-core/seed';
@@ -36,11 +37,6 @@ const GROUP_LABELS = {
 } as const;
 
 type OperatorGroup = keyof typeof GROUP_LABELS;
-
-function groupOf(name: OpName): OperatorGroup {
-    const { arity, family } = ops[name];
-    return arity === 0 ? 'terminal' : (family ?? 'arithmetic');
-}
 
 const OPERATOR_GROUPS = (Object.keys(GROUP_LABELS) as OperatorGroup[])
     .map((group) => ({
@@ -104,12 +100,10 @@ export function GrammarSection() {
     const grammar = useGrammar();
     const seed = useSeed();
 
-    const mono = grammar.shareDepth >= grammar.maxDepth;
+    const mono = isMono(grammar);
 
     function mustStayOn(name: OpName): boolean {
-        return ops[name].arity === 0
-            ? isOnlyTerminal(grammar, name)
-            : isOnlyNonTerminal(grammar, name);
+        return isTerminal(name) ? isOnlyTerminal(grammar, name) : isOnlyNonTerminal(grammar, name);
     }
 
     return (

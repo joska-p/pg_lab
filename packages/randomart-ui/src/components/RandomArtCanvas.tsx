@@ -4,8 +4,8 @@ import type { ShaderError } from '@repo/glaze/gpu/shader/ShaderError';
 import type { GpuSurface } from '@repo/glaze/gpu/types';
 import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
 import type { ClockStore } from '@repo/glaze/react/types';
+import * as stylex from '@stylexjs/stylex';
 import { useRef } from 'react';
-import type { CSSProperties } from 'react';
 
 import { DEFAULT_LOOP_DURATION } from '../constants';
 import { createPhase, needsRender } from '../renderer/renderGate';
@@ -13,7 +13,7 @@ import type { RenderKey } from '../renderer/renderGate';
 
 const DEFAULT_CONTEXT_OPTIONS: WebGLContextAttributes = {
     antialias: false,
-    preserveDrawingBuffer: true,
+    // preserveDrawingBuffer removed: export now uses offscreen canvas, avoiding the perf cost.
 };
 
 interface RandomArtCanvasProps {
@@ -31,9 +31,31 @@ interface RandomArtCanvasProps {
     onMount?: (surface: GpuSurface) => void;
     /** CSS class name forwarded to the canvas element. */
     className?: string;
-    /** Inline styles forwarded to the canvas element. */
-    style?: CSSProperties;
 }
+
+const styles = stylex.create({
+    parentContainer: {
+        containerType: 'size',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+    },
+    canva: {
+        aspectRatio: '1 / 1',
+        width: '100%',
+        height: 'auto',
+        maxWidth: '100%',
+        maxHeight: '100%',
+        '@container (orientation: landscape)': {
+            width: 'auto',
+            height: '100%',
+        },
+    },
+});
 
 /**
  * Thin adapter around @repo/glaze GpuCanvas for randomart. Timed clock (paused at phase 0), WebGL
@@ -51,7 +73,6 @@ export function RandomArtCanvas({
     onClockStore,
     onMount,
     className,
-    style,
 }: RandomArtCanvasProps) {
     const lastRenderRef = useRef<RenderKey | null>(null);
 
@@ -63,40 +84,42 @@ export function RandomArtCanvas({
     }
 
     return (
-        <GpuCanvas
-            fragmentShader={fragmentShader}
-            clockOptions={{
-                mode: 'timed',
-                duration,
-                loop: true,
-                autoStart: false,
-            }}
-            contextOptions={DEFAULT_CONTEXT_OPTIONS}
-            uniforms={(surface) => ({
-                u_phase: createPhase(surface.clock.progress),
-            })}
-            shouldRender={(surface) => {
-                const key: RenderKey = {
-                    phase: createPhase(surface.clock.progress),
-                    width: createCanvasDimension(surface.width),
-                    height: createCanvasDimension(surface.height),
-                    dpr: surface.dpr,
-                    animated,
-                };
-                const render = needsRender(lastRenderRef.current, key);
+        <div className={className} {...stylex.props(styles.parentContainer)}>
+            <div className={className} {...stylex.props(styles.canva)}>
+                <GpuCanvas
+                    fragmentShader={fragmentShader}
+                    clockOptions={{
+                        mode: 'timed',
+                        duration,
+                        loop: true,
+                        autoStart: false,
+                    }}
+                    contextOptions={DEFAULT_CONTEXT_OPTIONS}
+                    uniforms={(surface) => ({
+                        u_phase: createPhase(surface.clock.progress),
+                    })}
+                    shouldRender={(surface) => {
+                        const key: RenderKey = {
+                            phase: createPhase(surface.clock.progress),
+                            width: createCanvasDimension(surface.width),
+                            height: createCanvasDimension(surface.height),
+                            dpr: surface.dpr,
+                            animated,
+                        };
+                        const render = needsRender(lastRenderRef.current, key);
 
-                if (render) {
-                    lastRenderRef.current = key;
-                }
+                        if (render) {
+                            lastRenderRef.current = key;
+                        }
 
-                return render;
-            }}
-            onShaderError={onShaderError}
-            onClockStore={onClockStore}
-            onMount={handleMount}
-            canvasInteractions={{ pan: false, zoom: false }}
-            className={className}
-            style={style}
-        />
+                        return render;
+                    }}
+                    onShaderError={onShaderError}
+                    onClockStore={onClockStore}
+                    onMount={handleMount}
+                    canvasInteractions={{ pan: false, zoom: false }}
+                />
+            </div>
+        </div>
     );
 }

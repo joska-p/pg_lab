@@ -30,7 +30,7 @@ export interface EvalArgs {
     readonly point: Point;
 }
 
-export type OpFamily = 'arithmetic' | 'trigonometry' | 'logic' | 'transform';
+export type OpFamily = 'terminal' | 'arithmetic' | 'trigonometry' | 'logic' | 'transform';
 
 interface BaseOp {
     /** Grouping hint for operator pickers. Terminals are recognised by `arity === 0`. */
@@ -127,6 +127,7 @@ function usesModulation(params: Readonly<Record<string, number>>): boolean {
 
 const opTable = {
     x: {
+        family: 'terminal',
         params: MODULATION_PARAMS,
         usesTime: usesModulation,
         arity: 0,
@@ -134,6 +135,7 @@ const opTable = {
         eval: ({ point, params }) => modulatedValue(point, 'x', params),
     },
     y: {
+        family: 'terminal',
         params: MODULATION_PARAMS,
         usesTime: usesModulation,
         arity: 0,
@@ -141,6 +143,7 @@ const opTable = {
         eval: ({ point, params }) => modulatedValue(point, 'y', params),
     },
     const: {
+        family: 'terminal',
         params: { value: { min: -1, max: 1 } },
         arity: 0,
         glsl: ({ params }) => {
@@ -258,4 +261,15 @@ export const OP_NAMES = (Object.keys(opTable) as OpName[]).sort();
 
 export function isOpName(value: unknown): value is OpName {
     return typeof value === 'string' && Object.hasOwn(opTable, value);
+}
+
+/** True when the operator has arity 0 (no child expressions). */
+export function isTerminal(name: OpName): boolean {
+    return opTable[name].arity === 0;
+}
+
+/** Grouping hint for operator pickers, matching the UI taxonomy. */
+export function groupOf(name: OpName): OpFamily {
+    const op = opTable[name];
+    return op.family ?? 'arithmetic';
 }

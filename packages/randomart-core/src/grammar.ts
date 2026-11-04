@@ -1,7 +1,7 @@
 import { COLOR_SPACE_IDS, isColorSpaceId } from './colors';
 import type { ColorSpaceId } from './colors';
 import { RandomArtError } from './errors';
-import { OP_NAMES, ops } from './ops';
+import { OP_NAMES, ops, isTerminal } from './ops';
 import type { OpName } from './ops';
 import type { Rng } from './rng';
 
@@ -41,10 +41,6 @@ export function weightOf(grammar: Grammar, name: OpName): number {
 /** Operators enabled by a grammar, in canonical name order. */
 export function vocabulary(grammar: Grammar): readonly OpName[] {
     return OP_NAMES.filter((name) => weightOf(grammar, name) > 0);
-}
-
-function isTerminal(name: OpName): boolean {
-    return ops[name].arity === 0;
 }
 
 /**
@@ -284,6 +280,11 @@ export function isOnlyTerminal(grammar: Grammar, name: OpName): boolean {
 /** True when `name` is the last enabled non-terminal of the grammar. */
 export function isOnlyNonTerminal(grammar: Grammar, name: OpName): boolean {
     return isOnlyKind(grammar, name, false);
+}
+
+/** True when the grammar produces a single shared expression for all three channels. */
+export function isMono(grammar: Grammar): boolean {
+    return grammar.shareDepth >= grammar.maxDepth;
 }
 
 export const grammarRegistry = {

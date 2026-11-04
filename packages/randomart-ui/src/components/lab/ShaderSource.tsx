@@ -34,7 +34,15 @@ export function ShaderSource() {
     const compiledShader = useCompiledShader();
 
     async function copySource(): Promise<void> {
-        await navigator.clipboard.writeText(compiledShader.source);
+        try {
+            await navigator.clipboard.writeText(compiledShader.source);
+        } catch {
+            // Clipboard API can fail (permissions, context); fail silently per UX decision.
+        }
+    }
+
+    function closePopover(popover: HTMLElement): void {
+        popover.hidePopover();
     }
 
     return (
@@ -45,14 +53,23 @@ export function ShaderSource() {
                 <Card {...stylex.props(styles.panel)}>
                     <div {...stylex.props(styles.header)}>
                         <Text variant="muted">Compiled fragment shader</Text>
-                        <Button popoverTarget={POPOVER_ID}>Close</Button>
+                        <Button
+                            popoverTarget={POPOVER_ID}
+                            onClick={(_event) => {
+                                const popover = document.getElementById(POPOVER_ID);
+                                if (popover) {
+                                    closePopover(popover);
+                                }
+                            }}
+                        >
+                            Close
+                        </Button>
                     </div>
                     <TextArea
                         rows={20}
                         value={compiledShader.source}
-                        disabled
                         readOnly
-                        style={styles.monospace}
+                        {...stylex.props(styles.monospace)}
                     />
                     <Button onClick={copySource}>Copy source</Button>
                 </Card>

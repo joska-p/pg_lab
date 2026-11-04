@@ -80,3 +80,82 @@ export function isColorSpaceId(value: unknown): value is ColorSpaceId {
 export function colorSpaceFunction(id: ColorSpaceId): string {
     return `ra_${id}`;
 }
+
+function clamp(v: number, min = 0, max = 1): number {
+    return Math.max(min, Math.min(max, v));
+}
+
+function oklabToSrgb(L: number, a: number, b: number): [number, number, number] {
+    const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+    const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+    const s_ = L - 0.0894841775 * a - 1.291485548 * b;
+    const l = l_ * l_ * l_;
+    const m = m_ * m_ * m_;
+    const s = s_ * s_ * s_;
+    let r = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+    let g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+    let b_ = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
+    // sRGB gamma compression
+    const lo = [r * 12.92, g * 12.92, b_ * 12.92];
+    const hi = [
+        1.055 * Math.max(r, 0) ** (1.0 / 2.4) - 0.055,
+        1.055 * Math.max(g, 0) ** (1.0 / 2.4) - 0.055,
+        1.055 * Math.max(b_, 0) ** (1.0 / 2.4) - 0.055,
+    ];
+    const linear = [r, g, b_];
+    r = linear[0] <= 0.0031308 ? lo[0] : hi[0];
+    g = linear[1] <= 0.0031308 ? lo[1] : hi[1];
+    b_ = linear[2] <= 0.0031308 ? lo[2] : hi[2];
+    return [clamp(r), clamp(g), clamp(b_)];
+}
+
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+    const h6 = h * 6;
+    const rgb = [
+        Math.abs(((h6 + 0) % 6) - 3) - 1,
+        Math.abs(((h6 + 4) % 6) - 3) - 1,
+        Math.abs(((h6 + 2) % 6) - 3) - 1,
+    ].map((c) => Math.max(0, Math.min(1, c)));
+    return [
+        l + s * (rgb[0] - 0.5) * (1 - Math.abs(2 * l - 1)),
+        l + s * (rgb[1] - 0.5) * (1 - Math.abs(2 * l - 1)),
+        l + s * (rgb[2] - 0.5) * (1 - Math.abs(2 * l - 1)),
+    ] as [number, number, number];
+}
+
+/**
+ * CPU reference implementation of the color space conversions. Must agree with the GLSL
+ * implementations in `colorSpaces[id].source`.
+ */
+export function toSrgb(
+    id: ColorSpaceId,
+    raw: readonly [number, number, number],
+): [number, number, number] {
+    const [rx, ry, rz] = raw;
+
+    switch (id) {
+        case 'srgb': {
+            const r = clamp(rx * 0.5 + 0.5);
+            const g = clamp(ry * 0.5 + 0.5);
+            const b = clamp(rz * 0.5 + 0.5);
+            return [r, g, b];
+        }
+        case 'oklch': {
+            const L = clamp(rx * 0.5 + 0.5, 0, 1);
+            const C = Math.abs(ry) * 0.4;
+            const h = (rz * 0.5 + 0.5) * 2 * Math.PI;
+            return oklabToSrgb(L, C * Math.cos(h), C * Math.sin(h));
+        }
+        case 'oklab': {
+            const L = clamp(rx * 0.5 + 0.5, 0, 1);
+            return oklabToSrgb(L, ry * 0.4, rz * 0.4);
+        }
+        case 'hsl': {
+            const h = rx * 0.5 + 0.5;
+            const s = Math.abs(ry);
+            const l = clamp(rz * 0.5 + 0.5, 0, 1);
+            const rgb = hslToRgb(h, s, l);
+            return [clamp(rgb[0]), clamp(rgb[1]), clamp(rgb[2])];
+        }
+    }
+}
