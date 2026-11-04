@@ -2,7 +2,7 @@ import { ControlSection } from '@repo/ui/components/ControlSection';
 import { NumberField } from '@repo/ui/components/NumberField';
 
 import { MAX_LOOP_DURATION, MIN_LOOP_DURATION } from '../../constants';
-import { clampDuration } from '../../parse/duration';
+import { clampDuration } from '../../playback/duration';
 import { setDuration, useDuration } from '../../stores/playbackStore';
 
 export function PlaybackSection() {

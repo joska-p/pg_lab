@@ -2,18 +2,18 @@ import { Button } from '@repo/ui/components/Button';
 import { Grid } from '@repo/ui/components/Grid';
 
 import { exportPng } from '../../commands/exportPng';
-import { newSeed, useArtwork, useSeed } from '../../stores/artworkStore';
+import { newSeed, useIsAnimated, useSeed } from '../../stores/artworkStore';
 import { reportError } from '../../stores/errorStore';
 import { useCanvas, useClockStore, useIsPlaying } from '../../stores/surfaceStore';
 import { GrammarSelect } from './GrammarSelect';
 
 export function ToyPanel() {
-    const artwork = useArtwork();
     const seed = useSeed();
+    const isAnimated = useIsAnimated();
     const canvas = useCanvas();
     const clockStore = useClockStore();
     const isPlaying = useIsPlaying();
-    const canAnimate = clockStore !== null && artwork.shader.animated;
+    const canAnimate = clockStore !== null && isAnimated;
 
     return (
         <Grid columns="1" gap="4">

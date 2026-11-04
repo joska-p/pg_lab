@@ -1,4 +1,4 @@
-import * as coreGrammar from '@repo/randomart-core/grammar';
+import { drawGrammar, grammarRegistry } from '@repo/randomart-core/grammar';
 import type { Grammar } from '@repo/randomart-core/grammar';
 import { createRng } from '@repo/randomart-core/rng';
 import { createSeed } from '@repo/randomart-core/seed';
@@ -18,7 +18,7 @@ interface ArtworkState {
 }
 
 const store = create<ArtworkState>(() => ({
-    artwork: buildArtwork(coreGrammar.grammarRegistry.default.grammar, createSeed('42')),
+    artwork: buildArtwork(grammarRegistry.default.grammar, createSeed('42')),
 }));
 
 /**
@@ -56,8 +56,8 @@ const enqueue = createBatcher<Intent>((run) => {
 }, flush);
 
 // ── selectors: the artwork is the single source of truth ───────────────────────────────────────
-export function useArtwork(): Artwork {
-    return store((state) => state.artwork);
+export function useIsAnimated(): boolean {
+    return store((state) => state.artwork.shader.animated);
 }
 
 export function useSeed(): Seed {
@@ -85,10 +85,10 @@ export function applyGrammar(grammar: Grammar): void {
     enqueue((draft) => ({ ...draft, grammar }));
 }
 
-export function drawGrammar(): void {
+export function randomizeGrammar(): void {
     // Drawn now, so the producer itself stays deterministic.
     const rngSeed = randomSeed();
-    enqueue((draft) => ({ ...draft, grammar: coreGrammar.drawGrammar(createRng(rngSeed)) }));
+    enqueue((draft) => ({ ...draft, grammar: drawGrammar(createRng(rngSeed)) }));
 }
 
 export function editGrammar(change: (grammar: Grammar) => Grammar): void {

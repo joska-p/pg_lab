@@ -5,7 +5,7 @@ import { ControlField } from '@repo/ui/components/ControlField';
 import { Grid } from '@repo/ui/components/Grid';
 import { Select } from '@repo/ui/components/Select';
 
-import { applyGrammar, drawGrammar, useGrammar } from '../../stores/artworkStore';
+import { applyGrammar, randomizeGrammar, useGrammar } from '../../stores/artworkStore';
 
 const CUSTOM_PRESET = {
     id: 'custom',
@@ -50,7 +50,7 @@ export function GrammarSelect() {
                     title="draw a new random grammar"
                     color="orange"
                     onClick={() => {
-                        drawGrammar();
+                        randomizeGrammar();
                     }}
                 >
                     random

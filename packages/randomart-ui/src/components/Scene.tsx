@@ -1,4 +1,3 @@
-import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { useEffect } from 'react';
 
 import { useCompiledShader } from '../stores/artworkStore';
@@ -10,6 +9,7 @@ import {
     setShaderError,
     useClockStore,
 } from '../stores/surfaceStore';
+import { AppErrorBoundary } from './AppErrorBoundary';
 import { RandomArtCanvas } from './RandomArtCanvas';
 
 export function Scene() {
@@ -27,7 +27,7 @@ export function Scene() {
     useEffect(() => detachSurface, []);
 
     return (
-        <ErrorBoundary showStack={import.meta.env.DEV}>
+        <AppErrorBoundary>
             <RandomArtCanvas
                 fragmentShader={compiledShader.source}
                 animated={compiledShader.animated}
@@ -36,6 +36,6 @@ export function Scene() {
                 onClockStore={attachClock}
                 onMount={(surface) => attachCanvas(surface.canvas)}
             />
-        </ErrorBoundary>
+        </AppErrorBoundary>
     );
 }

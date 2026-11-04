@@ -4,6 +4,7 @@ import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
 import { TextArea } from '@repo/ui/components/TextArea';
 import * as stylex from '@stylexjs/stylex';
+import { useState } from 'react';
 
 import { useCompiledShader } from '../../stores/artworkStore';
 
@@ -32,6 +33,7 @@ const styles = stylex.create({
 
 export function ShaderSource() {
     const compiledShader = useCompiledShader();
+    const [open, setOpen] = useState(false);
 
     async function copySource(): Promise<void> {
         try {
@@ -45,7 +47,13 @@ export function ShaderSource() {
         <Stack gap="3">
             <Button popoverTarget={POPOVER_ID}>View GLSL shader</Button>
 
-            <div id={POPOVER_ID} popover="manual">
+            <div
+                id={POPOVER_ID}
+                popover="manual"
+                onToggle={(event) => {
+                    setOpen(event.newState === 'open');
+                }}
+            >
                 <Card {...stylex.props(styles.panel)}>
                     <div {...stylex.props(styles.header)}>
                         <Text variant="muted">Compiled fragment shader</Text>
@@ -53,12 +61,14 @@ export function ShaderSource() {
                             Close
                         </Button>
                     </div>
-                    <TextArea
-                        rows={20}
-                        value={compiledShader.source}
-                        readOnly
-                        {...stylex.props(styles.monospace)}
-                    />
+                    {open && (
+                        <TextArea
+                            rows={20}
+                            value={compiledShader.source}
+                            readOnly
+                            {...stylex.props(styles.monospace)}
+                        />
+                    )}
                     <Button
                         onClick={() => {
                             void copySource();

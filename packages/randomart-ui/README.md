@@ -21,13 +21,13 @@ Scene       Controls
 
 ### Stores
 
-| Store           | Responsibility                                                                                                                                                           |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `artworkStore`  | Single source of truth: `Artwork { grammar, seed, expression, shader }`. Mutations go through `editGrammar`, `newSeed`, `drawGrammar`, `applyGrammar` (batched via RAF). |
-| `surfaceStore`  | Holds the live `HTMLCanvasElement` and `ClockStore` for export / duration sync.                                                                                          |
-| `playbackStore` | Animation loop duration.                                                                                                                                                 |
-| `modeStore`     | UI mode: `'toy' \| 'lab'`.                                                                                                                                               |
-| `errorStore`    | Single action error (`actionError`), cleared by the next successful action.                                                                                              |
+| Store           | Responsibility                                                                                                                                                                |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `artworkStore`  | Single source of truth: `Artwork { grammar, seed, expression, shader }`. Mutations go through `editGrammar`, `newSeed`, `randomizeGrammar`, `applyGrammar` (batched via RAF). |
+| `surfaceStore`  | Holds the live `HTMLCanvasElement` and `ClockStore` for export / duration sync.                                                                                               |
+| `playbackStore` | Animation loop duration.                                                                                                                                                      |
+| `modeStore`     | UI mode: `'toy' \| 'lab'`.                                                                                                                                                    |
+| `errorStore`    | Single action error (`actionError`), cleared by the next successful action.                                                                                                   |
 
 ### Components
 
@@ -57,7 +57,7 @@ App
 - **Timed clock** (paused at `phase = 0`), duration from `playbackStore`.
 - **Lazy rendering**: `shouldRender` gate only redraws on phase change, resize, or context restore.
 - **Square canvas** via CSS `aspect-ratio: 1/1` (shader coordinates unchanged).
-- **Uniforms**: `u_phase` from clock progress; `v_p` in `[-1, 1]²` provided by glaze.
+- **Uniforms**: `u_phase` from clock progress; `v_p` declared in `main()` by randomart-core from `vUv`.
 
 ### Color spaces
 

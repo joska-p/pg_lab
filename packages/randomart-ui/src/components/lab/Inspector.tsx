@@ -3,10 +3,10 @@ import { isMono } from '@repo/randomart-core/grammar';
 import { formatFormula } from '@repo/randomart-core/tree';
 import { ControlField } from '@repo/ui/components/ControlField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
-import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { Grid } from '@repo/ui/components/Grid';
 import * as stylex from '@stylexjs/stylex';
 
+import { AppErrorBoundary } from '../../components/AppErrorBoundary';
 import { useExpression, useGrammar } from '../../stores/artworkStore';
 
 const CHANNELS = ['r', 'g', 'b'] as const;
@@ -27,7 +27,7 @@ export function Inspector() {
     const mono = isMono(grammar);
 
     return (
-        <ErrorBoundary showStack={import.meta.env.DEV}>
+        <AppErrorBoundary>
             <ControlSection title="expression">
                 <Grid columns="1" gap="3">
                     {mono ? (
@@ -47,6 +47,6 @@ export function Inspector() {
                     )}
                 </Grid>
             </ControlSection>
-        </ErrorBoundary>
+        </AppErrorBoundary>
     );
 }
