@@ -9,18 +9,19 @@ Procedural formula generator and GLSL compiler, consumed by `randomart-ui`.
 
 ## Modules
 
-| File          | Role                                                                  |
-| ------------- | --------------------------------------------------------------------- |
-| `ops.ts`      | Operator catalogue: arity, parameters, `glsl` and `eval` twins        |
-| `tree.ts`     | Immutable `Node`/`Expression`, serialization, formula formatting      |
-| `rng.ts`      | Deterministic mulberry32 stream keyed by a number or a string         |
-| `grammar.ts`  | Operand weights, size profiles, presets, grammar drawing and identity |
-| `generate.ts` | `(grammar, seed) → Expression`                                        |
-| `evaluate.ts` | `(Expression, point) → raw RGB` reference interpreter                 |
-| `lower.ts`    | Expression → DAG: sharing, usage counts, warp coordinate contexts     |
-| `emit.ts`     | DAG → fragment shader (`compile`)                                     |
-| `colors.ts`   | Color spaces as GLSL sources                                          |
-| `glsl.ts`     | Shader header, shared GLSL helpers, float literals                    |
+| File          | Role                                                              |
+| ------------- | ----------------------------------------------------------------- |
+| `ops.ts`      | Operator catalogue: arity, parameters, `glsl` and `eval` twins    |
+| `tree.ts`     | Immutable `Node`/`Expression`, serialization, formula formatting  |
+| `seed.ts`     | `Seed` brand (a trimmed string), validation and parsing           |
+| `rng.ts`      | Deterministic mulberry32 stream keyed by a `Seed`                 |
+| `grammar.ts`  | Operand weights, depth/node bounds, presets and grammar drawing   |
+| `generate.ts` | `(grammar, seed) → Expression`                                    |
+| `evaluate.ts` | `(Expression, point) → raw RGB` reference interpreter             |
+| `lower.ts`    | Expression → DAG: sharing, usage counts, warp coordinate contexts |
+| `emit.ts`     | DAG → fragment shader (`compile`)                                 |
+| `colors.ts`   | Color spaces as GLSL sources                                      |
+| `glsl.ts`     | Shader header, shared GLSL helpers, float literals                |
 
 Dependencies only flow downwards: `glsl`/`colors` → `ops` → `tree` → `grammar`/`generate`/
 `evaluate`/`lower` → `emit`. There is no `index.ts`: consumers import the module they need.
@@ -28,13 +29,18 @@ Dependencies only flow downwards: `glsl`/`colors` → `ops` → `tree` → `gram
 ## Invariants
 
 - **Determinism.** The same `(grammar, seed)` always yields the same expression. Generation only
-  consumes the injected `Rng`; the core never reads ambient state.
+  consumes the injected `Rng`; the core never reads ambient state. `GENERATOR_VERSION` must be
+  bumped whenever a generation change would alter an existing `(grammar, seed)` pair.
+- **Seed identity.** A `Seed` is a trimmed, non-empty string of at most `MAX_SEED_LENGTH`
+  characters. Numbers are not a separate representation: `42` is the seed `'42'`. Ambient
+  randomness is the UI's job (`randomSeed()`); the core only accepts a `Seed`.
 - **Raw range.** Every operator returns a value in `[-1, 1]`; color spaces map that triplet to sRGB.
   The CPU evaluator returns the same range.
 - **Named parameters.** Parameters are stored by name, so reordering a definition cannot change the
   meaning of a serialized tree.
-- **Boundary validation.** `deserialize` and `createGrammar` are the only places that check
-  untrusted input. Inside the package, types are trusted.
+- **Boundary validation.** Untrusted input is checked where it enters: `deserialize` for trees,
+  `createGrammar` for grammars, `parseSeed`/`createSeed` for seeds, and `compile` for its options.
+  Inside the package, types are trusted.
 
 ## GLSL contract
 
