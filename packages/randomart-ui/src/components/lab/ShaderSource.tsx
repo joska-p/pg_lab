@@ -41,10 +41,6 @@ export function ShaderSource() {
         }
     }
 
-    function closePopover(popover: HTMLElement): void {
-        popover.hidePopover();
-    }
-
     return (
         <Stack gap="3">
             <Button popoverTarget={POPOVER_ID}>View GLSL shader</Button>
@@ -53,15 +49,7 @@ export function ShaderSource() {
                 <Card {...stylex.props(styles.panel)}>
                     <div {...stylex.props(styles.header)}>
                         <Text variant="muted">Compiled fragment shader</Text>
-                        <Button
-                            popoverTarget={POPOVER_ID}
-                            onClick={(_event) => {
-                                const popover = document.getElementById(POPOVER_ID);
-                                if (popover) {
-                                    closePopover(popover);
-                                }
-                            }}
-                        >
+                        <Button popoverTarget={POPOVER_ID} popoverTargetAction="hide">
                             Close
                         </Button>
                     </div>
@@ -71,7 +59,13 @@ export function ShaderSource() {
                         readOnly
                         {...stylex.props(styles.monospace)}
                     />
-                    <Button onClick={copySource}>Copy source</Button>
+                    <Button
+                        onClick={() => {
+                            void copySource();
+                        }}
+                    >
+                        Copy source
+                    </Button>
                 </Card>
             </div>
         </Stack>
