@@ -6,7 +6,7 @@ import {
     setShaderError,
     useCompiledShader,
     useDuration,
-} from '../stores/vmStore';
+} from '../stores/randomartStore';
 import { RandomArtCanvas } from './RandomArtCanvas';
 
 export function Scene() {

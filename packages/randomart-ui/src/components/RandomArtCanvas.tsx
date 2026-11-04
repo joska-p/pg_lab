@@ -9,7 +9,7 @@ import type { CSSProperties } from 'react';
 
 import { createPhase, needsRender } from '../renderer/renderGate';
 import type { RenderKey } from '../renderer/renderGate';
-import { DEFAULT_LOOP_DURATION } from '../stores/vmStore';
+import { DEFAULT_LOOP_DURATION } from '../stores/randomartStore';
 
 const DEFAULT_CONTEXT_OPTIONS: WebGLContextAttributes = {
     antialias: false,

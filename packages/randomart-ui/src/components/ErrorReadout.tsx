@@ -2,7 +2,7 @@ import { ControlField } from '@repo/ui/components/ControlField';
 import { Grid } from '@repo/ui/components/Grid';
 import { Text } from '@repo/ui/components/Text';
 
-import { useActionError, useShaderError } from '../stores/vmStore';
+import { useActionError, useShaderError } from '../stores/randomartStore';
 
 export function ErrorReadout() {
     const actionError = useActionError();

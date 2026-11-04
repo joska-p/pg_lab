@@ -5,7 +5,7 @@ import { Text } from '@repo/ui/components/Text';
 import { TextArea } from '@repo/ui/components/TextArea';
 import * as stylex from '@stylexjs/stylex';
 
-import { useCompiledShader } from '../../stores/vmStore';
+import { useCompiledShader } from '../../stores/randomartStore';
 
 const POPOVER_ID = 'shader-source-popover';
 

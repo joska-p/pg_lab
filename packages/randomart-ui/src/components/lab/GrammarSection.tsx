@@ -1,12 +1,6 @@
 import type { ColorSpaceId } from '@repo/randomart-core/colors';
 import { COLOR_SPACE_IDS, colorSpaces } from '@repo/randomart-core/colors';
-import {
-    SIZE_PROFILE_IDS,
-    SIZE_PROFILES,
-    isOnlyNonTerminal,
-    isOnlyTerminal,
-    weightOf,
-} from '@repo/randomart-core/grammar';
+import { isOnlyNonTerminal, isOnlyTerminal, weightOf } from '@repo/randomart-core/grammar';
 import { OP_NAMES, ops } from '@repo/randomart-core/ops';
 import type { OpName } from '@repo/randomart-core/ops';
 import { ControlSection } from '@repo/ui/components/ControlSection';
@@ -20,13 +14,15 @@ import {
     resetSeed,
     setActionError,
     setGrammarShareDepth,
-    setGrammarSize,
     setGrammarSpace,
     setGrammarWeight,
+    setGrammarMaxDepth,
+    setGrammarMaxNodes,
+    setGrammarMinDepth,
     useGrammar,
     useMaxWeight,
     useSeed,
-} from '../../stores/vmStore';
+} from '../../stores/randomartStore';
 
 const GROUP_LABELS = {
     terminal: 'terminals',
@@ -80,8 +76,7 @@ export function GrammarSection() {
     const seed = useSeed();
     const maxWeight = useMaxWeight();
 
-    const maxShareDepth = SIZE_PROFILES[grammar.size].maxDepth;
-    const mono = grammar.shareDepth >= maxShareDepth;
+    const mono = grammar.shareDepth >= grammar.maxDepth;
 
     function mustStayOn(name: OpName): boolean {
         return ops[name].arity === 0
@@ -142,19 +137,34 @@ export function GrammarSection() {
                 <Grid columns="1" gap="2">
                     <Slider
                         color="orange"
-                        label="size"
-                        value={SIZE_PROFILE_IDS.indexOf(grammar.size)}
-                        min={0}
-                        max={SIZE_PROFILE_IDS.length - 1}
-                        onValueChange={(value) => setGrammarSize(SIZE_PROFILE_IDS[value])}
+                        label="min depth"
+                        value={grammar.minDepth}
+                        min={1}
+                        max={8}
+                        onValueChange={setGrammarMinDepth}
                     />
-
+                    <Slider
+                        color="orange"
+                        label="max depth"
+                        value={grammar.maxDepth}
+                        min={1}
+                        max={10}
+                        onValueChange={setGrammarMaxDepth}
+                    />
+                    <Slider
+                        color="orange"
+                        label="max nodes"
+                        value={grammar.maxNodes}
+                        min={4}
+                        max={100}
+                        onValueChange={setGrammarMaxNodes}
+                    />
                     <Slider
                         color="orange"
                         label={mono ? 'share (mono)' : 'share'}
                         value={grammar.shareDepth}
                         min={0}
-                        max={maxShareDepth}
+                        max={grammar.maxDepth}
                         onValueChange={setGrammarShareDepth}
                     />
                 </Grid>

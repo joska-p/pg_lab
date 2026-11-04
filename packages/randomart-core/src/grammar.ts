@@ -5,23 +5,6 @@ import { OP_NAMES, ops } from './ops';
 import type { OpName } from './ops';
 import type { Rng } from './rng';
 
-export interface SizeConstraints {
-    readonly minDepth: number;
-    readonly maxDepth: number;
-    readonly maxNodes: number;
-}
-
-export const SIZE_PROFILES = {
-    tiny: { minDepth: 1, maxDepth: 3, maxNodes: 10 },
-    small: { minDepth: 1, maxDepth: 4, maxNodes: 16 },
-    medium: { minDepth: 2, maxDepth: 5, maxNodes: 25 },
-    large: { minDepth: 2, maxDepth: 6, maxNodes: 40 },
-} as const satisfies Record<string, SizeConstraints>;
-
-export type SizeProfile = keyof typeof SIZE_PROFILES;
-
-export const SIZE_PROFILE_IDS = Object.keys(SIZE_PROFILES) as readonly SizeProfile[];
-
 export const MAX_WEIGHT = 16;
 
 export interface Grammar {
@@ -29,7 +12,9 @@ export interface Grammar {
     readonly description: string;
     /** Only operators with a positive weight are present. */
     readonly weights: Readonly<Partial<Record<OpName, number>>>;
-    readonly size: SizeProfile;
+    readonly minDepth: number;
+    readonly maxDepth: number;
+    readonly maxNodes: number;
     /** Depth down to which the three channels share the same operators. */
     readonly shareDepth: number;
     readonly space: ColorSpaceId;
@@ -39,7 +24,9 @@ export interface GrammarOptions {
     readonly label?: string;
     readonly description?: string;
     readonly weights: Readonly<Partial<Record<OpName, number>>>;
-    readonly size: SizeProfile;
+    readonly minDepth: number;
+    readonly maxDepth: number;
+    readonly maxNodes: number;
     readonly shareDepth: number;
     readonly space?: ColorSpaceId;
 }
@@ -102,14 +89,24 @@ function ensureEnabled(weights: Partial<Record<OpName, number>>, terminal: boole
 
 /**
  * Validate and normalise a grammar: weights become integers in [1, MAX_WEIGHT] restricted to known
- * operators, and `shareDepth` must fit the size profile. Invalid choices throw instead of being
- * clamped, so a slider cannot silently disagree with the grammar it produced.
+ * operators, and `shareDepth` must fit `maxDepth`. Invalid choices throw instead of being clamped,
+ * so a slider cannot silently disagree with the grammar it produced.
  */
 export function createGrammar(options: GrammarOptions): Grammar {
-    const { size } = options;
-    if (!Object.hasOwn(SIZE_PROFILES, size)) {
-        throw new RandomArtError(`Unknown size profile: ${size}`);
+    const { minDepth, maxDepth, maxNodes } = options;
+
+    if (!Number.isInteger(minDepth) || minDepth < 1) {
+        throw new RandomArtError(`minDepth must be an integer >= 1, got ${minDepth}`);
     }
+    if (!Number.isInteger(maxDepth) || maxDepth < minDepth) {
+        throw new RandomArtError(
+            `maxDepth must be an integer >= minDepth (${minDepth}), got ${maxDepth}`,
+        );
+    }
+    if (!Number.isInteger(maxNodes) || maxNodes < 1) {
+        throw new RandomArtError(`maxNodes must be an integer >= 1, got ${maxNodes}`);
+    }
+
     const space = options.space ?? 'srgb';
     if (!isColorSpaceId(space)) {
         throw new RandomArtError(`Unknown color space: ${space}`);
@@ -118,11 +115,10 @@ export function createGrammar(options: GrammarOptions): Grammar {
     const weights = normalizeWeights(options.weights);
     assertVocabulary(weights);
 
-    const { maxDepth } = SIZE_PROFILES[size];
     const { shareDepth } = options;
     if (!Number.isInteger(shareDepth) || shareDepth < 0 || shareDepth > maxDepth) {
         throw new RandomArtError(
-            `shareDepth must be an integer in [0, ${maxDepth}] for size "${size}", got ${shareDepth}`,
+            `shareDepth must be an integer in [0, ${maxDepth}], got ${shareDepth}`,
         );
     }
 
@@ -130,7 +126,9 @@ export function createGrammar(options: GrammarOptions): Grammar {
         label: options.label ?? 'Custom',
         description: options.description ?? 'Custom grammar',
         weights: Object.freeze(weights),
-        size,
+        minDepth,
+        maxDepth,
+        maxNodes,
         shareDepth,
         space,
     });
@@ -149,11 +147,20 @@ export function vocabulary(grammar: Grammar): readonly OpName[] {
 /** Stable identity of a grammar, independent of how its weights were built. */
 export function grammarKey(grammar: Grammar): string {
     const weights = OP_NAMES.map((name) => `${name}:${weightOf(grammar, name)}`);
-    return JSON.stringify([weights, grammar.size, grammar.shareDepth, grammar.space]);
+    return JSON.stringify([
+        weights,
+        grammar.minDepth,
+        grammar.maxDepth,
+        grammar.maxNodes,
+        grammar.shareDepth,
+        grammar.space,
+    ]);
 }
 
 export interface GrammarPins {
-    readonly size?: SizeProfile;
+    readonly minDepth?: number;
+    readonly maxDepth?: number;
+    readonly maxNodes?: number;
     readonly shareDepth?: number;
     readonly space?: ColorSpaceId;
 }
@@ -168,11 +175,13 @@ export function drawGrammar(rng: Rng, pins: GrammarPins = {}): Grammar {
     ensureEnabled(weights, true);
     ensureEnabled(weights, false);
 
-    const size = pins.size ?? SIZE_PROFILE_IDS[rng.int(SIZE_PROFILE_IDS.length)];
-    const shareDepth = pins.shareDepth ?? rng.int(SIZE_PROFILES[size].maxDepth + 1);
+    const minDepth = pins.minDepth ?? 1 + rng.int(6);
+    const maxDepth = pins.maxDepth ?? minDepth + rng.int(5);
+    const maxNodes = pins.maxNodes ?? 8 + rng.int(60);
+    const shareDepth = pins.shareDepth ?? rng.int(maxDepth + 1);
     const space = pins.space ?? COLOR_SPACE_IDS[rng.int(COLOR_SPACE_IDS.length)];
 
-    return createGrammar({ weights, size, shareDepth, space });
+    return createGrammar({ weights, minDepth, maxDepth, maxNodes, shareDepth, space });
 }
 
 function isOnlyKind(grammar: Grammar, name: OpName, terminal: boolean): boolean {
@@ -215,7 +224,9 @@ export const grammarRegistry = {
             x: 4,
             y: 4,
         },
-        size: 'medium',
+        minDepth: 2,
+        maxDepth: 5,
+        maxNodes: 25,
         shareDepth: 2,
         space: 'oklch',
     }),
@@ -233,7 +244,9 @@ export const grammarRegistry = {
             x: 3,
             y: 3,
         },
-        size: 'medium',
+        minDepth: 2,
+        maxDepth: 5,
+        maxNodes: 25,
         shareDepth: 1,
         space: 'hsl',
     }),
@@ -251,7 +264,9 @@ export const grammarRegistry = {
             x: 3,
             y: 3,
         },
-        size: 'large',
+        minDepth: 2,
+        maxDepth: 6,
+        maxNodes: 40,
         shareDepth: 3,
         space: 'oklch',
     }),
@@ -266,7 +281,9 @@ export const grammarRegistry = {
             x: 2,
             y: 2,
         },
-        size: 'large',
+        minDepth: 2,
+        maxDepth: 6,
+        maxNodes: 40,
         shareDepth: 2,
         space: 'oklch',
     }),
@@ -280,7 +297,9 @@ export const grammarRegistry = {
             x: 4,
             y: 4,
         },
-        size: 'small',
+        minDepth: 1,
+        maxDepth: 4,
+        maxNodes: 16,
         shareDepth: 4,
         space: 'srgb',
     }),
@@ -296,7 +315,9 @@ export const grammarRegistry = {
             x: 1,
             y: 1,
         },
-        size: 'medium',
+        minDepth: 2,
+        maxDepth: 5,
+        maxNodes: 25,
         shareDepth: 0,
         space: 'oklab',
     }),
@@ -311,7 +332,9 @@ export const grammarRegistry = {
             x: 3,
             y: 3,
         },
-        size: 'medium',
+        minDepth: 2,
+        maxDepth: 5,
+        maxNodes: 25,
         shareDepth: 5,
         space: 'srgb',
     }),
@@ -327,7 +350,9 @@ export const grammarRegistry = {
             x: 2,
             y: 2,
         },
-        size: 'large',
+        minDepth: 2,
+        maxDepth: 6,
+        maxNodes: 40,
         shareDepth: 0,
         space: 'hsl',
     }),

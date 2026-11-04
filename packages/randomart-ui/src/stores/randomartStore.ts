@@ -9,12 +9,11 @@ import type { Compiled } from '@repo/randomart-core/emit';
 import { generate } from '@repo/randomart-core/generate';
 import {
     MAX_WEIGHT,
-    SIZE_PROFILES,
     createGrammar,
     drawGrammar as drawRandomGrammar,
     grammarRegistry,
 } from '@repo/randomart-core/grammar';
-import type { Grammar, SizeProfile } from '@repo/randomart-core/grammar';
+import type { Grammar } from '@repo/randomart-core/grammar';
 import type { OpName } from '@repo/randomart-core/ops';
 import { createRng } from '@repo/randomart-core/rng';
 import type { Expression } from '@repo/randomart-core/tree';
@@ -37,7 +36,7 @@ export interface HistoryEntry {
     readonly expression?: Expression;
 }
 
-export interface VmState {
+export interface RandomartState {
     // Clock & playback
     clockStore: ClockStore;
     shaderError: ShaderError | null;
@@ -71,7 +70,7 @@ const initialEntry: HistoryEntry = {
 
 const nullClockStore = createNullClockStore();
 
-const store = create<VmState>(() => ({
+const store = create<RandomartState>(() => ({
     clockStore: nullClockStore,
     shaderError: null,
     actionError: null,
@@ -188,7 +187,7 @@ export function useCurrentId(): number {
     return store((s) => s.currentId);
 }
 
-export function getVmState(): VmState {
+export function getRandomartState(): RandomartState {
     return store.getState();
 }
 
@@ -312,20 +311,40 @@ export function setGrammarWeight(name: OpName, weight: number): void {
     );
 }
 
-export function setGrammarSize(size: SizeProfile): void {
+export function setGrammarMinDepth(minDepth: number): void {
     editGrammar((grammar) =>
         createGrammar({
             ...grammar,
-            size,
-            // Shrinking the profile also shrinks the deepest shareable level; clamp instead of
-            // letting createGrammar reject the whole edit.
-            shareDepth: Math.min(grammar.shareDepth, SIZE_PROFILES[size].maxDepth),
+            minDepth,
+            maxDepth: Math.max(grammar.maxDepth, minDepth),
+            shareDepth: Math.min(grammar.shareDepth, Math.max(grammar.maxDepth, minDepth)),
+        }),
+    );
+}
+
+export function setGrammarMaxDepth(maxDepth: number): void {
+    editGrammar((grammar) =>
+        createGrammar({
+            ...grammar,
+            maxDepth: Math.max(grammar.minDepth, maxDepth),
+            shareDepth: Math.min(grammar.shareDepth, Math.max(grammar.minDepth, maxDepth)),
+        }),
+    );
+}
+
+export function setGrammarMaxNodes(maxNodes: number): void {
+    editGrammar((grammar) =>
+        createGrammar({
+            ...grammar,
+            maxNodes,
         }),
     );
 }
 
 export function setGrammarShareDepth(shareDepth: number): void {
-    editGrammar((grammar) => createGrammar({ ...grammar, shareDepth }));
+    editGrammar((grammar) =>
+        createGrammar({ ...grammar, shareDepth: Math.min(grammar.maxDepth, shareDepth) }),
+    );
 }
 
 export function setGrammarSpace(space: ColorSpaceId): void {

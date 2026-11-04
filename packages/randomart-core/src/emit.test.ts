@@ -5,7 +5,7 @@ import type { ColorSpaceId } from './colors';
 import { compile } from './emit';
 import { evaluate } from './evaluate';
 import { generate } from './generate';
-import { SIZE_PROFILE_IDS, SIZE_PROFILES, createGrammar, grammarRegistry } from './grammar';
+import { createGrammar, grammarRegistry } from './grammar';
 import type { Point } from './ops';
 import { usesTime } from './tree';
 import type { Expression } from './tree';
@@ -28,17 +28,35 @@ interface Sample {
 function drawSamples(): readonly Sample[] {
     const samples: Sample[] = [];
 
-    for (const size of SIZE_PROFILE_IDS) {
-        const grammar = createGrammar({
+    const grammars = [
+        createGrammar({
             weights: grammarRegistry.default.weights,
-            size,
-            shareDepth: Math.min(2, SIZE_PROFILES[size].maxDepth),
-        });
+            minDepth: 1,
+            maxDepth: 3,
+            maxNodes: 12,
+            shareDepth: 1,
+        }),
+        createGrammar({
+            weights: grammarRegistry.default.weights,
+            minDepth: 2,
+            maxDepth: 5,
+            maxNodes: 25,
+            shareDepth: 2,
+        }),
+        createGrammar({
+            weights: grammarRegistry.default.weights,
+            minDepth: 3,
+            maxDepth: 7,
+            maxNodes: 50,
+            shareDepth: 3,
+        }),
+    ];
 
+    for (const grammar of grammars) {
         for (const space of COLOR_SPACE_IDS) {
             for (const seed of SEEDS) {
                 samples.push({
-                    label: `${size}/${space}/seed ${seed}`,
+                    label: `${grammar.minDepth}/${grammar.maxDepth}/${grammar.maxNodes}/${space}/seed ${seed}`,
                     space,
                     expression: generate(grammar, seed),
                 });

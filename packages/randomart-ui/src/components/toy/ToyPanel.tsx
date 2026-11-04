@@ -8,7 +8,7 @@ import {
     useCanvas,
     useClockStore,
     useIsPlaying,
-} from '../../stores/vmStore';
+} from '../../stores/randomartStore';
 import { GrammarSelect } from './GrammarSelect';
 
 export function ToyPanel() {

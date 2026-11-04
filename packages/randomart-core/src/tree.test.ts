@@ -4,7 +4,7 @@ import { COLOR_SPACE_IDS } from './colors';
 import { compile } from './emit';
 import { RandomArtError } from './errors';
 import { generate } from './generate';
-import { SIZE_PROFILE_IDS, SIZE_PROFILES, createGrammar, grammarRegistry } from './grammar';
+import { createGrammar, grammarRegistry } from './grammar';
 import { deserialize, formatFormula, serialize } from './tree';
 import type { Expression } from './tree';
 
@@ -22,14 +22,32 @@ function throughJson(expression: Expression): Expression {
 }
 
 describe('tree serialization', () => {
-    it('preserves the formula through JSON for every size profile', () => {
-        for (const size of SIZE_PROFILE_IDS) {
-            const grammar = createGrammar({
+    it('preserves the formula through JSON for every depth/node bound', () => {
+        const grammars = [
+            createGrammar({
                 weights: grammarRegistry.default.weights,
-                size,
-                shareDepth: Math.min(2, SIZE_PROFILES[size].maxDepth),
-            });
+                minDepth: 1,
+                maxDepth: 3,
+                maxNodes: 12,
+                shareDepth: 1,
+            }),
+            createGrammar({
+                weights: grammarRegistry.default.weights,
+                minDepth: 2,
+                maxDepth: 5,
+                maxNodes: 25,
+                shareDepth: 2,
+            }),
+            createGrammar({
+                weights: grammarRegistry.default.weights,
+                minDepth: 3,
+                maxDepth: 7,
+                maxNodes: 50,
+                shareDepth: 3,
+            }),
+        ];
 
+        for (const grammar of grammars) {
             for (const seed of [0, 42]) {
                 const expression = generate(grammar, seed);
 

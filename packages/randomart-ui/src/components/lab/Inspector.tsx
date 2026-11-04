@@ -1,5 +1,4 @@
 import { colorSpaces } from '@repo/randomart-core/colors';
-import { SIZE_PROFILES } from '@repo/randomart-core/grammar';
 import { formatFormula } from '@repo/randomart-core/tree';
 import { ControlField } from '@repo/ui/components/ControlField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
@@ -7,7 +6,7 @@ import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { Grid } from '@repo/ui/components/Grid';
 import type { CSSProperties } from 'react';
 
-import { useExpression, useGrammar } from '../../stores/vmStore';
+import { useExpression, useGrammar } from '../../stores/randomartStore';
 
 const CHANNELS = ['r', 'g', 'b'] as const;
 
@@ -20,9 +19,9 @@ const formulaStyle: CSSProperties = {
 export function Inspector() {
     const expression = useExpression();
     const grammar = useGrammar();
-    const { space, shareDepth } = grammar;
+    const { space, shareDepth, maxDepth } = grammar;
     const label = colorSpaces[space].label;
-    const mono = shareDepth >= SIZE_PROFILES[grammar.size].maxDepth;
+    const mono = shareDepth >= maxDepth;
 
     return (
         <ErrorBoundary showStack={import.meta.env.DEV}>

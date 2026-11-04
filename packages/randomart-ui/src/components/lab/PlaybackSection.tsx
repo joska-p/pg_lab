@@ -7,7 +7,7 @@ import {
     parseDurationInput,
     setDuration,
     useDuration,
-} from '../../stores/vmStore';
+} from '../../stores/randomartStore';
 
 export function PlaybackSection() {
     const duration = useDuration();

@@ -1,5 +1,5 @@
 import { RandomArtError } from './errors';
-import { SIZE_PROFILES, vocabulary, weightOf } from './grammar';
+import { vocabulary, weightOf } from './grammar';
 import type { Grammar } from './grammar';
 import { ops } from './ops';
 import type { OpName } from './ops';
@@ -193,16 +193,15 @@ function generateTrunk(state: GenState, depth: number, budget: number): Trunk {
  * down to `shareDepth` the channels pick the same operator, below it they diverge.
  */
 export function generate(grammar: Grammar, seed: number | string): Expression {
-    const { minDepth, maxDepth, maxNodes } = SIZE_PROFILES[grammar.size];
     const state: GenState = {
         grammar,
         vocabulary: vocabulary(grammar),
         rng: createRng(seed),
-        minDepth,
-        maxDepth,
+        minDepth: grammar.minDepth,
+        maxDepth: grammar.maxDepth,
         minimumSizes: new Map(),
     };
 
-    const trunk = generateTrunk(state, 1, maxNodes);
+    const trunk = generateTrunk(state, 1, grammar.maxNodes);
     return createExpression(trunk.nodes[0], trunk.nodes[1], trunk.nodes[2]);
 }

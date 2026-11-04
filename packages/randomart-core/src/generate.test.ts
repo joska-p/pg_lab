@@ -1,13 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { generate } from './generate';
-import {
-    SIZE_PROFILE_IDS,
-    SIZE_PROFILES,
-    createGrammar,
-    grammarRegistry,
-    vocabulary,
-} from './grammar';
+import { createGrammar, grammarRegistry, vocabulary } from './grammar';
 import { ops } from './ops';
 import type { OpName } from './ops';
 import { formatFormula } from './tree';
@@ -92,27 +86,42 @@ describe('generate', () => {
         expect(snapshot).toMatchSnapshot();
     });
 
-    it('respects the size profile and the grammar vocabulary', () => {
-        for (const size of SIZE_PROFILE_IDS) {
-            const { minDepth, maxDepth, maxNodes } = SIZE_PROFILES[size];
+    it('respects the grammar depth and node bounds', () => {
+        const grammars = [
+            createGrammar({
+                weights: DEFAULT_GRAMMAR.weights,
+                minDepth: 1,
+                maxDepth: 3,
+                maxNodes: 12,
+                shareDepth: 1,
+            }),
+            createGrammar({
+                weights: DEFAULT_GRAMMAR.weights,
+                minDepth: 2,
+                maxDepth: 5,
+                maxNodes: 25,
+                shareDepth: 2,
+            }),
+            createGrammar({
+                weights: DEFAULT_GRAMMAR.weights,
+                minDepth: 3,
+                maxDepth: 7,
+                maxNodes: 50,
+                shareDepth: 3,
+            }),
+        ];
 
-            for (let shareDepth = 0; shareDepth <= maxDepth; shareDepth++) {
-                const grammar = createGrammar({
-                    weights: DEFAULT_GRAMMAR.weights,
-                    size,
-                    shareDepth,
-                });
-                const enabled = new Set<OpName>(vocabulary(grammar));
+        for (const grammar of grammars) {
+            const enabled = new Set<OpName>(vocabulary(grammar));
 
-                for (const seed of [0, 7, 99]) {
-                    for (const channel of channels(generate(grammar, seed))) {
-                        expect(countNodes(channel)).toBeLessThanOrEqual(maxNodes);
-                        expect(depthOf(channel)).toBeGreaterThanOrEqual(minDepth);
-                        expect(depthOf(channel)).toBeLessThanOrEqual(maxDepth);
-                        eachNode(channel, (node) => {
-                            expect(enabled.has(node.op), `${node.op} in ${size}`).toBe(true);
-                        });
-                    }
+            for (const seed of [0, 7, 99]) {
+                for (const channel of channels(generate(grammar, seed))) {
+                    expect(countNodes(channel)).toBeLessThanOrEqual(grammar.maxNodes);
+                    expect(depthOf(channel)).toBeGreaterThanOrEqual(grammar.minDepth);
+                    expect(depthOf(channel)).toBeLessThanOrEqual(grammar.maxDepth);
+                    eachNode(channel, (node) => {
+                        expect(enabled.has(node.op), `${node.op}`).toBe(true);
+                    });
                 }
             }
         }
@@ -129,10 +138,12 @@ describe('generate', () => {
     it('honours a minimal vocabulary and still fills minDepth', () => {
         const grammar = createGrammar({
             weights: { neg: 1, x: 1 },
-            size: 'medium',
+            minDepth: 2,
+            maxDepth: 5,
+            maxNodes: 25,
             shareDepth: 0,
         });
-        const { minDepth } = SIZE_PROFILES.medium;
+        const minDepth = 2;
 
         for (const seed of [1, 2, 3]) {
             for (const channel of channels(generate(grammar, seed))) {
