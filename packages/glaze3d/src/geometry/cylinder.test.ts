@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
+import { getOrThrow } from '../core/getOrThrow';
 import { checkOutwardWinding } from './check';
 import { CylinderGeometry } from './cylinder';
 
@@ -17,18 +18,18 @@ describe('CylinderGeometry', () => {
     it('produces unit normals and respects height extent', () => {
         const geo = new CylinderGeometry(0.065, 0.065, 2.5, 16);
         for (let i = 0; i < geo.data.normals.length; i += 3) {
-            const len = Math.sqrt(
-                geo.data.normals[i] ** 2 +
-                    geo.data.normals[i + 1] ** 2 +
-                    geo.data.normals[i + 2] ** 2,
-            );
+            const nx = getOrThrow(geo.data.normals, i);
+            const ny = getOrThrow(geo.data.normals, i + 1);
+            const nz = getOrThrow(geo.data.normals, i + 2);
+            const len = Math.sqrt(nx ** 2 + ny ** 2 + nz ** 2);
             expect(len).toBeCloseTo(1, 5);
         }
         let minY = Infinity;
         let maxY = -Infinity;
         for (let i = 1; i < geo.data.positions.length; i += 3) {
-            minY = Math.min(minY, geo.data.positions[i]);
-            maxY = Math.max(maxY, geo.data.positions[i]);
+            const y = getOrThrow(geo.data.positions, i);
+            minY = Math.min(minY, y);
+            maxY = Math.max(maxY, y);
         }
         expect(minY).toBeCloseTo(-1.25, 5);
         expect(maxY).toBeCloseTo(1.25, 5);
@@ -38,16 +39,18 @@ describe('CylinderGeometry', () => {
         const geo = new CylinderGeometry(1, 2, 3, 8);
         const ring = 9;
         // First side vertex sits on the top ring (radiusTop).
-        expect(Math.sqrt(geo.data.positions[0] ** 2 + geo.data.positions[2] ** 2)).toBeCloseTo(
-            1,
-            5,
-        );
+        expect(
+            Math.sqrt(
+                getOrThrow(geo.data.positions, 0) ** 2 + getOrThrow(geo.data.positions, 2) ** 2,
+            ),
+        ).toBeCloseTo(1, 5);
         // First bottom-row side vertex sits on the bottom ring (radiusBottom).
         const o = ring * 3;
-        expect(Math.sqrt(geo.data.positions[o] ** 2 + geo.data.positions[o + 2] ** 2)).toBeCloseTo(
-            2,
-            5,
-        );
+        expect(
+            Math.sqrt(
+                getOrThrow(geo.data.positions, o) ** 2 + getOrThrow(geo.data.positions, o + 2) ** 2,
+            ),
+        ).toBeCloseTo(2, 5);
     });
 
     it('keeps every index inside vertex bounds', () => {

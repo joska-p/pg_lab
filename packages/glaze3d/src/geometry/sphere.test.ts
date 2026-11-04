@@ -1,12 +1,16 @@
 import { describe, expect, it } from 'vite-plus/test';
 
+import { getOrThrow } from '../core/getOrThrow';
 import { checkOutwardWinding } from './check';
 import { SphereGeometry } from './sphere';
 
 function normalLengths(normals: Float32Array): number[] {
     const out: number[] = [];
     for (let i = 0; i < normals.length; i += 3) {
-        out.push(Math.sqrt(normals[i] ** 2 + normals[i + 1] ** 2 + normals[i + 2] ** 2));
+        const nx = getOrThrow(normals, i);
+        const ny = getOrThrow(normals, i + 1);
+        const nz = getOrThrow(normals, i + 2);
+        out.push(Math.sqrt(nx ** 2 + ny ** 2 + nz ** 2));
     }
     return out;
 }
@@ -28,11 +32,10 @@ describe('SphereGeometry', () => {
             expect(len).toBeCloseTo(1, 5);
         }
         for (let i = 0; i < geo.data.positions.length; i += 3) {
-            const len = Math.sqrt(
-                geo.data.positions[i] ** 2 +
-                    geo.data.positions[i + 1] ** 2 +
-                    geo.data.positions[i + 2] ** 2,
-            );
+            const x = getOrThrow(geo.data.positions, i);
+            const y = getOrThrow(geo.data.positions, i + 1);
+            const z = getOrThrow(geo.data.positions, i + 2);
+            const len = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
             expect(len).toBeCloseTo(radius, 5);
         }
     });

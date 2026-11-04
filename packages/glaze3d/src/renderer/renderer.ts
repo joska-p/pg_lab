@@ -1,4 +1,5 @@
 import type { PerspectiveCamera } from '../core/camera';
+import { getOrThrow } from '../core/getOrThrow';
 import { AmbientLight, DirectionalLight, Mesh } from '../core/object3d';
 import type { Object3D } from '../core/object3d';
 import type { Geometry } from '../geometry/geometry';
@@ -107,6 +108,13 @@ function createProgram(
     }
 }
 
+type UniformLocation4 = [
+    WebGLUniformLocation | null,
+    WebGLUniformLocation | null,
+    WebGLUniformLocation | null,
+    WebGLUniformLocation | null,
+];
+
 interface PhongUniforms {
     projectionMatrix: WebGLUniformLocation | null;
     modelViewMatrix: WebGLUniformLocation | null;
@@ -115,8 +123,8 @@ interface PhongUniforms {
     specular: WebGLUniformLocation | null;
     shininess: WebGLUniformLocation | null;
     ambientColor: WebGLUniformLocation | null;
-    dirColors: (WebGLUniformLocation | null)[];
-    dirDirections: (WebGLUniformLocation | null)[];
+    dirColors: UniformLocation4;
+    dirDirections: UniformLocation4;
 }
 
 interface CustomUniforms {
@@ -301,48 +309,74 @@ export class Renderer {
             ab += light.color[2] * light.intensity;
         }
         const viewElements = view.elements;
-        const dirColors: [number, number, number][] = [];
-        const dirDirections: [number, number, number][] = [];
+        // Tableaux pré-alloués à la taille fixe du budget de lumières (pattern 2 :
+        // la taille est connue à la compilation, pas de helper nécessaire à la
+        // lecture car les 4 emplacements existent toujours).
+        const dirColors: [number, number, number][] = [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+        ];
+        const dirDirections: [number, number, number][] = [
+            [0, 1, 0],
+            [0, 1, 0],
+            [0, 1, 0],
+            [0, 1, 0],
+        ];
         for (let i = 0; i < MAX_DIRECTIONAL_LIGHTS; i++) {
             const light = directional[i];
             if (light === undefined) {
-                dirColors.push([0, 0, 0]);
-                dirDirections.push([0, 1, 0]);
                 continue;
             }
-            dirColors.push([
+            dirColors[i] = [
                 light.color[0] * light.intensity,
                 light.color[1] * light.intensity,
                 light.color[2] * light.intensity,
-            ]);
+            ];
             // DirectionalLight direction convention: `.position` points from the
             // target (world origin, three.js default target) toward the light, so
             // the world direction is the normalized world position. Transformed by
             // the view rotation only (w = 0), matching a light attached to the
             // camera staying fixed on screen while orbiting.
-            const wx = light.matrixWorld.elements[12];
-            const wy = light.matrixWorld.elements[13];
-            const wz = light.matrixWorld.elements[14];
+            const wx = getOrThrow(light.matrixWorld.elements, 12);
+            const wy = getOrThrow(light.matrixWorld.elements, 13);
+            const wz = getOrThrow(light.matrixWorld.elements, 14);
             const worldLength = Math.hypot(wx, wy, wz) || 1;
             const dx = wx / worldLength;
             const dy = wy / worldLength;
             const dz = wz / worldLength;
-            const vx = viewElements[0] * dx + viewElements[4] * dy + viewElements[8] * dz;
-            const vy = viewElements[1] * dx + viewElements[5] * dy + viewElements[9] * dz;
-            const vz = viewElements[2] * dx + viewElements[6] * dy + viewElements[10] * dz;
+            const vx =
+                getOrThrow(viewElements, 0) * dx +
+                getOrThrow(viewElements, 4) * dy +
+                getOrThrow(viewElements, 8) * dz;
+            const vy =
+                getOrThrow(viewElements, 1) * dx +
+                getOrThrow(viewElements, 5) * dy +
+                getOrThrow(viewElements, 9) * dz;
+            const vz =
+                getOrThrow(viewElements, 2) * dx +
+                getOrThrow(viewElements, 6) * dy +
+                getOrThrow(viewElements, 10) * dz;
             const viewLength = Math.hypot(vx, vy, vz) || 1;
-            dirDirections.push([vx / viewLength, vy / viewLength, vz / viewLength]);
+            dirDirections[i] = [vx / viewLength, vy / viewLength, vz / viewLength];
         }
         return { ambientColor: [ar, ag, ab], dirColors, dirDirections };
     }
 
     private locatePhongUniforms(gl: WebGL2RenderingContext, program: WebGLProgram): PhongUniforms {
-        const dirColors: (WebGLUniformLocation | null)[] = [];
-        const dirDirections: (WebGLUniformLocation | null)[] = [];
-        for (let i = 0; i < MAX_DIRECTIONAL_LIGHTS; i++) {
-            dirColors.push(gl.getUniformLocation(program, `uDirColors[${i}]`));
-            dirDirections.push(gl.getUniformLocation(program, `uDirDirections[${i}]`));
-        }
+        const dirColors: UniformLocation4 = [
+            gl.getUniformLocation(program, 'uDirColors[0]'),
+            gl.getUniformLocation(program, 'uDirColors[1]'),
+            gl.getUniformLocation(program, 'uDirColors[2]'),
+            gl.getUniformLocation(program, 'uDirColors[3]'),
+        ];
+        const dirDirections: UniformLocation4 = [
+            gl.getUniformLocation(program, 'uDirDirections[0]'),
+            gl.getUniformLocation(program, 'uDirDirections[1]'),
+            gl.getUniformLocation(program, 'uDirDirections[2]'),
+            gl.getUniformLocation(program, 'uDirDirections[3]'),
+        ];
         return {
             projectionMatrix: gl.getUniformLocation(program, 'uProjectionMatrix'),
             modelViewMatrix: gl.getUniformLocation(program, 'uModelViewMatrix'),
@@ -422,15 +456,15 @@ export class Renderer {
         this.tmpNormalSource.copy(this.tmpModelView).invert();
         const inv = this.tmpNormalSource.elements;
         const normalMatrix = new Float32Array([
-            inv[0],
-            inv[4],
-            inv[8],
-            inv[1],
-            inv[5],
-            inv[9],
-            inv[2],
-            inv[6],
-            inv[10],
+            getOrThrow(inv, 0),
+            getOrThrow(inv, 4),
+            getOrThrow(inv, 8),
+            getOrThrow(inv, 1),
+            getOrThrow(inv, 5),
+            getOrThrow(inv, 9),
+            getOrThrow(inv, 2),
+            getOrThrow(inv, 6),
+            getOrThrow(inv, 10),
         ]);
 
         gl.useProgram(this.phongProgram);
@@ -457,11 +491,11 @@ export class Renderer {
             ambientColor[2],
         );
         for (let i = 0; i < MAX_DIRECTIONAL_LIGHTS; i++) {
-            const color = dirColors[i];
-            const direction = dirDirections[i];
-            gl.uniform3f(this.phongUniforms.dirColors[i], color[0], color[1], color[2]);
+            const color = getOrThrow(dirColors, i);
+            const direction = getOrThrow(dirDirections, i);
+            gl.uniform3f(getOrThrow(this.phongUniforms.dirColors, i), color[0], color[1], color[2]);
             gl.uniform3f(
-                this.phongUniforms.dirDirections[i],
+                getOrThrow(this.phongUniforms.dirDirections, i),
                 direction[0],
                 direction[1],
                 direction[2],
@@ -497,15 +531,15 @@ export class Renderer {
         this.tmpNormalSource.copy(this.tmpModelView).invert();
         const inv = this.tmpNormalSource.elements;
         const normalMatrix = new Float32Array([
-            inv[0],
-            inv[4],
-            inv[8],
-            inv[1],
-            inv[5],
-            inv[9],
-            inv[2],
-            inv[6],
-            inv[10],
+            getOrThrow(inv, 0),
+            getOrThrow(inv, 4),
+            getOrThrow(inv, 8),
+            getOrThrow(inv, 1),
+            getOrThrow(inv, 5),
+            getOrThrow(inv, 9),
+            getOrThrow(inv, 2),
+            getOrThrow(inv, 6),
+            getOrThrow(inv, 10),
         ]);
         gl.useProgram(program);
         gl.uniformMatrix4fv(uniforms?.projectionMatrix ?? null, false, projection.elements);

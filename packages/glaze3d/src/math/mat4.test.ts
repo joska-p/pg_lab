@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
+import { getOrThrow } from '../core/getOrThrow';
 import { Mat4 } from './mat4';
 import { Quat } from './quat';
 import { Vec3 } from './vec3';
@@ -45,8 +46,8 @@ describe('Mat4', () => {
         const inv = m.clone().invert();
         const product = m.clone().multiply(inv);
         const identity = Mat4.identity().elements;
-        for (let i = 0; i < 16; i += 1) {
-            expect(product.elements[i]).toBeCloseTo(identity[i], 5);
+        for (const [i, value] of product.elements.entries()) {
+            expect(value).toBeCloseTo(getOrThrow(identity, i), 5);
         }
     });
 });

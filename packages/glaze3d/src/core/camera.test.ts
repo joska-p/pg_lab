@@ -2,14 +2,15 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { Mat4 } from '../math/mat4';
 import { PerspectiveCamera } from './camera';
+import { getOrThrow } from './getOrThrow';
 import { DirectionalLight } from './object3d';
 
 describe('PerspectiveCamera', () => {
     it('builds projectionMatrix from fov/aspect/near/far', () => {
         const camera = new PerspectiveCamera(40, 2, 0.1, 100);
         const expected = Mat4.perspective((40 * Math.PI) / 180, 2, 0.1, 100);
-        for (let i = 0; i < 16; i += 1) {
-            expect(camera.projectionMatrix.elements[i]).toBeCloseTo(expected.elements[i]);
+        for (const [i, value] of camera.projectionMatrix.elements.entries()) {
+            expect(value).toBeCloseTo(getOrThrow(expected.elements, i));
         }
     });
 
@@ -18,19 +19,21 @@ describe('PerspectiveCamera', () => {
         camera.aspect = 2;
         camera.updateProjectionMatrix();
         const expected = Mat4.perspective((40 * Math.PI) / 180, 2, 0.01, 200);
-        expect(camera.projectionMatrix.elements[0]).toBeCloseTo(expected.elements[0]);
+        expect(getOrThrow(camera.projectionMatrix.elements, 0)).toBeCloseTo(
+            getOrThrow(expected.elements, 0),
+        );
     });
 
     it('matrixWorldInverse inverts matrixWorld', () => {
         const camera = new PerspectiveCamera(40, 1, 0.01, 200);
         camera.position.set(0, 0, 5);
         camera.updateMatrixWorld();
-        expect(camera.matrixWorld.elements[14]).toBeCloseTo(5);
-        expect(camera.matrixWorldInverse.elements[14]).toBeCloseTo(-5);
+        expect(getOrThrow(camera.matrixWorld.elements, 14)).toBeCloseTo(5);
+        expect(getOrThrow(camera.matrixWorldInverse.elements, 14)).toBeCloseTo(-5);
         const roundtrip = camera.matrixWorld.clone().multiply(camera.matrixWorldInverse);
         const identity = Mat4.identity();
-        for (let i = 0; i < 16; i += 1) {
-            expect(roundtrip.elements[i]).toBeCloseTo(identity.elements[i]);
+        for (const [i, value] of roundtrip.elements.entries()) {
+            expect(value).toBeCloseTo(getOrThrow(identity.elements, i));
         }
     });
 
@@ -42,11 +45,11 @@ describe('PerspectiveCamera', () => {
         camera.add(light);
         camera.updateMatrixWorld();
         // Camera world position is kept, and the child light inherits it plus offset.
-        expect(camera.matrixWorld.elements[12]).toBeCloseTo(4);
-        expect(light.matrixWorld.elements[12]).toBeCloseTo(5);
-        expect(light.matrixWorld.elements[13]).toBeCloseTo(3);
-        expect(light.matrixWorld.elements[14]).toBeCloseTo(11);
+        expect(getOrThrow(camera.matrixWorld.elements, 12)).toBeCloseTo(4);
+        expect(getOrThrow(light.matrixWorld.elements, 12)).toBeCloseTo(5);
+        expect(getOrThrow(light.matrixWorld.elements, 13)).toBeCloseTo(3);
+        expect(getOrThrow(light.matrixWorld.elements, 14)).toBeCloseTo(11);
         // View matrix stays the inverse of the camera world matrix.
-        expect(camera.matrixWorldInverse.elements[12]).toBeCloseTo(-4);
+        expect(getOrThrow(camera.matrixWorldInverse.elements, 12)).toBeCloseTo(-4);
     });
 });
