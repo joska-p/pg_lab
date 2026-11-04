@@ -1,3 +1,4 @@
+import { RandomArtError } from './errors';
 import { glslFloat } from './glsl';
 import type { GlslFunctionId } from './glsl';
 
@@ -125,6 +126,62 @@ function usesModulation(params: Readonly<Record<string, number>>): boolean {
     return paramValue(params, 'amp', 0) > 0;
 }
 
+/** Lit l'opérande de rang `index` et throw s'il manque (garde contre arité violée). */
+function operand<T>(inputs: readonly T[], index: number): T {
+    const value = inputs[index];
+    if (value === undefined) {
+        throw new RandomArtError(`Missing operand ${index}`);
+    }
+    return value;
+}
+
+function unary(
+    family: OpFamily,
+    spec: {
+        readonly requires?: readonly GlslFunctionId[];
+        readonly glsl: (a: string) => string;
+        readonly eval: (a: number) => number;
+    },
+): PointwiseOp {
+    return {
+        family,
+        arity: 1,
+        ...(spec.requires !== undefined && { requires: spec.requires }),
+        glsl: ({ inputs }) => spec.glsl(operand(inputs, 0)),
+        eval: ({ inputs }) => spec.eval(operand(inputs, 0)),
+    };
+}
+
+function binary(
+    family: OpFamily,
+    spec: {
+        readonly glsl: (a: string, b: string) => string;
+        readonly eval: (a: number, b: number) => number;
+    },
+): PointwiseOp {
+    return {
+        family,
+        arity: 2,
+        glsl: ({ inputs }) => spec.glsl(operand(inputs, 0), operand(inputs, 1)),
+        eval: ({ inputs }) => spec.eval(operand(inputs, 0), operand(inputs, 1)),
+    };
+}
+
+function ternary(
+    family: OpFamily,
+    spec: {
+        readonly glsl: (a: string, b: string, c: string) => string;
+        readonly eval: (a: number, b: number, c: number) => number;
+    },
+): PointwiseOp {
+    return {
+        family,
+        arity: 3,
+        glsl: ({ inputs }) => spec.glsl(operand(inputs, 0), operand(inputs, 1), operand(inputs, 2)),
+        eval: ({ inputs }) => spec.eval(operand(inputs, 0), operand(inputs, 1), operand(inputs, 2)),
+    };
+}
+
 const opTable = {
     x: {
         family: 'terminal',
@@ -152,100 +209,73 @@ const opTable = {
         },
         eval: ({ params }) => paramValue(params, 'value', 0),
     },
-    add: {
-        family: 'arithmetic',
-        arity: 2,
-        glsl: ({ inputs }) => `(${inputs[0]}+${inputs[1]})*0.5`,
-        eval: ({ inputs }) => (inputs[0] + inputs[1]) * 0.5,
-    },
-    sub: {
-        family: 'arithmetic',
-        arity: 2,
-        glsl: ({ inputs }) => `(${inputs[0]}-${inputs[1]})*0.5`,
-        eval: ({ inputs }) => (inputs[0] - inputs[1]) * 0.5,
-    },
-    mul: {
-        family: 'arithmetic',
-        arity: 2,
-        glsl: ({ inputs }) => `${inputs[0]}*${inputs[1]}`,
-        eval: ({ inputs }) => inputs[0] * inputs[1],
-    },
-    div: {
-        family: 'arithmetic',
-        arity: 2,
-        glsl: ({ inputs }) => `(${inputs[0]}/(1.0+abs(${inputs[1]})))`,
-        eval: ({ inputs }) => inputs[0] / (1 + Math.abs(inputs[1])),
-    },
-    neg: {
-        family: 'arithmetic',
-        arity: 1,
-        glsl: ({ inputs }) => `-(${inputs[0]})`,
-        eval: ({ inputs }) => -inputs[0],
-    },
-    abs: {
-        family: 'arithmetic',
-        arity: 1,
-        glsl: ({ inputs }) => `abs(${inputs[0]})`,
-        eval: ({ inputs }) => Math.abs(inputs[0]),
-    },
-    sqr: {
-        family: 'arithmetic',
-        arity: 1,
+    add: binary('arithmetic', {
+        glsl: (a, b) => `(${a}+${b})*0.5`,
+        eval: (a, b) => (a + b) * 0.5,
+    }),
+    sub: binary('arithmetic', {
+        glsl: (a, b) => `(${a}-${b})*0.5`,
+        eval: (a, b) => (a - b) * 0.5,
+    }),
+    mul: binary('arithmetic', {
+        glsl: (a, b) => `${a}*${b}`,
+        eval: (a, b) => a * b,
+    }),
+    div: binary('arithmetic', {
+        glsl: (a, b) => `(${a}/(1.0+abs(${b})))`,
+        eval: (a, b) => a / (1 + Math.abs(b)),
+    }),
+    neg: unary('arithmetic', {
+        glsl: (a) => `-(${a})`,
+        eval: (a) => -a,
+    }),
+    abs: unary('arithmetic', {
+        glsl: (a) => `abs(${a})`,
+        eval: (a) => Math.abs(a),
+    }),
+    sqr: unary('arithmetic', {
         requires: ['ra_sqr'],
-        glsl: ({ inputs }) => `ra_sqr(${inputs[0]})`,
-        eval: ({ inputs }) => inputs[0] * inputs[0],
-    },
-    min: {
-        family: 'arithmetic',
-        arity: 2,
-        glsl: ({ inputs }) => `min(${inputs[0]},${inputs[1]})`,
-        eval: ({ inputs }) => Math.min(inputs[0], inputs[1]),
-    },
-    max: {
-        family: 'arithmetic',
-        arity: 2,
-        glsl: ({ inputs }) => `max(${inputs[0]},${inputs[1]})`,
-        eval: ({ inputs }) => Math.max(inputs[0], inputs[1]),
-    },
-    mix: {
-        family: 'arithmetic',
-        arity: 3,
-        glsl: ({ inputs }) => `mix(${inputs[0]},${inputs[1]},(${inputs[2]}+1.0)*0.5)`,
-        eval: ({ inputs }) => inputs[0] + (inputs[1] - inputs[0]) * ((inputs[2] + 1) * 0.5),
-    },
-    sin: {
-        family: 'trigonometry',
-        arity: 1,
-        glsl: ({ inputs }) => `sin(PI*${inputs[0]})`,
-        eval: ({ inputs }) => Math.sin(Math.PI * inputs[0]),
-    },
-    cos: {
-        family: 'trigonometry',
-        arity: 1,
-        glsl: ({ inputs }) => `cos(PI*${inputs[0]})`,
-        eval: ({ inputs }) => Math.cos(Math.PI * inputs[0]),
-    },
-    gt: {
-        family: 'logic',
-        arity: 2,
-        glsl: ({ inputs }) => `(${inputs[0]}>${inputs[1]} ? 1.0 : -1.0)`,
-        eval: ({ inputs }) => (inputs[0] > inputs[1] ? 1 : -1),
-    },
-    select: {
-        family: 'logic',
-        arity: 3,
-        glsl: ({ inputs }) => `(${inputs[0]}>0.0 ? ${inputs[1]} : ${inputs[2]})`,
-        eval: ({ inputs }) => (inputs[0] > 0 ? inputs[1] : inputs[2]),
-    },
+        glsl: (a) => `ra_sqr(${a})`,
+        eval: (a) => a * a,
+    }),
+    min: binary('arithmetic', {
+        glsl: (a, b) => `min(${a},${b})`,
+        eval: (a, b) => Math.min(a, b),
+    }),
+    max: binary('arithmetic', {
+        glsl: (a, b) => `max(${a},${b})`,
+        eval: (a, b) => Math.max(a, b),
+    }),
+    mix: ternary('arithmetic', {
+        glsl: (a, b, c) => `mix(${a},${b},(${c}+1.0)*0.5)`,
+        eval: (a, b, c) => a + (b - a) * ((c + 1) * 0.5),
+    }),
+    sin: unary('trigonometry', {
+        glsl: (a) => `sin(PI*${a})`,
+        eval: (a) => Math.sin(Math.PI * a),
+    }),
+    cos: unary('trigonometry', {
+        glsl: (a) => `cos(PI*${a})`,
+        eval: (a) => Math.cos(Math.PI * a),
+    }),
+    gt: binary('logic', {
+        glsl: (a, b) => `(${a}>${b} ? 1.0 : -1.0)`,
+        eval: (a, b) => (a > b ? 1 : -1),
+    }),
+    select: ternary('logic', {
+        glsl: (a, b, c) => `(${a}>0.0 ? ${b} : ${c})`,
+        eval: (a, b, c) => (a > 0 ? b : c),
+    }),
     warp: {
         kind: 'warp',
         family: 'transform',
         arity: 3,
         requires: ['ra_fold2'],
-        glslPoint: ({ inputs, point }) => `ra_fold2(${point}+0.5*vec2(${inputs[0]},${inputs[1]}))`,
+        glslPoint: ({ inputs, point }) =>
+            `ra_fold2(${point}+0.5*vec2(${operand(inputs, 0)},${operand(inputs, 1)}))`,
         evalPoint: ({ inputs, point }) => ({
-            x: foldComponent(point.x + 0.5 * inputs[0]),
-            y: foldComponent(point.y + 0.5 * inputs[1]),
+            x: foldComponent(point.x + 0.5 * operand(inputs, 0)),
+            y: foldComponent(point.y + 0.5 * operand(inputs, 1)),
             phase: point.phase,
         }),
     },
