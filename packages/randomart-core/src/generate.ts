@@ -1,5 +1,5 @@
 import { RandomArtError } from './errors';
-import { vocabulary, weightOf } from './grammar';
+import { createMinimumSizer, vocabulary, weightOf } from './grammar';
 import type { Grammar } from './grammar';
 import { ops } from './ops';
 import type { OpName } from './ops';
@@ -34,31 +34,7 @@ interface GenState {
     readonly rng: Rng;
     readonly minDepth: number;
     readonly maxDepth: number;
-    readonly minimumSizes: Map<number, number>;
-}
-
-/** Smallest tree that can still satisfy `minDepth` from `depth` down. */
-function minimumSize(state: GenState, depth: number): number {
-    const known = state.minimumSizes.get(depth);
-    if (known !== undefined) {
-        return known;
-    }
-    if (depth >= state.minDepth) {
-        return 1;
-    }
-
-    let smallest = Number.POSITIVE_INFINITY;
-    for (const name of state.vocabulary) {
-        const { arity } = ops[name];
-        if (arity === 0) {
-            continue;
-        }
-        smallest = Math.min(smallest, 1 + arity * minimumSize(state, depth + 1));
-    }
-
-    const size = smallest === Number.POSITIVE_INFINITY ? 1 : smallest;
-    state.minimumSizes.set(depth, size);
-    return size;
+    readonly minimumSize: (depth: number) => number;
 }
 
 function roundToPrecision(value: number): number {
@@ -107,7 +83,7 @@ function drawOperator(state: GenState, depth: number, budget: number): OpName {
             }
             continue;
         }
-        const needed = 1 + arity * minimumSize(state, depth + 1);
+        const needed = 1 + arity * state.minimumSize(depth + 1);
         if (depth < state.maxDepth && needed <= budget) {
             candidates.push(name);
         }
@@ -126,7 +102,7 @@ function buildChildren<T extends { readonly size: number }>(
     arity: number,
     build: (budget: number) => T,
 ): T[] {
-    const minimum = minimumSize(state, depth + 1);
+    const minimum = state.minimumSize(depth + 1);
     let remaining = budget - 1 - arity * minimum;
     const children: T[] = [];
     for (let index = 0; index < arity; index++) {
@@ -200,13 +176,14 @@ function generateTrunk(state: GenState, depth: number, budget: number): Trunk {
  * down to `shareDepth` the channels pick the same operator, below it they diverge.
  */
 export function generate(grammar: Grammar, seed: Seed): Expression {
+    const vocab = vocabulary(grammar);
     const state: GenState = {
         grammar,
-        vocabulary: vocabulary(grammar),
+        vocabulary: vocab,
         rng: createRng(seed),
         minDepth: grammar.minDepth,
         maxDepth: grammar.maxDepth,
-        minimumSizes: new Map(),
+        minimumSize: createMinimumSizer(vocab, grammar.minDepth),
     };
 
     const trunk = generateTrunk(state, 1, grammar.maxNodes);

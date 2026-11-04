@@ -110,14 +110,33 @@ describe('property-based tests', () => {
         );
     });
 
-    it('minimumNodes <= maxNodes for all drawn grammars', () => {
+    it('a grammar sized at its minimum still generates', () => {
+        fc.assert(
+            fc.property(seedArb, (seedInt) => {
+                const rng = createRng(seedOf(seedInt));
+                const grammar = drawGrammar(rng);
+                const tight = createGrammar({ ...grammar, maxNodes: minimumNodes(grammar) });
+                const expression = generate(tight, seedOf(seedInt + 1));
+                for (const channel of [expression.r, expression.g, expression.b]) {
+                    expect(countNodes(channel)).toBeLessThanOrEqual(tight.maxNodes);
+                }
+            }),
+            { numRuns: 200 },
+        );
+    });
+
+    it('one node fewer than the minimum is infeasible', () => {
         fc.assert(
             fc.property(seedArb, (seedInt) => {
                 const rng = createRng(seedOf(seedInt));
                 const grammar = drawGrammar(rng);
                 const min = minimumNodes(grammar);
-                expect(min).toBeLessThanOrEqual(grammar.maxNodes);
-                expect(min).toBeGreaterThanOrEqual(1);
+                if (min <= 1) {
+                    return;
+                }
+                expect(() => createGrammar({ ...grammar, maxNodes: min - 1 })).toThrow(
+                    /Grammar is infeasible/,
+                );
             }),
             { numRuns: 200 },
         );

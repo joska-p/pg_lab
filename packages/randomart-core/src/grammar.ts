@@ -44,16 +44,16 @@ export function vocabulary(grammar: Grammar): readonly OpName[] {
 }
 
 /**
- * Compute the minimum number of nodes a grammar can produce. This is the size of the smallest valid
- * tree respecting minDepth and the enabled vocabulary.
+ * Smallest tree size that still satisfies `minDepth`, from `depth` down. The returned function
+ * memoizes per depth; create one per (vocabulary, minDepth) pair.
  */
-export function minimumNodes(grammar: Grammar): number {
-    const vocab = vocabulary(grammar);
-    const minDepth = grammar.minDepth;
-    const shareDepth = grammar.shareDepth;
+export function createMinimumSizer(
+    vocab: readonly OpName[],
+    minDepth: number,
+): (depth: number) => number {
     const memo = new Map<number, number>();
 
-    function minSize(depth: number): number {
+    function minimumSize(depth: number): number {
         const cached = memo.get(depth);
         if (cached !== undefined) {
             return cached;
@@ -68,7 +68,7 @@ export function minimumNodes(grammar: Grammar): number {
             if (arity === 0) {
                 continue;
             }
-            smallest = Math.min(smallest, 1 + arity * minSize(depth + 1));
+            smallest = Math.min(smallest, 1 + arity * minimumSize(depth + 1));
         }
 
         const size = smallest === Number.POSITIVE_INFINITY ? 1 : smallest;
@@ -76,29 +76,15 @@ export function minimumNodes(grammar: Grammar): number {
         return size;
     }
 
-    // The trunk has 3 channels sharing down to shareDepth
-    if (shareDepth >= minDepth) {
-        return minSize(1);
-    }
+    return minimumSize;
+}
 
-    // Shared trunk down to shareDepth, then 3 independent channels
-    let sharedSize = 0;
-    for (let depth = 1; depth <= shareDepth; depth++) {
-        // At each shared depth, we need at least one non-terminal
-        let smallest = Number.POSITIVE_INFINITY;
-        for (const name of vocab) {
-            const { arity } = ops[name];
-            if (arity === 0) {
-                continue;
-            }
-            smallest = Math.min(smallest, 1 + arity * minSize(depth + 1));
-        }
-        sharedSize += smallest === Number.POSITIVE_INFINITY ? 1 : smallest;
-    }
-
-    // After shareDepth, three independent channels
-    const channelMin = minSize(shareDepth + 1);
-    return sharedSize + 3 * channelMin;
+/**
+ * Fewest nodes one channel can have for this grammar. `maxNodes` is a per-channel budget and a
+ * shared trunk is replicated in every channel, so `shareDepth` does not matter here.
+ */
+export function minimumNodes(grammar: Grammar): number {
+    return createMinimumSizer(vocabulary(grammar), grammar.minDepth)(1);
 }
 
 function normalizeWeights(weights: Weights): Partial<Record<OpName, number>> {
