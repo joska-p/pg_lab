@@ -5,8 +5,8 @@ import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Grid } from '@repo/ui/components/Grid';
 import * as stylex from '@stylexjs/stylex';
 
-import { AppErrorBoundary } from '../../components/AppErrorBoundary';
 import { useExpression, useGrammar } from '../../stores/artworkStore';
+import { AppErrorBoundary } from '../AppErrorBoundary';
 
 const CHANNELS = ['r', 'g', 'b'] as const;
 

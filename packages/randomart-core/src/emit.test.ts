@@ -4,12 +4,9 @@ import { COLOR_SPACE_IDS } from './colors';
 import type { ColorSpaceId } from './colors';
 import { compile } from './emit';
 import { generate } from './generate';
-import { seedOf, SIZE_GRAMMARS } from './testing/fixtures';
+import { SEEDS, seedOf, SIZE_GRAMMARS } from './testing/fixtures';
 import { usesTime } from './tree';
 import type { Expression } from './tree';
-
-/** Property matrix: every size, every color space, a spread of seeds. */
-const SEEDS = [0, 1, 2, 7, 42, 99] as const;
 
 interface Sample {
     readonly label: string;

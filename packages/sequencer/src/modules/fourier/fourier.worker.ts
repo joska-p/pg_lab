@@ -10,8 +10,9 @@ self.onmessage = (event: MessageEvent<Float32Array>) => {
         let im = 0;
 
         for (let n = 0; n < N; n++) {
-            const x = sequence[2 * n];
-            const y = sequence[2 * n + 1];
+            // L'appelant garantit un Float32Array dense : 2n et 2n+1 sont toujours valides.
+            const x = sequence[2 * n] ?? 0;
+            const y = sequence[2 * n + 1] ?? 0;
 
             const phi = (Math.PI * 2 * k * n) / N;
 

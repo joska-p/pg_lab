@@ -46,7 +46,7 @@ function otherEndpointOf(edge: Edge, excludedNode: Node): Node {
  * mais une topologie différente que ce cas ne sait pas encore résoudre (cf. ROADMAP.md, étape
  * suivante).
  */
-function formsSeriesPath(graph: Graph, [firstEdge, secondEdge]: Edge[]): boolean {
+function formsSeriesPath(graph: Graph, [firstEdge, secondEdge]: [Edge, Edge]): boolean {
     const intermediateNode = nodeSharedBetween(firstEdge, secondEdge);
 
     if (intermediateNode === null) {
@@ -101,7 +101,7 @@ function connectsExactly(edge: Edge, expectedEndpointIds: Set<NodeId>): boolean 
  * Vérifie que les deux arêtes relient bien, chacune, exactement la source et le puits — et rien
  * d'autre — plutôt que de supposer que "pas de nœud intermédiaire" suffit à conclure au parallèle.
  */
-function formsParallelPair(graph: Graph, [firstEdge, secondEdge]: Edge[]): boolean {
+function formsParallelPair(graph: Graph, [firstEdge, secondEdge]: [Edge, Edge]): boolean {
     const expectedEndpoints = new Set([graph.sourceNode.id, graph.sinkNode.id]);
 
     return (
@@ -123,21 +123,37 @@ function solveKirchhoffCircuit(graph: Graph, totalCurrent: number): void {
     const edges = graph.getAllEdges();
 
     if (edges.length === 1) {
-        solveSingleEdgeCircuit(edges[0], totalCurrent);
+        const [onlyEdge] = edges;
+        if (onlyEdge === undefined) {
+            throw new Error(
+                'KirchhoffSolver: invariant violé — une arête attendue mais le tableau est vide.',
+            );
+        }
+
+        solveSingleEdgeCircuit(onlyEdge, totalCurrent);
 
         return;
     }
 
-    if (edges.length === 2 && formsSeriesPath(graph, edges)) {
-        solveEdgesInSeries(edges, totalCurrent);
+    if (edges.length === 2) {
+        const [firstEdge, secondEdge] = edges;
+        if (firstEdge === undefined || secondEdge === undefined) {
+            throw new Error(
+                'KirchhoffSolver: invariant violé — deux arêtes attendues mais le tableau est incomplet.',
+            );
+        }
 
-        return;
-    }
+        if (formsSeriesPath(graph, [firstEdge, secondEdge])) {
+            solveEdgesInSeries(edges, totalCurrent);
 
-    if (edges.length === 2 && formsParallelPair(graph, edges)) {
-        solveEdgesInParallel(edges, totalCurrent);
+            return;
+        }
 
-        return;
+        if (formsParallelPair(graph, [firstEdge, secondEdge])) {
+            solveEdgesInParallel(edges, totalCurrent);
+
+            return;
+        }
     }
 
     throw new Error(

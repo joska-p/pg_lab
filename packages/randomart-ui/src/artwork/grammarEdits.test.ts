@@ -87,7 +87,7 @@ describe('deterministic random walk over the six edits', () => {
         for (let i = 0; i < 500; i++) {
             switch (rng.int(6)) {
                 case 0: {
-                    const name = OP_NAMES[rng.int(OP_NAMES.length)];
+                    const name = rng.pick(OP_NAMES);
                     const low =
                         isOnlyTerminal(grammar, name) || isOnlyNonTerminal(grammar, name) ? 1 : 0;
                     grammar = withWeight(grammar, name, low + rng.int(MAX_WEIGHT - low + 1));
@@ -106,10 +106,10 @@ describe('deterministic random walk over the six edits', () => {
                     grammar = withShareDepth(grammar, rng.int(grammar.maxDepth + 1));
                     break;
                 default:
-                    grammar = withSpace(grammar, COLOR_SPACE_IDS[rng.int(COLOR_SPACE_IDS.length)]);
+                    grammar = withSpace(grammar, rng.pick(COLOR_SPACE_IDS));
                     break;
             }
-            // createGrammar repairs every edit, so no throw is expected; invariants must hold.
+            // Edits never throw: they adjust neighbouring values themselves; invariants must hold.
             expect(minimumNodes(grammar)).toBeLessThanOrEqual(grammar.maxNodes);
             expect(grammar.minDepth).toBeLessThanOrEqual(grammar.maxDepth);
         }

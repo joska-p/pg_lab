@@ -2,7 +2,10 @@ import { createGrammar, grammarRegistry, weightOf } from '@repo/randomart-core/g
 import { createSeed } from '@repo/randomart-core/seed';
 import { describe, expect, it } from 'vite-plus/test';
 
+import { defined } from '../testing/defined';
+import { isSameDraft } from './artwork';
 import { createBatcher } from './batcher';
+import { withWeight } from './grammarEdits';
 import { resolveIntents } from './intents';
 
 const CURRENT = { grammar: grammarRegistry.default.grammar, seed: createSeed('1') };
@@ -22,7 +25,7 @@ describe('resolveIntents', () => {
 
         expect(errors).toEqual([]);
         expect(draft?.grammar.maxDepth).toBe(6);
-        expect(weightOf(draft!.grammar, 'sin')).toBe(5);
+        expect(weightOf(defined(draft?.grammar, 'draft.grammar'), 'sin')).toBe(5);
     });
 
     it('skips a failing producer and keeps folding the rest', () => {
@@ -42,6 +45,31 @@ describe('resolveIntents', () => {
     });
 });
 
+describe('isSameDraft', () => {
+    it('considers a rebuilt grammar with identical weights the same draft', () => {
+        const candidate = {
+            ...CURRENT,
+            grammar: withWeight(CURRENT.grammar, 'sin', weightOf(CURRENT.grammar, 'sin')),
+        };
+        expect(candidate.grammar).not.toBe(CURRENT.grammar);
+        expect(isSameDraft(CURRENT, candidate)).toBe(true);
+    });
+
+    it('distinguishes different seeds', () => {
+        expect(isSameDraft(CURRENT, { ...CURRENT, seed: createSeed('2') })).toBe(false);
+    });
+
+    it('distinguishes different sin weights', () => {
+        const w = weightOf(CURRENT.grammar, 'sin');
+        expect(
+            isSameDraft(CURRENT, {
+                ...CURRENT,
+                grammar: withWeight(CURRENT.grammar, 'sin', w + 1),
+            }),
+        ).toBe(false);
+    });
+});
+
 describe('createBatcher', () => {
     it('flushes one batch per tick', () => {
         const scheduled: (() => void)[] = [];
@@ -55,7 +83,7 @@ describe('createBatcher', () => {
         push(2);
 
         expect(scheduled).toHaveLength(1);
-        scheduled[0]();
+        defined(scheduled[0], 'scheduled run')();
 
         expect(flushed).toEqual([[1, 2]]);
     });

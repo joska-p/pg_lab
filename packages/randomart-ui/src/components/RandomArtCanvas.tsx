@@ -26,8 +26,6 @@ interface RandomArtCanvasProps {
     onShaderError?: (error: ShaderError | null) => void;
     /** Callback connecting the clock store to the UI store. */
     onClockStore?: (clockStore: ClockStore) => void;
-    /** Called once on mount — use to capture surface.canvas for export. */
-    onMount?: (surface: GpuSurface) => void;
 }
 
 const styles = stylex.create({
@@ -68,7 +66,6 @@ export function RandomArtCanvas({
     duration = DEFAULT_LOOP_DURATION,
     onShaderError,
     onClockStore,
-    onMount,
 }: RandomArtCanvasProps) {
     const lastRenderRef = useRef<RenderKey | null>(null);
 
@@ -76,7 +73,6 @@ export function RandomArtCanvas({
         surface.canvas.addEventListener('webglcontextrestored', () => {
             lastRenderRef.current = null;
         });
-        onMount?.(surface);
     }
 
     return (

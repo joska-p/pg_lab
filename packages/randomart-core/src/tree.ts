@@ -157,6 +157,15 @@ export function createExpression(r: Node, g: Node, b: Node): Expression {
     return Object.freeze({ r, g, b });
 }
 
+/** `dx`, `dy`, then the body of a warp node. Arity is guaranteed by `createNode`. */
+export function warpOperands(node: Node): readonly [Node, Node, Node] {
+    const [dx, dy, body] = node.inputs;
+    if (dx === undefined || dy === undefined || body === undefined) {
+        throw new RandomArtError(`Warp "${node.op}" expects 3 inputs, got ${node.inputs.length}`);
+    }
+    return [dx, dy, body];
+}
+
 function readNode(value: unknown, path: string, depth: number, counter: { nodes: number }): Node {
     counter.nodes += 1;
     if (counter.nodes > MAX_IMPORT_NODES) {
@@ -272,7 +281,10 @@ function sameNode(a: Node, b: Node): boolean {
     if (names.some((name) => a.params[name] !== b.params[name])) {
         return false;
     }
-    return a.inputs.every((child, index) => sameNode(child, b.inputs[index]));
+    return a.inputs.every((child, index) => {
+        const other = b.inputs[index];
+        return other !== undefined && sameNode(child, other);
+    });
 }
 
 /** True when the three channels are the same tree, whatever the grammar allowed. */

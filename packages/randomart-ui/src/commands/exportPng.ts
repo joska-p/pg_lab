@@ -1,10 +1,9 @@
 import type { Seed } from '@repo/randomart-core/seed';
 
-/** Target device pixel ratio for high-resolution export. */
-const EXPORT_DPR = 2;
+import { renderToBlob } from '../renderer/renderOffscreen';
 
-/** Maximum dimension (width or height) for the export to avoid excessive memory. */
-const MAX_EXPORT_DIMENSION = 4096;
+/** Side of the exported square image, in pixels (capped by the GPU's viewport limits). */
+export const EXPORT_SIZE = 2048;
 
 function downloadBlob(blob: Blob, filename: string): void {
     const url = URL.createObjectURL(blob);
@@ -18,32 +17,19 @@ function downloadBlob(blob: Blob, filename: string): void {
 }
 
 /** Seed text is arbitrary, so keep it filename-safe while preserving a readable identity. */
-function filenameSeed(seed: Seed): string {
+export function filenameSeed(seed: Seed): string {
     return seed.replaceAll(/[^a-z0-9_-]+/gi, '-').replaceAll(/^-+|-+$/g, '') || 'seed';
 }
 
-/**
- * Export the current canvas as a high-resolution PNG using an offscreen canvas. This avoids
- * requiring `preserveDrawingBuffer: true` on the main canvas (which hurts performance). Failures
- * are thrown so the caller can report them.
- */
-export async function exportPng(canvas: HTMLCanvasElement, seed: Seed): Promise<void> {
-    const dpr = Math.min(EXPORT_DPR, window.devicePixelRatio || 1);
-    const exportWidth = Math.min(Math.round(canvas.width * dpr), MAX_EXPORT_DIMENSION);
-    const exportHeight = Math.min(Math.round(canvas.height * dpr), MAX_EXPORT_DIMENSION);
+export interface ExportPngOptions {
+    readonly fragmentShader: string;
+    /** Value of `u_phase` in [0, 1); irrelevant for a non-animated shader. */
+    readonly phase: number;
+    readonly seed: Seed;
+}
 
-    const offscreen = new OffscreenCanvas(exportWidth, exportHeight);
-    const ctx = offscreen.getContext('2d', { willReadFrequently: true });
-    if (!ctx) {
-        throw new Error('PNG export failed: could not create offscreen canvas context');
-    }
-
-    ctx.drawImage(canvas, 0, 0, exportWidth, exportHeight);
-
-    const blob = await offscreen.convertToBlob({ type: 'image/png' });
-    if (!blob) {
-        throw new Error('PNG export failed: offscreen canvas produced no data');
-    }
-
+/** Render the artwork offscreen at `EXPORT_SIZE` and download it. Failures are thrown. */
+export async function exportPng({ fragmentShader, phase, seed }: ExportPngOptions): Promise<void> {
+    const blob = await renderToBlob({ fragmentShader, phase, size: EXPORT_SIZE });
     downloadBlob(blob, `randomart-${filenameSeed(seed)}.png`);
 }

@@ -2,15 +2,16 @@ import { Button } from '@repo/ui/components/Button';
 import { Grid } from '@repo/ui/components/Grid';
 
 import { exportPng } from '../../commands/exportPng';
-import { newSeed, useIsAnimated, useSeed } from '../../stores/artworkStore';
+import { createPhase } from '../../renderer/renderGate';
+import { newSeed, useCompiledShader, useIsAnimated, useSeed } from '../../stores/artworkStore';
 import { reportError } from '../../stores/errorStore';
-import { useCanvas, useClockStore, useIsPlaying } from '../../stores/surfaceStore';
+import { useClockStore, useIsPlaying } from '../../stores/surfaceStore';
 import { GrammarSelect } from './GrammarSelect';
 
 export function ToyPanel() {
     const seed = useSeed();
     const isAnimated = useIsAnimated();
-    const canvas = useCanvas();
+    const compiledShader = useCompiledShader();
     const clockStore = useClockStore();
     const isPlaying = useIsPlaying();
     const canAnimate = clockStore !== null && isAnimated;
@@ -50,12 +51,14 @@ export function ToyPanel() {
                     title="export the current artwork as PNG"
                     color="purple"
                     onClick={() => {
-                        if (canvas === null) {
-                            return;
-                        }
-                        void exportPng(canvas, seed).catch(reportError);
+                        const progress = clockStore?.progress ?? 0;
+                        const phase = compiledShader.animated ? createPhase(progress) : 0;
+                        void exportPng({
+                            fragmentShader: compiledShader.source,
+                            phase,
+                            seed,
+                        }).catch(reportError);
                     }}
-                    disabled={!canvas}
                 >
                     Export PNG
                 </Button>

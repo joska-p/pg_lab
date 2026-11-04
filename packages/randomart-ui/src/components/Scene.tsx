@@ -2,13 +2,7 @@ import { useEffect } from 'react';
 
 import { useCompiledShader } from '../stores/artworkStore';
 import { useDuration } from '../stores/playbackStore';
-import {
-    attachCanvas,
-    attachClock,
-    detachSurface,
-    setShaderError,
-    useClockStore,
-} from '../stores/surfaceStore';
+import { attachClock, detachSurface, setShaderError, useClockStore } from '../stores/surfaceStore';
 import { AppErrorBoundary } from './AppErrorBoundary';
 import { RandomArtCanvas } from './RandomArtCanvas';
 
@@ -34,7 +28,6 @@ export function Scene() {
                 duration={duration}
                 onShaderError={setShaderError}
                 onClockStore={attachClock}
-                onMount={(surface) => attachCanvas(surface.canvas)}
             />
         </AppErrorBoundary>
     );

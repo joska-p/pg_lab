@@ -4,7 +4,7 @@ import { generate } from './generate';
 import { createGrammar, grammarRegistry, vocabulary } from './grammar';
 import { ops } from './ops';
 import type { OpName } from './ops';
-import { seedOf, SIZE_GRAMMARS } from './testing/fixtures';
+import { seedOf, SIZE_GRAMMARS, defined } from './testing/fixtures';
 import { formatFormula } from './tree';
 import type { Expression, Node } from './tree';
 
@@ -44,8 +44,8 @@ function eachNode(node: Node, visit: (node: Node) => void): void {
 function checkParams(node: Node): void {
     const spec = ops[node.op].params ?? {};
     for (const [name, range] of Object.entries(spec)) {
-        const value = node.params[name];
         const label = `${node.op}.${name}`;
+        const value = defined(node.params[name], label);
         expect(value, label).toBeGreaterThanOrEqual(range.min);
         expect(value, label).toBeLessThanOrEqual(range.max);
         if (range.step !== undefined) {

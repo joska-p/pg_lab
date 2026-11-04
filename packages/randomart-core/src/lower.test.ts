@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { lower } from './lower';
 import type { LoweredVertex, LoweringStep } from './lower';
+import { defined } from './testing/fixtures';
 import { createExpression, createNode } from './tree';
 
 function xNode(amp = 0, phase = 0, cycles = 1) {
@@ -34,7 +35,7 @@ describe('lower', () => {
 
         const xVertices = vertexSteps(steps).filter((v) => v.op === 'x');
         expect(xVertices).toHaveLength(1);
-        expect(usages.get(xVertices[0].id)).toBe(2);
+        expect(usages.get(defined(xVertices[0], 'x vertex').id)).toBe(2);
     });
 
     it('creates two distinct vertices for the same op with different params', () => {
@@ -47,10 +48,10 @@ describe('lower', () => {
 
         const xVertices = vertexSteps(steps).filter((v) => v.op === 'x');
         expect(xVertices).toHaveLength(2);
-        expect(xVertices[0].params.amp).toBe(0.1);
-        expect(xVertices[1].params.amp).toBe(0.2);
-        expect(usages.get(xVertices[0].id)).toBe(1);
-        expect(usages.get(xVertices[1].id)).toBe(1);
+        expect(defined(xVertices[0], 'x vertex').params.amp).toBe(0.1);
+        expect(defined(xVertices[1], 'x vertex').params.amp).toBe(0.2);
+        expect(usages.get(defined(xVertices[0], 'x vertex').id)).toBe(1);
+        expect(usages.get(defined(xVertices[1], 'x vertex').id)).toBe(1);
     });
 
     it('creates two distinct vertices for the same x in two different warp contexts', () => {
@@ -63,7 +64,9 @@ describe('lower', () => {
 
         const xVertices = vertexSteps(steps).filter((v) => v.op === 'x');
         expect(xVertices).toHaveLength(2);
-        expect(xVertices[0].context).not.toBe(xVertices[1].context);
+        expect(defined(xVertices[0], 'x vertex').context).not.toBe(
+            defined(xVertices[1], 'x vertex').context,
+        );
     });
 
     it('creates a single context for two identical warps', () => {
@@ -86,18 +89,24 @@ describe('lower', () => {
 
         const { steps } = lower(expr);
 
-        const emitted = new Set<number>();
+        const emittedVertices = new Set<number>();
+        // Context ids start at 1; the root context (0) always exists.
+        const emittedContexts = new Set<number>([0]);
         for (const step of steps) {
             if (step.kind === 'vertex') {
-                for (const input of step.vertex.inputs) {
-                    expect(emitted.has(input)).toBe(true);
+                const vertex = step.vertex;
+                for (const input of vertex.inputs) {
+                    expect(emittedVertices.has(input)).toBe(true);
                 }
-                emitted.add(step.vertex.id);
+                expect(emittedContexts.has(vertex.context)).toBe(true);
+                emittedVertices.add(vertex.id);
             } else {
-                for (const input of step.context.inputs) {
-                    expect(emitted.has(input)).toBe(true);
+                const context = step.context;
+                for (const input of context.inputs) {
+                    expect(emittedVertices.has(input)).toBe(true);
                 }
-                emitted.add(step.context.id);
+                expect(emittedContexts.has(context.parent)).toBe(true);
+                emittedContexts.add(context.id);
             }
         }
     });
@@ -123,7 +132,7 @@ describe('lower', () => {
 
         const contexts = steps.filter((s) => s.kind === 'context').map((s) => s.context);
         expect(contexts).toHaveLength(2);
-        expect(contexts[0].parent).toBe(0); // outer warp sits in the root context
-        expect(contexts[1].parent).toBe(contexts[0].id); // inner warp sits in the outer context
+        expect(defined(contexts[0], 'context').parent).toBe(0); // outer warp sits in the root context
+        expect(defined(contexts[1], 'context').parent).toBe(defined(contexts[0], 'context').id); // inner warp sits in the outer context
     });
 });

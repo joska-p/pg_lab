@@ -1,5 +1,6 @@
 import { ops } from './ops';
 import type { OpName } from './ops';
+import { warpOperands } from './tree';
 import type { Expression, Node } from './tree';
 
 export interface LoweredVertex {
@@ -34,9 +35,9 @@ export interface LoweredDag {
 const ROOT_CONTEXT = 0;
 
 function paramsKey(params: Readonly<Record<string, number>>): string {
-    return Object.keys(params)
-        .sort()
-        .map((name) => `${name}=${params[name]}`)
+    return Object.entries(params)
+        .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+        .map(([name, value]) => `${name}=${value}`)
         .join(',');
 }
 
@@ -61,8 +62,7 @@ export function lower(expression: Expression): LoweredDag {
         const op = ops[node.op];
 
         if (op.kind === 'warp') {
-            // Arity is guaranteed by createNode.
-            const [dxNode, dyNode, bodyNode] = node.inputs;
+            const [dxNode, dyNode, bodyNode] = warpOperands(node);
             const dx = lowerNode(dxNode, context);
             const dy = lowerNode(dyNode, context);
 

@@ -26,7 +26,11 @@ export function addLayer(id: string): void {
     const defaults: Record<string, unknown> = {};
 
     for (const key in layer.params) {
-        defaults[key] = layer.params[key].default;
+        const param = layer.params[key];
+        if (param === undefined) {
+            continue;
+        }
+        defaults[key] = param.default;
     }
 
     uiStore.setState({

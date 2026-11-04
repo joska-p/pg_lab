@@ -65,16 +65,25 @@ const drawConnectionLines: VisualLayer = {
         ctx.lineWidth = lineWidth as number;
         ctx.globalAlpha = alpha as number;
 
+        // data.length >= 2 (garanti plus haut) : premier élément défini.
+        let previous = data[0];
+        if (previous === undefined) {
+            return;
+        }
+
         for (let i = 1; i < data.length; i++) {
-            const d1 = data[i - 1];
-            const d2 = data[i];
+            const current = data[i];
+            if (current === undefined) {
+                continue;
+            }
             const hue = ((i / data.length) * (hueCycle as number)) % 360;
 
             ctx.strokeStyle = `hsl(${String(hue)}, ${String(saturation)}%, ${String(lightness)}%)`;
             ctx.beginPath();
-            ctx.moveTo(offsetX + d1 * valueScale, offsetY);
-            ctx.lineTo(offsetX + d2 * valueScale, offsetY);
+            ctx.moveTo(offsetX + previous * valueScale, offsetY);
+            ctx.lineTo(offsetX + current * valueScale, offsetY);
             ctx.stroke();
+            previous = current;
         }
 
         ctx.restore();

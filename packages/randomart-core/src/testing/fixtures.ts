@@ -7,6 +7,17 @@ export function seedOf(n: number): Seed {
     return createSeed(String(n));
 }
 
+/** Narrow `value` for tests: `toBeDefined` does not narrow the type. */
+export function defined<T>(value: T | undefined, label = 'value'): T {
+    if (value === undefined) {
+        throw new Error(`Expected ${label} to be defined`);
+    }
+    return value;
+}
+
+/** Spread of seeds shared by the property-style suites. */
+export const SEEDS = [0, 1, 2, 7, 42, 99] as const;
+
 /**
  * Tolerance (ulp-scale) for range assertions on `evaluate`: results may exceed [-1, 1] by a few
  * ulp.

@@ -2,14 +2,28 @@ import * as fc from 'fast-check';
 import { describe, expect, it } from 'vite-plus/test';
 
 import { compile } from './emit';
+import { RandomArtError } from './errors';
 import { evaluate } from './evaluate';
 import { generate } from './generate';
 import { createGrammar, drawGrammar, grammarRegistry, minimumNodes, vocabulary } from './grammar';
+import type { Grammar, GrammarPins } from './grammar';
 import { ops } from './ops';
 import type { OpName } from './ops';
 import { createRng } from './rng';
-import { EPS, seedOf } from './testing/fixtures';
+import type { Rng } from './rng';
+import { EPS, seedOf, defined } from './testing/fixtures';
 import type { Expression, Node } from './tree';
+
+function tryDrawGrammar(rng: Rng, pins: GrammarPins): Grammar | null {
+    try {
+        return drawGrammar(rng, pins);
+    } catch (error) {
+        if (error instanceof RandomArtError && error.message.startsWith('Failed to draw')) {
+            return null; // no feasible grammar exists for these pins
+        }
+        throw error;
+    }
+}
 
 function countNodes(node: Node): number {
     return 1 + node.inputs.reduce((total, child) => total + countNodes(child), 0);
@@ -31,7 +45,7 @@ function allValuesInRange(expression: Expression): boolean {
                 return;
             }
             for (const [name, range] of Object.entries(opDef.params)) {
-                const value = node.params[name];
+                const value = defined(node.params[name], `${node.op}.${name}`);
                 if (value < range.min || value > range.max) {
                     ok = false;
                 }
@@ -163,32 +177,27 @@ describe('property-based tests', () => {
                     minDepth: fc.integer({ min: 1, max: 4 }),
                     maxDepthOffset: fc.integer({ min: 0, max: 4 }),
                     maxNodes: fc.integer({ min: 8, max: 68 }),
+                    shareDepth: fc.integer({ min: 0, max: 6 }),
                 }),
                 (seedInt, pins) => {
                     const minDepth = pins.minDepth;
                     const maxDepth = minDepth + pins.maxDepthOffset;
-                    const shareDepthMax = Math.min(maxDepth, 6);
-                    const shareDepth = fc.sample(fc.integer({ min: 0, max: shareDepthMax }), 1)[0];
+                    const shareDepth = Math.min(pins.shareDepth, maxDepth);
                     const rng = createRng(seedOf(seedInt));
-                    try {
-                        const grammar = drawGrammar(rng, {
-                            minDepth,
-                            maxDepth,
-                            maxNodes: pins.maxNodes,
-                            shareDepth,
-                        });
-                        expect(minimumNodes(grammar)).toBeLessThanOrEqual(grammar.maxNodes);
-                        expect(grammar.minDepth).toBe(minDepth);
-                        expect(grammar.maxDepth).toBe(maxDepth);
-                        expect(grammar.maxNodes).toBe(pins.maxNodes);
-                        expect(grammar.shareDepth).toBe(shareDepth);
-                    } catch (error) {
-                        // If no feasible grammar exists for these pins, drawGrammar throws
-                        expect(error).toBeInstanceOf(Error);
-                        expect((error as Error).message).toContain(
-                            'Failed to draw a feasible grammar',
-                        );
+                    const grammar = tryDrawGrammar(rng, {
+                        minDepth,
+                        maxDepth,
+                        maxNodes: pins.maxNodes,
+                        shareDepth,
+                    });
+                    if (grammar === null) {
+                        return;
                     }
+                    expect(minimumNodes(grammar)).toBeLessThanOrEqual(grammar.maxNodes);
+                    expect(grammar.minDepth).toBe(minDepth);
+                    expect(grammar.maxDepth).toBe(maxDepth);
+                    expect(grammar.maxNodes).toBe(pins.maxNodes);
+                    expect(grammar.shareDepth).toBe(shareDepth);
                 },
             ),
             { numRuns: 100 },

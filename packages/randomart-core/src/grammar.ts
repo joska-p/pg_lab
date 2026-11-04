@@ -175,7 +175,7 @@ export function createGrammar(options: CreateGrammarOptions): Grammar {
 
     const space = options.space ?? 'srgb';
     if (!isColorSpaceId(space)) {
-        throw new RandomArtError(`Unknown color space: ${space}`);
+        throw new RandomArtError(`Unknown color space: ${String(space)}`);
     }
 
     const weights = normalizeWeights(options.weights);
@@ -255,7 +255,7 @@ export function drawGrammar(rng: Rng, pins: GrammarPins = {}): Grammar {
         const maxDepth = pins.maxDepth ?? minDepth + rng.int(5);
         const maxNodes = pins.maxNodes ?? 8 + rng.int(60);
         const shareDepth = pins.shareDepth ?? rng.int(maxDepth + 1);
-        const space = pins.space ?? COLOR_SPACE_IDS[rng.int(COLOR_SPACE_IDS.length)];
+        const space = pins.space ?? rng.pick(COLOR_SPACE_IDS);
 
         try {
             return createGrammar({ weights, minDepth, maxDepth, maxNodes, shareDepth, space });

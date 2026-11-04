@@ -1,6 +1,7 @@
 import { compile } from '@repo/randomart-core/emit';
 import type { Compiled } from '@repo/randomart-core/emit';
 import { generate } from '@repo/randomart-core/generate';
+import { grammarKey } from '@repo/randomart-core/grammar';
 import type { Grammar } from '@repo/randomart-core/grammar';
 import type { Seed } from '@repo/randomart-core/seed';
 import type { Expression } from '@repo/randomart-core/tree';
@@ -31,4 +32,9 @@ export function buildArtwork(grammar: Grammar, seed: Seed): Artwork {
 
 export function draftOf(artwork: Artwork): Draft {
     return { grammar: artwork.grammar, seed: artwork.seed };
+}
+
+/** Two drafts describe the same artwork when their seeds and grammar identities match. */
+export function isSameDraft(a: Draft, b: Draft): boolean {
+    return a.seed === b.seed && grammarKey(a.grammar) === grammarKey(b.grammar);
 }
