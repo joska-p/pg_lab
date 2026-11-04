@@ -5,7 +5,7 @@ import { createSeed } from '@repo/randomart-core/seed';
 import type { Seed } from '@repo/randomart-core/seed';
 import { create } from 'zustand';
 
-import { buildArtwork, draftOf } from '../artwork/artwork';
+import { buildArtwork, draftOf, isSameDraft } from '../artwork/artwork';
 import type { Artwork } from '../artwork/artwork';
 import { createBatcher } from '../artwork/batcher';
 import { resolveIntents } from '../artwork/intents';
@@ -34,7 +34,7 @@ function flush(intents: readonly Intent[]): void {
         return;
     }
 
-    if (draft.grammar === artwork.grammar && draft.seed === artwork.seed) {
+    if (isSameDraft(draft, draftOf(artwork))) {
         if (errors.length === 0) {
             clearActionError();
         }

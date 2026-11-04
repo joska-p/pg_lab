@@ -3,7 +3,9 @@ import { createSeed } from '@repo/randomart-core/seed';
 import { describe, expect, it } from 'vite-plus/test';
 
 import { defined } from '../testing/defined';
+import { isSameDraft } from './artwork';
 import { createBatcher } from './batcher';
+import { withWeight } from './grammarEdits';
 import { resolveIntents } from './intents';
 
 const CURRENT = { grammar: grammarRegistry.default.grammar, seed: createSeed('1') };
@@ -40,6 +42,31 @@ describe('resolveIntents', () => {
 
     it('reports no draft when the frame is empty', () => {
         expect(resolveIntents(CURRENT, [])).toEqual({ draft: null, errors: [] });
+    });
+});
+
+describe('isSameDraft', () => {
+    it('considers a rebuilt grammar with identical weights the same draft', () => {
+        const candidate = {
+            ...CURRENT,
+            grammar: withWeight(CURRENT.grammar, 'sin', weightOf(CURRENT.grammar, 'sin')),
+        };
+        expect(candidate.grammar).not.toBe(CURRENT.grammar);
+        expect(isSameDraft(CURRENT, candidate)).toBe(true);
+    });
+
+    it('distinguishes different seeds', () => {
+        expect(isSameDraft(CURRENT, { ...CURRENT, seed: createSeed('2') })).toBe(false);
+    });
+
+    it('distinguishes different sin weights', () => {
+        const w = weightOf(CURRENT.grammar, 'sin');
+        expect(
+            isSameDraft(CURRENT, {
+                ...CURRENT,
+                grammar: withWeight(CURRENT.grammar, 'sin', w + 1),
+            }),
+        ).toBe(false);
     });
 });
 

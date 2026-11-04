@@ -175,7 +175,7 @@ export function createGrammar(options: CreateGrammarOptions): Grammar {
 
     const space = options.space ?? 'srgb';
     if (!isColorSpaceId(space)) {
-        throw new RandomArtError(`Unknown color space: ${space}`);
+        throw new RandomArtError(`Unknown color space: ${String(space)}`);
     }
 
     const weights = normalizeWeights(options.weights);
