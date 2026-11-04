@@ -1,5 +1,6 @@
 import { Button } from '@repo/ui/components/Button';
 import { Grid } from '@repo/ui/components/Grid';
+import { useState } from 'react';
 
 import { exportPng } from '../../commands/exportPng';
 import { createPhase } from '../../renderer/renderGate';
@@ -15,6 +16,7 @@ export function ToyPanel() {
     const clockStore = useClockStore();
     const isPlaying = useIsPlaying();
     const canAnimate = clockStore !== null && isAnimated;
+    const [exporting, setExporting] = useState(false);
 
     return (
         <Grid columns="1" gap="4">
@@ -50,14 +52,20 @@ export function ToyPanel() {
                 <Button
                     title="export the current artwork as PNG"
                     color="purple"
+                    disabled={exporting}
                     onClick={() => {
                         const progress = clockStore?.progress ?? 0;
                         const phase = compiledShader.animated ? createPhase(progress) : 0;
+                        setExporting(true);
                         void exportPng({
                             fragmentShader: compiledShader.source,
                             phase,
                             seed,
-                        }).catch(reportError);
+                        })
+                            .catch(reportError)
+                            .finally(() => {
+                                setExporting(false);
+                            });
                     }}
                 >
                     Export PNG

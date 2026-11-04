@@ -10,8 +10,7 @@ export function createPhase(progress: number): number {
     if (!Number.isFinite(progress)) {
         return 0;
     }
-    const wrapped = ((progress % 1) + 1) % 1;
-    return wrapped;
+    return ((progress % 1) + 1) % 1;
 }
 
 export function needsRender(previous: RenderKey | null, next: RenderKey): boolean {

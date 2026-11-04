@@ -85,7 +85,7 @@ function clamp(v: number, min = 0, max = 1): number {
     return Math.max(min, Math.min(max, v));
 }
 
-/** Compression gamma sRGB d'une valeur linéaire déjà hors du tube. */
+/** SRGB gamma encoding of a linear value. */
 function encodeSrgb(linear: number): number {
     return linear <= 0.0031308 ? linear * 12.92 : 1.055 * Math.max(linear, 0) ** (1 / 2.4) - 0.055;
 }

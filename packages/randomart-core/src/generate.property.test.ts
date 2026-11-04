@@ -40,11 +40,11 @@ function allValuesInRange(expression: Expression): boolean {
     let ok = true;
     for (const channel of [expression.r, expression.g, expression.b]) {
         eachNode(channel, (node) => {
-            const opDef = ops[node.op];
-            if (!opDef || !opDef.params) {
+            const spec = ops[node.op].params;
+            if (spec === undefined) {
                 return;
             }
-            for (const [name, range] of Object.entries(opDef.params)) {
+            for (const [name, range] of Object.entries(spec)) {
                 const value = defined(node.params[name], `${node.op}.${name}`);
                 if (value < range.min || value > range.max) {
                     ok = false;

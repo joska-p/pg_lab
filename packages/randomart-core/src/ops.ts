@@ -126,7 +126,7 @@ function usesModulation(params: Readonly<Record<string, number>>): boolean {
     return paramValue(params, 'amp', 0) > 0;
 }
 
-/** Lit l'opérande de rang `index` et throw s'il manque (garde contre arité violée). */
+/** Reads operand `index` and throws when it is missing (guards against a violated arity). */
 function operand<T>(inputs: readonly T[], index: number): T {
     const value = inputs[index];
     if (value === undefined) {
