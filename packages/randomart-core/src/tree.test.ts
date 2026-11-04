@@ -4,13 +4,10 @@ import { COLOR_SPACE_IDS } from './colors';
 import { compile } from './emit';
 import { RandomArtError } from './errors';
 import { generate } from './generate';
-import { createGrammar, grammarRegistry } from './grammar';
-import { createSeed } from './seed';
+import { grammarRegistry } from './grammar';
+import { seedOf, SIZE_GRAMMARS } from './testing/fixtures';
 import { deserialize, formatFormula, serialize } from './tree';
 import type { Expression } from './tree';
-
-/** Numeric seeds are convenience labels here; the identity is their decimal string. */
-const seedOf = (value: number) => createSeed(String(value));
 
 function canonical(expression: Expression): string {
     return JSON.stringify(serialize(expression));
@@ -27,34 +24,7 @@ function throughJson(expression: Expression): Expression {
 
 describe('tree serialization', () => {
     it('preserves the formula through JSON for every depth/node bound', () => {
-        const grammars = [
-            createGrammar({
-                weights: grammarRegistry.default.weights,
-                minDepth: 1,
-                maxDepth: 3,
-                maxNodes: 12,
-                shareDepth: 1,
-                space: 'srgb',
-            }),
-            createGrammar({
-                weights: grammarRegistry.default.weights,
-                minDepth: 2,
-                maxDepth: 5,
-                maxNodes: 25,
-                shareDepth: 2,
-                space: 'srgb',
-            }),
-            createGrammar({
-                weights: grammarRegistry.default.weights,
-                minDepth: 3,
-                maxDepth: 7,
-                maxNodes: 50,
-                shareDepth: 3,
-                space: 'srgb',
-            }),
-        ];
-
-        for (const grammar of grammars) {
+        for (const grammar of SIZE_GRAMMARS) {
             for (const seed of [0, 42]) {
                 const expression = generate(grammar, seedOf(seed));
 

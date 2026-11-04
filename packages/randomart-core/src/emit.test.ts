@@ -5,17 +5,14 @@ import type { ColorSpaceId } from './colors';
 import { compile } from './emit';
 import { evaluate } from './evaluate';
 import { generate } from './generate';
-import { createGrammar, grammarRegistry } from './grammar';
 import type { Point } from './ops';
-import { createSeed } from './seed';
+import { seedOf, SIZE_GRAMMARS } from './testing/fixtures';
 import { usesTime } from './tree';
 import type { Expression } from './tree';
 
 /** Property matrix: every size, every color space, a spread of seeds. */
 const SEEDS = [0, 1, 2, 7, 42, 99] as const;
 
-/** Numeric seeds are convenience labels here; the identity is their decimal string. */
-const seedOf = (value: number) => createSeed(String(value));
 const CHANNELS = ['r', 'g', 'b'] as const;
 
 /** Deterministic probes covering the corners and the interior of [-1, 1]², at several phases. */
@@ -32,34 +29,7 @@ interface Sample {
 function drawSamples(): readonly Sample[] {
     const samples: Sample[] = [];
 
-    const grammars = [
-        createGrammar({
-            weights: grammarRegistry.default.weights,
-            minDepth: 1,
-            maxDepth: 3,
-            maxNodes: 12,
-            shareDepth: 1,
-            space: 'srgb',
-        }),
-        createGrammar({
-            weights: grammarRegistry.default.weights,
-            minDepth: 2,
-            maxDepth: 5,
-            maxNodes: 25,
-            shareDepth: 2,
-            space: 'srgb',
-        }),
-        createGrammar({
-            weights: grammarRegistry.default.weights,
-            minDepth: 3,
-            maxDepth: 7,
-            maxNodes: 50,
-            shareDepth: 3,
-            space: 'srgb',
-        }),
-    ];
-
-    for (const grammar of grammars) {
+    for (const grammar of SIZE_GRAMMARS) {
         for (const space of COLOR_SPACE_IDS) {
             for (const seed of SEEDS) {
                 samples.push({

@@ -4,46 +4,12 @@ import { describe, expect, it } from 'vite-plus/test';
 import { compile } from './emit';
 import { evaluate } from './evaluate';
 import { generate } from './generate';
-import { createGrammar, drawGrammar, minimumNodes, vocabulary } from './grammar';
+import { createGrammar, drawGrammar, grammarRegistry, minimumNodes, vocabulary } from './grammar';
 import { ops } from './ops';
 import type { OpName } from './ops';
 import { createRng } from './rng';
-import { createSeed } from './seed';
-import type { Seed } from './seed';
+import { seedOf } from './testing/fixtures';
 import type { Expression, Node } from './tree';
-
-const grammarRegistry = {
-    default: createGrammar({
-        label: 'Default',
-        description: 'Default grammar',
-        weights: {
-            abs: 1,
-            add: 1,
-            const: 1,
-            cos: 1,
-            div: 1,
-            gt: 1,
-            max: 2,
-            min: 2,
-            mix: 1,
-            mul: 1,
-            neg: 1,
-            select: 1,
-            sin: 1,
-            sqr: 1,
-            warp: 1,
-            x: 4,
-            y: 4,
-        },
-        minDepth: 2,
-        maxDepth: 5,
-        maxNodes: 25,
-        shareDepth: 2,
-        space: 'oklch',
-    }),
-} as const;
-
-const seedOf = (value: number): Seed => createSeed(String(value));
 
 function countNodes(node: Node): number {
     return 1 + node.inputs.reduce((total, child) => total + countNodes(child), 0);

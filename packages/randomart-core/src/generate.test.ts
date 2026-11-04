@@ -4,14 +4,11 @@ import { generate } from './generate';
 import { createGrammar, grammarRegistry, vocabulary } from './grammar';
 import { ops } from './ops';
 import type { OpName } from './ops';
-import { createSeed } from './seed';
+import { seedOf, SIZE_GRAMMARS } from './testing/fixtures';
 import { formatFormula } from './tree';
 import type { Expression, Node } from './tree';
 
 const DEFAULT_GRAMMAR = grammarRegistry.default;
-
-/** Numeric seeds are convenience labels here; the identity is their decimal string. */
-const seedOf = (value: number) => createSeed(String(value));
 
 /** Seeds whose formulas are pinned by the snapshot: changing one is a deliberate act. */
 const SNAPSHOT_SEEDS = [0, 42, 1234] as const;
@@ -93,34 +90,7 @@ describe('generate', () => {
     });
 
     it('respects the grammar depth and node bounds', () => {
-        const grammars = [
-            createGrammar({
-                weights: DEFAULT_GRAMMAR.weights,
-                minDepth: 1,
-                maxDepth: 3,
-                maxNodes: 12,
-                shareDepth: 1,
-                space: 'srgb',
-            }),
-            createGrammar({
-                weights: DEFAULT_GRAMMAR.weights,
-                minDepth: 2,
-                maxDepth: 5,
-                maxNodes: 25,
-                shareDepth: 2,
-                space: 'srgb',
-            }),
-            createGrammar({
-                weights: DEFAULT_GRAMMAR.weights,
-                minDepth: 3,
-                maxDepth: 7,
-                maxNodes: 50,
-                shareDepth: 3,
-                space: 'srgb',
-            }),
-        ];
-
-        for (const grammar of grammars) {
+        for (const grammar of SIZE_GRAMMARS) {
             const enabled = new Set<OpName>(vocabulary(grammar));
 
             for (const seed of [0, 7, 99]) {
