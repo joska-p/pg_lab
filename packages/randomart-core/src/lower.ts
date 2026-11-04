@@ -1,4 +1,3 @@
-import { RandomArtError } from './errors';
 import { ops } from './ops';
 import type { OpName } from './ops';
 import type { Expression, Node } from './tree';
@@ -62,10 +61,8 @@ export function lower(expression: Expression): LoweredDag {
         const op = ops[node.op];
 
         if (op.kind === 'warp') {
+            // Arity is guaranteed by createNode.
             const [dxNode, dyNode, bodyNode] = node.inputs;
-            if (dxNode === undefined || dyNode === undefined || bodyNode === undefined) {
-                throw new RandomArtError(`Warp "${node.op}" expects three inputs`);
-            }
             const dx = lowerNode(dxNode, context);
             const dy = lowerNode(dyNode, context);
 

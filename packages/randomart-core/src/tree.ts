@@ -1,6 +1,6 @@
 import { RandomArtError } from './errors';
 import { isOpName, ops } from './ops';
-import type { OpName } from './ops';
+import type { OpName, ParamSpec } from './ops';
 
 /** An immutable operator application. `params` are named so their meaning never depends on order. */
 export interface Node {
@@ -60,6 +60,17 @@ function readFields(
     }
 }
 
+/** Why `value` is not acceptable for `range`, or null when it is. */
+function paramProblem(range: ParamSpec, value: unknown): string | null {
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
+        return `finite number expected, got ${String(value)}`;
+    }
+    if (value < range.min || value > range.max) {
+        return `${value} out of [${range.min}, ${range.max}]`;
+    }
+    return null;
+}
+
 function readParams(op: OpName, value: unknown, path: string): Readonly<Record<string, number>> {
     const spec = ops[op].params ?? {};
     if (value !== undefined && !isRecord(value)) {
@@ -83,17 +94,12 @@ function readParams(op: OpName, value: unknown, path: string): Readonly<Record<s
                 `Expression invalid at ${path}: missing parameter "${name}" of "${op}"`,
             );
         }
-        if (typeof raw !== 'number' || !Number.isFinite(raw)) {
-            throw new RandomArtError(
-                `Expression invalid at ${path}.params.${name}: finite number expected`,
-            );
+        const problem = paramProblem(range, raw);
+        if (problem !== null) {
+            throw new RandomArtError(`Expression invalid at ${path}.params.${name}: ${problem}`);
         }
-        if (raw < range.min || raw > range.max) {
-            throw new RandomArtError(
-                `Expression invalid at ${path}.params.${name}: ${raw} out of [${range.min}, ${range.max}]`,
-            );
-        }
-        params[name] = raw;
+        // paramProblem returned null: `raw` is a finite number within range.
+        params[name] = raw as number;
     }
     return params;
 }
@@ -112,6 +118,7 @@ export function createNode(
     params: Readonly<Record<string, number>> = {},
 ): Node {
     const opDef = ops[op];
+    const spec = opDef.params ?? {};
 
     // Arity assertion: catch invalid node constructions at creation time
     if (inputs.length !== opDef.arity) {
@@ -120,23 +127,22 @@ export function createNode(
         );
     }
 
+    // Unknown parameters are rejected here too, mirroring deserialize.
+    for (const name of Object.keys(params)) {
+        if (!Object.hasOwn(spec, name)) {
+            throw new RandomArtError(`Operator "${op}" has no parameter "${name}"`);
+        }
+    }
+
     // Parameter range assertion (step validation skipped here as it's only relevant for generation)
-    if (opDef.params) {
-        for (const [name, range] of Object.entries(opDef.params)) {
-            const value = params[name];
-            if (value === undefined) {
-                throw new RandomArtError(`Operator "${op}" missing required parameter "${name}"`);
-            }
-            if (typeof value !== 'number' || !Number.isFinite(value)) {
-                throw new RandomArtError(
-                    `Operator "${op}" parameter "${name}": finite number expected, got ${String(value)}`,
-                );
-            }
-            if (value < range.min || value > range.max) {
-                throw new RandomArtError(
-                    `Operator "${op}" parameter "${name}": ${value} out of [${range.min}, ${range.max}]`,
-                );
-            }
+    for (const [name, range] of Object.entries(spec)) {
+        const value = params[name];
+        if (value === undefined) {
+            throw new RandomArtError(`Operator "${op}" missing required parameter "${name}"`);
+        }
+        const problem = paramProblem(range, value);
+        if (problem !== null) {
+            throw new RandomArtError(`Operator "${op}" parameter "${name}": ${problem}`);
         }
     }
 

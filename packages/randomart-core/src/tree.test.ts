@@ -6,7 +6,7 @@ import { RandomArtError } from './errors';
 import { generate } from './generate';
 import { grammarRegistry } from './grammar';
 import { seedOf, SIZE_GRAMMARS } from './testing/fixtures';
-import { deserialize, formatFormula, serialize } from './tree';
+import { createNode, deserialize, formatFormula, serialize } from './tree';
 import type { Expression } from './tree';
 
 function canonical(expression: Expression): string {
@@ -64,5 +64,22 @@ describe('tree serialization', () => {
         expect(() =>
             deserialize({ ...valid, r: { op: 'const', params: { value: 0 }, extra: 1 } }),
         ).toThrow(/unknown field/);
+    });
+});
+
+describe('createNode', () => {
+    const a = createNode('const', [], { value: 0 });
+    const b = createNode('const', [], { value: 1 });
+
+    it('rejects an unknown parameter on a terminal', () => {
+        expect(() => createNode('const', [], { value: 0, nope: 1 })).toThrow(/no parameter/);
+    });
+
+    it('rejects an unknown parameter on an operator with inputs', () => {
+        expect(() => createNode('add', [a, b], { foo: 1 })).toThrow(/no parameter/);
+    });
+
+    it('rejects a parameter out of range', () => {
+        expect(() => createNode('x', [], { amp: 2, phase: 0, cycles: 1 })).toThrow(/out of/);
     });
 });

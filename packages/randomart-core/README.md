@@ -40,7 +40,8 @@ Dependencies only flow downwards: `glsl`/`colors` → `ops` → `tree` → `gram
   meaning of a serialized tree.
 - **Boundary validation.** Untrusted input is checked where it enters: `deserialize` for trees,
   `createGrammar` for grammars, `parseSeed`/`createSeed` for seeds, and `compile` for its options.
-  Inside the package, types are trusted.
+  `createNode` also asserts arity and parameters, so a hand-built tree cannot violate the operator
+  contract; `deserialize` adds path-precise messages. Inside the package, types are trusted.
 
 ## GLSL contract
 
