@@ -7,6 +7,9 @@ export function seedOf(n: number): Seed {
     return createSeed(String(n));
 }
 
+/** Spread of seeds shared by the property-style suites. */
+export const SEEDS = [0, 1, 2, 7, 42, 99] as const;
+
 /**
  * Tolerance (ulp-scale) for range assertions on `evaluate`: results may exceed [-1, 1] by a few
  * ulp.

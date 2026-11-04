@@ -3,12 +3,9 @@ import { describe, expect, it } from 'vite-plus/test';
 import { evaluate } from './evaluate';
 import { generate } from './generate';
 import type { Point } from './ops';
-import { EPS, seedOf, SIZE_GRAMMARS } from './testing/fixtures';
+import { EPS, SEEDS, seedOf, SIZE_GRAMMARS } from './testing/fixtures';
 
 const CHANNELS = ['r', 'g', 'b'] as const;
-
-/** Spread of seeds shared with emit.test.ts. */
-const SEEDS = [0, 1, 2, 7, 42, 99] as const;
 
 /** Deterministic probes covering the corners and the interior of [-1, 1]², at several phases. */
 const PROBE_POINTS: readonly Point[] = [-1, 0, 1].flatMap((x) =>

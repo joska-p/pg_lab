@@ -86,18 +86,24 @@ describe('lower', () => {
 
         const { steps } = lower(expr);
 
-        const emitted = new Set<number>();
+        const emittedVertices = new Set<number>();
+        // Context ids start at 1; the root context (0) always exists.
+        const emittedContexts = new Set<number>([0]);
         for (const step of steps) {
             if (step.kind === 'vertex') {
-                for (const input of step.vertex.inputs) {
-                    expect(emitted.has(input)).toBe(true);
+                const vertex = step.vertex;
+                for (const input of vertex.inputs) {
+                    expect(emittedVertices.has(input)).toBe(true);
                 }
-                emitted.add(step.vertex.id);
+                expect(emittedContexts.has(vertex.context)).toBe(true);
+                emittedVertices.add(vertex.id);
             } else {
-                for (const input of step.context.inputs) {
-                    expect(emitted.has(input)).toBe(true);
+                const context = step.context;
+                for (const input of context.inputs) {
+                    expect(emittedVertices.has(input)).toBe(true);
                 }
-                emitted.add(step.context.id);
+                expect(emittedContexts.has(context.parent)).toBe(true);
+                emittedContexts.add(context.id);
             }
         }
     });

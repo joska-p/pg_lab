@@ -23,12 +23,15 @@ describe('glslangValidator', () => {
 
     if (!hasGlslang) {
         if (process.env.CI) {
-            throw new Error(
-                'glslangValidator is required on CI but was not found. ' +
-                    'Install it (e.g. `npm install -g glslang-validator`) before running the test suite.',
-            );
+            it('requires glslangValidator on CI', () => {
+                throw new Error(
+                    'glslangValidator is required on CI but was not found. ' +
+                        'Install it (e.g. `npm install -g glslang-validator`) before running the test suite.',
+                );
+            });
+        } else {
+            it.skip('glslangValidator not available, skipping GLSL validation', () => {});
         }
-        it.skip('glslangValidator not available, skipping GLSL validation', () => {});
         return;
     }
 
