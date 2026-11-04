@@ -11,7 +11,7 @@ import { ops } from './ops';
 import type { OpName } from './ops';
 import { createRng } from './rng';
 import type { Rng } from './rng';
-import { EPS, seedOf } from './testing/fixtures';
+import { EPS, seedOf, defined } from './testing/fixtures';
 import type { Expression, Node } from './tree';
 
 function tryDrawGrammar(rng: Rng, pins: GrammarPins): Grammar | null {
@@ -45,7 +45,7 @@ function allValuesInRange(expression: Expression): boolean {
                 return;
             }
             for (const [name, range] of Object.entries(opDef.params)) {
-                const value = node.params[name];
+                const value = defined(node.params[name], `${node.op}.${name}`);
                 if (value < range.min || value > range.max) {
                     ok = false;
                 }
