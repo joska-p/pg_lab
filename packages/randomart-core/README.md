@@ -20,7 +20,7 @@ Procedural formula generator and GLSL compiler, consumed by `randomart-ui`.
 | `evaluate.ts` | `(Expression, point) → raw RGB` reference interpreter             |
 | `lower.ts`    | Expression → DAG: sharing, usage counts, warp coordinate contexts |
 | `emit.ts`     | DAG → fragment shader (`compile`)                                 |
-| `colors.ts`   | Color spaces as GLSL sources                                      |
+| `colors.ts`   | Color spaces as GLSL sources + CPU reference `toSrgb`             |
 | `glsl.ts`     | Shader header, shared GLSL helpers, float literals                |
 
 Dependencies only flow downwards: `glsl`/`colors` → `ops` → `tree` → `grammar`/`generate`/

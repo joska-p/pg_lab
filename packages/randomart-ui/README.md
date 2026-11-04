@@ -26,22 +26,22 @@ Scene       Controls
 | `artworkStore`  | Single source of truth: `Artwork { grammar, seed, expression, shader }`. Mutations go through `editGrammar`, `newSeed`, `drawGrammar`, `applyGrammar` (batched via RAF). |
 | `surfaceStore`  | Holds the live `HTMLCanvasElement` and `ClockStore` for export / duration sync.                                                                                          |
 | `playbackStore` | Animation loop duration.                                                                                                                                                 |
-| `modeStore`     | UI mode: `'toy'                                                                                                                                                          | 'lab'`. |
-| `errorStore`    | Transient action errors (toast-style).                                                                                                                                   |
+| `modeStore`     | UI mode: `'toy' \| 'lab'`.                                                                                                                                               |
+| `errorStore`    | Single action error (`actionError`), cleared by the next successful action.                                                                                              |
 
 ### Components
 
 ```
 App
 ├── Scene (RandomArtCanvas)
-├── Controls
-│   ├── ToyPanel (GrammarSelect, seed input, draw button)
-│   └── LabPanel
-│       ├── GrammarSection (weights, structure, color space, seed)
-│       ├── Inspector (formatted formulas)
-│       ├── ShaderSource (popover with compiled GLSL)
-│       └── PlaybackSection (duration, loop toggle)
-└── ErrorReadout
+└── Controls
+    ├── ToyPanel (play/pause, reset, new seed, export PNG, GrammarSelect)
+    ├── LabPanel
+    │   ├── GrammarSection (weights, structure, color space, seed)
+    │   ├── Inspector (formatted formulas)
+    │   ├── ShaderSource (popover with compiled GLSL)
+    │   └── PlaybackSection (loop (s))
+    └── ErrorReadout
 ```
 
 ### Commands

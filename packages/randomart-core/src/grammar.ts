@@ -152,9 +152,9 @@ function ensureEnabled(weights: Partial<Record<OpName, number>>, terminal: boole
 }
 
 /**
- * Validate and normalise a grammar: weights become integers in [1, MAX_WEIGHT] restricted to known
- * operators, and `shareDepth` must fit `maxDepth`. Invalid choices throw instead of being clamped,
- * so a slider cannot silently disagree with the grammar it produced.
+ * Validate and normalise a grammar: weights become integers in [0, MAX_WEIGHT] for known operators;
+ * zero-weight operators are dropped, and `shareDepth` must fit `maxDepth`. Invalid choices throw
+ * instead of being clamped, so a slider cannot silently disagree with the grammar it produced.
  */
 export function createGrammar(options: GrammarOptions): Grammar {
     const { minDepth, maxDepth, maxNodes } = options;
