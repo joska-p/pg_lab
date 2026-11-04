@@ -11,7 +11,7 @@ import { createBatcher } from '../artwork/batcher';
 import { resolveIntents } from '../artwork/intents';
 import type { Intent } from '../artwork/intents';
 import { randomSeed } from '../randomSeed';
-import { clearActionError, reportError } from './errorStore';
+import { clearActionError, reportErrors } from './errorStore';
 
 interface ArtworkState {
     readonly artwork: Artwork;
@@ -28,7 +28,7 @@ const store = create<ArtworkState>(() => ({
 function flush(intents: readonly Intent[]): void {
     const { artwork } = store.getState();
     const { draft, errors } = resolveIntents(draftOf(artwork), intents);
-    errors.forEach(reportError);
+    reportErrors(errors);
 
     if (draft === null) {
         return;
@@ -47,7 +47,7 @@ function flush(intents: readonly Intent[]): void {
             clearActionError();
         }
     } catch (error) {
-        reportError(error);
+        reportErrors([...errors, error]);
     }
 }
 

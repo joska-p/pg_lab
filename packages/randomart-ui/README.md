@@ -27,7 +27,7 @@ Scene       Controls
 | `surfaceStore`  | Holds the live `ClockStore` for playback controls and duration sync.                                                                                                          |
 | `playbackStore` | Animation loop duration.                                                                                                                                                      |
 | `modeStore`     | UI mode: `'toy' \| 'lab'`.                                                                                                                                                    |
-| `errorStore`    | Single action error (`actionError`), cleared by the next successful action.                                                                                                   |
+| `errorStore`    | Action errors of the latest action (`actionErrors`), replaced by the next failing action and cleared by the next successful one.                                              |
 
 ### Components
 
