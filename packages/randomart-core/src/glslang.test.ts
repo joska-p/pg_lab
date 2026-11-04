@@ -22,13 +22,19 @@ describe('glslangValidator', () => {
     const hasGlslang = checkAvailable();
 
     if (!hasGlslang) {
+        if (process.env.CI) {
+            throw new Error(
+                'glslangValidator is required on CI but was not found. ' +
+                    'Install it (e.g. `npm install -g glslang-validator`) before running the test suite.',
+            );
+        }
         it.skip('glslangValidator not available, skipping GLSL validation', () => {});
         return;
     }
 
     function validateGlsl(source: string): { valid: boolean; output: string } {
-        // Use -E (preprocess only) to validate syntax without SPIR-V generation issues
-        const result = spawnSync(glslang, ['--stdin', '-E', '-S', 'frag'], {
+        // Compile (no -E preprocessing) so syntax errors are really caught
+        const result = spawnSync(glslang, ['--stdin', '-S', 'frag'], {
             input: source,
             encoding: 'utf8',
             timeout: 10000,
