@@ -35,6 +35,7 @@ function drawSamples(): readonly Sample[] {
             maxDepth: 3,
             maxNodes: 12,
             shareDepth: 1,
+            space: 'srgb',
         }),
         createGrammar({
             weights: grammarRegistry.default.weights,
@@ -42,6 +43,7 @@ function drawSamples(): readonly Sample[] {
             maxDepth: 5,
             maxNodes: 25,
             shareDepth: 2,
+            space: 'srgb',
         }),
         createGrammar({
             weights: grammarRegistry.default.weights,
@@ -49,6 +51,7 @@ function drawSamples(): readonly Sample[] {
             maxDepth: 7,
             maxNodes: 50,
             shareDepth: 3,
+            space: 'srgb',
         }),
     ];
 

@@ -7,11 +7,13 @@ import type { Rng } from './rng';
 
 export const MAX_WEIGHT = 16;
 
+type Weights = Readonly<Partial<Record<OpName, number>>>;
+
 export interface Grammar {
     readonly label: string;
     readonly description: string;
     /** Only operators with a positive weight are present. */
-    readonly weights: Readonly<Partial<Record<OpName, number>>>;
+    readonly weights: Weights;
     readonly minDepth: number;
     readonly maxDepth: number;
     readonly maxNodes: number;
@@ -23,21 +25,19 @@ export interface Grammar {
 export interface GrammarOptions {
     readonly label?: string;
     readonly description?: string;
-    readonly weights: Readonly<Partial<Record<OpName, number>>>;
+    readonly weights: Weights;
     readonly minDepth: number;
     readonly maxDepth: number;
     readonly maxNodes: number;
     readonly shareDepth: number;
-    readonly space?: ColorSpaceId;
+    readonly space: ColorSpaceId;
 }
 
 function isTerminal(name: OpName): boolean {
     return ops[name].arity === 0;
 }
 
-function normalizeWeights(
-    weights: Readonly<Partial<Record<OpName, number>>>,
-): Partial<Record<OpName, number>> {
+function normalizeWeights(weights: Weights): Partial<Record<OpName, number>> {
     for (const name of Object.keys(weights)) {
         if (!Object.hasOwn(ops, name)) {
             throw new RandomArtError(`Unknown operator in grammar: ${name}`);
@@ -60,7 +60,7 @@ function normalizeWeights(
     return normalized;
 }
 
-function assertVocabulary(weights: Readonly<Partial<Record<OpName, number>>>): void {
+function assertVocabulary(weights: Weights): void {
     const names = Object.keys(weights) as OpName[];
     if (names.length === 0) {
         throw new RandomArtError('Grammar must enable at least one operator');

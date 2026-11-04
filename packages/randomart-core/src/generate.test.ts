@@ -94,6 +94,7 @@ describe('generate', () => {
                 maxDepth: 3,
                 maxNodes: 12,
                 shareDepth: 1,
+                space: 'srgb',
             }),
             createGrammar({
                 weights: DEFAULT_GRAMMAR.weights,
@@ -101,6 +102,7 @@ describe('generate', () => {
                 maxDepth: 5,
                 maxNodes: 25,
                 shareDepth: 2,
+                space: 'srgb',
             }),
             createGrammar({
                 weights: DEFAULT_GRAMMAR.weights,
@@ -108,6 +110,7 @@ describe('generate', () => {
                 maxDepth: 7,
                 maxNodes: 50,
                 shareDepth: 3,
+                space: 'srgb',
             }),
         ];
 
@@ -142,6 +145,7 @@ describe('generate', () => {
             maxDepth: 5,
             maxNodes: 25,
             shareDepth: 0,
+            space: 'srgb',
         });
         const minDepth = 2;
 

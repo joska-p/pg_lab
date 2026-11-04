@@ -30,6 +30,7 @@ describe('tree serialization', () => {
                 maxDepth: 3,
                 maxNodes: 12,
                 shareDepth: 1,
+                space: 'srgb',
             }),
             createGrammar({
                 weights: grammarRegistry.default.weights,
@@ -37,6 +38,7 @@ describe('tree serialization', () => {
                 maxDepth: 5,
                 maxNodes: 25,
                 shareDepth: 2,
+                space: 'srgb',
             }),
             createGrammar({
                 weights: grammarRegistry.default.weights,
@@ -44,6 +46,7 @@ describe('tree serialization', () => {
                 maxDepth: 7,
                 maxNodes: 50,
                 shareDepth: 3,
+                space: 'srgb',
             }),
         ];
 
