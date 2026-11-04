@@ -33,8 +33,76 @@ export interface GrammarOptions {
     readonly space: ColorSpaceId;
 }
 
+/** Weight of an operator in a grammar; absent operators weigh nothing. */
+export function weightOf(grammar: Grammar, name: OpName): number {
+    return grammar.weights[name] ?? 0;
+}
+
+/** Operators enabled by a grammar, in canonical name order. */
+export function vocabulary(grammar: Grammar): readonly OpName[] {
+    return OP_NAMES.filter((name) => weightOf(grammar, name) > 0);
+}
+
 function isTerminal(name: OpName): boolean {
     return ops[name].arity === 0;
+}
+
+/**
+ * Compute the minimum number of nodes a grammar can produce. This is the size of the smallest valid
+ * tree respecting minDepth and the enabled vocabulary.
+ */
+export function minimumNodes(grammar: Grammar): number {
+    const vocab = vocabulary(grammar);
+    const minDepth = grammar.minDepth;
+    const shareDepth = grammar.shareDepth;
+    const memo = new Map<number, number>();
+
+    function minSize(depth: number): number {
+        const cached = memo.get(depth);
+        if (cached !== undefined) {
+            return cached;
+        }
+        if (depth >= minDepth) {
+            return 1;
+        }
+
+        let smallest = Number.POSITIVE_INFINITY;
+        for (const name of vocab) {
+            const { arity } = ops[name];
+            if (arity === 0) {
+                continue;
+            }
+            smallest = Math.min(smallest, 1 + arity * minSize(depth + 1));
+        }
+
+        const size = smallest === Number.POSITIVE_INFINITY ? 1 : smallest;
+        memo.set(depth, size);
+        return size;
+    }
+
+    // The trunk has 3 channels sharing down to shareDepth
+    if (shareDepth >= minDepth) {
+        return minSize(1);
+    }
+
+    // Shared trunk down to shareDepth, then 3 independent channels
+    let sharedSize = 0;
+    for (let depth = 1; depth <= shareDepth; depth++) {
+        // At each shared depth, we need at least one non-terminal
+        let smallest = Number.POSITIVE_INFINITY;
+        for (const name of vocab) {
+            const { arity } = ops[name];
+            if (arity === 0) {
+                continue;
+            }
+            smallest = Math.min(smallest, 1 + arity * minSize(depth + 1));
+        }
+        sharedSize += smallest === Number.POSITIVE_INFINITY ? 1 : smallest;
+    }
+
+    // After shareDepth, three independent channels
+    const channelMin = minSize(shareDepth + 1);
+    return sharedSize + 3 * channelMin;
 }
 
 function normalizeWeights(weights: Weights): Partial<Record<OpName, number>> {
@@ -122,7 +190,8 @@ export function createGrammar(options: GrammarOptions): Grammar {
         );
     }
 
-    return Object.freeze({
+    // Validate grammar feasibility: minimumNodes must fit within maxNodes
+    const tempGrammar = Object.freeze({
         label: options.label ?? 'Custom',
         description: options.description ?? 'Custom grammar',
         weights: Object.freeze(weights),
@@ -132,16 +201,16 @@ export function createGrammar(options: GrammarOptions): Grammar {
         shareDepth,
         space,
     });
-}
 
-/** Weight of an operator in a grammar; absent operators weigh nothing. */
-export function weightOf(grammar: Grammar, name: OpName): number {
-    return grammar.weights[name] ?? 0;
-}
+    const minNodes = minimumNodes(tempGrammar);
+    if (minNodes > maxNodes) {
+        throw new RandomArtError(
+            `Grammar is infeasible: minimumNodes (${minNodes}) > maxNodes (${maxNodes}). ` +
+                `Increase maxNodes or decrease minDepth/shareDepth.`,
+        );
+    }
 
-/** Operators enabled by a grammar, in canonical name order. */
-export function vocabulary(grammar: Grammar): readonly OpName[] {
-    return OP_NAMES.filter((name) => weightOf(grammar, name) > 0);
+    return tempGrammar;
 }
 
 /** Stable identity of a grammar, independent of how its weights were built. */
@@ -167,21 +236,37 @@ export interface GrammarPins {
 
 /** Draw a random grammar. Iteration follows `OP_NAMES` so the result never depends on table order. */
 export function drawGrammar(rng: Rng, pins: GrammarPins = {}): Grammar {
-    const weights: Partial<Record<OpName, number>> = {};
-    for (const name of OP_NAMES) {
-        weights[name] = rng.int(MAX_WEIGHT + 1);
+    const MAX_ATTEMPTS = 100;
+
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+        const weights: Partial<Record<OpName, number>> = {};
+        for (const name of OP_NAMES) {
+            weights[name] = rng.int(MAX_WEIGHT + 1);
+        }
+
+        ensureEnabled(weights, true);
+        ensureEnabled(weights, false);
+
+        const minDepth = pins.minDepth ?? 1 + rng.int(6);
+        const maxDepth = pins.maxDepth ?? minDepth + rng.int(5);
+        const maxNodes = pins.maxNodes ?? 8 + rng.int(60);
+        const shareDepth = pins.shareDepth ?? rng.int(maxDepth + 1);
+        const space = pins.space ?? COLOR_SPACE_IDS[rng.int(COLOR_SPACE_IDS.length)];
+
+        try {
+            return createGrammar({ weights, minDepth, maxDepth, maxNodes, shareDepth, space });
+        } catch (error) {
+            if (
+                error instanceof RandomArtError &&
+                error.message.startsWith('Grammar is infeasible')
+            ) {
+                continue; // Try again with different random values
+            }
+            throw error;
+        }
     }
 
-    ensureEnabled(weights, true);
-    ensureEnabled(weights, false);
-
-    const minDepth = pins.minDepth ?? 1 + rng.int(6);
-    const maxDepth = pins.maxDepth ?? minDepth + rng.int(5);
-    const maxNodes = pins.maxNodes ?? 8 + rng.int(60);
-    const shareDepth = pins.shareDepth ?? rng.int(maxDepth + 1);
-    const space = pins.space ?? COLOR_SPACE_IDS[rng.int(COLOR_SPACE_IDS.length)];
-
-    return createGrammar({ weights, minDepth, maxDepth, maxNodes, shareDepth, space });
+    throw new RandomArtError(`Failed to draw a feasible grammar after ${MAX_ATTEMPTS} attempts`);
 }
 
 function isOnlyKind(grammar: Grammar, name: OpName, terminal: boolean): boolean {

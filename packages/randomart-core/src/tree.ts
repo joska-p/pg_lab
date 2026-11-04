@@ -111,6 +111,35 @@ export function createNode(
     inputs: readonly Node[] = [],
     params: Readonly<Record<string, number>> = {},
 ): Node {
+    const opDef = ops[op];
+
+    // Arity assertion: catch invalid node constructions at creation time
+    if (inputs.length !== opDef.arity) {
+        throw new RandomArtError(
+            `Operator "${op}" expects ${opDef.arity} input(s), got ${inputs.length}`,
+        );
+    }
+
+    // Parameter range assertion (step validation skipped here as it's only relevant for generation)
+    if (opDef.params) {
+        for (const [name, range] of Object.entries(opDef.params)) {
+            const value = params[name];
+            if (value === undefined) {
+                throw new RandomArtError(`Operator "${op}" missing required parameter "${name}"`);
+            }
+            if (typeof value !== 'number' || !Number.isFinite(value)) {
+                throw new RandomArtError(
+                    `Operator "${op}" parameter "${name}": finite number expected, got ${String(value)}`,
+                );
+            }
+            if (value < range.min || value > range.max) {
+                throw new RandomArtError(
+                    `Operator "${op}" parameter "${name}": ${value} out of [${range.min}, ${range.max}]`,
+                );
+            }
+        }
+    }
+
     return Object.freeze({
         op,
         params: Object.freeze(normalizeParams(params)),
