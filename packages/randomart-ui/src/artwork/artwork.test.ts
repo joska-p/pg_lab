@@ -2,6 +2,7 @@ import { createGrammar, grammarRegistry, weightOf } from '@repo/randomart-core/g
 import { createSeed } from '@repo/randomart-core/seed';
 import { describe, expect, it } from 'vite-plus/test';
 
+import { defined } from '../testing/defined';
 import { createBatcher } from './batcher';
 import { resolveIntents } from './intents';
 
@@ -22,7 +23,7 @@ describe('resolveIntents', () => {
 
         expect(errors).toEqual([]);
         expect(draft?.grammar.maxDepth).toBe(6);
-        expect(weightOf(draft!.grammar, 'sin')).toBe(5);
+        expect(weightOf(defined(draft?.grammar, 'draft.grammar'), 'sin')).toBe(5);
     });
 
     it('skips a failing producer and keeps folding the rest', () => {
@@ -55,7 +56,7 @@ describe('createBatcher', () => {
         push(2);
 
         expect(scheduled).toHaveLength(1);
-        scheduled[0]();
+        defined(scheduled[0], 'scheduled run')();
 
         expect(flushed).toEqual([[1, 2]]);
     });
