@@ -3,15 +3,21 @@ import type { CanvasLayout, CanvasViewport, LayerConfigEntry } from './types';
 
 function maxAbsInterval(data: number[]): number {
     let max = 0;
+    let previous: number | undefined;
 
-    for (let i = 1; i < data.length; i++) {
-        const d1 = data[i];
-        const d2 = data[i - 1];
-        const abs = Math.abs(d1 - d2);
-
-        if (abs > max) {
-            max = abs;
+    for (const value of data) {
+        if (value === undefined) {
+            continue;
         }
+
+        if (previous !== undefined) {
+            const abs = Math.abs(value - previous);
+            if (abs > max) {
+                max = abs;
+            }
+        }
+
+        previous = value;
     }
 
     return max || 1;

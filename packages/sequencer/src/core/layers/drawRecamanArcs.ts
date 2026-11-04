@@ -40,22 +40,27 @@ export const drawRecamanArcs: VisualLayer = {
         ctx.globalAlpha = alpha as number;
 
         data.forEach((value, index) => {
-            const previousValue = data[index - 1];
-
-            if (index > 0) {
-                const middleValue = ((previousValue + value) / 2) * valueScale;
-                const radius = (Math.abs(value - previousValue) / 2) * valueScale;
-
-                ctx.beginPath();
-
-                if (index % 2 === 0) {
-                    ctx.arc(middleValue, 0, radius, 0, Math.PI);
-                } else {
-                    ctx.arc(middleValue, 0, radius, Math.PI, 0);
-                }
-
-                ctx.stroke();
+            if (index === 0) {
+                return;
             }
+
+            const previousValue = data[index - 1];
+            if (previousValue === undefined) {
+                return;
+            }
+
+            const middleValue = ((previousValue + value) / 2) * valueScale;
+            const radius = (Math.abs(value - previousValue) / 2) * valueScale;
+
+            ctx.beginPath();
+
+            if (index % 2 === 0) {
+                ctx.arc(middleValue, 0, radius, 0, Math.PI);
+            } else {
+                ctx.arc(middleValue, 0, radius, Math.PI, 0);
+            }
+
+            ctx.stroke();
         });
 
         ctx.restore();
