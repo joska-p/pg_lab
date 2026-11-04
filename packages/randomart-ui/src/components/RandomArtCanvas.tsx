@@ -59,6 +59,11 @@ const styles = stylex.create({
  *
  * A newly installed program is always drawn once by GpuCanvas, independently of `shouldRender`, so
  * changing the shader appears even while the clock is paused.
+ *
+ * `shouldRender` records the key it approves before the draw happens. The only way a draw is
+ * skipped after approval is a lost WebGL context (`GpuSurface.renderProgram` returns early), and
+ * the `webglcontextrestored` handler in `handleMount` resets `lastRenderRef` so the next frame
+ * redraws. Keep that reset in place if this gate changes.
  */
 export function RandomArtCanvas({
     fragmentShader,
