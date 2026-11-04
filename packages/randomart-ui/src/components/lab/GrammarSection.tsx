@@ -5,6 +5,8 @@ import {
     isMono,
     isOnlyNonTerminal,
     isOnlyTerminal,
+    maxFeasibleMinDepth,
+    minimumNodes,
     weightOf,
 } from '@repo/randomart-core/grammar';
 import { OP_NAMES, isTerminal, groupOf } from '@repo/randomart-core/ops';
@@ -50,6 +52,11 @@ const SPACE_OPTIONS = COLOR_SPACE_IDS.map((id) => ({
     value: id,
     label: colorSpaces[id].label,
 }));
+
+/** Slider bounds: keep every slider inside the feasible region of its grammar. */
+const MAX_MIN_DEPTH = 8;
+const MAX_MAX_DEPTH = 10;
+const MAX_NODES = 100;
 
 /**
  * Seed input is a draft until the user leaves the field or presses Enter. Each keystroke used to
@@ -150,7 +157,7 @@ export function GrammarSection() {
                         label="min depth"
                         value={grammar.minDepth}
                         min={1}
-                        max={8}
+                        max={maxFeasibleMinDepth(grammar, MAX_MIN_DEPTH)}
                         onValueChange={(value) => {
                             editGrammar((current) => withMinDepth(current, value));
                         }}
@@ -160,7 +167,7 @@ export function GrammarSection() {
                         label="max depth"
                         value={grammar.maxDepth}
                         min={1}
-                        max={10}
+                        max={MAX_MAX_DEPTH}
                         onValueChange={(value) => {
                             editGrammar((current) => withMaxDepth(current, value));
                         }}
@@ -169,8 +176,8 @@ export function GrammarSection() {
                         color="orange"
                         label="max nodes"
                         value={grammar.maxNodes}
-                        min={4}
-                        max={100}
+                        min={minimumNodes(grammar)}
+                        max={MAX_NODES}
                         onValueChange={(value) => {
                             editGrammar((current) => withMaxNodes(current, value));
                         }}

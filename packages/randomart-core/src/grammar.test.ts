@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { generate } from './generate';
-import { createGrammar, minimumNodes } from './grammar';
+import { createGrammar, maxFeasibleMinDepth, minimumNodes } from './grammar';
 import { seedOf } from './testing/fixtures';
 import type { Expression, Node } from './tree';
 
@@ -45,5 +45,24 @@ describe('minimumNodes', () => {
                 size,
             );
         }
+    });
+});
+
+describe('maxFeasibleMinDepth', () => {
+    const OPTIONS = {
+        weights: { add: 1, x: 1 },
+        maxDepth: 8,
+        shareDepth: 0,
+        space: 'srgb' as const,
+    };
+
+    it('returns the largest minDepth whose minimumNodes fits maxNodes (15 <= 25 < 31)', () => {
+        const grammar = createGrammar({ ...OPTIONS, minDepth: 1, maxNodes: 25 });
+        expect(maxFeasibleMinDepth(grammar, 8)).toBe(4);
+    });
+
+    it('never goes below 1', () => {
+        const grammar = createGrammar({ ...OPTIONS, minDepth: 1, maxNodes: 1 });
+        expect(maxFeasibleMinDepth(grammar, 8)).toBe(1);
     });
 });

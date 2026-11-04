@@ -90,6 +90,19 @@ export function minimumNodes(grammar: Grammar): number {
     return createMinimumSizer(vocabulary(grammar), grammar.minDepth)(1);
 }
 
+/**
+ * Largest minDepth in [1, limit] whose minimumNodes fits `grammar.maxNodes`. Never below 1:
+ * minDepth 1 needs a single node.
+ */
+export function maxFeasibleMinDepth(grammar: Grammar, limit: number): number {
+    for (let depth = limit; depth > 1; depth--) {
+        if (minimumNodes({ ...grammar, minDepth: depth }) <= grammar.maxNodes) {
+            return depth;
+        }
+    }
+    return 1;
+}
+
 function normalizeWeights(weights: Weights): Partial<Record<OpName, number>> {
     for (const name of Object.keys(weights)) {
         if (!Object.hasOwn(ops, name)) {

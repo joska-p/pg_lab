@@ -1,38 +1,46 @@
 import type { ColorSpaceId } from '@repo/randomart-core/colors';
-import { createGrammar, MAX_WEIGHT } from '@repo/randomart-core/grammar';
+import {
+    createGrammar,
+    MAX_WEIGHT,
+    maxFeasibleMinDepth,
+    minimumNodes,
+} from '@repo/randomart-core/grammar';
 import type { Grammar } from '@repo/randomart-core/grammar';
 import type { OpName } from '@repo/randomart-core/ops';
 
-/** Pure grammar transitions: the UI composes them, the store only queues the result. */
+/**
+ * Pure grammar transitions. These are the only functions that adjust neighbouring values to keep a
+ * grammar valid; createGrammar itself never repairs.
+ */
 
 export function withWeight(grammar: Grammar, name: OpName, weight: number): Grammar {
-    return createGrammar({
-        ...grammar,
-        weights: { ...grammar.weights, [name]: Math.min(MAX_WEIGHT, Math.max(0, weight)) },
-    });
+    const weights = { ...grammar.weights, [name]: Math.min(MAX_WEIGHT, Math.max(0, weight)) };
+    const minDepth = maxFeasibleMinDepth({ ...grammar, weights }, grammar.minDepth);
+    return createGrammar({ ...grammar, weights, minDepth });
 }
 
 export function withMinDepth(grammar: Grammar, minDepth: number): Grammar {
-    const maxDepth = Math.max(grammar.maxDepth, minDepth);
+    const feasible = maxFeasibleMinDepth(grammar, minDepth);
+    const maxDepth = Math.max(grammar.maxDepth, feasible);
     return createGrammar({
         ...grammar,
-        minDepth,
+        minDepth: feasible,
         maxDepth,
         shareDepth: Math.min(grammar.shareDepth, maxDepth),
     });
 }
 
 export function withMaxDepth(grammar: Grammar, maxDepth: number): Grammar {
-    const next = Math.max(grammar.minDepth, maxDepth);
     return createGrammar({
         ...grammar,
-        maxDepth: next,
-        shareDepth: Math.min(grammar.shareDepth, next),
+        minDepth: Math.min(grammar.minDepth, maxDepth),
+        maxDepth,
+        shareDepth: Math.min(grammar.shareDepth, maxDepth),
     });
 }
 
 export function withMaxNodes(grammar: Grammar, maxNodes: number): Grammar {
-    return createGrammar({ ...grammar, maxNodes });
+    return createGrammar({ ...grammar, maxNodes: Math.max(maxNodes, minimumNodes(grammar)) });
 }
 
 export function withShareDepth(grammar: Grammar, shareDepth: number): Grammar {
