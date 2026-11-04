@@ -6,6 +6,8 @@ export interface Rng {
     next(): number;
     /** Uniform integer in [0, max). */
     int(max: number): number;
+    /** Uniform draw of one item; `items` must be non-empty and contain no `undefined`. */
+    pick<T>(items: readonly T[]): T;
     /**
      * Draw one item with probability proportional to its weight. Non-positive weights are ignored;
      * when no item has a positive weight, the draw is uniform.
@@ -46,10 +48,15 @@ export function createRng(seed: Seed): Rng {
         return Math.floor(next() * max);
     }
 
-    function weighted<T>(items: readonly T[], weightOf: (item: T) => number): T {
-        if (items.length === 0) {
-            throw new RandomArtError('Rng.weighted: cannot draw from an empty list');
+    function pick<T>(items: readonly T[]): T {
+        const item = items.at(int(items.length));
+        if (item === undefined) {
+            throw new RandomArtError('Rng.pick: cannot draw from an empty list');
         }
+        return item;
+    }
+
+    function weighted<T>(items: readonly T[], weightOf: (item: T) => number): T {
         let total = 0;
         for (const item of items) {
             const weight = weightOf(item);
@@ -58,21 +65,26 @@ export function createRng(seed: Seed): Rng {
             }
         }
         if (total <= 0) {
-            return items[int(items.length)];
+            return pick(items);
         }
         let remaining = next() * total;
+        let last: { readonly item: T } | undefined;
         for (const item of items) {
             const weight = weightOf(item);
             if (weight <= 0) {
                 continue;
             }
+            last = { item };
             remaining -= weight;
             if (remaining <= 0) {
                 return item;
             }
         }
-        return items[items.length - 1];
+        if (last === undefined) {
+            throw new RandomArtError('Rng.weighted: no item has a positive weight');
+        }
+        return last.item;
     }
 
-    return { next, int, weighted };
+    return { next, int, pick, weighted };
 }

@@ -13,6 +13,7 @@ import {
     formatFormula,
     isMonoExpression,
     serialize,
+    warpOperands,
 } from './tree';
 import type { Expression } from './tree';
 
@@ -119,5 +120,19 @@ describe('isMonoExpression', () => {
             const expression = generate(grammarRegistry.monochrome.grammar, seedOf(n));
             expect(isMonoExpression(expression)).toBe(true);
         }
+    });
+});
+
+describe('warpOperands', () => {
+    it('returns the warp inputs in order as a tuple', () => {
+        const dx = createNode('x', [], { amp: 0.3, phase: 0.1, cycles: 2 });
+        const dy = createNode('y', [], { amp: 0.3, phase: 0.1, cycles: 2 });
+        const body = createNode('add', [dx, dy]);
+        const warp = createNode('warp', [dx, dy, body]);
+
+        const [opDx, opDy, opBody] = warpOperands(warp);
+        expect(opDx).toBe(dx);
+        expect(opDy).toBe(dy);
+        expect(opBody).toBe(body);
     });
 });

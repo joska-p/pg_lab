@@ -1,5 +1,6 @@
 import { ops } from './ops';
 import type { Point } from './ops';
+import { warpOperands } from './tree';
 import type { Expression, Node } from './tree';
 
 /** Raw channel values, each in [-1, 1], before the color space conversion. */
@@ -12,10 +13,11 @@ export interface Rgb {
 function evaluateNode(node: Node, point: Point): number {
     const op = ops[node.op];
     if (op.kind === 'warp') {
-        const dx = evaluateNode(node.inputs[0], point);
-        const dy = evaluateNode(node.inputs[1], point);
+        const [dxNode, dyNode, bodyNode] = warpOperands(node);
+        const dx = evaluateNode(dxNode, point);
+        const dy = evaluateNode(dyNode, point);
         return evaluateNode(
-            node.inputs[2],
+            bodyNode,
             op.evalPoint({ inputs: [dx, dy], params: node.params, point }),
         );
     }

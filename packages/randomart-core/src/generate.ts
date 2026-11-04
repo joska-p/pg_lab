@@ -137,14 +137,12 @@ function generateNode(state: GenState, depth: number, budget: number): SizedNode
 
 function generateTrunk(state: GenState, depth: number, budget: number): Trunk {
     if (depth > state.grammar.shareDepth) {
-        const channels = [
-            generateNode(state, depth, budget),
-            generateNode(state, depth, budget),
-            generateNode(state, depth, budget),
-        ];
+        const r = generateNode(state, depth, budget);
+        const g = generateNode(state, depth, budget);
+        const b = generateNode(state, depth, budget);
         return {
-            nodes: [channels[0].node, channels[1].node, channels[2].node],
-            size: Math.max(...channels.map((channel) => channel.size)),
+            nodes: [r.node, g.node, b.node],
+            size: Math.max(r.size, g.size, b.size),
         };
     }
 
@@ -158,7 +156,7 @@ function generateTrunk(state: GenState, depth: number, budget: number): Trunk {
                   generateTrunk(state, depth + 1, childBudget),
               );
 
-    const channel = (index: number): Node =>
+    const channel = (index: 0 | 1 | 2): Node =>
         createNode(
             name,
             children.map((child) => child.nodes[index]),
