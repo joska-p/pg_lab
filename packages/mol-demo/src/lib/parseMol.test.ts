@@ -40,12 +40,17 @@ describe('parseMol', () => {
     it('centers positions on the centroid', () => {
         const mol = parseMol(WATER);
         const n = mol.pos.length;
-        const mean = [0, 1, 2].map((k) => mol.pos.reduce((s, p) => s + p[k], 0) / n);
-        expect(mean[0]).toBeCloseTo(0, 10);
-        expect(mean[1]).toBeCloseTo(0, 10);
-        expect(mean[2]).toBeCloseTo(0, 10);
+        const mean = [0, 1, 2].map((k) => mol.pos.reduce((s, p) => s + (p[k] ?? 0), 0) / n);
+        const [mx = 0, my = 0, mz = 0] = mean;
+        expect(mx).toBeCloseTo(0, 10);
+        expect(my).toBeCloseTo(0, 10);
+        expect(mz).toBeCloseTo(0, 10);
         // O was at (0,0,0), centroid at (0,0.3788,0).
-        expect(mol.pos[0][1]).toBeCloseTo(-0.3788, 4);
+        const first = mol.pos[0];
+        if (!first) {
+            throw new Error('parseMol.test: expected at least one atom');
+        }
+        expect(first[1]).toBeCloseTo(-0.3788, 4);
     });
 
     it('finds the counts line when the comment line is missing', () => {

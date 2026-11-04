@@ -46,8 +46,12 @@ describe('formFactors', () => {
     });
 
     it('clamps q outside [Q_MIN, Q_MAX] to the table edges', () => {
-        expect(ff('C', -50)).toBe(FF_TBL.C[0]);
-        expect(ff('C', 1e6)).toBe(FF_TBL.C[FF_N - 1]);
+        const tblC = FF_TBL.C;
+        if (!tblC) {
+            throw new Error('formFactors.test: missing LUT for element "C"');
+        }
+        expect(ff('C', -50)).toBe(tblC[0]);
+        expect(ff('C', 1e6)).toBe(tblC[FF_N - 1]);
     });
 
     it('throws on elements without form factors', () => {

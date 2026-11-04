@@ -128,32 +128,42 @@ type UniformMap = Record<string, WebGLUniformLocation | null>;
 // "FF" = scattering form factor: per-element coefficients used to compute
 // how strongly an atom scatters at a given q. uFFa/uFFb/uFFc are the three
 // coefficient groups the shader expects, one triple per atom.
+function uniformLoc(
+    location: WebGLUniformLocation | null | undefined,
+): WebGLUniformLocation | null {
+    return location ?? null;
+}
+
 function uploadAtomFormFactorUniforms(
     gl: WebGL2RenderingContext,
     uniforms: UniformMap,
     molecule: Molecule,
 ): void {
-    gl.uniform1i(uniforms.uNatoms, molecule.atoms.length);
+    gl.uniform1i(uniformLoc(uniforms.uNatoms), molecule.atoms.length);
     for (let i = 0; i < molecule.atoms.length; i++) {
-        const coeffs = FF[molecule.atoms[i]];
+        const el = molecule.atoms[i];
+        if (!el) {
+            continue;
+        }
+        const coeffs = FF[el];
         if (!coeffs) {
             continue;
         }
         gl.uniform4f(
-            uniforms[`uFFa${i}`],
+            uniformLoc(uniforms[`uFFa${i}`]),
             coeffs[0] ?? 0,
             coeffs[1] ?? 0,
             coeffs[2] ?? 0,
             coeffs[3] ?? 0,
         );
         gl.uniform4f(
-            uniforms[`uFFb${i}`],
+            uniformLoc(uniforms[`uFFb${i}`]),
             coeffs[4] ?? 0,
             coeffs[5] ?? 0,
             coeffs[6] ?? 0,
             coeffs[7] ?? 0,
         );
-        gl.uniform1f(uniforms[`uFFc${i}`], coeffs[8] ?? 0);
+        gl.uniform1f(uniformLoc(uniforms[`uFFc${i}`]), coeffs[8] ?? 0);
     }
 }
 
@@ -216,9 +226,11 @@ function renderPatternOnCpu(
     // rest of the pattern. Sampling every 8th pixel keeps this cheap.
     let sampleCount = 0;
     for (let i = 0; i < intensityBuffer.length; i += 8) {
-        if (intensityBuffer[i] > 0) {
-            sampleBuffer[sampleCount++] = intensityBuffer[i];
+        const v = intensityBuffer[i];
+        if (v === undefined || v <= 0) {
+            continue;
         }
+        sampleBuffer[sampleCount++] = v;
     }
     const sortedSample = sampleBuffer.subarray(0, sampleCount);
     sortedSample.sort();
@@ -232,12 +244,16 @@ function renderPatternOnCpu(
             pixels[pixelOffset + 3] = 0;
             continue;
         }
-        const intensityByte = Math.min(255, ((intensityBuffer[i] / intensityNorm) * 255) | 0);
+        const intensity = intensityBuffer[i];
+        if (intensity === undefined) {
+            continue;
+        }
+        const intensityByte = Math.min(255, ((intensity / intensityNorm) * 255) | 0);
         const lutOffset = intensityByte * 3;
-        pixels[pixelOffset] = XRAY_LUT[lutOffset];
-        pixels[pixelOffset + 1] = XRAY_LUT[lutOffset + 1];
-        pixels[pixelOffset + 2] = XRAY_LUT[lutOffset + 2];
-        pixels[pixelOffset + 3] = (intensityByte * fadeBuffer[i]) | 0;
+        pixels[pixelOffset] = XRAY_LUT[lutOffset] ?? 0;
+        pixels[pixelOffset + 1] = XRAY_LUT[lutOffset + 1] ?? 0;
+        pixels[pixelOffset + 2] = XRAY_LUT[lutOffset + 2] ?? 0;
+        pixels[pixelOffset + 3] = (intensityByte * (fadeBuffer[i] ?? 0)) | 0;
     }
     ctx.putImageData(imageData, 0, 0);
 }
@@ -380,9 +396,9 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-                gl.uniform1i(uniforms.uLUT, 0);
-                gl.uniform1f(uniforms.uQmin, Q_MIN);
-                gl.uniform1f(uniforms.uQmax, Q_MAX);
+                gl.uniform1i(uniformLoc(uniforms.uLUT), 0);
+                gl.uniform1f(uniformLoc(uniforms.uQmin), Q_MIN);
+                gl.uniform1f(uniformLoc(uniforms.uQmax), Q_MAX);
 
                 setPatternPath('gpu');
 
@@ -577,13 +593,16 @@ export function PatternCanvas({ viewerRef }: { viewerRef: ViewerRef }) {
                 gl.clearColor(0, 0, 0, 0);
                 gl.clear(gl.COLOR_BUFFER_BIT);
 
-                gl.uniform2f(uniforms.uResolution, width, height);
-                gl.uniform1f(uniforms.uNorm, intensityNorm);
+                gl.uniform2f(uniformLoc(uniforms.uResolution), width, height);
+                gl.uniform1f(uniformLoc(uniforms.uNorm), intensityNorm);
 
                 for (let i = 0; i < projectedAtoms.length; i++) {
                     const atom = projectedAtoms[i];
+                    if (!atom) {
+                        continue;
+                    }
 
-                    gl.uniform2f(uniforms[`uAtomPos${i}`], atom.vx, atom.vy);
+                    gl.uniform2f(uniformLoc(uniforms[`uAtomPos${i}`]), atom.vx, atom.vy);
                 }
 
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

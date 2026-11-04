@@ -13,8 +13,13 @@ interface MoleculeStore {
     error: string | null;
 }
 
+const firstEntry = MOLECULES[0];
+if (!firstEntry) {
+    throw new Error('mol-demo: no molecules registered');
+}
+
 const moleculeStore = create<MoleculeStore>(() => ({
-    file: MOLECULES[0].file,
+    file: firstEntry.file,
     current: null,
     status: 'idle',
     error: null,

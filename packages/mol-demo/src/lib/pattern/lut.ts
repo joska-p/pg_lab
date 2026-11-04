@@ -23,8 +23,13 @@ function buildLut(): Uint8Array {
     for (let i = 0; i < 256; i++) {
         const v = (i / 255) ** XRAY_LUT_GAMMA;
         for (let s = 0; s < STOPS.length - 1; s++) {
-            const [t0, c0] = STOPS[s];
-            const [t1, c1] = STOPS[s + 1];
+            const stop0 = STOPS[s];
+            const stop1 = STOPS[s + 1];
+            if (!stop0 || !stop1) {
+                break;
+            }
+            const [t0, c0] = stop0;
+            const [t1, c1] = stop1;
             if (v <= t1) {
                 const t = (v - t0) / (t1 - t0);
                 lut[i * 3] = Math.round(c0[0] + t * (c1[0] - c0[0]));

@@ -1,8 +1,13 @@
 // Atomic form factor coefficients [a1,a2,a3,a4, b1,b2,b3,b4, c].
 // Ported from mol-demo.js (Int. Tables for Crystallography Vol. C basis).
 // Rows indexed Z-1: H(0) through Xe(53).
+// Every row is exactly 9 coefficients [a1..a4, b1..b4, c], typed as a tuple
+// so indexed reads stay `number` (not `number | undefined`) under
+// `noUncheckedIndexedAccess`.
 
-export const FF_DATA: number[][] = [
+type FFRow = readonly [number, number, number, number, number, number, number, number, number];
+
+export const FF_DATA: readonly FFRow[] = [
     [0.489918, 0.262003, 0.196767, 0.049879, 20.6593, 7.74039, 49.5519, 2.20159, 0.001305], // H
     [0.8734, 0.6309, 0.3112, 0.178, 9.1037, 3.3568, 22.9276, 0.9821, 0.0064], // He
     [1.1282, 0.7508, 0.6175, 0.4653, 3.9546, 1.0524, 85.3905, 168.261, 0.0377], // Li
@@ -116,9 +121,13 @@ export const FF_SYMS: readonly string[] = [
     'Xe',
 ];
 
-export const FF: Record<string, readonly number[]> = {};
+export const FF: Record<string, FFRow> = {};
 FF_SYMS.forEach((sym, i) => {
-    FF[sym] = FF_DATA[i];
+    const row = FF_DATA[i];
+    if (!row) {
+        throw new Error(`mol-demo: missing form factor coefficients for element "${sym}"`);
+    }
+    FF[sym] = row;
 });
 
 export const Q_MAX = 25.0;
@@ -136,6 +145,9 @@ export function maxAtoms(isMobile: boolean): number {
 export const FF_TBL: Record<string, Float32Array> = {};
 for (const sym of FF_SYMS) {
     const c = FF[sym];
+    if (!c) {
+        throw new Error(`mol-demo: missing form factor coefficients for element "${sym}"`);
+    }
     const t = new Float32Array(FF_N);
     for (let i = 0; i < FF_N; i++) {
         const q = Q_MIN + ((Q_MAX - Q_MIN) * i) / (FF_N - 1);
@@ -161,5 +173,9 @@ export function ff(el: string, q: number): number {
         0,
         Math.min(FF_N - 1, Math.round(((q - Q_MIN) / (Q_MAX - Q_MIN)) * (FF_N - 1))),
     );
-    return tbl[i];
+    const value = tbl[i];
+    if (value === undefined) {
+        throw new Error(`mol-demo: form factor table index out of range for "${el}"`);
+    }
+    return value;
 }

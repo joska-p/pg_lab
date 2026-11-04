@@ -20,7 +20,7 @@ function fail(message: string): never {
 export function parseMol(text: string, filename?: string): Molecule {
     // Keep only the first SDF record; equivalent to the count-bounded read
     // below on well-formed input, robust against trailing records.
-    const first = text.replace(/\r\n/g, '\n').split('$$$$')[0];
+    const first = text.replace(/\r\n/g, '\n').split('$$$$')[0] ?? '';
     const lines = first.split('\n');
     const rawName = (lines[0] ?? '').trim();
     // Fall back to filename (minus extension) if the name field is blank or numeric.
@@ -54,9 +54,9 @@ export function parseMol(text: string, filename?: string): Molecule {
     const bonds: Bond[] = [];
     for (let i = 0; i < natoms; i++) {
         const parts = (lines[ci + 1 + i] ?? '').trim().split(/\s+/);
-        const x = parseFloat(parts[0]);
-        const y = parseFloat(parts[1]);
-        const z = parseFloat(parts[2]);
+        const x = parseFloat(parts[0] ?? '');
+        const y = parseFloat(parts[1] ?? '');
+        const z = parseFloat(parts[2] ?? '');
         const el = parts[3];
         if (!el) {
             fail(`atom ${i + 1}: missing element symbol`);
@@ -69,8 +69,8 @@ export function parseMol(text: string, filename?: string): Molecule {
     }
     for (let i = 0; i < nbonds; i++) {
         const parts = (lines[ci + 1 + natoms + i] ?? '').trim().split(/\s+/);
-        const a = parseInt(parts[0], 10);
-        const b = parseInt(parts[1], 10);
+        const a = parseInt(parts[0] ?? '', 10);
+        const b = parseInt(parts[1] ?? '', 10);
         if (
             !Number.isInteger(a) ||
             !Number.isInteger(b) ||
