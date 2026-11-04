@@ -11,7 +11,7 @@ export function createPhase(progress: number): number {
         return 0;
     }
     const wrapped = ((progress % 1) + 1) % 1;
-    return wrapped >= 1 ? 0 : wrapped;
+    return wrapped;
 }
 
 export function needsRender(previous: RenderKey | null, next: RenderKey): boolean {
