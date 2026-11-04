@@ -13,7 +13,6 @@ import type { RenderKey } from '../renderer/renderGate';
 
 const DEFAULT_CONTEXT_OPTIONS: WebGLContextAttributes = {
     antialias: false,
-    // preserveDrawingBuffer removed: export now uses offscreen canvas, avoiding the perf cost.
 };
 
 interface RandomArtCanvasProps {
@@ -29,8 +28,6 @@ interface RandomArtCanvasProps {
     onClockStore?: (clockStore: ClockStore) => void;
     /** Called once on mount — use to capture surface.canvas for export. */
     onMount?: (surface: GpuSurface) => void;
-    /** CSS class name forwarded to the canvas element. */
-    className?: string;
 }
 
 const styles = stylex.create({
@@ -59,8 +56,8 @@ const styles = stylex.create({
 
 /**
  * Thin adapter around @repo/glaze GpuCanvas for randomart. Timed clock (paused at phase 0), WebGL
- * context flags, supplies `u_phase`. Lazy rendering: still/paused/static costs no GPU time. Relies
- * on `preserveDrawingBuffer: true`; gate redraws on phase change, resize, context restore.
+ * context flags, supplies `u_phase`. Lazy rendering: still/paused/static costs no GPU time. The
+ * drawing buffer is not preserved; export re-renders offscreen.
  *
  * A newly installed program is always drawn once by GpuCanvas, independently of `shouldRender`, so
  * changing the shader appears even while the clock is paused.
@@ -72,7 +69,6 @@ export function RandomArtCanvas({
     onShaderError,
     onClockStore,
     onMount,
-    className,
 }: RandomArtCanvasProps) {
     const lastRenderRef = useRef<RenderKey | null>(null);
 
@@ -84,8 +80,8 @@ export function RandomArtCanvas({
     }
 
     return (
-        <div className={className} {...stylex.props(styles.parentContainer)}>
-            <div className={className} {...stylex.props(styles.canva)}>
+        <div {...stylex.props(styles.parentContainer)}>
+            <div {...stylex.props(styles.canva)}>
                 <GpuCanvas
                     fragmentShader={fragmentShader}
                     clockOptions={{
