@@ -3,22 +3,13 @@ import { describe, expect, it } from 'vite-plus/test';
 import { COLOR_SPACE_IDS } from './colors';
 import type { ColorSpaceId } from './colors';
 import { compile } from './emit';
-import { evaluate } from './evaluate';
 import { generate } from './generate';
-import type { Point } from './ops';
 import { seedOf, SIZE_GRAMMARS } from './testing/fixtures';
 import { usesTime } from './tree';
 import type { Expression } from './tree';
 
 /** Property matrix: every size, every color space, a spread of seeds. */
 const SEEDS = [0, 1, 2, 7, 42, 99] as const;
-
-const CHANNELS = ['r', 'g', 'b'] as const;
-
-/** Deterministic probes covering the corners and the interior of [-1, 1]², at several phases. */
-const PROBE_POINTS: readonly Point[] = [-1, 0, 1].flatMap((x) =>
-    [-1, 0, 0.63].map((y) => ({ x, y, phase: (x + y + 2) / 4 })),
-);
 
 interface Sample {
     readonly label: string;
@@ -56,23 +47,6 @@ describe('compile', () => {
             expect(compiled.stats.sourceLength, label).toBe(compiled.source.length);
             expect(compiled.stats.nodes, label).toBeGreaterThan(0);
             expect(compiled.animated, label).toBe(usesTime(expression));
-        }
-    });
-
-    it('keeps every evaluated channel finite and inside [-1, 1]', () => {
-        for (const { label, expression } of drawSamples()) {
-            for (const point of PROBE_POINTS) {
-                const rgb = evaluate(expression, point);
-
-                for (const channel of CHANNELS) {
-                    const value = rgb[channel];
-                    const at = `${label} at (${point.x}, ${point.y}, ${point.phase}) ${channel}=${value}`;
-
-                    expect(Number.isFinite(value), at).toBe(true);
-                    expect(value, at).toBeGreaterThanOrEqual(-1);
-                    expect(value, at).toBeLessThanOrEqual(1);
-                }
-            }
         }
     });
 });

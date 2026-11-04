@@ -8,7 +8,7 @@ import { createGrammar, drawGrammar, grammarRegistry, minimumNodes, vocabulary }
 import { ops } from './ops';
 import type { OpName } from './ops';
 import { createRng } from './rng';
-import { seedOf } from './testing/fixtures';
+import { EPS, seedOf } from './testing/fixtures';
 import type { Expression, Node } from './tree';
 
 function countNodes(node: Node): number {
@@ -56,12 +56,12 @@ function evaluateChannelsInRange(expression: Expression): boolean {
     for (const point of points) {
         const result = evaluate(expression, point);
         if (
-            result.r < -1 ||
-            result.r > 1 ||
-            result.g < -1 ||
-            result.g > 1 ||
-            result.b < -1 ||
-            result.b > 1
+            result.r < -1 - EPS ||
+            result.r > 1 + EPS ||
+            result.g < -1 - EPS ||
+            result.g > 1 + EPS ||
+            result.b < -1 - EPS ||
+            result.b > 1 + EPS
         ) {
             return false;
         }

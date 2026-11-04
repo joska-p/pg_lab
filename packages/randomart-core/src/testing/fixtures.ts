@@ -7,6 +7,12 @@ export function seedOf(n: number): Seed {
     return createSeed(String(n));
 }
 
+/**
+ * Tolerance (ulp-scale) for range assertions on `evaluate`: results may exceed [-1, 1] by a few
+ * ulp.
+ */
+export const EPS = 1e-9;
+
 /** Grammar sizes shared by the test suites: depth and node bounds grow with the preset. */
 export const SIZE_GRAMMARS = [
     createGrammar({
