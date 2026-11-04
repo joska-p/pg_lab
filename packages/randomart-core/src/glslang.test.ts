@@ -46,7 +46,7 @@ describe('glslangValidator', () => {
     }
 
     it('validates default grammar shaders', () => {
-        const grammar = grammarRegistry.default;
+        const grammar = grammarRegistry.default.grammar;
         const seeds = [0, 42, 1234, 9999];
 
         for (const seedValue of seeds) {
@@ -66,8 +66,9 @@ describe('glslangValidator', () => {
     });
 
     it('validates all registry grammars', () => {
-        for (const [name, grammar] of Object.entries(grammarRegistry)) {
+        for (const [name, preset] of Object.entries(grammarRegistry)) {
             const seed = createSeed(String(12345));
+            const grammar = preset.grammar;
             const expression = generate(grammar, seed);
             const compiled = compile(expression, { space: grammar.space });
             const validation = validateGlsl(compiled.source);

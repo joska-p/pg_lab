@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vite-plus/test';
 import { createBatcher } from './batcher';
 import { resolveIntents } from './intents';
 
-const CURRENT = { grammar: grammarRegistry.default, seed: createSeed('1') };
+const CURRENT = { grammar: grammarRegistry.default.grammar, seed: createSeed('1') };
 
 describe('resolveIntents', () => {
     it('folds two edits from the same frame without losing either', () => {

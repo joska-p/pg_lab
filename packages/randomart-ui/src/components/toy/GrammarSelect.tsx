@@ -42,7 +42,7 @@ export function GrammarSelect() {
                         }
 
                         // Applying a preset keeps the current seed.
-                        applyGrammar(grammarRegistry[id]);
+                        applyGrammar(grammarRegistry[id].grammar);
                     }}
                 />
 

@@ -84,8 +84,8 @@ vp test                                # All tests
 
 ### Adding a grammar preset
 
-1. Add entry to `grammarRegistry` in `randomart-core/src/grammar.ts`.
-2. It appears automatically in `GrammarSelect` (toy) and can be drawn in lab.
+Add a `preset(label, description, options)` entry to `grammarRegistry` in
+`randomart-core/src/grammar.ts`.
 
 ### Shader export
 

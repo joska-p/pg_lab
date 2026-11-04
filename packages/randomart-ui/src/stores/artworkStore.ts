@@ -18,7 +18,7 @@ interface ArtworkState {
 }
 
 const store = create<ArtworkState>(() => ({
-    artwork: buildArtwork(coreGrammar.grammarRegistry.default, createSeed('42')),
+    artwork: buildArtwork(coreGrammar.grammarRegistry.default.grammar, createSeed('42')),
 }));
 
 /**

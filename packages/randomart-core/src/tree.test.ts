@@ -34,7 +34,7 @@ describe('tree serialization', () => {
     });
 
     it('produces byte-identical JSON and shader after a round-trip', () => {
-        const expression = generate(grammarRegistry.default, seedOf(2024));
+        const expression = generate(grammarRegistry.default.grammar, seedOf(2024));
         const restored = throughJson(expression);
 
         expect(canonical(restored)).toBe(canonical(expression));

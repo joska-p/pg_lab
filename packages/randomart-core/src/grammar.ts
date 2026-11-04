@@ -10,8 +10,6 @@ export const MAX_WEIGHT = 16;
 type Weights = Readonly<Partial<Record<OpName, number>>>;
 
 export interface Grammar {
-    readonly label: string;
-    readonly description: string;
     /** Only operators with a positive weight are present. */
     readonly weights: Weights;
     readonly minDepth: number;
@@ -22,15 +20,20 @@ export interface Grammar {
     readonly space: ColorSpaceId;
 }
 
-export interface GrammarOptions {
-    readonly label?: string;
-    readonly description?: string;
+export interface CreateGrammarOptions {
     readonly weights: Weights;
     readonly minDepth: number;
     readonly maxDepth: number;
     readonly maxNodes: number;
     readonly shareDepth: number;
     readonly space: ColorSpaceId;
+}
+
+/** A registry entry: a grammar plus its presentational label and description. */
+export interface GrammarPreset {
+    readonly label: string;
+    readonly description: string;
+    readonly grammar: Grammar;
 }
 
 /** Weight of an operator in a grammar; absent operators weigh nothing. */
@@ -142,7 +145,7 @@ function ensureEnabled(weights: Partial<Record<OpName, number>>, terminal: boole
  * zero-weight operators are dropped, and `shareDepth` must fit `maxDepth`. Invalid choices throw
  * instead of being clamped, so a slider cannot silently disagree with the grammar it produced.
  */
-export function createGrammar(options: GrammarOptions): Grammar {
+export function createGrammar(options: CreateGrammarOptions): Grammar {
     const { minDepth, maxDepth, maxNodes } = options;
 
     if (!Number.isInteger(minDepth) || minDepth < 1) {
@@ -174,8 +177,6 @@ export function createGrammar(options: GrammarOptions): Grammar {
 
     // Validate grammar feasibility: minimumNodes must fit within maxNodes
     const tempGrammar = Object.freeze({
-        label: options.label ?? 'Custom',
-        description: options.description ?? 'Custom grammar',
         weights: Object.freeze(weights),
         minDepth,
         maxDepth,
@@ -193,6 +194,14 @@ export function createGrammar(options: GrammarOptions): Grammar {
     }
 
     return tempGrammar;
+}
+
+/**
+ * Build a registry preset from a label, a description and grammar options. The grammar itself never
+ * carries preset metadata.
+ */
+function preset(label: string, description: string, options: CreateGrammarOptions): GrammarPreset {
+    return { label, description, grammar: createGrammar(options) };
 }
 
 /** Stable identity of a grammar, independent of how its weights were built. */
@@ -274,9 +283,7 @@ export function isMono(grammar: Grammar): boolean {
 }
 
 export const grammarRegistry = {
-    default: createGrammar({
-        label: 'Default',
-        description: 'Default grammar',
+    default: preset('Default', 'Default grammar', {
         weights: {
             abs: 1,
             add: 1,
@@ -302,9 +309,7 @@ export const grammarRegistry = {
         shareDepth: 2,
         space: 'oklch',
     }),
-    geometric: createGrammar({
-        label: 'Geometric',
-        description: 'Sharp shapes, hard edges, structured patterns',
+    geometric: preset('Geometric', 'Sharp shapes, hard edges, structured patterns', {
         weights: {
             abs: 3,
             add: 1,
@@ -322,9 +327,7 @@ export const grammarRegistry = {
         shareDepth: 1,
         space: 'hsl',
     }),
-    organic: createGrammar({
-        label: 'Organic',
-        description: 'Flowing waves, smooth gradients, natural forms',
+    organic: preset('Organic', 'Flowing waves, smooth gradients, natural forms', {
         weights: {
             add: 2,
             cos: 3,
@@ -342,9 +345,7 @@ export const grammarRegistry = {
         shareDepth: 3,
         space: 'oklch',
     }),
-    fractal: createGrammar({
-        label: 'Fractal',
-        description: 'Self-similar detail, kaleidoscopic distortion',
+    fractal: preset('Fractal', 'Self-similar detail, kaleidoscopic distortion', {
         weights: {
             abs: 2,
             cos: 2,
@@ -359,9 +360,7 @@ export const grammarRegistry = {
         shareDepth: 2,
         space: 'oklch',
     }),
-    minimalist: createGrammar({
-        label: 'Minimalist',
-        description: 'Clean gradients, simple transitions, readable forms',
+    minimalist: preset('Minimalist', 'Clean gradients, simple transitions, readable forms', {
         weights: {
             add: 3,
             const: 2,
@@ -375,9 +374,7 @@ export const grammarRegistry = {
         shareDepth: 4,
         space: 'srgb',
     }),
-    texture: createGrammar({
-        label: 'Texture',
-        description: 'Grainy, noisy, high-frequency detail',
+    texture: preset('Texture', 'Grainy, noisy, high-frequency detail', {
         weights: {
             abs: 3,
             const: 4,
@@ -393,9 +390,7 @@ export const grammarRegistry = {
         shareDepth: 0,
         space: 'oklab',
     }),
-    monochrome: createGrammar({
-        label: 'Monochrome',
-        description: 'Single-channel harmony, tonal structure',
+    monochrome: preset('Monochrome', 'Single-channel harmony, tonal structure', {
         weights: {
             add: 2,
             gt: 2,
@@ -410,9 +405,7 @@ export const grammarRegistry = {
         shareDepth: 5,
         space: 'srgb',
     }),
-    psychedelic: createGrammar({
-        label: 'Psychedelic',
-        description: 'Wild color cycling, heavy warp, chaotic energy',
+    psychedelic: preset('Psychedelic', 'Wild color cycling, heavy warp, chaotic energy', {
         weights: {
             cos: 2,
             mix: 3,
@@ -428,7 +421,7 @@ export const grammarRegistry = {
         shareDepth: 0,
         space: 'hsl',
     }),
-} as const satisfies Record<string, Grammar>;
+} as const satisfies Record<string, GrammarPreset>;
 
 export type GrammarRegistryId = keyof typeof grammarRegistry;
 
@@ -436,5 +429,5 @@ export type GrammarRegistryId = keyof typeof grammarRegistry;
 export function presetOf(grammar: Grammar): GrammarRegistryId | undefined {
     const key = grammarKey(grammar);
     const ids = Object.keys(grammarRegistry) as GrammarRegistryId[];
-    return ids.find((id) => grammarKey(grammarRegistry[id]) === key);
+    return ids.find((id) => grammarKey(grammarRegistry[id].grammar) === key);
 }

@@ -196,7 +196,7 @@ describe('property-based tests', () => {
     });
 
     it('all registry grammars are feasible', () => {
-        for (const grammar of Object.values(grammarRegistry)) {
+        for (const grammar of Object.values(grammarRegistry).map((preset) => preset.grammar)) {
             const min = minimumNodes(grammar);
             expect(min).toBeLessThanOrEqual(grammar.maxNodes);
         }

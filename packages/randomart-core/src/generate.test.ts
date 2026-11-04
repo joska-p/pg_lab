@@ -8,7 +8,7 @@ import { seedOf, SIZE_GRAMMARS } from './testing/fixtures';
 import { formatFormula } from './tree';
 import type { Expression, Node } from './tree';
 
-const DEFAULT_GRAMMAR = grammarRegistry.default;
+const DEFAULT_GRAMMAR = grammarRegistry.default.grammar;
 
 /** Seeds whose formulas are pinned by the snapshot: changing one is a deliberate act. */
 const SNAPSHOT_SEEDS = [0, 42, 1234] as const;
