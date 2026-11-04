@@ -6,7 +6,7 @@ import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { Grid } from '@repo/ui/components/Grid';
 import type { CSSProperties } from 'react';
 
-import { useExpression, useGrammar } from '../../stores/randomartStore';
+import { useExpression, useGrammar } from '../../stores/artworkStore';
 
 const CHANNELS = ['r', 'g', 'b'] as const;
 

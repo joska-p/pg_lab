@@ -1,21 +1,19 @@
 import { Button } from '@repo/ui/components/Button';
 import { Grid } from '@repo/ui/components/Grid';
 
-import {
-    exportPng,
-    resetSeed,
-    useCanAnimate,
-    useCanvas,
-    useClockStore,
-    useIsPlaying,
-} from '../../stores/randomartStore';
+import { exportPng } from '../../commands/exportPng';
+import { newSeed, useArtwork, useSeed } from '../../stores/artworkStore';
+import { reportError } from '../../stores/errorStore';
+import { useCanvas, useClockStore, useIsPlaying } from '../../stores/surfaceStore';
 import { GrammarSelect } from './GrammarSelect';
 
 export function ToyPanel() {
+    const artwork = useArtwork();
+    const seed = useSeed();
     const canvas = useCanvas();
     const clockStore = useClockStore();
-    const canAnimate = useCanAnimate();
     const isPlaying = useIsPlaying();
+    const canAnimate = clockStore !== null && artwork.shader.animated;
 
     return (
         <Grid columns="1" gap="4">
@@ -24,7 +22,7 @@ export function ToyPanel() {
                     title="play/pause the animation"
                     color="aurora"
                     onClick={() => {
-                        clockStore.togglePlay();
+                        clockStore?.togglePlay();
                     }}
                     disabled={!canAnimate}
                 >
@@ -33,7 +31,7 @@ export function ToyPanel() {
                 <Button
                     title="reset the animation clock"
                     onClick={() => {
-                        clockStore.reset();
+                        clockStore?.reset();
                     }}
                     disabled={!canAnimate}
                 >
@@ -43,16 +41,19 @@ export function ToyPanel() {
                     title="generate a new seed with the current grammar"
                     color="aqua"
                     onClick={() => {
-                        resetSeed();
+                        newSeed();
                     }}
                 >
                     New seed
                 </Button>
                 <Button
-                    title="export the current image as PNG"
+                    title="export the current artwork as PNG"
                     color="purple"
                     onClick={() => {
-                        void exportPng();
+                        if (canvas === null) {
+                            return;
+                        }
+                        void exportPng(canvas, seed).catch(reportError);
                     }}
                     disabled={!canvas}
                 >

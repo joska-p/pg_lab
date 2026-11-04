@@ -6,14 +6,12 @@ import { Activity } from 'react';
 import { setMode, useMode } from '../stores/modeStore';
 import type { AppMode } from '../stores/modeStore';
 import { ErrorReadout } from './ErrorReadout';
-import { HistoryPanel } from './history/HistoryPanel';
 import { LabPanel } from './lab/LabPanel';
 import { ToyPanel } from './toy/ToyPanel';
 
 const MODE_OPTIONS = [
     { value: 'toy', label: 'Toy' },
     { value: 'lab', label: 'Lab' },
-    { value: 'history', label: 'History' },
 ] as const satisfies readonly { value: AppMode; label: string }[];
 
 export function Controls() {
@@ -29,9 +27,6 @@ export function Controls() {
                 </Activity>
                 <Activity mode={mode === 'lab' ? 'visible' : 'hidden'}>
                     <LabPanel />
-                </Activity>
-                <Activity mode={mode === 'history' ? 'visible' : 'hidden'}>
-                    <HistoryPanel />
                 </Activity>
 
                 <ErrorReadout />

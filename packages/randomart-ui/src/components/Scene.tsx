@@ -1,17 +1,30 @@
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
+import { useEffect } from 'react';
 
+import { useCompiledShader } from '../stores/artworkStore';
+import { useDuration } from '../stores/playbackStore';
 import {
-    setCanvas,
-    setClockStore,
+    attachCanvas,
+    attachClock,
+    detachSurface,
     setShaderError,
-    useCompiledShader,
-    useDuration,
-} from '../stores/randomartStore';
+    useClockStore,
+} from '../stores/surfaceStore';
 import { RandomArtCanvas } from './RandomArtCanvas';
 
 export function Scene() {
     const compiledShader = useCompiledShader();
     const duration = useDuration();
+    const clockStore = useClockStore();
+
+    // GpuCanvas reads `clockOptions` once, when it creates the GPU stack; changing the duration
+    // prop alone never reaches the clock. Push it imperatively, and again when the clock attaches.
+    useEffect(() => {
+        clockStore?.setDuration(duration);
+    }, [clockStore, duration]);
+
+    // The canvas and its clock only exist while this surface is mounted (StrictMode remounts too).
+    useEffect(() => detachSurface, []);
 
     return (
         <ErrorBoundary showStack={import.meta.env.DEV}>
@@ -20,8 +33,8 @@ export function Scene() {
                 animated={compiledShader.animated}
                 duration={duration}
                 onShaderError={setShaderError}
-                onClockStore={setClockStore}
-                onMount={(surface) => setCanvas(surface.canvas)}
+                onClockStore={attachClock}
+                onMount={(surface) => attachCanvas(surface.canvas)}
             />
         </ErrorBoundary>
     );

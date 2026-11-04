@@ -5,7 +5,7 @@ import { Text } from '@repo/ui/components/Text';
 import { TextArea } from '@repo/ui/components/TextArea';
 import * as stylex from '@stylexjs/stylex';
 
-import { useCompiledShader } from '../../stores/randomartStore';
+import { useCompiledShader } from '../../stores/artworkStore';
 
 const POPOVER_ID = 'shader-source-popover';
 
@@ -39,13 +39,13 @@ export function ShaderSource() {
 
     return (
         <Stack gap="3">
-            <Button popoverTarget={POPOVER_ID}>Voir le shader GLSL</Button>
+            <Button popoverTarget={POPOVER_ID}>View GLSL shader</Button>
 
             <div id={POPOVER_ID} popover="manual">
                 <Card {...stylex.props(styles.panel)}>
                     <div {...stylex.props(styles.header)}>
-                        <Text variant="muted">Fragment shader compilé</Text>
-                        <Button popoverTarget={POPOVER_ID}>Fermer</Button>
+                        <Text variant="muted">Compiled fragment shader</Text>
+                        <Button popoverTarget={POPOVER_ID}>Close</Button>
                     </div>
                     <TextArea
                         rows={20}
@@ -54,7 +54,7 @@ export function ShaderSource() {
                         readOnly
                         style={styles.monospace}
                     />
-                    <Button onClick={copySource}>Copier le source</Button>
+                    <Button onClick={copySource}>Copy source</Button>
                 </Card>
             </div>
         </Stack>

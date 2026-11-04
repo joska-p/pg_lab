@@ -11,7 +11,7 @@ export function App() {
         <ShellWrapper>
             <ErrorBoundary showStack={import.meta.env.DEV}>
                 <ExperimentShell panel={<Controls />}>
-                    <Stage label="randomart-core">
+                    <Stage label="randomart">
                         <Scene />
                     </Stage>
                 </ExperimentShell>

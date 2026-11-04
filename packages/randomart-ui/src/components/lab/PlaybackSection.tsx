@@ -1,13 +1,9 @@
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { NumberField } from '@repo/ui/components/NumberField';
 
-import {
-    MAX_LOOP_DURATION,
-    MIN_LOOP_DURATION,
-    parseDurationInput,
-    setDuration,
-    useDuration,
-} from '../../stores/randomartStore';
+import { MAX_LOOP_DURATION, MIN_LOOP_DURATION } from '../../constants';
+import { clampDuration } from '../../parse/duration';
+import { setDuration, useDuration } from '../../stores/playbackStore';
 
 export function PlaybackSection() {
     const duration = useDuration();
@@ -21,8 +17,8 @@ export function PlaybackSection() {
                 max={MAX_LOOP_DURATION}
                 step={0.5}
                 value={duration}
-                onValueChange={(val) => {
-                    setDuration(parseDurationInput(String(val)));
+                onValueChange={(value) => {
+                    setDuration(clampDuration(value));
                 }}
             />
         </ControlSection>

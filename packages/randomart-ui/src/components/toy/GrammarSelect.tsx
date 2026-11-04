@@ -5,7 +5,7 @@ import { ControlField } from '@repo/ui/components/ControlField';
 import { Grid } from '@repo/ui/components/Grid';
 import { Select } from '@repo/ui/components/Select';
 
-import { applyGrammar, drawGrammar, useGrammar } from '../../stores/randomartStore';
+import { applyGrammar, drawGrammar, useGrammar } from '../../stores/artworkStore';
 
 const CUSTOM_PRESET = {
     id: 'custom',

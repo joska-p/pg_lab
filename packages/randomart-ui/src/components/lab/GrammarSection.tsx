@@ -1,6 +1,11 @@
 import type { ColorSpaceId } from '@repo/randomart-core/colors';
 import { COLOR_SPACE_IDS, colorSpaces } from '@repo/randomart-core/colors';
-import { isOnlyNonTerminal, isOnlyTerminal, weightOf } from '@repo/randomart-core/grammar';
+import {
+    MAX_WEIGHT,
+    isOnlyNonTerminal,
+    isOnlyTerminal,
+    weightOf,
+} from '@repo/randomart-core/grammar';
 import { OP_NAMES, ops } from '@repo/randomart-core/ops';
 import type { OpName } from '@repo/randomart-core/ops';
 import { MAX_SEED_LENGTH, parseSeed } from '@repo/randomart-core/seed';
@@ -13,17 +18,14 @@ import { TextInput } from '@repo/ui/components/TextInput';
 import { useState } from 'react';
 
 import {
-    resetSeed,
-    setGrammarShareDepth,
-    setGrammarSpace,
-    setGrammarWeight,
-    setGrammarMaxDepth,
-    setGrammarMaxNodes,
-    setGrammarMinDepth,
-    useGrammar,
-    useMaxWeight,
-    useSeed,
-} from '../../stores/randomartStore';
+    withMaxDepth,
+    withMaxNodes,
+    withMinDepth,
+    withShareDepth,
+    withSpace,
+    withWeight,
+} from '../../artwork/grammarEdits';
+import { editGrammar, newSeed, useGrammar, useSeed } from '../../stores/artworkStore';
 
 const GROUP_LABELS = {
     terminal: 'terminals',
@@ -74,7 +76,7 @@ function SeedInput({ seed }: { readonly seed: Seed }) {
             setDraft(seed); // canonicalise the whitespace the user typed
             return;
         }
-        resetSeed(parsed);
+        newSeed(parsed);
     }
 
     return (
@@ -101,7 +103,6 @@ function SeedInput({ seed }: { readonly seed: Seed }) {
 export function GrammarSection() {
     const grammar = useGrammar();
     const seed = useSeed();
-    const maxWeight = useMaxWeight();
 
     const mono = grammar.shareDepth >= grammar.maxDepth;
 
@@ -122,7 +123,9 @@ export function GrammarSection() {
                     color="orange"
                     value={grammar.space as ColorSpaceId}
                     options={SPACE_OPTIONS}
-                    onValueChange={setGrammarSpace}
+                    onValueChange={(space) => {
+                        editGrammar((current) => withSpace(current, space));
+                    }}
                 />
             </ControlSection>
 
@@ -136,9 +139,9 @@ export function GrammarSection() {
                                 label={name}
                                 value={weightOf(grammar, name)}
                                 min={mustStayOn(name) ? 1 : 0}
-                                max={maxWeight}
+                                max={MAX_WEIGHT}
                                 onValueChange={(weight) => {
-                                    setGrammarWeight(name, weight);
+                                    editGrammar((current) => withWeight(current, name, weight));
                                 }}
                             />
                         ))}
@@ -154,7 +157,9 @@ export function GrammarSection() {
                         value={grammar.minDepth}
                         min={1}
                         max={8}
-                        onValueChange={setGrammarMinDepth}
+                        onValueChange={(value) => {
+                            editGrammar((current) => withMinDepth(current, value));
+                        }}
                     />
                     <Slider
                         color="orange"
@@ -162,7 +167,9 @@ export function GrammarSection() {
                         value={grammar.maxDepth}
                         min={1}
                         max={10}
-                        onValueChange={setGrammarMaxDepth}
+                        onValueChange={(value) => {
+                            editGrammar((current) => withMaxDepth(current, value));
+                        }}
                     />
                     <Slider
                         color="orange"
@@ -170,7 +177,9 @@ export function GrammarSection() {
                         value={grammar.maxNodes}
                         min={4}
                         max={100}
-                        onValueChange={setGrammarMaxNodes}
+                        onValueChange={(value) => {
+                            editGrammar((current) => withMaxNodes(current, value));
+                        }}
                     />
                     <Slider
                         color="orange"
@@ -178,7 +187,9 @@ export function GrammarSection() {
                         value={grammar.shareDepth}
                         min={0}
                         max={grammar.maxDepth}
-                        onValueChange={setGrammarShareDepth}
+                        onValueChange={(value) => {
+                            editGrammar((current) => withShareDepth(current, value));
+                        }}
                     />
                 </Grid>
             </ControlSection>

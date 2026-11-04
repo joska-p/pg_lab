@@ -7,9 +7,9 @@ import type { ClockStore } from '@repo/glaze/react/types';
 import { useRef } from 'react';
 import type { CSSProperties } from 'react';
 
+import { DEFAULT_LOOP_DURATION } from '../constants';
 import { createPhase, needsRender } from '../renderer/renderGate';
 import type { RenderKey } from '../renderer/renderGate';
-import { DEFAULT_LOOP_DURATION } from '../stores/randomartStore';
 
 const DEFAULT_CONTEXT_OPTIONS: WebGLContextAttributes = {
     antialias: false,
@@ -39,6 +39,9 @@ interface RandomArtCanvasProps {
  * Thin adapter around @repo/glaze GpuCanvas for randomart. Timed clock (paused at phase 0), WebGL
  * context flags, supplies `u_phase`. Lazy rendering: still/paused/static costs no GPU time. Relies
  * on `preserveDrawingBuffer: true`; gate redraws on phase change, resize, context restore.
+ *
+ * A newly installed program is always drawn once by GpuCanvas, independently of `shouldRender`, so
+ * changing the shader appears even while the clock is paused.
  */
 export function RandomArtCanvas({
     fragmentShader,
