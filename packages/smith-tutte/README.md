@@ -1,13 +1,10 @@
 # @repo/smith-tutte
 
 > Dual visualizer: squared-square tiling ↔ its electrical network.
-> Current Status: 🧪 WIP
-
-This README acts as the local concept spec — focusing on the "why", the mathematical inspirations, and the design decisions. The full framing is split across [`docs/`](./docs): `architecture.md` (the how), `decisions.md` (ADRs), `journal.md` (the narrative), and `roadmap.md` (execution strategy). API inventory is automatically handled by TypeDoc.
 
 ---
 
-## 🎯 Intention & Concept
+## Intention & Concept
 
 An interactive side-by-side visualizer observing two faces of the same object in real time: the **geometric tiling** (a square filled with smaller squares) and its **dual electrical network** (nodes as potential lines, edges as resistors).
 
@@ -21,7 +18,7 @@ Rendering follows a decoupled pipeline: business logic produces abstract primiti
 
 Entry point is a textual DSL describing the system without any GUI input (netlist-style topology vs slicing-tree layout vs hybrid syntax — grammar still to be frozen).
 
-## 🥷 Brainstorming, Inspirations & Credits
+## Brainstorming, Inspirations & Credits
 
 - **Visual Inspo:**
     - [10 PRINT](https://10print.org)
@@ -31,18 +28,14 @@ Entry point is a textual DSL describing the system without any GUI input (netlis
 - **Borrowed Code & Algorithms:**
     - Kirchhoff resolution over the dual planar graph (topological solver producing $(X, Y, W, H)$ + potentials).
 
-## ⚠️ Patterns & Gotchas
+## Patterns & Gotchas
 
 - Never keep two models (one per view) — desync is guaranteed. One SSOT graph, two derived projections.
 - Business logic must stay renderer-agnostic (no Canvas/SVG/WebGL knowledge); only the surface adapter touches pixels.
 - A pure slicing-tree DSL only expresses guillotine layouts, which excludes some complex non-slicing perfect squares.
 
-## 📚 References
+## References
 
 - [The story of the squared square](https://www.youtube.com/watch?v=0fH80JF2mDM)
 - [The Stanford Bunny](https://en.wikipedia.org/wiki/Stanford_bunny)
 - [`docs/archittheBrain.md`](./docs/theBrain.md) - The system as designed today (pipeline, core model, folder structure).
-
----
-
-_Part of the [Creative Playground](https://joska-p.github.io/playground). Technical API reference generated at `/docs/api/smith-tutte/`._
