@@ -2,7 +2,7 @@ import type { ColorSpaceId } from '@repo/randomart-core/colors';
 import { COLOR_SPACE_IDS, colorSpaces } from '@repo/randomart-core/colors';
 import {
     MAX_WEIGHT,
-    isMono,
+    isMonoGrammar,
     isOnlyNonTerminal,
     isOnlyTerminal,
     maxFeasibleMinDepth,
@@ -107,7 +107,7 @@ export function GrammarSection() {
     const grammar = useGrammar();
     const seed = useSeed();
 
-    const mono = isMono(grammar);
+    const mono = isMonoGrammar(grammar);
 
     function mustStayOn(name: OpName): boolean {
         return isTerminal(name) ? isOnlyTerminal(grammar, name) : isOnlyNonTerminal(grammar, name);

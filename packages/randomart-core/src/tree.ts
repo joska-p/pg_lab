@@ -258,6 +258,28 @@ export function usesTime(expression: Expression): boolean {
     return [expression.r, expression.g, expression.b].some(nodeUsesTime);
 }
 
+function sameNode(a: Node, b: Node): boolean {
+    if (a === b) {
+        return true;
+    }
+    if (a.op !== b.op || a.inputs.length !== b.inputs.length) {
+        return false;
+    }
+    const names = Object.keys(a.params);
+    if (names.length !== Object.keys(b.params).length) {
+        return false;
+    }
+    if (names.some((name) => a.params[name] !== b.params[name])) {
+        return false;
+    }
+    return a.inputs.every((child, index) => sameNode(child, b.inputs[index]));
+}
+
+/** True when the three channels are the same tree, whatever the grammar allowed. */
+export function isMonoExpression(expression: Expression): boolean {
+    return sameNode(expression.r, expression.g) && sameNode(expression.g, expression.b);
+}
+
 /**
  * Read an untrusted JSON expression. This is the only place where shape, arity and parameter ranges
  * are checked; values produced by `createNode` are trusted.

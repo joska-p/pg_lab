@@ -1,6 +1,5 @@
 import { colorSpaces } from '@repo/randomart-core/colors';
-import { isMono } from '@repo/randomart-core/grammar';
-import { formatFormula } from '@repo/randomart-core/tree';
+import { formatFormula, isMonoExpression } from '@repo/randomart-core/tree';
 import { ControlField } from '@repo/ui/components/ControlField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Grid } from '@repo/ui/components/Grid';
@@ -24,7 +23,7 @@ export function Inspector() {
     const grammar = useGrammar();
     const { space } = grammar;
     const label = colorSpaces[space].label;
-    const mono = isMono(grammar);
+    const mono = isMonoExpression(expression);
 
     return (
         <AppErrorBoundary>

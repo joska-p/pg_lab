@@ -6,7 +6,14 @@ import { RandomArtError } from './errors';
 import { generate } from './generate';
 import { grammarRegistry } from './grammar';
 import { seedOf, SIZE_GRAMMARS } from './testing/fixtures';
-import { createNode, deserialize, formatFormula, serialize } from './tree';
+import {
+    createExpression,
+    createNode,
+    deserialize,
+    formatFormula,
+    isMonoExpression,
+    serialize,
+} from './tree';
 import type { Expression } from './tree';
 
 function canonical(expression: Expression): string {
@@ -81,5 +88,36 @@ describe('createNode', () => {
 
     it('rejects a parameter out of range', () => {
         expect(() => createNode('x', [], { amp: 2, phase: 0, cycles: 1 })).toThrow(/out of/);
+    });
+});
+
+describe('isMonoExpression', () => {
+    const xNode = (overrides: Partial<Record<'amp' | 'phase' | 'cycles', number>> = {}) =>
+        createNode('x', [], { amp: 0.3, phase: 0.1, cycles: 2, ...overrides });
+
+    it('treats three structurally identical trees built separately as mono', () => {
+        expect(isMonoExpression(createExpression(xNode(), xNode(), xNode()))).toBe(true);
+    });
+
+    it('is false when one channel differs in a parameter', () => {
+        const xLow = createNode('x', [], { amp: 0.1, phase: 0, cycles: 1 });
+        const xHigh = createNode('x', [], { amp: 0.2, phase: 0, cycles: 1 });
+        expect(isMonoExpression(createExpression(xLow, xLow, xHigh))).toBe(false);
+    });
+
+    it('is false when one channel has a different shape', () => {
+        const xx = createNode('add', [xNode(), xNode()]);
+        const xy = createNode('add', [
+            xNode(),
+            createNode('y', [], { amp: 0.3, phase: 0.1, cycles: 2 }),
+        ]);
+        expect(isMonoExpression(createExpression(xx, xx, xy))).toBe(false);
+    });
+
+    it('is true for every expression drawn from the monochrome grammar', () => {
+        for (const n of [1, 2, 3, 4, 5]) {
+            const expression = generate(grammarRegistry.monochrome.grammar, seedOf(n));
+            expect(isMonoExpression(expression)).toBe(true);
+        }
     });
 });

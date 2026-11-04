@@ -290,8 +290,8 @@ export function isOnlyNonTerminal(grammar: Grammar, name: OpName): boolean {
     return isOnlyKind(grammar, name, false);
 }
 
-/** True when the grammar produces a single shared expression for all three channels. */
-export function isMono(grammar: Grammar): boolean {
+/** True when the grammar guarantees one shared expression for all three channels. */
+export function isMonoGrammar(grammar: Grammar): boolean {
     return grammar.shareDepth >= grammar.maxDepth;
 }
 
