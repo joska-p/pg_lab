@@ -9,12 +9,19 @@ import { addWorkflowStep } from '../../stores/manipulator/actions';
 const manipulationIds = Object.keys(getManipulations());
 
 function ManipulationSelector() {
-    const [manipulationId, setManipulationId] = useState(manipulationIds[0]);
+    const [manipulationId, setManipulationId] = useState<string | undefined>(manipulationIds[0]);
 
-    const manipulationOptions = manipulationIds.map((id) => ({
-        label: getManipulations()[id].name,
-        value: id,
-    }));
+    const manipulationOptions = manipulationIds
+        .map((id) => {
+            const manip = getManipulations()[id];
+
+            if (!manip) {
+                return null;
+            }
+
+            return { label: manip.name, value: id };
+        })
+        .filter((option): option is { label: string; value: string } => option !== null);
 
     return (
         <Grid columns="2">
@@ -28,6 +35,10 @@ function ManipulationSelector() {
 
             <Button
                 onClick={() => {
+                    if (!manipulationId) {
+                        return;
+                    }
+
                     addWorkflowStep(manipulationId);
                 }}
             >

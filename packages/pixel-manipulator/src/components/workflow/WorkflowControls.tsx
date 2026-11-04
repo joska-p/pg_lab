@@ -25,6 +25,10 @@ function WorkflowControls() {
             {steps.map((step, index) => {
                 const manip = getManipulations()[step.id];
 
+                if (!manip) {
+                    return null;
+                }
+
                 return (
                     <WorkflowNode
                         key={step.uid}

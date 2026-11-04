@@ -23,10 +23,17 @@ function Controls() {
     );
 
     const manipulationIds = Object.keys(getManipulations());
-    const manipulationOptions = manipulationIds.map((id) => ({
-        label: getManipulations()[id].name,
-        value: id,
-    }));
+    const manipulationOptions = manipulationIds
+        .map((id) => {
+            const manip = getManipulations()[id];
+
+            if (!manip) {
+                return null;
+            }
+
+            return { label: manip.name, value: id };
+        })
+        .filter((option): option is { label: string; value: string } => option !== null);
 
     return (
         <>

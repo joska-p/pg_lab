@@ -25,6 +25,10 @@ function addWorkflowStep(id: string) {
     const { workflow } = manipulatorStore.getState();
     const entry = getManipulations()[id];
 
+    if (!entry) {
+        throw new Error(`Manipulation inconnue : ${id}`);
+    }
+
     manipulatorStore.setState({
         workflow: [
             ...workflow,
@@ -56,6 +60,10 @@ function moveWorkflowStep(index: number, direction: -1 | 1) {
     const updated = [...workflow];
     const current = updated[index];
     const target = updated[targetIndex];
+
+    if (!current || !target) {
+        throw new Error(`Étape introuvable à l'index ${index} ou ${targetIndex}`);
+    }
 
     updated[index] = target;
     updated[targetIndex] = current;

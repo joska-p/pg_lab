@@ -112,8 +112,14 @@ export function useCompareSlider({ source, result }: UseCompareSliderArgs) {
     };
 
     const handleTouchStart = (e: React.TouchEvent) => {
+        const touch = e.touches[0];
+
+        if (!touch) {
+            return;
+        }
+
         isDragging.current = true;
-        applySliderPosition(e.touches[0].clientX);
+        applySliderPosition(touch.clientX);
     };
 
     const handleTouchMove = (e: React.TouchEvent) => {
@@ -121,7 +127,13 @@ export function useCompareSlider({ source, result }: UseCompareSliderArgs) {
             return;
         }
 
-        applySliderPosition(e.touches[0].clientX);
+        const touch = e.touches[0];
+
+        if (!touch) {
+            return;
+        }
+
+        applySliderPosition(touch.clientX);
     };
 
     const handleTouchEnd = () => {
