@@ -150,6 +150,10 @@ export class SimulationEngine {
         for (let y = 0; y < creature.height; y++) {
             const rowCells = creature.cells[y];
 
+            if (!rowCells) {
+                throw Error(`Expect number[] got : ${rowCells}`);
+            }
+
             for (let x = 0; x < creature.width; x++) {
                 const val = rowCells[x];
 

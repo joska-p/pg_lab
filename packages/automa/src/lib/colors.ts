@@ -8,7 +8,13 @@ export function buildStateColorArray(stateColors: CssColor[]): Float32Array {
     const floats = new Float32Array(MAX_STATE_COUNT * 3);
 
     for (let i = 0; i < MAX_STATE_COUNT; i++) {
-        const rgba = parseColor(stateColors[i] ?? '#000000');
+        const color = stateColors[i];
+
+        if (!color) {
+            throw Error(`Expect a css color got : ${color}`);
+        }
+
+        const rgba = parseColor(color);
 
         floats[i * 3] = rgba.r;
         floats[i * 3 + 1] = rgba.g;

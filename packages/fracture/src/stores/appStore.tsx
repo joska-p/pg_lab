@@ -1,9 +1,8 @@
 import { create } from 'zustand';
 
-import { EXPERIMENTS } from '../experiments';
 import type { ExperimentKey } from '../experiments';
 
-const DEFAULT_EXPERIMENT = (Object.keys(EXPERIMENTS) as ExperimentKey[])[0];
+const DEFAULT_EXPERIMENT: ExperimentKey = 'mandelbrot-naive';
 
 interface AppStore {
     experimentKey: ExperimentKey;

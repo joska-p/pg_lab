@@ -301,11 +301,13 @@ export class CpuSurface {
         const context = this.#context;
         const first = points[0];
 
+        if (first === undefined) {
+            return;
+        }
+
         context.moveTo(first.x, first.y);
 
-        for (let i = 1; i < points.length; i++) {
-            const point = points[i];
-
+        for (const point of points.slice(1)) {
             context.lineTo(point.x, point.y);
         }
 

@@ -1,8 +1,6 @@
 import type { Point2D } from './geometry';
 import type { CssColor, FontSize, PositiveNumber } from './render';
 
-export type Color = CssColor;
-
 /** World-space axis-aligned rectangle with full-word dimensions (no `w`/`h` shorthand). */
 export interface Rectangle {
     x: number;
@@ -16,14 +14,14 @@ export function rectangleFrom(x: number, y: number, width: number, height: numbe
 }
 
 export interface DrawStyle {
-    fill?: Color;
-    stroke?: Color;
+    fill?: CssColor;
+    stroke?: CssColor;
     lineWidth?: PositiveNumber;
 }
 
 export interface TextStyle {
-    fill?: Color;
-    stroke?: Color;
+    fill?: CssColor;
+    stroke?: CssColor;
     lineWidth?: PositiveNumber;
     fontSize?: FontSize;
     fontFamily?: string;

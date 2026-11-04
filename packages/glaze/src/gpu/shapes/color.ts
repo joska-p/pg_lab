@@ -1,5 +1,5 @@
 import { createDocumentCanvas } from '../../core/environment';
-import type { Color } from '../../core/shapes';
+import type { CssColor } from '../../core/render';
 import type { RGBA } from './types';
 
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
@@ -13,22 +13,26 @@ function parseHex(color: string): RGBA | null {
         return null;
     }
 
-    let hex = match[1];
+    const hex = match[1];
+
+    if (hex === undefined) {
+        return null;
+    }
+
+    let expanded = hex;
 
     if (hex.length === 3 || hex.length === 4) {
-        let expanded = '';
+        expanded = '';
 
         for (const channel of hex) {
             expanded += channel + channel;
         }
-
-        hex = expanded;
     }
 
-    const r = parseInt(hex.slice(0, 2), 16) / 255;
-    const g = parseInt(hex.slice(2, 4), 16) / 255;
-    const b = parseInt(hex.slice(4, 6), 16) / 255;
-    const a = hex.length === 8 ? parseInt(hex.slice(6, 8), 16) / 255 : 1;
+    const r = parseInt(expanded.slice(0, 2), 16) / 255;
+    const g = parseInt(expanded.slice(2, 4), 16) / 255;
+    const b = parseInt(expanded.slice(4, 6), 16) / 255;
+    const a = expanded.length === 8 ? parseInt(expanded.slice(6, 8), 16) / 255 : 1;
 
     return { r, g, b, a };
 }
@@ -78,7 +82,13 @@ function parseRgb(color: string): RGBA | null {
         return null;
     }
 
-    const parts = match[1].split(/[,/\s]+/).filter(Boolean);
+    const inner = match[1];
+
+    if (inner === undefined) {
+        return null;
+    }
+
+    const parts = inner.split(/[,/\s]+/).filter(Boolean);
 
     if (parts.length < 3) {
         return null;
@@ -128,7 +138,13 @@ function parseHsl(color: string): RGBA | null {
         return null;
     }
 
-    const parts = match[1].split(/[,/\s]+/).filter(Boolean);
+    const inner = match[1];
+
+    if (inner === undefined) {
+        return null;
+    }
+
+    const parts = inner.split(/[,/\s]+/).filter(Boolean);
 
     if (parts.length < 3) {
         return null;
@@ -201,7 +217,7 @@ function parseViaCanvas(color: string): RGBA | null {
 }
 
 /** Parses any CSS color to normalized 0..1 RGBA; unrecognized strings throw. */
-export function parseColor(color: Color): RGBA {
+export function parseColor(color: CssColor): RGBA {
     if (color.startsWith('#')) {
         const hex = parseHex(color);
 
@@ -241,7 +257,7 @@ export function parseColor(color: Color): RGBA {
     throw new Error(`Glaze: unrecognized color format "${String(color)}"`);
 }
 
-export function colorArray(color: Color): [number, number, number, number] {
+export function colorArray(color: CssColor): [number, number, number, number] {
     const rgba = parseColor(color);
 
     return [rgba.r, rgba.g, rgba.b, rgba.a];

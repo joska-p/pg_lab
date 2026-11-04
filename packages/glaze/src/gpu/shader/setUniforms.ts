@@ -108,7 +108,13 @@ export function setUniforms(
             continue;
         }
 
-        setUniformValue(gl, entry, values[name], nextTextureUnit);
+        const value = values[name];
+
+        if (value === undefined) {
+            continue;
+        }
+
+        setUniformValue(gl, entry, value, nextTextureUnit);
     }
 }
 

@@ -211,6 +211,9 @@ const baseLint = {
         // Prefer the canonical const assertion syntax.
         'typescript/prefer-as-const': 'error',
 
+        'typescript/no-non-null-assertion': 'error',
+        'typescript/no-unsafe-type-assertion': 'error',
+
         // ─────────────────────────────────────────────
         // TypeScript — safety / unnecessary complexity
         // ─────────────────────────────────────────────

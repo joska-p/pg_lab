@@ -299,6 +299,21 @@ export class ShapeBatcher {
         this.#vertices = next;
     }
 
+    /**
+     * Returns the ring vertex at `index`. A circle ring is built with exactly `segments` points, so
+     * a missing vertex means the invariant is broken — it's a programming error, not a valid
+     * absence.
+     */
+    #ringPoint(ring: readonly Point2D[], index: number): Point2D {
+        const point = ring[index];
+
+        if (point === undefined) {
+            throw new Error(`Glaze: circle ring is missing vertex at index ${index}`);
+        }
+
+        return point;
+    }
+
     #pushVertex(x: number, y: number, color: readonly [number, number, number, number]): void {
         const i = this.#vertexCount * VERTEX_STRIDE;
 
@@ -346,8 +361,8 @@ export class ShapeBatcher {
         const center = { x: cx, y: cy };
 
         for (let i = 0; i < segments; i++) {
-            const a = ring[i];
-            const b = ring[(i + 1) % segments];
+            const a = this.#ringPoint(ring, i);
+            const b = this.#ringPoint(ring, (i + 1) % segments);
 
             this.#pushTriangle(center, a, b, color);
         }
@@ -368,10 +383,10 @@ export class ShapeBatcher {
 
         for (let i = 0; i < segments; i++) {
             const j = (i + 1) % segments;
-            const a = outer[i];
-            const b = outer[j];
-            const c = inner[j];
-            const d = inner[i];
+            const a = this.#ringPoint(outer, i);
+            const b = this.#ringPoint(outer, j);
+            const c = this.#ringPoint(inner, j);
+            const d = this.#ringPoint(inner, i);
 
             this.#pushQuad(a, b, c, d, color);
         }
