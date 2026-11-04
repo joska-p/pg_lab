@@ -20,7 +20,7 @@ export class BufferManager {
     }
 
     get other() {
-        return this.buffers[1 - this.pointer];
+        return this.buffers[this.pointer === 0 ? 1 : 0];
     }
 
     get width() {

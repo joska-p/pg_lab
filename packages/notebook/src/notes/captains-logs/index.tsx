@@ -28,10 +28,12 @@ export function CaptainsLogs() {
 
     const daysSincePrevious = new Map<string, number>();
     for (let index = 1; index < CAPTAIN_LOGS.length; index += 1) {
-        daysSincePrevious.set(
-            CAPTAIN_LOGS[index].id,
-            dayCountBetween(CAPTAIN_LOGS[index - 1], CAPTAIN_LOGS[index]),
-        );
+        const currentLog = CAPTAIN_LOGS[index];
+        const previousLog = CAPTAIN_LOGS[index - 1] ?? currentLog;
+        if (currentLog === undefined || previousLog === undefined) {
+            continue;
+        }
+        daysSincePrevious.set(currentLog.id, dayCountBetween(previousLog, currentLog));
     }
 
     return (

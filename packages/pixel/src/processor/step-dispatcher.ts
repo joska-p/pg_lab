@@ -15,7 +15,9 @@ interface ExecutorParameters {
 
 type ExecutorFunction = (parameters: ExecutorParameters) => void;
 
-const executors: Record<string, ExecutorFunction> = {
+type Access = ManipulationDefinition['access'];
+
+const executors: Record<Access, ExecutorFunction> = {
     pixel: ({ definition, options, scheduler }) => {
         scheduler.add(definition, options);
     },
