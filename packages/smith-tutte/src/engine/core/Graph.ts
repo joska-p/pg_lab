@@ -58,6 +58,14 @@ class Graph {
         this.edgesById.set(edge.id, edge);
     }
 
+    getNode(id: NodeId): Node | undefined {
+        return this.nodesById.get(id);
+    }
+
+    getEdge(id: string): Edge | undefined {
+        return this.edgesById.get(id);
+    }
+
     getAllNodes(): Node[] {
         return [...this.nodesById.values()];
     }
