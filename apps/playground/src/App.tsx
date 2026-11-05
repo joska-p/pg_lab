@@ -5,15 +5,12 @@ import { Select } from '@repo/ui/components/Select';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
 import { ThemeToggle } from '@repo/ui/components/ThemeToggle';
-import { AtlasPaths } from '@repo/ui/visuals/atlas/AtlasPaths';
 import { Activity, Suspense, use, useEffect } from 'react';
 import { Routes, Route, useParams, useNavigate } from 'react-router';
 
 import { EXPERIMENTS, loadControls, loadScene } from './experiments';
 import type { ExperimentKey } from './experiments';
 import { useShellBackground } from './stores/appStore';
-
-const seed = Date.now();
 
 function LoadingFallback() {
     const shellBackground = useShellBackground();
@@ -74,8 +71,6 @@ function ExperimentLayout() {
         <Suspense fallback={<LoadingFallback />}>
             <ErrorBoundary showStack={import.meta.env.DEV}>
                 <ShellWrapper background={shellBackground}>
-                    <AtlasPaths seed={seed} />
-
                     <ExperimentShell
                         panel={
                             <Activity>
