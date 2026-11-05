@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test';
 
+import { InfeasibleGrammarError } from './errors';
 import { generate } from './generate';
 import { createGrammar, maxFeasibleMinDepth, minimumNodes } from './grammar';
 import { seedOf } from './testing/fixtures';
@@ -35,6 +36,12 @@ describe('minimumNodes', () => {
     it('one node below the minimum is infeasible', () => {
         expect(() => createGrammar({ ...BASE_OPTIONS, maxNodes: 6 })).toThrow(
             /Grammar is infeasible/,
+        );
+    });
+
+    it('throws an InfeasibleGrammarError below the minimum budget', () => {
+        expect(() => createGrammar({ ...BASE_OPTIONS, maxNodes: 6 })).toThrow(
+            InfeasibleGrammarError,
         );
     });
 

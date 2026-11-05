@@ -2,7 +2,7 @@ import * as fc from 'fast-check';
 import { describe, expect, it } from 'vite-plus/test';
 
 import { compile } from './emit';
-import { RandomArtError } from './errors';
+import { GrammarDrawError } from './errors';
 import { evaluate } from './evaluate';
 import { generate } from './generate';
 import { createGrammar, drawGrammar, grammarRegistry, minimumNodes, vocabulary } from './grammar';
@@ -18,7 +18,7 @@ function tryDrawGrammar(rng: Rng, pins: GrammarPins): Grammar | null {
     try {
         return drawGrammar(rng, pins);
     } catch (error) {
-        if (error instanceof RandomArtError && error.message.startsWith('Failed to draw')) {
+        if (error instanceof GrammarDrawError) {
             return null; // no feasible grammar exists for these pins
         }
         throw error;

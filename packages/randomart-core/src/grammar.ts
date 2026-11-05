@@ -1,6 +1,6 @@
 import { COLOR_SPACE_IDS, isColorSpaceId } from './colors';
 import type { ColorSpaceId } from './colors';
-import { RandomArtError } from './errors';
+import { GrammarDrawError, InfeasibleGrammarError, RandomArtError } from './errors';
 import { OP_NAMES, ops, isTerminal } from './ops';
 import type { OpName } from './ops';
 import type { Rng } from './rng';
@@ -200,7 +200,7 @@ export function createGrammar(options: CreateGrammarOptions): Grammar {
 
     const minNodes = minimumNodes(tempGrammar);
     if (minNodes > maxNodes) {
-        throw new RandomArtError(
+        throw new InfeasibleGrammarError(
             `Grammar is infeasible: minimumNodes (${minNodes}) > maxNodes (${maxNodes}). ` +
                 `Increase maxNodes or decrease minDepth/shareDepth.`,
         );
@@ -260,17 +260,14 @@ export function drawGrammar(rng: Rng, pins: GrammarPins = {}): Grammar {
         try {
             return createGrammar({ weights, minDepth, maxDepth, maxNodes, shareDepth, space });
         } catch (error) {
-            if (
-                error instanceof RandomArtError &&
-                error.message.startsWith('Grammar is infeasible')
-            ) {
+            if (error instanceof InfeasibleGrammarError) {
                 continue; // Try again with different random values
             }
             throw error;
         }
     }
 
-    throw new RandomArtError(`Failed to draw a feasible grammar after ${MAX_ATTEMPTS} attempts`);
+    throw new GrammarDrawError(`Failed to draw a feasible grammar after ${MAX_ATTEMPTS} attempts`);
 }
 
 function isOnlyKind(grammar: Grammar, name: OpName, terminal: boolean): boolean {
