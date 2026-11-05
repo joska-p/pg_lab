@@ -7,7 +7,7 @@ interface appStore {
 }
 
 const appStore = create<appStore>(() => ({
-    selectedNoteSlug: 'birth-of-complexity',
+    selectedNoteSlug: 'captains-logs',
 }));
 
 export function useSelectedNoteSlug(): NoteSlug {
