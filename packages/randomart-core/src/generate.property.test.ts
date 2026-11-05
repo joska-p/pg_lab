@@ -8,7 +8,7 @@ import { generate } from './generate';
 import { createGrammar, drawGrammar, grammarRegistry, minimumNodes, vocabulary } from './grammar';
 import type { Grammar, GrammarPins } from './grammar';
 import { ops } from './ops';
-import type { OpName } from './ops';
+import type { OpName, Point } from './ops';
 import { createRng } from './rng';
 import type { Rng } from './rng';
 import { EPS, seedOf, defined } from './testing/fixtures';
@@ -56,7 +56,7 @@ function allValuesInRange(expression: Expression): boolean {
 }
 
 function evaluateChannelsInRange(expression: Expression): boolean {
-    const points: Array<{ x: number; y: number; phase: number }> = [
+    const points: readonly Point[] = [
         { x: -1, y: -1, phase: 0 },
         { x: 0, y: 0, phase: 0 },
         { x: 1, y: 1, phase: 0 },

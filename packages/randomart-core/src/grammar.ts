@@ -202,7 +202,7 @@ export function createGrammar(options: CreateGrammarOptions): Grammar {
     if (minNodes > maxNodes) {
         throw new InfeasibleGrammarError(
             `Grammar is infeasible: minimumNodes (${minNodes}) > maxNodes (${maxNodes}). ` +
-                `Increase maxNodes or decrease minDepth/shareDepth.`,
+                `Increase maxNodes or decrease minDepth.`,
         );
     }
 

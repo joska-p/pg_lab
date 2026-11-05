@@ -9,19 +9,20 @@ Procedural formula generator and GLSL compiler, consumed by `randomart-ui`.
 
 ## Modules
 
-| File          | Role                                                              |
-| ------------- | ----------------------------------------------------------------- |
-| `ops.ts`      | Operator catalogue: arity, parameters, `glsl` and `eval` twins    |
-| `tree.ts`     | Immutable `Node`/`Expression`, serialization, formula formatting  |
-| `seed.ts`     | `Seed` brand (a trimmed string), validation and parsing           |
-| `rng.ts`      | Deterministic mulberry32 stream keyed by a `Seed`                 |
-| `grammar.ts`  | Operand weights, depth/node bounds, presets and grammar drawing   |
-| `generate.ts` | `(grammar, seed) → Expression`                                    |
-| `evaluate.ts` | `(Expression, point) → raw RGB` reference interpreter             |
-| `lower.ts`    | Expression → DAG: sharing, usage counts, warp coordinate contexts |
-| `emit.ts`     | DAG → fragment shader (`compile`)                                 |
-| `colors.ts`   | Color spaces as GLSL sources + CPU reference `toSrgb`             |
-| `glsl.ts`     | Shader header, shared GLSL helpers, float literals                |
+| File          | Role                                                                                           |
+| ------------- | ---------------------------------------------------------------------------------------------- |
+| `ops.ts`      | Operator catalogue: arity, parameters, `glsl` and `eval` twins                                 |
+| `tree.ts`     | Immutable `Node`/`Expression`, serialization, formula formatting                               |
+| `seed.ts`     | `Seed` brand (a trimmed string), validation and parsing                                        |
+| `errors.ts`   | `RandomArtError` and its recoverable subclasses (`InfeasibleGrammarError`, `GrammarDrawError`) |
+| `rng.ts`      | Deterministic mulberry32 stream keyed by a `Seed`                                              |
+| `grammar.ts`  | Operand weights, depth/node bounds, presets and grammar drawing                                |
+| `generate.ts` | `(grammar, seed) → Expression`                                                                 |
+| `evaluate.ts` | `(Expression, point) → raw RGB` reference interpreter                                          |
+| `lower.ts`    | Expression → DAG: sharing, usage counts, warp coordinate contexts                              |
+| `emit.ts`     | DAG → fragment shader (`compile`)                                                              |
+| `colors.ts`   | Color spaces as GLSL sources + CPU reference `toSrgb`                                          |
+| `glsl.ts`     | Shader header, shared GLSL helpers, float literals                                             |
 
 Dependencies only flow downwards: `glsl`/`colors` → `ops` → `tree` → `grammar`/`generate`/
 `evaluate`/`lower` → `emit`. There is no `index.ts`: consumers import the module they need.
