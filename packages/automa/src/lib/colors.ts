@@ -11,7 +11,7 @@ export function buildStateColorArray(stateColors: CssColor[]): Float32Array {
         const color = stateColors[i];
 
         if (!color) {
-            throw Error(`Expect a css color got : ${color}`);
+            continue;
         }
 
         const rgba = parseColor(color);

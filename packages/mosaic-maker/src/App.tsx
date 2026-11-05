@@ -14,12 +14,16 @@ export function App() {
                 <ExperimentShell
                     panel={
                         <ControlPanel title="Mosaic Maker">
-                            <Controls />
+                            <ErrorBoundary showStack={import.meta.env.DEV}>
+                                <Controls />
+                            </ErrorBoundary>
                         </ControlPanel>
                     }
                 >
                     <Stage label="Mosaic">
-                        <Scene />
+                        <ErrorBoundary showStack={import.meta.env.DEV}>
+                            <Scene />
+                        </ErrorBoundary>
                     </Stage>
                 </ExperimentShell>
             </ErrorBoundary>

@@ -10,9 +10,17 @@ export function App() {
     return (
         <ShellWrapper>
             <ErrorBoundary showStack={import.meta.env.DEV}>
-                <ExperimentShell panel={<Controls />}>
+                <ExperimentShell
+                    panel={
+                        <ErrorBoundary showStack={import.meta.env.DEV}>
+                            <Controls />
+                        </ErrorBoundary>
+                    }
+                >
                     <Stage label="automa">
-                        <Scene />
+                        <ErrorBoundary showStack={import.meta.env.DEV}>
+                            <Scene />
+                        </ErrorBoundary>
                     </Stage>
                 </ExperimentShell>
             </ErrorBoundary>

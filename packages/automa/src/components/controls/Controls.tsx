@@ -1,3 +1,4 @@
+import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Readout } from '@repo/ui/components/Readout';
 
@@ -11,7 +12,7 @@ export function Controls() {
     const generation = useGeneration();
 
     return (
-        <>
+        <ControlPanel>
             <ControlSection title="Simulation">
                 <Readout label="Generation" value={generation} />
             </ControlSection>
@@ -19,6 +20,6 @@ export function Controls() {
             <EditSection />
             <RuleSection />
             <CreatureSection />
-        </>
+        </ControlPanel>
     );
 }
