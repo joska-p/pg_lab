@@ -30,6 +30,11 @@
     - `src/engine/geometry/geometryEngine.test.ts` (arête simple, série, parallèle, graphe non résolu)
     - `vp check --fix` : propre
     - `vp test` : 4 tests verts
+- [x] T03 — Adaptateur (qui devient qui : 1 arête → 2 carrés) :
+    - `src/engine/adapter/adapter.ts` (`adapt` : identité des carrés, arête d'origine, potentiels associés ; zéro géométrie en dur, pas de calcul de géométrie)
+    - `src/engine/adapter/adapter.test.ts` (arête simple, série, parallèle, unicité des ids de carrés, graphe non résolu rejeté)
+    - `vp check --fix` : propre
+    - `vp test` : 5 tests verts (13 au total avec T01 et T02)
 
 ---
 
@@ -39,7 +44,7 @@
 | ----- | --------------------------------------------------------------- | -------- |
 | T01   | Tests unitaires du solveur Kirchhoff (simple, série, parallèle) | Terminée |
 | T02   | Moteur géométrique (courants → coordonnées x, y, taille)        | Terminée |
-| T03   | Adaptateur (qui devient qui : 1 arête → 2 carrés)               | À faire  |
+| T03   | Adaptateur (qui devient qui : 1 arête → 2 carrés)               | Terminée |
 | T04   | Interpolateur (piloté par la `Clock` de glaze)                  | À faire  |
 | T05   | Renderer minimal dans `App.tsx`                                 | À faire  |
 
