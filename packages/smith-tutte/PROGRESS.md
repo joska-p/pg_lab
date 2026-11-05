@@ -6,8 +6,8 @@
 
 ## 📌 Session en cours
 
-**Statut :** terminée — T01 accompli.  
-**Dernière session terminée :** tests unitaires du solveur Kirchhoff (simple, série, parallèle) — 4 tests verts, `vp check --fix` et `vp test` passés.
+**Statut :** terminée — T01 et T02 accomplis.  
+**Dernière session terminée :** moteur géométrique (courants → coordonnées x, y, taille) pour les trois cas de T01 — 4 tests verts, `vp check --fix` et `vp test` passés.
 
 ---
 
@@ -25,6 +25,11 @@
     - `src/engine/solver/KirchhoffSolver.test.ts` (arête simple, série, parallèle, topologie non reconnue)
     - `vp check --fix` : propre
     - `vp test` : 4 tests verts
+- [x] T02 — Moteur géométrique (courants → coordonnées x, y, taille) :
+    - `src/engine/geometry/geometryEngine.ts` (`computeGeometry` : positions nœuds dérivées des potentiels, tailles d'arêtes dérivées des courants, zéro géométrie en dur)
+    - `src/engine/geometry/geometryEngine.test.ts` (arête simple, série, parallèle, graphe non résolu)
+    - `vp check --fix` : propre
+    - `vp test` : 4 tests verts
 
 ---
 
@@ -33,7 +38,7 @@
 | Tâche | Description                                                     | Statut   |
 | ----- | --------------------------------------------------------------- | -------- |
 | T01   | Tests unitaires du solveur Kirchhoff (simple, série, parallèle) | Terminée |
-| T02   | Moteur géométrique (courants → coordonnées x, y, taille)        | À faire  |
+| T02   | Moteur géométrique (courants → coordonnées x, y, taille)        | Terminée |
 | T03   | Adaptateur (qui devient qui : 1 arête → 2 carrés)               | À faire  |
 | T04   | Interpolateur (piloté par la `Clock` de glaze)                  | À faire  |
 | T05   | Renderer minimal dans `App.tsx`                                 | À faire  |
