@@ -6,8 +6,8 @@
 
 ## 📌 Session en cours
 
-**Statut :** terminée — T01 à T05 accomplis.  
-**Dernière session terminée :** renderer minimal dans `App.tsx` (pipeline netlist → solveur → géométrie → adaptateur → interpolateur branché sur la `Clock` de glaze) — 32 tests du package verts, `vp check --fix` et `vp test` passés (294 tests au total sur le workspace).
+**Statut :** terminée — T01 à T06 accomplis.  
+**Dernière session terminée :** sélection des netlists + contrôles Clock (même layout que randomart/art-canvas : ShellWrapper, ExperimentShell, Stage, ControlPanel, Controls/Scene split, stores Zustand) — 32 tests du package verts, `vp check --fix` et `vp test` passés (294 tests au total sur le workspace).
 
 ---
 
@@ -50,6 +50,15 @@
     - `vp check --fix` : propre
     - `vp test` : 32 tests du package verts (294 au total sur le workspace)
 
+- [x] T06 — Sélection des netlists + contrôles de la `Clock` (layout standard) :
+    - Netlists déplacées vers `src/assets/netlists/*.ts` (TypeScript, plus de JSON dans `public/`)
+    - `src/components/Scene.tsx` + `src/components/Controls.tsx` (split Controls/Scene comme randomart/art-canvas)
+    - `src/stores/appStore.ts` (theme), `src/stores/experimentStore.ts` (netlist key + ClockStore)
+    - `src/App.tsx` : ShellWrapper, ErrorBoundary, ExperimentShell, Stage, ControlPanel, ThemeToggle
+    - `package.json` : exports `./Scene` et `./Controls`
+    - `vp check --fix` : propre
+    - `vp test` : 32 tests du package verts (294 au total sur le workspace)
+
 ---
 
 ## 🔲 Backlog (tâches restantes)
@@ -61,7 +70,8 @@
 | T03   | Adaptateur (qui devient qui : 1 arête → 2 carrés)               | Terminée |
 | T04   | Interpolateur (piloté par la `Clock` de glaze)                  | Terminée |
 | T05   | Renderer minimal dans `App.tsx`                                 | Terminée |
-| T06   | Sélection des netlists de test + contrôles de la `Clock`        | À faire  |
+| T06   | Sélection des netlists + contrôles `Clock` (layout standard)    | Terminée |
+| T07   | Vue duale circuit électrique (côte à côte pavage / circuit)     | À faire  |
 
 ---
 

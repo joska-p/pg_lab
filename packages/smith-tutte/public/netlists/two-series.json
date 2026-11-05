@@ -1,9 +1,0 @@
-{
-    "sourceId": "n1",
-    "sinkId": "n3",
-    "nodes": [{ "id": "n1" }, { "id": "n2" }, { "id": "n3" }],
-    "edges": [
-        { "id": "e1", "from": "n1", "to": "n2", "resistance": 1 },
-        { "id": "e2", "from": "n2", "to": "n3", "resistance": 1 }
-    ]
-}
