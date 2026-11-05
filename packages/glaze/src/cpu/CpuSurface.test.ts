@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { createCamera } from '../core/Camera';
 import { createZoomFactor } from '../core/cameraTypes';
 import { createCssColor, createDevicePixelRatio } from '../core/render';
+import { createMilliseconds } from '../core/time';
 import { createCpuSurface } from './CpuSurface';
 import type { CpuSurface } from './CpuSurface';
 
@@ -59,6 +60,44 @@ describe('CpuSurface.applyCamera', () => {
         // leaving the camera translation unscaled by dpr. The fix is a single composed matrix.
         expect(setTransformMock).toHaveBeenCalledTimes(1);
         expect(setTransformMock).toHaveBeenCalledWith(4, 0, 0, 4, 20, 40);
+    });
+});
+
+describe('CpuSurface clock', () => {
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it('advances its own clock with the frame loop deltas', () => {
+        vi.stubGlobal('window', { addEventListener: () => {}, removeEventListener: () => {} });
+
+        const ticks: ((time: ReturnType<typeof createMilliseconds>) => void)[] = [];
+        const surface = createCpuSurface({
+            canvas: createMockCanvas({
+                setTransform: () => {},
+            } as unknown as CanvasRenderingContext2D),
+            camera: createCamera(0, 0, createZoomFactor(1)),
+            dpr: createDevicePixelRatio(1),
+            frameLoopOptions: {
+                now: () => createMilliseconds(0),
+                schedule: (callback) => {
+                    ticks.push(callback);
+
+                    return () => {};
+                },
+            },
+        });
+
+        const unsubscribe = surface.onFrame(() => {});
+
+        // The first tick runs synchronously at start, with a zero delta.
+        expect(surface.clock.time).toBe(0);
+
+        ticks[0]?.(createMilliseconds(500));
+        expect(surface.clock.time).toBeCloseTo(0.5);
+
+        unsubscribe();
+        surface.destroy();
     });
 });
 

@@ -3,10 +3,10 @@ import type { CSSProperties } from 'react';
 import type { Camera } from '../core/Camera';
 import type { CameraControls } from '../core/cameraTypes';
 import type { Clock } from '../core/Clock';
-import type { ClockOptions } from '../core/clockTypes';
 import type { FrameLoopOptions } from '../core/frameTypes';
 import type { InteractionEvent, PanOptions, ZoomOptions } from '../core/gestureTypes';
 import type { DevicePixelRatio } from '../core/render';
+import type { ClockMixin } from '../core/surfaceTypes';
 import type { DurationSeconds, Seconds, TimeSpeed } from '../core/time';
 import type { CpuDraw, CpuSurface } from '../cpu/types';
 import type { ShaderError } from '../gpu/shader/ShaderError';
@@ -87,11 +87,9 @@ export interface SurfaceOptionsBase {
 }
 
 /** `initialCamera` only applies when no `camera` instance is provided. */
-export interface CpuSurfaceOptions extends SurfaceOptionsBase {}
+export interface CpuSurfaceOptions extends SurfaceOptionsBase, ClockMixin {}
 
-export interface GpuSurfaceOptions extends SurfaceOptionsBase {
-    clock?: Clock;
-    clockOptions?: ClockOptions;
+export interface GpuSurfaceOptions extends SurfaceOptionsBase, ClockMixin {
     contextOptions?: WebGLContextAttributes;
 }
 
@@ -109,6 +107,8 @@ export interface CpuCanvasProps extends CpuSurfaceOptions {
      * across renders: it is keyed to the surface, not to React's effect dependencies.
      */
     onMount?: (surface: CpuSurface) => void;
+    /** Called once per `CpuSurface` instance, alongside `onMount`. */
+    onClockStore?: (clockStore: ClockStore) => void;
     canvasInteractions?: CanvasInteractions<CpuSurface>;
     className?: string;
     style?: CSSProperties;

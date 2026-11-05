@@ -1,5 +1,7 @@
 import { defaultCamera } from '../core/Camera';
 import type { Camera } from '../core/Camera';
+import { createClock } from '../core/Clock';
+import type { Clock } from '../core/Clock';
 import { FrameLoop } from '../core/FrameLoop';
 import type { FrameStep } from '../core/frameTypes';
 import { toScreenPoint } from '../core/geometry';
@@ -39,6 +41,7 @@ export class CpuSurface {
     readonly canvas: HTMLCanvasElement;
     readonly camera: Camera;
     readonly input: InputStore;
+    readonly clock: Clock;
 
     readonly #loop: FrameLoop;
     readonly #context: CanvasRenderingContext2D;
@@ -56,6 +59,7 @@ export class CpuSurface {
         this.#context = context;
         this.camera = config.camera ?? defaultCamera();
         this.dpr = config.dpr ?? createDevicePixelRatio(1);
+        this.clock = config.clock ?? createClock(config.clockOptions);
         this.input = createInputStore();
         this.input.attach(this.canvas);
         this.#loop = new FrameLoop(this.#frameStep, config.frameLoopOptions);
@@ -182,6 +186,7 @@ export class CpuSurface {
         this.#resize();
         this.frameCount++;
         this.#stampFrameState(time, deltaTime);
+        this.clock.update(deltaTime);
         this.applyCamera();
         this.#loop.runFrameSubscribers();
         this.input.endFrame(frameToken);

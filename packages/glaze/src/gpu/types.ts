@@ -1,11 +1,11 @@
-import type { GpuClockMixin, SurfaceBaseConfig } from '../core/surfaceTypes';
+import type { ClockMixin, SurfaceBaseConfig } from '../core/surfaceTypes';
 import type { GpuSurface } from './GpuSurface';
 import type { Program } from './shader/Program';
 import type { ShaderError } from './shader/ShaderError';
 
 export type { GpuSurface } from './GpuSurface';
 
-export interface GpuSurfaceConfig extends SurfaceBaseConfig, GpuClockMixin {
+export interface GpuSurfaceConfig extends SurfaceBaseConfig, ClockMixin {
     canvas: HTMLCanvasElement;
     contextOptions?: WebGLContextAttributes;
 }

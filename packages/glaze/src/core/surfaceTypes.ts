@@ -11,8 +11,8 @@ export interface SurfaceBaseConfig {
     frameLoopOptions?: FrameLoopOptions;
 }
 
-/** Clock mixin for GPU surfaces (CPU surfaces have no clock). */
-export interface GpuClockMixin {
+/** Clock mixin shared by every surface kind: an explicit instance wins over `clockOptions`. */
+export interface ClockMixin {
     clock?: Clock;
     clockOptions?: ClockOptions;
 }

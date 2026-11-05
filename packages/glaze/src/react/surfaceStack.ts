@@ -93,7 +93,15 @@ function createInputRouter<TSurface extends RoutableSurface>(
 /** Assembles a `CpuStack` for a canvas node; `dispose` tears down everything it created. */
 export function createCpuStack(
     canvas: HTMLCanvasElement,
-    { camera, cameraControls, initialCamera, dpr, frameLoopOptions }: CpuSurfaceOptions,
+    {
+        camera,
+        cameraControls,
+        initialCamera,
+        dpr,
+        clock,
+        clockOptions,
+        frameLoopOptions,
+    }: CpuSurfaceOptions,
     getGestures: () => Gesture<CpuSurface>[],
 ): CpuStack & StackDisposable {
     const { camera: resolvedCamera, cameraControls: resolvedCameraControls } = resolveCameraLayer(
@@ -103,7 +111,14 @@ export function createCpuStack(
     );
     const resolvedDpr = resolveDevicePixelRatio(dpr);
     const surface = createCpuSurface(
-        compact({ canvas, camera: resolvedCamera, dpr: resolvedDpr, frameLoopOptions }),
+        compact({
+            canvas,
+            camera: resolvedCamera,
+            dpr: resolvedDpr,
+            clock,
+            clockOptions,
+            frameLoopOptions,
+        }),
     );
     const inputRouter = createInputRouter(surface, resolvedCameraControls, getGestures);
 
@@ -111,6 +126,7 @@ export function createCpuStack(
         surface,
         cameraControls: resolvedCameraControls,
         inputRouter,
+        clockStore: createClockStore(surface.clock),
         dispose() {
             inputRouter?.dispose();
             surface.destroy();

@@ -24,6 +24,7 @@ export interface CpuStack {
     readonly surface: CpuSurface;
     readonly cameraControls: CameraControls;
     readonly inputRouter: InputRouter<CpuSurface>;
+    readonly clockStore: ClockStore;
 }
 
 /** One mounted GPU surface and everything wired to it; created and disposed together. */

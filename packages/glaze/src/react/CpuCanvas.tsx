@@ -9,6 +9,7 @@ import { useNodeResource } from './useNodeResource';
 export function CpuCanvas({
     onFrame,
     onMount,
+    onClockStore,
     canvasInteractions,
     className,
     style,
@@ -16,6 +17,7 @@ export function CpuCanvas({
 }: CpuCanvasProps) {
     const gesturesRef = useLatest(createInteractionAdapter(canvasInteractions));
     const onMountRef = useLatest(onMount);
+    const onClockStoreRef = useLatest(onClockStore);
     const onFrameRef = useLatest(onFrame);
 
     const { ref: canvasRef, resource: stack } = useNodeResource((canvas: HTMLCanvasElement) =>
@@ -28,7 +30,8 @@ export function CpuCanvas({
         }
 
         onMountRef.current?.(stack.surface);
-    }, [onMountRef, stack]);
+        onClockStoreRef.current?.(stack.clockStore);
+    }, [onMountRef, onClockStoreRef, stack]);
 
     // ── Frame Loop Effect ──
     const needsFrameLoop = onFrame !== undefined;
