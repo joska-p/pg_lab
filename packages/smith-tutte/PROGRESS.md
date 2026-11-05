@@ -6,8 +6,8 @@
 
 ## 📌 Session en cours
 
-**Statut :** terminée — T01 à T04 accomplis.  
-**Dernière session terminée :** interpolateur piloté par la `Clock` de glaze (positions et tailles interpolées pour les trois cas de T01) — 16 tests verts, `vp check --fix` et `vp test` passés (29 tests au total).
+**Statut :** terminée — T01 à T05 accomplis.  
+**Dernière session terminée :** renderer minimal dans `App.tsx` (pipeline netlist → solveur → géométrie → adaptateur → interpolateur branché sur la `Clock` de glaze) — 32 tests du package verts, `vp check --fix` et `vp test` passés (294 tests au total sur le workspace).
 
 ---
 
@@ -42,6 +42,14 @@
     - `vp check --fix` : propre
     - `vp test` : 29 tests verts au total (T01 à T04)
 
+- [x] T05 — Renderer minimal dans `App.tsx` :
+    - `src/App.tsx` rend un `CpuCanvas` de `@repo/glaze` (world-space, pan/zoom, `Clock` timed ping-pong) ; la progression lue sur `surface.clock.progress` est passée à l'interpolateur
+    - `src/render/squareScene.ts` (`createSquareScene` : netlist → solveur → géométrie → adaptateur, deux états à courants différents ; `placeSquares` : progression → positions/tailles des carrés)
+    - `src/render/squareScene.test.ts` (deux états géométriques, carrés de Slice 1, placements aux progressions 0 / 0.5 / 1)
+    - `package.json` : ajout de la dépendance `@repo/glaze`
+    - `vp check --fix` : propre
+    - `vp test` : 32 tests du package verts (294 au total sur le workspace)
+
 ---
 
 ## 🔲 Backlog (tâches restantes)
@@ -52,7 +60,8 @@
 | T02   | Moteur géométrique (courants → coordonnées x, y, taille)        | Terminée |
 | T03   | Adaptateur (qui devient qui : 1 arête → 2 carrés)               | Terminée |
 | T04   | Interpolateur (piloté par la `Clock` de glaze)                  | Terminée |
-| T05   | Renderer minimal dans `App.tsx`                                 | À faire  |
+| T05   | Renderer minimal dans `App.tsx`                                 | Terminée |
+| T06   | Sélection des netlists de test + contrôles de la `Clock`        | À faire  |
 
 ---
 
