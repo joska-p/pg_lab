@@ -6,8 +6,8 @@
 
 ## 📌 Session en cours
 
-**Statut :** terminée — T01 et T02 accomplis.  
-**Dernière session terminée :** moteur géométrique (courants → coordonnées x, y, taille) pour les trois cas de T01 — 4 tests verts, `vp check --fix` et `vp test` passés.
+**Statut :** terminée — T01 à T04 accomplis.  
+**Dernière session terminée :** interpolateur piloté par la `Clock` de glaze (positions et tailles interpolées pour les trois cas de T01) — 16 tests verts, `vp check --fix` et `vp test` passés (29 tests au total).
 
 ---
 
@@ -36,6 +36,12 @@
     - `vp check --fix` : propre
     - `vp test` : 5 tests verts (13 au total avec T01 et T02)
 
+- [x] T04 — Interpolateur (piloté par la `Clock` de glaze) :
+    - `src/engine/interpolator/interpolator.ts` (`lerp`, fonctions d'easing, `interpolateGeometry` : positions x, y et tailles interpolées entre deux états géométriques ; nombres purs, zéro géométrie en dur, ni dépendance adaptateur/renderer ni lecture directe de la `Clock`)
+    - `src/engine/interpolator/interpolator.test.ts` (lerp, easing, arête simple, série, parallèle, intégrité des ids, rejet des états aux ids divergents et de la progression non finie)
+    - `vp check --fix` : propre
+    - `vp test` : 29 tests verts au total (T01 à T04)
+
 ---
 
 ## 🔲 Backlog (tâches restantes)
@@ -45,7 +51,7 @@
 | T01   | Tests unitaires du solveur Kirchhoff (simple, série, parallèle) | Terminée |
 | T02   | Moteur géométrique (courants → coordonnées x, y, taille)        | Terminée |
 | T03   | Adaptateur (qui devient qui : 1 arête → 2 carrés)               | Terminée |
-| T04   | Interpolateur (piloté par la `Clock` de glaze)                  | À faire  |
+| T04   | Interpolateur (piloté par la `Clock` de glaze)                  | Terminée |
 | T05   | Renderer minimal dans `App.tsx`                                 | À faire  |
 
 ---
