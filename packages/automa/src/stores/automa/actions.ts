@@ -4,12 +4,12 @@ import type { NonNegativeSeconds } from '@repo/glaze/core/time';
 import type { GpuSurface } from '@repo/glaze/gpu/GpuSurface';
 
 import { GRID_DEFAULT_DENSITY, GRID_DEFAULT_SEED } from '../../engine/config';
-import { creatures } from '../../engine/creature/registry';
+import { getCreature } from '../../engine/creature/registry';
 import type { CreatureId } from '../../engine/creature/registry';
 import gpuPaintShader from '../../engine/gpu/shaders/gpu-paint.frag?raw';
 import simStepShader from '../../engine/gpu/shaders/sim-step.frag?raw';
 import { SimulationEngine } from '../../engine/gpu/SimulationEngine';
-import { rules } from '../../engine/rules/registry';
+import { rules, getRule } from '../../engine/rules/registry';
 import type { RuleId } from '../../engine/rules/registry';
 import { computeDerivedColors } from '../../lib/colors';
 import { automaStore } from './store';
@@ -39,7 +39,7 @@ export function initSimulation(surface: GpuSurface): void {
     const engine = new SimulationEngine(buffer, simStepShader, gpuPaintShader, {
         cols,
         rows,
-        rule: rules[ruleId],
+        rule: rules.get(ruleId),
         speedMs,
         density: GRID_DEFAULT_DENSITY,
         seed: GRID_DEFAULT_SEED,
@@ -98,17 +98,19 @@ export function paintCell(column: number, row: number, value: number): void {
 }
 
 export function placeCreature(column: number, row: number, id: CreatureId): void {
-    automaStore.getState().engine?.placeCreature(column, row, creatures[id]);
+    const creature = getCreature(id);
+    automaStore.getState().engine?.placeCreature(column, row, creature);
 }
 
 // ── Rules & palette ──
 
 function recomputeDerivedColors(): void {
     const { ruleId, stateColors } = automaStore.getState();
+    const rule = getRule(ruleId);
 
     automaStore.setState({
         stateColors: computeDerivedColors(
-            rules[ruleId].stateCount,
+            rule.stateCount,
             stateColors[0] ?? DEAD_COLOR_FALLBACK,
             stateColors[1] ?? ALIVE_COLOR_FALLBACK,
         ),
@@ -116,17 +118,21 @@ function recomputeDerivedColors(): void {
 }
 
 export function setRule(id: RuleId): void {
-    automaStore.getState().engine?.setRule(rules[id]);
+    const rule = getRule(id);
+
+    automaStore.getState().engine?.setRule(rule);
     automaStore.setState({ ruleId: id });
     recomputeDerivedColors();
 }
 
 export function setStateColor(index: number, color: CssColor): void {
     automaStore.setState((state) => {
+        const rule = getRule(state.ruleId);
+
         const dead = index === 0 ? color : (state.stateColors[0] ?? DEAD_COLOR_FALLBACK);
         const alive = index === 1 ? color : (state.stateColors[1] ?? ALIVE_COLOR_FALLBACK);
 
-        return { stateColors: computeDerivedColors(rules[state.ruleId].stateCount, dead, alive) };
+        return { stateColors: computeDerivedColors(rule.stateCount, dead, alive) };
     });
 }
 

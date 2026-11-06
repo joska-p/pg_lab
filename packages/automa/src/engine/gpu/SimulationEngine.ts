@@ -12,7 +12,7 @@ import {
 } from '../config';
 import type { Creature } from '../creature/registry';
 import { createGrid, seedGrid } from '../grid';
-import { rules } from '../rules/registry';
+import { conwayRule } from '../rules/registry';
 import type { Rule } from '../rules/registry';
 
 export interface SimulationOptions {
@@ -58,7 +58,7 @@ export class SimulationEngine {
 
         this.#rows = options.rows ?? GRID_DEFAULT_ROWS;
         this.#cols = options.cols ?? GRID_DEFAULT_COLS;
-        this.#rule = options.rule ?? rules.conway;
+        this.#rule = options.rule ?? conwayRule;
         this.#density = options.density ?? GRID_DEFAULT_DENSITY;
         this.#seed = options.seed ?? GRID_DEFAULT_SEED;
         this.#interval = msToSeconds(options.speedMs ?? SPEED_DEFAULT_MS);

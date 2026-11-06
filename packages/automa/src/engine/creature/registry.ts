@@ -19,8 +19,8 @@ import {
     pixel,
 } from './builtin';
 
-interface Creature {
-    readonly id: string;
+interface Creature<TId extends string = string> {
+    readonly id: TId;
     readonly name: string;
     readonly width: number;
     readonly height: number;
@@ -46,18 +46,23 @@ const allCreatures = [
     bHeptomino,
     gosperGliderGun,
     pixel,
-] as const satisfies readonly Creature[];
+] as const satisfies Creature[];
 
 type CreatureId = (typeof allCreatures)[number]['id'];
 
-const creatures = allCreatures.reduce(
-    (acc, creature) => {
-        acc[creature.id] = creature;
-
-        return acc;
-    },
-    {} as Record<CreatureId, Creature>,
+const creatures = new Map<CreatureId, Creature<CreatureId>>(
+    allCreatures.map((creature) => [creature.id, creature]),
 );
 
-export { allCreatures, creatures };
+function getCreature(id: CreatureId): Creature<CreatureId> {
+    const creature = creatures.get(id);
+
+    if (!creature) {
+        throw new Error(`Unknown rule: ${id}`);
+    }
+
+    return creature;
+}
+
+export { allCreatures, creatures, getCreature };
 export type { Creature, CreatureId };

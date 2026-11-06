@@ -49,18 +49,21 @@ const transburst = parseRule({ id: 'transburst', name: 'Transburst', notation: '
 const seeds = parseRule({ id: 'seeds', name: 'Seeds', notation: 'B2/S' });
 const dayAndNight = parseRule({ id: 'day-night', name: 'Day & Night', notation: 'B3678/S34678' });
 
-const allRules = [conwayRule, starWars, transburst, seeds, dayAndNight] as const;
+const allRules = [conwayRule, starWars, transburst, seeds, dayAndNight] as const satisfies Rule[];
 
 type RuleId = (typeof allRules)[number]['id'];
 
-const rules = allRules.reduce(
-    (acc, rule) => {
-        acc[rule.id] = rule;
+const rules = new Map<RuleId, Rule<RuleId>>(allRules.map((rule) => [rule.id, rule]));
 
-        return acc;
-    },
-    {} as Record<RuleId, Rule<RuleId>>,
-);
+function getRule(id: RuleId): Rule<RuleId> {
+    const rule = rules.get(id);
 
-export { allRules, rules };
+    if (!rule) {
+        throw new Error(`Unknown rule: ${id}`);
+    }
+
+    return rule;
+}
+
+export { allRules, rules, conwayRule, getRule };
 export type { Rule, RuleId };

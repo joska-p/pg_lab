@@ -3,14 +3,14 @@ import { ColorField } from '@repo/ui/components/ColorField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Select } from '@repo/ui/components/Select';
 
-import { allRules, rules } from '../../engine/rules/registry';
+import { allRules, getRule } from '../../engine/rules/registry';
 import { setRule, setStateColor } from '../../stores/automa/actions';
 import { useRuleId, useStateColors } from '../../stores/automa/selectors';
 
 export function RuleSection() {
     const ruleId = useRuleId();
     const stateColors = useStateColors();
-    const rule = rules[ruleId];
+    const rule = getRule(ruleId);
 
     return (
         <ControlSection title="Rule">
