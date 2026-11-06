@@ -22,9 +22,8 @@ import { Stack } from '@repo/ui/components/Stack';
 import { Stage } from '@repo/ui/components/Stage';
 import { Swatch } from '@repo/ui/components/Swatch';
 import { TextInput } from '@repo/ui/components/TextInput';
+import { ThemeToggle } from '@repo/ui/components/ThemeToggle';
 import { Toggle } from '@repo/ui/components/Toggle';
-import { useTheme } from '@repo/ui/hooks/useTheme';
-import type { Theme } from '@repo/ui/hooks/useTheme';
 import type { Background, Borders, Elevation, Radius } from '@repo/ui/recipes/surface';
 import { space } from '@repo/ui/tokens/const.stylex';
 import type { ColorNames } from '@repo/ui/tokens/tint.stylex';
@@ -76,8 +75,6 @@ const styles = stylex.create({
 });
 
 export function App() {
-    const [theme, setTheme] = useTheme();
-
     // Surface Studio state (live interactive card testing)
     const [activeColor, setActiveColor] = useState<ColorNames>('aurora');
     const [activeBg, setActiveBg] = useState<Background>('soft');
@@ -101,19 +98,12 @@ export function App() {
             <ShellWrapper>
                 <ExperimentShell
                     panel={
-                        <ControlPanel title="Workbench" label="Laboratory Workbench Controls">
+                        <ControlPanel
+                            title="Workbench"
+                            label="Laboratory Workbench Controls"
+                            action={<ThemeToggle />}
+                        >
                             <ControlSection title="Environment & Shell">
-                                <Select
-                                    label="Theme"
-                                    value={theme}
-                                    onValueChange={(val) => setTheme(val as Theme)}
-                                    options={[
-                                        { value: 'system', label: 'System' },
-                                        { value: 'light', label: 'Light' },
-                                        { value: 'dark', label: 'Dark' },
-                                    ]}
-                                />
-
                                 <Toggle
                                     label="Simulate Disabled State"
                                     checked={isDisabled}

@@ -11,6 +11,7 @@ import { Routes, Route, useParams, useNavigate } from 'react-router';
 import { EXPERIMENTS, loadControls, loadScene } from './experiments';
 import type { ExperimentKey } from './experiments';
 import { useShellBackground } from './stores/appStore';
+import { typedKeys } from './utils/object';
 
 function LoadingFallback() {
     const shellBackground = useShellBackground();
@@ -24,8 +25,7 @@ function LoadingFallback() {
     );
 }
 
-const experimentKeys = Object.keys(EXPERIMENTS) as ExperimentKey[];
-const OPTIONS = experimentKeys.map((value) => ({
+const OPTIONS = typedKeys(EXPERIMENTS).map((value) => ({
     value,
     label: EXPERIMENTS[value].label,
 }));

@@ -217,7 +217,7 @@ const baseLint = {
         // Branded primitives are built with `value as Brand` inside their factories. The rule
         // cannot distinguish that intentional narrowing from an unchecked assertion, so it stays
         // off; the factories and `consistent-type-assertions` keep the `as` syntax honest.
-        'typescript/no-unsafe-type-assertion': 'off',
+        'typescript/no-unsafe-type-assertion': 'warn',
 
         // ─────────────────────────────────────────────
         // TypeScript — safety / unnecessary complexity
