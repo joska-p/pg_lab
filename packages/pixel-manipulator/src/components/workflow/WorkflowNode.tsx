@@ -34,6 +34,12 @@ const styles = stylex.create({
     },
 });
 
+function getNumberOption(options: Record<string, unknown>, key: string, fallback: number): number {
+    const value = options[key];
+
+    return typeof value === 'number' ? value : fallback;
+}
+
 function WorkflowNode({ step, index, name, argDefinitions }: WorkflowNodeProps) {
     return (
         <div {...stylex.props(styles.card)}>
@@ -43,15 +49,12 @@ function WorkflowNode({ step, index, name, argDefinitions }: WorkflowNodeProps) 
                 <div key={def.key} {...stylex.props(styles.field)}>
                     <span {...stylex.props(styles.label)}>{def.label}</span>
                     <Slider
-                        value={(step.options[def.key] as number | undefined) ?? def.min}
+                        value={getNumberOption(step.options, def.key, def.min)}
                         min={def.min}
                         max={def.max}
                         step={def.step}
                         onValueChange={(value) => {
-                            updateStepOptions(index, {
-                                ...step.options,
-                                [def.key]: value,
-                            } as Record<string, number>);
+                            updateStepOptions(index, { [def.key]: value });
                         }}
                     />
                 </div>

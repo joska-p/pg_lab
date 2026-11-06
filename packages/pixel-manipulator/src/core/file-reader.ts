@@ -1,35 +1,24 @@
-import { imageElementToImageData } from './image-data';
+async function readFileAsImageData(file: File): Promise<ImageData> {
+    if (!file.type.startsWith('image/')) {
+        throw new Error('File is not an image');
+    }
 
-function readFileAsImageData(file: File): Promise<ImageData> {
-    return new Promise((resolve, reject) => {
-        if (!file.type.startsWith('image/')) {
-            reject(new Error('File is not an image'));
+    const bitmap = await createImageBitmap(file);
 
-            return;
+    try {
+        const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+            throw new Error('Canvas 2D context unavailable');
         }
 
-        const reader = new FileReader();
+        ctx.drawImage(bitmap, 0, 0);
 
-        reader.onload = () => {
-            const image = new Image();
-
-            image.onload = () => {
-                try {
-                    resolve(imageElementToImageData(image));
-                } catch (err) {
-                    reject(err instanceof Error ? err : new Error(String(err)));
-                }
-            };
-            image.onerror = () => {
-                reject(new Error('Failed to load image from source'));
-            };
-            image.src = reader.result as string;
-        };
-        reader.onerror = () => {
-            reject(new Error('Failed to read file'));
-        };
-        reader.readAsDataURL(file);
-    });
+        return ctx.getImageData(0, 0, bitmap.width, bitmap.height);
+    } finally {
+        bitmap.close();
+    }
 }
 
 export { readFileAsImageData };

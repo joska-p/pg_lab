@@ -70,9 +70,11 @@ function moveWorkflowStep(index: number, direction: -1 | 1) {
     manipulatorStore.setState({ workflow: updated });
 }
 
-function updateStepOptions(index: number, options: Record<string, number>) {
+function updateStepOptions(index: number, patch: Record<string, number>) {
     const { workflow } = manipulatorStore.getState();
-    const updated = workflow.map((step, i) => (i === index ? { ...step, options } : step));
+    const updated = workflow.map((step, i) =>
+        i === index ? { ...step, options: { ...step.options, ...patch } } : step,
+    );
 
     manipulatorStore.setState({ workflow: updated });
 }
