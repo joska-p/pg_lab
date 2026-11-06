@@ -25,13 +25,15 @@ const drawBaseline: VisualLayer = {
         color: { label: 'Color', type: 'color', default: '' },
     },
     draw: (ctx, _data, params, layout) => {
-        const { lineWidth = 1, alpha = 0.15, color } = params;
         const { minVal, maxVal, valueScale, offsetX, offsetY } = layout;
+        const color = typeof params.color === 'string' ? params.color : '';
+        const lineWidth = typeof params.lineWidth === 'number' ? params.lineWidth : 1;
+        const alpha = typeof params.alpha === 'number' ? params.alpha : 0.15;
 
         ctx.save();
-        ctx.strokeStyle = color as string;
-        ctx.lineWidth = lineWidth as number;
-        ctx.globalAlpha = alpha as number;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        ctx.globalAlpha = alpha;
         ctx.beginPath();
         ctx.moveTo(offsetX + minVal * valueScale, offsetY);
         ctx.lineTo(offsetX + maxVal * valueScale, offsetY);

@@ -49,15 +49,13 @@ const drawRadialSpokes: VisualLayer = {
         scale: { label: 'Scale', type: 'number', min: 0.1, max: 2, step: 0.1, default: 0.8 },
     },
     draw: (ctx, data, params, layout) => {
-        const {
-            lineWidth = 1,
-            alpha = 0.7,
-            dotRadius = 2,
-            saturation = 85,
-            lightness = 55,
-            scale = 0.8,
-        } = params;
         const { maxVal, offsetX, offsetY } = layout;
+        const lineWidth = typeof params.lineWidth === 'number' ? params.lineWidth : 1;
+        const alpha = typeof params.alpha === 'number' ? params.alpha : 0.7;
+        const dotRadius = typeof params.dotRadius === 'number' ? params.dotRadius : 2;
+        const saturation = typeof params.saturation === 'number' ? params.saturation : 85;
+        const lightness = typeof params.lightness === 'number' ? params.lightness : 55;
+        const scale = typeof params.scale === 'number' ? params.scale : 0.8;
 
         if (data.length === 0) {
             return;
@@ -65,13 +63,13 @@ const drawRadialSpokes: VisualLayer = {
 
         const cx = offsetX;
         const cy = offsetY;
-        const maxR = Math.min(ctx.canvas.width, ctx.canvas.height) * 0.4 * (scale as number);
+        const maxR = Math.min(ctx.canvas.width, ctx.canvas.height) * 0.4 * scale;
         const maxData = maxVal || 1;
 
         ctx.save();
         ctx.translate(cx, cy);
-        ctx.lineWidth = lineWidth as number;
-        ctx.globalAlpha = alpha as number;
+        ctx.lineWidth = lineWidth;
+        ctx.globalAlpha = alpha;
 
         data.forEach((val, i) => {
             const angle = (i / data.length) * 2 * Math.PI - Math.PI / 2;
@@ -86,10 +84,10 @@ const drawRadialSpokes: VisualLayer = {
             ctx.lineTo(x, y);
             ctx.stroke();
 
-            if ((dotRadius as number) > 0) {
+            if (dotRadius > 0) {
                 ctx.fillStyle = `hsl(${String(hue)}, ${String(saturation)}%, ${String(lightness)}%)`;
                 ctx.beginPath();
-                ctx.arc(x, y, dotRadius as number, 0, 2 * Math.PI);
+                ctx.arc(x, y, dotRadius, 0, 2 * Math.PI);
                 ctx.fill();
             }
         });

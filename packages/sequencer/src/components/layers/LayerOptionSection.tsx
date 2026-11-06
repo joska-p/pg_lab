@@ -43,7 +43,7 @@ export function LayerOptionSection({ params, values, onChange }: LayerOptionSect
                             </label>
                             <input
                                 type="color"
-                                value={(currentValue as string) || '#ffffff'}
+                                value={typeof currentValue === 'string' ? currentValue : '#ffffff'}
                                 onChange={(e) => {
                                     onChange(key, e.target.value);
                                 }}
@@ -57,7 +57,7 @@ export function LayerOptionSection({ params, values, onChange }: LayerOptionSect
                         <div key={key} style={{ marginTop: '0.5rem' }}>
                             <TextInput
                                 label={descriptor.label}
-                                value={currentValue as string}
+                                value={typeof currentValue === 'string' ? currentValue : ''}
                                 onValueChange={(value) => {
                                     onChange(key, value);
                                 }}
@@ -71,7 +71,7 @@ export function LayerOptionSection({ params, values, onChange }: LayerOptionSect
                         <div key={key} style={{ marginTop: '0.5rem' }}>
                             <Checkbox
                                 label={descriptor.label}
-                                checked={currentValue as boolean}
+                                checked={typeof currentValue === 'boolean' ? currentValue : false}
                                 onCheckedChange={(checked) => {
                                     onChange(key, checked);
                                 }}

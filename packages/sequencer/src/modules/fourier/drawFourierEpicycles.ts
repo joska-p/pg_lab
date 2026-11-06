@@ -23,7 +23,9 @@ export const drawFourierEpicycles: VisualLayer = {
         },
     },
     draw: (ctx, data, params, layout) => {
-        const { precision = 40, orbitOverlays = true } = params as Record<string, number | boolean>;
+        const precision = typeof params.precision === 'number' ? params.precision : 40;
+        const orbitOverlays =
+            typeof params.orbitOverlays === 'boolean' ? params.orbitOverlays : true;
 
         const pairs = new Float32Array(data.length * 2);
 
@@ -43,7 +45,7 @@ export const drawFourierEpicycles: VisualLayer = {
         ctx.save();
         ctx.translate(layout.offsetX, layout.offsetY);
 
-        const activeLimit = Math.min(epicycles.length, precision as number);
+        const activeLimit = Math.min(epicycles.length, precision);
 
         // --- 1. DRAW THE FULL PATH INTENTIOANLLY IN ONE FRAME ---
         // We sample over the full period (0 to 1) to draw the complete shape

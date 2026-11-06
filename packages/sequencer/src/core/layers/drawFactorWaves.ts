@@ -48,20 +48,19 @@ const drawFactorWaves: VisualLayer = {
         },
     },
     draw: (ctx, data, params, layout) => {
-        const {
-            lineWidth = 1.5,
-            alpha = 0.65,
-            amplitudeScale = 0.4,
-            saturation = 85,
-            lightness = 55,
-        } = params;
         const { maxVal, valueScale, offsetX, offsetY } = layout;
+        const lineWidth = typeof params.lineWidth === 'number' ? params.lineWidth : 1.5;
+        const alpha = typeof params.alpha === 'number' ? params.alpha : 0.65;
+        const amplitudeScale =
+            typeof params.amplitudeScale === 'number' ? params.amplitudeScale : 0.4;
+        const saturation = typeof params.saturation === 'number' ? params.saturation : 85;
+        const lightness = typeof params.lightness === 'number' ? params.lightness : 55;
 
         if (maxVal <= 0) {
             return;
         }
 
-        const maxAmplitude = ctx.canvas.height * (amplitudeScale as number);
+        const maxAmplitude = ctx.canvas.height * amplitudeScale;
 
         data.forEach((p) => {
             const amplitude = (p / maxVal) * maxAmplitude;
@@ -69,7 +68,7 @@ const drawFactorWaves: VisualLayer = {
 
             ctx.save();
             ctx.strokeStyle = `hsla(${String(hue)}, ${String(saturation)}%, ${String(lightness)}%, ${String(alpha)})`;
-            ctx.lineWidth = lineWidth as number;
+            ctx.lineWidth = lineWidth;
             ctx.beginPath();
 
             const startX = offsetX + p * valueScale;

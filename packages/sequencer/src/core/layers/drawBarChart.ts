@@ -41,16 +41,18 @@ export const drawBarChart: VisualLayer = {
     },
     draw: (ctx, data, params, layout) => {
         const { maxVal, valueScale, offsetX, offsetY } = layout;
-        const { barWidth, alpha, saturation, lightness } = params;
+        const { saturation, lightness } = params;
+        const barWidth = typeof params.barWidth === 'number' ? params.barWidth : 0.8;
+        const alpha = typeof params.alpha === 'number' ? params.alpha : 0.7;
 
         if (data.length === 0 || maxVal === 0) {
             return;
         }
 
         ctx.save();
-        ctx.globalAlpha = alpha as number;
+        ctx.globalAlpha = alpha;
 
-        const width = valueScale * (barWidth as number);
+        const width = valueScale * barWidth;
 
         data.forEach((val) => {
             const hue = ((Math.abs(val) / maxVal) * 240) % 360;

@@ -48,22 +48,20 @@ const drawStemPlot: VisualLayer = {
         },
     },
     draw: (ctx, data, params, layout) => {
-        const {
-            lineWidth = 1,
-            alpha = 0.7,
-            markerRadius = 3,
-            saturation = 75,
-            lightness = 60,
-        } = params;
         const { valueScale, offsetX, offsetY, maxVal } = layout;
+        const lineWidth = typeof params.lineWidth === 'number' ? params.lineWidth : 1;
+        const alpha = typeof params.alpha === 'number' ? params.alpha : 0.7;
+        const markerRadius = typeof params.markerRadius === 'number' ? params.markerRadius : 3;
+        const saturation = typeof params.saturation === 'number' ? params.saturation : 75;
+        const lightness = typeof params.lightness === 'number' ? params.lightness : 60;
 
         if (data.length === 0 || maxVal === 0) {
             return;
         }
 
         ctx.save();
-        ctx.lineWidth = lineWidth as number;
-        ctx.globalAlpha = alpha as number;
+        ctx.lineWidth = lineWidth;
+        ctx.globalAlpha = alpha;
 
         data.forEach((val, i) => {
             const x = offsetX + val * valueScale;
@@ -77,10 +75,10 @@ const drawStemPlot: VisualLayer = {
             ctx.lineTo(x, offsetY - stemLen);
             ctx.stroke();
 
-            if ((markerRadius as number) > 0) {
+            if (markerRadius > 0) {
                 ctx.fillStyle = color;
                 ctx.beginPath();
-                ctx.arc(x, offsetY - stemLen, markerRadius as number, 0, 2 * Math.PI);
+                ctx.arc(x, offsetY - stemLen, markerRadius, 0, 2 * Math.PI);
                 ctx.fill();
             }
         });

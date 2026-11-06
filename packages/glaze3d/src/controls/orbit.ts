@@ -28,16 +28,6 @@ const EPSILON = 1e-9;
 const AXIS_X = new Vec3(1, 0, 0);
 const AXIS_Y = new Vec3(0, 1, 0);
 
-interface WindowTarget {
-    addEventListener(type: string, listener: (event: never) => void): void;
-    removeEventListener(type: string, listener: (event: never) => void): void;
-}
-
-function windowTarget(): WindowTarget | null {
-    const candidate = (globalThis as { window?: WindowTarget }).window;
-    return candidate ?? null;
-}
-
 function clamp(value: number, min: number, max: number): number {
     return Math.min(max, Math.max(min, value));
 }
@@ -115,8 +105,9 @@ export class OrbitControls {
     dispose(): void {
         this.domElement.removeEventListener('pointerdown', this.onPointerDown);
         this.domElement.removeEventListener('wheel', this.onWheel);
-        windowTarget()?.removeEventListener('pointermove', this.onPointerMove);
-        windowTarget()?.removeEventListener('pointerup', this.onPointerUp);
+        this.domElement.removeEventListener('pointermove', this.onPointerMove);
+        this.domElement.removeEventListener('pointerup', this.onPointerUp);
+        this.domElement.removeEventListener('pointercancel', this.onPointerUp);
         this.listeners.clear();
         this.dragging = false;
     }
@@ -190,19 +181,15 @@ export class OrbitControls {
         if (event.button !== 0) {
             return;
         }
+
         this.dragging = true;
         this.lastX = event.clientX;
         this.lastY = event.clientY;
-        windowTarget()?.addEventListener('pointermove', this.onPointerMove);
-        windowTarget()?.addEventListener('pointerup', this.onPointerUp);
-        const element = event.currentTarget as HTMLElement | null | undefined;
-        if (element != null && typeof element.setPointerCapture === 'function') {
-            try {
-                element.setPointerCapture(event.pointerId);
-            } catch {
-                // Pointer capture is best-effort (synthetic events in tests).
-            }
-        }
+
+        this.domElement.addEventListener('pointermove', this.onPointerMove);
+        this.domElement.addEventListener('pointerup', this.onPointerUp);
+        this.domElement.addEventListener('pointercancel', this.onPointerUp);
+        this.domElement.setPointerCapture(event.pointerId);
     };
 
     private onPointerMove = (event: PointerEvent): void => {
@@ -219,8 +206,9 @@ export class OrbitControls {
 
     private onPointerUp = (): void => {
         this.dragging = false;
-        windowTarget()?.removeEventListener('pointermove', this.onPointerMove);
-        windowTarget()?.removeEventListener('pointerup', this.onPointerUp);
+        this.domElement.removeEventListener('pointermove', this.onPointerMove);
+        this.domElement.removeEventListener('pointerup', this.onPointerUp);
+        this.domElement.removeEventListener('pointercancel', this.onPointerUp);
     };
 
     private onWheel = (event: WheelEvent): void => {

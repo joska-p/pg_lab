@@ -26,7 +26,9 @@ export const drawRecamanArcs: VisualLayer = {
     },
     draw: (ctx, data, params, layout) => {
         const { valueScale, offsetX, offsetY } = layout;
-        const { lineWidth, alpha, color } = params;
+        const lineWidth = typeof params.lineWidth === 'number' ? params.lineWidth : 1;
+        const alpha = typeof params.alpha === 'number' ? params.alpha : 1;
+        const color = typeof params.color === 'string' ? params.color : '';
 
         if (data.length < 2) {
             return;
@@ -35,9 +37,9 @@ export const drawRecamanArcs: VisualLayer = {
         ctx.save();
         ctx.translate(offsetX, offsetY);
 
-        ctx.strokeStyle = (color as string) || getComputedStyle(ctx.canvas).color || 'black';
-        ctx.lineWidth = lineWidth as number;
-        ctx.globalAlpha = alpha as number;
+        ctx.strokeStyle = color || getComputedStyle(ctx.canvas).color || 'black';
+        ctx.lineWidth = lineWidth;
+        ctx.globalAlpha = alpha;
 
         data.forEach((value, index) => {
             if (index === 0) {

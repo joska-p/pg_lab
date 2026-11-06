@@ -41,21 +41,19 @@ const drawMountain: VisualLayer = {
         },
     },
     draw: (ctx, data, params, layout) => {
-        const {
-            alpha = 0.4,
-            hue = 210,
-            saturation = 70,
-            lightness = 50,
-            gradientHeight = 0.5,
-        } = params;
         const { valueScale, offsetX, offsetY } = layout;
+        const alpha = typeof params.alpha === 'number' ? params.alpha : 0.4;
+        const hue = typeof params.hue === 'number' ? params.hue : 210;
+        const saturation = typeof params.saturation === 'number' ? params.saturation : 70;
+        const lightness = typeof params.lightness === 'number' ? params.lightness : 50;
+        const gradientHeight =
+            typeof params.gradientHeight === 'number' ? params.gradientHeight : 0.5;
 
         if (data.length < 2) {
             return;
         }
 
-        const gh = gradientHeight as number;
-        const gradHeight = ctx.canvas.height * gh;
+        const gradHeight = ctx.canvas.height * gradientHeight;
         const gradY = offsetY - gradHeight / 2;
 
         const gradient = ctx.createLinearGradient(0, gradY, 0, gradY + gradHeight);

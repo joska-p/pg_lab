@@ -18,8 +18,10 @@ const drawPlottedNumbers: VisualLayer = {
         color: { label: 'Color', type: 'color', default: '' },
     },
     draw: (ctx, data, params, layout) => {
-        const { radius = 3, alpha = 0.4, color } = params;
         const { valueScale, offsetX, offsetY } = layout;
+        const color = typeof params.color === 'string' ? params.color : '';
+        const alpha = typeof params.alpha === 'number' ? params.alpha : 0.4;
+        const radius = typeof params.radius === 'number' ? params.radius : 3;
 
         const plotted = new Set<number>();
 
@@ -27,10 +29,10 @@ const drawPlottedNumbers: VisualLayer = {
             if (!plotted.has(val)) {
                 plotted.add(val);
                 ctx.save();
-                ctx.fillStyle = color as string;
-                ctx.globalAlpha = alpha as number;
+                ctx.fillStyle = color;
+                ctx.globalAlpha = alpha;
                 ctx.beginPath();
-                ctx.arc(offsetX + val * valueScale, offsetY, radius as number, 0, 2 * Math.PI);
+                ctx.arc(offsetX + val * valueScale, offsetY, radius, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.restore();
             }

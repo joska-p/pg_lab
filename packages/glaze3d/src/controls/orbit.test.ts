@@ -12,6 +12,7 @@ interface FakeElement {
     addEventListener(type: string, fn: Handler): void;
     removeEventListener(type: string, fn: Handler): void;
     dispatch(type: string, event: Record<string, unknown>): void;
+    setPointerCapture(pointerId: number): void;
 }
 
 function createFakeElement(): FakeElement {
@@ -34,45 +35,8 @@ function createFakeElement(): FakeElement {
                 fn(event);
             }
         },
+        setPointerCapture(): void {},
     };
-}
-
-interface FakeWindow {
-    handlers: Map<string, Set<Handler>>;
-    addEventListener(type: string, fn: Handler): void;
-    removeEventListener(type: string, fn: Handler): void;
-}
-
-function installFakeWindow(): FakeWindow {
-    const handlers = new Map<string, Set<Handler>>();
-    const fake: FakeWindow = {
-        handlers,
-        addEventListener(type: string, fn: Handler): void {
-            let set = handlers.get(type);
-            if (set === undefined) {
-                set = new Set();
-                handlers.set(type, set);
-            }
-            set.add(fn);
-        },
-        removeEventListener(type: string, fn: Handler): void {
-            handlers.get(type)?.delete(fn);
-        },
-    };
-    (globalThis as unknown as { window?: FakeWindow }).window = fake;
-    return fake;
-}
-
-function moveOnWindow(fake: FakeWindow, event: Record<string, unknown>): void {
-    for (const fn of fake.handlers.get('pointermove') ?? []) {
-        fn(event);
-    }
-}
-
-function upOnWindow(fake: FakeWindow): void {
-    for (const fn of fake.handlers.get('pointerup') ?? []) {
-        fn({});
-    }
 }
 
 function demoCamera(): PerspectiveCamera {
@@ -103,7 +67,6 @@ function applyQuat(v: Vec3, q: Quat): Vec3 {
 
 describe('OrbitControls', () => {
     it('drags to rotate around the origin and fires change', () => {
-        const fakeWindow = installFakeWindow();
         const element = createFakeElement();
         const camera = demoCamera();
         const before = camera.position.clone();
@@ -114,8 +77,8 @@ describe('OrbitControls', () => {
         });
 
         element.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
-        moveOnWindow(fakeWindow, { clientX: 200, clientY: 100 });
-        upOnWindow(fakeWindow);
+        element.dispatch('pointermove', { clientX: 200, clientY: 100 });
+        element.dispatch('pointerup', {});
         controls.update();
 
         expect(camera.position.x).not.toBeCloseTo(before.x);
@@ -130,7 +93,6 @@ describe('OrbitControls', () => {
     });
 
     it('keeps the camera looking at the origin after rotation', () => {
-        const fakeWindow = installFakeWindow();
         const element = createFakeElement();
         const camera = demoCamera();
         const controls = new OrbitControls(camera, element as unknown as HTMLElement, {
@@ -138,8 +100,8 @@ describe('OrbitControls', () => {
         });
 
         element.dispatch('pointerdown', { button: 0, clientX: 50, clientY: 50, pointerId: 1 });
-        moveOnWindow(fakeWindow, { clientX: 150, clientY: 120 });
-        upOnWindow(fakeWindow);
+        element.dispatch('pointermove', { clientX: 150, clientY: 120 });
+        element.dispatch('pointerup', {});
         controls.update();
 
         const forward = applyQuat(new Vec3(0, 0, -1), camera.quaternion).normalize();
@@ -151,7 +113,6 @@ describe('OrbitControls', () => {
     });
 
     it('applies drag fully without damping and settles on the next frame', () => {
-        const fakeWindow = installFakeWindow();
         const element = createFakeElement();
         const camera = demoCamera();
         const controls = new OrbitControls(camera, element as unknown as HTMLElement, {
@@ -163,9 +124,10 @@ describe('OrbitControls', () => {
         });
 
         element.dispatch('pointerdown', { button: 0, clientX: 0, clientY: 0, pointerId: 1 });
-        moveOnWindow(fakeWindow, { clientX: 100, clientY: 0 });
-        upOnWindow(fakeWindow);
+        element.dispatch('pointermove', { clientX: 100, clientY: 0 });
+        element.dispatch('pointerup', {});
         controls.update();
+
         const afterFirst = camera.position.clone();
         controls.update();
 
@@ -176,7 +138,6 @@ describe('OrbitControls', () => {
     });
 
     it('carries inertia after release when damping is enabled', () => {
-        const fakeWindow = installFakeWindow();
         const element = createFakeElement();
         const camera = demoCamera();
         const controls = new OrbitControls(camera, element as unknown as HTMLElement, {
@@ -185,9 +146,10 @@ describe('OrbitControls', () => {
         });
 
         element.dispatch('pointerdown', { button: 0, clientX: 0, clientY: 0, pointerId: 1 });
-        moveOnWindow(fakeWindow, { clientX: 100, clientY: 0 });
-        upOnWindow(fakeWindow);
+        element.dispatch('pointermove', { clientX: 100, clientY: 0 });
+        element.dispatch('pointerup', {});
         controls.update();
+
         const afterFirst = camera.position.clone();
         controls.update();
 
@@ -197,7 +159,6 @@ describe('OrbitControls', () => {
     });
 
     it('auto-rotates every frame with the demo speed', () => {
-        installFakeWindow();
         const element = createFakeElement();
         const camera = demoCamera();
         // Demo-compatible mutable flags (mol-demo.js.txt:717-722).
@@ -225,7 +186,6 @@ describe('OrbitControls', () => {
     });
 
     it('dollies on wheel when zoom is enabled and ignores it when disabled', () => {
-        installFakeWindow();
         const element = createFakeElement();
         const camera = demoCamera();
         const before = radiusOf(camera);
@@ -262,7 +222,6 @@ describe('OrbitControls', () => {
     });
 
     it('dispose detaches listeners and stops camera updates', () => {
-        const fakeWindow = installFakeWindow();
         const element = createFakeElement();
         const camera = demoCamera();
         const controls = new OrbitControls(camera, element as unknown as HTMLElement, {
@@ -272,8 +231,9 @@ describe('OrbitControls', () => {
 
         expect(element.handlers.get('pointerdown')?.size ?? 0).toBe(0);
         expect(element.handlers.get('wheel')?.size ?? 0).toBe(0);
+
         element.dispatch('pointerdown', { button: 0, clientX: 0, clientY: 0, pointerId: 1 });
-        expect(fakeWindow.handlers.get('pointermove')?.size ?? 0).toBe(0);
+        expect(element.handlers.get('pointermove')?.size ?? 0).toBe(0);
         const before = camera.position.clone();
         controls.update();
         expect(camera.position.x).toBeCloseTo(before.x);
