@@ -86,7 +86,9 @@ export function createZoomGesture<TSurface>(options: ZoomOptions = {}): ZoomGest
 
 /** The acting edge of the capture policy: a claimed `pointerdown` pins events to the canvas. */
 function capturePointer(event: PointerEvent): void {
-    (event.currentTarget as HTMLElement | null)?.setPointerCapture(event.pointerId);
+    if (event.currentTarget instanceof HTMLElement) {
+        event.currentTarget.setPointerCapture(event.pointerId);
+    }
 }
 
 /**

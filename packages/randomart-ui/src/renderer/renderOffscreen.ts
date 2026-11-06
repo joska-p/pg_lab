@@ -90,7 +90,7 @@ export async function renderToBlob(options: OffscreenRenderOptions): Promise<Blo
     }
 
     try {
-        const limits = gl.getParameter(gl.MAX_VIEWPORT_DIMS) as ArrayLike<number>;
+        const limits = gl.getParameter(gl.MAX_VIEWPORT_DIMS);
         const side = clampExportSize(options.size, limits);
         canvas.width = side;
         canvas.height = side;

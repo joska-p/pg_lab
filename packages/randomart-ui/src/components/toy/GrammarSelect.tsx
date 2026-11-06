@@ -7,6 +7,7 @@ import { Select } from '@repo/ui/components/Select';
 
 import { applyGrammar, randomizeGrammar, useGrammar } from '../../stores/artworkStore';
 import { setMode } from '../../stores/modeStore';
+import { typedKeys } from '../../utils/object';
 
 const CUSTOM_PRESET = {
     id: 'custom',
@@ -17,7 +18,7 @@ const CUSTOM_PRESET = {
 type PresetOptionValue = GrammarRegistryId | typeof CUSTOM_PRESET.id;
 
 const PRESET_OPTIONS: readonly { value: PresetOptionValue; label: string }[] = [
-    ...(Object.keys(grammarRegistry) as GrammarRegistryId[]).map((id) => ({
+    ...typedKeys(grammarRegistry).map((id) => ({
         value: id,
         label: grammarRegistry[id].label,
     })),

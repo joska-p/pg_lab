@@ -29,6 +29,7 @@ import {
     withWeight,
 } from '../../artwork/grammarEdits';
 import { editGrammar, newSeed, useGrammar, useSeed } from '../../stores/artworkStore';
+import { typedKeys } from '../../utils/object';
 
 const GROUP_LABELS = {
     terminal: 'terminals',
@@ -38,9 +39,7 @@ const GROUP_LABELS = {
     transform: 'warp',
 } as const satisfies Record<OpFamily, string>;
 
-type OperatorGroup = keyof typeof GROUP_LABELS;
-
-const OPERATOR_GROUPS = (Object.keys(GROUP_LABELS) as OperatorGroup[])
+const OPERATOR_GROUPS = typedKeys(GROUP_LABELS)
     .map((group) => ({
         group,
         label: GROUP_LABELS[group],
