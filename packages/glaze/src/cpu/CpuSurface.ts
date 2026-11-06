@@ -6,8 +6,7 @@ import { createClock } from '../core/Clock';
 import type { Clock } from '../core/Clock';
 import { FrameLoop } from '../core/FrameLoop';
 import type { FrameStep } from '../core/frameTypes';
-import { toScreenPoint } from '../core/geometry';
-import type { Point2D, ScreenPoint, WorldPoint } from '../core/geometry';
+import type { Point2D } from '../core/geometry';
 import { createInputStore } from '../core/InputStore';
 import type { InputStore } from '../core/InputStore';
 import type { CssColor } from '../core/render';
@@ -69,15 +68,15 @@ export class CpuSurface {
     }
 
     /** Pointer position in world coordinates (camera-transformed). */
-    get pointer(): WorldPoint {
-        return this.camera.screenToWorld(toScreenPoint(this.input.pointer));
+    get pointer(): Point2D {
+        return this.camera.screenToWorld(this.input.pointer);
     }
 
-    screenToWorld(point: Point2D): WorldPoint {
-        return this.camera.screenToWorld(toScreenPoint(point));
+    screenToWorld(point: Point2D): Point2D {
+        return this.camera.screenToWorld(point);
     }
 
-    worldToScreen(point: WorldPoint): ScreenPoint {
+    worldToScreen(point: Point2D): Point2D {
         return this.camera.worldToScreen(point);
     }
 

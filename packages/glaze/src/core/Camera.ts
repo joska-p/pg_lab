@@ -1,7 +1,6 @@
 import { assertFinite, createPositiveNumber } from './brands';
 import type { PositiveNumber } from './brands';
-import { toScreenPoint, toWorldPoint } from './geometry';
-import type { ScreenPoint, WorldPoint } from './geometry';
+import type { Point2D } from './geometry';
 
 /** Passive state — it never mutates itself; panning and zooming live in `CameraControls`. */
 export class Camera {
@@ -16,18 +15,18 @@ export class Camera {
     }
 
     /** Returns a new point; never mutates its arguments. */
-    screenToWorld(screen: ScreenPoint): WorldPoint {
-        return toWorldPoint({
+    screenToWorld(screen: Point2D): Point2D {
+        return {
             x: (screen.x - this.x) / this.zoom,
             y: (screen.y - this.y) / this.zoom,
-        });
+        };
     }
 
-    worldToScreen(world: WorldPoint): ScreenPoint {
-        return toScreenPoint({
+    worldToScreen(world: Point2D): Point2D {
+        return {
             x: world.x * this.zoom + this.x,
             y: world.y * this.zoom + this.y,
-        });
+        };
     }
 }
 

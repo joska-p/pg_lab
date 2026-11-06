@@ -1,7 +1,6 @@
 import { createPositiveNumber } from './brands';
 import type { PositiveNumber } from './brands';
 import type { Point2D } from './geometry';
-import { toScreenPoint } from './geometry';
 import { DEFAULT_WHEEL_SPEED } from './gestureTypes';
 import type {
     Gesture,
@@ -134,7 +133,7 @@ export class InputRouter<TSurface> {
 
         return {
             nativeEvent,
-            point: toScreenPoint(point),
+            point,
             input: options.input,
             get cameraControls() {
                 return options.cameraControls;

@@ -1,7 +1,7 @@
 import { createPositiveNumber } from './brands';
 import type { PositiveNumber } from './brands';
 import type { CameraControls } from './cameraTypes';
-import type { ScreenPoint } from './geometry';
+import type { Point2D } from './geometry';
 import type { InputStore } from './InputStore';
 
 /** Per-wheel-pixel exponential zoom rate, validated once at import. */
@@ -18,7 +18,7 @@ export interface ZoomOptions {
 
 export interface InteractionEvent<TEvent, TSurface> {
     nativeEvent: TEvent;
-    point: ScreenPoint;
+    point: Point2D;
     input: InputStore;
     cameraControls: CameraControls;
     surface: TSurface | null;

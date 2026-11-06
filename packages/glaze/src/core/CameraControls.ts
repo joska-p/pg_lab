@@ -2,16 +2,15 @@ import { copyCamera, createCamera } from './Camera';
 import type { Camera } from './Camera';
 import { DEFAULT_ZOOM_BOUNDS, createZoomClamp } from './cameraTypes';
 import type { CameraControls, CameraPatch, ZoomClamp } from './cameraTypes';
-import { toScreenDelta, toScreenPoint } from './geometry';
-import type { Point2D, ScreenDelta, ScreenPoint } from './geometry';
+import type { Point2D } from './geometry';
 
 /** Moves the camera translation so the world origin lands on `position`. */
-export function panTo(camera: Camera, position: ScreenPoint): Camera {
+export function panTo(camera: Camera, position: Point2D): Camera {
     return createCamera(position.x, position.y, camera.zoom);
 }
 
 /** Translates the camera by a screen-space delta. */
-export function panBy(camera: Camera, delta: ScreenDelta): Camera {
+export function panBy(camera: Camera, delta: Point2D): Camera {
     return createCamera(camera.x + delta.x, camera.y + delta.y, camera.zoom);
 }
 
@@ -21,7 +20,7 @@ export function panBy(camera: Camera, delta: ScreenDelta): Camera {
  */
 export function zoomAt(
     camera: Camera,
-    focalPoint: ScreenPoint,
+    focalPoint: Point2D,
     zoom: number,
     clampZoom: ZoomClamp,
 ): Camera {
@@ -40,7 +39,7 @@ export function zoomTo(
     camera: Camera,
     zoom: number,
     clampZoom: ZoomClamp,
-    focalPoint?: ScreenPoint,
+    focalPoint?: Point2D,
 ): Camera {
     return focalPoint === undefined
         ? createCamera(camera.x, camera.y, clampZoom(zoom))
@@ -51,7 +50,7 @@ export function zoomTo(
 export function zoomBy(
     camera: Camera,
     factor: number,
-    focalPoint: ScreenPoint,
+    focalPoint: Point2D,
     clampZoom: ZoomClamp,
 ): Camera {
     return zoomAt(camera, focalPoint, camera.zoom * factor, clampZoom);
@@ -83,23 +82,23 @@ export function createCameraControls(
 
     return {
         panTo(position: Point2D): void {
-            commit(panTo(camera, toScreenPoint(position)));
+            commit(panTo(camera, position));
         },
 
         panBy(dx: number, dy: number): void {
-            commit(panBy(camera, toScreenDelta({ x: dx, y: dy })));
+            commit(panBy(camera, { x: dx, y: dy }));
         },
 
         zoomAt(focalPoint: Point2D, zoom: number): void {
-            commit(zoomAt(camera, toScreenPoint(focalPoint), zoom, clampZoom));
+            commit(zoomAt(camera, focalPoint, zoom, clampZoom));
         },
 
         zoomTo(zoom: number, focalPoint?: Point2D): void {
-            commit(zoomTo(camera, zoom, clampZoom, focalPoint && toScreenPoint(focalPoint)));
+            commit(zoomTo(camera, zoom, clampZoom, focalPoint));
         },
 
         zoomBy(factor: number, focalPoint: Point2D): void {
-            commit(zoomBy(camera, factor, toScreenPoint(focalPoint), clampZoom));
+            commit(zoomBy(camera, factor, focalPoint, clampZoom));
         },
 
         reset(): void {
