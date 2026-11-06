@@ -14,7 +14,11 @@ const defaultSchedule = (callback: (time: Milliseconds) => void): (() => void) =
     };
 };
 
-const issueFrameToken = (): FrameToken => ({}) as FrameToken;
+const issueFrameToken = (): FrameToken => {
+    // Safe: FrameToken is a nominal brand; an empty object is stamped as a fresh token by the loop.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    return {} as FrameToken;
+};
 
 /**
  * The heartbeat: reads the injected `now`, converts to seconds, and hands time + a non-negative

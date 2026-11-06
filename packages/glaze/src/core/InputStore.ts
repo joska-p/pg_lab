@@ -77,16 +77,26 @@ export class InputStore {
         // are typed more precisely (PointerEvent, WheelEvent …). The cast is intentional
         // and localised here — this table is where all DOM impurity is concentrated.
         this.#targetBindings = [
+            // Handlers are typed more precisely than `EventListener`; the cast is intentional and
+            // localised in this binding table (all DOM impurity is concentrated here).
+            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
             ['pointermove', this.#onPointerMove as EventListener],
+            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
             ['pointerdown', this.#onPointerDown as EventListener],
+            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
             ['pointerup', this.#onPointerUp as EventListener],
+            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
             ['pointercancel', this.#onPointerCancel as EventListener],
+            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
             ['wheel', this.#onWheel as EventListener, { passive: false }],
+            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
             ['contextmenu', this.#onContextMenu as EventListener],
         ];
 
         this.#windowBindings = [
+            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
             ['keydown', this.#onKeyDown as EventListener],
+            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
             ['keyup', this.#onKeyUp as EventListener],
         ];
     }
@@ -138,6 +148,8 @@ export class InputStore {
             this.#cancelBindings.push(this.#source.onWindow(type, handler));
         }
 
+        // `AttachedHandle` is a nominal brand; an empty object is stamped as a fresh handle.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion
         const handle = {} as AttachedHandle;
 
         this.#handle = handle;

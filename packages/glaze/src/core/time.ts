@@ -16,12 +16,16 @@ const MS_PER_SECOND = 1000;
 export function createDurationSeconds(value: number): DurationSeconds {
     assertStrictlyPositive(value, 'duration');
 
+    // DurationSeconds is a nominal brand over number; the cast is intentional branding.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return value as DurationSeconds;
 }
 
 export function createSeconds(value: number): Seconds {
     assertFinite(value, 'seconds');
 
+    // Seconds is a nominal brand over number; the cast is intentional branding.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return value as Seconds;
 }
 
@@ -32,12 +36,16 @@ export function createNonNegativeSeconds(value: number): NonNegativeSeconds {
         throw new Error(`Glaze: seconds must not be negative, received ${String(value)}`);
     }
 
+    // NonNegativeSeconds refines Seconds with a nominal marker; the cast is intentional branding.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return value as NonNegativeSeconds;
 }
 
 export function createMilliseconds(value: number): Milliseconds {
     assertFinite(value, 'milliseconds');
 
+    // Milliseconds is a nominal brand over number; the cast is intentional branding.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return value as Milliseconds;
 }
 

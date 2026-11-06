@@ -92,6 +92,8 @@ export function compileProgram(
     gl.deleteShader(fragmentShader);
 
     const uniforms = new Map<string, UniformEntry>();
+    // `getProgramParameter` est typé `any` par les libs WebGL ; le cast vers `number` est intentionnel ici.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     const numUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS) as number;
 
     for (let i = 0; i < numUniforms; i++) {

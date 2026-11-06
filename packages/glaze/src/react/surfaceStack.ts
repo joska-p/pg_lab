@@ -38,6 +38,8 @@ function compact<T extends object>(source: T): Compact<T> {
         }
     }
 
+    // `Compact<T>` is a nominal refinement of `Record<string, unknown>`; the cast is intentional.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return result as Compact<T>;
 }
 
