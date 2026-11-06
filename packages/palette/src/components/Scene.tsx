@@ -40,7 +40,7 @@ function Scene() {
 
             {palettes.map((palette, paletteIndex) => (
                 <div
-                    key={`${palette.colors.join()}-${paletteIndex}`}
+                    key={`${palette.colors.join(',')}-${paletteIndex}`}
                     {...stylex.props(styles.palette)}
                 >
                     {palette.colors.map((color, colorIndex) => (

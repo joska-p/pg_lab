@@ -99,7 +99,7 @@ describe('generate', () => {
                     expect(depthOf(channel)).toBeGreaterThanOrEqual(grammar.minDepth);
                     expect(depthOf(channel)).toBeLessThanOrEqual(grammar.maxDepth);
                     eachNode(channel, (node) => {
-                        expect(enabled.has(node.op), `${node.op}`).toBe(true);
+                        expect(enabled.has(node.op), node.op).toBe(true);
                     });
                 }
             }

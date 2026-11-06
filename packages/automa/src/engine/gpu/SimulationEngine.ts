@@ -151,7 +151,7 @@ export class SimulationEngine {
             const rowCells = creature.cells[y];
 
             if (!rowCells) {
-                throw Error(`Expect number[] got : ${rowCells}`);
+                throw new Error(`Expect number[] got : ${rowCells}`);
             }
 
             for (let x = 0; x < creature.width; x++) {

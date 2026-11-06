@@ -41,7 +41,7 @@ function Navbar() {
     }, [exp]);
 
     const handleSelectChange = (value: ExperimentKey) => {
-        navigate(`/${value === 'home' ? '' : value}`);
+        void navigate(`/${value === 'home' ? '' : value}`);
     };
 
     return (

@@ -49,10 +49,16 @@ export function createRng(seed: Seed): Rng {
     }
 
     function pick<T>(items: readonly T[]): T {
-        const item = items.at(int(items.length));
-        if (item === undefined) {
+        if (items.length === 0) {
             throw new RandomArtError('Rng.pick: cannot draw from an empty list');
         }
+
+        const item = items[int(items.length)];
+
+        if (item === undefined) {
+            throw new RandomArtError('Rng.pick: list must not contain undefined');
+        }
+
         return item;
     }
 

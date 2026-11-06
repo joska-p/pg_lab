@@ -12,6 +12,12 @@ describe('parseColor', () => {
             b: 0x56 / 255,
             a: 1,
         });
+        expect(parseColor(createCssColor('#f008'))).toEqual({
+            r: 1,
+            g: 0,
+            b: 0,
+            a: 0x88 / 255,
+        });
         expect(parseColor(createCssColor('#ff000080'))).toEqual({
             r: 1,
             g: 0,
@@ -64,6 +70,13 @@ describe('parseColor', () => {
         expect(parseColor(createCssColor('hsl(720 100% 50%)'))).toEqual(
             parseColor(createCssColor('hsl(0 100% 50%)')),
         );
+    });
+
+    it('rejects hex colors whose length is not 3, 4, 6 or 8 digits', () => {
+        // `{3,8}` used to accept these and truncate them into a plausible but wrong color.
+        for (const color of ['#12', '#12345', '#1234567', '#123456789']) {
+            expect(() => parseColor(createCssColor(color))).toThrow(/unrecognized color format/);
+        }
     });
 
     it('parses named colors', () => {

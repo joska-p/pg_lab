@@ -36,7 +36,13 @@ const ROOT_CONTEXT = 0;
 
 function paramsKey(params: Readonly<Record<string, number>>): string {
     return Object.entries(params)
-        .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+        .sort(([a], [b]) => {
+            if (a === b) {
+                return 0;
+            }
+
+            return a < b ? -1 : 1;
+        })
         .map(([name, value]) => `${name}=${value}`)
         .join(',');
 }

@@ -9,20 +9,27 @@ function getDebugGeometry(
     sphereFaces: number,
 ) {
     switch (preset) {
-        case 'circle':
+        case 'circle': {
             return new THREE.RingGeometry(radius - 0.02, radius - 0.02, circleSegments);
-        case 'fsphere':
+        }
+        case 'fsphere': {
             return new THREE.SphereGeometry(radius, circleSegments, sphereFaces);
-        case 'tetrahedron':
+        }
+        case 'tetrahedron': {
             return new THREE.TetrahedronGeometry(radius, 0);
-        case 'cube':
+        }
+        case 'cube': {
             return new THREE.BoxGeometry(radius * 1.15, radius * 1.15, radius * 1.15);
-        case 'octahedron':
+        }
+        case 'octahedron': {
             return new THREE.OctahedronGeometry(radius, 0);
-        case 'dodecahedron':
+        }
+        case 'dodecahedron': {
             return new THREE.DodecahedronGeometry(radius, 0);
-        case 'icosahedron':
+        }
+        case 'icosahedron': {
             return new THREE.IcosahedronGeometry(radius, 0);
+        }
     }
 }
 

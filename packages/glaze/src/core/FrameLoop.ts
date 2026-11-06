@@ -59,7 +59,10 @@ export class FrameLoop {
      * next frame, unsubscribing skips at the next frame — never mid-pass.
      */
     runFrameSubscribers(): void {
-        for (const callback of this.#subscribers) {
+        // Copy the set first: subscribing mid-frame joins the next frame, unsubscribing skips it.
+        const frameSubscribers = new Set(this.#subscribers);
+
+        for (const callback of frameSubscribers) {
             callback();
         }
     }

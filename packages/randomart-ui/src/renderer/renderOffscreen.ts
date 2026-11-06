@@ -28,7 +28,17 @@ export interface OffscreenRenderOptions {
 
 /** Largest usable square side: the request, capped by every viewport limit, at least 1. */
 export function clampExportSize(requested: number, limits: ArrayLike<number>): number {
-    return Math.max(1, Math.floor(Math.min(requested, ...Array.from(limits))));
+    let side = requested;
+
+    for (let index = 0; index < limits.length; index++) {
+        const limit = limits[index];
+
+        if (limit !== undefined && limit < side) {
+            side = limit;
+        }
+    }
+
+    return Math.max(1, Math.floor(side));
 }
 
 function compileShader(

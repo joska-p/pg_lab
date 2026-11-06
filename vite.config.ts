@@ -85,7 +85,9 @@ export function defineAppConfig({ stylex: withStylex = true, ...config }: AppCon
 // ═══════════════════════════════════════════════════════════════════════════
 
 const baseLint = {
-    plugins: ['import'],
+    // Oxlint's `plugins` replaces the default set instead of extending it, so every plugin used
+    // by the rules below has to be listed explicitly.
+    plugins: ['import', 'typescript', 'unicorn', 'oxc'],
     rules: {
         // Repo / tooling
         // ─────────────────────────────────────────────
@@ -212,7 +214,10 @@ const baseLint = {
         'typescript/prefer-as-const': 'error',
 
         'typescript/no-non-null-assertion': 'error',
-        'typescript/no-unsafe-type-assertion': 'error',
+        // Branded primitives are built with `value as Brand` inside their factories. The rule
+        // cannot distinguish that intentional narrowing from an unchecked assertion, so it stays
+        // off; the factories and `consistent-type-assertions` keep the `as` syntax honest.
+        'typescript/no-unsafe-type-assertion': 'off',
 
         // ─────────────────────────────────────────────
         // TypeScript — safety / unnecessary complexity
@@ -240,7 +245,7 @@ const baseLint = {
 } satisfies Pick<OxlintConfig, 'plugins' | 'rules'>;
 
 const reactLint = {
-    plugins: ['react'],
+    plugins: ['import', 'typescript', 'unicorn', 'oxc', 'react'],
     rules: {
         'react/rules-of-hooks': 'error',
         'react/only-export-components': [
@@ -294,20 +299,21 @@ const reactPackages = [
     'packages/mol-demo/**',
     'packages/mosaic-maker/**',
     'packages/notebook/**',
-    'packages/oeis-sgnal/**',
-    'packages/three-stage/**',
+    'packages/oeis-signal/**',
     'packages/palette/**',
+    'packages/pixel/**',
     'packages/pixel-manipulator/**',
     'packages/radu-machine-learning/**',
-    'packages/randomart/**',
+    'packages/randomart-ui/**',
     'packages/sequencer/**',
-    'packages/smith-tutle/**',
+    'packages/squared/**',
+    'packages/string-art/**',
+    'packages/three-stage/**',
     'packages/ui/**',
 ];
 
 const nodePackages = [
-    'packages/randomart/src/dataset/node/**',
-    'packages/palette/core',
+    'packages/palette/src/core/**',
     'packages/randomart-core/**',
     'tools/new-mini-app/**',
 ];
@@ -344,9 +350,8 @@ export default defineConfig({
                 ...reactLint,
             },
             {
-                // the core must not reach for its environment. `core` is pure TypeScript
-                // except `renderer/batchRenderer.ts`, the one browser edge of the domain.
-                files: ['packages/randomart/src/core/**'],
+                // The randomart core is pure TypeScript: no browser environment, no storage.
+                files: ['packages/randomart-core/**'],
                 rules: {
                     'no-restricted-globals': [
                         'error',
@@ -358,14 +363,6 @@ export default defineConfig({
                         'sessionStorage',
                         'indexedDB',
                     ],
-                },
-            },
-            {
-                // The single allowed DOM boundary: it creates the offscreen canvas the batch
-                // renderer draws into.
-                files: ['packages/randomart/src/core/renderer/batchRenderer.ts'],
-                rules: {
-                    'no-restricted-globals': 'off',
                 },
             },
             {

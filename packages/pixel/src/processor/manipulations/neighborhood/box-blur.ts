@@ -14,7 +14,7 @@ export const boxBlur = defineManip<{ radius?: number }>({
             destination,
             width,
             height,
-            new Array<number>(size * size).fill(1),
+            Array.from({ length: size * size }, () => 1),
             size,
             size * size,
         );

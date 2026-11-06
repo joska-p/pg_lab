@@ -2,7 +2,6 @@ import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
 import { labelToColorMap } from '../../constants';
-import type { Label } from '../../core/types';
 import { setScrollTarget, useSelectedDrawingId } from '../../stores/selection';
 import type { ChartPoint } from './types';
 
@@ -77,7 +76,7 @@ function ScatterDot({ data, xScale, yScale }: ScatterDotProps) {
                             fill={
                                 point.label === 'current'
                                     ? 'oklch(0.66 0.218 30.392)'
-                                    : labelToColorMap[point.label as Label]
+                                    : labelToColorMap[point.label]
                             }
                             {...stylex.props(styles.dot, isSelected && styles.selected)}
                         />

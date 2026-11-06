@@ -6,11 +6,12 @@ import { Grid } from '@repo/ui/components/Grid';
 import { Select } from '@repo/ui/components/Select';
 
 import { applyGrammar, randomizeGrammar, useGrammar } from '../../stores/artworkStore';
+import { setMode } from '../../stores/modeStore';
 
 const CUSTOM_PRESET = {
     id: 'custom',
     label: 'Custom',
-    description: 'A grammar that is not one of the presets.',
+    description: 'Edit the grammar by hand in the lab.',
 } as const;
 
 type PresetOptionValue = GrammarRegistryId | typeof CUSTOM_PRESET.id;
@@ -38,6 +39,9 @@ export function GrammarSelect() {
                     options={PRESET_OPTIONS}
                     onValueChange={(id) => {
                         if (id === CUSTOM_PRESET.id) {
+                            // The custom editor lives in the lab panel; selecting Custom means
+                            // "stop using a preset and edit the grammar", not a grammar change.
+                            setMode('lab');
                             return;
                         }
 

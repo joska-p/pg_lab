@@ -4,11 +4,12 @@ import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
 import { TextArea } from '@repo/ui/components/TextArea';
 import * as stylex from '@stylexjs/stylex';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useCompiledShader } from '../../stores/artworkStore';
 
 const POPOVER_ID = 'shader-source-popover';
+const FEEDBACK_DURATION_MS = 1500;
 
 const styles = stylex.create({
     panel: {
@@ -34,12 +35,71 @@ const styles = stylex.create({
 export function ShaderSource() {
     const compiledShader = useCompiledShader();
     const [open, setOpen] = useState(false);
+    const [feedback, setFeedback] = useState<string | null>(null);
+    const popoverRef = useRef<HTMLDivElement>(null);
+
+    // `popover="manual"` has no light dismiss and no Escape handling: the browser only manages it
+    // when it is `auto`. Provide both while it is open.
+    useEffect(() => {
+        if (!open) {
+            return;
+        }
+
+        function closeOnEscape(event: KeyboardEvent): void {
+            if (event.key === 'Escape') {
+                popoverRef.current?.hidePopover();
+            }
+        }
+
+        function closeOnOutsidePointer(event: PointerEvent): void {
+            const target = event.target;
+
+            if (!(target instanceof Element)) {
+                return;
+            }
+
+            if (popoverRef.current?.contains(target) === true) {
+                return;
+            }
+
+            // The invoker already toggles the popover on click; closing it here would reopen it.
+            if (target.closest(`[popovertarget="${POPOVER_ID}"]`)) {
+                return;
+            }
+
+            popoverRef.current?.hidePopover();
+        }
+
+        document.addEventListener('keydown', closeOnEscape);
+        document.addEventListener('pointerdown', closeOnOutsidePointer);
+
+        return () => {
+            document.removeEventListener('keydown', closeOnEscape);
+            document.removeEventListener('pointerdown', closeOnOutsidePointer);
+        };
+    }, [open]);
+
+    useEffect(() => {
+        if (feedback === null) {
+            return;
+        }
+
+        const timeout = setTimeout(() => {
+            setFeedback(null);
+        }, FEEDBACK_DURATION_MS);
+
+        return () => {
+            clearTimeout(timeout);
+        };
+    }, [feedback]);
 
     async function copySource(): Promise<void> {
         try {
             await navigator.clipboard.writeText(compiledShader.source);
+            setFeedback('Copied');
         } catch {
-            // Clipboard API can fail (permissions, context); fail silently per UX decision.
+            // Clipboard API can fail (permissions, context).
+            setFeedback('Copy failed');
         }
     }
 
@@ -49,12 +109,13 @@ export function ShaderSource() {
 
             <div
                 id={POPOVER_ID}
+                ref={popoverRef}
                 popover="manual"
                 onToggle={(event) => {
                     setOpen(event.newState === 'open');
                 }}
             >
-                <Card {...stylex.props(styles.panel)}>
+                <Card style={styles.panel}>
                     <div {...stylex.props(styles.header)}>
                         <Text variant="muted">Compiled fragment shader</Text>
                         <Button popoverTarget={POPOVER_ID} popoverTargetAction="hide">
@@ -66,7 +127,7 @@ export function ShaderSource() {
                             rows={20}
                             value={compiledShader.source}
                             readOnly
-                            {...stylex.props(styles.monospace)}
+                            style={styles.monospace}
                         />
                     )}
                     <Button
@@ -74,7 +135,7 @@ export function ShaderSource() {
                             void copySource();
                         }}
                     >
-                        Copy source
+                        {feedback ?? 'Copy source'}
                     </Button>
                 </Card>
             </div>

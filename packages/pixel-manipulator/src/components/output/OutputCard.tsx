@@ -88,7 +88,7 @@ function OutputCard({
 
     return (
         <>
-            <article ref={cardRef as React.RefObject<HTMLElement>} onClick={onSelect}>
+            <article ref={cardRef} onClick={onSelect}>
                 <Card style={[styles.card, isSelected ? styles.cardSelected : undefined]}>
                     <div {...stylex.props(styles.header)}>
                         <h3 {...stylex.props(styles.title)}>

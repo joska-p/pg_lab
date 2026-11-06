@@ -4,7 +4,8 @@ import type { RGBA } from './types';
 
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
 
-const HEX_RE = /^#([0-9a-f]{3,8})$/i;
+/** CSS hex colors are #RGB, #RGBA, #RRGGBB or #RRGGBBAA — no other length is valid. */
+const HEX_RE = /^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
 
 function parseHex(color: string): RGBA | null {
     const match = HEX_RE.exec(color);
@@ -94,7 +95,7 @@ function parseRgb(color: string): RGBA | null {
         return null;
     }
 
-    const alphaStr = parts[3] as string | undefined;
+    const alphaStr = parts[3];
     const a = parseAlphaValue(alphaStr);
 
     return {
@@ -154,7 +155,7 @@ function parseHsl(color: string): RGBA | null {
     const hue = (((parseFloat(parts[0] ?? '0') % 360) + 360) % 360) / 360;
     const s = parsePercentageChannel(parts[1]);
     const l = parsePercentageChannel(parts[2]);
-    const alphaStr = parts[3] as string | undefined;
+    const alphaStr = parts[3];
     const a = parseAlphaValue(alphaStr);
     const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
     const p = 2 * l - q;

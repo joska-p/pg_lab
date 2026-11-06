@@ -93,21 +93,26 @@ describe('deterministic random walk over the six edits', () => {
                     grammar = withWeight(grammar, name, low + rng.int(MAX_WEIGHT - low + 1));
                     break;
                 }
-                case 1:
+                case 1: {
                     grammar = withMinDepth(grammar, 1 + rng.int(8));
                     break;
-                case 2:
+                }
+                case 2: {
                     grammar = withMaxDepth(grammar, 1 + rng.int(10));
                     break;
-                case 3:
+                }
+                case 3: {
                     grammar = withMaxNodes(grammar, 4 + rng.int(97));
                     break;
-                case 4:
+                }
+                case 4: {
                     grammar = withShareDepth(grammar, rng.int(grammar.maxDepth + 1));
                     break;
-                default:
+                }
+                default: {
                     grammar = withSpace(grammar, rng.pick(COLOR_SPACE_IDS));
                     break;
+                }
             }
             // Edits never throw: they adjust neighbouring values themselves; invariants must hold.
             expect(minimumNodes(grammar)).toBeLessThanOrEqual(grammar.maxNodes);

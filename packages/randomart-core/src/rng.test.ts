@@ -23,9 +23,10 @@ describe('Rng.pick', () => {
         expect(drawn.size).toBeGreaterThan(1);
     });
 
-    it('throws on an empty list', () => {
+    it('throws on an empty list with a dedicated message', () => {
         const rng: Rng = createRng(seedOf('any-seed'));
         expect(() => rng.pick([])).toThrow(RandomArtError);
+        expect(() => rng.pick([])).toThrow('cannot draw from an empty list');
     });
 
     it('two rngs of the same seed produce the same pick sequence', () => {

@@ -18,9 +18,9 @@ export function isSerializedImageDataArray(data: unknown): data is SerializedIma
                 'data' in obj &&
                 'width' in obj &&
                 'height' in obj &&
-                obj['data'] instanceof Uint8ClampedArray &&
-                typeof obj['width'] === 'number' &&
-                typeof obj['height'] === 'number'
+                obj.data instanceof Uint8ClampedArray &&
+                typeof obj.width === 'number' &&
+                typeof obj.height === 'number'
             );
         })
     );

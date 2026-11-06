@@ -36,7 +36,7 @@ function getDrawingLabels() {
         labels.add(sample.label);
     }
 
-    return Array.from(labels);
+    return [...labels];
 }
 
 function getPointCount(paths: Path[]) {

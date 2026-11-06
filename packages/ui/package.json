@@ -8,6 +8,7 @@
         "./styles": "./src/styles.css",
         "./components/*": "./src/components/*.tsx",
         "./hooks/*": "./src/hooks/*.ts",
+        "./mount": "./src/mount.ts",
         "./recipes/*": "./src/recipes/*.ts",
         "./tokens/*": "./src/tokens/*.ts",
         "./visuals/*": "./src/visuals/*.tsx"

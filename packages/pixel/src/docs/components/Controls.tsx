@@ -135,7 +135,7 @@ function Controls() {
                 const isExpanded = expandedGroups[group.label] ?? true;
 
                 return (
-                    <Stack direction="vertical" gap="2">
+                    <Stack key={group.label} direction="vertical" gap="2">
                         <button
                             type="button"
                             onClick={() => {

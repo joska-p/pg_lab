@@ -148,7 +148,7 @@ export function getSpawnPoints({
     const rawVertices = VERTEX_PRESETS[preset];
 
     if (rawVertices === undefined) {
-        throw Error(`Expected vertices got: ${rawVertices}`);
+        throw new Error(`Expected vertices got: ${rawVertices}`);
     }
 
     const vertexVec = new Vector3();

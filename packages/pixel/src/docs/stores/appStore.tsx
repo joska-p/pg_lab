@@ -7,12 +7,12 @@ import type { EndpointId } from '../data/pipeline-docs-data';
 
 type theme = 'light' | 'dark' | 'system';
 
-type appStore = {
+interface appStore {
     theme: theme;
     activeEndPointId: EndpointId;
     sourceData: ImageData | null;
     paramValues: Record<string, number>;
-};
+}
 
 const appStore = create<appStore>(() => ({
     theme: 'dark',

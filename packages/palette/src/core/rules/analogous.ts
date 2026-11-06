@@ -13,11 +13,11 @@ const analogous: Rule = {
         for (const angle of angles) {
             const c = base.clone();
 
-            c.oklch['h'] = ((c.oklch['h'] ?? 0) + angle + 360) % 360;
+            c.oklch.h = ((c.oklch.h ?? 0) + angle + 360) % 360;
 
             const light = c.clone();
 
-            light.oklch['l'] = Math.min(1, (light.oklch['l'] ?? 0) + 0.15);
+            light.oklch.l = Math.min(1, (light.oklch.l ?? 0) + 0.15);
 
             colors.push(light);
             colors.push(c);

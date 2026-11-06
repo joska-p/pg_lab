@@ -12,11 +12,11 @@ const monochromatic: Rule = {
         for (const l of lightnessSteps) {
             const c = base.clone();
 
-            c.oklch['l'] = l;
+            c.oklch.l = l;
 
             // Slightly reduce chroma for very light or very dark colors for a more natural look
-            if ((l > 0.8 || l < 0.3) && c.oklch['c'] != null) {
-                c.oklch['c'] *= 0.8;
+            if ((l > 0.8 || l < 0.3) && c.oklch.c != null) {
+                c.oklch.c *= 0.8;
             }
 
             colors.push(c);

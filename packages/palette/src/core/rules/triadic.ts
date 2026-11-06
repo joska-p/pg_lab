@@ -13,17 +13,15 @@ const triadic: Rule = {
         for (const angle of angles) {
             const c = base.clone();
 
-            if (c.oklch['h'] != null) {
-                c.oklch['h'] = (c.oklch['h'] + angle) % 360;
+            if (c.oklch.h != null) {
+                c.oklch.h = (c.oklch.h + angle) % 360;
             }
 
             const variation = c.clone();
 
-            if (variation.oklch['l'] != null) {
-                variation.oklch['l'] =
-                    variation.oklch['l'] > 0.5
-                        ? variation.oklch['l'] - 0.2
-                        : variation.oklch['l'] + 0.2;
+            if (variation.oklch.l != null) {
+                variation.oklch.l =
+                    variation.oklch.l > 0.5 ? variation.oklch.l - 0.2 : variation.oklch.l + 0.2;
             }
 
             colors.push(c);

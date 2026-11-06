@@ -131,6 +131,6 @@ export interface Mesh3D {
 
 - **Le concept :** Tu utilises le "Squared Rectangle" comme un système automatique de mise en page (UI Layout Engine).
 - **L'expérience :** L'utilisateur ajoute des blocs ou règle des contraintes, et l'algorithme calcule instantanément le seul pavage parfait qui respecte la topologie demandée.
-- **Pourquoi c me cool :** C'est un outil très concret avec une vraie utilité applicative (dashboarding, galeries d'images responsives et harmonieuses).
+- **Pourquoi c'est cool :** C'est un outil très concret avec une vraie utilité applicative (dashboarding, galeries d'images responsives et harmonieuses).
 
 ---
