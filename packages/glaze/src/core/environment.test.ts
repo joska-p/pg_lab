@@ -1,14 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test';
 
 import { createCpuSurface } from '../cpu/CpuSurface';
+import { createPositiveNumber } from './brands';
 import { createCamera } from './Camera';
-import { createZoomFactor } from './cameraTypes';
 import {
     createDocumentCanvas,
     defaultGetDevicePixelRatio,
     resolveDevicePixelRatio,
 } from './environment';
-import { createDevicePixelRatio } from './render';
 import { createMilliseconds } from './time';
 
 describe('core/environment resolver', () => {
@@ -19,7 +18,7 @@ describe('core/environment resolver', () => {
     it('explicit dpr always wins over the injected getter', () => {
         const getter = vi.fn(() => 3);
 
-        expect(resolveDevicePixelRatio(createDevicePixelRatio(2), getter)).toBe(2);
+        expect(resolveDevicePixelRatio(createPositiveNumber(2), getter)).toBe(2);
         expect(getter).not.toHaveBeenCalled();
     });
 
@@ -62,8 +61,8 @@ describe('surface frameLoopOptions injection (Step 4 sealing)', () => {
 
         const surface = createCpuSurface({
             canvas,
-            camera: createCamera(0, 0, createZoomFactor(1)),
-            dpr: createDevicePixelRatio(1),
+            camera: createCamera(0, 0, createPositiveNumber(1)),
+            dpr: createPositiveNumber(1),
             frameLoopOptions: {
                 now: () => createMilliseconds(1000),
                 schedule,

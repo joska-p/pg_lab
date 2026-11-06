@@ -1,5 +1,5 @@
-import { createDevicePixelRatio } from './render';
-import type { DevicePixelRatio } from './render';
+import { createPositiveNumber } from './brands';
+import type { PositiveNumber } from './brands';
 
 /**
  * Shell capability: reads the device pixel ratio without crashing under SSR/Node. Falls back to 1
@@ -21,17 +21,17 @@ export function defaultGetDevicePixelRatio(): number {
  * no longer throw at this layer.
  */
 export function resolveDevicePixelRatio(
-    explicit?: DevicePixelRatio,
+    explicit?: PositiveNumber,
     getDpr: () => number = defaultGetDevicePixelRatio,
-): DevicePixelRatio {
+): PositiveNumber {
     if (explicit !== undefined) {
         return explicit;
     }
 
     try {
-        return createDevicePixelRatio(getDpr());
+        return createPositiveNumber(getDpr());
     } catch {
-        return createDevicePixelRatio(1);
+        return createPositiveNumber(1);
     }
 }
 

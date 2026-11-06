@@ -1,6 +1,5 @@
-import { assertFinite } from './brands';
-import { createZoomFactor } from './cameraTypes';
-import type { ZoomFactor } from './cameraTypes';
+import { assertFinite, createPositiveNumber } from './brands';
+import type { PositiveNumber } from './brands';
 import { toScreenPoint, toWorldPoint } from './geometry';
 import type { ScreenPoint, WorldPoint } from './geometry';
 
@@ -8,9 +7,9 @@ import type { ScreenPoint, WorldPoint } from './geometry';
 export class Camera {
     x: number;
     y: number;
-    zoom: ZoomFactor;
+    zoom: PositiveNumber;
 
-    constructor(x: number, y: number, zoom: ZoomFactor) {
+    constructor(x: number, y: number, zoom: PositiveNumber) {
         this.x = x;
         this.y = y;
         this.zoom = zoom;
@@ -32,14 +31,14 @@ export class Camera {
     }
 }
 
-export function createCamera(x: number, y: number, zoom: ZoomFactor): Camera {
+export function createCamera(x: number, y: number, zoom: PositiveNumber): Camera {
     assertFinite(x, 'camera x');
     assertFinite(y, 'camera y');
 
     return new Camera(x, y, zoom);
 }
 
-export const defaultCamera = (): Camera => createCamera(0, 0, createZoomFactor(1));
+export const defaultCamera = (): Camera => createCamera(0, 0, createPositiveNumber(1));
 
 /** Fresh camera with identical state — the snapshot primitive behind `reset()` semantics. */
 export function copyCamera(camera: Camera): Camera {

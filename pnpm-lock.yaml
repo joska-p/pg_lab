@@ -936,7 +936,7 @@ importers:
         specifier: 'catalog:'
         version: 1.4.0(@types/node@24.19.2)(@vitest/ui@5.0.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.1)
 
-  packages/smith-tutte:
+  packages/squared:
     dependencies:
       '@repo/glaze':
         specifier: workspace:*

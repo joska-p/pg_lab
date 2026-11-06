@@ -1,3 +1,5 @@
+import { createPositiveInteger, createPositiveNumber } from '../core/brands';
+import type { PositiveInteger, PositiveNumber } from '../core/brands';
 import { defaultCamera } from '../core/Camera';
 import type { Camera } from '../core/Camera';
 import { createClock } from '../core/Clock';
@@ -8,14 +10,7 @@ import { toScreenPoint } from '../core/geometry';
 import type { Point2D, ScreenPoint, WorldPoint } from '../core/geometry';
 import { createInputStore } from '../core/InputStore';
 import type { InputStore } from '../core/InputStore';
-import { createCanvasDimension, createDevicePixelRatio } from '../core/render';
-import type {
-    CanvasDimension,
-    CssColor,
-    DevicePixelRatio,
-    FontSize,
-    PositiveNumber,
-} from '../core/render';
+import type { CssColor } from '../core/render';
 import type { Circle, DrawStyle, PathOptions, Rectangle, Segment, TextStyle } from '../core/shapes';
 import { createNonNegativeSeconds, createSeconds } from '../core/time';
 import type { NonNegativeSeconds, Seconds } from '../core/time';
@@ -37,7 +32,7 @@ export class CpuSurface {
     /** CSS pixels, not device pixels — multiply by `dpr` for the backing-buffer size. */
     width = 0;
     height = 0;
-    readonly dpr: DevicePixelRatio;
+    readonly dpr: PositiveNumber;
     readonly canvas: HTMLCanvasElement;
     readonly camera: Camera;
     readonly input: InputStore;
@@ -45,8 +40,8 @@ export class CpuSurface {
 
     readonly #loop: FrameLoop;
     readonly #context: CanvasRenderingContext2D;
-    #cssWidth: CanvasDimension = createCanvasDimension(1);
-    #cssHeight: CanvasDimension = createCanvasDimension(1);
+    #cssWidth: PositiveInteger = createPositiveInteger(1);
+    #cssHeight: PositiveInteger = createPositiveInteger(1);
 
     constructor(config: CpuSurfaceConfig) {
         const context = config.canvas.getContext('2d');
@@ -58,7 +53,7 @@ export class CpuSurface {
         this.canvas = config.canvas;
         this.#context = context;
         this.camera = config.camera ?? defaultCamera();
-        this.dpr = config.dpr ?? createDevicePixelRatio(1);
+        this.dpr = config.dpr ?? createPositiveNumber(1);
         this.clock = config.clock ?? createClock(config.clockOptions);
         this.input = createInputStore();
         this.input.attach(this.canvas);
@@ -200,8 +195,8 @@ export class CpuSurface {
     }
 
     #resize(): void {
-        this.#cssWidth = createCanvasDimension(Math.max(1, this.canvas.clientWidth));
-        this.#cssHeight = createCanvasDimension(Math.max(1, this.canvas.clientHeight));
+        this.#cssWidth = createPositiveInteger(Math.max(1, this.canvas.clientWidth));
+        this.#cssHeight = createPositiveInteger(Math.max(1, this.canvas.clientHeight));
         const deviceWidth = Math.round(this.#cssWidth * this.dpr);
         const deviceHeight = Math.round(this.#cssHeight * this.dpr);
 
@@ -268,7 +263,7 @@ export class CpuSurface {
         x: number,
         y: number,
         fill: CssColor | undefined,
-        fontSize: FontSize | undefined,
+        fontSize: PositiveNumber | undefined,
         style?: TextStyle,
     ): void {
         const context = this.#context;

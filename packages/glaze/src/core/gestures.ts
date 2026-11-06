@@ -1,12 +1,13 @@
+import { createPositiveNumber } from './brands';
+import type { PositiveNumber } from './brands';
 import type { Point2D } from './geometry';
 import { toScreenPoint } from './geometry';
-import { DEFAULT_WHEEL_SPEED, createWheelSpeed } from './gestureTypes';
+import { DEFAULT_WHEEL_SPEED } from './gestureTypes';
 import type {
     Gesture,
     InputRouterOptions,
     InteractionEvent,
     PanOptions,
-    WheelSpeed,
     ZoomOptions,
 } from './gestureTypes';
 
@@ -68,10 +69,10 @@ export function createPanGesture<TSurface>(options: PanOptions = {}): PanGesture
 
 /** Wheel zoom around the cursor; the resulting zoom is clamped by `cameraControls`. */
 export class ZoomGesture<TSurface> {
-    readonly #speed: WheelSpeed;
+    readonly #speed: PositiveNumber;
 
     constructor(options: ZoomOptions = {}) {
-        this.#speed = createWheelSpeed(options.speed ?? DEFAULT_WHEEL_SPEED);
+        this.#speed = createPositiveNumber(options.speed ?? DEFAULT_WHEEL_SPEED);
     }
 
     onZoom = (event: InteractionEvent<WheelEvent, TSurface>): void => {

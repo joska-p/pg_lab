@@ -1,4 +1,5 @@
-import { createBufferDimension, createStateData } from '../core/render';
+import { createPositiveInteger } from '../core/brands';
+import { createStateData } from '../core/render';
 import type { StateData } from '../core/render';
 import { createProgram } from './shader/Program';
 import type { Program } from './shader/Program';
@@ -70,8 +71,8 @@ export class StateBufferTargets {
     init(data: Uint8Array | StateData): void {
         createStateData(
             data,
-            createBufferDimension(this.#currentWidth),
-            createBufferDimension(this.#currentHeight),
+            createPositiveInteger(this.#currentWidth),
+            createPositiveInteger(this.#currentHeight),
         );
 
         const rgba = new Uint8Array(data.length * 4);

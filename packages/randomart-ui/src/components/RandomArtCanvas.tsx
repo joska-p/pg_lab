@@ -1,4 +1,3 @@
-import { createCanvasDimension } from '@repo/glaze/core/render';
 import type { DurationSeconds } from '@repo/glaze/core/time';
 import type { ShaderError } from '@repo/glaze/gpu/shader/ShaderError';
 import type { GpuSurface } from '@repo/glaze/gpu/types';
@@ -98,8 +97,8 @@ export function RandomArtCanvas({
                     shouldRender={(surface) => {
                         const key: RenderKey = {
                             phase: createPhase(surface.clock.progress),
-                            width: createCanvasDimension(surface.width),
-                            height: createCanvasDimension(surface.height),
+                            width: surface.width,
+                            height: surface.height,
                             dpr: surface.dpr,
                             animated,
                         };

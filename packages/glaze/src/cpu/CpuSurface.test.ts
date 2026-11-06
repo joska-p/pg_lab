@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
+import { createPositiveNumber } from '../core/brands';
 import { createCamera } from '../core/Camera';
-import { createZoomFactor } from '../core/cameraTypes';
-import { createCssColor, createDevicePixelRatio } from '../core/render';
+import { createCssColor } from '../core/render';
 import { createMilliseconds } from '../core/time';
 import { createCpuSurface } from './CpuSurface';
 import type { CpuSurface } from './CpuSurface';
@@ -34,8 +34,8 @@ describe('CpuSurface.applyCamera', () => {
 
         surface = createCpuSurface({
             canvas: createMockCanvas(context),
-            camera: createCamera(10, 20, createZoomFactor(2)),
-            dpr: createDevicePixelRatio(2),
+            camera: createCamera(10, 20, createPositiveNumber(2)),
+            dpr: createPositiveNumber(2),
         });
         // Bypass the frame loop: stamp a non-zero CSS size so the guard in `applyCamera` passes.
         surface.width = 640;
@@ -76,8 +76,8 @@ describe('CpuSurface clock', () => {
             canvas: createMockCanvas({
                 setTransform: () => {},
             } as unknown as CanvasRenderingContext2D),
-            camera: createCamera(0, 0, createZoomFactor(1)),
-            dpr: createDevicePixelRatio(1),
+            camera: createCamera(0, 0, createPositiveNumber(1)),
+            dpr: createPositiveNumber(1),
             frameLoopOptions: {
                 now: () => createMilliseconds(0),
                 schedule: (callback) => {
@@ -123,8 +123,8 @@ describe('CpuSurface object-only draw API (Step 3 reorg)', () => {
 
         return createCpuSurface({
             canvas: createMockCanvas(mocks as unknown as CanvasRenderingContext2D),
-            camera: createCamera(0, 0, createZoomFactor(1)),
-            dpr: createDevicePixelRatio(1),
+            camera: createCamera(0, 0, createPositiveNumber(1)),
+            dpr: createPositiveNumber(1),
         });
     }
 

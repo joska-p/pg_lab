@@ -1,18 +1,10 @@
-import { assertFinite, assertStrictlyPositive } from './brands';
-import type { Brand } from './brands';
+import { assertFinite, assertStrictlyPositive, createPositiveNumber } from './brands';
+import type { PositiveNumber } from './brands';
 import type { Point2D } from './geometry';
-
-export type ZoomFactor = Brand<number, 'ZoomFactor'>;
 
 export interface ZoomBounds {
     minZoom: number;
     maxZoom: number;
-}
-
-export function createZoomFactor(value: number): ZoomFactor {
-    assertStrictlyPositive(value, 'zoom factor');
-
-    return value as ZoomFactor;
 }
 
 export function createZoomBounds(minZoom: number, maxZoom: number): ZoomBounds {
@@ -31,15 +23,15 @@ export function createZoomBounds(minZoom: number, maxZoom: number): ZoomBounds {
 export const DEFAULT_ZOOM_BOUNDS: ZoomBounds = createZoomBounds(0.05, 64);
 
 /** Validated zoom policy — every value comes back finite, in bounds, and branded. */
-export type ZoomClamp = (value: number) => ZoomFactor;
+export type ZoomClamp = (value: number) => PositiveNumber;
 
 export function createZoomClamp(minZoom: number, maxZoom: number): ZoomClamp {
     const bounds = createZoomBounds(minZoom, maxZoom);
 
-    return (value: number): ZoomFactor => {
+    return (value: number): PositiveNumber => {
         assertFinite(value, 'zoom');
 
-        return createZoomFactor(Math.max(bounds.minZoom, Math.min(bounds.maxZoom, value)));
+        return createPositiveNumber(Math.max(bounds.minZoom, Math.min(bounds.maxZoom, value)));
     };
 }
 

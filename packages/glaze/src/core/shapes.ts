@@ -1,5 +1,6 @@
+import type { PositiveNumber } from './brands';
 import type { Point2D } from './geometry';
-import type { CssColor, FontSize, PositiveNumber } from './render';
+import type { CssColor } from './render';
 
 /** World-space axis-aligned rectangle with full-word dimensions (no `w`/`h` shorthand). */
 export interface Rectangle {
@@ -23,7 +24,7 @@ export interface TextStyle {
     fill?: CssColor;
     stroke?: CssColor;
     lineWidth?: PositiveNumber;
-    fontSize?: FontSize;
+    fontSize?: PositiveNumber;
     fontFamily?: string;
     align?: 'left' | 'center' | 'right';
     baseline?: 'alphabetic' | 'top' | 'middle' | 'bottom';

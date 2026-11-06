@@ -1,3 +1,5 @@
+import { createPositiveNumber } from '../core/brands';
+import type { PositiveNumber } from '../core/brands';
 import { defaultCamera } from '../core/Camera';
 import type { Camera } from '../core/Camera';
 import { createClock } from '../core/Clock';
@@ -8,8 +10,8 @@ import { toScreenPoint } from '../core/geometry';
 import type { Point2D, ScreenPoint, WorldPoint } from '../core/geometry';
 import { createInputStore } from '../core/InputStore';
 import type { InputStore } from '../core/InputStore';
-import { createCssColor, createDevicePixelRatio } from '../core/render';
-import type { CssColor, DevicePixelRatio } from '../core/render';
+import { createCssColor } from '../core/render';
+import type { CssColor } from '../core/render';
 import type { Circle, DrawStyle, Rectangle, Segment, TextStyle } from '../core/shapes';
 import { createNonNegativeSeconds, createSeconds } from '../core/time';
 import type { NonNegativeSeconds, Seconds } from '../core/time';
@@ -41,7 +43,7 @@ export class GpuSurface {
     /** CSS pixels, not device pixels — multiply by `dpr` for the backing-buffer size. */
     width = 0;
     height = 0;
-    readonly dpr: DevicePixelRatio;
+    readonly dpr: PositiveNumber;
     readonly canvas: HTMLCanvasElement;
     readonly camera: Camera;
     readonly input: InputStore;
@@ -76,7 +78,7 @@ export class GpuSurface {
         this.canvas = config.canvas;
         this.#gl = gl;
         this.camera = config.camera ?? defaultCamera();
-        this.dpr = config.dpr ?? createDevicePixelRatio(1);
+        this.dpr = config.dpr ?? createPositiveNumber(1);
         this.clock = config.clock ?? createClock(config.clockOptions);
         this.input = createInputStore();
         this.input.attach(this.canvas);

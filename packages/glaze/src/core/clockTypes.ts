@@ -1,8 +1,9 @@
-import type { DurationSeconds, TimeSpeed } from './time';
+import type { PositiveNumber } from './brands';
+import type { DurationSeconds } from './time';
 
 export interface ClockRuntimeOptions {
     /** Multiplier applied to every delta; defaults to 1. */
-    speed?: TimeSpeed;
+    speed?: PositiveNumber;
     /** Whether the clock starts playing immediately; defaults to true. */
     autoStart?: boolean;
 }

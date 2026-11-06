@@ -2,7 +2,6 @@ import { assertFinite, assertStrictlyPositive } from './brands';
 import type { Brand } from './brands';
 
 export type DurationSeconds = Brand<number, 'DurationSeconds'>;
-export type TimeSpeed = Brand<number, 'TimeSpeed'>;
 export type Seconds = Brand<number, 'Seconds'>;
 
 /**
@@ -18,12 +17,6 @@ export function createDurationSeconds(value: number): DurationSeconds {
     assertStrictlyPositive(value, 'duration');
 
     return value as DurationSeconds;
-}
-
-export function createTimeSpeed(value: number): TimeSpeed {
-    assertStrictlyPositive(value, 'time speed');
-
-    return value as TimeSpeed;
 }
 
 export function createSeconds(value: number): Seconds {

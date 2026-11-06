@@ -1,13 +1,13 @@
 import type { CSSProperties } from 'react';
 
+import type { PositiveNumber } from '../core/brands';
 import type { Camera } from '../core/Camera';
 import type { CameraControls } from '../core/cameraTypes';
 import type { Clock } from '../core/Clock';
 import type { FrameLoopOptions } from '../core/frameTypes';
 import type { InteractionEvent, PanOptions, ZoomOptions } from '../core/gestureTypes';
-import type { DevicePixelRatio } from '../core/render';
 import type { ClockMixin } from '../core/surfaceTypes';
-import type { DurationSeconds, Seconds, TimeSpeed } from '../core/time';
+import type { DurationSeconds, Seconds } from '../core/time';
 import type { CpuDraw, CpuSurface } from '../cpu/types';
 import type { ShaderError } from '../gpu/shader/ShaderError';
 import type { UniformValue } from '../gpu/shader/types';
@@ -36,7 +36,7 @@ export interface ClockStore {
     play(): void;
     pause(): void;
     reset(): void;
-    setSpeed(speed: TimeSpeed): void;
+    setSpeed(speed: PositiveNumber): void;
     setDuration(duration: DurationSeconds): void;
     subscribe(fn: () => void): () => void;
     getSnapshot(): Seconds;
@@ -82,7 +82,7 @@ export interface SurfaceOptionsBase {
     camera?: Camera;
     cameraControls?: CameraControls;
     initialCamera?: InitialCamera;
-    dpr?: DevicePixelRatio;
+    dpr?: PositiveNumber;
     frameLoopOptions?: FrameLoopOptions;
 }
 

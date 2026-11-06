@@ -1,6 +1,7 @@
+import type { PositiveNumber } from '../core/brands';
 import type { Clock } from '../core/Clock';
 import { createSeconds } from '../core/time';
-import type { DurationSeconds, Seconds, TimeSpeed } from '../core/time';
+import type { DurationSeconds, Seconds } from '../core/time';
 import { createObservable } from './observable';
 import type { ClockStore } from './types';
 
@@ -38,7 +39,7 @@ export function createClockStore(clock: Clock): ClockStore {
             clock.reset();
             observable.notify();
         },
-        setSpeed(speed: TimeSpeed) {
+        setSpeed(speed: PositiveNumber) {
             clock.setSpeed(speed);
             observable.notify();
         },

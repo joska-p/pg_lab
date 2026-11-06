@@ -1,8 +1,10 @@
+import { createPositiveNumber } from './brands';
+import type { PositiveNumber } from './brands';
 import type { ClockOptions, ClockState } from './clockTypes';
-import { createNonNegativeSeconds, createSeconds, createTimeSpeed } from './time';
-import type { DurationSeconds, NonNegativeSeconds, Seconds, TimeSpeed } from './time';
+import { createNonNegativeSeconds, createSeconds } from './time';
+import type { DurationSeconds, NonNegativeSeconds, Seconds } from './time';
 
-const DEFAULT_TIME_SPEED = createTimeSpeed(1);
+const DEFAULT_TIME_SPEED = createPositiveNumber(1);
 const ZERO_SECONDS = createSeconds(0);
 
 // ── Advance strategies ──
@@ -66,7 +68,7 @@ export class Clock {
     #time: Seconds = ZERO_SECONDS;
     #deltaTime: Seconds = ZERO_SECONDS;
     #isPlaying: boolean;
-    #speed: TimeSpeed;
+    #speed: PositiveNumber;
     #state: ClockState;
     #direction: 1 | -1 = 1;
 
@@ -96,7 +98,7 @@ export class Clock {
         return this.#isPlaying;
     }
 
-    get speed(): TimeSpeed {
+    get speed(): PositiveNumber {
         return this.#speed;
     }
 
@@ -146,16 +148,17 @@ export class Clock {
     }
 
     seek(time: Seconds): this {
-        this.#time =
+        this.#time = createSeconds(
             this.#state.kind === 'timed'
-                ? (Math.max(0, Math.min(this.#state.duration, time)) as Seconds)
-                : (Math.max(0, time) as Seconds);
+                ? Math.max(0, Math.min(this.#state.duration, time))
+                : Math.max(0, time),
+        );
         this.#deltaTime = ZERO_SECONDS;
 
         return this;
     }
 
-    setSpeed(speed: TimeSpeed): this {
+    setSpeed(speed: PositiveNumber): this {
         this.#speed = speed;
 
         return this;

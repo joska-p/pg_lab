@@ -1,19 +1,11 @@
-import { assertStrictlyPositive } from './brands';
-import type { Brand } from './brands';
+import { createPositiveNumber } from './brands';
+import type { PositiveNumber } from './brands';
 import type { CameraControls } from './cameraTypes';
 import type { ScreenPoint } from './geometry';
 import type { InputStore } from './InputStore';
 
-export type WheelSpeed = Brand<number, 'WheelSpeed'>;
-
-export function createWheelSpeed(value: number): WheelSpeed {
-    assertStrictlyPositive(value, 'wheel speed');
-
-    return value as WheelSpeed;
-}
-
 /** Per-wheel-pixel exponential zoom rate, validated once at import. */
-export const DEFAULT_WHEEL_SPEED: WheelSpeed = createWheelSpeed(0.002);
+export const DEFAULT_WHEEL_SPEED: PositiveNumber = createPositiveNumber(0.002);
 
 export interface PanOptions {
     button?: number | number[];

@@ -1,7 +1,8 @@
+import { createPositiveNumber } from '@repo/glaze/core/brands';
 import { createCamera } from '@repo/glaze/core/Camera';
 import type { Camera } from '@repo/glaze/core/Camera';
 import { createCameraControls } from '@repo/glaze/core/CameraControls';
-import { createZoomFactor, DEFAULT_ZOOM_BOUNDS } from '@repo/glaze/core/cameraTypes';
+import { DEFAULT_ZOOM_BOUNDS } from '@repo/glaze/core/cameraTypes';
 import type { CameraControls } from '@repo/glaze/core/cameraTypes';
 
 /**
@@ -25,7 +26,7 @@ export interface CameraRig {
 export function createCameraRig(options?: { minZoom?: number; maxZoom?: number }): CameraRig {
     const minZoom = options?.minZoom ?? DEFAULT_ZOOM_BOUNDS.minZoom;
     const maxZoom = options?.maxZoom ?? DEFAULT_ZOOM_BOUNDS.maxZoom;
-    const camera = createCamera(0, 0, createZoomFactor(1));
+    const camera = createCamera(0, 0, createPositiveNumber(1));
     const inner = createCameraControls(camera, minZoom, maxZoom);
 
     let version = 0;

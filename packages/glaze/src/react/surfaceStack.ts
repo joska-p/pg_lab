@@ -1,8 +1,8 @@
+import { createPositiveNumber } from '../core/brands';
 import { createCamera } from '../core/Camera';
 import type { Camera } from '../core/Camera';
 import { createCameraControls } from '../core/CameraControls';
 import type { CameraControls } from '../core/cameraTypes';
-import { createZoomFactor } from '../core/cameraTypes';
 import { resolveDevicePixelRatio } from '../core/environment';
 import { InputRouter } from '../core/gestures';
 import type { Gesture } from '../core/gestureTypes';
@@ -46,7 +46,7 @@ function createCameraFromInitial(initial: InitialCamera = {}): Camera {
     return createCamera(
         initial.pan?.x ?? 0,
         initial.pan?.y ?? 0,
-        createZoomFactor(initial.zoom ?? 1),
+        createPositiveNumber(initial.zoom ?? 1),
     );
 }
 
