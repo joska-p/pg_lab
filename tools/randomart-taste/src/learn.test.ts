@@ -5,8 +5,8 @@ import { learn, printResults } from './learn';
 describe('learn', () => {
     it('régression opérateurs → features visuelles sur le dataset généré', () => {
         const results = learn({
-            input: 'data/samples.json',
-            output: 'data/coefficients.json',
+            input: '../data/samples.json',
+            output: '../data/coefficients.json',
             lambda: 0.01,
             topN: 12,
         });

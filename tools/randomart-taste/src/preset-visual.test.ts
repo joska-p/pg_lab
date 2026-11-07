@@ -5,27 +5,41 @@ import { createSeed } from '@repo/randomart-core/seed';
 import { describe, expect, it } from 'vite-plus/test';
 
 import { featuresOf } from './features';
+import type { ExpressionFeatures } from './features';
+import type { ImageStats } from './imageStats';
 import { imageStats } from './imageStats';
+import type { Renderer, RenderOutcome } from './render';
 import { createRenderer } from './render';
 
 const PRESETS = ['vivid', 'motion', 'muted'] as const;
+type PresetId = (typeof PRESETS)[number];
 const SEEDS_PER_PRESET = 6;
 const SIZE = 96;
 
-function renderPreset(
-    renderer: ReturnType<typeof createRenderer>,
-    presetId: string,
+interface RenderResult {
+    preset: string;
+    seed: number;
+    stats: ImageStats;
+    features: ExpressionFeatures;
+    animated: boolean;
+}
+
+async function renderPreset(
+    renderer: Renderer,
+    presetId: PresetId,
     seedIndex: number,
-): Promise<{ preset: string; seed: number; stats: any; features: any; animated: boolean }> {
+): Promise<RenderResult> {
     const preset = grammarRegistry[presetId];
     const expression = generate(preset.grammar, createSeed(String(seedIndex)));
     const shader = compile(expression, { space: preset.grammar.space });
     const features = featuresOf(expression, preset.grammar.space);
     const phases = shader.animated ? [0, 1 / 3, 2 / 3] : [0];
 
-    return renderer.render(shader.source, phases, SIZE).then((outcome) => {
+    return renderer.render(shader.source, phases, SIZE).then((outcome: RenderOutcome) => {
         if (!outcome.ok) {
-            throw new Error(`Preset ${presetId} seed ${seedIndex} failed: ${outcome.error}`);
+            throw new Error(
+                `Preset ${presetId} seed ${seedIndex} failed: ${outcome.error.slice(0, 200)}`,
+            );
         }
         const stats = imageStats(outcome.frames);
         return { preset: presetId, seed: seedIndex, stats, features, animated: shader.animated };
@@ -35,13 +49,13 @@ function renderPreset(
 describe('preset visual claim', () => {
     it('renders each new preset and reports its visual features', async () => {
         const renderer = await createRenderer();
-        const results: Array<{ preset: string; stats: any; animated: boolean }> = [];
+        const results: RenderResult[] = [];
 
         try {
             for (const presetId of PRESETS) {
                 for (let s = 0; s < SEEDS_PER_PRESET; s++) {
                     const r = await renderPreset(renderer, presetId, s);
-                    results.push({ preset: r.preset, stats: r.stats, animated: r.animated });
+                    results.push(r);
                     console.log(
                         `${r.preset.padEnd(8)} seed ${r.seed} ` +
                             `brightness=${r.stats.brightness.toFixed(3)} ` +
@@ -65,7 +79,7 @@ describe('preset visual claim', () => {
         }
 
         // Moyennes par preset
-        const byPreset = new Map<string, typeof results>();
+        const byPreset = new Map<string, RenderResult[]>();
         for (const r of results) {
             const list = byPreset.get(r.preset) ?? [];
             list.push(r);
@@ -73,7 +87,8 @@ describe('preset visual claim', () => {
         }
 
         for (const [presetId, list] of byPreset) {
-            const avg = (key: string) => list.reduce((s, r) => s + r.stats[key], 0) / list.length;
+            const avg = (key: keyof ImageStats) =>
+                list.reduce((s, r) => s + r.stats[key], 0) / list.length;
             console.log(
                 `\n${presetId} (n=${list.length}): ` +
                     `brightness=${avg('brightness').toFixed(3)} ` +
@@ -86,15 +101,19 @@ describe('preset visual claim', () => {
         }
 
         // Claims à vérifier (tendance, pas strict sur 6 échantillons)
-        const vivid = byPreset.get('vivid')!;
-        const motion = byPreset.get('motion')!;
-        const muted = byPreset.get('muted')!;
+        const vivid = byPreset.get('vivid');
+        const motion = byPreset.get('motion');
+        const muted = byPreset.get('muted');
 
-        const avgColor = (list: typeof results) =>
+        if (!vivid || !motion || !muted) {
+            throw new Error('Tous les presets doivent être présents');
+        }
+
+        const avgColor = (list: RenderResult[]) =>
             list.reduce((s, r) => s + r.stats.colorfulness, 0) / list.length;
-        const avgMotion = (list: typeof results) =>
+        const avgMotion = (list: RenderResult[]) =>
             list.reduce((s, r) => s + r.stats.motion, 0) / list.length;
-        const avgContrast = (list: typeof results) =>
+        const avgContrast = (list: RenderResult[]) =>
             list.reduce((s, r) => s + r.stats.contrast, 0) / list.length;
 
         console.log(

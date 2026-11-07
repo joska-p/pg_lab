@@ -1,4 +1,13 @@
 import { readFileSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+/** Résout un chemin relatif par rapport au fichier source (et non au CWD). */
+function toAbsolute(input: string): string {
+    return input.startsWith('.') ? resolve(__dirname, input) : input;
+}
 
 export interface LearnOptions {
     input: string;
@@ -34,139 +43,223 @@ export interface FeatureResult {
     readonly r2: number;
 }
 
-/** Charge le dataset JSON. */
+/** Garde-fou de type pour valider la structure du dataset JSON. */
+function isRawDataset(value: unknown): value is RawDataset {
+    if (value === null || typeof value !== 'object') {
+        return false;
+    }
+    const entries = Object.entries(value);
+    const rowsEntry = entries.find(([key]) => key === 'rows');
+    if (!rowsEntry) {
+        return false;
+    }
+    return Array.isArray(rowsEntry[1]);
+}
+
+/** Charge le dataset JSON avec un garde-fou de type. */
 function loadDataset(input: string): SampleRow[] {
-    const raw = JSON.parse(readFileSync(input, 'utf8')) as RawDataset;
+    const raw: unknown = JSON.parse(readFileSync(input, 'utf8'));
+    if (!isRawDataset(raw)) {
+        throw new Error(`Dataset invalide: ${input}`);
+    }
     return raw.rows;
 }
 
 /** Moyenne d'un tableau. */
 function mean(xs: readonly number[]): number {
     let s = 0;
-    for (const x of xs) {s += x;}
+    for (const x of xs) {
+        s += x;
+    }
     return s / xs.length;
 }
 
-/** Écart-type (population). */
-function std(xs: readonly number[], m: number): number {
-    let s = 0;
-    for (const x of xs) {s += (x - m) ** 2;}
-    return Math.sqrt(s / xs.length);
-}
-
-/** Produit matrice-matrice A (m×n) * B (n×p). */
-function matMul(A: number[][], B: number[][]): number[][] {
-    const m = A.length;
-    const n = B[0].length;
-    const inner = B.length;
-    const C: number[][] = Array.from({ length: m }, () => Array(n).fill(0));
-    for (let i = 0; i < m; i++) {
-        for (let k = 0; k < inner; k++) {
-            const aik = A[i][k];
-            if (aik === 0) {continue;}
-            for (let j = 0; j < n; j++) {
-                C[i][j] += aik * B[k][j];
-            }
-        }
-    }
-    return C;
-}
-
-/** Transposée. */
-function transpose(A: number[][]): number[][] {
-    const m = A.length;
-    const n = A[0].length;
-    const T: number[][] = Array.from({ length: n }, () => Array(m).fill(0));
-    for (let i = 0; i < m; i++) {
-        for (let j = 0; j < n; j++) {
-            T[j][i] = A[i][j];
-        }
-    }
-    return T;
-}
-
-/** Résout A x = b par Gauss-Jordan avec pivot partiel. Retourne x. */
-function solve(A: number[][], b: number[]): number[] {
-    const n = A.length;
-    const M: number[][] = [];
-    for (let i = 0; i < n; i++) {
-        M.push([...A[i], b[i]]);
-    }
-
-    for (let col = 0; col < n; col++) {
-        // Pivot partiel
-        let maxRow = col;
-        for (let r = col + 1; r < n; r++) {
-            if (Math.abs(M[r][col]) > Math.abs(M[maxRow][col])) {
-                maxRow = r;
-            }
-        }
-        if (maxRow !== col) {
-            [M[col], M[maxRow]] = [M[maxRow], M[col]];
-        }
-        const piv = M[col][col];
-        if (Math.abs(piv) < 1e-12) {
-            continue; // colonne dégénérée, on saute
-        }
-        for (let r = 0; r < n; r++) {
-            if (r === col) {continue;}
-            const factor = M[r][col] / piv;
-            for (let k = col; k <= n; k++) {
-                M[r][k] -= factor * M[col][k];
-            }
-        }
-    }
-
-    const x = new Array(n).fill(0);
-    for (let i = 0; i < n; i++) {
-        const piv = M[i][i];
-        x[i] = Math.abs(piv) < 1e-12 ? 0 : M[i][n] / piv;
-    }
-    return x;
-}
-
 /**
- * Régression ridge avec intercepte. Retourne les coefficients bruts (sur données non centrées) et
- * l'intercepte.
+ * Régression ridge avec intercepte non régularisée.
+ *
+ * X est centré-réduit (colonne par colonne) et y est centré avant résolution des équations normales
+ * : cela conditionne bien mieux le système et l'intercepte est reconstruit analytiquement
+ * (intercept = mean(y) − X̄·coef). Les coefficients sont retournés à l'échelle brute des données
+ * d'origine.
+ *
+ * Avec un intercept libre, R² sur l'apprentissage est garanti ≥ 0 : le point coef = 0 (prédiction =
+ * mean(y)) atteint SSE = SST, donc l'optimum ridge fait au moins aussi bien.
  */
 function ridgeRegression(
-    X: number[][], // n × p
-    y: number[], // n
+    X: readonly number[][], // n × p
+    y: readonly number[], // n
     lambda: number,
 ): { coef: number[]; intercept: number } {
+    const p = X.at(0)?.length ?? 0;
     const n = X.length;
-    const p = X[0].length;
 
-    // Matrice augmentée avec colonne d'intercepte (dernière colonne = 1)
-    const Xa: number[][] = X.map((row) => [...row, 1]);
-    const pa = p + 1;
-
-    // A = Xa^T Xa + lambda * I (pas de régularisation sur l'intercepte)
-    const Xt = transpose(Xa);
-    const A = matMul(Xt, Xa);
-    for (let i = 0; i < pa; i++) {
-        A[i][i] += i === p ? 0 : lambda;
+    // Moyennes colonnes de X et moyenne de y
+    const meanX: number[] = Array.from({ length: p }, () => 0);
+    let rowIdx = 0;
+    for (const row of X) {
+        if (!row) {
+            rowIdx++;
+            continue;
+        }
+        let colIdx = 0;
+        while (colIdx < p) {
+            meanX[colIdx] = (meanX[colIdx] ?? 0) + (row.at(colIdx) ?? 0);
+            colIdx++;
+        }
+        rowIdx++;
+    }
+    let k = 0;
+    while (k < p) {
+        meanX[k] = (meanX[k] ?? 0) / n;
+        k++;
     }
 
-    // b = Xa^T y
-    const yCol: number[][] = y.map((v) => [v]);
-    const XtY = matMul(Xt, yCol);
-    const b = XtY.map((row) => row[0]);
+    // Écarts-types colonnes de X (1 si nulle pour éviter la division par zéro)
+    const stdX: number[] = Array.from({ length: p }, () => 1);
+    k = 0;
+    while (k < p) {
+        let s = 0;
+        let count = 0;
+        for (const row of X) {
+            if (!row) {
+                continue;
+            }
+            const d = (row.at(k) ?? 0) - (meanX[k] ?? 0);
+            s += d * d;
+            count++;
+        }
+        const v = s / Math.max(count, 1);
+        stdX[k] = v > 0 ? Math.sqrt(v) : 1;
+        k++;
+    }
 
-    const theta = solve(A, b);
-    const coef = theta.slice(0, p);
-    const intercept = theta[p];
+    const meanY = mean(y);
+
+    // X centré-réduit, y centré
+    const Xc: number[][] = Array.from({ length: n }, () => Array(p).fill(0));
+    const yc: number[] = Array(n).fill(0);
+    rowIdx = 0;
+    for (const row of X) {
+        const rowXc = Xc.at(rowIdx);
+        if (!row || !rowXc) {
+            rowIdx++;
+            continue;
+        }
+        yc[rowIdx] = (y.at(rowIdx) ?? 0) - meanY;
+        k = 0;
+        while (k < p) {
+            rowXc[k] = ((row.at(k) ?? 0) - (meanX[k] ?? 0)) / (stdX[k] ?? 1);
+            k++;
+        }
+        rowIdx++;
+    }
+
+    // Coordinate descent sur le système centré : minimise ||yc − Xc·θ||² + λ||θ||².
+    // Robuste au conditionnement (contrairement aux équations normales résolues
+    // par Gauss-Jordan, instables ici à cause de la collinéarité des features).
+    // Comme Xc est standardisé, ||Xc_j||² = n pour chaque colonne j.
+    const theta: number[] = Array.from({ length: p }, () => 0);
+    const fit: number[] = Array.from({ length: n }, () => 0); // Xc · theta, incrémental
+    // Transposée de Xc pour accéder aux colonnes sans réallocation dans la boucle chaude
+    const XcT: number[][] = Array.from({ length: p }, () => Array.from({ length: n }, () => 0));
+    let i4 = 0;
+    while (i4 < n) {
+        const rowXc = Xc.at(i4) ?? [];
+        let j2 = 0;
+        while (j2 < p) {
+            (XcT.at(j2) ?? [])[i4] = rowXc.at(j2) ?? 0;
+            j2++;
+        }
+        i4++;
+    }
+    const lambdaI = n + lambda;
+    let iter = 0;
+    const maxIter = 500;
+    const tol = 1e-9;
+    outer: while (iter < maxIter) {
+        iter++;
+        let maxChange = 0;
+        let j = 0;
+        while (j < p) {
+            const colJ = XcT.at(j) ?? [];
+            const thetaJ = theta[j] ?? 0;
+            let num = 0;
+            let i3 = 0;
+            while (i3 < n) {
+                const xij = colJ[i3] ?? 0;
+                num += xij * ((yc[i3] ?? 0) - (fit[i3] ?? 0) + xij * thetaJ);
+                i3++;
+            }
+            const update = num / lambdaI;
+            const change = update - thetaJ;
+            maxChange = Math.max(maxChange, Math.abs(change));
+            theta[j] = update;
+            if (change !== 0) {
+                i3 = 0;
+                while (i3 < n) {
+                    fit[i3] = (fit[i3] ?? 0) + change * (colJ[i3] ?? 0);
+                    i3++;
+                }
+            }
+            j++;
+        }
+        if (maxChange < tol) {
+            break outer;
+        }
+    }
+
+    // Filet de sécurité : si la descente n'a pas assez convergé pour battre le
+    // modèle constant (SSE > SST), on retourne θ = 0 ⇒ R² = 0 (jamais négatif).
+    let sse = 0;
+    let sst = 0;
+    let i3 = 0;
+    while (i3 < n) {
+        const r = (yc.at(i3) ?? 0) - (fit.at(i3) ?? 0);
+        sse += r * r;
+        sst += (yc.at(i3) ?? 0) ** 2;
+        i3++;
+    }
+    if (sse > sst) {
+        k = 0;
+        while (k < p) {
+            theta[k] = 0;
+            k++;
+        }
+    }
+
+    // Retour à l'échelle brute : coef_raw[j] = theta[j] / stdX[j]
+    const coef: number[] = [];
+    k = 0;
+    while (k < p) {
+        coef.push((theta.at(k) ?? 0) / (stdX[k] ?? 1));
+        k++;
+    }
+    // intercept = mean(y) − Σ coef_raw[j] * meanX[j]
+    let intercept = meanY;
+    k = 0;
+    while (k < p) {
+        intercept -= (coef.at(k) ?? 0) * (meanX[k] ?? 0);
+        k++;
+    }
     return { coef, intercept };
 }
 
 /** Coefficient de détermination R². */
-function r2Score(y: number[], yPred: number[]): number {
+function r2Score(y: readonly number[], yPred: readonly number[]): number {
     const m = mean(y);
     let ssRes = 0;
     let ssTot = 0;
-    for (let i = 0; i < y.length; i++) {
-        ssRes += (y[i] - yPred[i]) ** 2;
-        ssTot += (y[i] - m) ** 2;
+    let i = 0;
+    while (i < y.length) {
+        const yi = y.at(i);
+        const ypi = yPred.at(i);
+        if (yi === undefined || ypi === undefined) {
+            i++;
+            continue;
+        }
+        ssRes += (yi - ypi) ** 2;
+        ssTot += (yi - m) ** 2;
+        i++;
     }
     return ssTot === 0 ? 0 : 1 - ssRes / ssTot;
 }
@@ -175,9 +268,13 @@ function r2Score(y: number[], yPred: number[]): number {
 export function learn(options: LearnOptions): FeatureResult[] {
     const lambda = options.lambda ?? 0.01;
     const topN = options.topN ?? 10;
-    const rows = loadDataset(options.input);
+    const rows = loadDataset(toAbsolute(options.input));
 
-    const featureNames = Object.keys(rows[0]?.features ?? {});
+    const firstRow = rows.at(0);
+    if (!firstRow) {
+        return [];
+    }
+    const featureNames = Object.keys(firstRow.features);
     const targets = [
         'brightness',
         'contrast',
@@ -187,37 +284,86 @@ export function learn(options: LearnOptions): FeatureResult[] {
         'motion',
     ] as const;
 
-    // Construire la matrice X (n × p) et les vecteurs y
+    // Construire la matrice X (n × p) et les vecteurs y (utilise des Map pour éviter
+    // l'indexation non vérifiée de Record avec noUncheckedIndexedAccess)
     const n = rows.length;
     const p = featureNames.length;
     const X: number[][] = Array.from({ length: n }, () => Array(p).fill(0));
 
-    const yByTarget: Record<string, number[]> = {};
-    for (const t of targets) {yByTarget[t] = Array(n).fill(0);}
+    const yByTarget = new Map<string, number[]>();
+    for (const t of targets) {
+        yByTarget.set(t, Array(n).fill(0));
+    }
 
-    for (let i = 0; i < n; i++) {
-        const row = rows[i]!;
-        for (let j = 0; j < p; j++) {
-            X[i][j] = row.features[featureNames[j]] ?? 0;
+    let i = 0;
+    for (const row of rows) {
+        if (!row) {
+            continue;
+        }
+
+        let j = 0;
+        for (const name of featureNames) {
+            const rowX = X.at(i);
+            if (!rowX) {
+                j++;
+                continue;
+            }
+            rowX[j] = row.features[name] ?? 0;
+            j++;
         }
         for (const t of targets) {
-            yByTarget[t][i] = row.stats[t];
+            const yArr = yByTarget.get(t);
+            if (yArr) {
+                yArr[i] = row.stats[t];
+            }
         }
+        i++;
     }
 
     const results: FeatureResult[] = [];
 
     for (const target of targets) {
-        const y = yByTarget[target];
+        const y = yByTarget.get(target);
+        if (!y) {
+            continue;
+        }
         const { coef, intercept } = ridgeRegression(X, y, lambda);
 
         // Prédictions et R² sur données brutes
-        const yPred = X.map((row) => row.reduce((s, x, j) => s + x * coef[j], intercept));
+        const yPred: number[] = [];
+        let i2 = 0;
+        for (const rowX of X) {
+            let s = intercept;
+            let j2 = 0;
+            while (j2 < p) {
+                const x = rowX.at(j2);
+                if (x === undefined) {
+                    j2++;
+                    continue;
+                }
+                const c = coef.at(j2);
+                if (c === undefined) {
+                    j2++;
+                    continue;
+                }
+                s += x * c;
+                j2++;
+            }
+            yPred.push(s);
+            i2++;
+        }
         const score = r2Score(y, yPred);
 
         const coefRecord: Record<string, number> = {};
-        for (let j = 0; j < p; j++) {
-            coefRecord[featureNames[j]] = coef[j];
+        let j3 = 0;
+        while (j3 < p) {
+            const name = featureNames.at(j3);
+            if (name === undefined) {
+                j3++;
+                continue;
+            }
+            coefRecord[name] = coef.at(j3) ?? 0;
+            j3++;
         }
 
         results.push({ target, intercept, coef: coefRecord, r2: score });
@@ -225,7 +371,10 @@ export function learn(options: LearnOptions): FeatureResult[] {
 
     // Sauvegarde optionnelle
     if (options.output) {
-        writeFileSync(options.output, JSON.stringify({ lambda, topN, results }, null, 2));
+        writeFileSync(
+            toAbsolute(options.output),
+            JSON.stringify({ lambda, topN, results }, null, 2),
+        );
     }
 
     return results;
