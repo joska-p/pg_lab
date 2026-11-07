@@ -84,7 +84,7 @@ les corrections de `pixel`, `three-stage` et `new-mini-app`, tasks 46 à 50 et 5
 ## Tâches de suivi (non bloquantes)
 
 - task-54.md | Revue de `orbit.ts` : le correctif a changé le comportement et les tests | pending | review
-- task-55.md | `InputStore.ts` : helper `bind` pour réduire 9 suppressions à 1 | pending | refactor
+- task-55.md | `InputStore.ts` : helper `bind` pour réduire 9 suppressions à 1 | done | refactor ; helper `bindEntry`, 1 suppression restante (cast handler → EventListener), le cast `AttachedHandle` (branding) est conservé
 - task-56.md | `clockStore.ts` : remplacer `null as unknown as Clock` par un contrat honnête | done | refactor ; `NullClock extends Clock` (no-op, temps à zéro), plus de cast
 - task-57.md | `compileProgram.ts` : garde `typeof` au lieu d’une suppression | done | refactor
 - task-58.md | `typedKeys` : un seul helper partagé au lieu de copies par package | pending | refactor
@@ -119,8 +119,8 @@ Warnings de production restants : **0 / 0 fichiers**.
   `packages/glaze/src/core/InputStore.ts:152` (`AttachedHandle`),
   `packages/glaze/src/react/surfaceStack.ts:42` (`Compact<T>`) et
   `packages/randomart-core/src/seed.ts:19` (`Seed`). Les invariants sont établis avant le cast.
-- **Frontière DOM** : `packages/glaze/src/core/InputStore.ts:82-99` (8 casts de handlers typés vers
-  `EventListener`, centralisés dans les tableaux de binding) et
+- **Frontière DOM** : `packages/glaze/src/core/InputStore.ts:62` (1 cast de handler typé vers
+  `EventListener`, centralisé dans le helper `bindEntry`) et
   `packages/palette/src/components/color-picker/colorSpaceCanvas.worker.ts:11` (`self` dans un
   worker dédié).
 - **Clés d’objets littéraux internes** :

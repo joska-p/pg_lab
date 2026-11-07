@@ -9,7 +9,6 @@ import type {
     PointerHandlerName,
     TargetBinding,
     ViewBounds,
-    WindowBinding,
 } from './inputTypes';
 
 /** Approximate CSS pixels per line — used to normalise wheel deltaMode === 1. */
@@ -45,6 +44,25 @@ const domEventSource: EventSource = {
 };
 
 /**
+ * Construit une entrée de tableau de bindings. Les handlers sont typés plus finement que
+ * `EventListener` (`PointerEvent`, `WheelEvent`, `KeyboardEvent`…) : le cast vers `EventListener`
+ * est concentré ici — c'est la seule suppression de ce fichier.
+ *
+ * @param type — nom d'événement DOM (clé de `WindowEventMap`).
+ * @param handler — handler typé sur l'événement concerné.
+ * @param opts — options passées à `addEventListener`.
+ */
+function bindEntry<K extends keyof WindowEventMap>(
+    type: K,
+    handler: (event: WindowEventMap[K]) => void,
+    opts?: AddEventListenerOptions,
+): TargetBinding {
+    // Les handlers sont typés plus finement que `EventListener` ; le cast est intentionnel.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    return [type, handler as EventListener, opts];
+}
+
+/**
  * Raw input signal bus for a canvas; transient state (`wasKeyPressed`, `wheelDelta`) is cleared by
  * `endFrame()`.
  *
@@ -67,37 +85,24 @@ export class InputStore {
     #cancelBindings: (() => void)[] = [];
     #lastPointer: Point2D = { x: 0, y: 0 };
     readonly #targetBindings: TargetBinding[];
-    readonly #windowBindings: WindowBinding[];
+    readonly #windowBindings: TargetBinding[];
 
     constructor(options: InputStoreOptions = {}) {
         this.#source = options.eventSource ?? domEventSource;
         this.#bounds = options.bounds ?? (() => ({ left: 0, top: 0, width: 0, height: 0 }));
 
-        // `addEventListener` expects `EventListener` (Event → void) but our handlers
-        // are typed more precisely (PointerEvent, WheelEvent …). The cast is intentional
-        // and localised here — this table is where all DOM impurity is concentrated.
         this.#targetBindings = [
-            // Handlers are typed more precisely than `EventListener`; the cast is intentional and
-            // localised in this binding table (all DOM impurity is concentrated here).
-            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-            ['pointermove', this.#onPointerMove as EventListener],
-            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-            ['pointerdown', this.#onPointerDown as EventListener],
-            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-            ['pointerup', this.#onPointerUp as EventListener],
-            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-            ['pointercancel', this.#onPointerCancel as EventListener],
-            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-            ['wheel', this.#onWheel as EventListener, { passive: false }],
-            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-            ['contextmenu', this.#onContextMenu as EventListener],
+            bindEntry('pointermove', this.#onPointerMove),
+            bindEntry('pointerdown', this.#onPointerDown),
+            bindEntry('pointerup', this.#onPointerUp),
+            bindEntry('pointercancel', this.#onPointerCancel),
+            bindEntry('wheel', this.#onWheel, { passive: false }),
+            bindEntry('contextmenu', this.#onContextMenu),
         ];
 
         this.#windowBindings = [
-            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-            ['keydown', this.#onKeyDown as EventListener],
-            // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-            ['keyup', this.#onKeyUp as EventListener],
+            bindEntry('keydown', this.#onKeyDown),
+            bindEntry('keyup', this.#onKeyUp),
         ];
     }
 
