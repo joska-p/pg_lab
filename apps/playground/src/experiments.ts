@@ -1,6 +1,8 @@
 import type { StageProps } from '@repo/ui/components/Stage';
 import type { ComponentType } from 'react';
 
+import { typedKeys } from './utils/object';
+
 export interface SceneModule {
     Scene: ComponentType;
     stageProps?: StageProps;
@@ -120,7 +122,7 @@ export const EXPERIMENTS = {
 } as const satisfies Record<string, Experiment>;
 
 export type ExperimentKey = keyof typeof EXPERIMENTS;
-export const experimentKeys = Object.keys(EXPERIMENTS) as ExperimentKey[];
+export const experimentKeys = typedKeys(EXPERIMENTS);
 
 function cached<Key, Value>(
     cache: Map<Key, Promise<Value>>,
