@@ -1,8 +1,8 @@
 # task-21 — packages/sequencer/src/core/layers/drawPlottedNumbers.ts
 
 - Fichier : `packages/sequencer/src/core/layers/drawPlottedNumbers.ts`
-- Statut : `pending`
-- Catégorie : `cas-par-cas` (3 cas-par-cas, 0 branding)
+- Statut : `done`
+- Catégorie : `guard` (historique)
 - Nombre de warnings dans ce fichier : 3
 
 ## Warnings à traiter
@@ -13,6 +13,7 @@
 - Type : `cas-par-cas`
 
 Extrait du code :
+
 ```text
       28 |                 plotted.add(val);
       29 |                 ctx.save();
@@ -29,6 +30,7 @@ Approche suggérée : voir `context.md` (patterns de correction des commits pré
 - Type : `cas-par-cas`
 
 Extrait du code :
+
 ```text
       29 |                 ctx.save();
       30 |                 ctx.fillStyle = color as string;
@@ -45,6 +47,7 @@ Approche suggérée : voir `context.md` (patterns de correction des commits pré
 - Type : `cas-par-cas`
 
 Extrait du code :
+
 ```text
       31 |                 ctx.globalAlpha = alpha as number;
       32 |                 ctx.beginPath();
@@ -56,11 +59,13 @@ Extrait du code :
 Approche suggérée : voir `context.md` (patterns de correction des commits précédents).
 
 ## Définition de fait
+
 - Le(s) warning(s) de ce fichier n'apparaît(ent) plus dans `vp check` (ou `vp -C <package> check`).
 - Aucun nouveau warning ni erreur de type introduit.
 - La tâche est passée de `pending` à `done` dans `progress.md`.
 
 ## Références
+
 - Commit `02b4161` (randomart-ui) : helper `typedKeys` + `oxlint-disable-next-line` pour les cas de branding.
 - Commit `8f4d13d` (automa) : `Map` + fonction getter à la place de l'indexation `map[key]` non typée.
 - Commit `45fecfd` (pixel-manipulator) : garde-fous `typeof` à la place de `as X | undefined`.

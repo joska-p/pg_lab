@@ -2,17 +2,22 @@
 
 - Fichier : `packages/palette/src/components/Controls.tsx`
 - Statut : `pending`
-- Catégorie : `branding` (0 cas-par-cas, 2 branding)
-- Nombre de warnings dans ce fichier : 2
+- Catégorie : `keys` (2 warnings)
+- Nombre de warnings : 2
 
-## Warnings à traiter
+## Stratégie recommandée
 
-### Warning 1 — ligne 32 (colonne 50)
+Remplacer les deux `Object.entries(...)` + casts par `typedKeys(colorSpaces)` et `typedKeys(rules)`, puis indexer avec la clé typée. Supprimer `key as ColorSpacesKey` et `key as RuleKey`.
+
+## Warnings actuels
+
+### Warning 1 — ligne 32, colonne 50 (indicatif)
 
 - Message : `Unsafe type assertion: type '"hsl" | "oklab" | "oklch" | "srgb"' is more narrow than the original type.`
-- Type : `branding`
+- Type : `keys`
 
-Extrait du code :
+Contexte (la ligne `>>>` est celle du warning) :
+
 ```text
       30 |             {Object.entries(colorSpaces).map(([key, space]) => (
       31 |                 <ControlSection key={key} title={space.name}>
@@ -21,14 +26,13 @@ Extrait du code :
       34 |             ))}
 ```
 
-Approche suggérée : voir `context.md` (patterns de correction des commits précédents).
-
-### Warning 2 — ligne 43 (colonne 66)
+### Warning 2 — ligne 43, colonne 66 (indicatif)
 
 - Message : `Unsafe type assertion: type '"analogous" | "complementary" | "monochromatic" | "triadic"' is more narrow than the original type.`
-- Type : `branding`
+- Type : `keys`
 
-Extrait du code :
+Contexte (la ligne `>>>` est celle du warning) :
+
 ```text
       41 |                             title={rule.info.description}
       42 |                             onClick={() => {
@@ -37,15 +41,14 @@ Extrait du code :
       45 |                         >
 ```
 
-Approche suggérée : voir `context.md` (patterns de correction des commits précédents).
-
 ## Définition de fait
-- Le(s) warning(s) de ce fichier n'apparaît(ent) plus dans `vp check` (ou `vp -C <package> check`).
-- Aucun nouveau warning ni erreur de type introduit.
-- La tâche est passée de `pending` à `done` dans `progress.md`.
+
+- Le warning n’apparaît plus dans `vp check --no-fmt --deny-warnings`.
+- Aucun nouveau warning ni erreur ; tests du package verts.
+- `git diff` relu : pas de changement de comportement, de test ou de config non justifié.
+- `progress.md` mis à jour ; suppression éventuelle documentée (`fichier:ligne` + raison).
 
 ## Références
-- Commit `02b4161` (randomart-ui) : helper `typedKeys` + `oxlint-disable-next-line` pour les cas de branding.
-- Commit `8f4d13d` (automa) : `Map` + fonction getter à la place de l'indexation `map[key]` non typée.
-- Commit `45fecfd` (pixel-manipulator) : garde-fous `typeof` à la place de `as X | undefined`.
-- Commit `1c223b4` (glaze) : suppression du branding là où il n'est plus nécessaire.
+
+- `context.md` : grille de décision, patterns, pièges connus.
+- `task-58` si un helper `typedKeys` partagé est nécessaire.

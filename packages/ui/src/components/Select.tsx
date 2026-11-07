@@ -83,6 +83,14 @@ export function Select<T extends string>({
         typeof option === 'string' ? { value: option } : option,
     );
 
+    /**
+     * Le DOM renvoie une chaîne : on la rapproche des options connues pour n'émettre que des
+     * valeurs de type `T`, sans assertion.
+     */
+    function findSelected(rawValue: string): SelectOption<T> | undefined {
+        return items.find((option) => option.value === rawValue);
+    }
+
     // Sans valeur contrôlée : avec placeholder on sélectionne l'option vide,
     // sinon le navigateur sélectionne naturellement la première option.
     const uncontrolledDefault =
@@ -105,7 +113,13 @@ export function Select<T extends string>({
                     id={controlId}
                     value={value}
                     defaultValue={uncontrolledDefault}
-                    onChange={(event) => onValueChange?.(event.currentTarget.value as T)}
+                    onChange={(event) => {
+                        const selected = findSelected(event.currentTarget.value);
+
+                        if (selected) {
+                            onValueChange?.(selected.value);
+                        }
+                    }}
                     disabled={disabled}
                     aria-invalid={invalid || undefined}
                     aria-describedby={errorMessage ? messageId : undefined}

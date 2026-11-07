@@ -2,17 +2,22 @@
 
 - Fichier : `packages/randomart-core/src/ops.ts`
 - Statut : `pending`
-- Catégorie : `branding` (0 cas-par-cas, 1 branding)
-- Nombre de warnings dans ce fichier : 1
+- Catégorie : `keys` (1 warning)
+- Nombre de warnings : 1
 
-## Warnings à traiter
+## Stratégie recommandée
 
-### Warning 1 — ligne 290 (colonne 26)
+`OP_NAMES = (Object.keys(opTable) as OpName[]).sort()` → `typedKeys(opTable).sort()`. Le helper peut être importé du package partagé (task-58) ou, à défaut, rester local et unique.
+
+## Warnings actuels
+
+### Warning 1 — ligne 290, colonne 26 (indicatif)
 
 - Message : `Unsafe type assertion: type '("abs" | "add" | "const" | "cos" | "div" | "gt" | "max" | "min" | "mix" | "mul" | "neg" | "select" | "sin" | "sqr" | "sub" | "warp" | "x" | "y")[]' is more narrow than the original type.`
-- Type : `branding`
+- Type : `keys`
 
-Extrait du code :
+Contexte (la ligne `>>>` est celle du warning) :
+
 ```text
      288 |
      289 | /** Operator names in canonical order: every iteration over the catalogue must use it. */
@@ -21,15 +26,14 @@ Extrait du code :
      292 | export function isOpName(value: unknown): value is OpName {
 ```
 
-Approche suggérée : voir `context.md` (patterns de correction des commits précédents).
-
 ## Définition de fait
-- Le(s) warning(s) de ce fichier n'apparaît(ent) plus dans `vp check` (ou `vp -C <package> check`).
-- Aucun nouveau warning ni erreur de type introduit.
-- La tâche est passée de `pending` à `done` dans `progress.md`.
+
+- Le warning n’apparaît plus dans `vp check --no-fmt --deny-warnings`.
+- Aucun nouveau warning ni erreur ; tests du package verts.
+- `git diff` relu : pas de changement de comportement, de test ou de config non justifié.
+- `progress.md` mis à jour ; suppression éventuelle documentée (`fichier:ligne` + raison).
 
 ## Références
-- Commit `02b4161` (randomart-ui) : helper `typedKeys` + `oxlint-disable-next-line` pour les cas de branding.
-- Commit `8f4d13d` (automa) : `Map` + fonction getter à la place de l'indexation `map[key]` non typée.
-- Commit `45fecfd` (pixel-manipulator) : garde-fous `typeof` à la place de `as X | undefined`.
-- Commit `1c223b4` (glaze) : suppression du branding là où il n'est plus nécessaire.
+
+- `context.md` : grille de décision, patterns, pièges connus.
+- `task-58` si un helper `typedKeys` partagé est nécessaire.

@@ -1,8 +1,11 @@
 # task-13 — packages/glaze3d/src/controls/orbit.ts
 
+> Tâche historique. Le code a changé depuis cette génération (listeners déplacés sur
+> `domElement`, `try/catch` retiré). Voir `task-54` pour la revue comportementale.
+
 - Fichier : `packages/glaze3d/src/controls/orbit.ts`
-- Statut : `pending`
-- Catégorie : `cas-par-cas` (2 cas-par-cas, 0 branding)
+- Statut : `done`
+- Catégorie : `guard + review` (historique)
 - Nombre de warnings dans ce fichier : 2
 
 ## Warnings à traiter
@@ -13,6 +16,7 @@
 - Type : `cas-par-cas`
 
 Extrait du code :
+
 ```text
       35 |
       36 | function windowTarget(): WindowTarget | null {
@@ -29,6 +33,7 @@ Approche suggérée : voir `context.md` (patterns de correction des commits pré
 - Type : `cas-par-cas`
 
 Extrait du code :
+
 ```text
      196 |         windowTarget()?.addEventListener('pointermove', this.onPointerMove);
      197 |         windowTarget()?.addEventListener('pointerup', this.onPointerUp);
@@ -40,11 +45,13 @@ Extrait du code :
 Approche suggérée : voir `context.md` (patterns de correction des commits précédents).
 
 ## Définition de fait
+
 - Le(s) warning(s) de ce fichier n'apparaît(ent) plus dans `vp check` (ou `vp -C <package> check`).
 - Aucun nouveau warning ni erreur de type introduit.
 - La tâche est passée de `pending` à `done` dans `progress.md`.
 
 ## Références
+
 - Commit `02b4161` (randomart-ui) : helper `typedKeys` + `oxlint-disable-next-line` pour les cas de branding.
 - Commit `8f4d13d` (automa) : `Map` + fonction getter à la place de l'indexation `map[key]` non typée.
 - Commit `45fecfd` (pixel-manipulator) : garde-fous `typeof` à la place de `as X | undefined`.

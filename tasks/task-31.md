@@ -2,17 +2,22 @@
 
 - Fichier : `apps/brouillon/src/App.tsx`
 - Statut : `pending`
-- Catégorie : `branding` (0 cas-par-cas, 5 branding)
-- Nombre de warnings dans ce fichier : 5
+- Catégorie : `inference` (5 warnings)
+- Nombre de warnings : 5
 
-## Warnings à traiter
+## Stratégie recommandée
 
-### Warning 1 — ligne 118 (colonne 76)
+`Select` et `Segmented` sont déjà génériques. Les 5 casts viennent d’options élargies en `string` (tableaux inline) et/ou d’annotations redondantes. Typer les options (`as const satisfies readonly { value: ColorNames; label: string }[]`, etc.) et laisser `T` s’inférer ; supprimer les `as`. Aucune suppression `oxlint-disable` dans ce fichier.
+
+## Warnings actuels
+
+### Warning 1 — ligne 118, colonne 76 (indicatif)
 
 - Message : `Unsafe type assertion: type 'ColorNames' is more narrow than the original type.`
-- Type : `branding`
+- Type : `inference`
 
-Extrait du code :
+Contexte (la ligne `>>>` est celle du warning) :
+
 ```text
      116 |                                     label="Surface Color"
      117 |                                     value={activeColor}
@@ -21,14 +26,13 @@ Extrait du code :
      120 |                                 />
 ```
 
-Approche suggérée : voir `context.md` (patterns de correction des commits précédents).
-
-### Warning 2 — ligne 124 (colonne 73)
+### Warning 2 — ligne 124, colonne 73 (indicatif)
 
 - Message : `Unsafe type assertion: type '"none" | "soft" | "solid"' is more narrow than the original type.`
-- Type : `branding`
+- Type : `inference`
 
-Extrait du code :
+Contexte (la ligne `>>>` est celle du warning) :
+
 ```text
      122 |                                     label="Background"
      123 |                                     value={activeBg}
@@ -37,14 +41,13 @@ Extrait du code :
      126 |                                         { value: 'solid', label: 'Solid' },
 ```
 
-Approche suggérée : voir `context.md` (patterns de correction des commits précédents).
-
-### Warning 3 — ligne 134 (colonne 77)
+### Warning 3 — ligne 134, colonne 77 (indicatif)
 
 - Message : `Unsafe type assertion: type '"none" | "strong" | "subtle"' is more narrow than the original type.`
-- Type : `branding`
+- Type : `inference`
 
-Extrait du code :
+Contexte (la ligne `>>>` est celle du warning) :
+
 ```text
      132 |                                     label="Border"
      133 |                                     value={activeBorder}
@@ -53,14 +56,13 @@ Extrait du code :
      136 |                                         { value: 'none', label: 'None' },
 ```
 
-Approche suggérée : voir `context.md` (patterns de correction des commits précédents).
-
-### Warning 4 — ligne 144 (colonne 77)
+### Warning 4 — ligne 144, colonne 77 (indicatif)
 
 - Message : `Unsafe type assertion: type '"full" | "lg" | "md" | "none" | "sm" | "xl"' is more narrow than the original type.`
-- Type : `branding`
+- Type : `inference`
 
-Extrait du code :
+Contexte (la ligne `>>>` est celle du warning) :
+
 ```text
      142 |                                     label="Radius"
      143 |                                     value={activeRadius}
@@ -69,14 +71,13 @@ Extrait du code :
      146 |                                         { value: 'none', label: '0' },
 ```
 
-Approche suggérée : voir `context.md` (patterns de correction des commits précédents).
-
-### Warning 5 — ligne 156 (colonne 80)
+### Warning 5 — ligne 156, colonne 80 (indicatif)
 
 - Message : `Unsafe type assertion: type '"flat" | "raised" | "sunken"' is more narrow than the original type.`
-- Type : `branding`
+- Type : `inference`
 
-Extrait du code :
+Contexte (la ligne `>>>` est celle du warning) :
+
 ```text
      154 |                                     label="Elevation"
      155 |                                     value={activeElevation}
@@ -85,15 +86,14 @@ Extrait du code :
      158 |                                         { value: 'flat', label: 'Flat' },
 ```
 
-Approche suggérée : voir `context.md` (patterns de correction des commits précédents).
-
 ## Définition de fait
-- Le(s) warning(s) de ce fichier n'apparaît(ent) plus dans `vp check` (ou `vp -C <package> check`).
-- Aucun nouveau warning ni erreur de type introduit.
-- La tâche est passée de `pending` à `done` dans `progress.md`.
+
+- Le warning n’apparaît plus dans `vp check --no-fmt --deny-warnings`.
+- Aucun nouveau warning ni erreur ; tests du package verts.
+- `git diff` relu : pas de changement de comportement, de test ou de config non justifié.
+- `progress.md` mis à jour ; suppression éventuelle documentée (`fichier:ligne` + raison).
 
 ## Références
-- Commit `02b4161` (randomart-ui) : helper `typedKeys` + `oxlint-disable-next-line` pour les cas de branding.
-- Commit `8f4d13d` (automa) : `Map` + fonction getter à la place de l'indexation `map[key]` non typée.
-- Commit `45fecfd` (pixel-manipulator) : garde-fous `typeof` à la place de `as X | undefined`.
-- Commit `1c223b4` (glaze) : suppression du branding là où il n'est plus nécessaire.
+
+- `context.md` : grille de décision, patterns, pièges connus.
+- `task-58` si un helper `typedKeys` partagé est nécessaire.

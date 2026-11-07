@@ -2,17 +2,22 @@
 
 - Fichier : `packages/randomart-core/src/grammar.ts`
 - Statut : `pending`
-- Catégorie : `branding` (0 cas-par-cas, 2 branding)
-- Nombre de warnings dans ce fichier : 2
+- Catégorie : `keys + validation` (2 warnings)
+- Nombre de warnings : 2
 
-## Warnings à traiter
+## Stratégie recommandée
 
-### Warning 1 — ligne 130 (colonne 19)
+Deux casts différents. (1) `assertVocabulary` : `Object.keys(weights) as OpName[]` est un mensonge avant validation ; itérer sur les clés puis filtrer avec `isOpName`, ou valider les clés inconnues avant toute utilisation typée. (2) `presetOf` : `Object.keys(grammarRegistry) as GrammarRegistryId[]` → `typedKeys(grammarRegistry)`.
+
+## Warnings actuels
+
+### Warning 1 — ligne 130, colonne 19 (indicatif)
 
 - Message : `Unsafe type assertion: type '("abs" | "add" | "const" | "cos" | "div" | "gt" | "max" | "min" | "mix" | "mul" | "neg" | "select" | "sin" | "sqr" | "sub" | "warp" | "x" | "y")[]' is more narrow than the original type.`
-- Type : `branding`
+- Type : `keys`
 
-Extrait du code :
+Contexte (la ligne `>>>` est celle du warning) :
+
 ```text
      128 |
      129 | function assertVocabulary(weights: Weights): void {
@@ -21,14 +26,13 @@ Extrait du code :
      132 |         throw new RandomArtError('Grammar must enable at least one operator');
 ```
 
-Approche suggérée : voir `context.md` (patterns de correction des commits précédents).
-
-### Warning 2 — ligne 441 (colonne 17)
+### Warning 2 — ligne 441, colonne 17 (indicatif)
 
 - Message : `Unsafe type assertion: type '("default" | "fractal" | "geometric" | "minimalist" | "monochrome" | "organic" | "psychedelic" | "texture")[]' is more narrow than the original type.`
-- Type : `branding`
+- Type : `guard`
 
-Extrait du code :
+Contexte (la ligne `>>>` est celle du warning) :
+
 ```text
      439 | export function presetOf(grammar: Grammar): GrammarRegistryId | undefined {
      440 |     const key = grammarKey(grammar);
@@ -37,15 +41,14 @@ Extrait du code :
      443 | }
 ```
 
-Approche suggérée : voir `context.md` (patterns de correction des commits précédents).
-
 ## Définition de fait
-- Le(s) warning(s) de ce fichier n'apparaît(ent) plus dans `vp check` (ou `vp -C <package> check`).
-- Aucun nouveau warning ni erreur de type introduit.
-- La tâche est passée de `pending` à `done` dans `progress.md`.
+
+- Le warning n’apparaît plus dans `vp check --no-fmt --deny-warnings`.
+- Aucun nouveau warning ni erreur ; tests du package verts.
+- `git diff` relu : pas de changement de comportement, de test ou de config non justifié.
+- `progress.md` mis à jour ; suppression éventuelle documentée (`fichier:ligne` + raison).
 
 ## Références
-- Commit `02b4161` (randomart-ui) : helper `typedKeys` + `oxlint-disable-next-line` pour les cas de branding.
-- Commit `8f4d13d` (automa) : `Map` + fonction getter à la place de l'indexation `map[key]` non typée.
-- Commit `45fecfd` (pixel-manipulator) : garde-fous `typeof` à la place de `as X | undefined`.
-- Commit `1c223b4` (glaze) : suppression du branding là où il n'est plus nécessaire.
+
+- `context.md` : grille de décision, patterns, pièges connus.
+- `task-58` si un helper `typedKeys` partagé est nécessaire.

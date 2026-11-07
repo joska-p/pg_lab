@@ -2,17 +2,22 @@
 
 - Fichier : `packages/pixel/src/docs/components/Controls.tsx`
 - Statut : `pending`
-- Catégorie : `branding` (0 cas-par-cas, 2 branding)
-- Nombre de warnings dans ce fichier : 2
+- Catégorie : `signature` (2 warnings)
+- Nombre de warnings : 2
 
-## Warnings à traiter
+## Stratégie recommandée
 
-### Warning 1 — ligne 111 (colonne 57)
+Les deux casts `item.id as 'resize' | 'chaining'` viennent d’un type de donnée trop large. Rendre `EndpointItem` discriminé sur `type` (branche `pipeline` avec `id: 'resize' | 'chaining'`), ou ajouter un garde `isPipelineId`. Supprimer les casts des deux call sites.
+
+## Warnings actuels
+
+### Warning 1 — ligne 111, colonne 57 (indicatif)
 
 - Message : `Unsafe type assertion: type '"chaining" | "resize"' is more narrow than the original type.`
-- Type : `branding`
+- Type : `signature`
 
-Extrait du code :
+Contexte (la ligne `>>>` est celle du warning) :
+
 ```text
      109 |             setActiveEndPointId({ kind: 'overview' });
      110 |         } else if (item.type === 'pipeline') {
@@ -21,14 +26,13 @@ Extrait du code :
      113 |             setActiveEndPointId({ kind: 'internals', id: item.id });
 ```
 
-Approche suggérée : voir `context.md` (patterns de correction des commits précédents).
-
-### Warning 2 — ligne 124 (colonne 44)
+### Warning 2 — ligne 124, colonne 44 (indicatif)
 
 - Message : `Unsafe type assertion: type '"chaining" | "resize"' is more narrow than the original type.`
-- Type : `branding`
+- Type : `signature`
 
-Extrait du code :
+Contexte (la ligne `>>>` est celle du warning) :
+
 ```text
      122 |         }
      123 |         if (item.type === 'pipeline') {
@@ -37,15 +41,14 @@ Extrait du code :
      126 |         if (item.type === 'internals') {
 ```
 
-Approche suggérée : voir `context.md` (patterns de correction des commits précédents).
-
 ## Définition de fait
-- Le(s) warning(s) de ce fichier n'apparaît(ent) plus dans `vp check` (ou `vp -C <package> check`).
-- Aucun nouveau warning ni erreur de type introduit.
-- La tâche est passée de `pending` à `done` dans `progress.md`.
+
+- Le warning n’apparaît plus dans `vp check --no-fmt --deny-warnings`.
+- Aucun nouveau warning ni erreur ; tests du package verts.
+- `git diff` relu : pas de changement de comportement, de test ou de config non justifié.
+- `progress.md` mis à jour ; suppression éventuelle documentée (`fichier:ligne` + raison).
 
 ## Références
-- Commit `02b4161` (randomart-ui) : helper `typedKeys` + `oxlint-disable-next-line` pour les cas de branding.
-- Commit `8f4d13d` (automa) : `Map` + fonction getter à la place de l'indexation `map[key]` non typée.
-- Commit `45fecfd` (pixel-manipulator) : garde-fous `typeof` à la place de `as X | undefined`.
-- Commit `1c223b4` (glaze) : suppression du branding là où il n'est plus nécessaire.
+
+- `context.md` : grille de décision, patterns, pièges connus.
+- `task-58` si un helper `typedKeys` partagé est nécessaire.

@@ -1,8 +1,8 @@
 # task-22 — packages/sequencer/src/core/layers/drawRadialSpokes.ts
 
 - Fichier : `packages/sequencer/src/core/layers/drawRadialSpokes.ts`
-- Statut : `pending`
-- Catégorie : `cas-par-cas` (5 cas-par-cas, 0 branding)
+- Statut : `done`
+- Catégorie : `guard` (historique)
 - Nombre de warnings dans ce fichier : 5
 
 ## Warnings à traiter
@@ -13,6 +13,7 @@
 - Type : `cas-par-cas`
 
 Extrait du code :
+
 ```text
       66 |         const cx = offsetX;
       67 |         const cy = offsetY;
@@ -29,6 +30,7 @@ Approche suggérée : voir `context.md` (patterns de correction des commits pré
 - Type : `cas-par-cas`
 
 Extrait du code :
+
 ```text
       71 |         ctx.save();
       72 |         ctx.translate(cx, cy);
@@ -45,6 +47,7 @@ Approche suggérée : voir `context.md` (patterns de correction des commits pré
 - Type : `cas-par-cas`
 
 Extrait du code :
+
 ```text
       72 |         ctx.translate(cx, cy);
       73 |         ctx.lineWidth = lineWidth as number;
@@ -61,6 +64,7 @@ Approche suggérée : voir `context.md` (patterns de correction des commits pré
 - Type : `cas-par-cas`
 
 Extrait du code :
+
 ```text
       87 |             ctx.stroke();
       88 |
@@ -77,6 +81,7 @@ Approche suggérée : voir `context.md` (patterns de correction des commits pré
 - Type : `cas-par-cas`
 
 Extrait du code :
+
 ```text
       90 |                 ctx.fillStyle = `hsl(${String(hue)}, ${String(saturation)}%, ${String(lightness)}%)`;
       91 |                 ctx.beginPath();
@@ -88,11 +93,13 @@ Extrait du code :
 Approche suggérée : voir `context.md` (patterns de correction des commits précédents).
 
 ## Définition de fait
+
 - Le(s) warning(s) de ce fichier n'apparaît(ent) plus dans `vp check` (ou `vp -C <package> check`).
 - Aucun nouveau warning ni erreur de type introduit.
 - La tâche est passée de `pending` à `done` dans `progress.md`.
 
 ## Références
+
 - Commit `02b4161` (randomart-ui) : helper `typedKeys` + `oxlint-disable-next-line` pour les cas de branding.
 - Commit `8f4d13d` (automa) : `Map` + fonction getter à la place de l'indexation `map[key]` non typée.
 - Commit `45fecfd` (pixel-manipulator) : garde-fous `typeof` à la place de `as X | undefined`.

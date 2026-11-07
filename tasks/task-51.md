@@ -1,35 +1,33 @@
 # task-51 — packages/ui/src/components/ExperimentShell.tsx
 
 - Fichier : `packages/ui/src/components/ExperimentShell.tsx`
-- Statut : `pending`
-- Catégorie : `cas-par-cas` (1 cas-par-cas, 0 branding)
-- Nombre de warnings dans ce fichier : 1
+- Statut : `done`
+- Catégorie : `signature`
+- Nombre de warnings : 1 → 0
 
-## Warnings à traiter
+## Correction appliquée
 
-### Warning 1 — ligne 284 (colonne 25)
+Le cast `as React.CSSProperties` a été remplacé par un type intersection explicite :
 
-- Message : `Unsafe type assertion: type 'CSSProperties' is more narrow than the original type.`
-- Type : `cas-par-cas`
+```ts
+type PanelStyle = React.CSSProperties & {
+    readonly '--panel-height'?: string;
+};
 
-Extrait du code :
-```text
-     282 |                     )}
-     283 |                     style={
->>>  284 |                         {
-     285 |                             '--panel-height': panelHeight != null ? `${panelHeight}px` : undefined,
-     286 |                         } as React.CSSProperties
+const panelStyle: PanelStyle = {
+    '--panel-height': panelHeight != null ? `${panelHeight}px` : undefined,
+};
 ```
 
-Approche suggérée : voir `context.md` (patterns de correction des commits précédents).
+puis `style={panelStyle}`. Aucune suppression `oxlint-disable` n’est nécessaire : la custom
+property est déclarée dans le type.
 
-## Définition de fait
-- Le(s) warning(s) de ce fichier n'apparaît(ent) plus dans `vp check` (ou `vp -C <package> check`).
-- Aucun nouveau warning ni erreur de type introduit.
-- La tâche est passée de `pending` à `done` dans `progress.md`.
+## Vérification
 
-## Références
-- Commit `02b4161` (randomart-ui) : helper `typedKeys` + `oxlint-disable-next-line` pour les cas de branding.
-- Commit `8f4d13d` (automa) : `Map` + fonction getter à la place de l'indexation `map[key]` non typée.
-- Commit `45fecfd` (pixel-manipulator) : garde-fous `typeof` à la place de `as X | undefined`.
-- Commit `1c223b4` (glaze) : suppression du branding là où il n'est plus nécessaire.
+- `vp -C packages/ui check --no-fmt --deny-warnings` : plus de warning dans ce fichier.
+- Le pattern `CssVars` / `PanelStyle` est réutilisable pour `task-39` (`--tile-size`).
+
+## Notes
+
+- Le scratch `packages/ui/src/__scratch.ts` a servi à valider le pattern ; il a été déplacé dans
+  `/tmp/opencode/pg_lab__scratch.ts`.

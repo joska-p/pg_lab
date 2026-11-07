@@ -12,6 +12,11 @@ const COLLAPSE_THRESHOLD = COLLAPSED_PANEL_HEIGHT + 8;
 
 const PORTRAIT_QUERY = '(orientation: portrait)';
 
+/** `CSSProperties` ne décrit pas les custom properties CSS ; on les ajoute explicitement. */
+type PanelStyle = React.CSSProperties & {
+    readonly '--panel-height'?: string;
+};
+
 const styles = stylex.create({
     base: {
         position: 'relative',
@@ -256,6 +261,10 @@ export function ExperimentShell({ children, panel, style, ...props }: Experiment
         }
     };
 
+    const panelStyle: PanelStyle = {
+        '--panel-height': panelHeight != null ? `${panelHeight}px` : undefined,
+    };
+
     return (
         <div {...props} {...stylex.props(styles.base, style)}>
             <div
@@ -280,11 +289,7 @@ export function ExperimentShell({ children, panel, style, ...props }: Experiment
                         !panelExpanded && styles.panelCollapsed,
                         isDragging && styles.panelDragging,
                     )}
-                    style={
-                        {
-                            '--panel-height': panelHeight != null ? `${panelHeight}px` : undefined,
-                        } as React.CSSProperties
-                    }
+                    style={panelStyle}
                 >
                     <Button
                         color="aurora"
