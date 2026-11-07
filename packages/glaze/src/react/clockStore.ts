@@ -1,5 +1,6 @@
 import type { PositiveNumber } from '../core/brands';
 import type { Clock } from '../core/Clock';
+import { NullClock } from '../core/Clock';
 import { createSeconds } from '../core/time';
 import type { DurationSeconds, Seconds } from '../core/time';
 import { createObservable } from './observable';
@@ -58,9 +59,7 @@ const noopWithArg = (_arg: unknown): void => undefined;
 
 export function createNullClockStore(): ClockStore {
     return {
-        // `Clock` is a nominal/proof type; `null` stands for "no clock" in the null store.
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-        clock: null as unknown as Clock,
+        clock: new NullClock(),
         time: createSeconds(0),
         deltaTime: createSeconds(0),
         duration: undefined,

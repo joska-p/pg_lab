@@ -221,6 +221,65 @@ export class Clock {
     }
 }
 
+/**
+ * Horloge "no-op" pour les stores d'horloge vides : le temps reste à zéro et aucune méthode n'a
+ * d'effet. Évite d'exposer un `null` là où le contrat attend une `Clock` — un consommateur peut
+ * appeler `store.clock.play()` sans craindre le crash à l'exécution.
+ */
+export class NullClock extends Clock {
+    override get time(): Seconds {
+        return ZERO_SECONDS;
+    }
+
+    override get deltaTime(): Seconds {
+        return ZERO_SECONDS;
+    }
+
+    override get isPlaying(): boolean {
+        return false;
+    }
+
+    override get duration(): DurationSeconds | undefined {
+        return undefined;
+    }
+
+    override get progress(): number {
+        return 0;
+    }
+
+    override play(): this {
+        return this;
+    }
+
+    override pause(): this {
+        return this;
+    }
+
+    override togglePlay(): this {
+        return this;
+    }
+
+    override reset(): this {
+        return this;
+    }
+
+    override seek(): this {
+        return this;
+    }
+
+    override setSpeed(): this {
+        return this;
+    }
+
+    override setDuration(): this {
+        return this;
+    }
+
+    override update(): this {
+        return this;
+    }
+}
+
 export function createClock(options?: ClockOptions): Clock {
     return new Clock(options);
 }

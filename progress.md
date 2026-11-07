@@ -85,7 +85,7 @@ les corrections de `pixel`, `three-stage` et `new-mini-app`, tasks 46 à 50 et 5
 
 - task-54.md | Revue de `orbit.ts` : le correctif a changé le comportement et les tests | pending | review
 - task-55.md | `InputStore.ts` : helper `bind` pour réduire 9 suppressions à 1 | pending | refactor
-- task-56.md | `clockStore.ts` : remplacer `null as unknown as Clock` par un contrat honnête | pending | refactor
+- task-56.md | `clockStore.ts` : remplacer `null as unknown as Clock` par un contrat honnête | done | refactor ; `NullClock extends Clock` (no-op, temps à zéro), plus de cast
 - task-57.md | `compileProgram.ts` : garde `typeof` au lieu d’une suppression | done | refactor
 - task-58.md | `typedKeys` : un seul helper partagé au lieu de copies par package | pending | refactor
 - task-59.md | Sequencer : typer les params de layer ou helper unique, au lieu de dupliquer les defaults | pending | refactor
@@ -128,8 +128,7 @@ Warnings de production restants : **0 / 0 fichiers**.
   (`typedKeys`).
 - **Frontière de librairie** : `tools/new-mini-app/bin/index.ts:11` (le `Template` local, créé par
   `createTemplate`, est passé au type de base incompatible de `bingo`).
-- **Contrat temporaire à corriger** : `packages/glaze/src/react/clockStore.ts:62` (null-object
-  `Clock` ; suivi `task-56`).
+- (task-56 résolu : `NullClock extends Clock` dans `core/Clock.ts`, `clockStore.ts` sans cast.)
 
 Aucune suppression de propriété CSS custom ne subsiste.
 
