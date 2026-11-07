@@ -26,12 +26,12 @@ const executors: Record<Access, ExecutorFunction> = {
         scheduler.flush(bufferManager);
         const source = bufferManager.snapshot();
 
-        if (source.width * source.height > context.maximumPixels) {
-            bufferManager.replaceWith(runNeighborhoodTiled({ source, definition, options }));
-        } else {
-            const destination = new Uint8ClampedArray(bufferManager.current.length);
+        if (definition.access === 'neighborhood') {
+            if (source.width * source.height > context.maximumPixels) {
+                bufferManager.replaceWith(runNeighborhoodTiled({ source, definition, options }));
+            } else {
+                const destination = new Uint8ClampedArray(bufferManager.current.length);
 
-            if (definition.access === 'neighborhood') {
                 definition.execute({
                     options,
                     source: bufferManager.current,
@@ -39,12 +39,12 @@ const executors: Record<Access, ExecutorFunction> = {
                     width: bufferManager.width,
                     height: bufferManager.height,
                 });
+
+                const pixelData = new PixelData(bufferManager.width, bufferManager.height);
+
+                pixelData.data.set(destination);
+                bufferManager.replaceWith(pixelData);
             }
-
-            const pixelData = new PixelData(bufferManager.width, bufferManager.height);
-
-            pixelData.data.set(destination);
-            bufferManager.replaceWith(pixelData);
         }
     },
 

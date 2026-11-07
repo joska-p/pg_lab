@@ -78,6 +78,11 @@ export type ManipulationDefinition<
     | { access: 'global'; execute: WholeImageFunction<Options> }
 );
 
+export type NeighborhoodManipulationDefinition = Extract<
+    ManipulationDefinition,
+    { access: 'neighborhood' }
+>;
+
 // ─── Pipeline Types ──────────────────────────────────────────────────────────
 
 export interface PipelineContext {

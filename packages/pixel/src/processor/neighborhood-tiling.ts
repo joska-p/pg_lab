@@ -1,5 +1,5 @@
 import { PixelData } from './pixel-data';
-import type { ManipulationDefinition } from './types';
+import type { NeighborhoodManipulationDefinition } from './types';
 
 const TILE_SIZE = 512; // pixels per tile edge
 
@@ -81,10 +81,10 @@ export function runNeighborhoodTiled({
     options,
 }: {
     source: PixelData;
-    definition: ManipulationDefinition;
+    definition: NeighborhoodManipulationDefinition;
     options: Record<string, unknown>;
 }) {
-    const halo = (definition as { radius?: number }).radius ?? 1;
+    const halo = definition.radius;
     const destinationImage = new PixelData(source.width, source.height);
 
     const columns = Math.ceil(source.width / TILE_SIZE);
