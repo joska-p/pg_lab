@@ -10,6 +10,22 @@ const LOCAL_UP = new Vector3(0, 1, 0);
 
 const GOLDEN_RATIO = (1 + Math.sqrt(5)) / 2; // φ ≈ 1.618
 
+export const PRESET_NAMES = [
+    'circle',
+    'fsphere',
+    'tetrahedron',
+    'cube',
+    'octahedron',
+    'dodecahedron',
+    'icosahedron',
+] as const;
+
+export type PresetName = (typeof PRESET_NAMES)[number];
+
+export function isPresetName(value: unknown): value is PresetName {
+    return PRESET_NAMES.some((presetName) => presetName === value);
+}
+
 // Pure raw vertex coordinate arrays before normalization
 const VERTEX_PRESETS: Record<string, number[][]> = {
     // 4 Vertices
@@ -78,15 +94,6 @@ const VERTEX_PRESETS: Record<string, number[][]> = {
         [-GOLDEN_RATIO, 0, -1],
     ],
 };
-
-export type PresetName =
-    | 'circle'
-    | 'fsphere'
-    | 'tetrahedron'
-    | 'cube'
-    | 'octahedron'
-    | 'dodecahedron'
-    | 'icosahedron';
 
 interface GetSpawnPointsProps {
     preset: PresetName;
