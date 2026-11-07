@@ -14,13 +14,12 @@
 | Indicateur          | Valeur                      |
 | ------------------- | --------------------------- |
 | Baseline production | 88 warnings / 46 fichiers   |
-| Corrigés            | 80 warnings / 40 fichiers   |
-| Restants            | **8 warnings / 6 fichiers** |
+| Corrigés            | 88 warnings / 46 fichiers   |
+| Restants            | **0 warnings / 0 fichiers** |
 | Tests (hors scope)  | 33 warnings / 7 fichiers    |
 
-Dernière vérification : `vp check --no-fmt --deny-warnings` → 8 warnings de la règle (après les
-corrections de `randomart-core`, `brouillon`, `playground`, `art-canvas`, `fracture`,
-`mosaic-maker`, `notebook` et `palette`, tasks 26 à 45).
+Dernière vérification : `vp check --no-fmt --deny-warnings` → aucun warning de la règle (après
+les corrections de `pixel`, `three-stage` et `new-mini-app`, tasks 46 à 50 et 53).
 
 > ℹ️ Le scratch `packages/ui/src/__scratch.ts` (non suivi) testait
 > `CSSProperties & { '--panel-height'?: string }` et provoquait une erreur `TS2353`. Son pattern
@@ -73,22 +72,22 @@ corrections de `randomart-core`, `brouillon`, `playground`, `art-canvas`, `fract
 - task-43.md | packages/palette/src/components/Controls.tsx | 2 | done | guard (`isColorSpacesKey`, `isRuleKey`)
 - task-44.md | packages/palette/src/components/color-picker/colorSpaceCanvas.worker.ts | 1 | done | boundary ; suppression unique `colorSpaceCanvas.worker.ts:11`
 - task-45.md | packages/palette/src/components/color-picker/colorSpaceCanvasPool.ts | 1 | done | boundary (garde `isColorSpaceCanvasResponse`)
-- task-46.md | packages/pixel/src/docs/components/Controls.tsx | 2 | pending | signature (union discriminée)
-- task-47.md | packages/pixel/src/processor/neighborhood-tiling.ts | 1 | pending | signature
-- task-48.md | packages/pixel/src/worker/process-image-in-worker.ts | 1 | pending | guard
-- task-49.md | packages/pixel/src/worker/serialization.ts | 1 | pending | guard
-- task-50.md | packages/three-stage/src/components/GetStarted/Root.tsx | 2 | pending | boundary
+- task-46.md | packages/pixel/src/docs/components/Controls.tsx | 2 | done | signature (`EndpointItem` discriminée)
+- task-47.md | packages/pixel/src/processor/neighborhood-tiling.ts | 1 | done | signature (`NeighborhoodManipulationDefinition`)
+- task-48.md | packages/pixel/src/worker/process-image-in-worker.ts | 1 | done | guard (`typeof event.data.error`)
+- task-49.md | packages/pixel/src/worker/serialization.ts | 1 | done | guard (narrowing par `in`)
+- task-50.md | packages/three-stage/src/components/GetStarted/Root.tsx | 2 | done | boundary (`isPresetName`)
 - task-51.md | packages/ui/src/components/ExperimentShell.tsx | 1 | done | signature (`PanelStyle`)
 - task-52.md | packages/ui/src/components/Select.tsx | 1 | done | boundary (`findSelected`, plus de cast)
-- task-53.md | tools/new-mini-app/bin/index.ts | 1 | pending | boundary
+- task-53.md | tools/new-mini-app/bin/index.ts | 1 | done | boundary ; suppression unique `tools/new-mini-app/bin/index.ts:11`
 
 ## Tâches de suivi (non bloquantes)
 
 - task-54.md | Revue de `orbit.ts` : le correctif a changé le comportement et les tests | pending | review
 - task-55.md | `InputStore.ts` : helper `bind` pour réduire 9 suppressions à 1 | pending | refactor
 - task-56.md | `clockStore.ts` : remplacer `null as unknown as Clock` par un contrat honnête | pending | refactor
-- task-57.md | `compileProgram.ts` : garde `typeof` au lieu d’une suppression | pending | refactor
-- task-58.md | `typedKeys` : un seul helper partagé au lieu de copies par package. Tache supprimer
+- task-57.md | `compileProgram.ts` : garde `typeof` au lieu d’une suppression | done | refactor
+- task-58.md | `typedKeys` : un seul helper partagé au lieu de copies par package | pending | refactor
 - task-59.md | Sequencer : typer les params de layer ou helper unique, au lieu de dupliquer les defaults | pending | refactor
 - task-60.md | `WorkerPool` : typer `deserialize` en `MessageEvent<TResponse>` | pending | refactor
 
@@ -101,27 +100,38 @@ corrections de `randomart-core`, `brouillon`, `playground`, `art-canvas`, `fract
 - Ne pas ajouter de nouvelle copie de `typedKeys` : utiliser le helper partagé ou attendre
   `task-58`.
 
-## Reprise (prochaine session)
+## État de clôture
 
-Warnings de production restants : **8 / 6 fichiers**.
+Warnings de production restants : **0 / 0 fichiers**.
 
-- task-46.md | packages/pixel/src/docs/components/Controls.tsx | 2 | pending | signature (union discriminée `EndpointItem`)
-- task-47.md | packages/pixel/src/processor/neighborhood-tiling.ts | 1 | pending | signature (`radius?: number`)
-- task-48.md | packages/pixel/src/worker/process-image-in-worker.ts | 1 | pending | guard (`typeof event.data.error`)
-- task-49.md | packages/pixel/src/worker/serialization.ts | 1 | pending | guard (`'data' in item`)
-- task-50.md | packages/three-stage/src/components/GetStarted/Root.tsx | 2 | pending | boundary (garde `isPresetName`)
-- task-53.md | tools/new-mini-app/bin/index.ts | 1 | pending | boundary
+- Toutes les tâches warnings (tasks 01 à 53, hors files sans warning) sont terminées.
+- L’override de `vite.config.ts` pour les tests reste intact ; les 33 warnings de test sont hors
+  scope.
+- Les tâches de suivi 54, 55, 56, 58, 59 et 60 restent ouvertes et ne bloquent pas la clôture.
 
-Points de vigilance pour la reprise :
+### Suppressions restantes en production
 
-- `packages/pixel/src/worker/serialization.ts:15` utilise encore `item as Record<string, unknown>` ;
-  remplacer par `'data' in item` comme prévu par la task-49.
-- Les gardes ajoutées cette session (`isOpName`, `isGrammarRegistryId`, `isColorSpaceId`,
-  `isColorSpacesKey`, `isRuleKey`, `isColorSpaceCanvasResponse`) sont des patternes de référence :
-  validation par `Object.hasOwn` sur un objet littéral interne.
-- Suppressions restantes en production : `packages/randomart-core/src/seed.ts:19` (branding `Seed`),
-  `packages/palette/src/components/color-picker/colorSpaceCanvas.worker.ts:11` (frontière worker),
-  plus celles déjà listées par `glaze` (branding, DOM, CSS custom).
+22 suppressions ciblées subsistent, chacune limitée à un point non sûr unique :
+
+- **Branding nominal** : `packages/glaze/src/core/FrameLoop.ts:19` (`FrameToken`),
+  `packages/glaze/src/core/time.ts:20,28,40,48` (`DurationSeconds`, `Seconds`,
+  `NonNegativeSeconds`, `Milliseconds`), `packages/glaze/src/core/render.ts:28` (`StateData`),
+  `packages/glaze/src/core/InputStore.ts:152` (`AttachedHandle`),
+  `packages/glaze/src/react/surfaceStack.ts:42` (`Compact<T>`) et
+  `packages/randomart-core/src/seed.ts:19` (`Seed`). Les invariants sont établis avant le cast.
+- **Frontière DOM** : `packages/glaze/src/core/InputStore.ts:82-99` (8 casts de handlers typés vers
+  `EventListener`, centralisés dans les tableaux de binding) et
+  `packages/palette/src/components/color-picker/colorSpaceCanvas.worker.ts:11` (`self` dans un
+  worker dédié).
+- **Clés d’objets littéraux internes** :
+  `apps/playground/src/utils/object.ts:3` et `packages/randomart-ui/src/utils/object.ts:3`
+  (`typedKeys`).
+- **Frontière de librairie** : `tools/new-mini-app/bin/index.ts:11` (le `Template` local, créé par
+  `createTemplate`, est passé au type de base incompatible de `bingo`).
+- **Contrat temporaire à corriger** : `packages/glaze/src/react/clockStore.ts:62` (null-object
+  `Clock` ; suivi `task-56`).
+
+Aucune suppression de propriété CSS custom ne subsiste.
 
 ## Journal
 
@@ -136,3 +146,8 @@ Points de vigilance pour la reprise :
   task list reclassée (fin du fourre-tout “branding”), tâches de suivi ajoutées, docs formatés.
   `Select.tsx` corrigé entre-temps par `findSelected` (task-52), puis `ExperimentShell.tsx` par un
   type `PanelStyle` (task-51).
+- **2026-11-07** (session 3) : tasks 46 à 50 et 53 traitées (8 warnings, 6 fichiers). Patterns :
+  union discriminée `EndpointItem`, type `NeighborhoodManipulationDefinition`, narrowing par `typeof`
+  et `in`, garde `isPresetName` à la frontière Leva, puis une suppression unique documentée à la
+  frontière `bingo`. Zéro warning `typescript/no-unsafe-type-assertion` restant en production ;
+  task-57 était déjà résolue par le garde `typeof` de `compileProgram.ts`.

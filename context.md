@@ -22,18 +22,18 @@ assertions qui cachent un trou de typage (unions UI, données externes, signatur
 
 ## État actuel (7 novembre 2026)
 
-| Indicateur            | Valeur                        |
-| --------------------- | ----------------------------- |
-| Baseline (production) | 88 warnings / 46 fichiers     |
-| Corrigés              | 53 warnings / 21 fichiers     |
-| Restants              | **35 warnings / 25 fichiers** |
-| Tests (hors scope)    | 33 warnings / 7 fichiers      |
+| Indicateur            | Valeur                      |
+| --------------------- | --------------------------- |
+| Baseline (production) | 88 warnings / 46 fichiers   |
+| Corrigés              | 88 warnings / 46 fichiers   |
+| Restants              | **0 warnings / 0 fichiers** |
+| Tests (hors scope)    | 33 warnings / 7 fichiers    |
 
 Vérification :
 
 ```bash
 vp check --no-fmt --deny-warnings
-# attendu aujourd'hui : exit 1, 35 warnings de cette règle
+# attendu aujourd'hui : exit 0, aucun warning de cette règle
 ```
 
 `vp check` complet peut d’abord échouer sur le formatage de `prompt.md`, `context.md`,
@@ -190,7 +190,7 @@ localisé commenté (`--tile-size` est une custom property), sans le propager.
 4. **`typedKeys`** dupliqué dans deux packages ; ne pas en ajouter une troisième copie
    (`task-58`).
 5. **`clockStore`** : la suppression cache un contrat faux (`task-56`).
-6. **`compileProgram`** : suppression alors qu’un garde `typeof` suffirait (`task-57`).
+6. **`compileProgram`** : le garde `typeof` est appliqué ; `task-57` est close.
 
 ## Classification des tâches
 

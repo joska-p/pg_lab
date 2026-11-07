@@ -14,8 +14,8 @@
 
 ## État de référence (7 novembre 2026)
 
-- `vp check --no-fmt --deny-warnings` : **35 warnings / 25 fichiers** de production.
-- 53 warnings déjà corrigés dans 21 fichiers (voir `progress.md`).
+- `vp check --no-fmt --deny-warnings` : **0 warning** de production.
+- 88 warnings corrigés dans 46 fichiers (voir `progress.md`).
 - 33 warnings supplémentaires existent dans 7 fichiers de test : **hors scope**, grâce à
   l’override.
 - `vp check` complet peut échouer d’abord sur le formatage des fichiers du protocole. Formater
