@@ -88,7 +88,7 @@ corrections de `randomart-core`, `brouillon`, `playground`, `art-canvas`, `fract
 - task-55.md | `InputStore.ts` : helper `bind` pour réduire 9 suppressions à 1 | pending | refactor
 - task-56.md | `clockStore.ts` : remplacer `null as unknown as Clock` par un contrat honnête | pending | refactor
 - task-57.md | `compileProgram.ts` : garde `typeof` au lieu d’une suppression | pending | refactor
-- task-58.md | `typedKeys` : un seul helper partagé au lieu de copies par package | pending | refactor
+- task-58.md | `typedKeys` : un seul helper partagé au lieu de copies par package. Tache supprimer
 - task-59.md | Sequencer : typer les params de layer ou helper unique, au lieu de dupliquer les defaults | pending | refactor
 - task-60.md | `WorkerPool` : typer `deserialize` en `MessageEvent<TResponse>` | pending | refactor
 

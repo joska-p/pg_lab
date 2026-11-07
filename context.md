@@ -66,8 +66,7 @@ vp check --no-fmt --deny-warnings
 ### 1. Clés d’un objet littéral : `typedKeys`
 
 Helper existant dans `packages/randomart-ui/src/utils/object.ts` et
-`apps/playground/src/utils/object.ts`. Il est dupliqué : une tâche de suivi (`task-58`) propose un
-emplacement partagé. En attendant, ne pas créer une troisième copie.
+`apps/playground/src/utils/object.ts`. Il peut est dupliqué.
 
 ```ts
 export function typedKeys<T extends object>(obj: T): (keyof T & string)[] {
