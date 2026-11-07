@@ -70,11 +70,12 @@ vec3 ra_oklab(vec3 raw) {
 
 export type ColorSpaceId = keyof typeof colorSpaces;
 
-export const COLOR_SPACE_IDS = Object.keys(colorSpaces) as readonly ColorSpaceId[];
-
 export function isColorSpaceId(value: unknown): value is ColorSpaceId {
     return typeof value === 'string' && Object.hasOwn(colorSpaces, value);
 }
+
+export const COLOR_SPACE_IDS: readonly ColorSpaceId[] =
+    Object.keys(colorSpaces).filter(isColorSpaceId);
 
 /** Identifier of the entry point the compiled `main` ends with, e.g. `ra_oklch`. */
 export function colorSpaceFunction(id: ColorSpaceId): string {
