@@ -16,10 +16,17 @@ const TILE_COLORS: [string, string, string, string, string] = [
     '--color-4',
 ];
 
-const TILE_GRID_STYLE = {
-    ...initialPalette,
+/** `CSSProperties` ne décrit pas les custom properties CSS ; on les ajoute explicitement. */
+type CssVars = React.CSSProperties & Record<`--${string}`, string | number | undefined>;
+
+const TILE_GRID_STYLE: CssVars = {
+    '--color-0': initialPalette['--color-0'],
+    '--color-1': initialPalette['--color-1'],
+    '--color-2': initialPalette['--color-2'],
+    '--color-3': initialPalette['--color-3'],
+    '--color-4': initialPalette['--color-4'],
     '--tile-size': '32px',
-} as React.CSSProperties;
+};
 
 const styles = stylex.create({
     grid: {
