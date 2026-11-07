@@ -214,10 +214,9 @@ const baseLint = {
         'typescript/prefer-as-const': 'error',
 
         'typescript/no-non-null-assertion': 'error',
-        // Branded primitives are built with `value as Brand` inside their factories. The rule
-        // cannot distinguish that intentional narrowing from an unchecked assertion, so it stays
-        // off; the factories and `consistent-type-assertions` keep the `as` syntax honest.
-        'typescript/no-unsafe-type-assertion': 'warn',
+
+        // To help fix those error, read codex/docs/noUncheckedIndexedAccess.md.
+        'typescript/no-unsafe-type-assertion': 'error',
 
         // ─────────────────────────────────────────────
         // TypeScript — safety / unnecessary complexity
