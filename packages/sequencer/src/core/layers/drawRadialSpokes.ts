@@ -1,61 +1,64 @@
+import { readParam } from '../param';
 import type { VisualLayer } from '../types';
+
+const radialSpokesParams = {
+    lineWidth: {
+        label: 'Line Width',
+        type: 'number',
+        min: 0.5,
+        max: 5,
+        step: 0.5,
+        default: 1,
+    },
+    alpha: {
+        label: 'Opacity',
+        type: 'number',
+        min: 0,
+        max: 1,
+        step: 0.05,
+        default: 0.7,
+    },
+    dotRadius: {
+        label: 'Dot Radius',
+        type: 'number',
+        min: 0,
+        max: 10,
+        step: 1,
+        default: 2,
+    },
+    saturation: {
+        label: 'Saturation',
+        type: 'number',
+        min: 0,
+        max: 100,
+        step: 5,
+        default: 85,
+    },
+    lightness: {
+        label: 'Lightness',
+        type: 'number',
+        min: 0,
+        max: 100,
+        step: 5,
+        default: 55,
+    },
+    scale: { label: 'Scale', type: 'number', min: 0.1, max: 2, step: 0.1, default: 0.8 },
+} as const;
 
 const drawRadialSpokes: VisualLayer = {
     id: 'radial-spokes',
     name: 'Radial Spokes',
     description: 'Values mapped to polar coordinates — each point is a spoke from center',
     category: 'drawing',
-    params: {
-        lineWidth: {
-            label: 'Line Width',
-            type: 'number',
-            min: 0.5,
-            max: 5,
-            step: 0.5,
-            default: 1,
-        },
-        alpha: {
-            label: 'Opacity',
-            type: 'number',
-            min: 0,
-            max: 1,
-            step: 0.05,
-            default: 0.7,
-        },
-        dotRadius: {
-            label: 'Dot Radius',
-            type: 'number',
-            min: 0,
-            max: 10,
-            step: 1,
-            default: 2,
-        },
-        saturation: {
-            label: 'Saturation',
-            type: 'number',
-            min: 0,
-            max: 100,
-            step: 5,
-            default: 85,
-        },
-        lightness: {
-            label: 'Lightness',
-            type: 'number',
-            min: 0,
-            max: 100,
-            step: 5,
-            default: 55,
-        },
-        scale: { label: 'Scale', type: 'number', min: 0.1, max: 2, step: 0.1, default: 0.8 },
-    },
+    params: radialSpokesParams,
     draw: (ctx, data, params, layout) => {
         const { maxVal, offsetX, offsetY } = layout;
-        const lineWidth = typeof params.lineWidth === 'number' ? params.lineWidth : 1;
-        const alpha = typeof params.alpha === 'number' ? params.alpha : 0.7;
-        const dotRadius = typeof params.dotRadius === 'number' ? params.dotRadius : 2;
-        const saturation = typeof params.saturation === 'number' ? params.saturation : 85;
-        const lightness = typeof params.lightness === 'number' ? params.lightness : 55;
-        const scale = typeof params.scale === 'number' ? params.scale : 0.8;
+        const lineWidth = readParam(radialSpokesParams.lineWidth, params.lineWidth);
+        const alpha = readParam(radialSpokesParams.alpha, params.alpha);
+        const dotRadius = readParam(radialSpokesParams.dotRadius, params.dotRadius);
+        const saturation = readParam(radialSpokesParams.saturation, params.saturation);
+        const lightness = readParam(radialSpokesParams.lightness, params.lightness);
+        const scale = readParam(radialSpokesParams.scale, params.scale);
 
         if (data.length === 0) {
             return;

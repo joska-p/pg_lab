@@ -1,5 +1,22 @@
+import { readParam } from '../../core/param';
 import type { VisualLayer } from '../../core/types';
 import { fetchFourierEpicycles } from './store';
+
+const fourierEpicyclesParams = {
+    precision: {
+        label: 'Circle Limit',
+        type: 'number',
+        min: 1,
+        max: 200,
+        step: 1,
+        default: 40,
+    },
+    orbitOverlays: {
+        label: 'Show Orbits',
+        type: 'boolean',
+        default: true,
+    },
+} as const;
 
 export const drawFourierEpicycles: VisualLayer = {
     id: 'fourier-epicycles',
@@ -7,25 +24,10 @@ export const drawFourierEpicycles: VisualLayer = {
     description:
         'Traces high-frequency geometric vector loops utilizing Discrete Fourier Transforms.',
     category: 'drawing',
-    params: {
-        precision: {
-            label: 'Circle Limit',
-            type: 'number',
-            min: 1,
-            max: 200,
-            step: 1,
-            default: 40,
-        },
-        orbitOverlays: {
-            label: 'Show Orbits',
-            type: 'boolean',
-            default: true,
-        },
-    },
+    params: fourierEpicyclesParams,
     draw: (ctx, data, params, layout) => {
-        const precision = typeof params.precision === 'number' ? params.precision : 40;
-        const orbitOverlays =
-            typeof params.orbitOverlays === 'boolean' ? params.orbitOverlays : true;
+        const precision = readParam(fourierEpicyclesParams.precision, params.precision);
+        const orbitOverlays = readParam(fourierEpicyclesParams.orbitOverlays, params.orbitOverlays);
 
         const pairs = new Float32Array(data.length * 2);
 
@@ -109,7 +111,7 @@ export const drawFourierEpicycles: VisualLayer = {
 
             // Draw the tip/pointer
             ctx.beginPath();
-            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.arc(x, y, 3, 0, 2 * Math.PI);
             ctx.fillStyle = '#ffffff';
             ctx.fill();
         }

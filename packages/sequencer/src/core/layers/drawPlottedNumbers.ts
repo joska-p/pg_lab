@@ -1,27 +1,30 @@
+import { readParam } from '../param';
 import type { VisualLayer } from '../types';
+
+const plottedNumbersParams = {
+    radius: { label: 'Radius', type: 'number', min: 1, max: 20, step: 1, default: 3 },
+    alpha: {
+        label: 'Opacity',
+        type: 'number',
+        min: 0,
+        max: 1,
+        step: 0.05,
+        default: 0.4,
+    },
+    color: { label: 'Color', type: 'color', default: '' },
+} as const;
 
 const drawPlottedNumbers: VisualLayer = {
     id: 'plotted-numbers',
     name: 'Plotted Numbers',
     description: 'Dots at each unique sequence value',
     category: 'cosmetic',
-    params: {
-        radius: { label: 'Radius', type: 'number', min: 1, max: 20, step: 1, default: 3 },
-        alpha: {
-            label: 'Opacity',
-            type: 'number',
-            min: 0,
-            max: 1,
-            step: 0.05,
-            default: 0.4,
-        },
-        color: { label: 'Color', type: 'color', default: '' },
-    },
+    params: plottedNumbersParams,
     draw: (ctx, data, params, layout) => {
         const { valueScale, offsetX, offsetY } = layout;
-        const color = typeof params.color === 'string' ? params.color : '';
-        const alpha = typeof params.alpha === 'number' ? params.alpha : 0.4;
-        const radius = typeof params.radius === 'number' ? params.radius : 3;
+        const color = readParam(plottedNumbersParams.color, params.color);
+        const alpha = readParam(plottedNumbersParams.alpha, params.alpha);
+        const radius = readParam(plottedNumbersParams.radius, params.radius);
 
         const plotted = new Set<number>();
 

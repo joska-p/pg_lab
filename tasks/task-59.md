@@ -1,36 +1,31 @@
 # task-59 — Sequencer : une seule source de vérité pour les paramètres
 
-- Fichiers : `packages/sequencer/src/core/layers/*.ts` (12 fichiers)
-- Statut : `pending`
+- Fichiers : `packages/sequencer/src/core/layers/*.ts` (10 fichiers) + `modules/fourier/drawFourierEpicycles.ts`
+- Statut : `done`
 - Catégorie : `refactor`
 - Origine : `task-15` à `task-25`
 
-## Problème
+## Choix retenu : option A (helper partagé)
 
-Les guards ajoutés répètent les defaults des descripteurs :
+Création de `packages/sequencer/src/core/param.ts` avec `readParam(descriptor, raw)` :
 
-```ts
-const lineWidth = typeof params.lineWidth === 'number' ? params.lineWidth : 1;
-const alpha = typeof params.alpha === 'number' ? params.alpha : 0.15;
-```
+- lit un `Record<string, unknown>` brut,
+- applique un garde `typeof` adapté au type déclaré du descripteur,
+- retourne le `default` du descripteur quand la valeur est absente ou de type incompatible,
+- une seule suppression `as` centralisée (justifiée par le narrowing sur `descriptor.type`).
 
-Le default existe déjà dans `{ type: 'number', default: 1 }`. Deux sources de vérité peuvent
-diverger, et chaque layer duplique 2 à 6 guards.
+Chaque layer extrait désormais ses descripteurs dans une `const ...Params` nommée (`as const`) et appelle `readParam` à la place des `typeof params.x === 'number' ? params.x : <dur>` en dur.
 
-## Correction attendue
+## Fichiers convertis (11)
 
-Choisir l’une des options :
+`core/layers/drawBarChart.ts`, `drawBaseline.ts`, `drawConnectionLines.ts`, `drawFactorWaves.ts`, `drawMountain.ts`, `drawPlottedNumbers.ts`, `drawRadialSpokes.ts`, `drawRecamanArcs.ts`, `drawStemPlot.ts` + `modules/fourier/drawFourierEpicycles.ts`. Le nouveau fichier `core/param.ts` contient l'unique logique de lecture.
 
-1. **Helper partagé** : `readNumberParams(params, descriptors)` qui lit les defaults des
-   descripteurs et applique un garde `typeof` une seule fois.
-2. **Typage à la frontière** : typer `VisualLayer.draw` en fonction de ses descripteurs, ou
-   valider les params au moment où ils entrent dans le layer, pour que `params.lineWidth` soit
-   `number` sans guard dans chaque draw.
+## Preuves
 
-L’option 2 est préférable si les paramètres sont déjà validés par les contrôles.
+- `vp -C packages/sequencer test` : vert.
+- `vp -C packages/sequencer check --no-fmt --deny-warnings` : 0 warning / 0 erreur.
+- `git diff` revu : pas de config modifiée, pas de test modifié, pas de changement de comportement (les valeurs par défaut sont identiques).
 
-## Définition de fait
+## Suppressions restantes
 
-- Un seul endroit contient les defaults et les guards.
-- Les 12 layers utilisent ce mécanisme.
-- Tests `sequencer` verts ; rendu identique.
+Une seule suppression `as` dans `core/param.ts` (cast du résultat typé par `ParamValue<D>`), justifiée par le garde `typeof` sur `descriptor.type`.

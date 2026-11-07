@@ -1,53 +1,55 @@
+import { readParam } from '../param';
 import type { VisualLayer } from '../types';
+
+const mountainParams = {
+    alpha: {
+        label: 'Opacity',
+        type: 'number',
+        min: 0,
+        max: 1,
+        step: 0.05,
+        default: 0.4,
+    },
+    hue: { label: 'Hue', type: 'number', min: 0, max: 360, step: 10, default: 210 },
+    saturation: {
+        label: 'Saturation',
+        type: 'number',
+        min: 0,
+        max: 100,
+        step: 5,
+        default: 70,
+    },
+    lightness: {
+        label: 'Lightness',
+        type: 'number',
+        min: 0,
+        max: 100,
+        step: 5,
+        default: 50,
+    },
+    gradientHeight: {
+        label: 'Gradient Height',
+        type: 'number',
+        min: 0,
+        max: 1,
+        step: 0.1,
+        default: 0.5,
+    },
+} as const;
 
 const drawMountain: VisualLayer = {
     id: 'mountain',
     name: 'Mountain Fill',
     description: 'Filled area under the sequence curve with gradient',
     category: 'drawing',
-    params: {
-        alpha: {
-            label: 'Opacity',
-            type: 'number',
-            min: 0,
-            max: 1,
-            step: 0.05,
-            default: 0.4,
-        },
-        hue: { label: 'Hue', type: 'number', min: 0, max: 360, step: 10, default: 210 },
-        saturation: {
-            label: 'Saturation',
-            type: 'number',
-            min: 0,
-            max: 100,
-            step: 5,
-            default: 70,
-        },
-        lightness: {
-            label: 'Lightness',
-            type: 'number',
-            min: 0,
-            max: 100,
-            step: 5,
-            default: 50,
-        },
-        gradientHeight: {
-            label: 'Gradient Height',
-            type: 'number',
-            min: 0,
-            max: 1,
-            step: 0.1,
-            default: 0.5,
-        },
-    },
+    params: mountainParams,
     draw: (ctx, data, params, layout) => {
         const { valueScale, offsetX, offsetY } = layout;
-        const alpha = typeof params.alpha === 'number' ? params.alpha : 0.4;
-        const hue = typeof params.hue === 'number' ? params.hue : 210;
-        const saturation = typeof params.saturation === 'number' ? params.saturation : 70;
-        const lightness = typeof params.lightness === 'number' ? params.lightness : 50;
-        const gradientHeight =
-            typeof params.gradientHeight === 'number' ? params.gradientHeight : 0.5;
+        const alpha = readParam(mountainParams.alpha, params.alpha);
+        const hue = readParam(mountainParams.hue, params.hue);
+        const saturation = readParam(mountainParams.saturation, params.saturation);
+        const lightness = readParam(mountainParams.lightness, params.lightness);
+        const gradientHeight = readParam(mountainParams.gradientHeight, params.gradientHeight);
 
         if (data.length < 2) {
             return;

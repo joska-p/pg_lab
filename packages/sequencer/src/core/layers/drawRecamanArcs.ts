@@ -1,34 +1,37 @@
+import { readParam } from '../param';
 import type { VisualLayer } from '../types';
+
+const recamanArcsParams = {
+    lineWidth: {
+        type: 'number',
+        label: 'Line Width',
+        min: 0.5,
+        max: 5,
+        step: 0.5,
+        default: 1,
+    },
+    alpha: {
+        type: 'number',
+        label: 'Opacity',
+        min: 0,
+        max: 1,
+        step: 0.05,
+        default: 1.0,
+    },
+    color: { type: 'color', label: 'Color', default: '' },
+} as const;
 
 export const drawRecamanArcs: VisualLayer = {
     id: 'recaman-arcs',
     name: 'Recamán Arcs',
     description: 'Semicircle arcs between consecutive sequence values',
     category: 'drawing',
-    params: {
-        lineWidth: {
-            type: 'number',
-            label: 'Line Width',
-            min: 0.5,
-            max: 5,
-            step: 0.5,
-            default: 1,
-        },
-        alpha: {
-            type: 'number',
-            label: 'Opacity',
-            min: 0,
-            max: 1,
-            step: 0.05,
-            default: 1.0,
-        },
-        color: { type: 'color', label: 'Color', default: '' },
-    },
+    params: recamanArcsParams,
     draw: (ctx, data, params, layout) => {
         const { valueScale, offsetX, offsetY } = layout;
-        const lineWidth = typeof params.lineWidth === 'number' ? params.lineWidth : 1;
-        const alpha = typeof params.alpha === 'number' ? params.alpha : 1;
-        const color = typeof params.color === 'string' ? params.color : '';
+        const lineWidth = readParam(recamanArcsParams.lineWidth, params.lineWidth);
+        const alpha = readParam(recamanArcsParams.alpha, params.alpha);
+        const color = readParam(recamanArcsParams.color, params.color);
 
         if (data.length < 2) {
             return;

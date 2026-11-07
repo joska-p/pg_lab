@@ -1,60 +1,62 @@
+import { readParam } from '../param';
 import type { VisualLayer } from '../types';
+
+const factorWavesParams = {
+    lineWidth: {
+        label: 'Line Width',
+        type: 'number',
+        min: 0.5,
+        max: 5,
+        step: 0.5,
+        default: 1.5,
+    },
+    alpha: {
+        label: 'Opacity',
+        type: 'number',
+        min: 0,
+        max: 1,
+        step: 0.05,
+        default: 0.65,
+    },
+    amplitudeScale: {
+        label: 'Amplitude',
+        type: 'number',
+        min: 0.05,
+        max: 1,
+        step: 0.05,
+        default: 0.4,
+    },
+    saturation: {
+        label: 'Saturation',
+        type: 'number',
+        min: 0,
+        max: 100,
+        step: 5,
+        default: 85,
+    },
+    lightness: {
+        label: 'Lightness',
+        type: 'number',
+        min: 0,
+        max: 100,
+        step: 5,
+        default: 55,
+    },
+} as const;
 
 const drawFactorWaves: VisualLayer = {
     id: 'factor-waves',
     name: 'Factor Waves',
     description: 'Per-value sine waves radiating from each point',
     category: 'drawing',
-    params: {
-        lineWidth: {
-            label: 'Line Width',
-            type: 'number',
-            min: 0.5,
-            max: 5,
-            step: 0.5,
-            default: 1.5,
-        },
-        alpha: {
-            label: 'Opacity',
-            type: 'number',
-            min: 0,
-            max: 1,
-            step: 0.05,
-            default: 0.65,
-        },
-        amplitudeScale: {
-            label: 'Amplitude',
-            type: 'number',
-            min: 0.05,
-            max: 1,
-            step: 0.05,
-            default: 0.4,
-        },
-        saturation: {
-            label: 'Saturation',
-            type: 'number',
-            min: 0,
-            max: 100,
-            step: 5,
-            default: 85,
-        },
-        lightness: {
-            label: 'Lightness',
-            type: 'number',
-            min: 0,
-            max: 100,
-            step: 5,
-            default: 55,
-        },
-    },
+    params: factorWavesParams,
     draw: (ctx, data, params, layout) => {
         const { maxVal, valueScale, offsetX, offsetY } = layout;
-        const lineWidth = typeof params.lineWidth === 'number' ? params.lineWidth : 1.5;
-        const alpha = typeof params.alpha === 'number' ? params.alpha : 0.65;
-        const amplitudeScale =
-            typeof params.amplitudeScale === 'number' ? params.amplitudeScale : 0.4;
-        const saturation = typeof params.saturation === 'number' ? params.saturation : 85;
-        const lightness = typeof params.lightness === 'number' ? params.lightness : 55;
+        const lineWidth = readParam(factorWavesParams.lineWidth, params.lineWidth);
+        const alpha = readParam(factorWavesParams.alpha, params.alpha);
+        const amplitudeScale = readParam(factorWavesParams.amplitudeScale, params.amplitudeScale);
+        const saturation = readParam(factorWavesParams.saturation, params.saturation);
+        const lightness = readParam(factorWavesParams.lightness, params.lightness);
 
         if (maxVal <= 0) {
             return;

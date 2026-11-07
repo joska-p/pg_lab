@@ -88,7 +88,7 @@ les corrections de `pixel`, `three-stage` et `new-mini-app`, tasks 46 à 50 et 5
 - task-56.md | `clockStore.ts` : remplacer `null as unknown as Clock` par un contrat honnête | done | refactor ; `NullClock extends Clock` (no-op, temps à zéro), plus de cast
 - task-57.md | `compileProgram.ts` : garde `typeof` au lieu d’une suppression | done | refactor
 - task-58.md | `typedKeys` : 2 copies volontaires et documentées (packages/randomart-ui + apps/playground), pas de helper partagé | done | refactor ; chaque package garde sa propre copie pour rester indépendant, cast `as (keyof T)[]` justifié par garde logique + commentaire
-- task-59.md | Sequencer : typer les params de layer ou helper unique, au lieu de dupliquer les defaults | pending | refactor
+- task-59.md | Sequencer : typer les params de layer ou helper unique, au lieu de dupliquer les defaults | done | refactor ; option A : helper readParam (core/param.ts) lit le default du descripteur + garde typeof unique, 12 layers convertis, 1 seule suppression as centralisée
 - task-60.md | `WorkerPool` : `deserialize` en `MessageEvent` (bare) + gardes runtime, plus de `TResponse` | done | refactor ; 3e paramètre générique retiré, casts `event.data as …` supprimés, fichiers repro* supprimés
 
 ## Mise à jour
