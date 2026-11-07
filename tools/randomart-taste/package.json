@@ -5,7 +5,8 @@
     "type": "module",
     "scripts": {
         "lint": "vp lint",
-        "test": "vp test"
+        "test": "vp test",
+        "generate": "CHROMIUM_PATH=/home/muratha/Work/dev/dev_home/.cache/ms-playwright/chromium-1254/chrome-linux64/chrome vpx src/run.ts --grammars 300 --seeds 8 --size 128 --out data/samples.json"
     },
     "dependencies": {
         "@repo/randomart-core": "catalog:",
