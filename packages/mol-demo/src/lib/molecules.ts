@@ -76,7 +76,7 @@ export function parseAndValidate(text: string, filename: string, maxAtomCount: n
 const sdfUrlModules = import.meta.glob('../assets/molecules/*.sdf', {
     query: '?url',
     import: 'default',
-}) as Record<string, () => Promise<string>>;
+});
 
 const sdfUrlByFile = new Map<string, () => Promise<string>>(
     Object.entries(sdfUrlModules).map(([path, loader]) => [path.split('/').pop() ?? path, loader]),
