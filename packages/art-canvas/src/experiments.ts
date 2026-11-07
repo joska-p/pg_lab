@@ -58,4 +58,6 @@ export const EXPERIMENTS = {
 } as const satisfies Record<string, Experiment>;
 
 export type ExperimentKey = keyof typeof EXPERIMENTS;
-export const experimentKeys = Object.keys(EXPERIMENTS) as ExperimentKey[];
+export const experimentKeys = Object.keys(EXPERIMENTS).filter((key): key is ExperimentKey =>
+    Object.hasOwn(EXPERIMENTS, key),
+);
