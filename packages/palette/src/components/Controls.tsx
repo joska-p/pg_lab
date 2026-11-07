@@ -16,6 +16,14 @@ const rules = { analogous, complementary, monochromatic, triadic } as const;
 
 type RuleKey = keyof typeof rules;
 
+function isColorSpacesKey(value: unknown): value is ColorSpacesKey {
+    return typeof value === 'string' && Object.hasOwn(colorSpaces, value);
+}
+
+function isRuleKey(value: unknown): value is RuleKey {
+    return typeof value === 'string' && Object.hasOwn(rules, value);
+}
+
 function Controls() {
     const baseColor = usePaletteBaseColor();
 
@@ -27,25 +35,29 @@ function Controls() {
 
     return (
         <>
-            {Object.entries(colorSpaces).map(([key, space]) => (
-                <ControlSection key={key} title={space.name}>
-                    <ColorSpaceControls spaceId={key as ColorSpacesKey} size={200} />
-                </ControlSection>
-            ))}
+            {Object.keys(colorSpaces)
+                .filter(isColorSpacesKey)
+                .map((key) => (
+                    <ControlSection key={key} title={colorSpaces[key].name}>
+                        <ColorSpaceControls spaceId={key} size={200} />
+                    </ControlSection>
+                ))}
 
             <ControlSection title="Harmony rules">
                 <Stack direction="vertical" gap="2">
-                    {Object.entries(rules).map(([key, rule]) => (
-                        <Button
-                            key={key}
-                            title={rule.info.description}
-                            onClick={() => {
-                                handleGeneratePalette(baseColor, key as RuleKey);
-                            }}
-                        >
-                            Generate {rule.info.name}
-                        </Button>
-                    ))}
+                    {Object.keys(rules)
+                        .filter(isRuleKey)
+                        .map((key) => (
+                            <Button
+                                key={key}
+                                title={rules[key].info.description}
+                                onClick={() => {
+                                    handleGeneratePalette(baseColor, key);
+                                }}
+                            >
+                                Generate {rules[key].info.name}
+                            </Button>
+                        ))}
                 </Stack>
             </ControlSection>
         </>
