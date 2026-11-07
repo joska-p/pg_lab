@@ -7,6 +7,8 @@ interface WorkerScope {
     postMessage: (message: ColorSpaceCanvasResponse, transfer?: Transferable[]) => void;
 }
 
+// `self` is typed as `Window` by the app's DOM lib; this module only runs as a dedicated worker.
+// oxlint-disable-next-line typescript/no-unsafe-type-assertion
 const workerScope = self as unknown as WorkerScope;
 
 function renderColorSpace({ spaceId, zValue, size }: RenderColorSpaceTask): ImageBitmap {
