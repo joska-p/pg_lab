@@ -42,6 +42,32 @@ const ALL_COLORS: readonly ColorNames[] = [
     'orange',
 ];
 
+const BACKGROUND_OPTIONS = [
+    { value: 'solid', label: 'Solid' },
+    { value: 'soft', label: 'Soft' },
+    { value: 'none', label: 'None' },
+] as const satisfies readonly { value: Background; label: string }[];
+
+const BORDER_OPTIONS = [
+    { value: 'none', label: 'None' },
+    { value: 'subtle', label: 'Subtle' },
+    { value: 'strong', label: 'Strong' },
+] as const satisfies readonly { value: Borders; label: string }[];
+
+const RADIUS_OPTIONS = [
+    { value: 'none', label: '0' },
+    { value: 'sm', label: 'SM' },
+    { value: 'md', label: 'MD' },
+    { value: 'lg', label: 'LG' },
+    { value: 'full', label: 'Full' },
+] as const satisfies readonly { value: Radius; label: string }[];
+
+const ELEVATION_OPTIONS = [
+    { value: 'flat', label: 'Flat' },
+    { value: 'raised', label: 'Raised' },
+    { value: 'sunken', label: 'Sunken' },
+] as const satisfies readonly { value: Elevation; label: string }[];
+
 const styles = stylex.create({
     AtlasPaths: {
         minHeight: '20rem',
@@ -112,53 +138,35 @@ export function App() {
                             </ControlSection>
 
                             <ControlSection title="Live Surface Studio">
-                                <Select
+                                <Select<ColorNames>
                                     label="Surface Color"
                                     value={activeColor}
-                                    onValueChange={(val) => setActiveColor(val as ColorNames)}
+                                    onValueChange={setActiveColor}
                                     options={ALL_COLORS.map((c) => ({ value: c, label: c }))}
                                 />
-                                <Segmented
+                                <Segmented<Background>
                                     label="Background"
                                     value={activeBg}
-                                    onValueChange={(val) => setActiveBg(val as Background)}
-                                    options={[
-                                        { value: 'solid', label: 'Solid' },
-                                        { value: 'soft', label: 'Soft' },
-                                        { value: 'none', label: 'None' },
-                                    ]}
+                                    onValueChange={setActiveBg}
+                                    options={BACKGROUND_OPTIONS}
                                 />
-                                <Segmented
+                                <Segmented<Borders>
                                     label="Border"
                                     value={activeBorder}
-                                    onValueChange={(val) => setActiveBorder(val as Borders)}
-                                    options={[
-                                        { value: 'none', label: 'None' },
-                                        { value: 'subtle', label: 'Subtle' },
-                                        { value: 'strong', label: 'Strong' },
-                                    ]}
+                                    onValueChange={setActiveBorder}
+                                    options={BORDER_OPTIONS}
                                 />
-                                <Segmented
+                                <Segmented<Radius>
                                     label="Radius"
                                     value={activeRadius}
-                                    onValueChange={(val) => setActiveRadius(val as Radius)}
-                                    options={[
-                                        { value: 'none', label: '0' },
-                                        { value: 'sm', label: 'SM' },
-                                        { value: 'md', label: 'MD' },
-                                        { value: 'lg', label: 'LG' },
-                                        { value: 'full', label: 'Full' },
-                                    ]}
+                                    onValueChange={setActiveRadius}
+                                    options={RADIUS_OPTIONS}
                                 />
-                                <Segmented
+                                <Segmented<Elevation>
                                     label="Elevation"
                                     value={activeElevation}
-                                    onValueChange={(val) => setActiveElevation(val as Elevation)}
-                                    options={[
-                                        { value: 'flat', label: 'Flat' },
-                                        { value: 'raised', label: 'Raised' },
-                                        { value: 'sunken', label: 'Sunken' },
-                                    ]}
+                                    onValueChange={setActiveElevation}
+                                    options={ELEVATION_OPTIONS}
                                 />
                             </ControlSection>
 
