@@ -71,6 +71,11 @@ function paramProblem(range: ParamSpec, value: unknown): string | null {
     return null;
 }
 
+/** Narrows `value` to a finite number within `range`. */
+function isValidParam(range: ParamSpec, value: unknown): value is number {
+    return paramProblem(range, value) === null;
+}
+
 function readParams(op: OpName, value: unknown, path: string): Readonly<Record<string, number>> {
     const spec = ops[op].params ?? {};
     if (value !== undefined && !isRecord(value)) {
@@ -94,12 +99,12 @@ function readParams(op: OpName, value: unknown, path: string): Readonly<Record<s
                 `Expression invalid at ${path}: missing parameter "${name}" of "${op}"`,
             );
         }
-        const problem = paramProblem(range, raw);
-        if (problem !== null) {
-            throw new RandomArtError(`Expression invalid at ${path}.params.${name}: ${problem}`);
+        if (!isValidParam(range, raw)) {
+            throw new RandomArtError(
+                `Expression invalid at ${path}.params.${name}: ${paramProblem(range, raw)}`,
+            );
         }
-        // paramProblem returned null: `raw` is a finite number within range.
-        params[name] = raw as number;
+        params[name] = raw;
     }
     return params;
 }
