@@ -12,15 +12,13 @@ export function isSerializedImageDataArray(data: unknown): data is SerializedIma
                 return false;
             }
 
-            const obj = item as Record<string, unknown>;
-
             return (
-                'data' in obj &&
-                'width' in obj &&
-                'height' in obj &&
-                obj.data instanceof Uint8ClampedArray &&
-                typeof obj.width === 'number' &&
-                typeof obj.height === 'number'
+                'data' in item &&
+                'width' in item &&
+                'height' in item &&
+                item.data instanceof Uint8ClampedArray &&
+                typeof item.width === 'number' &&
+                typeof item.height === 'number'
             );
         })
     );
