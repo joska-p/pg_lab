@@ -108,7 +108,7 @@ function Controls() {
         if (item.type === 'overview') {
             setActiveEndPointId({ kind: 'overview' });
         } else if (item.type === 'pipeline') {
-            setActiveEndPointId({ kind: 'pipeline', id: item.id as 'resize' | 'chaining' });
+            setActiveEndPointId({ kind: 'pipeline', id: item.id });
         } else if (item.type === 'internals') {
             setActiveEndPointId({ kind: 'internals', id: item.id });
         } else {
@@ -121,7 +121,7 @@ function Controls() {
             return { kind: 'overview' };
         }
         if (item.type === 'pipeline') {
-            return { kind: 'pipeline', id: item.id as 'resize' | 'chaining' };
+            return { kind: 'pipeline', id: item.id };
         }
         if (item.type === 'internals') {
             return { kind: 'internals', id: item.id };

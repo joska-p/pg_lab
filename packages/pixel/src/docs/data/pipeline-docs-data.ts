@@ -19,22 +19,30 @@ export interface ManipInfo {
     longDescription: string;
 }
 
+export type PipelineId = 'resize' | 'chaining';
+
 export type EndpointId =
     | { kind: 'overview' }
     | { kind: 'manip'; id: string }
-    | { kind: 'pipeline'; id: 'resize' | 'chaining' }
+    | { kind: 'pipeline'; id: PipelineId }
     | { kind: 'internals'; id: string };
 
-type EndpointItemType = 'overview' | 'pixel' | 'neighborhood' | 'global' | 'pipeline' | 'internals';
-
-export interface EndpointItem {
-    id: string;
+interface EndpointItemBase {
     label: string;
-    type: EndpointItemType;
     description: string;
     path: string;
     params?: ParamDef[];
 }
+
+export type EndpointItem =
+    | (EndpointItemBase & {
+          id: string;
+          type: 'overview' | 'pixel' | 'neighborhood' | 'global' | 'internals';
+      })
+    | (EndpointItemBase & {
+          id: PipelineId;
+          type: 'pipeline';
+      });
 
 export interface EndpointGroup {
     label: string;
