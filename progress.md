@@ -89,7 +89,7 @@ les corrections de `pixel`, `three-stage` et `new-mini-app`, tasks 46 à 50 et 5
 - task-57.md | `compileProgram.ts` : garde `typeof` au lieu d’une suppression | done | refactor
 - task-58.md | `typedKeys` : un seul helper partagé au lieu de copies par package | pending | refactor
 - task-59.md | Sequencer : typer les params de layer ou helper unique, au lieu de dupliquer les defaults | pending | refactor
-- task-60.md | `WorkerPool` : typer `deserialize` en `MessageEvent<TResponse>` | pending | refactor
+- task-60.md | `WorkerPool` : `deserialize` en `MessageEvent` (bare) + gardes runtime, plus de `TResponse` | done | refactor ; 3e paramètre générique retiré, casts `event.data as …` supprimés, fichiers repro* supprimés
 
 ## Mise à jour
 
@@ -107,7 +107,7 @@ Warnings de production restants : **0 / 0 fichiers**.
 - Toutes les tâches warnings (tasks 01 à 53, hors files sans warning) sont terminées.
 - L’override de `vite.config.ts` pour les tests reste intact ; les 33 warnings de test sont hors
   scope.
-- Les tâches de suivi 54, 55, 56, 58, 59 et 60 restent ouvertes et ne bloquent pas la clôture.
+- Les tâches de suivi 54, 58 et 59 restent ouvertes et ne bloquent pas la clôture. (55, 56 et 60 sont terminées.)
 
 ### Suppressions restantes en production
 
