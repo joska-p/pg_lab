@@ -10,15 +10,28 @@ const fourierPool = new WorkerPool<Float32Array, Epicycle[]>({
         message: task,
         transfer: [task.buffer],
     }),
-    deserialize: (event: MessageEvent<{ ok: boolean; value?: Epicycle[]; error?: string }>) => {
-        if (event.data.ok && event.data.value) {
-            return { ok: true, value: event.data.value };
-        } else {
-            return {
-                ok: false,
-                error: new Error(event.data.error ?? 'Unknown error in worker'),
-            };
+    deserialize: (event) => {
+        const data = event.data;
+
+        if (
+            typeof data === 'object' &&
+            data !== null &&
+            'ok' in data &&
+            data.ok === true &&
+            'value' in data &&
+            data.value !== undefined
+        ) {
+            return { ok: true, value: data.value };
         }
+
+        return {
+            ok: false,
+            error: new Error(
+                typeof data === 'object' && data !== null && 'error' in data
+                    ? String(data.error ?? 'Unknown error in worker')
+                    : 'Unknown error in worker',
+            ),
+        };
     },
 });
 

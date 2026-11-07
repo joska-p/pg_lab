@@ -47,15 +47,16 @@ const pool = new WorkerPool<RunConfig, ImageData[]>({
             transfer: [clampedCopy.buffer],
         };
     },
-    deserialize: (event: MessageEvent<Record<string, unknown>>) => {
-        if ('error' in event.data) {
-            const message =
-                typeof event.data.error === 'string' ? event.data.error : 'Unknown worker error';
+    deserialize: (event) => {
+        const data = event.data;
+
+        if ('error' in data) {
+            const message = typeof data.error === 'string' ? data.error : 'Unknown worker error';
 
             return { ok: false, error: new Error(message) };
         }
 
-        if (!isSerializedImageDataArray(event.data)) {
+        if (!isSerializedImageDataArray(data)) {
             return {
                 ok: false,
                 error: new Error('Invalid serialized ImageData format'),
@@ -64,7 +65,7 @@ const pool = new WorkerPool<RunConfig, ImageData[]>({
 
         return {
             ok: true,
-            value: event.data.map((r) => {
+            value: data.map((r) => {
                 const clonedData = Uint8ClampedArray.from(r.data);
 
                 return new ImageData(clonedData, r.width, r.height);
