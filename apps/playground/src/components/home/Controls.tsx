@@ -3,12 +3,13 @@ import { shellBackground } from '@repo/ui/recipes/shellBackground';
 import type { ShellBackground } from '@repo/ui/recipes/shellBackground';
 
 import { setShellBackground, useShellBackground } from '../../stores/appStore';
+import { typedKeys } from '../../utils/object';
 
 const shellBackgroundOptions: {
     value: ShellBackground;
     label: string;
-}[] = Object.keys(shellBackground).map((value) => ({
-    value: value as ShellBackground,
+}[] = typedKeys(shellBackground).map((value) => ({
+    value,
     label: value,
 }));
 
@@ -16,10 +17,10 @@ export function Controls() {
     const shellBackground = useShellBackground();
 
     return (
-        <Select
+        <Select<ShellBackground>
             label="Background"
             value={shellBackground}
-            onValueChange={(val: ShellBackground) => setShellBackground(val)}
+            onValueChange={setShellBackground}
             options={shellBackgroundOptions}
         />
     );
