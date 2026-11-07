@@ -3,13 +3,13 @@ import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Select } from '@repo/ui/components/Select';
 import { Suspense } from 'react';
 
-import { EXPERIMENTS } from '../experiments';
+import { EXPERIMENTS, experimentKeys } from '../experiments';
 import type { ExperimentKey } from '../experiments';
 import { setExperimentKey, useExperimentKey } from '../stores/appStore';
 
-const OPTIONS = Object.entries(EXPERIMENTS).map(([value, { label }]) => ({
-    value: value as ExperimentKey,
-    label,
+const OPTIONS = experimentKeys.map((value) => ({
+    value,
+    label: EXPERIMENTS[value].label,
 }));
 
 export function Controls() {
@@ -18,7 +18,7 @@ export function Controls() {
 
     return (
         <ControlPanel>
-            <Select
+            <Select<ExperimentKey>
                 label="Experiment"
                 value={experimentKey}
                 onValueChange={setExperimentKey}
