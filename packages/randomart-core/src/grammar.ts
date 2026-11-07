@@ -1,7 +1,7 @@
 import { COLOR_SPACE_IDS, isColorSpaceId } from './colors';
 import type { ColorSpaceId } from './colors';
 import { GrammarDrawError, InfeasibleGrammarError, RandomArtError } from './errors';
-import { OP_NAMES, ops, isTerminal } from './ops';
+import { OP_NAMES, ops, isOpName, isTerminal } from './ops';
 import type { OpName } from './ops';
 import type { Rng } from './rng';
 
@@ -127,7 +127,7 @@ function normalizeWeights(weights: Weights): Partial<Record<OpName, number>> {
 }
 
 function assertVocabulary(weights: Weights): void {
-    const names = Object.keys(weights) as OpName[];
+    const names = Object.keys(weights).filter(isOpName);
     if (names.length === 0) {
         throw new RandomArtError('Grammar must enable at least one operator');
     }
@@ -435,9 +435,13 @@ export const grammarRegistry = {
 
 export type GrammarRegistryId = keyof typeof grammarRegistry;
 
+function isGrammarRegistryId(value: unknown): value is GrammarRegistryId {
+    return typeof value === 'string' && Object.hasOwn(grammarRegistry, value);
+}
+
 /** Registry id of the preset a grammar equals, if any. */
 export function presetOf(grammar: Grammar): GrammarRegistryId | undefined {
     const key = grammarKey(grammar);
-    const ids = Object.keys(grammarRegistry) as GrammarRegistryId[];
+    const ids = Object.keys(grammarRegistry).filter(isGrammarRegistryId);
     return ids.find((id) => grammarKey(grammarRegistry[id].grammar) === key);
 }
