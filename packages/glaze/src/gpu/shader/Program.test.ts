@@ -53,7 +53,25 @@ function createMockGl(options: MockOptions = {}) {
 
 type MockGl = ReturnType<typeof createMockGl>;
 
-const asGl = (gl: MockGl) => gl as unknown as WebGL2RenderingContext;
+/**
+ * Le mock WebGL2 n'implémente que les méthodes utilisées par le programme : l'assertion est
+ * confinée à cette factory.
+ */
+const asGl = (gl: MockGl) => {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    return gl as unknown as WebGL2RenderingContext;
+};
+
+/** Vérifie le type de l'erreur rattrapée et la rend exploitable sans assertion. */
+function expectShaderError(error: unknown): ShaderError {
+    expect(error).toBeInstanceOf(ShaderError);
+
+    if (!(error instanceof ShaderError)) {
+        throw new Error('expected a ShaderError');
+    }
+
+    return error;
+}
 
 function caught(run: () => unknown): unknown {
     try {
@@ -71,8 +89,9 @@ describe('compileProgram failures', () => {
         const error = caught(() => compileProgram(asGl(gl), 'void main() {}'));
 
         expect(error).toBeInstanceOf(ShaderError);
-        expect((error as ShaderError).stage).toBe('fragment');
-        expect((error as ShaderError).log).toContain('boom');
+        const shaderError = expectShaderError(error);
+        expect(shaderError.stage).toBe('fragment');
+        expect(shaderError.log).toContain('boom');
         expect(gl.deleteShader).toHaveBeenCalledTimes(2);
         expect(gl.createProgram).not.toHaveBeenCalled();
     });
@@ -81,7 +100,7 @@ describe('compileProgram failures', () => {
         const gl = createMockGl({ failCompile: 'vertex' });
         const error = caught(() => compileProgram(asGl(gl), 'void main() {}'));
 
-        expect((error as ShaderError).stage).toBe('vertex');
+        expect(expectShaderError(error).stage).toBe('vertex');
         expect(gl.createShader).toHaveBeenCalledTimes(1);
         expect(gl.deleteShader).toHaveBeenCalledTimes(1);
     });
@@ -90,7 +109,7 @@ describe('compileProgram failures', () => {
         const gl = createMockGl({ failLink: true });
         const error = caught(() => compileProgram(asGl(gl), 'void main() {}'));
 
-        expect((error as ShaderError).stage).toBe('link');
+        expect(expectShaderError(error).stage).toBe('link');
         expect(gl.deleteProgram).toHaveBeenCalledTimes(1);
         expect(gl.deleteShader).toHaveBeenCalledTimes(2);
     });

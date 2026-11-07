@@ -16,10 +16,10 @@ interface MockGl {
     drawElementsArgs: number[] | null;
     enabled: number[];
     programs: object[];
-    usedPrograms: object[];
+    usedPrograms: unknown[];
     shaderSources: string[];
     uniformByName: Map<string, number[] | Float32Array | number>;
-    locationNames: Map<object, string>;
+    locationNames: Map<unknown, string>;
 }
 
 function createMockGl(): { gl: Record<string, unknown>; state: MockGl } {
@@ -92,19 +92,19 @@ function createMockGl(): { gl: Record<string, unknown>; state: MockGl } {
             return location;
         },
         uniformMatrix4fv(location: unknown, _transpose: boolean, value: Float32Array): void {
-            const name = state.locationNames.get(location as object) ?? 'unknown';
+            const name = state.locationNames.get(location) ?? 'unknown';
             state.uniformByName.set(name, [...value]);
         },
         uniformMatrix3fv(location: unknown, _transpose: boolean, value: Float32Array): void {
-            const name = state.locationNames.get(location as object) ?? 'unknown';
+            const name = state.locationNames.get(location) ?? 'unknown';
             state.uniformByName.set(name, [...value]);
         },
         uniform3f(location: unknown, x: number, y: number, z: number): void {
-            const name = state.locationNames.get(location as object) ?? 'unknown';
+            const name = state.locationNames.get(location) ?? 'unknown';
             state.uniformByName.set(name, [x, y, z]);
         },
         uniform1f(location: unknown, x: number): void {
-            const name = state.locationNames.get(location as object) ?? 'unknown';
+            const name = state.locationNames.get(location) ?? 'unknown';
             state.uniformByName.set(name, x);
         },
         createBuffer(): object {
@@ -120,7 +120,7 @@ function createMockGl(): { gl: Record<string, unknown>; state: MockGl } {
         vertexAttribPointer(): void {},
         useProgram(program: unknown): void {
             state.calls.push('useProgram');
-            state.usedPrograms.push(program as object);
+            state.usedPrograms.push(program);
         },
         viewport(x: number, y: number, w: number, h: number): void {
             state.calls.push('viewport');
@@ -142,12 +142,26 @@ function createMockGl(): { gl: Record<string, unknown>; state: MockGl } {
     return { gl, state };
 }
 
+/**
+ * Le renderer n'utilise qu'un sous-ensemble de `HTMLCanvasElement` (dimensions + `getContext`) :
+ * l'assertion est confinée à cette factory de test.
+ */
 function createCanvas(mock: unknown, width = 300, height = 150): HTMLCanvasElement {
-    return {
+    const canvas = {
         width,
         height,
         getContext: () => mock,
-    } as unknown as HTMLCanvasElement;
+    };
+
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    return canvas as unknown as HTMLCanvasElement;
+}
+
+/** Lit un uniform vector du mock ; un uniform absent ou scalaire donne un tableau vide. */
+function uniformVector(state: MockGl, name: string): number[] {
+    const value = state.uniformByName.get(name);
+
+    return Array.isArray(value) ? value : [];
 }
 
 function demoScene(): { scene: Group; camera: PerspectiveCamera; geometry: SphereGeometry } {
@@ -168,11 +182,7 @@ function demoScene(): { scene: Group; camera: PerspectiveCamera; geometry: Spher
 
 describe('Renderer', () => {
     it('throws when WebGL2 is unavailable', () => {
-        const canvas = {
-            width: 300,
-            height: 150,
-            getContext: () => null,
-        } as unknown as HTMLCanvasElement;
+        const canvas = createCanvas(null);
         expect(() => new Renderer({ canvas })).toThrow('WebGL2 not available');
     });
 
@@ -212,13 +222,13 @@ describe('Renderer', () => {
         expect(state.drawElementsArgs?.[2]).toBe(0x1403);
         expect(state.clearArgs).toBe(0x4000 | 0x0100);
 
-        const diffuse = state.uniformByName.get('uDiffuse') as number[];
+        const diffuse = uniformVector(state, 'uDiffuse');
         expect(diffuse[0]).toBeCloseTo(0x55 / 255);
-        const ambient = state.uniformByName.get('uAmbientColor') as number[];
+        const ambient = uniformVector(state, 'uAmbientColor');
         expect(ambient).toEqual([0.5, 0.5, 0.5]);
         expect(state.uniformByName.get('uShininess')).toBe(100);
         // Identity rotation on the modelView keeps the normal matrix identity.
-        const normal = state.uniformByName.get('uNormalMatrix') as number[];
+        const normal = uniformVector(state, 'uNormalMatrix');
         expect(normal).toEqual([1, 0, 0, 0, 1, 0, 0, 0, 1]);
     });
 
@@ -231,12 +241,12 @@ describe('Renderer', () => {
 
         // World position (5, 8, -1): camera at (0,0,5) plus local (5,8,-6).
         // View rotation is identity, so the view-space direction matches.
-        const direction = state.uniformByName.get('uDirDirections[0]') as number[];
+        const direction = uniformVector(state, 'uDirDirections[0]');
         const length = Math.hypot(5, 8, -1);
         expect(direction[0]).toBeCloseTo(5 / length);
         expect(direction[1]).toBeCloseTo(8 / length);
         expect(direction[2]).toBeCloseTo(-1 / length);
-        const color = state.uniformByName.get('uDirColors[0]') as number[];
+        const color = uniformVector(state, 'uDirColors[0]');
         expect(color).toEqual([1.2, 1.2, 1.2]);
     });
 
@@ -253,7 +263,7 @@ describe('Renderer', () => {
         scene.add(new Mesh(new SphereGeometry(1, 8, 6), new PhongMaterial()));
         renderer.render(scene, camera);
 
-        const color = state.uniformByName.get('uDirColors[0]') as number[];
+        const color = uniformVector(state, 'uDirColors[0]');
         expect(color).toEqual([0.4, 0.4, 0.4]);
     });
 

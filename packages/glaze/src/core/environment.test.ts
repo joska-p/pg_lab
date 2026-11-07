@@ -57,10 +57,14 @@ describe('surface frameLoopOptions injection (Step 4 sealing)', () => {
             addEventListener: () => {},
             removeEventListener: () => {},
             getBoundingClientRect: () => ({ left: 0, top: 0, width: 640, height: 480 }),
-        } as unknown as HTMLCanvasElement;
+        };
+
+        // Le mock ne couvre qu'un sous-ensemble de `HTMLCanvasElement` : l'assertion est confinée ici.
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+        const mockCanvas = canvas as unknown as HTMLCanvasElement;
 
         const surface = createCpuSurface({
-            canvas,
+            canvas: mockCanvas,
             camera: createCamera(0, 0, createPositiveNumber(1)),
             dpr: createPositiveNumber(1),
             frameLoopOptions: {

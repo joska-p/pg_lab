@@ -39,6 +39,15 @@ function createFakeElement(): FakeElement {
     };
 }
 
+/**
+ * `OrbitControls` attend un `HTMLElement` alors que le fake n'implémente que la surface DOM
+ * utilisée (listeners + capture de pointeur). L'assertion est confinée à cette factory.
+ */
+function asElement(element: FakeElement): HTMLElement {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    return element as unknown as HTMLElement;
+}
+
 function demoCamera(): PerspectiveCamera {
     const camera = new PerspectiveCamera(40, 1, 0.01, 200);
     camera.position.set(4, 3, 11);
@@ -70,7 +79,7 @@ describe('OrbitControls', () => {
         const element = createFakeElement();
         const camera = demoCamera();
         const before = camera.position.clone();
-        const controls = new OrbitControls(camera, element as unknown as HTMLElement);
+        const controls = new OrbitControls(camera, asElement(element));
         let changes = 0;
         controls.addEventListener('change', () => {
             changes += 1;
@@ -95,7 +104,7 @@ describe('OrbitControls', () => {
     it('keeps the camera looking at the origin after rotation', () => {
         const element = createFakeElement();
         const camera = demoCamera();
-        const controls = new OrbitControls(camera, element as unknown as HTMLElement, {
+        const controls = new OrbitControls(camera, asElement(element), {
             enableDamping: false,
         });
 
@@ -115,7 +124,7 @@ describe('OrbitControls', () => {
     it('applies drag fully without damping and settles on the next frame', () => {
         const element = createFakeElement();
         const camera = demoCamera();
-        const controls = new OrbitControls(camera, element as unknown as HTMLElement, {
+        const controls = new OrbitControls(camera, asElement(element), {
             enableDamping: false,
         });
         let changes = 0;
@@ -140,7 +149,7 @@ describe('OrbitControls', () => {
     it('carries inertia after release when damping is enabled', () => {
         const element = createFakeElement();
         const camera = demoCamera();
-        const controls = new OrbitControls(camera, element as unknown as HTMLElement, {
+        const controls = new OrbitControls(camera, asElement(element), {
             enableDamping: true,
             dampingFactor: 0.07,
         });
@@ -162,7 +171,7 @@ describe('OrbitControls', () => {
         const element = createFakeElement();
         const camera = demoCamera();
         // Demo-compatible mutable flags (mol-demo.js.txt:717-722).
-        const controls = new OrbitControls(camera, element as unknown as HTMLElement);
+        const controls = new OrbitControls(camera, asElement(element));
         controls.enablePan = false;
         controls.enableZoom = false;
         controls.autoRotate = true;
@@ -189,7 +198,7 @@ describe('OrbitControls', () => {
         const element = createFakeElement();
         const camera = demoCamera();
         const before = radiusOf(camera);
-        const controls = new OrbitControls(camera, element as unknown as HTMLElement, {
+        const controls = new OrbitControls(camera, asElement(element), {
             enableDamping: false,
             enableZoom: true,
         });
@@ -205,7 +214,7 @@ describe('OrbitControls', () => {
         expect(radiusOf(camera)).toBeLessThan(before);
 
         const fixedCamera = demoCamera();
-        const fixedControls = new OrbitControls(fixedCamera, element as unknown as HTMLElement, {
+        const fixedControls = new OrbitControls(fixedCamera, asElement(element), {
             enableDamping: false,
             enableZoom: false,
         });
@@ -224,7 +233,7 @@ describe('OrbitControls', () => {
     it('dispose detaches listeners and stops camera updates', () => {
         const element = createFakeElement();
         const camera = demoCamera();
-        const controls = new OrbitControls(camera, element as unknown as HTMLElement, {
+        const controls = new OrbitControls(camera, asElement(element), {
             enableDamping: false,
         });
         controls.dispose();

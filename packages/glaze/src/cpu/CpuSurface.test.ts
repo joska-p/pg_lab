@@ -7,8 +7,21 @@ import { createMilliseconds } from '../core/time';
 import { createCpuSurface } from './CpuSurface';
 import type { CpuSurface } from './CpuSurface';
 
+/**
+ * Le mock de contexte n'implémente que les méthodes de dessin utilisées par la surface :
+ * l'assertion est confinée à cette factory.
+ */
+function asContext(context: object): CanvasRenderingContext2D {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    return context as unknown as CanvasRenderingContext2D;
+}
+
+/**
+ * Le mock de canvas ne couvre qu'un sous-ensemble de `HTMLCanvasElement` (dimensions, contexte,
+ * listeners, rectangle de vue) : l'assertion est confinée à cette factory.
+ */
 function createMockCanvas(context: CanvasRenderingContext2D): HTMLCanvasElement {
-    return {
+    const canvas = {
         width: 0,
         height: 0,
         clientWidth: 640,
@@ -17,7 +30,10 @@ function createMockCanvas(context: CanvasRenderingContext2D): HTMLCanvasElement 
         addEventListener: () => {},
         removeEventListener: () => {},
         getBoundingClientRect: () => ({ left: 0, top: 0, width: 640, height: 480 }),
-    } as unknown as HTMLCanvasElement;
+    };
+
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    return canvas as unknown as HTMLCanvasElement;
 }
 
 describe('CpuSurface.applyCamera', () => {
@@ -26,7 +42,7 @@ describe('CpuSurface.applyCamera', () => {
 
     beforeEach(() => {
         setTransformMock = vi.fn();
-        const context = { setTransform: setTransformMock } as unknown as CanvasRenderingContext2D;
+        const context = asContext({ setTransform: setTransformMock });
 
         // `CpuSurface`'s input store binds global window events on attach — stub the global so the
         // constructor works under Node.
@@ -73,9 +89,7 @@ describe('CpuSurface clock', () => {
 
         const ticks: ((time: ReturnType<typeof createMilliseconds>) => void)[] = [];
         const surface = createCpuSurface({
-            canvas: createMockCanvas({
-                setTransform: () => {},
-            } as unknown as CanvasRenderingContext2D),
+            canvas: createMockCanvas(asContext({ setTransform: () => {} })),
             camera: createCamera(0, 0, createPositiveNumber(1)),
             dpr: createPositiveNumber(1),
             frameLoopOptions: {
@@ -122,7 +136,7 @@ describe('CpuSurface object-only draw API (Step 3 reorg)', () => {
         vi.stubGlobal('window', { addEventListener: () => {}, removeEventListener: () => {} });
 
         return createCpuSurface({
-            canvas: createMockCanvas(mocks as unknown as CanvasRenderingContext2D),
+            canvas: createMockCanvas(asContext(mocks)),
             camera: createCamera(0, 0, createPositiveNumber(1)),
             dpr: createPositiveNumber(1),
         });

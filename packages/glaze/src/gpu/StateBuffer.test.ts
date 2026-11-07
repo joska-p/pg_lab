@@ -29,7 +29,12 @@ function createMockGl() {
 
 type MockGl = ReturnType<typeof createMockGl>;
 
+/**
+ * Le mock WebGL2 n'implémente que le cycle texture/FBO utilisé par le buffer : l'assertion est
+ * confinée à cette factory.
+ */
 function createBuffer(gl: MockGl) {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return createStateBuffer(gl as unknown as WebGL2RenderingContext, 100, 100);
 }
 

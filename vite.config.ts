@@ -377,14 +377,6 @@ export default defineConfig({
                     'import/no-default-export': 'off',
                 },
             },
-            {
-                // Les assertions de type non sûres sont délibérées dans les tests (mocks,
-                // casts de fixtures, etc.) : on désactive la règle pour les fichiers de test.
-                files: ['**/*.{test,spec}.{ts,tsx}'],
-                rules: {
-                    'typescript/no-unsafe-type-assertion': 'off',
-                },
-            },
         ],
     },
     run: {

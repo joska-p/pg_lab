@@ -34,9 +34,13 @@ describe('buildMolMesh', () => {
     it('centers the bond mesh at the midpoint', () => {
         const group = new Group();
         buildMolMesh(group, MOL);
-        const bond = group.children[2] as Mesh;
-        expect(bond.position.x).toBeCloseTo(0);
-        expect(bond.position.y).toBeCloseTo(0);
-        expect(bond.position.z).toBeCloseTo(0);
+        const bond = group.children[2];
+        expect(bond).toBeInstanceOf(Mesh);
+
+        if (bond instanceof Mesh) {
+            expect(bond.position.x).toBeCloseTo(0);
+            expect(bond.position.y).toBeCloseTo(0);
+            expect(bond.position.z).toBeCloseTo(0);
+        }
     });
 });
