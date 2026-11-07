@@ -58,7 +58,6 @@ type MockGl = ReturnType<typeof createMockGl>;
  * confinée à cette factory.
  */
 const asGl = (gl: MockGl) => {
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return gl as unknown as WebGL2RenderingContext;
 };
 

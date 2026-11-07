@@ -34,7 +34,6 @@ type MockGl = ReturnType<typeof createMockGl>;
  * confinée à cette factory.
  */
 function createBuffer(gl: MockGl) {
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return createStateBuffer(gl as unknown as WebGL2RenderingContext, 100, 100);
 }
 
