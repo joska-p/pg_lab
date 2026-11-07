@@ -1,0 +1,17 @@
+{
+    "name": "@repo/randomart-taste",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "lint": "vp lint"
+    },
+    "dependencies": {
+        "@repo/randomart-core": "catalog:",
+        "playwright-core": "catalog:"
+    },
+    "devDependencies": {
+        "typescript": "catalog:",
+        "vite-plus": "catalog:"
+    }
+}

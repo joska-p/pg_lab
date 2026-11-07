@@ -8,6 +8,7 @@ catalogMode: prefer
 catalog:
     '@react-three/drei': ^10.7.9
     '@react-three/fiber': ^9.8.2
+    '@repo/randomart-core': workspace:*
     '@stylexjs/stylex': ^0.19.1
     '@stylexjs/unplugin': ^0.19.1
     '@types/node': ^24.19.2

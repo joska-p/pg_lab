@@ -10,6 +10,7 @@
         "./evaluate": "./src/evaluate.ts",
         "./generate": "./src/generate.ts",
         "./grammar": "./src/grammar.ts",
+        "./lower": "./src/lower.ts",
         "./ops": "./src/ops.ts",
         "./rng": "./src/rng.ts",
         "./seed": "./src/seed.ts",
