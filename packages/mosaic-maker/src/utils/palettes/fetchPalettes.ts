@@ -1,6 +1,6 @@
 import { initialPalette } from '../../core/constants';
 import type { Palette } from '../../core/constants';
-import { paletteSchema } from './fetchPalettes.schema';
+import { cachedPalettesSchema, paletteSchema } from './fetchPalettes.schema';
 import { fetchWithValidation } from './fetchWithValidation';
 
 interface CachedPalettes {
@@ -14,14 +14,6 @@ const CACHE_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 const CACHE_VERSION = 2;
 const PALETTE_URL = 'https://unpkg.com/nice-color-palettes@3.0.0/1000.json';
 
-const COLOR_NAMES: (keyof Palette)[] = [
-    '--color-0',
-    '--color-1',
-    '--color-2',
-    '--color-3',
-    '--color-4',
-];
-
 function getCachedPalettes(): CachedPalettes | null {
     const stored = localStorage.getItem(CACHE_KEY);
 
@@ -30,7 +22,8 @@ function getCachedPalettes(): CachedPalettes | null {
     }
 
     try {
-        return JSON.parse(stored) as CachedPalettes;
+        const parsed = cachedPalettesSchema.safeParse(JSON.parse(stored));
+        return parsed.success ? parsed.data : null;
     } catch {
         return null;
     }
@@ -45,14 +38,14 @@ function getPaletteId(colors: string[]): string {
 }
 
 function createPalette(colors: string[]): Palette {
-    const palette = COLOR_NAMES.reduce((palette, colorName, index) => {
-        palette[colorName] = colors[index] ?? '#000000';
-        return palette;
-    }, {} as Palette);
-
-    palette.id = getPaletteId(colors);
-
-    return palette;
+    return {
+        id: getPaletteId(colors),
+        '--color-0': colors[0] ?? '#000000',
+        '--color-1': colors[1] ?? '#000000',
+        '--color-2': colors[2] ?? '#000000',
+        '--color-3': colors[3] ?? '#000000',
+        '--color-4': colors[4] ?? '#000000',
+    };
 }
 
 function cachePalettes(palettes: Palette[]): void {
