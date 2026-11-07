@@ -431,6 +431,62 @@ export const grammarRegistry = {
         shareDepth: 0,
         space: 'hsl',
     }),
+    /** Bords durs et couleur saturée : oklab + opérateurs de contraste, peu de partage entre canaux. */
+    vivid: preset('Vivid', 'Sharp edges and saturated color', {
+        weights: {
+            abs: 3,
+            add: 2,
+            const: 1,
+            gt: 4,
+            max: 3,
+            min: 3,
+            mix: 1,
+            mul: 2,
+            select: 4,
+            x: 4,
+            y: 4,
+        },
+        minDepth: 2,
+        maxDepth: 5,
+        maxNodes: 25,
+        shareDepth: 1,
+        space: 'oklab',
+    }),
+    /** Mouvement et énergie : opérateurs temporels, distorsion, pas de partage entre canaux. */
+    motion: preset('Motion', 'Animation and warped energy', {
+        weights: {
+            cos: 3,
+            mix: 3,
+            select: 3,
+            sin: 3,
+            warp: 4,
+            x: 3,
+            y: 3,
+        },
+        minDepth: 2,
+        maxDepth: 6,
+        maxNodes: 40,
+        shareDepth: 0,
+        space: 'hsl',
+    }),
+    /** Douceur et organique : gradients lisses, fort partage entre canaux, peu de contraste dur. */
+    muted: preset('Muted', 'Smooth gradients and soft tonal harmony', {
+        weights: {
+            add: 3,
+            const: 2,
+            mix: 2,
+            mul: 2,
+            sin: 2,
+            cos: 2,
+            x: 4,
+            y: 4,
+        },
+        minDepth: 2,
+        maxDepth: 4,
+        maxNodes: 20,
+        shareDepth: 3,
+        space: 'oklch',
+    }),
 } as const satisfies Record<string, GrammarPreset>;
 
 export type GrammarRegistryId = keyof typeof grammarRegistry;
