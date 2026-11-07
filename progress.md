@@ -11,15 +11,16 @@
 
 ## État au 7 novembre 2026
 
-| Indicateur          | Valeur                        |
-| ------------------- | ----------------------------- |
-| Baseline production | 88 warnings / 46 fichiers     |
-| Corrigés            | 53 warnings / 21 fichiers     |
-| Restants            | **35 warnings / 25 fichiers** |
-| Tests (hors scope)  | 33 warnings / 7 fichiers      |
+| Indicateur          | Valeur                      |
+| ------------------- | --------------------------- |
+| Baseline production | 88 warnings / 46 fichiers   |
+| Corrigés            | 80 warnings / 40 fichiers   |
+| Restants            | **8 warnings / 6 fichiers** |
+| Tests (hors scope)  | 33 warnings / 7 fichiers    |
 
-Dernière vérification : `vp check --no-fmt --deny-warnings` → 35 warnings de la règle (après les
-corrections de `Select.tsx`, `task-52`, et `ExperimentShell.tsx`, `task-51`).
+Dernière vérification : `vp check --no-fmt --deny-warnings` → 8 warnings de la règle (après les
+corrections de `randomart-core`, `brouillon`, `playground`, `art-canvas`, `fracture`,
+`mosaic-maker`, `notebook` et `palette`, tasks 26 à 45).
 
 > ℹ️ Le scratch `packages/ui/src/__scratch.ts` (non suivi) testait
 > `CSSProperties & { '--panel-height'?: string }` et provoquait une erreur `TS2353`. Son pattern
@@ -53,25 +54,25 @@ corrections de `Select.tsx`, `task-52`, et `ExperimentShell.tsx`, `task-51`).
 - task-23.md | packages/sequencer/src/core/layers/drawRecamanArcs.ts | 3 | done | guard
 - task-24.md | packages/sequencer/src/core/layers/drawStemPlot.ts | 4 | done | guard
 - task-25.md | packages/sequencer/src/modules/fourier/drawFourierEpicycles.ts | 2 | done | guard
-- task-26.md | packages/randomart-core/src/colors.ts | 1 | pending | keys
-- task-27.md | packages/randomart-core/src/grammar.ts | 2 | pending | keys + validation
-- task-28.md | packages/randomart-core/src/ops.ts | 1 | pending | keys
-- task-29.md | packages/randomart-core/src/seed.ts | 2 | pending | brand
-- task-30.md | packages/randomart-core/src/tree.ts | 1 | pending | guard
-- task-31.md | apps/brouillon/src/App.tsx | 5 | pending | inference
-- task-32.md | apps/playground/src/components/home/Controls.tsx | 1 | pending | keys
-- task-33.md | apps/playground/src/experiments.ts | 1 | pending | keys
-- task-34.md | packages/art-canvas/src/components/Controls.tsx | 1 | pending | keys
-- task-35.md | packages/art-canvas/src/experiments.ts | 1 | pending | keys
-- task-36.md | packages/fracture/src/components/Controls.tsx | 1 | pending | keys
-- task-37.md | packages/fracture/src/experiments.ts | 1 | pending | keys
-- task-39.md | packages/mosaic-maker/src/components/controls/TileSetControls.tsx | 1 | pending | signature (CssVars + satisfies)
-- task-40.md | packages/mosaic-maker/src/utils/palettes/fetchPalettes.ts | 2 | pending | boundary + signature
-- task-41.md | packages/mosaic-maker/src/utils/random/shuffleObject.ts | 1 | pending | signature
-- task-42.md | packages/notebook/src/components/Controls.tsx | 1 | pending | inference
-- task-43.md | packages/palette/src/components/Controls.tsx | 2 | pending | keys
-- task-44.md | packages/palette/src/components/color-picker/colorSpaceCanvas.worker.ts | 1 | pending | boundary
-- task-45.md | packages/palette/src/components/color-picker/colorSpaceCanvasPool.ts | 1 | pending | boundary
+- task-26.md | packages/randomart-core/src/colors.ts | 1 | done | guard (`isColorSpaceId`)
+- task-27.md | packages/randomart-core/src/grammar.ts | 2 | done | guard (`isOpName`, `isGrammarRegistryId`)
+- task-28.md | packages/randomart-core/src/ops.ts | 1 | done | guard (`isOpName`)
+- task-29.md | packages/randomart-core/src/seed.ts | 2 | done | brand ; suppression unique `seed.ts:19` (`brandSeed`)
+- task-30.md | packages/randomart-core/src/tree.ts | 1 | done | guard (`isValidParam`)
+- task-31.md | apps/brouillon/src/App.tsx | 5 | done | inference (options typées + génériques explicites)
+- task-32.md | apps/playground/src/components/home/Controls.tsx | 1 | done | keys (`typedKeys` du package)
+- task-33.md | apps/playground/src/experiments.ts | 1 | done | keys (`typedKeys` du package)
+- task-34.md | packages/art-canvas/src/components/Controls.tsx | 1 | done | keys (`experimentKeys`)
+- task-35.md | packages/art-canvas/src/experiments.ts | 1 | done | guard (`Object.hasOwn`)
+- task-36.md | packages/fracture/src/components/Controls.tsx | 1 | done | keys (`experimentKeys`)
+- task-37.md | packages/fracture/src/experiments.ts | 1 | done | guard (`Object.hasOwn`)
+- task-39.md | packages/mosaic-maker/src/components/controls/TileSetControls.tsx | 1 | done | signature (`CssVars` + `Record`)
+- task-40.md | packages/mosaic-maker/src/utils/palettes/fetchPalettes.ts | 2 | done | boundary (schéma zod du cache) + signature (littéral `Palette`)
+- task-41.md | packages/mosaic-maker/src/utils/random/shuffleObject.ts | 1 | done | signature (`Record<string, Value>`)
+- task-42.md | packages/notebook/src/components/Controls.tsx | 1 | done | inference (options typées + `Segmented<NoteSlug>`)
+- task-43.md | packages/palette/src/components/Controls.tsx | 2 | done | guard (`isColorSpacesKey`, `isRuleKey`)
+- task-44.md | packages/palette/src/components/color-picker/colorSpaceCanvas.worker.ts | 1 | done | boundary ; suppression unique `colorSpaceCanvas.worker.ts:11`
+- task-45.md | packages/palette/src/components/color-picker/colorSpaceCanvasPool.ts | 1 | done | boundary (garde `isColorSpaceCanvasResponse`)
 - task-46.md | packages/pixel/src/docs/components/Controls.tsx | 2 | pending | signature (union discriminée)
 - task-47.md | packages/pixel/src/processor/neighborhood-tiling.ts | 1 | pending | signature
 - task-48.md | packages/pixel/src/worker/process-image-in-worker.ts | 1 | pending | guard
@@ -100,8 +101,37 @@ corrections de `Select.tsx`, `task-52`, et `ExperimentShell.tsx`, `task-51`).
 - Ne pas ajouter de nouvelle copie de `typedKeys` : utiliser le helper partagé ou attendre
   `task-58`.
 
+## Reprise (prochaine session)
+
+Warnings de production restants : **8 / 6 fichiers**.
+
+- task-46.md | packages/pixel/src/docs/components/Controls.tsx | 2 | pending | signature (union discriminée `EndpointItem`)
+- task-47.md | packages/pixel/src/processor/neighborhood-tiling.ts | 1 | pending | signature (`radius?: number`)
+- task-48.md | packages/pixel/src/worker/process-image-in-worker.ts | 1 | pending | guard (`typeof event.data.error`)
+- task-49.md | packages/pixel/src/worker/serialization.ts | 1 | pending | guard (`'data' in item`)
+- task-50.md | packages/three-stage/src/components/GetStarted/Root.tsx | 2 | pending | boundary (garde `isPresetName`)
+- task-53.md | tools/new-mini-app/bin/index.ts | 1 | pending | boundary
+
+Points de vigilance pour la reprise :
+
+- `packages/pixel/src/worker/serialization.ts:15` utilise encore `item as Record<string, unknown>` ;
+  remplacer par `'data' in item` comme prévu par la task-49.
+- Les gardes ajoutées cette session (`isOpName`, `isGrammarRegistryId`, `isColorSpaceId`,
+  `isColorSpacesKey`, `isRuleKey`, `isColorSpaceCanvasResponse`) sont des patternes de référence :
+  validation par `Object.hasOwn` sur un objet littéral interne.
+- Suppressions restantes en production : `packages/randomart-core/src/seed.ts:19` (branding `Seed`),
+  `packages/palette/src/components/color-picker/colorSpaceCanvas.worker.ts:11` (frontière worker),
+  plus celles déjà listées par `glaze` (branding, DOM, CSS custom).
+
 ## Journal
 
+- **2026-11-07** (session 2) : tasks 26 à 45 traitées (27 warnings, 19 fichiers). Patterns :
+  `Object.keys(...).filter(isXKey)` pour les clés d’objets littéraux internes, `as const satisfies`
+    - générique explicite pour les composants UI, schéma zod pour le cache `localStorage`, garde
+      `isColorSpaceCanvasResponse` pour la réponse du worker, `Record<string, Value>` pour
+      `shuffleObject`, `CssVars` (`Record<`--${string}`, …>`) pour les custom properties CSS.
+      Reste 8 warnings de production (tasks 46-50, 53). L’override de test de `vite.config.ts` avait
+      été supprimé sans commit en début de session : restauré (décision utilisateur).
 - **2026-11-07** : protocole révisé. Périmètre production confirmé, override tests conservé,
   task list reclassée (fin du fourre-tout “branding”), tâches de suivi ajoutées, docs formatés.
   `Select.tsx` corrigé entre-temps par `findSelected` (task-52), puis `ExperimentShell.tsx` par un
