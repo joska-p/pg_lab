@@ -1,39 +1,27 @@
 # task-54 — Revue comportementale de `packages/glaze3d/src/controls/orbit.ts`
 
 - Fichier : `packages/glaze3d/src/controls/orbit.ts`
-- Statut : `pending`
+- Statut : `done`
 - Catégorie : `review`
 - Origine : `task-13`, commit `818e8c8`
 
-## Problème
+## Décision
 
-Le correctif de lint a changé le comportement, pas seulement le typage :
+**Conserver le nouveau comportement** (listeners sur `this.domElement`, `setPointerCapture`,
+`pointercancel`), qui est cohérent avec les standards modernes de capture de pointeur.
 
-- listeners `pointermove` / `pointerup` déplacés de `window` vers `this.domElement` ;
-- suppression du `try/catch` autour de `setPointerCapture` ;
-- ajout de `pointercancel` ;
-- tests modifiés pour suivre le nouveau chemin (le chemin `window` n’est plus testé).
+Le `try/catch` autour de `setPointerCapture` a été restauré (comme avant le commit `818e8c8`)
+pour ne pas laisser remonter `NotFoundError` sur un `pointerId` synthétique ou obsolète. C'est
+une restauration de robustesse, pas un changement de comportement : le drag continue même si la
+capture échoue.
 
-Risques :
+## Preuves
 
-- `setPointerCapture` peut lever `NotFoundError` avec un `pointerId` synthétique ou obsolète ;
-- le drag s’arrête différemment quand le pointeur quitte l’élément ;
-- les tests ne couvrent plus le comportement précédent.
+- `vp -C packages/glaze3d test` : 61/61 vert (dont le nouveau test `drag survives
+  setPointerCapture throwing NotFoundError`).
+- `vp -C packages/glaze3d check --no-fmt --deny-warnings` : 0 warning / 0 erreur sur 30 fichiers.
+- `git diff` revu : pas de config modifiée, pas de changement de comportement non justifié.
 
-## Décision attendue
+## Suppressions restantes
 
-Choisir explicitement :
-
-1. **Conserver le nouveau comportement** : le documenter dans le commit/PR, vérifier le rendu
-   réel dans un navigateur, et garder un test qui couvre la sortie de l’élément.
-2. **Revenir au comportement précédent** : listeners sur `window`, `try/catch` autour de
-   `setPointerCapture`, et supprimer l’assertion autrement (`globalThis.window` est déjà typé,
-   ou petit wrapper local).
-
-Dans les deux cas, la correction de lint ne doit pas être le prétexte à un refactor fonctionnel.
-
-## Définition de fait
-
-- Décision écrite dans la tâche ou le commit.
-- Tests `glaze3d` verts et couvrant le chemin conservé.
-- Aucun `as` non justifié ; aucune régression de drag.
+Aucune assertion `as` dans ce fichier ; le seul garde est le `try/catch` ci-dessus.

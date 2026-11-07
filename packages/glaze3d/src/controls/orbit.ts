@@ -189,7 +189,12 @@ export class OrbitControls {
         this.domElement.addEventListener('pointermove', this.onPointerMove);
         this.domElement.addEventListener('pointerup', this.onPointerUp);
         this.domElement.addEventListener('pointercancel', this.onPointerUp);
-        this.domElement.setPointerCapture(event.pointerId);
+        try {
+            this.domElement.setPointerCapture(event.pointerId);
+        } catch {
+            // Pointer capture is best-effort: a synthetic or stale pointerId
+            // (e.g. in tests) may throw NotFoundError and must not break the drag.
+        }
     };
 
     private onPointerMove = (event: PointerEvent): void => {

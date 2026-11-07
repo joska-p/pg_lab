@@ -83,7 +83,7 @@ les corrections de `pixel`, `three-stage` et `new-mini-app`, tasks 46 à 50 et 5
 
 ## Tâches de suivi (non bloquantes)
 
-- task-54.md | Revue de `orbit.ts` : le correctif a changé le comportement et les tests | pending | review
+- task-54.md | Revue de `orbit.ts` : le correctif a changé le comportement et les tests | done | review ; nouveau comportement conservé (domElement + setPointerCapture), try/catch restauré, test d'erreur de capture ajouté
 - task-55.md | `InputStore.ts` : helper `bind` pour réduire 9 suppressions à 1 | done | refactor ; helper `bindEntry`, 1 suppression restante (cast handler → EventListener), le cast `AttachedHandle` (branding) est conservé
 - task-56.md | `clockStore.ts` : remplacer `null as unknown as Clock` par un contrat honnête | done | refactor ; `NullClock extends Clock` (no-op, temps à zéro), plus de cast
 - task-57.md | `compileProgram.ts` : garde `typeof` au lieu d’une suppression | done | refactor

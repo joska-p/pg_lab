@@ -100,6 +100,46 @@ describe('OrbitControls', () => {
         controls.dispose();
     });
 
+    it('drag survives setPointerCapture throwing NotFoundError', () => {
+        const handlers = new Map<string, Set<Handler>>();
+        const element: FakeElement = {
+            handlers,
+            addEventListener(type: string, fn: Handler): void {
+                let set = handlers.get(type);
+                if (set === undefined) {
+                    set = new Set();
+                    handlers.set(type, set);
+                }
+                set.add(fn);
+            },
+            removeEventListener(type: string, fn: Handler): void {
+                handlers.get(type)?.delete(fn);
+            },
+            dispatch(type: string, event: Record<string, unknown>): void {
+                for (const fn of handlers.get(type) ?? []) {
+                    fn(event);
+                }
+            },
+            // Simule un pointerId synthétique / obsolète : le navigateur
+            // lève NotFoundError et le drag ne doit pas s'arrêter pour autant.
+            setPointerCapture(): void {
+                throw new DOMException('NotFoundError', 'NotFoundError');
+            },
+        };
+        const camera = demoCamera();
+        const controls = new OrbitControls(camera, asElement(element));
+        const before = camera.position.clone();
+
+        element.dispatch('pointerdown', { button: 0, clientX: 100, clientY: 100, pointerId: 1 });
+        element.dispatch('pointermove', { clientX: 200, clientY: 100 });
+        element.dispatch('pointerup', {});
+        controls.update();
+
+        expect(camera.position.x).not.toBeCloseTo(before.x);
+        expect(radiusOf(camera)).toBeCloseTo(before.length(), 5);
+        controls.dispose();
+    });
+
     it('keeps the camera looking at the origin after rotation', () => {
         const element = createFakeElement();
         const camera = demoCamera();
