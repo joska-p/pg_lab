@@ -4,7 +4,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "lint": "vp lint"
+        "lint": "vp lint",
+        "test": "vp test"
     },
     "dependencies": {
         "@repo/randomart-core": "catalog:",
