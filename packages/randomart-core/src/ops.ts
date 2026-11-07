@@ -286,12 +286,12 @@ export type OpName = keyof typeof opTable;
 /** Operator catalogue, widened to the common contract so `kind` can be read uniformly. */
 export const ops: Readonly<Record<OpName, OpDef>> = opTable;
 
-/** Operator names in canonical order: every iteration over the catalogue must use it. */
-export const OP_NAMES = (Object.keys(opTable) as OpName[]).sort();
-
 export function isOpName(value: unknown): value is OpName {
     return typeof value === 'string' && Object.hasOwn(opTable, value);
 }
+
+/** Operator names in canonical order: every iteration over the catalogue must use it. */
+export const OP_NAMES: readonly OpName[] = Object.keys(opTable).filter(isOpName).sort();
 
 /** True when the operator has arity 0 (no child expressions). */
 export function isTerminal(name: OpName): boolean {
