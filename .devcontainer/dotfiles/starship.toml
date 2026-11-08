@@ -1,0 +1,186 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# ─────────────────────────────────────────────
+# PG_LAB — dark / Gruvbox-ish / quiet
+# ─────────────────────────────────────────────
+
+palette = 'pg_lab'
+
+add_newline = false
+
+# Keep the prompt quiet.
+command_timeout = 500
+scan_timeout = 30
+
+format = """
+$directory\
+$git_branch\
+$git_status\
+$line_break\
+$character"""
+
+right_format = """
+$cmd_duration\
+$direnv\
+"""
+
+
+# ─────────────────────────────────────────────
+# Palette
+# ─────────────────────────────────────────────
+
+[palettes.pg_lab]
+
+# Gruvbox-ish neutrals
+bg = '#282828'
+bg1 = '#3c3836'
+bg2 = '#504945'
+fg = '#ebdbb2'
+fg_dim = '#a89984'
+fg_faint = '#665c54'
+
+# Accent vocabulary
+blue = '#458588'
+green = '#98971a'
+yellow = '#d79921'
+orange = '#d65d0e'
+red = '#cc241d'
+pink = '#b16286'
+aqua = '#689d6a'
+
+
+# ─────────────────────────────────────────────
+# Directory
+# ─────────────────────────────────────────────
+
+[directory]
+
+# No icon, no box, no excessive decoration.
+format = '[$path]($style) '
+style = 'fg'
+
+# Keep paths readable without taking over the prompt.
+truncation_length = 3
+truncate_to_repo = false
+
+# A little visual distinction when we're inside a repo.
+repo_root_style = 'bold fg'
+
+
+# ─────────────────────────────────────────────
+# Git
+# ─────────────────────────────────────────────
+
+[git_branch]
+
+format = '[$symbol$branch]($style) '
+symbol = ' '
+style = 'green'
+
+[git_status]
+
+format = '[$all_status$ahead_behind]($style)'
+style = 'yellow'
+
+# Keep the information compact.
+conflicted = '!'
+ahead = '↑'
+behind = '↓'
+diverged = '↕'
+up_to_date = ''
+untracked = '?'
+stashed = '≡'
+modified = '~'
+staged = '+'
+renamed = '→'
+deleted = '×'
+
+
+# ─────────────────────────────────────────────
+# Prompt character
+# ─────────────────────────────────────────────
+
+[character]
+
+# LED-like status indicator rather than a giant arrow.
+success_symbol = '[❯](green)'
+error_symbol = '[❯](red)'
+vimcmd_symbol = '[❮](blue)'
+
+
+# ─────────────────────────────────────────────
+# Command duration
+# ─────────────────────────────────────────────
+
+[cmd_duration]
+
+# Only show it when something actually took a while.
+min_time = 2000
+format = '[ $duration]($style)'
+style = 'fg_faint'
+
+
+# ─────────────────────────────────────────────
+# direnv
+# ─────────────────────────────────────────────
+
+[direnv]
+
+# Very subtle: environment is present, but doesn't become a dashboard.
+format = '[ $loaded]($style)'
+style = 'fg_faint'
+
+disabled = false
+loaded_msg = 'env'
+unloaded_msg = 'env'
+
+
+# ─────────────────────────────────────────────
+# Everything else: intentionally quiet
+# ─────────────────────────────────────────────
+
+[package]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[python]
+disabled = true
+
+[rust]
+disabled = true
+
+[golang]
+disabled = true
+
+[container]
+disabled = true
+
+[docker_context]
+disabled = true
+
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[kubernetes]
+disabled = true
+
+[nix_shell]
+disabled = true
+
+[os]
+disabled = true
+
+[username]
+disabled = true
+
+[hostname]
+disabled = true
+
+[time]
+disabled = true
+

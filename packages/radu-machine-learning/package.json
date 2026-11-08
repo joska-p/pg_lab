@@ -9,7 +9,7 @@
         "./Controls": "./src/components/Controls.tsx"
     },
     "scripts": {
-        "dev": "vp dev",
+        "dev": "vp dev --host",
         "lint": "vp lint"
     },
     "dependencies": {

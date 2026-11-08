@@ -1,0 +1,20 @@
+// Declarative description of the pg_lab dev container.
+//
+// scripts/dev mirrors these settings for everyday terminal use; keep both in
+// sync when changing mounts, ports, user or user namespace flags.
+{
+    "name": "pg_lab — Ubuntu 26.04",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": "."
+    },
+    "mounts": ["source=${localEnv:HOME}/Work/dev/pg_lab-home,target=/home/dev,type=bind"],
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/pg_lab,type=bind",
+    "workspaceFolder": "/workspaces/pg_lab",
+    "containerUser": "dev",
+    "remoteUser": "dev",
+    "updateRemoteUserUID": false,
+    "runArgs": ["--userns=keep-id"],
+    "appPort": ["5173:5173"],
+    "postCreateCommand": "bash .devcontainer/post-create.sh"
+}

@@ -1,0 +1,161 @@
+#!/usr/bin/env bash
+# scripts/dev — manage the pg_lab dev container (rootless podman).
+#
+# The declarative equivalent lives in .devcontainer/devcontainer.json. Keep the
+# two in sync when changing mounts, ports, users or user namespace flags.
+#
+# Usage:
+#   ./scripts/dev                 # open a shell (starts + provisions if needed)
+#   ./scripts/dev up              # build if needed and start the container
+#   ./scripts/dev shell           # up, then zsh -l
+#   ./scripts/dev exec CMD [ARG…] # up, then run CMD in the workspace
+#   ./scripts/dev rebuild         # recreate image + container (home is kept)
+#   ./scripts/dev down            # stop and remove the container (home is kept)
+#   ./scripts/dev status          # show image/container/mount state
+#   ./scripts/dev reset-home      # DESTRUCTIVE: delete the persistent home
+#
+# Override the home location with PG_LAB_DEV_HOME.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+IMAGE="localhost/pg_lab-dev:latest"
+CONTAINER="pg_lab-dev"
+DEV_HOME="${PG_LAB_DEV_HOME:-$HOME/Work/dev/pg_lab-home}"
+MARKER="$DEV_HOME/.pg_lab-ready"
+
+say() { printf '\n==> %s\n' "$*"; }
+die() {
+    printf 'error: %s\n' "$*" >&2
+    exit 1
+}
+
+case "${1:-}" in
+-h | --help | help)
+    sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+    ;;
+esac
+
+command -v podman >/dev/null || die "podman not found on PATH"
+
+# -t only when the caller has a terminal (pipes and CI must keep working).
+exec_args=(-i)
+if [ -t 0 ] && [ -t 1 ]; then
+    exec_args=(-i -t)
+fi
+
+container_exists() { podman container exists "$CONTAINER" 2>/dev/null; }
+container_running() {
+    [ "$(podman inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null)" = "true" ]
+}
+
+build() {
+    say "Building $IMAGE"
+    podman build --tag "$IMAGE" --file "$ROOT/.devcontainer/Dockerfile" "$ROOT/.devcontainer"
+}
+
+run_container() {
+    mkdir -p "$DEV_HOME"
+    say "Starting $CONTAINER"
+    podman run --detach \
+        --name "$CONTAINER" \
+        --hostname pg_lab-dev \
+        --label pg_lab.devcontainer=1 \
+        --userns=keep-id \
+        --user 1000:1000 \
+        --workdir /workspaces/pg_lab \
+        --volume "$ROOT:/workspaces/pg_lab" \
+        --volume "$DEV_HOME:/home/dev" \
+        --publish 5173:5173 \
+        --env LANG=C.UTF-8 \
+        --env TERM=xterm-256color \
+        --env COLORTERM=truecolor \
+        "$IMAGE" >/dev/null
+}
+
+provision() {
+    if [ -f "$MARKER" ] && [ "${PG_LAB_WITH_BROWSER:-0}" != "1" ]; then
+        return 0
+    fi
+    [ -f "$MARKER" ] || say "First run: provisioning the dev home (Vite+, Rust, OpenCode, dotfiles)"
+    podman exec "${exec_args[@]}" --workdir /workspaces/pg_lab \
+        --env "PG_LAB_WITH_BROWSER=${PG_LAB_WITH_BROWSER:-0}" \
+        "$CONTAINER" bash /workspaces/pg_lab/.devcontainer/post-create.sh
+}
+
+up() {
+    podman image exists "$IMAGE" || build
+    if container_exists; then
+        if ! container_running; then
+            say "Starting existing $CONTAINER"
+            podman start "$CONTAINER" >/dev/null
+        fi
+    else
+        run_container
+    fi
+    provision
+}
+
+shell() {
+    up
+    exec podman exec "${exec_args[@]}" --workdir /workspaces/pg_lab "$CONTAINER" zsh -l -i
+}
+
+exec_cmd() {
+    up
+    exec podman exec "${exec_args[@]}" --workdir /workspaces/pg_lab "$CONTAINER" "$@"
+}
+
+down() {
+    if container_exists; then
+        say "Removing $CONTAINER (home is kept: $DEV_HOME)"
+        podman rm --force "$CONTAINER" >/dev/null
+    fi
+}
+
+rebuild() {
+    down
+    if podman image exists "$IMAGE"; then
+        say "Removing image $IMAGE"
+        podman rmi --force "$IMAGE" >/dev/null 2>&1 || true
+    fi
+    build
+    up
+}
+
+status() {
+    printf 'repo:      %s -> /workspaces/pg_lab\n' "$ROOT"
+    printf 'home:      %s -> /home/dev\n' "$DEV_HOME"
+    printf 'image:     %s (%s)\n' "$IMAGE" \
+        "$(podman image exists "$IMAGE" && echo present || echo missing)"
+    if container_exists; then
+        printf 'container: %s (%s)\n' "$CONTAINER" \
+            "$(podman inspect -f '{{.State.Status}}' "$CONTAINER")"
+    else
+        printf 'container: %s (absent)\n' "$CONTAINER"
+    fi
+}
+
+reset_home() {
+    printf 'This deletes %s (toolchains, SSH keys, caches).\n' "$DEV_HOME"
+    read -r -p 'Type "reset" to continue: ' answer
+    [ "$answer" = "reset" ] || die "aborted"
+    down
+    rm -rf -- "$DEV_HOME"
+    say "Removed $DEV_HOME"
+}
+
+case "${1:-shell}" in
+    up) up ;;
+    shell) shell ;;
+    exec)
+        shift
+        [ $# -gt 0 ] || die "usage: scripts/dev exec CMD [ARG...]"
+        exec_cmd "$@"
+        ;;
+    rebuild) rebuild ;;
+    down) down ;;
+    status) status ;;
+    reset-home) reset_home ;;
+    *) die "unknown command: $1 (try --help)" ;;
+esac
