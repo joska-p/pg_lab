@@ -2,7 +2,7 @@ import { COLOR_SPACE_IDS } from '@repo/randomart-core/colors';
 import {
     MAX_WEIGHT,
     createGrammar,
-    grammarRegistry,
+    getGrammarPreset,
     isOnlyNonTerminal,
     isOnlyTerminal,
     minimumNodes,
@@ -45,7 +45,7 @@ describe('withMinDepth / withMaxNodes (G1: weights {add:1, x:1}, minDepth 2, max
 });
 
 describe('default preset (minDepth 2, maxDepth 5, maxNodes 25, shareDepth 2)', () => {
-    const g = grammarRegistry.default.grammar;
+    const g = getGrammarPreset('default').grammar;
 
     it('withMaxDepth(1) pulls minDepth and shareDepth down to 1', () => {
         const next = withMaxDepth(g, 1);
@@ -82,7 +82,7 @@ describe('withWeight (G2: weights {neg:1, mix:1, x:1}, minDepth 5, maxDepth 6, m
 describe('deterministic random walk over the six edits', () => {
     it('never produces an infeasible grammar', () => {
         const rng = createRng(createSeed('walk'));
-        let grammar = grammarRegistry.default.grammar;
+        let grammar = getGrammarPreset('default').grammar;
 
         for (let i = 0; i < 500; i++) {
             switch (rng.int(6)) {

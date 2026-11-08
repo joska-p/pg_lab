@@ -33,7 +33,9 @@ export interface EvalArgs {
 
 export type OpFamily = 'terminal' | 'arithmetic' | 'trigonometry' | 'logic' | 'transform';
 
-interface BaseOp {
+interface BaseOp<TId extends string = string> {
+    /** Stable registry key, also the name used in trees and serialized expressions. */
+    readonly id: TId;
     /** Operator family for pickers; `family === 'terminal'` is equivalent to `arity === 0`. */
     readonly family: OpFamily;
     readonly params?: Readonly<Record<string, ParamSpec>>;
@@ -42,7 +44,7 @@ interface BaseOp {
     readonly requires?: readonly GlslFunctionId[];
 }
 
-export interface PointwiseOp extends BaseOp {
+export interface PointwiseOp<TId extends string = string> extends BaseOp<TId> {
     readonly kind?: 'pointwise';
     /** Number of child expressions. Zero means the operator is a terminal. */
     readonly arity: number;
@@ -58,7 +60,7 @@ export interface PointwiseOp extends BaseOp {
     readonly eval: (args: EvalArgs) => number;
 }
 
-export interface WarpOp extends BaseOp {
+export interface WarpOp<TId extends string = string> extends BaseOp<TId> {
     readonly kind: 'warp';
     /** `dx`, `dy`, then the body. */
     readonly arity: 3;
@@ -67,7 +69,7 @@ export interface WarpOp extends BaseOp {
     readonly evalPoint: (args: EvalArgs) => Point;
 }
 
-export type OpDef = PointwiseOp | WarpOp;
+export type OpDef<TId extends string = string> = PointwiseOp<TId> | WarpOp<TId>;
 
 const MODULATION_PARAMS = {
     amp: { min: 0, max: 1, step: 0.1 },
@@ -135,15 +137,17 @@ function operand<T>(inputs: readonly T[], index: number): T {
     return value;
 }
 
-function unary(
+function unary<TId extends string>(
+    id: TId,
     family: OpFamily,
     spec: {
         readonly requires?: readonly GlslFunctionId[];
         readonly glsl: (a: string) => string;
         readonly eval: (a: number) => number;
     },
-): PointwiseOp {
+): PointwiseOp<TId> {
     return {
+        id,
         family,
         arity: 1,
         ...(spec.requires !== undefined && { requires: spec.requires }),
@@ -152,14 +156,16 @@ function unary(
     };
 }
 
-function binary(
+function binary<TId extends string>(
+    id: TId,
     family: OpFamily,
     spec: {
         readonly glsl: (a: string, b: string) => string;
         readonly eval: (a: number, b: number) => number;
     },
-): PointwiseOp {
+): PointwiseOp<TId> {
     return {
+        id,
         family,
         arity: 2,
         glsl: ({ inputs }) => spec.glsl(operand(inputs, 0), operand(inputs, 1)),
@@ -167,14 +173,16 @@ function binary(
     };
 }
 
-function ternary(
+function ternary<TId extends string>(
+    id: TId,
     family: OpFamily,
     spec: {
         readonly glsl: (a: string, b: string, c: string) => string;
         readonly eval: (a: number, b: number, c: number) => number;
     },
-): PointwiseOp {
+): PointwiseOp<TId> {
     return {
+        id,
         family,
         arity: 3,
         glsl: ({ inputs }) => spec.glsl(operand(inputs, 0), operand(inputs, 1), operand(inputs, 2)),
@@ -182,8 +190,13 @@ function ternary(
     };
 }
 
-const opTable = {
-    x: {
+/**
+ * Operator registry, the single source of truth. Declaration order groups operators by family for
+ * readability; `OP_NAMES` is the canonical alphabetical order used by generators and serializers.
+ */
+export const OPS = [
+    {
+        id: 'x',
         family: 'terminal',
         params: MODULATION_PARAMS,
         usesTime: usesModulation,
@@ -191,7 +204,8 @@ const opTable = {
         glsl: ({ point, params }) => modulatedGlsl(point, 'x', params),
         eval: ({ point, params }) => modulatedValue(point, 'x', params),
     },
-    y: {
+    {
+        id: 'y',
         family: 'terminal',
         params: MODULATION_PARAMS,
         usesTime: usesModulation,
@@ -199,7 +213,8 @@ const opTable = {
         glsl: ({ point, params }) => modulatedGlsl(point, 'y', params),
         eval: ({ point, params }) => modulatedValue(point, 'y', params),
     },
-    const: {
+    {
+        id: 'const',
         family: 'terminal',
         params: { value: { min: -1, max: 1 } },
         arity: 0,
@@ -209,64 +224,65 @@ const opTable = {
         },
         eval: ({ params }) => paramValue(params, 'value', 0),
     },
-    add: binary('arithmetic', {
+    binary('add', 'arithmetic', {
         glsl: (a, b) => `(${a}+${b})*0.5`,
         eval: (a, b) => (a + b) * 0.5,
     }),
-    sub: binary('arithmetic', {
+    binary('sub', 'arithmetic', {
         glsl: (a, b) => `(${a}-${b})*0.5`,
         eval: (a, b) => (a - b) * 0.5,
     }),
-    mul: binary('arithmetic', {
+    binary('mul', 'arithmetic', {
         glsl: (a, b) => `${a}*${b}`,
         eval: (a, b) => a * b,
     }),
-    div: binary('arithmetic', {
+    binary('div', 'arithmetic', {
         glsl: (a, b) => `(${a}/(1.0+abs(${b})))`,
         eval: (a, b) => a / (1 + Math.abs(b)),
     }),
-    neg: unary('arithmetic', {
+    unary('neg', 'arithmetic', {
         glsl: (a) => `-(${a})`,
         eval: (a) => -a,
     }),
-    abs: unary('arithmetic', {
+    unary('abs', 'arithmetic', {
         glsl: (a) => `abs(${a})`,
         eval: (a) => Math.abs(a),
     }),
-    sqr: unary('arithmetic', {
+    unary('sqr', 'arithmetic', {
         requires: ['ra_sqr'],
         glsl: (a) => `ra_sqr(${a})`,
         eval: (a) => a * a,
     }),
-    min: binary('arithmetic', {
+    binary('min', 'arithmetic', {
         glsl: (a, b) => `min(${a},${b})`,
         eval: (a, b) => Math.min(a, b),
     }),
-    max: binary('arithmetic', {
+    binary('max', 'arithmetic', {
         glsl: (a, b) => `max(${a},${b})`,
         eval: (a, b) => Math.max(a, b),
     }),
-    mix: ternary('arithmetic', {
+    ternary('mix', 'arithmetic', {
         glsl: (a, b, c) => `mix(${a},${b},(${c}+1.0)*0.5)`,
         eval: (a, b, c) => a + (b - a) * ((c + 1) * 0.5),
     }),
-    sin: unary('trigonometry', {
+    unary('sin', 'trigonometry', {
         glsl: (a) => `sin(PI*${a})`,
         eval: (a) => Math.sin(Math.PI * a),
     }),
-    cos: unary('trigonometry', {
+    unary('cos', 'trigonometry', {
         glsl: (a) => `cos(PI*${a})`,
         eval: (a) => Math.cos(Math.PI * a),
     }),
-    gt: binary('logic', {
+    binary('gt', 'logic', {
         glsl: (a, b) => `(${a}>${b} ? 1.0 : -1.0)`,
         eval: (a, b) => (a > b ? 1 : -1),
     }),
-    select: ternary('logic', {
+    ternary('select', 'logic', {
         glsl: (a, b, c) => `(${a}>0.0 ? ${b} : ${c})`,
         eval: (a, b, c) => (a > 0 ? b : c),
     }),
-    warp: {
+    {
+        id: 'warp',
         kind: 'warp',
         family: 'transform',
         arity: 3,
@@ -279,26 +295,47 @@ const opTable = {
             phase: point.phase,
         }),
     },
-} as const satisfies Record<string, OpDef>;
+] as const satisfies readonly OpDef[];
 
-export type OpName = keyof typeof opTable;
+// Derive the types directly from the registry.
+export type OpName = (typeof OPS)[number]['id'];
+/** Operator contract widened to the common shape so `kind` can be read uniformly. */
+export type OpDefinition = OpDef<OpName>;
 
-/** Operator catalogue, widened to the common contract so `kind` can be read uniformly. */
-export const ops: Readonly<Record<OpName, OpDef>> = opTable;
+const opsByName = new Map<string, OpDefinition>(
+    OPS.map((op): [OpName, OpDefinition] => [op.id, op]),
+);
 
-export function isOpName(value: unknown): value is OpName {
-    return typeof value === 'string' && Object.hasOwn(opTable, value);
+/**
+ * Resolve an operator by name. Unknown names are a programming error: every caller either holds an
+ * `OpName` or has validated the input with `isOpName`.
+ */
+export function getOp(name: string): OpDefinition {
+    const op = opsByName.get(name);
+
+    if (op === undefined) {
+        throw new RandomArtError(`Unknown operator: ${name}`);
+    }
+
+    return op;
 }
 
-/** Operator names in canonical order: every iteration over the catalogue must use it. */
-export const OP_NAMES: readonly OpName[] = Object.keys(opTable).filter(isOpName).sort();
+export function isOpName(value: unknown): value is OpName {
+    return typeof value === 'string' && opsByName.has(value);
+}
+
+/**
+ * Operator names in canonical order: every iteration over the catalogue must use it. Alphabetical,
+ * independent of declaration order, so seeds and grammar keys stay stable.
+ */
+export const OP_NAMES: readonly OpName[] = OPS.map((op) => op.id).sort();
 
 /** True when the operator has arity 0 (no child expressions). */
 export function isTerminal(name: OpName): boolean {
-    return opTable[name].arity === 0;
+    return getOp(name).arity === 0;
 }
 
 /** Grouping hint for operator pickers, matching the UI taxonomy. */
 export function groupOf(name: OpName): OpFamily {
-    return opTable[name].family;
+    return getOp(name).family;
 }

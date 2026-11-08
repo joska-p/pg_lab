@@ -1,5 +1,5 @@
 import { RandomArtError } from './errors';
-import { isOpName, ops } from './ops';
+import { getOp, isOpName } from './ops';
 import type { OpName, ParamSpec } from './ops';
 
 /** An immutable operator application. `params` are named so their meaning never depends on order. */
@@ -77,7 +77,7 @@ function isValidParam(range: ParamSpec, value: unknown): value is number {
 }
 
 function readParams(op: OpName, value: unknown, path: string): Readonly<Record<string, number>> {
-    const spec = ops[op].params ?? {};
+    const spec = getOp(op).params ?? {};
     if (value !== undefined && !isRecord(value)) {
         throw new RandomArtError(`Expression invalid at ${path}: object expected at "params"`);
     }
@@ -122,7 +122,7 @@ export function createNode(
     inputs: readonly Node[] = [],
     params: Readonly<Record<string, number>> = {},
 ): Node {
-    const opDef = ops[op];
+    const opDef = getOp(op);
     const spec = opDef.params ?? {};
 
     // Arity assertion: catch invalid node constructions at creation time
@@ -191,7 +191,7 @@ function readNode(value: unknown, path: string, depth: number, counter: { nodes:
         throw new RandomArtError(`Expression invalid at ${path}: unknown operator ${String(op)}`);
     }
     const params = readParams(op, record.params, path);
-    const { arity } = ops[op];
+    const { arity } = getOp(op);
 
     const raw = record.in;
     if (raw === undefined) {
@@ -261,7 +261,7 @@ export function formatFormula(node: Node, maxDepth: number = Number.POSITIVE_INF
 }
 
 function nodeUsesTime(node: Node): boolean {
-    if (ops[node.op].usesTime?.(node.params) === true) {
+    if (getOp(node.op).usesTime?.(node.params) === true) {
         return true;
     }
     return node.inputs.some(nodeUsesTime);

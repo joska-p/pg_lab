@@ -1,4 +1,4 @@
-import { grammarRegistry, presetOf } from '@repo/randomart-core/grammar';
+import { getGrammarPreset, GRAMMAR_PRESETS, presetOf } from '@repo/randomart-core/grammar';
 import type { GrammarRegistryId } from '@repo/randomart-core/grammar';
 import { Button } from '@repo/ui/components/Button';
 import { ControlField } from '@repo/ui/components/ControlField';
@@ -7,7 +7,6 @@ import { Select } from '@repo/ui/components/Select';
 
 import { applyGrammar, randomizeGrammar, useGrammar } from '../../stores/artworkStore';
 import { setMode } from '../../stores/modeStore';
-import { typedKeys } from '../../utils/object';
 
 const CUSTOM_PRESET = {
     id: 'custom',
@@ -18,17 +17,14 @@ const CUSTOM_PRESET = {
 type PresetOptionValue = GrammarRegistryId | typeof CUSTOM_PRESET.id;
 
 const PRESET_OPTIONS: readonly { value: PresetOptionValue; label: string }[] = [
-    ...typedKeys(grammarRegistry).map((id) => ({
-        value: id,
-        label: grammarRegistry[id].label,
-    })),
+    ...GRAMMAR_PRESETS.map(({ id, label }) => ({ value: id, label })),
     { value: CUSTOM_PRESET.id, label: CUSTOM_PRESET.label },
 ];
 
 export function GrammarSelect() {
     const grammar = useGrammar();
     const presetId = presetOf(grammar);
-    const preset = presetId ? grammarRegistry[presetId] : CUSTOM_PRESET;
+    const preset = presetId ? getGrammarPreset(presetId) : CUSTOM_PRESET;
 
     return (
         <ControlField label="Grammar">
@@ -47,7 +43,7 @@ export function GrammarSelect() {
                         }
 
                         // Applying a preset keeps the current seed.
-                        applyGrammar(grammarRegistry[id].grammar);
+                        applyGrammar(getGrammarPreset(id).grammar);
                     }}
                 />
 

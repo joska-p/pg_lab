@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vite-plus/test';
 
 import { generate } from './generate';
-import { createGrammar, grammarRegistry, vocabulary } from './grammar';
-import { ops } from './ops';
+import { createGrammar, getGrammarPreset, vocabulary } from './grammar';
+import { getOp } from './ops';
 import type { OpName } from './ops';
 import { seedOf, SIZE_GRAMMARS, defined } from './testing/fixtures';
 import { formatFormula } from './tree';
 import type { Expression, Node } from './tree';
 
-const DEFAULT_GRAMMAR = grammarRegistry.default.grammar;
+const DEFAULT_GRAMMAR = getGrammarPreset('default').grammar;
 
 /** Seeds whose formulas are pinned by the snapshot: changing one is a deliberate act. */
 const SNAPSHOT_SEEDS = [0, 42, 1234] as const;
@@ -42,7 +42,7 @@ function eachNode(node: Node, visit: (node: Node) => void): void {
 
 /** Every parameter is present, inside its declared range, and aligned on its step grid. */
 function checkParams(node: Node): void {
-    const spec = ops[node.op].params ?? {};
+    const spec = getOp(node.op).params ?? {};
     for (const [name, range] of Object.entries(spec)) {
         const label = `${node.op}.${name}`;
         const value = defined(node.params[name], label);

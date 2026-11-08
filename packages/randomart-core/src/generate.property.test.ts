@@ -5,9 +5,9 @@ import { compile } from './emit';
 import { GrammarDrawError } from './errors';
 import { evaluate } from './evaluate';
 import { generate } from './generate';
-import { createGrammar, drawGrammar, grammarRegistry, minimumNodes, vocabulary } from './grammar';
+import { createGrammar, drawGrammar, GRAMMAR_PRESETS, minimumNodes, vocabulary } from './grammar';
 import type { Grammar, GrammarPins } from './grammar';
-import { ops } from './ops';
+import { getOp } from './ops';
 import type { OpName, Point } from './ops';
 import { createRng } from './rng';
 import type { Rng } from './rng';
@@ -40,7 +40,7 @@ function allValuesInRange(expression: Expression): boolean {
     let ok = true;
     for (const channel of [expression.r, expression.g, expression.b]) {
         eachNode(channel, (node) => {
-            const spec = ops[node.op].params;
+            const spec = getOp(node.op).params;
             if (spec === undefined) {
                 return;
             }
@@ -205,7 +205,7 @@ describe('property-based tests', () => {
     });
 
     it('all registry grammars are feasible', () => {
-        for (const grammar of Object.values(grammarRegistry).map((preset) => preset.grammar)) {
+        for (const { grammar } of GRAMMAR_PRESETS) {
             const min = minimumNodes(grammar);
             expect(min).toBeLessThanOrEqual(grammar.maxNodes);
         }

@@ -1,4 +1,4 @@
-import { createGrammar, grammarRegistry } from '../grammar';
+import { createGrammar, getGrammarPreset } from '../grammar';
 import { createSeed } from '../seed';
 import type { Seed } from '../seed';
 
@@ -27,7 +27,7 @@ export const EPS = 1e-9;
 /** Grammar sizes shared by the test suites: depth and node bounds grow with the preset. */
 export const SIZE_GRAMMARS = [
     createGrammar({
-        weights: grammarRegistry.default.grammar.weights,
+        weights: getGrammarPreset('default').grammar.weights,
         minDepth: 1,
         maxDepth: 3,
         maxNodes: 12,
@@ -35,7 +35,7 @@ export const SIZE_GRAMMARS = [
         space: 'srgb',
     }),
     createGrammar({
-        weights: grammarRegistry.default.grammar.weights,
+        weights: getGrammarPreset('default').grammar.weights,
         minDepth: 2,
         maxDepth: 5,
         maxNodes: 25,
@@ -43,7 +43,7 @@ export const SIZE_GRAMMARS = [
         space: 'srgb',
     }),
     createGrammar({
-        weights: grammarRegistry.default.grammar.weights,
+        weights: getGrammarPreset('default').grammar.weights,
         minDepth: 3,
         maxDepth: 7,
         maxNodes: 50,

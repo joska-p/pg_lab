@@ -1,6 +1,6 @@
 import { compile } from '@repo/randomart-core/emit';
 import { generate } from '@repo/randomart-core/generate';
-import { grammarRegistry } from '@repo/randomart-core/grammar';
+import { getGrammarPreset } from '@repo/randomart-core/grammar';
 import { createSeed } from '@repo/randomart-core/seed';
 import { describe, expect, it } from 'vite-plus/test';
 
@@ -29,7 +29,7 @@ async function renderPreset(
     presetId: PresetId,
     seedIndex: number,
 ): Promise<RenderResult> {
-    const preset = grammarRegistry[presetId];
+    const preset = getGrammarPreset(presetId);
     const expression = generate(preset.grammar, createSeed(String(seedIndex)));
     const shader = compile(expression, { space: preset.grammar.space });
     const features = featuresOf(expression, preset.grammar.space);

@@ -1,5 +1,5 @@
 import { generate } from '@repo/randomart-core/generate';
-import { grammarRegistry, vocabulary } from '@repo/randomart-core/grammar';
+import { GRAMMAR_PRESETS, vocabulary } from '@repo/randomart-core/grammar';
 import { isOpName } from '@repo/randomart-core/ops';
 import { createSeed } from '@repo/randomart-core/seed';
 import { createExpression, createNode, usesTime } from '@repo/randomart-core/tree';
@@ -104,7 +104,7 @@ describe('featuresOf modulation and passthrough', () => {
 
 describe('featuresOf on generated expressions', () => {
     it('agrees with the grammar that drew the expression', () => {
-        for (const preset of Object.values(grammarRegistry)) {
+        for (const preset of GRAMMAR_PRESETS) {
             const { grammar } = preset;
             const enabled = new Set(vocabulary(grammar));
 

@@ -1,5 +1,5 @@
 import type { ColorSpaceId } from '@repo/randomart-core/colors';
-import { COLOR_SPACE_IDS, colorSpaces } from '@repo/randomart-core/colors';
+import { COLOR_SPACES } from '@repo/randomart-core/colors';
 import {
     MAX_WEIGHT,
     isMonoGrammar,
@@ -47,9 +47,9 @@ const OPERATOR_GROUPS = typedKeys(GROUP_LABELS)
     }))
     .filter((bucket) => bucket.operators.length > 0);
 
-const SPACE_OPTIONS = COLOR_SPACE_IDS.map((id) => ({
+const SPACE_OPTIONS = COLOR_SPACES.map(({ id, label }) => ({
     value: id,
-    label: colorSpaces[id].label,
+    label,
 }));
 
 /** Slider bounds: keep every slider inside the feasible region of its grammar. */

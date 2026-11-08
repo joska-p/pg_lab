@@ -1,4 +1,4 @@
-import { ops } from './ops';
+import { getOp } from './ops';
 import type { OpName } from './ops';
 import { warpOperands } from './tree';
 import type { Expression, Node } from './tree';
@@ -65,7 +65,7 @@ export function lower(expression: Expression): LoweredDag {
     }
 
     function lowerNode(node: Node, context: number): number {
-        const op = ops[node.op];
+        const op = getOp(node.op);
 
         if (op.kind === 'warp') {
             const [dxNode, dyNode, bodyNode] = warpOperands(node);

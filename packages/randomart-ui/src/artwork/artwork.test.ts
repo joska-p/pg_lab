@@ -1,4 +1,4 @@
-import { createGrammar, grammarRegistry, weightOf } from '@repo/randomart-core/grammar';
+import { createGrammar, getGrammarPreset, weightOf } from '@repo/randomart-core/grammar';
 import { createSeed } from '@repo/randomart-core/seed';
 import { describe, expect, it } from 'vite-plus/test';
 
@@ -8,7 +8,7 @@ import { createBatcher } from './batcher';
 import { withWeight } from './grammarEdits';
 import { resolveIntents } from './intents';
 
-const CURRENT = { grammar: grammarRegistry.default.grammar, seed: createSeed('1') };
+const CURRENT = { grammar: getGrammarPreset('default').grammar, seed: createSeed('1') };
 
 describe('resolveIntents', () => {
     it('folds two edits from the same frame without losing either', () => {

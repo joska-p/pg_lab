@@ -84,7 +84,7 @@ vp test                                # All tests
 
 ### Adding a grammar preset
 
-Add a `preset(label, description, options)` entry to `grammarRegistry` in
+Add a `preset('id', label, description, options)` entry to `GRAMMAR_PRESETS` in
 `randomart-core/src/grammar.ts`.
 
 ### Shader export

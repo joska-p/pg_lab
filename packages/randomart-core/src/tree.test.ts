@@ -4,7 +4,7 @@ import { COLOR_SPACE_IDS } from './colors';
 import { compile } from './emit';
 import { RandomArtError } from './errors';
 import { generate } from './generate';
-import { grammarRegistry } from './grammar';
+import { getGrammarPreset } from './grammar';
 import { seedOf, SIZE_GRAMMARS } from './testing/fixtures';
 import {
     createExpression,
@@ -42,7 +42,7 @@ describe('tree serialization', () => {
     });
 
     it('produces byte-identical JSON and shader after a round-trip', () => {
-        const expression = generate(grammarRegistry.default.grammar, seedOf(2024));
+        const expression = generate(getGrammarPreset('default').grammar, seedOf(2024));
         const restored = throughJson(expression);
 
         expect(canonical(restored)).toBe(canonical(expression));
@@ -117,7 +117,7 @@ describe('isMonoExpression', () => {
 
     it('is true for every expression drawn from the monochrome grammar', () => {
         for (const n of [1, 2, 3, 4, 5]) {
-            const expression = generate(grammarRegistry.monochrome.grammar, seedOf(n));
+            const expression = generate(getGrammarPreset('monochrome').grammar, seedOf(n));
             expect(isMonoExpression(expression)).toBe(true);
         }
     });

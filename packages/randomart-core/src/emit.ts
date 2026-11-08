@@ -1,11 +1,11 @@
-import { colorSpaceFunction, colorSpaces, isColorSpaceId } from './colors';
+import { colorSpaceFunction, getColorSpace, isColorSpaceId } from './colors';
 import type { ColorSpaceId } from './colors';
 import { RandomArtError } from './errors';
 import { GLSL_FUNCTIONS, SHADER_HEADER } from './glsl';
 import type { GlslFunctionId } from './glsl';
 import { lower } from './lower';
 import type { LoweredContext, LoweredDag, LoweredVertex } from './lower';
-import { ops } from './ops';
+import { getOp } from './ops';
 import { usesTime } from './tree';
 import type { Expression } from './tree';
 
@@ -70,7 +70,7 @@ function emitDag(dag: LoweredDag): Emitted {
     }
 
     function emitVertex(vertex: LoweredVertex): void {
-        const op = ops[vertex.op];
+        const op = getOp(vertex.op);
         if (op.kind === 'warp') {
             throw new RandomArtError(`Warp "${vertex.op}" must lower to a context, not a vertex`);
         }
@@ -95,7 +95,7 @@ function emitDag(dag: LoweredDag): Emitted {
     }
 
     function emitContext(context: LoweredContext): void {
-        const op = ops[context.op];
+        const op = getOp(context.op);
         if (op.kind !== 'warp') {
             throw new RandomArtError(`Context operator "${context.op}" is not a warp`);
         }
@@ -143,7 +143,7 @@ export function compile(expression: Expression, options: CompileOptions): Compil
     for (const id of emitted.functions) {
         fragments.push('', GLSL_FUNCTIONS[id]);
     }
-    fragments.push('', colorSpaces[space].source, '', 'void main() {');
+    fragments.push('', getColorSpace(space).source, '', 'void main() {');
     fragments.push('    vec2 v_p = vUv * 2.0 - 1.0;');
     if (emitted.lines.length > 0) {
         fragments.push('', ...emitted.lines);

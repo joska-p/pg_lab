@@ -5,7 +5,11 @@
  * The entry point of each space is named `ra_<id>`; `colorSpaceFunction` derives that name, so a
  * source cannot drift from its registry key.
  */
-export interface ColorSpace {
+import { RandomArtError } from './errors';
+
+export interface ColorSpace<TId extends string = string> {
+    /** Stable registry key, also the suffix of the `ra_<id>` entry point. */
+    readonly id: TId;
     /** Name shown to the user. */
     readonly label: string;
     /** GLSL definition of `vec3 ra_<id>(vec3 raw)`, plus any helper it uses. */
@@ -29,16 +33,18 @@ const OKLAB_TO_SRGB = `vec3 ra_oklabToSrgb(vec3 lab) {
     return clamp(mix(hi, lo, lessThanEqual(linear, vec3(0.0031308))), 0.0, 1.0);
 }`;
 
-export const colorSpaces = {
-    srgb: {
-        label: 'sRGB',
-        source: `vec3 ra_srgb(vec3 raw) {
+const srgb = {
+    id: 'srgb',
+    label: 'sRGB',
+    source: `vec3 ra_srgb(vec3 raw) {
     return clamp(raw * 0.5 + 0.5, 0.0, 1.0);
 }`,
-    },
-    oklch: {
-        label: 'OKLCH',
-        source: `${OKLAB_TO_SRGB}
+} as const satisfies ColorSpace;
+
+const oklch = {
+    id: 'oklch',
+    label: 'OKLCH',
+    source: `${OKLAB_TO_SRGB}
 
 vec3 ra_oklch(vec3 raw) {
     float L = clamp(raw.x * 0.5 + 0.5, 0.0, 1.0);
@@ -46,36 +52,62 @@ vec3 ra_oklch(vec3 raw) {
     float h = (raw.z * 0.5 + 0.5) * 6.283185307179586;
     return ra_oklabToSrgb(vec3(L, C * cos(h), C * sin(h)));
 }`,
-    },
-    oklab: {
-        label: 'OKLab',
-        source: `${OKLAB_TO_SRGB}
+} as const satisfies ColorSpace;
+
+const oklab = {
+    id: 'oklab',
+    label: 'OKLab',
+    source: `${OKLAB_TO_SRGB}
 
 vec3 ra_oklab(vec3 raw) {
     float L = clamp(raw.x * 0.5 + 0.5, 0.0, 1.0);
     return ra_oklabToSrgb(vec3(L, raw.y * 0.4, raw.z * 0.4));
 }`,
-    },
-    hsl: {
-        label: 'HSL',
-        source: `vec3 ra_hsl(vec3 raw) {
+} as const satisfies ColorSpace;
+
+const hsl = {
+    id: 'hsl',
+    label: 'HSL',
+    source: `vec3 ra_hsl(vec3 raw) {
     float h = raw.x * 0.5 + 0.5;
     float s = abs(raw.y);
     float l = clamp(raw.z * 0.5 + 0.5, 0.0, 1.0);
     vec3 rgb = clamp(abs(mod(h * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
     return l + s * (rgb - 0.5) * (1.0 - abs(2.0 * l - 1.0));
 }`,
-    },
-} as const satisfies Record<string, ColorSpace>;
+} as const satisfies ColorSpace;
 
-export type ColorSpaceId = keyof typeof colorSpaces;
+/** Color space registry, the single source of truth. Order is the one shown in pickers. */
+export const COLOR_SPACES = [srgb, oklch, oklab, hsl] as const satisfies readonly ColorSpace[];
 
-export function isColorSpaceId(value: unknown): value is ColorSpaceId {
-    return typeof value === 'string' && Object.hasOwn(colorSpaces, value);
+// Derive the types directly from the registry.
+export type ColorSpaceDefinition = (typeof COLOR_SPACES)[number];
+export type ColorSpaceId = ColorSpaceDefinition['id'];
+
+const colorSpacesById = new Map<string, ColorSpaceDefinition>(
+    COLOR_SPACES.map((space): [ColorSpaceId, ColorSpaceDefinition] => [space.id, space]),
+);
+
+/**
+ * Resolve a color space by id. Unknown ids are a programming error: every caller either holds a
+ * `ColorSpaceId` or has validated the input with `isColorSpaceId`.
+ */
+export function getColorSpace(id: string): ColorSpaceDefinition {
+    const space = colorSpacesById.get(id);
+
+    if (space === undefined) {
+        throw new RandomArtError(`Unknown color space: ${id}`);
+    }
+
+    return space;
 }
 
-export const COLOR_SPACE_IDS: readonly ColorSpaceId[] =
-    Object.keys(colorSpaces).filter(isColorSpaceId);
+export function isColorSpaceId(value: unknown): value is ColorSpaceId {
+    return typeof value === 'string' && colorSpacesById.has(value);
+}
+
+/** Color space ids in registry order: every iteration over the catalogue must use it. */
+export const COLOR_SPACE_IDS: readonly ColorSpaceId[] = COLOR_SPACES.map((space) => space.id);
 
 /** Identifier of the entry point the compiled `main` ends with, e.g. `ra_oklch`. */
 export function colorSpaceFunction(id: ColorSpaceId): string {
@@ -116,7 +148,7 @@ function hslToRgb(h: number, s: number, l: number): [number, number, number] {
 
 /**
  * CPU reference implementation of the color space conversions. Must agree with the GLSL
- * implementations in `colorSpaces[id].source`.
+ * implementations in `getColorSpace(id).source`.
  */
 export function toSrgb(
     id: ColorSpaceId,

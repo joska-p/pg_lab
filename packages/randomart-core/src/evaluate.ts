@@ -1,4 +1,4 @@
-import { ops } from './ops';
+import { getOp } from './ops';
 import type { Point } from './ops';
 import { warpOperands } from './tree';
 import type { Expression, Node } from './tree';
@@ -11,7 +11,7 @@ export interface Rgb {
 }
 
 function evaluateNode(node: Node, point: Point): number {
-    const op = ops[node.op];
+    const op = getOp(node.op);
     if (op.kind === 'warp') {
         const [dxNode, dyNode, bodyNode] = warpOperands(node);
         const dx = evaluateNode(dxNode, point);

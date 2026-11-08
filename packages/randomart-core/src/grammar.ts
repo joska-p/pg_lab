@@ -1,7 +1,7 @@
 import { COLOR_SPACE_IDS, isColorSpaceId } from './colors';
 import type { ColorSpaceId } from './colors';
 import { GrammarDrawError, InfeasibleGrammarError, RandomArtError } from './errors';
-import { OP_NAMES, ops, isOpName, isTerminal } from './ops';
+import { OP_NAMES, OPS, getOp, isOpName, isTerminal } from './ops';
 import type { OpName } from './ops';
 import type { Rng } from './rng';
 
@@ -30,7 +30,8 @@ export interface CreateGrammarOptions {
 }
 
 /** A registry entry: a grammar plus its presentational label and description. */
-export interface GrammarPreset {
+export interface GrammarPreset<TId extends string = string> {
+    readonly id: TId;
     readonly label: string;
     readonly description: string;
     readonly grammar: Grammar;
@@ -67,7 +68,7 @@ export function createMinimumSizer(
 
         let smallest = Number.POSITIVE_INFINITY;
         for (const name of vocab) {
-            const { arity } = ops[name];
+            const { arity } = getOp(name);
             if (arity === 0) {
                 continue;
             }
@@ -104,15 +105,12 @@ export function maxFeasibleMinDepth(grammar: Grammar, limit: number): number {
 }
 
 function normalizeWeights(weights: Weights): Partial<Record<OpName, number>> {
-    for (const name of Object.keys(weights)) {
-        if (!Object.hasOwn(ops, name)) {
+    const normalized: Partial<Record<OpName, number>> = {};
+
+    for (const [name, weight] of Object.entries(weights)) {
+        if (!isOpName(name)) {
             throw new RandomArtError(`Unknown operator in grammar: ${name}`);
         }
-    }
-
-    const normalized: Partial<Record<OpName, number>> = {};
-    for (const name of OP_NAMES) {
-        const weight = weights[name];
         if (weight === undefined || weight === 0) {
             continue;
         }
@@ -127,14 +125,15 @@ function normalizeWeights(weights: Weights): Partial<Record<OpName, number>> {
 }
 
 function assertVocabulary(weights: Weights): void {
-    const names = Object.keys(weights).filter(isOpName);
-    if (names.length === 0) {
+    const enabled = OPS.filter((op) => (weights[op.id] ?? 0) > 0);
+
+    if (enabled.length === 0) {
         throw new RandomArtError('Grammar must enable at least one operator');
     }
-    if (!names.some(isTerminal)) {
+    if (!enabled.some((op) => op.arity === 0)) {
         throw new RandomArtError('Grammar must enable at least one terminal');
     }
-    if (!names.some((name) => !isTerminal(name))) {
+    if (!enabled.some((op) => op.arity > 0)) {
         throw new RandomArtError('Grammar must enable at least one non-terminal');
     }
 }
@@ -213,8 +212,13 @@ export function createGrammar(options: CreateGrammarOptions): Grammar {
  * Build a registry preset from a label, a description and grammar options. The grammar itself never
  * carries preset metadata.
  */
-function preset(label: string, description: string, options: CreateGrammarOptions): GrammarPreset {
-    return { label, description, grammar: createGrammar(options) };
+function preset<TId extends string>(
+    id: TId,
+    label: string,
+    description: string,
+    options: CreateGrammarOptions,
+): GrammarPreset<TId> {
+    return { id, label, description, grammar: createGrammar(options) };
 }
 
 /** Stable identity of a grammar, independent of how its weights were built. */
@@ -292,8 +296,8 @@ export function isMonoGrammar(grammar: Grammar): boolean {
     return grammar.shareDepth >= grammar.maxDepth;
 }
 
-export const grammarRegistry = {
-    default: preset('Default', 'Default grammar', {
+export const GRAMMAR_PRESETS = [
+    preset('default', 'Default', 'Default grammar', {
         weights: {
             abs: 1,
             add: 1,
@@ -319,7 +323,7 @@ export const grammarRegistry = {
         shareDepth: 2,
         space: 'oklch',
     }),
-    geometric: preset('Geometric', 'Sharp shapes, hard edges, structured patterns', {
+    preset('geometric', 'Geometric', 'Sharp shapes, hard edges, structured patterns', {
         weights: {
             abs: 3,
             add: 1,
@@ -337,7 +341,7 @@ export const grammarRegistry = {
         shareDepth: 1,
         space: 'hsl',
     }),
-    organic: preset('Organic', 'Flowing waves, smooth gradients, natural forms', {
+    preset('organic', 'Organic', 'Flowing waves, smooth gradients, natural forms', {
         weights: {
             add: 2,
             cos: 3,
@@ -355,7 +359,7 @@ export const grammarRegistry = {
         shareDepth: 3,
         space: 'oklch',
     }),
-    fractal: preset('Fractal', 'Self-similar detail, kaleidoscopic distortion', {
+    preset('fractal', 'Fractal', 'Self-similar detail, kaleidoscopic distortion', {
         weights: {
             abs: 2,
             cos: 2,
@@ -370,7 +374,7 @@ export const grammarRegistry = {
         shareDepth: 2,
         space: 'oklch',
     }),
-    minimalist: preset('Minimalist', 'Clean gradients, simple transitions, readable forms', {
+    preset('minimalist', 'Minimalist', 'Clean gradients, simple transitions, readable forms', {
         weights: {
             add: 3,
             const: 2,
@@ -384,7 +388,7 @@ export const grammarRegistry = {
         shareDepth: 4,
         space: 'srgb',
     }),
-    texture: preset('Texture', 'Grainy, noisy, high-frequency detail', {
+    preset('texture', 'Texture', 'Grainy, noisy, high-frequency detail', {
         weights: {
             abs: 3,
             const: 4,
@@ -400,7 +404,7 @@ export const grammarRegistry = {
         shareDepth: 0,
         space: 'oklab',
     }),
-    monochrome: preset('Monochrome', 'Single-channel harmony, tonal structure', {
+    preset('monochrome', 'Monochrome', 'Single-channel harmony, tonal structure', {
         weights: {
             add: 2,
             gt: 2,
@@ -415,7 +419,7 @@ export const grammarRegistry = {
         shareDepth: 5,
         space: 'srgb',
     }),
-    psychedelic: preset('Psychedelic', 'Wild color cycling, heavy warp, chaotic energy', {
+    preset('psychedelic', 'Psychedelic', 'Wild color cycling, heavy warp, chaotic energy', {
         weights: {
             cos: 2,
             mix: 3,
@@ -432,7 +436,7 @@ export const grammarRegistry = {
         space: 'hsl',
     }),
     /** Bords durs et couleur saturée : oklab + opérateurs de contraste, peu de partage entre canaux. */
-    vivid: preset('Vivid', 'Sharp edges and saturated color', {
+    preset('vivid', 'Vivid', 'Sharp edges and saturated color', {
         weights: {
             abs: 3,
             add: 2,
@@ -453,7 +457,7 @@ export const grammarRegistry = {
         space: 'oklab',
     }),
     /** Mouvement et énergie : opérateurs temporels, distorsion, pas de partage entre canaux. */
-    motion: preset('Motion', 'Animation and warped energy', {
+    preset('motion', 'Motion', 'Animation and warped energy', {
         weights: {
             cos: 3,
             mix: 3,
@@ -470,7 +474,7 @@ export const grammarRegistry = {
         space: 'hsl',
     }),
     /** Douceur et organique : gradients lisses, fort partage entre canaux, peu de contraste dur. */
-    muted: preset('Muted', 'Smooth gradients and soft tonal harmony', {
+    preset('muted', 'Muted', 'Smooth gradients and soft tonal harmony', {
         weights: {
             add: 3,
             const: 2,
@@ -487,17 +491,35 @@ export const grammarRegistry = {
         shareDepth: 3,
         space: 'oklch',
     }),
-} as const satisfies Record<string, GrammarPreset>;
+] as const satisfies readonly GrammarPreset[];
 
-export type GrammarRegistryId = keyof typeof grammarRegistry;
+// Derive the types directly from the registry.
+export type GrammarPresetDefinition = (typeof GRAMMAR_PRESETS)[number];
+export type GrammarRegistryId = GrammarPresetDefinition['id'];
 
-function isGrammarRegistryId(value: unknown): value is GrammarRegistryId {
-    return typeof value === 'string' && Object.hasOwn(grammarRegistry, value);
+const grammarPresetsById = new Map<string, GrammarPresetDefinition>(
+    GRAMMAR_PRESETS.map((preset): [GrammarRegistryId, GrammarPresetDefinition] => [
+        preset.id,
+        preset,
+    ]),
+);
+
+/**
+ * Resolve a preset by id. Unknown ids are a programming error: every caller either holds a
+ * `GrammarRegistryId` or has compared an external value with `presetOf`.
+ */
+export function getGrammarPreset(id: string): GrammarPresetDefinition {
+    const preset = grammarPresetsById.get(id);
+
+    if (preset === undefined) {
+        throw new RandomArtError(`Unknown grammar preset: ${id}`);
+    }
+
+    return preset;
 }
 
 /** Registry id of the preset a grammar equals, if any. */
 export function presetOf(grammar: Grammar): GrammarRegistryId | undefined {
     const key = grammarKey(grammar);
-    const ids = Object.keys(grammarRegistry).filter(isGrammarRegistryId);
-    return ids.find((id) => grammarKey(grammarRegistry[id].grammar) === key);
+    return GRAMMAR_PRESETS.find((preset) => grammarKey(preset.grammar) === key)?.id;
 }

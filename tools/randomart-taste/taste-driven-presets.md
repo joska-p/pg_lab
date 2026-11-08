@@ -4,7 +4,7 @@ Status: idea / design note. Nothing is implemented yet.
 
 ## Problem
 
-The presets in `grammarRegistry` (`randomart-core/src/grammar.ts`) are hand-written and somewhat
+The presets in `GRAMMAR_PRESETS` (`randomart-core/src/grammar.ts`) are hand-written and somewhat
 arbitrary. A grammar is just a list of operator weights plus depth/node bounds and a color space,
 so its visual effect is opaque: nobody can say in advance what a given set of weights will look
 like.
@@ -52,7 +52,7 @@ random grammar + seed ──▶ expression ──▶ shader ──▶ image
       CMA-ES (slower, more faithful).
 6. **Emit.** Round to integer weights in `[0, MAX_WEIGHT]`, derive depth/nodes/space, run through
    `createGrammar` (keep at least one terminal and one non-terminal, handle
-   `InfeasibleGrammarError`), and print a `preset(...)` block to paste into `grammarRegistry`.
+   `InfeasibleGrammarError`), and print a `preset(...)` block to paste into `GRAMMAR_PRESETS`.
    The last step stays human and reviewable, since presets are versioned code.
 
 A neural network is used as a **critic/feature extractor**, not trained from scratch. Reusing a

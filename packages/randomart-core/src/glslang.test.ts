@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vite-plus/test';
 
 import { compile } from './emit';
 import { generate } from './generate';
-import { drawGrammar, grammarRegistry } from './grammar';
+import { drawGrammar, getGrammarPreset, GRAMMAR_PRESETS } from './grammar';
 import { createRng } from './rng';
 import { createSeed } from './seed';
 
@@ -49,7 +49,7 @@ describe('glslangValidator', () => {
     }
 
     it('validates default grammar shaders', () => {
-        const grammar = grammarRegistry.default.grammar;
+        const grammar = getGrammarPreset('default').grammar;
         const seeds = [0, 42, 1234, 9999];
 
         for (const seedValue of seeds) {
@@ -69,7 +69,7 @@ describe('glslangValidator', () => {
     });
 
     it('validates all registry grammars', () => {
-        for (const [name, preset] of Object.entries(grammarRegistry)) {
+        for (const preset of GRAMMAR_PRESETS) {
             const seed = createSeed(String(12345));
             const grammar = preset.grammar;
             const expression = generate(grammar, seed);
@@ -77,7 +77,7 @@ describe('glslangValidator', () => {
             const validation = validateGlsl(compiled.source);
 
             if (!validation.valid) {
-                console.error('GLSL validation failed for grammar', name);
+                console.error('GLSL validation failed for grammar', preset.id);
                 console.error('Shader source:', compiled.source);
                 console.error('glslangValidator output:', validation.output);
             }

@@ -1,4 +1,4 @@
-import { drawGrammar, grammarRegistry } from '@repo/randomart-core/grammar';
+import { drawGrammar, getGrammarPreset } from '@repo/randomart-core/grammar';
 import type { Grammar } from '@repo/randomart-core/grammar';
 import { createRng } from '@repo/randomart-core/rng';
 import { createSeed } from '@repo/randomart-core/seed';
@@ -18,7 +18,7 @@ interface ArtworkState {
 }
 
 const store = create<ArtworkState>(() => ({
-    artwork: buildArtwork(grammarRegistry.default.grammar, createSeed('42')),
+    artwork: buildArtwork(getGrammarPreset('default').grammar, createSeed('42')),
 }));
 
 /**

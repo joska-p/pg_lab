@@ -1,7 +1,7 @@
 import { RandomArtError } from './errors';
 import { createMinimumSizer, vocabulary, weightOf } from './grammar';
 import type { Grammar } from './grammar';
-import { ops } from './ops';
+import { getOp } from './ops';
 import type { OpName } from './ops';
 import { createRng } from './rng';
 import type { Rng } from './rng';
@@ -59,7 +59,7 @@ function drawStepped(rng: Rng, min: number, max: number, step: number): number {
 }
 
 function drawParams(state: GenState, name: OpName): Record<string, number> {
-    const spec = ops[name].params;
+    const spec = getOp(name).params;
     const params: Record<string, number> = {};
     if (spec === undefined) {
         return params;
@@ -76,7 +76,7 @@ function drawParams(state: GenState, name: OpName): Record<string, number> {
 function drawOperator(state: GenState, depth: number, budget: number): OpName {
     const candidates: OpName[] = [];
     for (const name of state.vocabulary) {
-        const { arity } = ops[name];
+        const { arity } = getOp(name);
         if (arity === 0) {
             if (depth >= state.minDepth) {
                 candidates.push(name);
@@ -117,7 +117,7 @@ function buildChildren<T extends { readonly size: number }>(
 function generateNode(state: GenState, depth: number, budget: number): SizedNode {
     const name = drawOperator(state, depth, budget);
     const params = drawParams(state, name);
-    const { arity } = ops[name];
+    const { arity } = getOp(name);
     const children =
         arity === 0
             ? []
@@ -148,7 +148,7 @@ function generateTrunk(state: GenState, depth: number, budget: number): Trunk {
 
     const name = drawOperator(state, depth, budget);
     const params = drawParams(state, name);
-    const { arity } = ops[name];
+    const { arity } = getOp(name);
     const children =
         arity === 0
             ? []
