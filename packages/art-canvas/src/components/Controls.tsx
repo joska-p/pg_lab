@@ -3,18 +3,13 @@ import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Select } from '@repo/ui/components/Select';
 import { Suspense } from 'react';
 
-import { EXPERIMENTS, experimentKeys } from '../experiments';
+import { experimentOptions, getExperiment } from '../experiments';
 import type { ExperimentKey } from '../experiments';
 import { setExperimentKey, useExperimentKey } from '../stores/appStore';
 
-const OPTIONS = experimentKeys.map((value) => ({
-    value,
-    label: EXPERIMENTS[value].label,
-}));
-
 export function Controls() {
     const experimentKey = useExperimentKey();
-    const { Controls, label } = EXPERIMENTS[experimentKey];
+    const { Controls, label } = getExperiment(experimentKey);
 
     return (
         <ControlPanel>
@@ -22,15 +17,13 @@ export function Controls() {
                 label="Experiment"
                 value={experimentKey}
                 onValueChange={setExperimentKey}
-                options={OPTIONS}
+                options={experimentOptions}
             />
-            {Controls && (
-                <ControlSection title={label}>
-                    <Suspense fallback={null}>
-                        <Controls />
-                    </Suspense>
-                </ControlSection>
-            )}
+            <ControlSection title={label}>
+                <Suspense fallback={null}>
+                    <Controls />
+                </Suspense>
+            </ControlSection>
         </ControlPanel>
     );
 }
