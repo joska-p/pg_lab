@@ -1,11 +1,11 @@
 import { Suspense } from 'react';
 
-import { EXPERIMENTS } from '../experiments';
+import { getExperiment } from '../experiments';
 import { useExperimentKey } from '../stores/appStore';
 
 export function Scene() {
     const experimentKey = useExperimentKey();
-    const { Scene } = EXPERIMENTS[experimentKey];
+    const { Scene } = getExperiment(experimentKey);
 
     return (
         <Suspense fallback={null}>
