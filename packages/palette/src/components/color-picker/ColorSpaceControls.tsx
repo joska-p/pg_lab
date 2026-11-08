@@ -2,19 +2,19 @@ import { Slider } from '@repo/ui/components/Slider';
 import { Stack } from '@repo/ui/components/Stack';
 import { useRef, useState } from 'react';
 
-import { colorSpaces } from '../../core/colorSpaces';
-import type { ColorSpacesKey } from '../../core/colorSpaces';
+import { getColorSpace } from '../../core/colorSpaces';
+import type { ColorSpacesId } from '../../core/colorSpaces';
 import { setPaletteBaseColor } from '../../stores/paletteStore';
 import { ColorSpaceCanvas } from './ColorSpaceCanvas';
 
 interface ColorSpaceControlsProps {
-    spaceId?: ColorSpacesKey;
+    spaceId?: ColorSpacesId;
     size?: number;
 }
 
 function ColorSpaceControls({ spaceId = 'oklch', size = 200 }: ColorSpaceControlsProps) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const { zSlider, getColor, xAxis, yAxis } = colorSpaces[spaceId];
+    const { zSlider, getColor, xAxis, yAxis } = getColorSpace(spaceId);
     const { min, max, step } = zSlider;
     const [zValue, setZValue] = useState<number>(max / 2);
 

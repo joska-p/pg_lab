@@ -7,9 +7,9 @@ interface Axis {
     step?: number;
 }
 
-interface ColorSpaceDef {
-    id: string;
-    name: string;
+interface ColorSpace<TId extends string = string> {
+    id: TId;
+    label: string;
     description?: string;
     xAxis: Axis;
     yAxis: Axis;
@@ -17,9 +17,9 @@ interface ColorSpaceDef {
     getColor: (x: number, y: number, z: number) => Color;
 }
 
-const oklab: ColorSpaceDef = {
+const oklab: ColorSpace = {
     id: 'oklab',
-    name: 'OKLab',
+    label: 'OKLab',
     description: 'OKLab color space',
     xAxis: { label: 'a (green-red)', min: -0.4, max: 0.4 },
     yAxis: { label: 'b (blue-yellow)', min: -0.4, max: 0.4 },
@@ -27,9 +27,9 @@ const oklab: ColorSpaceDef = {
     getColor: (x, y, z) => new Color('oklab', [z, x, y]),
 };
 
-const oklch: ColorSpaceDef = {
+const oklch: ColorSpace = {
     id: 'oklch',
-    name: 'OKLCh',
+    label: 'OKLCh',
     description: 'OKLCh color space',
     xAxis: { label: 'Chroma', min: 0, max: 0.4 },
     yAxis: { label: 'Hue', min: 0, max: 360 },
@@ -37,9 +37,9 @@ const oklch: ColorSpaceDef = {
     getColor: (x, y, z) => new Color('oklch', [z, x, y]),
 };
 
-const hsl: ColorSpaceDef = {
+const hsl: ColorSpace = {
     id: 'hsl',
-    name: 'HSL',
+    label: 'HSL',
     description: 'HSL color space',
     xAxis: { label: 'Hue', min: 0, max: 360 },
     yAxis: { label: 'Saturation', min: 0, max: 100 },
@@ -47,9 +47,9 @@ const hsl: ColorSpaceDef = {
     getColor: (x, y, z) => new Color('hsl', [x, y, z]),
 };
 
-const srgb: ColorSpaceDef = {
+const srgb: ColorSpace = {
     id: 'srgb',
-    name: 'sRGB',
+    label: 'sRGB',
     description: 'sRGB color space',
     xAxis: { label: 'Red', min: 0, max: 255 },
     yAxis: { label: 'Green', min: 0, max: 255 },
@@ -57,9 +57,25 @@ const srgb: ColorSpaceDef = {
     getColor: (x, y, z) => new Color('srgb', [x / 255, y / 255, z / 255]),
 };
 
-const colorSpaces = { oklab, oklch, hsl, srgb };
+const COLORSPACES = [oklab, oklch, hsl, srgb] as const satisfies readonly ColorSpace[];
 
-type ColorSpacesKey = keyof typeof colorSpaces;
+// Derive the types directly from the registry.
+export type ColorspacetDefinition = (typeof COLORSPACES)[number];
+export type ColorSpacesId = ColorspacetDefinition['id'];
 
-export { colorSpaces };
-export type { ColorSpacesKey };
+export const ColorSpacesById = new Map<string, ColorspacetDefinition>(
+    COLORSPACES.map((colorspace): [ColorSpacesId, ColorspacetDefinition] => [
+        colorspace.id,
+        colorspace,
+    ]),
+);
+
+export function getColorSpace(id: string | undefined): ColorspacetDefinition {
+    return ColorSpacesById.get(id ?? '') ?? COLORSPACES[0];
+}
+
+// Select options share the registry's ordering and metadata.
+export const colorSpaceOptions = COLORSPACES.map(({ id, label }) => ({
+    value: id,
+    label,
+}));

@@ -1,18 +1,11 @@
+/// <reference lib="webworker" />
+
 import { scaleTo255 } from '../../core/color';
-import { colorSpaces } from '../../core/colorSpaces';
-import type { ColorSpaceCanvasResponse, RenderColorSpaceTask } from './types';
-
-interface WorkerScope {
-    onmessage: ((event: MessageEvent<RenderColorSpaceTask>) => void) | null;
-    postMessage: (message: ColorSpaceCanvasResponse, transfer?: Transferable[]) => void;
-}
-
-// `self` is typed as `Window` by the app's DOM lib; this module only runs as a dedicated worker.
-// oxlint-disable-next-line typescript/no-unsafe-type-assertion
-const workerScope = self as unknown as WorkerScope;
+import { getColorSpace } from '../../core/colorSpaces';
+import type { RenderColorSpaceTask } from './types';
 
 function renderColorSpace({ spaceId, zValue, size }: RenderColorSpaceTask): ImageBitmap {
-    const { xAxis, yAxis, getColor } = colorSpaces[spaceId];
+    const { xAxis, yAxis, getColor } = getColorSpace(spaceId);
     const canvas = new OffscreenCanvas(size, size);
     const context = canvas.getContext('2d');
 
@@ -45,14 +38,16 @@ function renderColorSpace({ spaceId, zValue, size }: RenderColorSpaceTask): Imag
     return canvas.transferToImageBitmap();
 }
 
-workerScope.onmessage = (event) => {
+declare const self: DedicatedWorkerGlobalScope;
+
+self.onmessage = (event: MessageEvent<RenderColorSpaceTask>) => {
     try {
         const bitmap = renderColorSpace(event.data);
 
-        workerScope.postMessage({ ok: true, bitmap }, [bitmap]);
+        self.postMessage({ ok: true, bitmap }, [bitmap]);
     } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown worker error';
 
-        workerScope.postMessage({ ok: false, error: message });
+        self.postMessage({ ok: false, error: message });
     }
 };

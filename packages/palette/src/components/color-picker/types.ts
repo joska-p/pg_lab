@@ -1,7 +1,7 @@
-import type { ColorSpacesKey } from '../../core/colorSpaces';
+import type { ColorSpacesId } from '../../core/colorSpaces';
 
 interface RenderColorSpaceTask {
-    spaceId: ColorSpacesKey;
+    spaceId: ColorSpacesId;
     zValue: number;
     size: number;
 }

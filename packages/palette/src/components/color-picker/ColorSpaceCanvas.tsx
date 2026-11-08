@@ -2,7 +2,7 @@ import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 import type { RefObject } from 'react';
 
-import type { ColorSpacesKey } from '../../core/colorSpaces';
+import type { ColorSpacesId } from '../../core/colorSpaces';
 import { createColorSpaceCanvasPool } from './colorSpaceCanvasPool';
 
 const styles = stylex.create({
@@ -15,7 +15,7 @@ const styles = stylex.create({
 
 interface ColorSpaceCanvasProps {
     ref: RefObject<HTMLCanvasElement | null>;
-    spaceId: ColorSpacesKey;
+    spaceId: ColorSpacesId;
     zValue: number;
     size?: number;
     onPick?: (event: React.PointerEvent<HTMLCanvasElement>) => void;
