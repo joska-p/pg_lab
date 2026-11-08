@@ -29,7 +29,6 @@ import {
     withWeight,
 } from '../../artwork/grammarEdits';
 import { editGrammar, newSeed, useGrammar, useSeed } from '../../stores/artworkStore';
-import { typedKeys } from '../../utils/object';
 
 const GROUP_LABELS = {
     terminal: 'terminals',
@@ -39,13 +38,20 @@ const GROUP_LABELS = {
     transform: 'warp',
 } as const satisfies Record<OpFamily, string>;
 
-const OPERATOR_GROUPS = typedKeys(GROUP_LABELS)
-    .map((group) => ({
-        group,
-        label: GROUP_LABELS[group],
-        operators: OP_NAMES.filter((name) => groupOf(name) === group),
-    }))
-    .filter((bucket) => bucket.operators.length > 0);
+/** Display order of the operator groups. `GROUP_LABELS` guarantees every family has a label. */
+const OP_FAMILIES = [
+    'terminal',
+    'arithmetic',
+    'trigonometry',
+    'logic',
+    'transform',
+] as const satisfies readonly OpFamily[];
+
+const OPERATOR_GROUPS = OP_FAMILIES.map((family) => ({
+    group: family,
+    label: GROUP_LABELS[family],
+    operators: OP_NAMES.filter((name) => groupOf(name) === family),
+})).filter((bucket) => bucket.operators.length > 0);
 
 const SPACE_OPTIONS = COLOR_SPACES.map(({ id, label }) => ({
     value: id,
