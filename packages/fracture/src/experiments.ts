@@ -12,41 +12,63 @@ import { DoubleSplit, DoubleSplitControls } from './modules/mandelbrot-double-sp
 import { Naive, NaiveControls } from './modules/mandelbrot-naive/experiment';
 import { Perturbation, PerturbationControls } from './modules/mandelbrot-perturbation/experiment';
 
-export interface Experiment {
+export interface Experiment<TId extends string = string> {
+    readonly id: TId;
     readonly label: string;
     readonly Scene: ComponentType;
     readonly Controls: ComponentType;
 }
 
-export const EXPERIMENTS = {
-    'mandelbrot-naive': {
+export const EXPERIMENTS = [
+    {
+        id: 'mandelbrot-naive',
         label: 'Mandelbrot · Naive',
         Scene: Naive,
         Controls: NaiveControls,
     },
-    'mandelbrot-double-split': {
+    {
+        id: 'mandelbrot-double-split',
         label: 'Mandelbrot · Double-split',
         Scene: DoubleSplit,
         Controls: DoubleSplitControls,
     },
-    'mandelbrot-perturbation': {
+    {
+        id: 'mandelbrot-perturbation',
         label: 'Mandelbrot · Perturbation',
         Scene: Perturbation,
         Controls: PerturbationControls,
     },
-    'julia-naive': {
+    {
+        id: 'julia-naive',
         label: 'Julia · Naive',
         Scene: JuliaNaive,
         Controls: JuliaNaiveControls,
     },
-    'julia-double-split': {
+    {
+        id: 'julia-double-split',
         label: 'Julia · Double-split',
         Scene: JuliaDoubleSplit,
         Controls: JuliaDoubleSplitControls,
     },
-} as const satisfies Record<string, Experiment>;
+] as const satisfies readonly Experiment[];
 
-export type ExperimentKey = keyof typeof EXPERIMENTS;
-export const experimentKeys = Object.keys(EXPERIMENTS).filter((key): key is ExperimentKey =>
-    Object.hasOwn(EXPERIMENTS, key),
+// Derive the types directly from the registry.
+export type ExperimentDefinition = (typeof EXPERIMENTS)[number];
+export type ExperimentId = ExperimentDefinition['id'];
+
+export const experimentsById = new Map<string, ExperimentDefinition>(
+    EXPERIMENTS.map((experiment): [ExperimentId, ExperimentDefinition] => [
+        experiment.id,
+        experiment,
+    ]),
 );
+
+export function getExperiment(id: string | undefined): ExperimentDefinition {
+    return experimentsById.get(id ?? '') ?? EXPERIMENTS[0];
+}
+
+// Select options share the registry's ordering and metadata.
+export const experimentOptions = EXPERIMENTS.map(({ id, label }) => ({
+    value: id,
+    label,
+}));

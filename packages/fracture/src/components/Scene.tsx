@@ -1,16 +1,14 @@
-import { Suspense, useEffect } from 'react';
+import { Suspense } from 'react';
 
-import { EXPERIMENTS } from '../experiments';
+import { getExperiment } from '../experiments';
 import { setPerfExperiment } from '../lib/perf';
-import { useExperimentKey } from '../stores/appStore';
+import { useExperimentId } from '../stores/appStore';
 
 export function Scene() {
-    const experimentKey = useExperimentKey();
-    const { Scene } = EXPERIMENTS[experimentKey];
+    const experimentId = useExperimentId();
+    const { Scene } = getExperiment(experimentId);
 
-    useEffect(() => {
-        setPerfExperiment(experimentKey);
-    }, [experimentKey]);
+    setPerfExperiment(experimentId);
 
     return (
         <Suspense fallback={null}>

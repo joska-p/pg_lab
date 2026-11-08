@@ -1,21 +1,21 @@
 import { create } from 'zustand';
 
-import type { ExperimentKey } from '../experiments';
+import type { ExperimentId } from '../experiments';
 
-const DEFAULT_EXPERIMENT: ExperimentKey = 'mandelbrot-naive';
+const DEFAULT_EXPERIMENT: ExperimentId = 'mandelbrot-naive';
 
 interface AppStore {
-    experimentKey: ExperimentKey;
+    experimentId: ExperimentId;
 }
 
 const appStore = create<AppStore>(() => ({
-    experimentKey: DEFAULT_EXPERIMENT,
+    experimentId: DEFAULT_EXPERIMENT,
 }));
 
-export function useExperimentKey(): ExperimentKey {
-    return appStore((s) => s.experimentKey);
+export function useExperimentId(): ExperimentId {
+    return appStore((s) => s.experimentId);
 }
 
-export function setExperimentKey(experimentKey: ExperimentKey): void {
-    appStore.setState({ experimentKey });
+export function setExperimentId(experimentId: ExperimentId): void {
+    appStore.setState({ experimentId });
 }

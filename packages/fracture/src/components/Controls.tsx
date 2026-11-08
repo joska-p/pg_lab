@@ -2,27 +2,21 @@ import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Segmented } from '@repo/ui/components/Segmented';
 import { Suspense } from 'react';
 
-import { EXPERIMENTS, experimentKeys } from '../experiments';
-import type { ExperimentKey } from '../experiments';
-import { setExperimentKey, useExperimentKey } from '../stores/appStore';
+import { experimentOptions, getExperiment } from '../experiments';
+import { setExperimentId, useExperimentId } from '../stores/appStore';
 import { PerfHud } from './PerfHud';
 
-const OPTIONS = experimentKeys.map((id) => ({
-    value: id,
-    label: EXPERIMENTS[id].label,
-}));
-
 export function Controls() {
-    const experimentKey = useExperimentKey();
-    const { Controls, label } = EXPERIMENTS[experimentKey];
+    const experimentKey = useExperimentId();
+    const { Controls, label } = getExperiment(experimentKey);
 
     return (
         <>
             <ControlSection title="Experiment">
-                <Segmented<ExperimentKey>
-                    options={OPTIONS}
+                <Segmented
+                    options={experimentOptions}
                     value={experimentKey}
-                    onValueChange={setExperimentKey}
+                    onValueChange={setExperimentId}
                 />
             </ControlSection>
 
