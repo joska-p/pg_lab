@@ -8,10 +8,9 @@ import { ThemeToggle } from '@repo/ui/components/ThemeToggle';
 import { Activity, Suspense, use, useEffect } from 'react';
 import { Routes, Route, useParams, useNavigate } from 'react-router';
 
-import { EXPERIMENTS, loadControls, loadScene } from './experiments';
-import type { ExperimentKey } from './experiments';
+import { experimentOptions, getExperiment, loadControls, loadScene } from './experiments';
+import type { ExperimentId } from './experiments';
 import { useShellBackground } from './stores/appStore';
-import { typedKeys } from './utils/object';
 
 function LoadingFallback() {
     const shellBackground = useShellBackground();
@@ -25,28 +24,27 @@ function LoadingFallback() {
     );
 }
 
-const OPTIONS = typedKeys(EXPERIMENTS).map((value) => ({
-    value,
-    label: EXPERIMENTS[value].label,
-}));
-
 function Navbar() {
-    const { experiment } = useParams<{ experiment: ExperimentKey }>();
+    const { experiment } = useParams();
     const navigate = useNavigate();
-    const currentKey = experiment ?? 'home';
-    const exp = EXPERIMENTS[currentKey];
+
+    const currentExperiment = getExperiment(experiment);
 
     useEffect(() => {
-        document.title = `${exp.label} · PG_LAB`;
-    }, [exp]);
+        document.title = `${currentExperiment.label} · PG_LAB`;
+    }, [currentExperiment]);
 
-    const handleSelectChange = (value: ExperimentKey) => {
+    const handleSelectChange = (value: ExperimentId) => {
         void navigate(`/${value === 'home' ? '' : value}`);
     };
 
     return (
         <>
-            <Select value={currentKey} onValueChange={handleSelectChange} options={OPTIONS} />
+            <Select
+                value={currentExperiment.id}
+                onValueChange={handleSelectChange}
+                options={experimentOptions}
+            />
             <ThemeToggle />
         </>
     );
@@ -54,16 +52,17 @@ function Navbar() {
 
 function ExperimentLayout() {
     const shellBackground = useShellBackground();
-    const { experiment } = useParams<{ experiment: ExperimentKey }>();
-    const currentKey = experiment ?? 'home';
-    const exp = EXPERIMENTS[currentKey];
+    const { experiment } = useParams();
+
+    const currentExperiment = getExperiment(experiment);
 
     useEffect(() => {
-        document.title = `${exp.label} · PG_LAB`;
-    }, [exp]);
+        document.title = `${currentExperiment.label} · PG_LAB`;
+    }, [currentExperiment]);
 
-    const sceneModule = use(loadScene(currentKey));
-    const controlsModule = use(loadControls(currentKey));
+    const sceneModule = use(loadScene(currentExperiment));
+    const controlsModule = use(loadControls(currentExperiment));
+
     const { Scene, stageProps } = sceneModule;
     const { Controls } = controlsModule;
 
@@ -80,7 +79,7 @@ function ExperimentLayout() {
                             </Activity>
                         }
                     >
-                        <Stage label={exp.stageLabel} {...stageProps}>
+                        <Stage label={currentExperiment.stageLabel} {...stageProps}>
                             <Activity>
                                 <Scene />
                             </Activity>
