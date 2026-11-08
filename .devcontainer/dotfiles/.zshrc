@@ -1,4 +1,7 @@
 # Interactive shell for the pg_lab dev container (Ubuntu 26.04).
+HISTFILE=~/.histfile
+HISTSIZE=1000
+SAVEHIST=1000
 
 eval "$(starship init zsh)"
 

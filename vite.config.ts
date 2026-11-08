@@ -319,10 +319,7 @@ const nodePackages = [
 ];
 
 export default defineConfig({
-    defaultPackage: {
-        dev: './apps/playground',
-        build: './apps/playground',
-    },
+    defaultPackage: './apps/playground',
     server: {
         host: true,
     },
