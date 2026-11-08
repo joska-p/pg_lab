@@ -2,7 +2,10 @@ import type Color from 'colorjs.io';
 
 import type { Rule } from '../types';
 
-const monochromatic: Rule = {
+const monochromatic = {
+    id: 'monochromatic',
+    label: 'Monochromatic',
+    description: 'Variations of the same hue with different lightness and chroma.',
     apply: (color: Color) => {
         const base = color.clone().to('oklch');
 
@@ -24,10 +27,6 @@ const monochromatic: Rule = {
 
         return colors;
     },
-    info: {
-        name: 'Monochromatic',
-        description: 'Variations of the same hue with different lightness and chroma.',
-    },
-};
+} as const satisfies Rule;
 
 export { monochromatic };

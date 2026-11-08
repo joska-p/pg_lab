@@ -3,7 +3,11 @@ import type Color from 'colorjs.io';
 import type { Rule } from '../types';
 
 /** Base + its 180°-opposite hue, each with light/dark variants so the palette isn't just two colors. */
-const complementary: Rule = {
+const complementary = {
+    id: 'complementary',
+    label: 'Complementary',
+    description: 'The base color and its opposite on the hue wheel, with lightness variations.',
+
     apply: (color: Color) => {
         const base = color.clone().to('oklch');
         const complement = base.clone();
@@ -29,10 +33,6 @@ const complementary: Rule = {
 
         return [baseLight, base, baseDark, compLight, complement, compDark];
     },
-    info: {
-        name: 'Complementary',
-        description: 'The base color and its opposite on the hue wheel, with lightness variations.',
-    },
-};
+} as const satisfies Rule;
 
 export { complementary };

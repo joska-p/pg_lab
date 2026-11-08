@@ -3,7 +3,10 @@ import type Color from 'colorjs.io';
 import type { Rule } from '../types';
 
 /** Base hue plus its neighbors −30° / +30° on the hue wheel. */
-const analogous: Rule = {
+const analogous = {
+    id: 'analogous',
+    label: 'Analogous',
+    description: 'Colors that are next to each other on the color wheel.',
     apply: (color: Color) => {
         const base = color.clone().to('oklch');
 
@@ -25,10 +28,6 @@ const analogous: Rule = {
 
         return colors;
     },
-    info: {
-        name: 'Analogous',
-        description: 'Colors that are next to each other on the color wheel.',
-    },
-};
+} as const satisfies Rule;
 
 export { analogous };

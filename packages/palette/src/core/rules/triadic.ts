@@ -3,7 +3,11 @@ import type Color from 'colorjs.io';
 import type { Rule } from '../types';
 
 /** Three colors 120° apart around the hue wheel. */
-const triadic: Rule = {
+const triadic = {
+    id: 'triadic',
+    label: 'Triadic',
+    description: 'Three colors evenly spaced around the color wheel.',
+
     apply: (color: Color) => {
         const base = color.clone().to('oklch');
 
@@ -30,10 +34,6 @@ const triadic: Rule = {
 
         return colors;
     },
-    info: {
-        name: 'Triadic',
-        description: 'Three colors evenly spaced around the color wheel.',
-    },
-};
+} as const satisfies Rule;
 
 export { triadic };

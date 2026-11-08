@@ -4,10 +4,9 @@ export interface Palette {
     colors: Color[];
 }
 
-export interface Rule {
+export interface Rule<TId extends string = string> {
+    id: TId;
+    label: string;
+    description: string;
     apply: (color: Color) => Color[];
-    info: {
-        name: string;
-        description: string;
-    };
 }
