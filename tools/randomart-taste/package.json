@@ -6,7 +6,7 @@
     "scripts": {
         "lint": "vp lint",
         "test": "vp test",
-        "generate": "vpx src/run.ts --grammars 300 --seeds 8 --size 128 --out data/samples.json"
+        "generate": "CHROMIUM_PATH='/usr/bin/chromium' vpx src/run.ts --grammars 300 --seeds 8 --size 128 --out data/samples.json"
     },
     "dependencies": {
         "@repo/randomart-core": "catalog:",
