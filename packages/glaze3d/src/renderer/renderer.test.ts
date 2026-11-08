@@ -153,6 +153,7 @@ function createCanvas(mock: unknown, width = 300, height = 150): HTMLCanvasEleme
         getContext: () => mock,
     };
 
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return canvas as unknown as HTMLCanvasElement;
 }
 

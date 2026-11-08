@@ -12,6 +12,7 @@ import type { CpuSurface } from './CpuSurface';
  * l'assertion est confinée à cette factory.
  */
 function asContext(context: object): CanvasRenderingContext2D {
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return context as unknown as CanvasRenderingContext2D;
 }
 
@@ -31,6 +32,7 @@ function createMockCanvas(context: CanvasRenderingContext2D): HTMLCanvasElement 
         getBoundingClientRect: () => ({ left: 0, top: 0, width: 640, height: 480 }),
     };
 
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return canvas as unknown as HTMLCanvasElement;
 }
 
