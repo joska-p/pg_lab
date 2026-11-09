@@ -66,7 +66,7 @@ run_container() {
         --workdir /workspaces/pg_lab \
         --volume "$ROOT:/workspaces/pg_lab" \
         --volume "$DEV_HOME:/home/dev" \
-        --publish 5173:5173 \
+        --net=host \
         --env LANG=C.UTF-8 \
         --env TERM=xterm-256color \
         --env COLORTERM=truecolor \

@@ -14,7 +14,6 @@
     "containerUser": "dev",
     "remoteUser": "dev",
     "updateRemoteUserUID": false,
-    "runArgs": ["--userns=keep-id"],
-    "appPort": ["5173:5173"],
+    "runArgs": ["--userns=keep-id", "--net=host"],
     "postCreateCommand": "bash .devcontainer/post-create.sh"
 }
