@@ -52,7 +52,7 @@ rien commiter sans demande. L'utilisateur parle français.
 
 1. Plus tard : learned taste (likes + export de session, voir la note de design).
 
-## Limite à noter (pas pour maintenant)
+## Limite à noter
 
 Les features actuelles (brightness, contrast, sharpness, busyness, colorfulness, motion) sont
 intéressantes pour composer des grammaires, mais elles ne suffisent pas à créer des grammaires
