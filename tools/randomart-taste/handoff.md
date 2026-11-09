@@ -9,7 +9,7 @@ grammaire → stats → inverser en preset. Les 6 premiers presets appris sont m
 dans `GRAMMAR_PRESETS`. Conventions : tout en anglais, `vp check --fix` et `vp test` verts, ne
 rien commiter sans demande. L'utilisateur parle français.
 
-## État actuel (tout est vert : 674 fichiers, 313 tests)
+## État actuel (tout est vert : 677 fichiers, 315 tests)
 
 - `data/samples.json` : 1 000 grammaires × 16 graines = 16 000 lignes, schéma nouveau
   (`space` par ligne, plus de `grammar.space`).
@@ -28,13 +28,29 @@ rien commiter sans demande. L'utilisateur parle français.
 - `preset-visual.test.ts` mis à jour : teste `colorfulness`, `motion`, `brightness`.
 - `emit.golden.test.ts` : snapshots régénérés pour les nouveaux presets.
 
-## Ce qui reste à faire (dans l'ordre)
+### Validations réalisées (session 4)
 
-1. **Validation par rendu final** : générer ~64 graines par preset appris, mesurer les vraies
-   stats, comparer à un tirage aléatoire. C'est le seul test qui compte vraiment.
-2. (Optionnel) Régression « à espace neutralisé » pour vérifier si les poids prédisent encore
-   quelque chose une fois l'effet de la palette retiré.
-3. Plus tard : learned taste (likes + export de session, voir la note de design).
+- **Validation par rendu final** (`src/preset-validation.test.ts`) : 64 graines par preset
+  appris (6) vs 64 tirages aléatoires, rendu à 96 px. Tous les presets battent l'aléatoire
+  sur leur axe cible :
+
+    | Preset       | Axe          | Préset | Aléatoire | Lift    |
+    | ------------ | ------------ | ------ | --------- | ------- |
+    | brightness   | brightness   | 0.7195 | 0.4790    | +50.2%  |
+    | contrast     | contrast     | 0.2285 | 0.1042    | +119.3% |
+    | sharpness    | sharpness    | 0.1359 | 0.0096    | +1316%  |
+    | busyness     | busyness     | 0.0050 | 0.0015    | +228.3% |
+    | colorfulness | colorfulness | 0.6373 | 0.4296    | +48.3%  |
+    | motion       | motion       | 0.2420 | 0.1331    | +81.8%  |
+
+- **Régression « à espace neutralisé »** (`src/grammarLevel-space-neutralized.test.ts`) :
+  compare cvR2 complet vs sans le groupe `space`. Confirme que brightness et colorfulness
+  sont portés par l'espace (drop ~71–79 pts), tandis que contrast/motion/busyness/sharpness
+  sont portés par les poids/structure (drop < 0.2).
+
+## Ce qui reste à faire
+
+1. Plus tard : learned taste (likes + export de session, voir la note de design).
 
 ## Limite à noter (pas pour maintenant)
 
