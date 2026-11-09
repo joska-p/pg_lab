@@ -11,7 +11,7 @@ import { imageStats } from './imageStats';
 import type { Renderer, RenderOutcome } from './render';
 import { createRenderer } from './render';
 
-const PRESETS = ['vivid', 'motion', 'muted'] as const;
+const PRESETS = ['colorfulness', 'motion', 'brightness'] as const;
 type PresetId = (typeof PRESETS)[number];
 // Six samples per preset are too noisy: the sample average of the motion trend can flip.
 // Twenty-four seeds make the population-level trend visible without making the test slow.
@@ -103,11 +103,11 @@ describe('preset visual claim', () => {
         }
 
         // Broad trend assertions, not exact targets: the preset names claim a direction.
-        const vivid = byPreset.get('vivid');
-        const motion = byPreset.get('motion');
-        const muted = byPreset.get('muted');
+        const colorfulness = byPreset.get('colorfulness');
+        const motionPreset = byPreset.get('motion');
+        const brightness = byPreset.get('brightness');
 
-        if (!vivid || !motion || !muted) {
+        if (!colorfulness || !motionPreset || !brightness) {
             throw new Error('All presets must be present');
         }
 
@@ -119,16 +119,16 @@ describe('preset visual claim', () => {
             list.reduce((s, r) => s + r.stats.contrast, 0) / list.length;
 
         console.log(
-            `\nClaim check: vivid.colorfulness=${avgColor(vivid).toFixed(3)} vs muted.colorfulness=${avgColor(muted).toFixed(3)}`,
+            `\nClaim check: colorfulness.colorfulness=${avgColor(colorfulness).toFixed(3)} vs brightness.colorfulness=${avgColor(brightness).toFixed(3)}`,
         );
         console.log(
-            `Claim check: motion.motion=${avgMotion(motion).toFixed(3)} vs muted.motion=${avgMotion(muted).toFixed(3)}`,
+            `Claim check: motion.motion=${avgMotion(motionPreset).toFixed(3)} vs brightness.motion=${avgMotion(brightness).toFixed(3)}`,
         );
         console.log(
-            `Claim check: vivid.contrast=${avgContrast(vivid).toFixed(3)} vs muted.contrast=${avgContrast(muted).toFixed(3)}`,
+            `Claim check: colorfulness.contrast=${avgContrast(colorfulness).toFixed(3)} vs brightness.contrast=${avgContrast(brightness).toFixed(3)}`,
         );
 
-        expect(avgColor(vivid)).toBeGreaterThan(avgColor(muted));
-        expect(avgMotion(motion)).toBeGreaterThan(avgMotion(muted));
+        expect(avgColor(colorfulness)).toBeGreaterThan(avgColor(brightness));
+        expect(avgMotion(motionPreset)).toBeGreaterThan(avgMotion(brightness));
     }, 120_000);
 });

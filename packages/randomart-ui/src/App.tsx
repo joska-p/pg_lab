@@ -10,9 +10,17 @@ export function App() {
     return (
         <ShellWrapper>
             <AppErrorBoundary>
-                <ExperimentShell panel={<Controls />}>
+                <ExperimentShell
+                    panel={
+                        <AppErrorBoundary>
+                            <Controls />
+                        </AppErrorBoundary>
+                    }
+                >
                     <Stage label="randomart">
-                        <Scene />
+                        <AppErrorBoundary>
+                            <Scene />
+                        </AppErrorBoundary>
                     </Stage>
                 </ExperimentShell>
             </AppErrorBoundary>

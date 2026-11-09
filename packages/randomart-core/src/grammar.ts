@@ -281,11 +281,6 @@ export function isOnlyNonTerminal(grammar: Grammar, name: OpName): boolean {
     return isOnlyKind(grammar, name, false);
 }
 
-/** True when the grammar guarantees one shared expression for all three channels. */
-export function isMonoGrammar(grammar: Grammar): boolean {
-    return grammar.shareDepth >= grammar.maxDepth;
-}
-
 export const GRAMMAR_PRESETS = [
     preset(
         'default',
@@ -319,22 +314,88 @@ export const GRAMMAR_PRESETS = [
         'oklch',
     ),
     preset(
-        'geometric',
-        'Geometric',
-        'Sharp shapes, hard edges, structured patterns',
+        'brightness',
+        'Brightness',
+        'Learned preset for brightness (cvR2=0.797)',
         {
             weights: {
-                abs: 3,
+                abs: 12,
                 add: 1,
-                const: 1,
-                gt: 4,
-                max: 3,
-                min: 3,
+                div: 2,
+                max: 16,
+                mix: 4,
+                sin: 1,
+                sqr: 13,
+                x: 2,
+                y: 4,
+            },
+            minDepth: 2,
+            maxDepth: 6,
+            maxNodes: 30,
+            shareDepth: 0,
+        },
+        'srgb',
+    ),
+    preset(
+        'contrast',
+        'Contrast',
+        'Learned preset for contrast (cvR2=0.479)',
+        {
+            weights: {
+                cos: 9,
+                gt: 3,
+                max: 1,
+                min: 1,
+                mix: 1,
                 select: 4,
-                x: 3,
+                sin: 8,
+                x: 15,
+                y: 16,
+            },
+            minDepth: 2,
+            maxDepth: 6,
+            maxNodes: 30,
+            shareDepth: 0,
+        },
+        'hsl',
+    ),
+    preset(
+        'sharpness',
+        'Sharpness',
+        'Learned preset for sharpness (cvR2=0.374)',
+        {
+            weights: {
+                cos: 16,
+                gt: 5,
+                max: 2,
+                select: 6,
+                sin: 14,
+                x: 7,
                 y: 3,
             },
             minDepth: 2,
+            maxDepth: 6,
+            maxNodes: 30,
+            shareDepth: 1,
+        },
+        'oklab',
+    ),
+    preset(
+        'busyness',
+        'Busyness',
+        'Learned preset for busyness (cvR2=0.451)',
+        {
+            weights: {
+                add: 1,
+                cos: 10,
+                gt: 16,
+                max: 1,
+                select: 7,
+                sin: 10,
+                x: 12,
+                y: 8,
+            },
+            minDepth: 1,
             maxDepth: 5,
             maxNodes: 25,
             shareDepth: 1,
@@ -342,208 +403,61 @@ export const GRAMMAR_PRESETS = [
         'hsl',
     ),
     preset(
-        'organic',
-        'Organic',
-        'Flowing waves, smooth gradients, natural forms',
-        {
-            weights: {
-                add: 2,
-                cos: 3,
-                div: 1,
-                mix: 2,
-                mul: 2,
-                sin: 4,
-                warp: 2,
-                x: 3,
-                y: 3,
-            },
-            minDepth: 2,
-            maxDepth: 6,
-            maxNodes: 40,
-            shareDepth: 3,
-        },
-        'oklch',
-    ),
-    preset(
-        'fractal',
-        'Fractal',
-        'Self-similar detail, kaleidoscopic distortion',
+        'colorfulness',
+        'Colorfulness',
+        'Learned preset for colorfulness (cvR2=0.770)',
         {
             weights: {
                 abs: 2,
-                cos: 2,
-                sin: 3,
-                warp: 5,
-                x: 2,
-                y: 2,
-            },
-            minDepth: 2,
-            maxDepth: 6,
-            maxNodes: 40,
-            shareDepth: 2,
-        },
-        'oklch',
-    ),
-    preset(
-        'minimalist',
-        'Minimalist',
-        'Clean gradients, simple transitions, readable forms',
-        {
-            weights: {
-                add: 3,
-                const: 2,
-                mul: 2,
-                x: 4,
-                y: 4,
-            },
-            minDepth: 1,
-            maxDepth: 4,
-            maxNodes: 16,
-            shareDepth: 4,
-        },
-        'srgb',
-    ),
-    preset(
-        'texture',
-        'Texture',
-        'Grainy, noisy, high-frequency detail',
-        {
-            weights: {
-                abs: 3,
-                const: 4,
-                mul: 2,
-                sin: 2,
-                sqr: 3,
-                x: 1,
-                y: 1,
-            },
-            minDepth: 2,
-            maxDepth: 5,
-            maxNodes: 25,
-            shareDepth: 0,
-        },
-        'oklab',
-    ),
-    preset(
-        'monochrome',
-        'Monochrome',
-        'Single-channel harmony, tonal structure',
-        {
-            weights: {
-                add: 2,
-                gt: 2,
-                max: 3,
-                min: 3,
-                x: 3,
-                y: 3,
-            },
-            minDepth: 2,
-            maxDepth: 5,
-            maxNodes: 25,
-            shareDepth: 5,
-        },
-        'srgb',
-    ),
-    preset(
-        'psychedelic',
-        'Psychedelic',
-        'Wild color cycling, heavy warp, chaotic energy',
-        {
-            weights: {
-                cos: 2,
-                mix: 3,
-                select: 3,
-                sin: 3,
-                warp: 4,
-                x: 2,
-                y: 2,
-            },
-            minDepth: 2,
-            maxDepth: 6,
-            maxNodes: 40,
-            shareDepth: 0,
-        },
-        'hsl',
-    ),
-    /** Bords durs et couleur saturée : oklab + opérateurs de contraste, peu de partage entre canaux. */
-    preset(
-        'vivid',
-        'Vivid',
-        'Sharp edges and saturated color',
-        {
-            weights: {
-                abs: 3,
-                add: 2,
-                const: 1,
-                gt: 4,
-                max: 3,
-                min: 3,
+                cos: 15,
+                gt: 16,
+                max: 7,
                 mix: 1,
-                mul: 2,
-                select: 4,
-                x: 4,
-                y: 4,
+                neg: 4,
+                sin: 5,
+                x: 7,
             },
             minDepth: 2,
-            maxDepth: 5,
-            maxNodes: 25,
-            shareDepth: 1,
+            maxDepth: 6,
+            maxNodes: 30,
+            shareDepth: 0,
         },
         'oklab',
     ),
-    /** Mouvement et énergie : opérateurs temporels, distorsion, pas de partage entre canaux. */
     preset(
         'motion',
         'Motion',
-        'Animation and warped energy',
+        'Learned preset for motion (cvR2=0.429)',
         {
             weights: {
-                cos: 3,
-                mix: 3,
-                select: 3,
-                sin: 3,
-                warp: 4,
-                x: 3,
-                y: 3,
+                add: 1,
+                cos: 6,
+                gt: 3,
+                max: 1,
+                min: 3,
+                mix: 1,
+                neg: 1,
+                select: 4,
+                sin: 5,
+                warp: 2,
+                x: 13,
+                y: 16,
             },
-            minDepth: 2,
+            minDepth: 1,
             maxDepth: 6,
             maxNodes: 40,
             shareDepth: 0,
         },
         'hsl',
-    ),
-    /** Douceur et organique : gradients lisses, fort partage entre canaux, peu de contraste dur. */
-    preset(
-        'muted',
-        'Muted',
-        'Smooth gradients and soft tonal harmony',
-        {
-            weights: {
-                add: 3,
-                const: 2,
-                mix: 2,
-                mul: 2,
-                sin: 2,
-                cos: 2,
-                x: 4,
-                y: 4,
-            },
-            minDepth: 2,
-            maxDepth: 4,
-            maxNodes: 20,
-            shareDepth: 3,
-        },
-        'oklch',
     ),
 ] as const satisfies readonly GrammarPreset[];
 
 // Derive the types directly from the registry.
 export type GrammarPresetDefinition = (typeof GRAMMAR_PRESETS)[number];
-export type GrammarRegistryId = GrammarPresetDefinition['id'];
+export type GrammarPresetId = GrammarPresetDefinition['id'];
 
 const grammarPresetsById = new Map<string, GrammarPresetDefinition>(
-    GRAMMAR_PRESETS.map((preset): [GrammarRegistryId, GrammarPresetDefinition] => [
+    GRAMMAR_PRESETS.map((preset): [GrammarPresetId, GrammarPresetDefinition] => [
         preset.id,
         preset,
     ]),
@@ -553,7 +467,7 @@ const grammarPresetsById = new Map<string, GrammarPresetDefinition>(
  * Resolve a preset by id. Unknown ids are a programming error: every caller either holds a
  * `GrammarRegistryId` or has compared an external value with `presetOf`.
  */
-export function getGrammarPreset(id: string): GrammarPresetDefinition {
+export function getGrammarPreset(id: GrammarPresetId): GrammarPresetDefinition {
     const preset = grammarPresetsById.get(id);
 
     if (preset === undefined) {
@@ -564,7 +478,7 @@ export function getGrammarPreset(id: string): GrammarPresetDefinition {
 }
 
 /** Registry id of the preset a grammar equals, if any. */
-export function presetOf(grammar: Grammar): GrammarRegistryId | undefined {
+export function presetOf(grammar: Grammar): GrammarPresetId | undefined {
     const key = grammarKey(grammar);
     return GRAMMAR_PRESETS.find((preset) => grammarKey(preset.grammar) === key)?.id;
 }

@@ -116,12 +116,12 @@ Design notes to keep the door open:
 
 ## Where things live
 
-| Piece                                   | Location                                                  |
-| --------------------------------------- | --------------------------------------------------------- |
-| `featuresOf` (expression features only)       | `tools/randomart-taste` (pure TypeScript)                 |
-| Inversion, preset output                | not implemented yet                                       |
-| Session export, optional live tags      | `randomart-ui` (planned)                                  |
-| Batch: sample, render, image statistics | `tools/randomart-taste/src/run.ts` (TypeScript)           |
+| Piece                                   | Location                                                                                    |
+| --------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `featuresOf` (expression features only) | `tools/randomart-taste` (pure TypeScript)                                                   |
+| Inversion, preset output                | not implemented yet                                                                         |
+| Session export, optional live tags      | `randomart-ui` (planned)                                                                    |
+| Batch: sample, render, image statistics | `tools/randomart-taste/src/run.ts` (TypeScript)                                             |
 | Batch: regression, search, preset block | regression moved to `grammarLevel.ts` (`learn:grammar`); search and preset block still TODO |
 
 ## Decisions

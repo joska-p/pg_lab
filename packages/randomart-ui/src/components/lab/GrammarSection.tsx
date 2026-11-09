@@ -1,6 +1,5 @@
 import {
     MAX_WEIGHT,
-    isMonoGrammar,
     isOnlyNonTerminal,
     isOnlyTerminal,
     maxFeasibleMinDepth,
@@ -103,8 +102,6 @@ export function GrammarSection() {
     const grammar = useGrammar();
     const seed = useSeed();
 
-    const mono = isMonoGrammar(grammar);
-
     function mustStayOn(name: OpName): boolean {
         return isTerminal(name) ? isOnlyTerminal(grammar, name) : isOnlyNonTerminal(grammar, name);
     }
@@ -169,7 +166,7 @@ export function GrammarSection() {
                     />
                     <Slider
                         color="orange"
-                        label={mono ? 'share (mono)' : 'share'}
+                        label={'share'}
                         value={grammar.shareDepth}
                         min={0}
                         max={grammar.maxDepth}

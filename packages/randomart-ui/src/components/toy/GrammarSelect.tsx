@@ -1,5 +1,5 @@
 import { getGrammarPreset, GRAMMAR_PRESETS, presetOf } from '@repo/randomart-core/grammar';
-import type { GrammarRegistryId } from '@repo/randomart-core/grammar';
+import type { GrammarPreset, GrammarPresetId } from '@repo/randomart-core/grammar';
 import { Button } from '@repo/ui/components/Button';
 import { ControlField } from '@repo/ui/components/ControlField';
 import { Grid } from '@repo/ui/components/Grid';
@@ -12,9 +12,9 @@ const CUSTOM_PRESET = {
     id: 'custom',
     label: 'Custom',
     description: 'Edit the grammar by hand in the lab.',
-} as const;
+} as const satisfies Partial<GrammarPreset>;
 
-type PresetOptionValue = GrammarRegistryId | typeof CUSTOM_PRESET.id;
+type PresetOptionValue = GrammarPresetId | typeof CUSTOM_PRESET.id;
 
 const PRESET_OPTIONS: readonly { value: PresetOptionValue; label: string }[] = [
     ...GRAMMAR_PRESETS.map(({ id, label }) => ({ value: id, label })),
