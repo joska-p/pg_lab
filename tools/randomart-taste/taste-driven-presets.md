@@ -25,9 +25,7 @@ Implemented so far, entirely in TypeScript (no Python/uv):
   `tools/randomart-taste/src/features.ts`, **not** in `randomart-core`.
 - The batch is Playwright + TypeScript: `tools/randomart-taste/src/run.ts` samples grammars,
   renders images and writes the measured statistics to `data/samples.json`.
-- The ridge regression is TypeScript: `tools/randomart-taste/src/learn.ts` regresses each visual
-  statistic on the flattened expression features. The `learn` script (`src/learnCli.ts`) writes
-  `data/coefficients.json`.
+- The expression-level ridge regression (`src/learn.ts`, `src/learnCli.ts`, `data/coefficients.json`) was removed: it answered the wrong question (low R², ~0.12–0.37). The grammar-level regression (`src/grammarLevel.ts`, `learn:grammar`) is kept.
 - Pixel statistics (`src/imageStats.ts`) and the preset visual trend check
   (`src/preset-visual.test.ts`) are also in the tool.
 
@@ -120,11 +118,11 @@ Design notes to keep the door open:
 
 | Piece                                   | Location                                                  |
 | --------------------------------------- | --------------------------------------------------------- |
-| `featuresOf` and fit (`learn.ts`)       | `tools/randomart-taste` (pure TypeScript)                 |
+| `featuresOf` (expression features only)       | `tools/randomart-taste` (pure TypeScript)                 |
 | Inversion, preset output                | not implemented yet                                       |
 | Session export, optional live tags      | `randomart-ui` (planned)                                  |
 | Batch: sample, render, image statistics | `tools/randomart-taste/src/run.ts` (TypeScript)           |
-| Batch: regression, search, preset block | `learn.ts` regression; search and preset block still TODO |
+| Batch: regression, search, preset block | regression moved to `grammarLevel.ts` (`learn:grammar`); search and preset block still TODO |
 
 ## Decisions
 
@@ -151,8 +149,7 @@ nothing else in the pipeline.
   `randomart-core`, renders with the existing renderer at 128 px, computes the statistics in JS and
   returns a JSON. Nothing is duplicated. Headless Chromium renders in software, which is enough
   at this size.
-- The regression lives in `src/learn.ts` and runs in TypeScript with Node. A Python/uv variant
-  (numpy, scikit-learn, optionally `cma`) was considered, but it is not implemented.
+- The expression-level regression used to live in `src/learn.ts` and ran in TypeScript with Node; it was removed. A Python/uv variant (numpy, scikit-learn, optionally `cma`) was considered, but it is not implemented.
 
 ### Vocabulary: the six axes above
 
@@ -165,8 +162,7 @@ and very colorful). Adjust the axes accordingly.
 
 1. `featuresOf` with tests. Done, in `tools/randomart-taste`.
 2. Playwright batch: sampling, rendering, measured statistics, JSON output. Done, in TypeScript.
-3. TypeScript regression in `learn.ts` and a first declared-taste preset. The regression is done;
-   review the feature distributions and adjust the axes before adding the preset.
+3. First declared-taste preset. The expression-level regression was removed; review the feature distributions and adjust the axes before adding the preset.
 4. Direct search (CEM) if the regression is disappointing.
 5. Session export with seen/liked, then learned taste. CLIP tags if the six axes feel too crude.
 

@@ -17,8 +17,16 @@ export interface Compiled {
     readonly source: string;
     readonly animated: boolean;
     readonly stats: {
-        /** Distinct expression nodes after sharing identical subtrees. */
-        readonly nodes: number;
+        /**
+         * Distinct vertices after sharing identical subtrees. Warp contexts are counted in
+         * `contexts`.
+         */
+        readonly vertices: number;
+        /**
+         * Warp contexts (one per distinct warp step). `vertices + contexts` equals
+         * `features.dagNodes`.
+         */
+        readonly contexts: number;
         /** Expressions hoisted to a variable because they are used more than once. */
         readonly variables: number;
         readonly sourceLength: number;
@@ -36,7 +44,10 @@ interface Emitted {
     readonly roots: readonly [string, string, string];
     readonly lines: readonly string[];
     readonly variables: number;
-    readonly nodes: number;
+    /** Distinct vertices after sharing identical subtrees (warp contexts excluded). */
+    readonly vertices: number;
+    /** Warp contexts (one per distinct warp step). */
+    readonly contexts: number;
     readonly functions: ReadonlySet<GlslFunctionId>;
 }
 
@@ -46,7 +57,8 @@ function emitDag(dag: LoweredDag): Emitted {
     const points = new Map<number, string>([[0, 'v_p']]);
     const functions = new Set<GlslFunctionId>();
     let variables = 0;
-    let nodes = 0;
+    let vertices = 0;
+    let contexts = 0;
 
     function operandOf(id: number): Operand {
         const operand = operands.get(id);
@@ -74,7 +86,7 @@ function emitDag(dag: LoweredDag): Emitted {
         if (op.kind === 'warp') {
             throw new RandomArtError(`Warp "${vertex.op}" must lower to a context, not a vertex`);
         }
-        nodes++;
+        vertices++;
         for (const id of op.requires ?? []) {
             functions.add(id);
         }
@@ -102,6 +114,7 @@ function emitDag(dag: LoweredDag): Emitted {
         for (const id of op.requires ?? []) {
             functions.add(id);
         }
+        contexts++;
         const coordinates = op.glslPoint({
             inputs: context.inputs.map(expressionOf),
             params: context.params,
@@ -124,7 +137,8 @@ function emitDag(dag: LoweredDag): Emitted {
         roots: [expressionOf(dag.roots[0]), expressionOf(dag.roots[1]), expressionOf(dag.roots[2])],
         lines,
         variables,
-        nodes,
+        vertices,
+        contexts,
         functions,
     };
 }
@@ -166,7 +180,8 @@ export function compile(expression: Expression, options: CompileOptions): Compil
         source,
         animated: usesTime(expression),
         stats: {
-            nodes: emitted.nodes,
+            vertices: emitted.vertices,
+            contexts: emitted.contexts,
             variables: emitted.variables,
             sourceLength: source.length,
         },

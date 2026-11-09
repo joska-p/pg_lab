@@ -19,7 +19,11 @@ export interface ModulationStats {
 export interface ExpressionFeatures {
     /** Only operators that occur are present, like `Grammar.weights`; read through `countOf`. */
     readonly operatorCounts: Readonly<Partial<Record<OpName, number>>>;
-    /** Distinct vertices plus warp contexts after sharing identical subtrees. */
+    /**
+     * Distinct vertices plus warp contexts after sharing identical subtrees. Equals
+     * `compile().stats.vertices + compile().stats.contexts` (see `randomart-core/emit`); it is
+     * therefore not comparable to `compile().stats.vertices` taken alone.
+     */
     readonly dagNodes: number;
     /** Node count of the largest channel tree: the quantity `Grammar.maxNodes` bounds. */
     readonly treeNodes: number;
