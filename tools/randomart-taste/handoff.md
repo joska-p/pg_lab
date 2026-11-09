@@ -16,7 +16,7 @@ rester verts, ne rien commiter sans demande. L'utilisateur parle français.
 - `sample.ts`, `render.ts`, `renderScript.ts`, `imageStats.ts`, `run.ts` : batch Playwright
   (Chromium headless, rendu logiciel) → `data/samples.json`. Stats : brightness, contrast,
   sharpness, busyness, colorfulness, motion.
-- `learn.ts` + `learnCli.ts` (`learn`) : ancienne régression ridge _au niveau expression_
+- `learn.ts` + `learnCli.ts` + `data/coefficients.json` : régression ridge _au niveau expression_ supprimée (voir `taste-driven-presets.md`).
   (coefficients sur les comptes d'opérateurs de l'expression tirée). R² faibles (0.12–0.37), et
   elle répond à la mauvaise question (voir ci-dessous). Probablement à garder comme référence ou
   à supprimer ; à décider.
@@ -65,8 +65,7 @@ Conclusions :
 
 ## À faire en premier (l'utilisateur régénère les données)
 
-`data/samples.json`, `data/coefficients.json`, `data/grammar-level.json` sont **périmés** (schéma
-ancien : `grammar.space`, pas de `space` par ligne) et ne doivent pas être édités à la main.
+`data/samples.json`, `data/grammar-level.json` sont **périmés** (schéma ancien : `grammar.space`, pas de `space` par ligne) et ne doivent pas être édités à la main. `data/coefficients.json` a été supprimé avec `learn.ts`.
 L'utilisateur relance `generate` (probablement avec plus de données, ex. `--grammars 1000`), puis :
 
 1. `vpr -C tools/randomart-taste learn` (ancienne régression, si conservée),
@@ -102,8 +101,7 @@ L'utilisateur relance `generate` (probablement avec plus de données, ex. `--gra
   busyness sont sensibles à la résolution.
 - Les graines d'une même grammaire sont corrélées : toute validation doit découper par `grammarId`
   (c'est ce que fait `grammarLevel.ts`).
-- `learn.ts` utilise une coordinate descent (les features `op.*` sont très collinéaires) ; ne pas
-  revenir aux équations normales.
+- La régression ridge supprimée utilisait une coordinate descent (les features `op.*` sont très collinéaires) ; ne pas revenir aux équations normales.
 - L'utilisateur avait mis temporairement une désactivation de `no-unsafe-type-assertion` ; le
   refactor de `grammarLevel.ts` l'a rendue inutile (vérifier qu'elle a disparu).
 - `package.json` du taste tool et le worktree contiennent des modifications non commitées de

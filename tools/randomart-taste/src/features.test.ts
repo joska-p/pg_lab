@@ -1,3 +1,4 @@
+import { compile } from '@repo/randomart-core/emit';
 import { generate } from '@repo/randomart-core/generate';
 import { GRAMMAR_PRESETS, vocabulary } from '@repo/randomart-core/grammar';
 import { isOpName } from '@repo/randomart-core/ops';
@@ -128,6 +129,22 @@ describe('featuresOf on generated expressions', () => {
                 for (const name of Object.keys(features.operatorCounts)) {
                     expect(isOpName(name) && enabled.has(name), name).toBe(true);
                 }
+            }
+        }
+    });
+});
+
+describe('features.dagNodes vs compile stats', () => {
+    it('dagNodes equals stats.vertices + stats.contexts on generated presets', () => {
+        for (const preset of GRAMMAR_PRESETS) {
+            const { grammar, space } = preset;
+
+            for (const seed of [0, 1, 2, 42]) {
+                const expression = generate(grammar, createSeed(String(seed)));
+                const features = featuresOf(expression, space);
+                const compiled = compile(expression, { space });
+
+                expect(features.dagNodes).toBe(compiled.stats.vertices + compiled.stats.contexts);
             }
         }
     });

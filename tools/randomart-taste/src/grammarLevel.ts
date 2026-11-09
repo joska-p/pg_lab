@@ -4,7 +4,7 @@ import type { Grammar } from '@repo/randomart-core/grammar';
 import { OP_NAMES } from '@repo/randomart-core/ops';
 
 import type { ImageStats } from './imageStats';
-import { ridgeRegression } from './learn';
+import { ridgeRegression } from './ridge';
 
 /** One rendered sample, as stored in `data/samples.json`. */
 export interface GrammarSampleRow {

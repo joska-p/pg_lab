@@ -7,7 +7,6 @@
         "lint": "vp lint",
         "test": "vp test",
         "generate": "vpx src/run.ts --grammars 1000 --seeds 16 --size 128 --out data/samples.json",
-        "learn": "vpx src/learnCli.ts",
         "learn:grammar": "vpx src/grammarCli.ts"
     },
     "dependencies": {
