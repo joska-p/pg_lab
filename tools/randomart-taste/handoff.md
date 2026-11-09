@@ -14,12 +14,12 @@ rien commiter sans demande. L'utilisateur parle français.
 - `data/samples.json` : 1 000 grammaires × 16 graines = 16 000 lignes, schéma nouveau
   (`space` par ligne, plus de `grammar.space`).
 - `data/grammar-level.json` : régression ridge au niveau grammaire, cvR2 par cible :
-  - brightness 0.80 (espace dominant)
-  - colorfulness 0.77 (espace dominant)
-  - contrast 0.48 (poids dominant)
-  - busyness 0.45 (structure dominante)
-  - motion 0.43 (poids dominant)
-  - sharpness 0.37 (structure dominante)
+    - brightness 0.80 (espace dominant)
+    - colorfulness 0.77 (espace dominant)
+    - contrast 0.48 (poids dominant)
+    - busyness 0.45 (structure dominante)
+    - motion 0.43 (poids dominant)
+    - sharpness 0.37 (structure dominante)
 - `packages/randomart-core/src/grammar.ts` : `GRAMMAR_PRESETS` contient maintenant 6 presets
   appris (`brightness`, `contrast`, `sharpness`, `busyness`, `colorfulness`, `motion`) avec
   leurs poids entiers, espace, profondeur, partage. Les anciens dummy presets sont supprimés.
@@ -41,7 +41,7 @@ rien commiter sans demande. L'utilisateur parle français.
 Les features actuelles (brightness, contrast, sharpness, busyness, colorfulness, motion) sont
 intéressantes pour composer des grammaires, mais elles ne suffisent pas à créer des grammaires
 complètes et expressives. Il faudra ajouter plus de features à l'avenir pour aller plus loin.
-Ce point est noté ici pour ne pas l'oublier, mais n'est pas dans le scope immédiat.
+Ce point est noté ici pour ne pas l'oublier. Il faudrait y reflechir avant qu'il ne soit trop tard.
 
 ## Pièges connus
 
