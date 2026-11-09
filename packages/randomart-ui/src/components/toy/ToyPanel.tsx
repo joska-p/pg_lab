@@ -7,6 +7,7 @@ import { createPhase } from '../../renderer/renderGate';
 import { newSeed, useCompiledShader, useIsAnimated, useSeed } from '../../stores/artworkStore';
 import { reportError } from '../../stores/errorStore';
 import { useClockStore, useIsPlaying } from '../../stores/surfaceStore';
+import { ColorSection } from '../ColorSection';
 import { GrammarSelect } from './GrammarSelect';
 
 export function ToyPanel() {
@@ -71,7 +72,7 @@ export function ToyPanel() {
                     Export PNG
                 </Button>
             </Grid>
-
+            <ColorSection />
             <GrammarSelect />
         </Grid>
     );

@@ -1,6 +1,6 @@
 import { Grid } from '@repo/ui/components/Grid';
 
-import { ColorSection } from './ColorSection';
+import { ColorSection } from '../ColorSection';
 import { GrammarSection } from './GrammarSection';
 import { Inspector } from './Inspector';
 import { PlaybackSection } from './PlaybackSection';
