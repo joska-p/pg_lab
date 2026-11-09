@@ -104,7 +104,7 @@ describe('property-based tests', () => {
                 const rng = createRng(seedOf(seedInt));
                 const grammar = drawGrammar(rng);
                 const expression = generate(grammar, seedOf(seedInt + 1));
-                const compiled = compile(expression, { space: grammar.space });
+                const compiled = compile(expression, { space: 'srgb' });
                 expect(compiled.source).toBeDefined();
                 expect(compiled.source.length).toBeGreaterThan(0);
             }),
@@ -164,7 +164,6 @@ describe('property-based tests', () => {
                 maxDepth: 8,
                 maxNodes: 8,
                 shareDepth: 0,
-                space: 'srgb',
             }),
         ).toThrow('Grammar is infeasible');
     });

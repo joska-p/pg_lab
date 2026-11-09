@@ -19,7 +19,6 @@ const BASE_OPTIONS = {
     minDepth: 3,
     maxDepth: 5,
     shareDepth: 1,
-    space: 'srgb' as const,
 };
 
 describe('minimumNodes', () => {
@@ -60,7 +59,6 @@ describe('maxFeasibleMinDepth', () => {
         weights: { add: 1, x: 1 },
         maxDepth: 8,
         shareDepth: 0,
-        space: 'srgb' as const,
     };
 
     it('returns the largest minDepth whose minimumNodes fits maxNodes (15 <= 25 < 31)', () => {

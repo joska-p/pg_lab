@@ -49,13 +49,14 @@ describe('glslangValidator', () => {
     }
 
     it('validates default grammar shaders', () => {
-        const grammar = getGrammarPreset('default').grammar;
+        const preset = getGrammarPreset('default');
+        const grammar = preset.grammar;
         const seeds = [0, 42, 1234, 9999];
 
         for (const seedValue of seeds) {
             const seed = createSeed(String(seedValue));
             const expression = generate(grammar, seed);
-            const compiled = compile(expression, { space: grammar.space });
+            const compiled = compile(expression, { space: preset.space });
             const validation = validateGlsl(compiled.source);
 
             if (!validation.valid) {
@@ -73,7 +74,7 @@ describe('glslangValidator', () => {
             const seed = createSeed(String(12345));
             const grammar = preset.grammar;
             const expression = generate(grammar, seed);
-            const compiled = compile(expression, { space: grammar.space });
+            const compiled = compile(expression, { space: preset.space });
             const validation = validateGlsl(compiled.source);
 
             if (!validation.valid) {
@@ -93,7 +94,7 @@ describe('glslangValidator', () => {
         for (let i = 0; i < 20; i++) {
             const grammar = drawGrammar(rng);
             const expression = generate(grammar, createSeed(String(i)));
-            const compiled = compile(expression, { space: grammar.space });
+            const compiled = compile(expression, { space: 'srgb' });
             const validation = validateGlsl(compiled.source);
 
             if (!validation.valid) {

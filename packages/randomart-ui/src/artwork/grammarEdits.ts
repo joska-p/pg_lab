@@ -1,4 +1,3 @@
-import type { ColorSpaceId } from '@repo/randomart-core/colors';
 import {
     createGrammar,
     MAX_WEIGHT,
@@ -45,8 +44,4 @@ export function withMaxNodes(grammar: Grammar, maxNodes: number): Grammar {
 
 export function withShareDepth(grammar: Grammar, shareDepth: number): Grammar {
     return createGrammar({ ...grammar, shareDepth: Math.min(grammar.maxDepth, shareDepth) });
-}
-
-export function withSpace(grammar: Grammar, space: ColorSpaceId): Grammar {
-    return createGrammar({ ...grammar, space });
 }

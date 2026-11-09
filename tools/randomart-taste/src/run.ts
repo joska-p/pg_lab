@@ -21,6 +21,7 @@ interface Row {
     readonly grammarId: number;
     readonly seed: string;
     readonly grammar: Sample['grammar'];
+    readonly space: Sample['space'];
     readonly features: Record<string, number>;
     readonly stats: ImageStats;
 }
@@ -60,6 +61,7 @@ async function main(): Promise<void> {
                     grammarId: sample.grammarId,
                     seed: sample.seed,
                     grammar: sample.grammar,
+                    space: sample.space,
                     features: flattenFeatures(sample.features),
                     stats: imageStats(outcome.frames),
                 });

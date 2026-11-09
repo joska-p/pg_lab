@@ -121,7 +121,6 @@ describe('generate', () => {
             maxDepth: 5,
             maxNodes: 25,
             shareDepth: 0,
-            space: 'srgb',
         });
         const minDepth = 2;
 

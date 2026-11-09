@@ -1,4 +1,3 @@
-import { COLOR_SPACE_IDS, isColorSpaceId } from './colors';
 import type { ColorSpaceId } from './colors';
 import { GrammarDrawError, InfeasibleGrammarError, RandomArtError } from './errors';
 import { OP_NAMES, OPS, getOp, isOpName, isTerminal } from './ops';
@@ -17,7 +16,6 @@ export interface Grammar {
     readonly maxNodes: number;
     /** Depth down to which the three channels share the same operators. */
     readonly shareDepth: number;
-    readonly space: ColorSpaceId;
 }
 
 export interface CreateGrammarOptions {
@@ -26,15 +24,15 @@ export interface CreateGrammarOptions {
     readonly maxDepth: number;
     readonly maxNodes: number;
     readonly shareDepth: number;
-    readonly space?: ColorSpaceId;
 }
 
-/** A registry entry: a grammar plus its presentational label and description. */
+/** A registry entry: a grammar plus a suggested color space, a label and a description. */
 export interface GrammarPreset<TId extends string = string> {
     readonly id: TId;
     readonly label: string;
     readonly description: string;
     readonly grammar: Grammar;
+    readonly space: ColorSpaceId;
 }
 
 /** Weight of an operator in a grammar; absent operators weigh nothing. */
@@ -172,11 +170,6 @@ export function createGrammar(options: CreateGrammarOptions): Grammar {
         throw new RandomArtError(`maxNodes must be an integer >= 1, got ${maxNodes}`);
     }
 
-    const space = options.space ?? 'srgb';
-    if (!isColorSpaceId(space)) {
-        throw new RandomArtError(`Unknown color space: ${String(space)}`);
-    }
-
     const weights = normalizeWeights(options.weights);
     assertVocabulary(weights);
 
@@ -194,7 +187,6 @@ export function createGrammar(options: CreateGrammarOptions): Grammar {
         maxDepth,
         maxNodes,
         shareDepth,
-        space,
     });
 
     const minNodes = minimumNodes(tempGrammar);
@@ -209,16 +201,17 @@ export function createGrammar(options: CreateGrammarOptions): Grammar {
 }
 
 /**
- * Build a registry preset from a label, a description and grammar options. The grammar itself never
- * carries preset metadata.
+ * Build a registry preset from a label, a description, grammar options and a suggested color space.
+ * The grammar itself never carries preset metadata.
  */
 function preset<TId extends string>(
     id: TId,
     label: string,
     description: string,
     options: CreateGrammarOptions,
+    space: ColorSpaceId,
 ): GrammarPreset<TId> {
-    return { id, label, description, grammar: createGrammar(options) };
+    return { id, label, description, grammar: createGrammar(options), space };
 }
 
 /** Stable identity of a grammar, independent of how its weights were built. */
@@ -230,7 +223,6 @@ export function grammarKey(grammar: Grammar): string {
         grammar.maxDepth,
         grammar.maxNodes,
         grammar.shareDepth,
-        grammar.space,
     ]);
 }
 
@@ -239,7 +231,6 @@ export interface GrammarPins {
     readonly maxDepth?: number;
     readonly maxNodes?: number;
     readonly shareDepth?: number;
-    readonly space?: ColorSpaceId;
 }
 
 /** Draw a random grammar. Iteration follows `OP_NAMES` so the result never depends on table order. */
@@ -259,10 +250,9 @@ export function drawGrammar(rng: Rng, pins: GrammarPins = {}): Grammar {
         const maxDepth = pins.maxDepth ?? minDepth + rng.int(5);
         const maxNodes = pins.maxNodes ?? 8 + rng.int(60);
         const shareDepth = pins.shareDepth ?? rng.int(maxDepth + 1);
-        const space = pins.space ?? rng.pick(COLOR_SPACE_IDS);
 
         try {
-            return createGrammar({ weights, minDepth, maxDepth, maxNodes, shareDepth, space });
+            return createGrammar({ weights, minDepth, maxDepth, maxNodes, shareDepth });
         } catch (error) {
             if (error instanceof InfeasibleGrammarError) {
                 continue; // Try again with different random values
@@ -297,200 +287,255 @@ export function isMonoGrammar(grammar: Grammar): boolean {
 }
 
 export const GRAMMAR_PRESETS = [
-    preset('default', 'Default', 'Default grammar', {
-        weights: {
-            abs: 1,
-            add: 1,
-            const: 1,
-            cos: 1,
-            div: 1,
-            gt: 1,
-            max: 2,
-            min: 2,
-            mix: 1,
-            mul: 1,
-            neg: 1,
-            select: 1,
-            sin: 1,
-            sqr: 1,
-            warp: 1,
-            x: 4,
-            y: 4,
+    preset(
+        'default',
+        'Default',
+        'Default grammar',
+        {
+            weights: {
+                abs: 1,
+                add: 1,
+                const: 1,
+                cos: 1,
+                div: 1,
+                gt: 1,
+                max: 2,
+                min: 2,
+                mix: 1,
+                mul: 1,
+                neg: 1,
+                select: 1,
+                sin: 1,
+                sqr: 1,
+                warp: 1,
+                x: 4,
+                y: 4,
+            },
+            minDepth: 2,
+            maxDepth: 5,
+            maxNodes: 25,
+            shareDepth: 2,
         },
-        minDepth: 2,
-        maxDepth: 5,
-        maxNodes: 25,
-        shareDepth: 2,
-        space: 'oklch',
-    }),
-    preset('geometric', 'Geometric', 'Sharp shapes, hard edges, structured patterns', {
-        weights: {
-            abs: 3,
-            add: 1,
-            const: 1,
-            gt: 4,
-            max: 3,
-            min: 3,
-            select: 4,
-            x: 3,
-            y: 3,
+        'oklch',
+    ),
+    preset(
+        'geometric',
+        'Geometric',
+        'Sharp shapes, hard edges, structured patterns',
+        {
+            weights: {
+                abs: 3,
+                add: 1,
+                const: 1,
+                gt: 4,
+                max: 3,
+                min: 3,
+                select: 4,
+                x: 3,
+                y: 3,
+            },
+            minDepth: 2,
+            maxDepth: 5,
+            maxNodes: 25,
+            shareDepth: 1,
         },
-        minDepth: 2,
-        maxDepth: 5,
-        maxNodes: 25,
-        shareDepth: 1,
-        space: 'hsl',
-    }),
-    preset('organic', 'Organic', 'Flowing waves, smooth gradients, natural forms', {
-        weights: {
-            add: 2,
-            cos: 3,
-            div: 1,
-            mix: 2,
-            mul: 2,
-            sin: 4,
-            warp: 2,
-            x: 3,
-            y: 3,
+        'hsl',
+    ),
+    preset(
+        'organic',
+        'Organic',
+        'Flowing waves, smooth gradients, natural forms',
+        {
+            weights: {
+                add: 2,
+                cos: 3,
+                div: 1,
+                mix: 2,
+                mul: 2,
+                sin: 4,
+                warp: 2,
+                x: 3,
+                y: 3,
+            },
+            minDepth: 2,
+            maxDepth: 6,
+            maxNodes: 40,
+            shareDepth: 3,
         },
-        minDepth: 2,
-        maxDepth: 6,
-        maxNodes: 40,
-        shareDepth: 3,
-        space: 'oklch',
-    }),
-    preset('fractal', 'Fractal', 'Self-similar detail, kaleidoscopic distortion', {
-        weights: {
-            abs: 2,
-            cos: 2,
-            sin: 3,
-            warp: 5,
-            x: 2,
-            y: 2,
+        'oklch',
+    ),
+    preset(
+        'fractal',
+        'Fractal',
+        'Self-similar detail, kaleidoscopic distortion',
+        {
+            weights: {
+                abs: 2,
+                cos: 2,
+                sin: 3,
+                warp: 5,
+                x: 2,
+                y: 2,
+            },
+            minDepth: 2,
+            maxDepth: 6,
+            maxNodes: 40,
+            shareDepth: 2,
         },
-        minDepth: 2,
-        maxDepth: 6,
-        maxNodes: 40,
-        shareDepth: 2,
-        space: 'oklch',
-    }),
-    preset('minimalist', 'Minimalist', 'Clean gradients, simple transitions, readable forms', {
-        weights: {
-            add: 3,
-            const: 2,
-            mul: 2,
-            x: 4,
-            y: 4,
+        'oklch',
+    ),
+    preset(
+        'minimalist',
+        'Minimalist',
+        'Clean gradients, simple transitions, readable forms',
+        {
+            weights: {
+                add: 3,
+                const: 2,
+                mul: 2,
+                x: 4,
+                y: 4,
+            },
+            minDepth: 1,
+            maxDepth: 4,
+            maxNodes: 16,
+            shareDepth: 4,
         },
-        minDepth: 1,
-        maxDepth: 4,
-        maxNodes: 16,
-        shareDepth: 4,
-        space: 'srgb',
-    }),
-    preset('texture', 'Texture', 'Grainy, noisy, high-frequency detail', {
-        weights: {
-            abs: 3,
-            const: 4,
-            mul: 2,
-            sin: 2,
-            sqr: 3,
-            x: 1,
-            y: 1,
+        'srgb',
+    ),
+    preset(
+        'texture',
+        'Texture',
+        'Grainy, noisy, high-frequency detail',
+        {
+            weights: {
+                abs: 3,
+                const: 4,
+                mul: 2,
+                sin: 2,
+                sqr: 3,
+                x: 1,
+                y: 1,
+            },
+            minDepth: 2,
+            maxDepth: 5,
+            maxNodes: 25,
+            shareDepth: 0,
         },
-        minDepth: 2,
-        maxDepth: 5,
-        maxNodes: 25,
-        shareDepth: 0,
-        space: 'oklab',
-    }),
-    preset('monochrome', 'Monochrome', 'Single-channel harmony, tonal structure', {
-        weights: {
-            add: 2,
-            gt: 2,
-            max: 3,
-            min: 3,
-            x: 3,
-            y: 3,
+        'oklab',
+    ),
+    preset(
+        'monochrome',
+        'Monochrome',
+        'Single-channel harmony, tonal structure',
+        {
+            weights: {
+                add: 2,
+                gt: 2,
+                max: 3,
+                min: 3,
+                x: 3,
+                y: 3,
+            },
+            minDepth: 2,
+            maxDepth: 5,
+            maxNodes: 25,
+            shareDepth: 5,
         },
-        minDepth: 2,
-        maxDepth: 5,
-        maxNodes: 25,
-        shareDepth: 5,
-        space: 'srgb',
-    }),
-    preset('psychedelic', 'Psychedelic', 'Wild color cycling, heavy warp, chaotic energy', {
-        weights: {
-            cos: 2,
-            mix: 3,
-            select: 3,
-            sin: 3,
-            warp: 4,
-            x: 2,
-            y: 2,
+        'srgb',
+    ),
+    preset(
+        'psychedelic',
+        'Psychedelic',
+        'Wild color cycling, heavy warp, chaotic energy',
+        {
+            weights: {
+                cos: 2,
+                mix: 3,
+                select: 3,
+                sin: 3,
+                warp: 4,
+                x: 2,
+                y: 2,
+            },
+            minDepth: 2,
+            maxDepth: 6,
+            maxNodes: 40,
+            shareDepth: 0,
         },
-        minDepth: 2,
-        maxDepth: 6,
-        maxNodes: 40,
-        shareDepth: 0,
-        space: 'hsl',
-    }),
+        'hsl',
+    ),
     /** Bords durs et couleur saturée : oklab + opérateurs de contraste, peu de partage entre canaux. */
-    preset('vivid', 'Vivid', 'Sharp edges and saturated color', {
-        weights: {
-            abs: 3,
-            add: 2,
-            const: 1,
-            gt: 4,
-            max: 3,
-            min: 3,
-            mix: 1,
-            mul: 2,
-            select: 4,
-            x: 4,
-            y: 4,
+    preset(
+        'vivid',
+        'Vivid',
+        'Sharp edges and saturated color',
+        {
+            weights: {
+                abs: 3,
+                add: 2,
+                const: 1,
+                gt: 4,
+                max: 3,
+                min: 3,
+                mix: 1,
+                mul: 2,
+                select: 4,
+                x: 4,
+                y: 4,
+            },
+            minDepth: 2,
+            maxDepth: 5,
+            maxNodes: 25,
+            shareDepth: 1,
         },
-        minDepth: 2,
-        maxDepth: 5,
-        maxNodes: 25,
-        shareDepth: 1,
-        space: 'oklab',
-    }),
+        'oklab',
+    ),
     /** Mouvement et énergie : opérateurs temporels, distorsion, pas de partage entre canaux. */
-    preset('motion', 'Motion', 'Animation and warped energy', {
-        weights: {
-            cos: 3,
-            mix: 3,
-            select: 3,
-            sin: 3,
-            warp: 4,
-            x: 3,
-            y: 3,
+    preset(
+        'motion',
+        'Motion',
+        'Animation and warped energy',
+        {
+            weights: {
+                cos: 3,
+                mix: 3,
+                select: 3,
+                sin: 3,
+                warp: 4,
+                x: 3,
+                y: 3,
+            },
+            minDepth: 2,
+            maxDepth: 6,
+            maxNodes: 40,
+            shareDepth: 0,
         },
-        minDepth: 2,
-        maxDepth: 6,
-        maxNodes: 40,
-        shareDepth: 0,
-        space: 'hsl',
-    }),
+        'hsl',
+    ),
     /** Douceur et organique : gradients lisses, fort partage entre canaux, peu de contraste dur. */
-    preset('muted', 'Muted', 'Smooth gradients and soft tonal harmony', {
-        weights: {
-            add: 3,
-            const: 2,
-            mix: 2,
-            mul: 2,
-            sin: 2,
-            cos: 2,
-            x: 4,
-            y: 4,
+    preset(
+        'muted',
+        'Muted',
+        'Smooth gradients and soft tonal harmony',
+        {
+            weights: {
+                add: 3,
+                const: 2,
+                mix: 2,
+                mul: 2,
+                sin: 2,
+                cos: 2,
+                x: 4,
+                y: 4,
+            },
+            minDepth: 2,
+            maxDepth: 4,
+            maxNodes: 20,
+            shareDepth: 3,
         },
-        minDepth: 2,
-        maxDepth: 4,
-        maxNodes: 20,
-        shareDepth: 3,
-        space: 'oklch',
-    }),
+        'oklch',
+    ),
 ] as const satisfies readonly GrammarPreset[];
 
 // Derive the types directly from the registry.

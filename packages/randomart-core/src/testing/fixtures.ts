@@ -32,7 +32,6 @@ export const SIZE_GRAMMARS = [
         maxDepth: 3,
         maxNodes: 12,
         shareDepth: 1,
-        space: 'srgb',
     }),
     createGrammar({
         weights: getGrammarPreset('default').grammar.weights,
@@ -40,7 +39,6 @@ export const SIZE_GRAMMARS = [
         maxDepth: 5,
         maxNodes: 25,
         shareDepth: 2,
-        space: 'srgb',
     }),
     createGrammar({
         weights: getGrammarPreset('default').grammar.weights,
@@ -48,6 +46,5 @@ export const SIZE_GRAMMARS = [
         maxDepth: 7,
         maxNodes: 50,
         shareDepth: 3,
-        space: 'srgb',
     }),
 ];

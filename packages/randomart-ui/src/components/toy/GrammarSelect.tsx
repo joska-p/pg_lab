@@ -5,7 +5,7 @@ import { ControlField } from '@repo/ui/components/ControlField';
 import { Grid } from '@repo/ui/components/Grid';
 import { Select } from '@repo/ui/components/Select';
 
-import { applyGrammar, randomizeGrammar, useGrammar } from '../../stores/artworkStore';
+import { applyPreset, randomizeGrammar, useGrammar } from '../../stores/artworkStore';
 import { setMode } from '../../stores/modeStore';
 
 const CUSTOM_PRESET = {
@@ -42,8 +42,8 @@ export function GrammarSelect() {
                             return;
                         }
 
-                        // Applying a preset keeps the current seed.
-                        applyGrammar(getGrammarPreset(id).grammar);
+                        // Applying a preset keeps the current seed and applies its suggested space.
+                        applyPreset(getGrammarPreset(id));
                     }}
                 />
 

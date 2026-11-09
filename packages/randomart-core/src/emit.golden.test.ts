@@ -10,7 +10,7 @@ describe('emit golden', () => {
     for (const preset of GRAMMAR_PRESETS) {
         it(`preset ${preset.id}`, () => {
             const compiled = compile(generate(preset.grammar, seedOf(42)), {
-                space: preset.grammar.space,
+                space: preset.space,
             });
             expect(compiled.source).toMatchSnapshot();
         });

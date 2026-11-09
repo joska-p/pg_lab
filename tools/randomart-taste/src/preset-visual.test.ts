@@ -33,8 +33,8 @@ async function renderPreset(
 ): Promise<RenderResult> {
     const preset = getGrammarPreset(presetId);
     const expression = generate(preset.grammar, createSeed(String(seedIndex)));
-    const shader = compile(expression, { space: preset.grammar.space });
-    const features = featuresOf(expression, preset.grammar.space);
+    const shader = compile(expression, { space: preset.space });
+    const features = featuresOf(expression, preset.space);
     const phases = shader.animated ? [0, 1 / 3, 2 / 3] : [0];
 
     return renderer.render(shader.source, phases, SIZE).then((outcome: RenderOutcome) => {

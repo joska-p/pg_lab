@@ -1,5 +1,3 @@
-import type { ColorSpaceId } from '@repo/randomart-core/colors';
-import { COLOR_SPACES } from '@repo/randomart-core/colors';
 import {
     MAX_WEIGHT,
     isMonoGrammar,
@@ -15,7 +13,6 @@ import { MAX_SEED_LENGTH, parseSeed } from '@repo/randomart-core/seed';
 import type { Seed } from '@repo/randomart-core/seed';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Grid } from '@repo/ui/components/Grid';
-import { Segmented } from '@repo/ui/components/Segmented';
 import { Slider } from '@repo/ui/components/Slider';
 import { TextInput } from '@repo/ui/components/TextInput';
 import { useState } from 'react';
@@ -25,7 +22,6 @@ import {
     withMaxNodes,
     withMinDepth,
     withShareDepth,
-    withSpace,
     withWeight,
 } from '../../artwork/grammarEdits';
 import { editGrammar, newSeed, useGrammar, useSeed } from '../../stores/artworkStore';
@@ -52,11 +48,6 @@ const OPERATOR_GROUPS = OP_FAMILIES.map((family) => ({
     label: GROUP_LABELS[family],
     operators: OP_NAMES.filter((name) => groupOf(name) === family),
 })).filter((bucket) => bucket.operators.length > 0);
-
-const SPACE_OPTIONS = COLOR_SPACES.map(({ id, label }) => ({
-    value: id,
-    label,
-}));
 
 /** Slider bounds: keep every slider inside the feasible region of its grammar. */
 const MAX_MIN_DEPTH = 8;
@@ -122,17 +113,6 @@ export function GrammarSection() {
         <Grid columns="1" gap="6">
             <ControlSection title="seed">
                 <SeedInput key={seed} seed={seed} />
-            </ControlSection>
-
-            <ControlSection title="color">
-                <Segmented<ColorSpaceId>
-                    color="orange"
-                    value={grammar.space}
-                    options={SPACE_OPTIONS}
-                    onValueChange={(space) => {
-                        editGrammar((current) => withSpace(current, space));
-                    }}
-                />
             </ControlSection>
 
             {OPERATOR_GROUPS.map(({ group, label, operators }) => (

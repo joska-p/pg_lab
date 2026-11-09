@@ -1,14 +1,16 @@
 import { createGrammar, getGrammarPreset, weightOf } from '@repo/randomart-core/grammar';
 import { createSeed } from '@repo/randomart-core/seed';
+import { formatFormula } from '@repo/randomart-core/tree';
 import { describe, expect, it } from 'vite-plus/test';
 
 import { defined } from '../testing/defined';
-import { isSameDraft } from './artwork';
+import { buildArtwork, isSameDraft, recompileArtwork } from './artwork';
 import { createBatcher } from './batcher';
 import { withWeight } from './grammarEdits';
 import { resolveIntents } from './intents';
 
-const CURRENT = { grammar: getGrammarPreset('default').grammar, seed: createSeed('1') };
+const PRESET = getGrammarPreset('default');
+const CURRENT = { grammar: PRESET.grammar, seed: createSeed('1'), space: PRESET.space };
 
 describe('resolveIntents', () => {
     it('folds two edits from the same frame without losing either', () => {
@@ -67,6 +69,38 @@ describe('isSameDraft', () => {
                 grammar: withWeight(CURRENT.grammar, 'sin', w + 1),
             }),
         ).toBe(false);
+    });
+
+    it('distinguishes different color spaces', () => {
+        const otherSpace = CURRENT.space === 'srgb' ? 'oklch' : 'srgb';
+        expect(isSameDraft(CURRENT, { ...CURRENT, space: otherSpace })).toBe(false);
+    });
+});
+
+describe('buildArtwork', () => {
+    const formulas = (artwork: ReturnType<typeof buildArtwork>) => ({
+        r: formatFormula(artwork.expression.r),
+        g: formatFormula(artwork.expression.g),
+        b: formatFormula(artwork.expression.b),
+    });
+
+    it('keeps the expression and changes only the shader when the space changes', () => {
+        const seed = createSeed('space-test');
+        const first = buildArtwork(PRESET.grammar, seed, 'srgb');
+        const second = buildArtwork(PRESET.grammar, seed, 'oklch');
+
+        expect(formulas(second)).toEqual(formulas(first));
+        expect(second.shader.source).not.toBe(first.shader.source);
+        expect(second.shader.source).toContain('ra_oklch(vec3(');
+    });
+
+    it('recompiles a space change without regenerating the expression', () => {
+        const artwork = buildArtwork(PRESET.grammar, createSeed('recompile'), 'srgb');
+        const recolored = recompileArtwork(artwork, 'oklch');
+
+        expect(recolored.expression).toBe(artwork.expression);
+        expect(recolored.space).toBe('oklch');
+        expect(recolored.shader.source).not.toBe(artwork.shader.source);
     });
 });
 

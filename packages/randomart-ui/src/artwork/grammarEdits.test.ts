@@ -1,4 +1,3 @@
-import { COLOR_SPACE_IDS } from '@repo/randomart-core/colors';
 import {
     MAX_WEIGHT,
     createGrammar,
@@ -18,7 +17,6 @@ import {
     withMaxNodes,
     withMinDepth,
     withShareDepth,
-    withSpace,
     withWeight,
 } from './grammarEdits';
 
@@ -29,7 +27,6 @@ describe('withMinDepth / withMaxNodes (G1: weights {add:1, x:1}, minDepth 2, max
         maxDepth: 8,
         maxNodes: 25,
         shareDepth: 0,
-        space: 'srgb',
     });
 
     it('clamps minDepth to the feasible ceiling without moving maxDepth', () => {
@@ -69,7 +66,6 @@ describe('withWeight (G2: weights {neg:1, mix:1, x:1}, minDepth 5, maxDepth 6, m
         maxDepth: 6,
         maxNodes: 10,
         shareDepth: 0,
-        space: 'srgb',
     });
 
     it('removing the last unary operator lowers minDepth to 2', () => {
@@ -79,13 +75,13 @@ describe('withWeight (G2: weights {neg:1, mix:1, x:1}, minDepth 5, maxDepth 6, m
     });
 });
 
-describe('deterministic random walk over the six edits', () => {
+describe('deterministic random walk over the five edits', () => {
     it('never produces an infeasible grammar', () => {
         const rng = createRng(createSeed('walk'));
         let grammar = getGrammarPreset('default').grammar;
 
         for (let i = 0; i < 500; i++) {
-            switch (rng.int(6)) {
+            switch (rng.int(5)) {
                 case 0: {
                     const name = rng.pick(OP_NAMES);
                     const low =
@@ -107,10 +103,6 @@ describe('deterministic random walk over the six edits', () => {
                 }
                 case 4: {
                     grammar = withShareDepth(grammar, rng.int(grammar.maxDepth + 1));
-                    break;
-                }
-                default: {
-                    grammar = withSpace(grammar, rng.pick(COLOR_SPACE_IDS));
                     break;
                 }
             }

@@ -5,7 +5,7 @@ import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Grid } from '@repo/ui/components/Grid';
 import * as stylex from '@stylexjs/stylex';
 
-import { useExpression, useGrammar } from '../../stores/artworkStore';
+import { useExpression, useSpace } from '../../stores/artworkStore';
 import { AppErrorBoundary } from '../AppErrorBoundary';
 
 const CHANNELS = ['r', 'g', 'b'] as const;
@@ -20,8 +20,7 @@ const styles = stylex.create({
 
 export function Inspector() {
     const expression = useExpression();
-    const grammar = useGrammar();
-    const { space } = grammar;
+    const space = useSpace();
     const label = getColorSpace(space).label;
     const mono = isMonoExpression(expression);
 

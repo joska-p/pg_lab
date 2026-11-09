@@ -1,11 +1,12 @@
-import { drawGrammar, getGrammarPreset } from '@repo/randomart-core/grammar';
-import type { Grammar } from '@repo/randomart-core/grammar';
+import type { ColorSpaceId } from '@repo/randomart-core/colors';
+import { drawGrammar, getGrammarPreset, grammarKey } from '@repo/randomart-core/grammar';
+import type { Grammar, GrammarPreset } from '@repo/randomart-core/grammar';
 import { createRng } from '@repo/randomart-core/rng';
 import { createSeed } from '@repo/randomart-core/seed';
 import type { Seed } from '@repo/randomart-core/seed';
 import { create } from 'zustand';
 
-import { buildArtwork, draftOf, isSameDraft } from '../artwork/artwork';
+import { buildArtwork, draftOf, isSameDraft, recompileArtwork } from '../artwork/artwork';
 import type { Artwork } from '../artwork/artwork';
 import { createBatcher } from '../artwork/batcher';
 import { resolveIntents } from '../artwork/intents';
@@ -17,8 +18,10 @@ interface ArtworkState {
     readonly artwork: Artwork;
 }
 
+const DEFAULT_PRESET = getGrammarPreset('default');
+
 const store = create<ArtworkState>(() => ({
-    artwork: buildArtwork(getGrammarPreset('default').grammar, createSeed('42')),
+    artwork: buildArtwork(DEFAULT_PRESET.grammar, createSeed('42'), DEFAULT_PRESET.space),
 }));
 
 /**
@@ -42,7 +45,16 @@ function flush(intents: readonly Intent[]): void {
     }
 
     try {
-        store.setState({ artwork: buildArtwork(draft.grammar, draft.seed) });
+        // A space-only change keeps the expression: generation depends only on (grammar, seed).
+        const sameExpression =
+            draft.seed === artwork.seed &&
+            grammarKey(draft.grammar) === grammarKey(artwork.grammar);
+
+        store.setState({
+            artwork: sameExpression
+                ? recompileArtwork(artwork, draft.space)
+                : buildArtwork(draft.grammar, draft.seed, draft.space),
+        });
         if (errors.length === 0) {
             clearActionError();
         }
@@ -68,6 +80,10 @@ export function useGrammar(): Grammar {
     return store((state) => state.artwork.grammar);
 }
 
+export function useSpace(): ColorSpaceId {
+    return store((state) => state.artwork.space);
+}
+
 export function useExpression() {
     return store((state) => state.artwork.expression);
 }
@@ -81,12 +97,16 @@ export function newSeed(seed: Seed = randomSeed()): void {
     enqueue((draft) => ({ ...draft, seed }));
 }
 
-export function applyGrammar(grammar: Grammar): void {
-    enqueue((draft) => ({ ...draft, grammar }));
+export function applyPreset(preset: GrammarPreset): void {
+    enqueue((draft) => ({ ...draft, grammar: preset.grammar, space: preset.space }));
+}
+
+export function setSpace(space: ColorSpaceId): void {
+    enqueue((draft) => ({ ...draft, space }));
 }
 
 export function randomizeGrammar(): void {
-    // Drawn now, so the producer itself stays deterministic.
+    // Drawn now, so the producer itself stays deterministic. The current space is kept.
     const rngSeed = randomSeed();
     enqueue((draft) => ({ ...draft, grammar: drawGrammar(createRng(rngSeed)) }));
 }

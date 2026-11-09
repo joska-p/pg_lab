@@ -105,12 +105,12 @@ describe('featuresOf modulation and passthrough', () => {
 describe('featuresOf on generated expressions', () => {
     it('agrees with the grammar that drew the expression', () => {
         for (const preset of GRAMMAR_PRESETS) {
-            const { grammar } = preset;
+            const { grammar, space } = preset;
             const enabled = new Set(vocabulary(grammar));
 
             for (const seed of [0, 1, 2, 42]) {
                 const expression = generate(grammar, createSeed(String(seed)));
-                const features = featuresOf(expression, grammar.space);
+                const features = featuresOf(expression, space);
                 const total = Object.values(features.operatorCounts).reduce(
                     (sum, count) => sum + count,
                     0,

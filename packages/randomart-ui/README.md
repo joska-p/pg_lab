@@ -5,7 +5,7 @@ Interactive playground for the **randomart** procedural art generator. Consumes 
 ## Architecture
 
 ```
-(randomart-core grammar, seed)
+(randomart-core grammar, seed, space)
         │
         ▼
 ┌───────────────────┐
@@ -21,13 +21,13 @@ Scene       Controls
 
 ### Stores
 
-| Store           | Responsibility                                                                                                                                                                |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `artworkStore`  | Single source of truth: `Artwork { grammar, seed, expression, shader }`. Mutations go through `editGrammar`, `newSeed`, `randomizeGrammar`, `applyGrammar` (batched via RAF). |
-| `surfaceStore`  | Holds the live `ClockStore` for playback controls and duration sync.                                                                                                          |
-| `playbackStore` | Animation loop duration.                                                                                                                                                      |
-| `modeStore`     | UI mode: `'toy' \| 'lab'`.                                                                                                                                                    |
-| `errorStore`    | Action errors of the latest action (`actionErrors`), replaced by the next failing action and cleared by the next successful one.                                              |
+| Store           | Responsibility                                                                                                                                                                                  |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `artworkStore`  | Single source of truth: `Artwork { grammar, seed, space, expression, shader }`. Mutations go through `editGrammar`, `newSeed`, `setSpace`, `randomizeGrammar`, `applyPreset` (batched via RAF). |
+| `surfaceStore`  | Holds the live `ClockStore` for playback controls and duration sync.                                                                                                                            |
+| `playbackStore` | Animation loop duration.                                                                                                                                                                        |
+| `modeStore`     | UI mode: `'toy' \| 'lab'`.                                                                                                                                                                      |
+| `errorStore`    | Action errors of the latest action (`actionErrors`), replaced by the next failing action and cleared by the next successful one.                                                                |
 
 ### Components
 
@@ -37,7 +37,8 @@ App
 └── Controls
     ├── ToyPanel (play/pause, reset, new seed, export PNG, GrammarSelect)
     ├── LabPanel
-    │   ├── GrammarSection (weights, structure, color space, seed)
+    │   ├── ColorSection (color space)
+    │   ├── GrammarSection (weights, structure, seed)
     │   ├── Inspector (formatted formulas)
     │   ├── ShaderSource (popover with compiled GLSL)
     │   └── PlaybackSection (loop (s))
@@ -60,6 +61,10 @@ App
 - **Uniforms**: `u_phase` from clock progress; `v_p` declared in `main()` by randomart-core from `vUv`.
 
 ### Color spaces
+
+The color space is selected independently of the grammar (in `ColorSection`, via `useSpace` /
+`setSpace`) and passed to `compile` as a palette. Generation never reads it: changing the space
+keeps the same expression and only recompiles the shader.
 
 Raw channel triplets `[-1, 1]³` → sRGB via `randomart-core/colors.ts`:
 
@@ -84,8 +89,9 @@ vp test                                # All tests
 
 ### Adding a grammar preset
 
-Add a `preset('id', label, description, options)` entry to `GRAMMAR_PRESETS` in
-`randomart-core/src/grammar.ts`.
+Add a `preset('id', label, description, options, space)` entry to `GRAMMAR_PRESETS` in
+`randomart-core/src/grammar.ts`. The space is only a suggested palette: applying the preset sets
+both the grammar and the current space.
 
 ### Shader export
 
@@ -98,6 +104,6 @@ Add a `preset('id', label, description, options)` entry to `GRAMMAR_PRESETS` in
 ### Conventions
 
 - **English** for all UI copy, comments, docs.
-- **"Artwork"** = the central concept (grammar + seed + compiled output).
+- **"Artwork"** = the central concept (grammar + seed + space + compiled output).
 - **StyleX** for component styles (no inline `CSSProperties`).
 - **Seed** = trimmed non-empty string ≤ 64 chars (`randomart-core/seed.ts`).

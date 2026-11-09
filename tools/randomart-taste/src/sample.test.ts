@@ -25,7 +25,7 @@ describe('drawSamples', () => {
     it('keeps features consistent with the compiled shader', () => {
         for (const sample of drawSamples(OPTIONS)) {
             expect(sample.features.animated).toBe(sample.shader.animated);
-            expect(sample.features.space).toBe(sample.grammar.space);
+            expect(sample.features.space).toBe(sample.space);
         }
     });
 });

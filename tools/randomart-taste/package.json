@@ -6,8 +6,9 @@
     "scripts": {
         "lint": "vp lint",
         "test": "vp test",
-        "generate": "vpx src/run.ts --grammars 300 --seeds 8 --size 128 --out data/samples.json",
-        "learn": "vpx src/learnCli.ts"
+        "generate": "vpx src/run.ts --grammars 10000 --seeds 16 --size 128 --out data/samples.json",
+        "learn": "vpx src/learnCli.ts",
+        "learn:grammar": "vpx src/grammarCli.ts"
     },
     "dependencies": {
         "@repo/randomart-core": "catalog:",

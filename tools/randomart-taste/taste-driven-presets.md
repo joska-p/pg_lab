@@ -5,9 +5,9 @@ Status: partially implemented. See [Status](#status).
 ## Problem
 
 The presets in `GRAMMAR_PRESETS` (`randomart-core/src/grammar.ts`) are hand-written and somewhat
-arbitrary. A grammar is just a list of operator weights plus depth/node bounds and a color space,
-so its visual effect is opaque: nobody can say in advance what a given set of weights will look
-like.
+arbitrary. A grammar is just a list of operator weights plus depth/node bounds, so its visual effect
+is opaque: nobody can say in advance what a given set of weights will look like. The color space is
+a separate compile parameter, outside the grammar.
 
 ## Goal
 
@@ -30,6 +30,11 @@ Implemented so far, entirely in TypeScript (no Python/uv):
   `data/coefficients.json`.
 - Pixel statistics (`src/imageStats.ts`) and the preset visual trend check
   (`src/preset-visual.test.ts`) are also in the tool.
+
+The color space is a separate lever: a post-processing parameter of `compile`, not a property of
+`Grammar` or `generate`. On the current dataset, brightness and colorfulness are almost entirely
+explained by it (`cvR2` ~0.65 with the space alone, ~0 with the weights alone). Grammar optimisation
+(CEM) therefore runs with a fixed space, and a preset pairs a grammar with a suggested space.
 
 Still to do:
 
@@ -72,10 +77,10 @@ random grammar + seed ──▶ expression ──▶ shader ──▶ image
     - read it from the regression (fast, interpretable, coefficients ≈ log-weights), or
     - direct search: `score(grammar) = mean target score over ~64 seeds`, optimized with CEM or
       CMA-ES (slower, more faithful).
-6. **Emit.** Round to integer weights in `[0, MAX_WEIGHT]`, derive depth/nodes/space, run through
-   `createGrammar` (keep at least one terminal and one non-terminal, handle
-   `InfeasibleGrammarError`), and print a `preset(...)` block to paste into `GRAMMAR_PRESETS`.
-   The last step stays human and reviewable, since presets are versioned code.
+6. **Emit.** Round to integer weights in `[0, MAX_WEIGHT]`, derive depth/nodes, pick a suggested
+   space separately, run the grammar through `createGrammar` (keep at least one terminal and one
+   non-terminal, handle `InfeasibleGrammarError`), and print a `preset(...)` block to paste into
+   `GRAMMAR_PRESETS`. The last step stays human and reviewable, since presets are versioned code.
 
 A neural network is used as a **critic/feature extractor**, not trained from scratch. Reusing a
 pre-trained model is the right size for this problem.

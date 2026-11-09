@@ -3,7 +3,7 @@
 Procedural formula generator and GLSL compiler, consumed by `randomart-ui`.
 
 ```
-(grammar, seed) ──▶ Expression ──▶ GLSL ──▶ GPU
+(grammar, seed) ──▶ Expression ──▶ GLSL (space) ──▶ GPU
                           └─────▶ evaluate (CPU reference)
 ```
 
@@ -16,11 +16,11 @@ Procedural formula generator and GLSL compiler, consumed by `randomart-ui`.
 | `seed.ts`     | `Seed` brand (a trimmed string), validation and parsing                                        |
 | `errors.ts`   | `RandomArtError` and its recoverable subclasses (`InfeasibleGrammarError`, `GrammarDrawError`) |
 | `rng.ts`      | Deterministic mulberry32 stream keyed by a `Seed`                                              |
-| `grammar.ts`  | Operand weights, depth/node bounds, presets and grammar drawing                                |
+| `grammar.ts`  | Operand weights, depth/node bounds, grammar drawing; presets pair a grammar with a space       |
 | `generate.ts` | `(grammar, seed) → Expression`                                                                 |
 | `evaluate.ts` | `(Expression, point) → raw RGB` reference interpreter                                          |
 | `lower.ts`    | Expression → DAG: sharing, usage counts, warp coordinate contexts                              |
-| `emit.ts`     | DAG → fragment shader (`compile`)                                                              |
+| `emit.ts`     | `(Expression, space) → fragment shader` (`compile`)                                            |
 | `colors.ts`   | Color spaces as GLSL sources + CPU reference `toSrgb`                                          |
 | `glsl.ts`     | Shader header, shared GLSL helpers, float literals                                             |
 
@@ -32,6 +32,10 @@ Dependencies only flow downwards: `glsl`/`colors` → `ops` → `tree` → `gram
 - **Determinism.** The same `(grammar, seed)` always yields the same expression. Generation only
   consumes the injected `Rng`; the core never reads ambient state. `GENERATOR_VERSION` must be
   bumped whenever a generation change would alter an existing `(grammar, seed)` pair.
+- **Color space is a compile parameter.** `space` belongs to `compile`, not to `Grammar` and not
+  to `generate`: it is a palette applied after generation. The same `(grammar, seed)` yields the
+  same expression whatever the space; only the emitted GLSL changes. Presets may suggest a space,
+  but generation never reads it.
 - **Seed identity.** A `Seed` is a trimmed, non-empty string of at most `MAX_SEED_LENGTH`
   characters. Numbers are not a separate representation: `42` is the seed `'42'`. Ambient
   randomness is the UI's job (`randomSeed()`); the core only accepts a `Seed`.
