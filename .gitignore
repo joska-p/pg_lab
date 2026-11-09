@@ -1,5 +1,6 @@
 /_TMP/
 /reports/
+.pnpm-store
 
 # Logs
 logs

@@ -1,6 +1,6 @@
 # Taste-driven grammar presets
 
-Status: idea / design note. Nothing is implemented yet.
+Status: partially implemented. See [Status](#status).
 
 ## Problem
 
@@ -16,6 +16,27 @@ Let the user say **which visual qualities they want** ("sharp and contrasted", "
 
 Important: this only shifts probabilities. A grammar never guarantees a look. It biases the draw.
 Generation stays deterministic for a given `(grammar, seed)`.
+
+## Status
+
+Implemented so far, entirely in TypeScript (no Python/uv):
+
+- `featuresOf(expression, space)` and the operator/DAG/modulation descriptors live in
+  `tools/randomart-taste/src/features.ts`, **not** in `randomart-core`.
+- The batch is Playwright + TypeScript: `tools/randomart-taste/src/run.ts` samples grammars,
+  renders images and writes the measured statistics to `data/samples.json`.
+- The ridge regression is TypeScript: `tools/randomart-taste/src/learn.ts` regresses each visual
+  statistic on the flattened expression features. The `learn` script (`src/learnCli.ts`) writes
+  `data/coefficients.json`.
+- Pixel statistics (`src/imageStats.ts`) and the preset visual trend check
+  (`src/preset-visual.test.ts`) are also in the tool.
+
+Still to do:
+
+- Inversion: turn wanted visual features back into operator weights.
+- Direct search (CEM or CMA-ES) to refine a candidate grammar.
+- Emit a reviewable `preset(...)` block for `GRAMMAR_PRESETS`.
+- Learned taste from session likes; only declared taste is covered by the current pieces.
 
 ## Core idea
 
@@ -36,7 +57,8 @@ random grammar + seed ──▶ expression ──▶ shader ──▶ image
 
 1. **Sample.** Draw N grammars (`drawGrammar`) and several seeds each. N in the order of
    thousands.
-2. **Describe the expression.** A pure `featuresOf(expression, grammar)` in `randomart-core`:
+2. **Describe the expression.** A pure `featuresOf(expression, space)` in
+   `tools/randomart-taste` (it is not part of `randomart-core`):
    operator counts (on the lowered DAG, so the shared trunk is not triple counted), realized
    depth, node count, warp count, realized share depth, `isMono`, `animated`, color space,
    parameter stats (`amp`, `cycles`).
@@ -91,12 +113,13 @@ Design notes to keep the door open:
 
 ## Where things live
 
-| Piece                                   | Location                                          |
-| --------------------------------------- | ------------------------------------------------- |
-| `featuresOf`, fit/invert, preset output | `randomart-core` (pure TS)                        |
-| Session export, optional live tags      | `randomart-ui`                                    |
-| Batch: sample, render, image statistics | Playwright script driving a page (TypeScript)     |
-| Batch: regression, search, preset block | Python script run with `uv` (inline dependencies) |
+| Piece                                   | Location                                                  |
+| --------------------------------------- | --------------------------------------------------------- |
+| `featuresOf` and fit (`learn.ts`)       | `tools/randomart-taste` (pure TypeScript)                 |
+| Inversion, preset output                | not implemented yet                                       |
+| Session export, optional live tags      | `randomart-ui` (planned)                                  |
+| Batch: sample, render, image statistics | `tools/randomart-taste/src/run.ts` (TypeScript)           |
+| Batch: regression, search, preset block | `learn.ts` regression; search and preset block still TODO |
 
 ## Decisions
 
@@ -114,18 +137,17 @@ Numbers computed on the rendered pixels. Deterministic, no model download, and c
 | animated  | difference between phases       | how much it moves                |
 
 CLIP tags (semantic words such as "psychedelic", "calm") are deferred: more expressive, but heavy,
-biased in opaque ways and harder to verify. If added, they live on the Python side over exported
-PNGs and change nothing else in the pipeline.
+biased in opaque ways and harder to verify. If added, they would run over exported PNGs and change
+nothing else in the pipeline.
 
-### Batch environment: Playwright + uv
+### Batch environment: Playwright (TypeScript)
 
 - **Playwright** launches Chromium, loads a page that draws grammars, compiles shaders with
   `randomart-core`, renders with the existing renderer at 128 px, computes the statistics in JS and
   returns a JSON. Nothing is duplicated. Headless Chromium renders in software, which is enough
   at this size.
-- **uv** runs a Python script (numpy, scikit-learn, optionally `cma`) with dependencies declared in
-  the file header. It reads the JSON, fits the regression, optionally runs the direct search, and
-  prints the `preset(...)` block.
+- The regression lives in `src/learn.ts` and runs in TypeScript with Node. A Python/uv variant
+  (numpy, scikit-learn, optionally `cma`) was considered, but it is not implemented.
 
 ### Vocabulary: the six axes above
 
@@ -136,10 +158,10 @@ and very colorful). Adjust the axes accordingly.
 
 ## Suggested order
 
-1. `featuresOf` with tests.
-2. Playwright batch: sampling, rendering, measured statistics, JSON output.
-3. Python script with uv: regression and a first declared-taste preset. Review the feature
-   distributions and adjust the axes.
+1. `featuresOf` with tests. Done, in `tools/randomart-taste`.
+2. Playwright batch: sampling, rendering, measured statistics, JSON output. Done, in TypeScript.
+3. TypeScript regression in `learn.ts` and a first declared-taste preset. The regression is done;
+   review the feature distributions and adjust the axes before adding the preset.
 4. Direct search (CEM) if the regression is disappointing.
 5. Session export with seen/liked, then learned taste. CLIP tags if the six axes feel too crude.
 

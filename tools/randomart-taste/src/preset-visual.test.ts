@@ -13,7 +13,9 @@ import { createRenderer } from './render';
 
 const PRESETS = ['vivid', 'motion', 'muted'] as const;
 type PresetId = (typeof PRESETS)[number];
-const SEEDS_PER_PRESET = 6;
+// Six samples per preset are too noisy: the sample average of the motion trend can flip.
+// Twenty-four seeds make the population-level trend visible without making the test slow.
+const SEEDS_PER_PRESET = 24;
 const SIZE = 96;
 
 interface RenderResult {
@@ -72,13 +74,13 @@ describe('preset visual claim', () => {
             await renderer.close();
         }
 
-        // Vérifie que chaque preset a produit au moins un rendu
+        // Check that each preset produced at least one render
         for (const presetId of PRESETS) {
             const count = results.filter((r) => r.preset === presetId).length;
             expect(count).toBe(SEEDS_PER_PRESET);
         }
 
-        // Moyennes par preset
+        // Averages per preset
         const byPreset = new Map<string, RenderResult[]>();
         for (const r of results) {
             const list = byPreset.get(r.preset) ?? [];
@@ -100,13 +102,13 @@ describe('preset visual claim', () => {
             );
         }
 
-        // Claims à vérifier (tendance, pas strict sur 6 échantillons)
+        // Broad trend assertions, not exact targets: the preset names claim a direction.
         const vivid = byPreset.get('vivid');
         const motion = byPreset.get('motion');
         const muted = byPreset.get('muted');
 
         if (!vivid || !motion || !muted) {
-            throw new Error('Tous les presets doivent être présents');
+            throw new Error('All presets must be present');
         }
 
         const avgColor = (list: RenderResult[]) =>
@@ -125,5 +127,8 @@ describe('preset visual claim', () => {
         console.log(
             `Claim check: vivid.contrast=${avgContrast(vivid).toFixed(3)} vs muted.contrast=${avgContrast(muted).toFixed(3)}`,
         );
-    });
+
+        expect(avgColor(vivid)).toBeGreaterThan(avgColor(muted));
+        expect(avgMotion(motion)).toBeGreaterThan(avgMotion(muted));
+    }, 120_000);
 });

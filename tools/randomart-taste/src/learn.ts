@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-/** Résout un chemin relatif par rapport au fichier source (et non au CWD). */
+/** Resolve a relative path against the source file (not the current working directory). */
 function toAbsolute(input: string): string {
     return input.startsWith('.') ? resolve(__dirname, input) : input;
 }
@@ -12,8 +12,8 @@ function toAbsolute(input: string): string {
 export interface LearnOptions {
     input: string;
     output?: string;
-    lambda?: number; // régularisation ridge
-    topN?: number; // combien de coefficients afficher par feature visuelle
+    lambda?: number; // ridge regularization strength
+    topN?: number; // how many coefficients to print per visual feature
 }
 
 interface SampleRow {
@@ -28,22 +28,22 @@ interface SampleRow {
     };
 }
 
-/** Données brutes du fichier samples.json. */
+/** Raw data read from samples.json. */
 interface RawDataset {
     readonly meta: unknown;
     readonly rows: SampleRow[];
 }
 
-/** Résultat de régression pour une feature visuelle. */
+/** Regression result for one visual feature. */
 export interface FeatureResult {
     readonly target: string;
     readonly intercept: number;
-    /** Coef[featureName] = coefficient de régression (standardisé) */
+    /** Coef[featureName] = regression coefficient in the raw feature scale (not standardized). */
     readonly coef: Record<string, number>;
     readonly r2: number;
 }
 
-/** Garde-fou de type pour valider la structure du dataset JSON. */
+/** Type guard validating the dataset JSON structure. */
 function isRawDataset(value: unknown): value is RawDataset {
     if (value === null || typeof value !== 'object') {
         return false;
@@ -56,16 +56,16 @@ function isRawDataset(value: unknown): value is RawDataset {
     return Array.isArray(rowsEntry[1]);
 }
 
-/** Charge le dataset JSON avec un garde-fou de type. */
+/** Load the dataset JSON behind a type guard. */
 function loadDataset(input: string): SampleRow[] {
     const raw: unknown = JSON.parse(readFileSync(input, 'utf8'));
     if (!isRawDataset(raw)) {
-        throw new Error(`Dataset invalide: ${input}`);
+        throw new Error(`Invalid dataset: ${input}`);
     }
     return raw.rows;
 }
 
-/** Moyenne d'un tableau. */
+/** Arithmetic mean of an array. */
 function mean(xs: readonly number[]): number {
     let s = 0;
     for (const x of xs) {
@@ -75,17 +75,16 @@ function mean(xs: readonly number[]): number {
 }
 
 /**
- * Régression ridge avec intercepte non régularisée.
+ * Ridge regression with an unregularized intercept.
  *
- * X est centré-réduit (colonne par colonne) et y est centré avant résolution des équations normales
- * : cela conditionne bien mieux le système et l'intercepte est reconstruit analytiquement
- * (intercept = mean(y) − X̄·coef). Les coefficients sont retournés à l'échelle brute des données
- * d'origine.
+ * X is standardized (column by column) and y is centered before solving the normal equations: this
+ * conditions the system much better and the intercept is reconstructed analytically (intercept =
+ * mean(y) − X̄·coef). Coefficients are returned in the original raw data scale.
  *
- * Avec un intercept libre, R² sur l'apprentissage est garanti ≥ 0 : le point coef = 0 (prédiction =
- * mean(y)) atteint SSE = SST, donc l'optimum ridge fait au moins aussi bien.
+ * With a free intercept, training R² is guaranteed to be ≥ 0: the point coef = 0 (prediction =
+ * mean(y)) reaches SSE = SST, so the ridge optimum does at least as well.
  */
-function ridgeRegression(
+export function ridgeRegression(
     X: readonly number[][], // n × p
     y: readonly number[], // n
     lambda: number,
@@ -93,20 +92,14 @@ function ridgeRegression(
     const p = X.at(0)?.length ?? 0;
     const n = X.length;
 
-    // Moyennes colonnes de X et moyenne de y
+    // Column means of X and mean of y
     const meanX: number[] = Array.from({ length: p }, () => 0);
-    let rowIdx = 0;
     for (const row of X) {
-        if (!row) {
-            rowIdx++;
-            continue;
-        }
         let colIdx = 0;
         while (colIdx < p) {
             meanX[colIdx] = (meanX[colIdx] ?? 0) + (row.at(colIdx) ?? 0);
             colIdx++;
         }
-        rowIdx++;
     }
     let k = 0;
     while (k < p) {
@@ -114,7 +107,7 @@ function ridgeRegression(
         k++;
     }
 
-    // Écarts-types colonnes de X (1 si nulle pour éviter la division par zéro)
+    // Column standard deviations of X (1 when zero, to avoid division by zero)
     const stdX: number[] = Array.from({ length: p }, () => 1);
     k = 0;
     while (k < p) {
@@ -135,14 +128,12 @@ function ridgeRegression(
 
     const meanY = mean(y);
 
-    // X centré-réduit, y centré
+    // Centered X, centered y
     const Xc: number[][] = Array.from({ length: n }, () => Array(p).fill(0));
     const yc: number[] = Array(n).fill(0);
-    rowIdx = 0;
-    for (const row of X) {
+    for (const [rowIdx, row] of X.entries()) {
         const rowXc = Xc.at(rowIdx);
         if (!row || !rowXc) {
-            rowIdx++;
             continue;
         }
         yc[rowIdx] = (y.at(rowIdx) ?? 0) - meanY;
@@ -151,16 +142,15 @@ function ridgeRegression(
             rowXc[k] = ((row.at(k) ?? 0) - (meanX[k] ?? 0)) / (stdX[k] ?? 1);
             k++;
         }
-        rowIdx++;
     }
 
-    // Coordinate descent sur le système centré : minimise ||yc − Xc·θ||² + λ||θ||².
-    // Robuste au conditionnement (contrairement aux équations normales résolues
-    // par Gauss-Jordan, instables ici à cause de la collinéarité des features).
-    // Comme Xc est standardisé, ||Xc_j||² = n pour chaque colonne j.
+    // Coordinate descent on the centered system: minimize ||yc − Xc·θ||² + λ||θ||².
+    // Robust to conditioning (unlike normal equations solved with Gauss-Jordan,
+    // which are unstable here because features are collinear).
+    // Since Xc is standardized, ||Xc_j||² = n for every column j.
     const theta: number[] = Array.from({ length: p }, () => 0);
-    const fit: number[] = Array.from({ length: n }, () => 0); // Xc · theta, incrémental
-    // Transposée de Xc pour accéder aux colonnes sans réallocation dans la boucle chaude
+    const fit: number[] = Array.from({ length: n }, () => 0); // Xc · theta, updated incrementally
+    // Transpose of Xc, so hot loops can access columns without reallocating
     const XcT: number[][] = Array.from({ length: p }, () => Array.from({ length: n }, () => 0));
     let i4 = 0;
     while (i4 < n) {
@@ -208,8 +198,8 @@ function ridgeRegression(
         }
     }
 
-    // Filet de sécurité : si la descente n'a pas assez convergé pour battre le
-    // modèle constant (SSE > SST), on retourne θ = 0 ⇒ R² = 0 (jamais négatif).
+    // Safety net: if the descent did not converge enough to beat the
+    // constant model (SSE > SST), return θ = 0 ⇒ R² = 0 (never negative).
     let sse = 0;
     let sst = 0;
     let i3 = 0;
@@ -227,7 +217,7 @@ function ridgeRegression(
         }
     }
 
-    // Retour à l'échelle brute : coef_raw[j] = theta[j] / stdX[j]
+    // Back to the raw scale: coef_raw[j] = theta[j] / stdX[j]
     const coef: number[] = [];
     k = 0;
     while (k < p) {
@@ -244,7 +234,7 @@ function ridgeRegression(
     return { coef, intercept };
 }
 
-/** Coefficient de détermination R². */
+/** Coefficient of determination R². */
 function r2Score(y: readonly number[], yPred: readonly number[]): number {
     const m = mean(y);
     let ssRes = 0;
@@ -264,7 +254,7 @@ function r2Score(y: readonly number[], yPred: readonly number[]): number {
     return ssTot === 0 ? 0 : 1 - ssRes / ssTot;
 }
 
-/** Point d'entrée principal. */
+/** Main entry point. */
 export function learn(options: LearnOptions): FeatureResult[] {
     const lambda = options.lambda ?? 0.01;
     const topN = options.topN ?? 10;
@@ -284,8 +274,8 @@ export function learn(options: LearnOptions): FeatureResult[] {
         'motion',
     ] as const;
 
-    // Construire la matrice X (n × p) et les vecteurs y (utilise des Map pour éviter
-    // l'indexation non vérifiée de Record avec noUncheckedIndexedAccess)
+    // Build the X matrix (n × p) and the y vectors (Maps avoid unchecked Record
+    // indexing under noUncheckedIndexedAccess)
     const n = rows.length;
     const p = featureNames.length;
     const X: number[][] = Array.from({ length: n }, () => Array(p).fill(0));
@@ -329,9 +319,8 @@ export function learn(options: LearnOptions): FeatureResult[] {
         }
         const { coef, intercept } = ridgeRegression(X, y, lambda);
 
-        // Prédictions et R² sur données brutes
+        // Predictions and R² on the raw data
         const yPred: number[] = [];
-        let i2 = 0;
         for (const rowX of X) {
             let s = intercept;
             let j2 = 0;
@@ -350,7 +339,6 @@ export function learn(options: LearnOptions): FeatureResult[] {
                 j2++;
             }
             yPred.push(s);
-            i2++;
         }
         const score = r2Score(y, yPred);
 
@@ -369,7 +357,7 @@ export function learn(options: LearnOptions): FeatureResult[] {
         results.push({ target, intercept, coef: coefRecord, r2: score });
     }
 
-    // Sauvegarde optionnelle
+    // Optional save
     if (options.output) {
         writeFileSync(
             toAbsolute(options.output),
@@ -380,7 +368,7 @@ export function learn(options: LearnOptions): FeatureResult[] {
     return results;
 }
 
-/** Affichage lisible dans la console. */
+/** Human-readable console output. */
 export function printResults(results: FeatureResult[], topN: number): void {
     for (const res of results) {
         console.log(
@@ -392,12 +380,12 @@ export function printResults(results: FeatureResult[], topN: number): void {
             .sort((a, b) => b.abs - a.abs)
             .slice(0, topN);
 
-        console.log('  + les plus positifs :');
+        console.log('  + most positive:');
         for (const { name, coef } of entries.filter((e) => e.coef > 0)) {
             console.log(`      ${name.padEnd(24)} ${coef.toFixed(4)}`);
         }
 
-        console.log('  - les plus négatifs :');
+        console.log('  - most negative:');
         for (const { name, coef } of entries.filter((e) => e.coef < 0).reverse()) {
             console.log(`      ${name.padEnd(24)} ${coef.toFixed(4)}`);
         }
