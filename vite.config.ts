@@ -314,7 +314,6 @@ const reactPackages = [
 const nodePackages = [
     'packages/palette/src/core/**',
     'packages/randomart-core/**',
-    'tools/randomart-taste/**',
     'tools/new-mini-app/**',
 ];
 

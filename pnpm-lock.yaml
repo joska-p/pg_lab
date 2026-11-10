@@ -170,9 +170,6 @@ catalogs:
     '@react-three/fiber':
       specifier: ^9.8.2
       version: 9.8.2
-    '@repo/randomart-core':
-      specifier: workspace:*
-      version: workspace:*
     '@stylexjs/stylex':
       specifier: ^0.19.1
       version: 0.19.1
@@ -221,9 +218,6 @@ catalogs:
     oxc-transform-react:
       specifier: ^0.152.0
       version: 0.152.0
-    playwright-core:
-      specifier: ^1.65.0
-      version: 1.65.0
     react:
       specifier: ^19.3.1
       version: 19.3.1
@@ -1117,22 +1111,6 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
-
-  tools/randomart-taste:
-    dependencies:
-      '@repo/randomart-core':
-        specifier: 'catalog:'
-        version: link:../../packages/randomart-core
-      playwright-core:
-        specifier: 'catalog:'
-        version: 1.65.0
-    devDependencies:
-      typescript:
-        specifier: 'catalog:'
-        version: 7.0.2
-      vite-plus:
-        specifier: 'catalog:'
-        version: 1.4.0(@types/node@24.19.2)(@vitest/ui@5.0.5)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1)
 
 packages:
 
@@ -3775,11 +3753,6 @@ packages:
   picomatch@4.0.7:
     resolution: {integrity: sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==}
     engines: {node: '>=12'}
-
-  playwright-core@1.65.0:
-    resolution: {integrity: sha512-vNSKgH6YqtN7cdT/L334zo0a+YwkrpicyrHJlWWPIm/Q+Nn2SWInil01oT0mbu96U4GgoRtCYQD9CzJQgju+lA==}
-    engines: {node: '>=20'}
-    hasBin: true
 
   pluralize@8.0.0:
     resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}
@@ -6754,8 +6727,6 @@ snapshots:
   picocolors@1.1.1: {}
 
   picomatch@4.0.7: {}
-
-  playwright-core@1.65.0: {}
 
   pluralize@8.0.0: {}
 
