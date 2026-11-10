@@ -380,6 +380,14 @@ export default defineConfig({
                     'import/no-default-export': 'off',
                 },
             },
+
+            {
+                // Tests need assertion.
+                files: ['**/*.test.ts'],
+                rules: {
+                    'typescript/no-unsafe-type-assertion': 'off',
+                },
+            },
         ],
     },
     run: {
