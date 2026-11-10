@@ -200,7 +200,6 @@ export function ExperimentShell({ children, panel, style, ...props }: Experiment
                         onPointerMove={handlePointerMove}
                         onPointerUp={handlePointerEnd}
                         onPointerCancel={handlePointerEnd}
-                        onClick={() => setCollapsed((prev) => !prev)}
                     >
                         ≶
                     </Button>
