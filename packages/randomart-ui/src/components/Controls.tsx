@@ -1,33 +1,37 @@
-import { Segmented } from '@repo/ui/components/Segmented';
 import { Stack } from '@repo/ui/components/Stack';
-import { Activity } from 'react';
 
-import { setMode, useMode } from '../stores/modeStore';
-import type { AppMode } from '../stores/modeStore';
 import { AppErrorBoundary } from './AppErrorBoundary';
+import { ColorSection } from './controls/ColorSection';
+import { GrammarSelect } from './controls/GrammarSelect';
+import { Inspector } from './controls/Inspector';
+import { OperatorWeights } from './controls/OperatorWeights';
+import { PlaybackSection } from './controls/PlaybackSection';
+import { PrimaryActions } from './controls/PrimaryActions';
+import { SeedSection } from './controls/SeedSection';
+import { ShaderSource } from './controls/ShaderSource';
+import { StructureSection } from './controls/StructureSection';
 import { ErrorReadout } from './ErrorReadout';
-import { LabPanel } from './lab/LabPanel';
-import { ToyPanel } from './toy/ToyPanel';
 
-const MODE_OPTIONS = [
-    { value: 'toy', label: 'Toy' },
-    { value: 'lab', label: 'Lab' },
-] as const satisfies readonly { value: AppMode; label: string }[];
-
+/**
+ * Single control panel, ordered from the coarse, everyday actions down to the fine controls. Each
+ * element lives in its own component so the layout can be rearranged by moving lines here.
+ */
 export function Controls() {
-    const mode = useMode();
-
     return (
         <AppErrorBoundary>
             <Stack gap="6">
-                <Segmented<AppMode> value={mode} options={MODE_OPTIONS} onValueChange={setMode} />
+                {/* Toy-level: the actions and presets a visitor reaches for first. */}
+                <PrimaryActions />
+                <GrammarSelect />
+                <ColorSection />
 
-                <Activity mode={mode === 'toy' ? 'visible' : 'hidden'}>
-                    <ToyPanel />
-                </Activity>
-                <Activity mode={mode === 'lab' ? 'visible' : 'hidden'}>
-                    <LabPanel />
-                </Activity>
+                {/* Fine controls: everything needed to hand-tune the artwork. */}
+                <SeedSection />
+                <OperatorWeights />
+                <StructureSection />
+                <PlaybackSection />
+                <Inspector />
+                <ShaderSource />
 
                 <ErrorReadout />
             </Stack>

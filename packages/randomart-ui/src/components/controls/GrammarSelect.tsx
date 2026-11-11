@@ -6,25 +6,30 @@ import { Grid } from '@repo/ui/components/Grid';
 import { Select } from '@repo/ui/components/Select';
 
 import { applyPreset, randomizeGrammar, useGrammar } from '../../stores/artworkStore';
-import { setMode } from '../../stores/modeStore';
 
 const CUSTOM_PRESET = {
     id: 'custom',
     label: 'Custom',
-    description: 'Edit the grammar by hand in the lab.',
+    description: 'Edit the grammar by hand in the fine controls below.',
 } as const satisfies Partial<GrammarPreset>;
 
 type PresetOptionValue = GrammarPresetId | typeof CUSTOM_PRESET.id;
 
-const PRESET_OPTIONS: readonly { value: PresetOptionValue; label: string }[] = [
-    ...GRAMMAR_PRESETS.map(({ id, label }) => ({ value: id, label })),
-    { value: CUSTOM_PRESET.id, label: CUSTOM_PRESET.label },
-];
+const PRESET_OPTIONS: readonly { value: PresetOptionValue; label: string }[] = GRAMMAR_PRESETS.map(
+    ({ id, label }) => ({ value: id, label }),
+);
+
+const CUSTOM_OPTION = { value: CUSTOM_PRESET.id, label: CUSTOM_PRESET.label } as const;
 
 export function GrammarSelect() {
     const grammar = useGrammar();
     const presetId = presetOf(grammar);
     const preset = presetId ? getGrammarPreset(presetId) : CUSTOM_PRESET;
+
+    // "Custom" is a status, not a choice: only offer it while the grammar is actually custom.
+    // Presets stay listed so the user can always jump back to one.
+    const options: readonly { value: PresetOptionValue; label: string }[] =
+        presetId === undefined ? [...PRESET_OPTIONS, CUSTOM_OPTION] : PRESET_OPTIONS;
 
     return (
         <ControlField label="Grammar">
@@ -33,12 +38,9 @@ export function GrammarSelect() {
                     aria-label="grammar preset"
                     title={preset.description}
                     value={presetId ?? CUSTOM_PRESET.id}
-                    options={PRESET_OPTIONS}
+                    options={options}
                     onValueChange={(id) => {
                         if (id === CUSTOM_PRESET.id) {
-                            // The custom editor lives in the lab panel; selecting Custom means
-                            // "stop using a preset and edit the grammar", not a grammar change.
-                            setMode('lab');
                             return;
                         }
 

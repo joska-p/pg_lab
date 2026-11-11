@@ -1,9 +1,7 @@
 /_TMP/
 /reports/
 .pnpm-store
-
-# RandomArt taste data (generated at build/run time)
-tools/randomart-taste/data/
+.Trash-1000
 
 # Logs
 logs

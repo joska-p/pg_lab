@@ -16,7 +16,7 @@ Interactive playground for the **randomart** procedural art generator. Consumes 
     ┌─────┴─────┐
     ▼           ▼
 Scene       Controls
-(RandomArtCanvas)  (GrammarSection, Inspector, ShaderSource, …)
+(RandomArtCanvas)  (PrimaryActions, GrammarSelect, SeedSection, …)
 ```
 
 ### Stores
@@ -26,22 +26,29 @@ Scene       Controls
 | `artworkStore`  | Single source of truth: `Artwork { grammar, seed, space, expression, shader }`. Mutations go through `editGrammar`, `newSeed`, `setSpace`, `randomizeGrammar`, `applyPreset` (batched via RAF). |
 | `surfaceStore`  | Holds the live `ClockStore` for playback controls and duration sync.                                                                                                                            |
 | `playbackStore` | Animation loop duration.                                                                                                                                                                        |
-| `modeStore`     | UI mode: `'toy' \| 'lab'`.                                                                                                                                                                      |
 | `errorStore`    | Action errors of the latest action (`actionErrors`), replaced by the next failing action and cleared by the next successful one.                                                                |
 
 ### Components
+
+`Controls` is a single panel ordered from the coarse, everyday actions (toy level) down to the fine
+controls. Each element is its own component, so the layout is rearranged by moving lines in
+`Controls.tsx`.
 
 ```
 App
 ├── Scene (RandomArtCanvas)
 └── Controls
-    ├── ToyPanel (play/pause, reset, new seed, export PNG, GrammarSelect)
-    ├── LabPanel
-    │   ├── ColorSection (color space)
-    │   ├── GrammarSection (weights, structure, seed)
-    │   ├── Inspector (formatted formulas)
-    │   ├── ShaderSource (popover with compiled GLSL)
-    │   └── PlaybackSection (loop (s))
+    ├── PrimaryActions            # toy level
+    │   ├── PlaybackControls (play/pause, reset)
+    │   └── ArtworkActions (new seed, export PNG)
+    ├── GrammarSelect (preset + random)
+    ├── ColorSection (color space)
+    ├── SeedSection (seed input)  # fine controls
+    ├── OperatorWeights (weights, grouped by family)
+    ├── StructureSection (depth, nodes, share)
+    ├── PlaybackSection (loop (s))
+    ├── Inspector (formatted formulas)
+    ├── ShaderSource (popover with compiled GLSL)
     └── ErrorReadout
 ```
 

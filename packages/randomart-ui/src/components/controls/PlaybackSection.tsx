@@ -5,6 +5,7 @@ import { MAX_LOOP_DURATION, MIN_LOOP_DURATION } from '../../constants';
 import { clampDuration } from '../../playback/duration';
 import { setDuration, useDuration } from '../../stores/playbackStore';
 
+/** Fine control: animation loop duration. */
 export function PlaybackSection() {
     const duration = useDuration();
 

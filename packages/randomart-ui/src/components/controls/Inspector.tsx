@@ -18,6 +18,7 @@ const styles = stylex.create({
     },
 });
 
+/** Fine control: read-only view of the generated expression. */
 export function Inspector() {
     const expression = useExpression();
     const space = useSpace();

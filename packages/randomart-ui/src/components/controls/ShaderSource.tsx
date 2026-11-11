@@ -32,6 +32,7 @@ const styles = stylex.create({
     },
 });
 
+/** Fine control: inspect and copy the compiled GLSL fragment shader. */
 export function ShaderSource() {
     const compiledShader = useCompiledShader();
     const [open, setOpen] = useState(false);
