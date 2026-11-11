@@ -70,6 +70,39 @@ describe('toSrgb', () => {
         expect(oklch[2]).toBeCloseTo(oklab[2], 6);
     });
 
+    it('oklch: out-of-gamut lightness collapses to white/black instead of a hue-shifted color', () => {
+        // L=1 admits only white, so any chroma must desaturate to it. Clipping each channel
+        // independently would instead yield a saturated magenta.
+        const white = toSrgb('oklch', [1, -1, -1]);
+        expect(white[0]).toBeCloseTo(1, 6);
+        expect(white[1]).toBeCloseTo(1, 6);
+        expect(white[2]).toBeCloseTo(1, 6);
+
+        // L=0 admits only black.
+        const black = toSrgb('oklch', [-1, -1, -1]);
+        expect(black[0]).toBeCloseTo(0, 6);
+        expect(black[1]).toBeCloseTo(0, 6);
+        expect(black[2]).toBeCloseTo(0, 6);
+    });
+
+    it('oklch: gamut mapping preserves the hue instead of clipping channels', () => {
+        // L=0.6, C=0.4 at hue 1 rad asks for a green/cyan. A per-channel clamp would zero the
+        // green channel and flip the color to red.
+        const [r, g, b] = toSrgb('oklch', [0.2, -1, 1 / Math.PI - 1]);
+        expect(r).toBeCloseTo(0.747, 2);
+        expect(g).toBeCloseTo(0.398, 2);
+        expect(b).toBeCloseTo(0.001, 2);
+    });
+
+    it('oklab: gamut mapping keeps out-of-gamut colors in range', () => {
+        const [r, g, b] = toSrgb('oklab', [0.2, -1, 0]);
+        for (const channel of [r, g, b]) {
+            expect(Number.isFinite(channel)).toBe(true);
+            expect(channel).toBeGreaterThanOrEqual(0);
+            expect(channel).toBeLessThanOrEqual(1);
+        }
+    });
+
     it('range: every space and triplet combination is finite and within [0, 1]', () => {
         for (const id of COLOR_SPACE_IDS) {
             for (const x of TRIPLETS) {

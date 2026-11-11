@@ -41,6 +41,12 @@ Dependencies only flow downwards: `glsl`/`colors` → `ops` → `tree` → `gram
   randomness is the UI's job (`randomSeed()`); the core only accepts a `Seed`.
 - **Raw range.** Every operator returns a value in `[-1, 1]`; color spaces map that triplet to sRGB.
   The CPU evaluator returns the same range.
+- **Continuous roots.** Logic operators (`gt`, `select`) are only drawn below `LOGIC_MIN_DEPTH`
+  (`generate.ts`), so a channel root cannot force a binary `±1` output. Raise the constant to push
+  logic deeper, or set it to `1` to allow it everywhere.
+- **Gamut mapping.** OKLab/OKLCH can describe colors outside sRGB. `ra_oklabToSrgb` keeps lightness
+  and hue and reduces chroma until the color fits, instead of clipping each channel (which would
+  shift the hue). `srgb` and `hsl` are always in gamut by construction.
 - **Named parameters.** Parameters are stored by name, so reordering a definition cannot change the
   meaning of a serialized tree.
 - **Boundary validation.** Untrusted input is checked where it enters: `deserialize` for trees,

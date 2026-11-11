@@ -16,18 +16,43 @@ export interface ColorSpace<TId extends string = string> {
     readonly source: string;
 }
 
-const OKLAB_TO_SRGB = `vec3 ra_oklabToSrgb(vec3 lab) {
+const GAMUT_MAPPING_STEPS = 12;
+
+const OKLAB_TO_SRGB = `vec3 ra_oklabToLinear(vec3 lab) {
     float l_ = lab.x + 0.3963377774 * lab.y + 0.2158037573 * lab.z;
     float m_ = lab.x - 0.1055613458 * lab.y - 0.0638541728 * lab.z;
     float s_ = lab.x - 0.0894841775 * lab.y - 1.2914855480 * lab.z;
     float l = l_ * l_ * l_;
     float m = m_ * m_ * m_;
     float s = s_ * s_ * s_;
-    vec3 linear = vec3(
+    return vec3(
         +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
         -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
         -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
     );
+}
+
+bool ra_inGamut(vec3 linear) {
+    return all(greaterThanEqual(linear, vec3(0.0))) && all(lessThanEqual(linear, vec3(1.0)));
+}
+
+vec3 ra_oklabToSrgb(vec3 lab) {
+    vec3 linear = ra_oklabToLinear(lab);
+    if (!ra_inGamut(linear)) {
+        // Out of sRGB: keep lightness and hue, reduce chroma until the color fits. Clipping each
+        // channel independently would instead shift the hue.
+        float scaleLo = 0.0;
+        float scaleHi = 1.0;
+        for (int i = 0; i < ${GAMUT_MAPPING_STEPS}; i++) {
+            float mid = 0.5 * (scaleLo + scaleHi);
+            if (ra_inGamut(ra_oklabToLinear(vec3(lab.x, lab.y * mid, lab.z * mid)))) {
+                scaleLo = mid;
+            } else {
+                scaleHi = mid;
+            }
+        }
+        linear = ra_oklabToLinear(vec3(lab.x, lab.y * scaleLo, lab.z * scaleLo));
+    }
     vec3 lo = linear * 12.92;
     vec3 hi = 1.055 * pow(max(linear, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055;
     return clamp(mix(hi, lo, lessThanEqual(linear, vec3(0.0031308))), 0.0, 1.0);
@@ -123,7 +148,7 @@ function encodeSrgb(linear: number): number {
     return linear <= 0.0031308 ? linear * 12.92 : 1.055 * Math.max(linear, 0) ** (1 / 2.4) - 0.055;
 }
 
-function oklabToSrgb(L: number, a: number, b: number): [number, number, number] {
+function oklabToLinear(L: number, a: number, b: number): [number, number, number] {
     const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
     const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
     const s_ = L - 0.0894841775 * a - 1.291485548 * b;
@@ -131,9 +156,36 @@ function oklabToSrgb(L: number, a: number, b: number): [number, number, number] 
     const m = m_ * m_ * m_;
     const s = s_ * s_ * s_;
     return [
-        clamp(encodeSrgb(+4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s)),
-        clamp(encodeSrgb(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s)),
-        clamp(encodeSrgb(-0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s)),
+        +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+        -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+        -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
+    ];
+}
+
+function inGamut([r, g, b]: readonly [number, number, number]): boolean {
+    return r >= 0 && r <= 1 && g >= 0 && g <= 1 && b >= 0 && b <= 1;
+}
+
+function oklabToSrgb(L: number, a: number, b: number): [number, number, number] {
+    let linear = oklabToLinear(L, a, b);
+    if (!inGamut(linear)) {
+        // Mirror the GLSL gamut mapping: keep L and hue, scale chroma down until in gamut.
+        let scaleLo = 0;
+        let scaleHi = 1;
+        for (let i = 0; i < GAMUT_MAPPING_STEPS; i++) {
+            const mid = 0.5 * (scaleLo + scaleHi);
+            if (inGamut(oklabToLinear(L, a * mid, b * mid))) {
+                scaleLo = mid;
+            } else {
+                scaleHi = mid;
+            }
+        }
+        linear = oklabToLinear(L, a * scaleLo, b * scaleLo);
+    }
+    return [
+        clamp(encodeSrgb(linear[0])),
+        clamp(encodeSrgb(linear[1])),
+        clamp(encodeSrgb(linear[2])),
     ];
 }
 

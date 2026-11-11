@@ -13,10 +13,18 @@ import type { Expression, Node } from './tree';
  * Bumped whenever a change to generation would make an existing `(grammar, seed)` produce a
  * different expression. Persisted seeds must be replayed with the version they were created with.
  */
-export const GENERATOR_VERSION = 1;
+export const GENERATOR_VERSION = 2;
 
 const PARAM_DECIMALS = 3;
 const PARAM_SCALE = 10 ** PARAM_DECIMALS;
+
+/**
+ * Minimum depth at which logic operators (`gt`, `select`) may be chosen. Depth 1 is the channel
+ * root, and a logic root forces a binary channel (`gt` only ever returns ±1), which collapses the
+ * whole image to a handful of flat colors. Raise this to push logic deeper, or set it to 1 to allow
+ * it everywhere.
+ */
+const LOGIC_MIN_DEPTH = 2;
 
 interface SizedNode {
     readonly node: Node;
@@ -92,7 +100,17 @@ function drawOperator(state: GenState, depth: number, budget: number): OpName {
     if (candidates.length === 0) {
         throw new RandomArtError(`No operator available at depth ${depth} within budget ${budget}`);
     }
-    return state.rng.weighted(candidates, (name) => weightOf(state.grammar, name));
+
+    // Keep channel roots continuous: a logic operator at the root (`gt`) forces a binary channel.
+    // Above `LOGIC_MIN_DEPTH` we simply drop logic; the fallback keeps degenerate grammars
+    // feasible rather than throwing.
+    const allowed =
+        depth < LOGIC_MIN_DEPTH
+            ? candidates.filter((name) => getOp(name).family !== 'logic')
+            : candidates;
+    const pool = allowed.length > 0 ? allowed : candidates;
+
+    return state.rng.weighted(pool, (name) => weightOf(state.grammar, name));
 }
 
 function buildChildren<T extends { readonly size: number }>(
