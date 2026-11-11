@@ -8,14 +8,14 @@ exports[`generate > pins the generated formulas for fixed seeds 1`] = `
     "r": "max(y(amp=0.5, phase=0.9, cycles=1), x(amp=0.9, phase=0.2, cycles=4))",
   },
   "seed1234": {
-    "b": "warp(y(amp=0.5, phase=0.3, cycles=2), x(amp=0.4, phase=0.4, cycles=4), max(y(amp=0.4, phase=0.3, cycles=1), y(amp=0.1, phase=0.7, cycles=1)))",
-    "g": "warp(y(amp=0.5, phase=0.3, cycles=2), x(amp=0.4, phase=0.4, cycles=4), max(mix(y(amp=0.1, phase=1, cycles=4), sin(y(amp=0.4, phase=1, cycles=2)), gt(x(amp=0.5, phase=0.8, cycles=3), y(amp=0.2, phase=0.7, cycles=4))), mix(sin(x(amp=0.3, phase=0.6, cycles=2)), y(amp=0.9, phase=0.7, cycles=1), y(amp=0.9, phase=0.6, cycles=2))))",
-    "r": "warp(y(amp=0.5, phase=0.3, cycles=2), x(amp=0.4, phase=0.4, cycles=4), max(sqr(add(y(amp=0.1, phase=0.1, cycles=3), x(amp=0.4, phase=0.5, cycles=2))), warp(min(x(amp=0.8, phase=0.7, cycles=4), y(amp=1, phase=1, cycles=3)), y(amp=0, phase=0, cycles=1), x(amp=0.3, phase=0.3, cycles=1))))",
+    "b": "warp(y(amp=0.5, phase=0.3, cycles=2), warp(max(y(amp=0.1, phase=1, cycles=4), x(amp=0.6, phase=0.4, cycles=4)), y(amp=0.4, phase=0.3, cycles=1), x(amp=0.3, phase=0.3, cycles=1)), min(add(x(amp=0.2, phase=1, cycles=4), y(amp=0.4, phase=0.8, cycles=4)), abs(y(amp=0.6, phase=0.9, cycles=1))))",
+    "g": "warp(y(amp=0.5, phase=0.3, cycles=2), warp(add(const(value=0.109), x(amp=0.4, phase=0.5, cycles=2)), x(amp=0.2, phase=0.7, cycles=4), x(amp=0, phase=0, cycles=1)), min(x(amp=0.6, phase=0.4, cycles=4), x(amp=0.6, phase=0.2, cycles=4)))",
+    "r": "warp(y(amp=0.5, phase=0.3, cycles=2), warp(min(x(amp=1, phase=0.3, cycles=3), const(value=0.605)), cos(cos(x(amp=0.5, phase=0.8, cycles=3))), sin(max(x(amp=0.8, phase=0.7, cycles=4), y(amp=1, phase=1, cycles=3)))), min(neg(mul(x(amp=0.6, phase=0.4, cycles=4), y(amp=0.7, phase=0, cycles=4))), x(amp=0.9, phase=0.5, cycles=3)))",
   },
   "seed42": {
-    "b": "cos(max(x(amp=0.2, phase=0.5, cycles=4), x(amp=0.3, phase=0.8, cycles=1)))",
-    "g": "cos(max(abs(cos(x(amp=0.5, phase=0, cycles=2))), mix(y(amp=0.9, phase=0.7, cycles=1), sqr(y(amp=0.8, phase=0.2, cycles=1)), abs(y(amp=0.4, phase=0.8, cycles=3)))))",
-    "r": "cos(max(div(sqr(y(amp=0.2, phase=0.2, cycles=2)), max(y(amp=0.2, phase=0.9, cycles=2), y(amp=0.5, phase=0.5, cycles=4))), min(x(amp=0.9, phase=1, cycles=4), x(amp=0.2, phase=0.7, cycles=4))))",
+    "b": "add(gt(gt(y(amp=0.2, phase=0.9, cycles=2), y(amp=0.5, phase=0.5, cycles=4)), y(amp=0.9, phase=0.7, cycles=1)), select(y(amp=0.3, phase=0.8, cycles=1), y(amp=0.8, phase=0.9, cycles=2), mix(x(amp=0, phase=0.4, cycles=2), sin(x(amp=0.7, phase=0.8, cycles=2)), const(value=0.875))))",
+    "g": "add(gt(y(amp=0.2, phase=0.2, cycles=2), min(x(amp=0.9, phase=1, cycles=4), sqr(x(amp=0.7, phase=0.9, cycles=2)))), select(abs(y(amp=0.6, phase=0.3, cycles=1)), y(amp=0.6, phase=1, cycles=2), min(y(amp=0.4, phase=1, cycles=3), abs(y(amp=1, phase=0.1, cycles=4)))))",
+    "r": "add(gt(const(value=0.241), abs(add(x(amp=0.5, phase=0, cycles=2), y(amp=0.2, phase=0.5, cycles=4)))), select(warp(y(amp=0.2, phase=0.1, cycles=1), y(amp=0.4, phase=0.8, cycles=3), x(amp=0.3, phase=0.8, cycles=1)), add(abs(x(amp=0.2, phase=0.9, cycles=3)), sin(x(amp=0.2, phase=0.7, cycles=4))), gt(abs(y(amp=0.7, phase=0.9, cycles=1)), cos(y(amp=0.4, phase=0.4, cycles=1)))))",
   },
 }
 `;

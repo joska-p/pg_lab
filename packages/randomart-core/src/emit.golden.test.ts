@@ -18,7 +18,7 @@ describe('emit golden', () => {
 
     for (const space of COLOR_SPACE_IDS) {
         it(`space ${space}`, () => {
-            const compiled = compile(generate(getGrammarPreset('brightness').grammar, seedOf(7)), {
+            const compiled = compile(generate(getGrammarPreset('default').grammar, seedOf(7)), {
                 space,
             });
             expect(compiled.source).toMatchSnapshot();

@@ -1,148 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`emit golden > preset brightness 1`] = `
-"#version 300 es
-precision highp float;
-
-in vec2 vUv;
-out vec4 o_color;
-
-uniform float u_phase;
-
-const float PI = 3.141592653589793;
-
-float ra_sqr(float value) {
-    return value * value;
-}
-
-vec3 ra_srgb(vec3 raw) {
-    return clamp(raw * 0.5 + 0.5, 0.0, 1.0);
-}
-
-void main() {
-    vec2 v_p = vUv * 2.0 - 1.0;
-
-    float v0 = mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.7), 0.9);
-
-    o_color = vec4(ra_srgb(vec3((abs((max((abs((mix(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.2), 0.2),(max(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.9), 0.2),mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.5), 0.5))),((abs(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.5), 0.3)))+1.0)*0.5)))),(max((ra_sqr((abs(mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.4), 0.9))))),(ra_sqr(v0)))))))), (mix((ra_sqr((max(v0,(mix(mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.2), 0.8),(abs(mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.8), 0.4))),((ra_sqr(mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.0), 0.8)))+1.0)*0.5)))))),mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.3), 0.6),((ra_sqr((max((ra_sqr((abs(mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.5), 0.1))))),mix(v_p.x, sin(2.0*PI*3.0*u_phase+PI*0.4), 0.5)))))+1.0)*0.5)), (((ra_sqr((ra_sqr(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*1.0), 0.6)))))+mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.9), 0.8))*0.5))), 1.0);
-}"
-`;
-
-exports[`emit golden > preset busyness 1`] = `
-"#version 300 es
-precision highp float;
-
-in vec2 vUv;
-out vec4 o_color;
-
-uniform float u_phase;
-
-const float PI = 3.141592653589793;
-
-vec3 ra_hsl(vec3 raw) {
-    float h = raw.x * 0.5 + 0.5;
-    float s = abs(raw.y);
-    float l = clamp(raw.z * 0.5 + 0.5, 0.0, 1.0);
-    vec3 rgb = clamp(abs(mod(h * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
-    return l + s * (rgb - 0.5) * (1.0 - abs(2.0 * l - 1.0));
-}
-
-void main() {
-    vec2 v_p = vUv * 2.0 - 1.0;
-
-    o_color = vec4(ra_hsl(vec3((cos(PI*(((((sin(PI*mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.2), 0.2)))>((mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.9), 0.2)>mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.5), 0.5) ? 1.0 : -1.0)) ? 1.0 : -1.0))>(((cos(PI*mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.0), 0.5)))+mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.5), 0.2))*0.5) ? 1.0 : -1.0)))), (cos(PI*((mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*1.0), 0.9)>mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.7), 0.2) ? 1.0 : -1.0)))), (cos(PI*((mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.7), 0.9)>0.0 ? (sin(PI*mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.2), 0.8))) : (cos(PI*mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.8), 0.4))))))))), 1.0);
-}"
-`;
-
-exports[`emit golden > preset colorfulness 1`] = `
-"#version 300 es
-precision highp float;
-
-in vec2 vUv;
-out vec4 o_color;
-
-uniform float u_phase;
-
-const float PI = 3.141592653589793;
-
-vec3 ra_oklabToLinear(vec3 lab) {
-    float l_ = lab.x + 0.3963377774 * lab.y + 0.2158037573 * lab.z;
-    float m_ = lab.x - 0.1055613458 * lab.y - 0.0638541728 * lab.z;
-    float s_ = lab.x - 0.0894841775 * lab.y - 1.2914855480 * lab.z;
-    float l = l_ * l_ * l_;
-    float m = m_ * m_ * m_;
-    float s = s_ * s_ * s_;
-    return vec3(
-        +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
-        -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-        -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
-    );
-}
-
-bool ra_inGamut(vec3 linear) {
-    return all(greaterThanEqual(linear, vec3(0.0))) && all(lessThanEqual(linear, vec3(1.0)));
-}
-
-vec3 ra_oklabToSrgb(vec3 lab) {
-    vec3 linear = ra_oklabToLinear(lab);
-    if (!ra_inGamut(linear)) {
-        // Out of sRGB: keep lightness and hue, reduce chroma until the color fits. Clipping each
-        // channel independently would instead shift the hue.
-        float scaleLo = 0.0;
-        float scaleHi = 1.0;
-        for (int i = 0; i < 12; i++) {
-            float mid = 0.5 * (scaleLo + scaleHi);
-            if (ra_inGamut(ra_oklabToLinear(vec3(lab.x, lab.y * mid, lab.z * mid)))) {
-                scaleLo = mid;
-            } else {
-                scaleHi = mid;
-            }
-        }
-        linear = ra_oklabToLinear(vec3(lab.x, lab.y * scaleLo, lab.z * scaleLo));
-    }
-    vec3 lo = linear * 12.92;
-    vec3 hi = 1.055 * pow(max(linear, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055;
-    return clamp(mix(hi, lo, lessThanEqual(linear, vec3(0.0031308))), 0.0, 1.0);
-}
-
-vec3 ra_oklab(vec3 raw) {
-    float L = clamp(raw.x * 0.5 + 0.5, 0.0, 1.0);
-    return ra_oklabToSrgb(vec3(L, raw.y * 0.4, raw.z * 0.4));
-}
-
-void main() {
-    vec2 v_p = vUv * 2.0 - 1.0;
-
-    o_color = vec4(ra_oklab(vec3((cos(PI*(cos(PI*(cos(PI*(max(mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.2), 0.2),(cos(PI*mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.9), 0.2))))))))))), (sin(PI*((((v_p.x>(((cos(PI*mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.2), 0.7)))>(sin(PI*mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.9), 0.9))) ? 1.0 : -1.0)) ? 1.0 : -1.0))>mix(v_p.x, sin(2.0*PI*3.0*u_phase+PI*0.2), 0.7) ? 1.0 : -1.0)))), (sin(PI*((mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.7), 0.9)>(max((-((sin(PI*mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.0), 0.1))))),(((-(mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.3), 0.8)))>(cos(PI*mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.6), 1.0))) ? 1.0 : -1.0)))) ? 1.0 : -1.0)))))), 1.0);
-}"
-`;
-
-exports[`emit golden > preset contrast 1`] = `
-"#version 300 es
-precision highp float;
-
-in vec2 vUv;
-out vec4 o_color;
-
-uniform float u_phase;
-
-const float PI = 3.141592653589793;
-
-vec3 ra_hsl(vec3 raw) {
-    float h = raw.x * 0.5 + 0.5;
-    float s = abs(raw.y);
-    float l = clamp(raw.z * 0.5 + 0.5, 0.0, 1.0);
-    vec3 rgb = clamp(abs(mod(h * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
-    return l + s * (rgb - 0.5) * (1.0 - abs(2.0 * l - 1.0));
-}
-
-void main() {
-    vec2 v_p = vUv * 2.0 - 1.0;
-
-    o_color = vec4(ra_hsl(vec3((cos(PI*((((mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.2), 1.0)>(((sin(PI*mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.9), 0.2)))>0.0 ? mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.5), 0.5) : (cos(PI*mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.5), 0.3))))) ? 1.0 : -1.0))>0.0 ? (sin(PI*mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.5), 0.2))) : (sin(PI*mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*1.0), 0.9))))))), (sin(PI*(mix(mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.4), 0.9),mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.2), 0.7),(mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.2), 0.8)+1.0)*0.5)))), (cos(PI*mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.8), 0.4))))), 1.0);
-}"
-`;
-
 exports[`emit golden > preset default 1`] = `
 "#version 300 es
 precision highp float;
@@ -153,6 +10,10 @@ out vec4 o_color;
 uniform float u_phase;
 
 const float PI = 3.141592653589793;
+
+vec2 ra_fold2(vec2 v) {
+    return abs(mod(v + 3.0, 4.0) - 2.0) - 1.0;
+}
 
 float ra_sqr(float value) {
     return value * value;
@@ -208,11 +69,13 @@ vec3 ra_oklch(vec3 raw) {
 void main() {
     vec2 v_p = vUv * 2.0 - 1.0;
 
-    o_color = vec4(ra_oklch(vec3((cos(PI*(max((((ra_sqr(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.2), 0.2)))/(1.0+abs((max(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.9), 0.2),mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.5), 0.5))))))),(min(mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*1.0), 0.9),mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.7), 0.2))))))), (cos(PI*(max((abs((cos(PI*mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.0), 0.5))))),(mix(mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.7), 0.9),(ra_sqr(mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.2), 0.8))),((abs(mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.8), 0.4)))+1.0)*0.5)))))), (cos(PI*(max(mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.5), 0.2),mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.8), 0.3))))))), 1.0);
+    vec2 c1 = ra_fold2(v_p+0.5*vec2(mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.1), 0.2),mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.8), 0.4)));
+
+    o_color = vec4(ra_oklch(vec3(((((0.241>(abs(((mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.0), 0.5)+mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.5), 0.2))*0.5))) ? 1.0 : -1.0))+((mix(c1.x, sin(2.0*PI*1.0*u_phase+PI*0.8), 0.3)>0.0 ? (((abs(mix(v_p.x, sin(2.0*PI*3.0*u_phase+PI*0.9), 0.2)))+(sin(PI*mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.7), 0.2))))*0.5) : (((abs(mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.9), 0.7)))>(cos(PI*mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.4), 0.4))) ? 1.0 : -1.0)))))*0.5), ((((mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.2), 0.2)>(min(mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*1.0), 0.9),(ra_sqr(mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.9), 0.7))))) ? 1.0 : -1.0))+(((abs(mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.3), 0.6)))>0.0 ? mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*1.0), 0.6) : (min(mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*1.0), 0.4),(abs(mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.1), 1.0))))))))*0.5), ((((((mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.9), 0.2)>mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.5), 0.5) ? 1.0 : -1.0))>mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.7), 0.9) ? 1.0 : -1.0))+((mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.8), 0.3)>0.0 ? mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.9), 0.8) : (mix(v_p.x,(sin(PI*mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.8), 0.7))),(0.875+1.0)*0.5)))))*0.5))), 1.0);
 }"
 `;
 
-exports[`emit golden > preset motion 1`] = `
+exports[`emit golden > preset graphic 1`] = `
 "#version 300 es
 precision highp float;
 
@@ -223,28 +86,46 @@ uniform float u_phase;
 
 const float PI = 3.141592653589793;
 
-vec2 ra_fold2(vec2 v) {
-    return abs(mod(v + 3.0, 4.0) - 2.0) - 1.0;
+float ra_sqr(float value) {
+    return value * value;
 }
 
-vec3 ra_hsl(vec3 raw) {
-    float h = raw.x * 0.5 + 0.5;
-    float s = abs(raw.y);
-    float l = clamp(raw.z * 0.5 + 0.5, 0.0, 1.0);
-    vec3 rgb = clamp(abs(mod(h * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
-    return l + s * (rgb - 0.5) * (1.0 - abs(2.0 * l - 1.0));
+vec3 ra_srgb(vec3 raw) {
+    return clamp(raw * 0.5 + 0.5, 0.0, 1.0);
 }
 
 void main() {
     vec2 v_p = vUv * 2.0 - 1.0;
 
-    vec2 c1 = ra_fold2(v_p+0.5*vec2(mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.9), 0.4),mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.7), 0.9)));
-
-    o_color = vec4(ra_hsl(vec3((min((((max(mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.2), 1.0),(mix(mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.2), 1.0),mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.5), 0.9),(v_p.y+1.0)*0.5))))>0.0 ? v_p.x : (max(mix(c1.y, sin(2.0*PI*4.0*u_phase+PI*0.4), 0.9),mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.2), 0.7))))),mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.2), 0.8))), (cos(PI*mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.8), 0.4))), mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.8), 0.3))), 1.0);
+    o_color = vec4(ra_srgb(vec3((abs(((0.241>(abs((abs(mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.0), 0.5))))) ? 1.0 : -1.0)))), (abs(((mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.2), 0.2)>(ra_sqr((-0.073))) ? 1.0 : -1.0)))), (abs(((((mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.9), 0.2)>mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.5), 0.5) ? 1.0 : -1.0))>mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.9), 0.4) ? 1.0 : -1.0)))))), 1.0);
 }"
 `;
 
-exports[`emit golden > preset sharpness 1`] = `
+exports[`emit golden > preset monochrome 1`] = `
+"#version 300 es
+precision highp float;
+
+in vec2 vUv;
+out vec4 o_color;
+
+uniform float u_phase;
+
+const float PI = 3.141592653589793;
+
+vec3 ra_srgb(vec3 raw) {
+    return clamp(raw * 0.5 + 0.5, 0.0, 1.0);
+}
+
+void main() {
+    vec2 v_p = vUv * 2.0 - 1.0;
+
+    float v0 = abs((max((((mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.2), 0.2)*mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.2), 1.0))+((mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.5), 0.5)/(1.0+abs((-0.718))))))*0.5),(max((min((-0.263),mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.5), 0.2))),(max(mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*1.0), 0.9),mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.7), 0.2))))))));
+
+    o_color = vec4(ra_srgb(vec3(v0, v0, v0)), 1.0);
+}"
+`;
+
+exports[`emit golden > preset prism 1`] = `
 "#version 300 es
 precision highp float;
 
@@ -295,15 +176,52 @@ vec3 ra_oklabToSrgb(vec3 lab) {
     return clamp(mix(hi, lo, lessThanEqual(linear, vec3(0.0031308))), 0.0, 1.0);
 }
 
-vec3 ra_oklab(vec3 raw) {
+vec3 ra_oklch(vec3 raw) {
     float L = clamp(raw.x * 0.5 + 0.5, 0.0, 1.0);
-    return ra_oklabToSrgb(vec3(L, raw.y * 0.4, raw.z * 0.4));
+    float C = abs(raw.y) * 0.4;
+    float h = (raw.z * 0.5 + 0.5) * 6.283185307179586;
+    return ra_oklabToSrgb(vec3(L, C * cos(h), C * sin(h)));
 }
 
 void main() {
     vec2 v_p = vUv * 2.0 - 1.0;
 
-    o_color = vec4(ra_oklab(vec3((cos(PI*(cos(PI*(cos(PI*(sin(PI*mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.2), 0.2))))))))), (cos(PI*(cos(PI*mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.9), 0.2))))), (cos(PI*mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.5), 0.5))))), 1.0);
+    o_color = vec4(ra_oklch(vec3((cos(PI*(cos(PI*(cos(PI*(sin(PI*mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.2), 0.2))))))))), (cos(PI*mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.9), 0.2))), (sin(PI*(mix((mix(v_p.y,(sin(PI*(-0.263))),((sin(PI*(-0.073)))+1.0)*0.5)),mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.9), 0.4),(mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.7), 0.9)+1.0)*0.5)))))), 1.0);
+}"
+`;
+
+exports[`emit golden > preset warped 1`] = `
+"#version 300 es
+precision highp float;
+
+in vec2 vUv;
+out vec4 o_color;
+
+uniform float u_phase;
+
+const float PI = 3.141592653589793;
+
+vec2 ra_fold2(vec2 v) {
+    return abs(mod(v + 3.0, 4.0) - 2.0) - 1.0;
+}
+
+vec3 ra_hsl(vec3 raw) {
+    float h = raw.x * 0.5 + 0.5;
+    float s = abs(raw.y);
+    float l = clamp(raw.z * 0.5 + 0.5, 0.0, 1.0);
+    vec3 rgb = clamp(abs(mod(h * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
+    return l + s * (rgb - 0.5) * (1.0 - abs(2.0 * l - 1.0));
+}
+
+void main() {
+    vec2 v_p = vUv * 2.0 - 1.0;
+
+    vec2 c1 = ra_fold2(v_p+0.5*vec2(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.2), 0.2),(cos(PI*mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.9), 0.2)))));
+    vec2 c2 = ra_fold2(v_p+0.5*vec2((cos(PI*(sin(PI*mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.9), 0.4))))),mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.7), 0.9)));
+    vec2 c3 = ra_fold2(c2+0.5*vec2(mix(c2.x, sin(2.0*PI*4.0*u_phase+PI*0.8), 0.6),mix(c2.x, sin(2.0*PI*4.0*u_phase+PI*0.0), 0.1)));
+    vec2 c4 = ra_fold2(c2+0.5*vec2(mix(c2.x, sin(2.0*PI*4.0*u_phase+PI*1.0), 0.4),mix(c3.x, sin(2.0*PI*4.0*u_phase+PI*0.6), 0.8)));
+
+    o_color = vec4(ra_hsl(vec3((cos(PI*(cos(PI*(cos(PI*mix(c1.y, sin(2.0*PI*4.0*u_phase+PI*0.5), 0.5))))))), (cos(PI*(((cos(PI*(cos(PI*(sin(PI*(-0.263)))))))+(c4.y*mix(c4.x, sin(2.0*PI*4.0*u_phase+PI*0.2), 0.3)))*0.5))), (cos(PI*(v_p.x*(sin(PI*(cos(PI*mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.4), 0.5)))))))))), 1.0);
 }"
 `;
 
@@ -333,7 +251,7 @@ vec3 ra_hsl(vec3 raw) {
 void main() {
     vec2 v_p = vUv * 2.0 - 1.0;
 
-    o_color = vec4(ra_hsl(vec3((ra_sqr((max((ra_sqr((((abs(v_p.y))/(1.0+abs((max(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.6), 0.5),v_p.x)))))))),(max((ra_sqr((max(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.7), 0.2),mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.3), 1.0))))),mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.2), 0.5))))))), (sin(PI*(((max((max((abs(mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.6), 0.2))),(abs(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.6), 0.9))))),(ra_sqr((ra_sqr(mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.5), 0.2)))))))+(max((abs((mix(mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.5), 0.1),mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*1.0), 0.9),(mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.7), 0.8)+1.0)*0.5)))),(max((ra_sqr(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*1.0), 0.2))),((mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.9), 0.6)+mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.2), 0.3))*0.5))))))*0.5))), (abs((max(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.9), 0.3),(max((max((max(mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.1), 0.2),mix(v_p.x, sin(2.0*PI*3.0*u_phase+PI*0.2), 0.1))),(max(mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.9), 0.6),mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.4), 0.2))))),(((max(mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.9), 0.1),mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*1.0), 1.0)))+(max(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.0), 0.2),mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.8), 0.3))))*0.5))))))))), 1.0);
+    o_color = vec4(ra_hsl(vec3((ra_sqr((mix(mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.1), 0.2),(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.7), 0.2)*mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.3), 1.0)),(0.262+1.0)*0.5)))), (ra_sqr((mix((abs((cos(PI*(-0.005))))),mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.2), 0.5),((min(((mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.6), 0.9)+mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.3), 0.8))*0.5),((-0.4)*0.224)))+1.0)*0.5)))), (ra_sqr((mix((cos(PI*(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.2), 0.1)*mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.3), 0.8)))),(ra_sqr((cos(PI*mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.3), 0.5))))),(mix(v_p.x, sin(2.0*PI*3.0*u_phase+PI*0.5), 0.1)+1.0)*0.5)))))), 1.0);
 }"
 `;
 
@@ -400,7 +318,7 @@ vec3 ra_oklab(vec3 raw) {
 void main() {
     vec2 v_p = vUv * 2.0 - 1.0;
 
-    o_color = vec4(ra_oklab(vec3((ra_sqr((max((ra_sqr((((abs(v_p.y))/(1.0+abs((max(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.6), 0.5),v_p.x)))))))),(max((ra_sqr((max(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.7), 0.2),mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.3), 1.0))))),mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.2), 0.5))))))), (sin(PI*(((max((max((abs(mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.6), 0.2))),(abs(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.6), 0.9))))),(ra_sqr((ra_sqr(mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.5), 0.2)))))))+(max((abs((mix(mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.5), 0.1),mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*1.0), 0.9),(mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.7), 0.8)+1.0)*0.5)))),(max((ra_sqr(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*1.0), 0.2))),((mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.9), 0.6)+mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.2), 0.3))*0.5))))))*0.5))), (abs((max(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.9), 0.3),(max((max((max(mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.1), 0.2),mix(v_p.x, sin(2.0*PI*3.0*u_phase+PI*0.2), 0.1))),(max(mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.9), 0.6),mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.4), 0.2))))),(((max(mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.9), 0.1),mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*1.0), 1.0)))+(max(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.0), 0.2),mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.8), 0.3))))*0.5))))))))), 1.0);
+    o_color = vec4(ra_oklab(vec3((ra_sqr((mix(mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.1), 0.2),(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.7), 0.2)*mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.3), 1.0)),(0.262+1.0)*0.5)))), (ra_sqr((mix((abs((cos(PI*(-0.005))))),mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.2), 0.5),((min(((mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.6), 0.9)+mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.3), 0.8))*0.5),((-0.4)*0.224)))+1.0)*0.5)))), (ra_sqr((mix((cos(PI*(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.2), 0.1)*mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.3), 0.8)))),(ra_sqr((cos(PI*mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.3), 0.5))))),(mix(v_p.x, sin(2.0*PI*3.0*u_phase+PI*0.5), 0.1)+1.0)*0.5)))))), 1.0);
 }"
 `;
 
@@ -469,7 +387,7 @@ vec3 ra_oklch(vec3 raw) {
 void main() {
     vec2 v_p = vUv * 2.0 - 1.0;
 
-    o_color = vec4(ra_oklch(vec3((ra_sqr((max((ra_sqr((((abs(v_p.y))/(1.0+abs((max(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.6), 0.5),v_p.x)))))))),(max((ra_sqr((max(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.7), 0.2),mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.3), 1.0))))),mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.2), 0.5))))))), (sin(PI*(((max((max((abs(mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.6), 0.2))),(abs(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.6), 0.9))))),(ra_sqr((ra_sqr(mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.5), 0.2)))))))+(max((abs((mix(mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.5), 0.1),mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*1.0), 0.9),(mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.7), 0.8)+1.0)*0.5)))),(max((ra_sqr(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*1.0), 0.2))),((mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.9), 0.6)+mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.2), 0.3))*0.5))))))*0.5))), (abs((max(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.9), 0.3),(max((max((max(mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.1), 0.2),mix(v_p.x, sin(2.0*PI*3.0*u_phase+PI*0.2), 0.1))),(max(mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.9), 0.6),mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.4), 0.2))))),(((max(mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.9), 0.1),mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*1.0), 1.0)))+(max(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.0), 0.2),mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.8), 0.3))))*0.5))))))))), 1.0);
+    o_color = vec4(ra_oklch(vec3((ra_sqr((mix(mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.1), 0.2),(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.7), 0.2)*mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.3), 1.0)),(0.262+1.0)*0.5)))), (ra_sqr((mix((abs((cos(PI*(-0.005))))),mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.2), 0.5),((min(((mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.6), 0.9)+mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.3), 0.8))*0.5),((-0.4)*0.224)))+1.0)*0.5)))), (ra_sqr((mix((cos(PI*(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.2), 0.1)*mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.3), 0.8)))),(ra_sqr((cos(PI*mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.3), 0.5))))),(mix(v_p.x, sin(2.0*PI*3.0*u_phase+PI*0.5), 0.1)+1.0)*0.5)))))), 1.0);
 }"
 `;
 
@@ -495,6 +413,6 @@ vec3 ra_srgb(vec3 raw) {
 void main() {
     vec2 v_p = vUv * 2.0 - 1.0;
 
-    o_color = vec4(ra_srgb(vec3((ra_sqr((max((ra_sqr((((abs(v_p.y))/(1.0+abs((max(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.6), 0.5),v_p.x)))))))),(max((ra_sqr((max(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.7), 0.2),mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.3), 1.0))))),mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.2), 0.5))))))), (sin(PI*(((max((max((abs(mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.6), 0.2))),(abs(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.6), 0.9))))),(ra_sqr((ra_sqr(mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.5), 0.2)))))))+(max((abs((mix(mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.5), 0.1),mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*1.0), 0.9),(mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.7), 0.8)+1.0)*0.5)))),(max((ra_sqr(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*1.0), 0.2))),((mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.9), 0.6)+mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.2), 0.3))*0.5))))))*0.5))), (abs((max(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.9), 0.3),(max((max((max(mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.1), 0.2),mix(v_p.x, sin(2.0*PI*3.0*u_phase+PI*0.2), 0.1))),(max(mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.9), 0.6),mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.4), 0.2))))),(((max(mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.9), 0.1),mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*1.0), 1.0)))+(max(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.0), 0.2),mix(v_p.y, sin(2.0*PI*3.0*u_phase+PI*0.8), 0.3))))*0.5))))))))), 1.0);
+    o_color = vec4(ra_srgb(vec3((ra_sqr((mix(mix(v_p.x, sin(2.0*PI*4.0*u_phase+PI*0.1), 0.2),(mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.7), 0.2)*mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.3), 1.0)),(0.262+1.0)*0.5)))), (ra_sqr((mix((abs((cos(PI*(-0.005))))),mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.2), 0.5),((min(((mix(v_p.y, sin(2.0*PI*2.0*u_phase+PI*0.6), 0.9)+mix(v_p.y, sin(2.0*PI*1.0*u_phase+PI*0.3), 0.8))*0.5),((-0.4)*0.224)))+1.0)*0.5)))), (ra_sqr((mix((cos(PI*(mix(v_p.x, sin(2.0*PI*1.0*u_phase+PI*0.2), 0.1)*mix(v_p.y, sin(2.0*PI*4.0*u_phase+PI*0.3), 0.8)))),(ra_sqr((cos(PI*mix(v_p.x, sin(2.0*PI*2.0*u_phase+PI*0.3), 0.5))))),(mix(v_p.x, sin(2.0*PI*3.0*u_phase+PI*0.5), 0.1)+1.0)*0.5)))))), 1.0);
 }"
 `;
