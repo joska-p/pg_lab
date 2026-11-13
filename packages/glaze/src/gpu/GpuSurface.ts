@@ -31,7 +31,15 @@ import {
 } from './shapes/TextRasterizer';
 import { createStateBuffer } from './StateBuffer';
 import type { StateBuffer } from './StateBuffer';
-import type { GpuSurfaceConfig, TryProgramResult, UniformValues, Viewport } from './types';
+import type {
+    GpuSurfaceConfig,
+    RenderPassOptions,
+    TryProgramResult,
+    UniformValues,
+    Viewport,
+} from './types';
+
+export type { RenderPassOptions } from './types';
 /**
  * WebGL2 surface sharing `CpuSurface`'s chainable, world-space drawing model. Context loss/restore
  * is handled internally.
@@ -211,12 +219,17 @@ export class GpuSurface {
     }
 
     /** Draw to the default framebuffer (existing behavior, now explicit). */
-    renderProgram(program: Program, uniforms?: UniformValues): this {
-        return this.renderProgramTo(program, null, uniforms);
+    renderProgram(program: Program, uniforms?: UniformValues, options?: RenderPassOptions): this {
+        return this.renderProgramTo(program, null, uniforms, options);
     }
 
     /** Draw to an offscreen target; `null` means the default framebuffer. */
-    renderProgramTo(program: Program, target: RenderTarget | null, uniforms?: UniformValues): this {
+    renderProgramTo(
+        program: Program,
+        target: RenderTarget | null,
+        uniforms?: UniformValues,
+        options?: RenderPassOptions,
+    ): this {
         this.#flushBatch();
 
         if (this.#lost) {
@@ -243,7 +256,23 @@ export class GpuSurface {
             target.bindFramebuffer();
         }
 
+        if (options?.clear) {
+            const { r, g, b, a } = parseColor(options.clear);
+            this.#gl.clearColor(r, g, b, a);
+            this.#gl.clear(this.#gl.COLOR_BUFFER_BIT);
+        }
+
+        const disableBlend = options?.blend === 'none';
+
+        if (disableBlend) {
+            this.#gl.disable(this.#gl.BLEND);
+        }
+
         program.render(viewport);
+
+        if (disableBlend) {
+            this.#gl.enable(this.#gl.BLEND);
+        }
 
         if (target) {
             this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, null);
@@ -429,26 +458,60 @@ export class GpuSurface {
         this.#configureState();
         this.#resize();
         this.#textRasterizer?.clear();
-        this.#batch.reinitialize();
 
-        for (const program of this.#programs) {
-            program.reinitialize();
+        try {
+            this.#batch.reinitialize();
+        } catch (error) {
+            console.error('Glaze: failed to reinitialize ShapeBatcher on context restore:', error);
+        }
+
+        for (const program of new Set(this.#programs)) {
+            try {
+                program.reinitialize();
+            } catch (error) {
+                console.error('Glaze: failed to reinitialize Program on context restore:', error);
+            }
         }
 
         for (const target of new Set(this.#targets)) {
-            target.reinitialize();
+            try {
+                target.reinitialize();
+            } catch (error) {
+                console.error(
+                    'Glaze: failed to reinitialize RenderTarget on context restore:',
+                    error,
+                );
+            }
         }
 
         for (const pair of new Set(this.#pairs)) {
-            pair.reinitialize();
+            try {
+                pair.reinitialize();
+            } catch (error) {
+                console.error(
+                    'Glaze: failed to reinitialize RenderTargetPair on context restore:',
+                    error,
+                );
+            }
         }
 
         for (const buffer of new Set(this.#buffers)) {
-            buffer.reinitialize();
+            try {
+                buffer.reinitialize();
+            } catch (error) {
+                console.error(
+                    'Glaze: failed to reinitialize StateBuffer on context restore:',
+                    error,
+                );
+            }
         }
 
         for (const listener of new Set(this.#restoreListeners)) {
-            listener(this);
+            try {
+                listener(this);
+            } catch (error) {
+                console.error('Glaze: onContextRestored listener threw an error:', error);
+            }
         }
     };
 

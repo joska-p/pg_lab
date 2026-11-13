@@ -17,6 +17,7 @@ const TEXTURE_MIN_FILTER = 0x2801;
 const TEXTURE_MAG_FILTER = 0x2800;
 const TEXTURE_WRAP_S = 0x2802;
 const TEXTURE_WRAP_T = 0x2803;
+const MAX_TEXTURE_SIZE = 0x0d33;
 
 function baseMockGl() {
     return {
@@ -35,6 +36,8 @@ function baseMockGl() {
         TEXTURE_MAG_FILTER,
         TEXTURE_WRAP_S,
         TEXTURE_WRAP_T,
+        MAX_TEXTURE_SIZE,
+        getParameter: vi.fn((p: number) => (p === MAX_TEXTURE_SIZE ? 4096 : null)),
         createTexture: vi.fn(() => ({ _tex: true })),
         deleteTexture: vi.fn(),
         bindTexture: vi.fn(),
@@ -193,5 +196,38 @@ describe('RenderTarget', () => {
 
         expect(gl.viewport).toHaveBeenCalledWith(0, 0, 128, 64);
         expect(gl.bindFramebuffer).toHaveBeenCalledWith(FRAMEBUFFER, expect.anything());
+    });
+
+    it('rejects non-positive or non-finite dimensions', () => {
+        const gl = createMockGl();
+
+        expect(
+            () => new RenderTarget(gl as unknown as WebGL2RenderingContext, 0, 100),
+        ).toThrowError(/positive finite numbers/);
+        expect(
+            () => new RenderTarget(gl as unknown as WebGL2RenderingContext, -50, 100),
+        ).toThrowError(/positive finite numbers/);
+        expect(
+            () => new RenderTarget(gl as unknown as WebGL2RenderingContext, Number.NaN, 100),
+        ).toThrowError(/positive finite numbers/);
+    });
+
+    it('rejects dimensions exceeding MAX_TEXTURE_SIZE', () => {
+        const gl = createMockGl();
+
+        expect(
+            () => new RenderTarget(gl as unknown as WebGL2RenderingContext, 8192, 100),
+        ).toThrowError(/exceed MAX_TEXTURE_SIZE/);
+        expect(
+            () => new RenderTarget(gl as unknown as WebGL2RenderingContext, 100, 5000),
+        ).toThrowError(/exceed MAX_TEXTURE_SIZE/);
+    });
+
+    it('rejects invalid dimensions on resize', () => {
+        const gl = createMockGl();
+        const target = new RenderTarget(gl as unknown as WebGL2RenderingContext, 100, 100);
+
+        expect(() => target.resize(0, 100)).toThrowError(/positive finite numbers/);
+        expect(() => target.resize(5000, 100)).toThrowError(/exceed MAX_TEXTURE_SIZE/);
     });
 });

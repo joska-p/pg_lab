@@ -7,7 +7,28 @@ function isWebGLTextureValue(
     gl: WebGL2RenderingContext,
     value: UniformValue,
 ): value is WebGLTexture {
-    return value instanceof WebGLTexture && gl.isTexture(value);
+    if (
+        typeof value !== 'object' ||
+        value === null ||
+        Array.isArray(value) ||
+        ArrayBuffer.isView(value)
+    ) {
+        return false;
+    }
+
+    if (typeof WebGLTexture !== 'undefined' && value instanceof WebGLTexture) {
+        return true;
+    }
+
+    if (Object.prototype.toString.call(value) === '[object WebGLTexture]') {
+        return true;
+    }
+
+    try {
+        return typeof gl.isTexture === 'function' && gl.isTexture(value) === true;
+    } catch {
+        return false;
+    }
 }
 
 function setUniformValue(

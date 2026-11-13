@@ -55,6 +55,7 @@ function createMockGl(options: MockOptions = {}) {
         activeTexture: vi.fn((_unit: number) => {}),
         bindTexture: vi.fn(),
         uniform1i: vi.fn(),
+        uniform1iv: vi.fn(),
         isTexture: vi.fn(() => true),
         TEXTURE_2D,
         TEXTURE0,
@@ -239,5 +240,37 @@ describe('Program texture units', () => {
                 TEXTURE0,
             ]);
         });
+    });
+
+    it('detects textures safely without relying on a global WebGLTexture class', () => {
+        // Ensure WebGLTexture is not on globalThis
+        const target = globalThis as Record<string, unknown>;
+        const prior = target.WebGLTexture;
+        delete target.WebGLTexture;
+
+        try {
+            const gl = createMockGl();
+            const program = createProgram(asGl(gl), 'void main() {}');
+            const location = {};
+
+            program.uniforms.set('u_tex', { location, type: SAMPLER_2D, size: 1 });
+            program.uniforms.set('u_arr', { location, type: SAMPLER_2D, size: 1 });
+
+            // An object with toStringTag 'WebGLTexture'
+            const crossRealmTexture = { [Symbol.toStringTag]: 'WebGLTexture' };
+            // An array should never be treated as a texture
+            const arrayVal = [1, 2];
+
+            program.setUniforms({ u_tex: crossRealmTexture });
+            expect(gl.bindTexture).toHaveBeenCalledWith(TEXTURE_2D, crossRealmTexture);
+
+            gl.bindTexture.mockClear();
+            program.setUniforms({ u_arr: arrayVal });
+            expect(gl.bindTexture).not.toHaveBeenCalled();
+        } finally {
+            if (prior !== undefined) {
+                target.WebGLTexture = prior;
+            }
+        }
     });
 });

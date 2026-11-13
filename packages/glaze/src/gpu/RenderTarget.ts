@@ -123,12 +123,34 @@ export class RenderTarget {
         this.#gl.deleteFramebuffer(this.#fbo);
     }
 
+    static #validateDimensions(gl: WebGL2RenderingContext, width: number, height: number): void {
+        if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+            throw new Error(
+                `Glaze: RenderTarget dimensions must be positive finite numbers, got ${String(width)}x${String(height)}`,
+            );
+        }
+
+        if (typeof gl.getParameter === 'function') {
+            const rawLimit: unknown = gl.getParameter(gl.MAX_TEXTURE_SIZE ?? 0x0d33);
+
+            if (typeof rawLimit === 'number' && rawLimit > 0) {
+                if (width > rawLimit || height > rawLimit) {
+                    throw new Error(
+                        `Glaze: RenderTarget dimensions ${String(width)}x${String(height)} exceed MAX_TEXTURE_SIZE (${String(rawLimit)})`,
+                    );
+                }
+            }
+        }
+    }
+
     static #createTarget(
         gl: WebGL2RenderingContext,
         width: number,
         height: number,
         filter: 'nearest' | 'linear',
     ): [WebGLTexture, WebGLFramebuffer] {
+        RenderTarget.#validateDimensions(gl, width, height);
+
         const texture = gl.createTexture();
 
         if (!texture) {

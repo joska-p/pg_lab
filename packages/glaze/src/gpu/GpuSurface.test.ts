@@ -194,6 +194,57 @@ describe('GpuSurface context restore signal', () => {
 
         expect(listener).not.toHaveBeenCalled();
     });
+
+    it('isolates errors during resource reinitialization', () => {
+        const { canvas, surface } = createSurface();
+        const prog1 = surface.createProgram('void main() {}');
+        const prog2 = surface.createProgram('void main() {}');
+        const target = surface.createRenderTarget(16, 16);
+
+        vi.spyOn(prog1, 'reinitialize').mockImplementation(() => {
+            throw new Error('boom in program 1');
+        });
+        const reinitProg2 = vi.spyOn(prog2, 'reinitialize');
+        const reinitTarget = vi.spyOn(target, 'reinitialize');
+        const listener = vi.fn();
+        surface.onContextRestored(listener);
+
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        canvas.dispatch('webglcontextlost');
+        canvas.dispatch('webglcontextrestored');
+
+        expect(consoleSpy).toHaveBeenCalledWith(
+            expect.stringContaining('Glaze: failed to reinitialize Program'),
+            expect.any(Error),
+        );
+        expect(reinitProg2).toHaveBeenCalledTimes(1);
+        expect(reinitTarget).toHaveBeenCalledTimes(1);
+        expect(listener).toHaveBeenCalledTimes(1);
+    });
+
+    it('isolates errors in restore listeners so subsequent listeners still run', () => {
+        const { canvas, surface } = createSurface();
+        const badListener = vi.fn(() => {
+            throw new Error('listener failure');
+        });
+        const goodListener = vi.fn();
+
+        surface.onContextRestored(badListener);
+        surface.onContextRestored(goodListener);
+
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        canvas.dispatch('webglcontextlost');
+        canvas.dispatch('webglcontextrestored');
+
+        expect(badListener).toHaveBeenCalledTimes(1);
+        expect(goodListener).toHaveBeenCalledTimes(1);
+        expect(consoleSpy).toHaveBeenCalledWith(
+            expect.stringContaining('Glaze: onContextRestored listener threw an error'),
+            expect.any(Error),
+        );
+    });
 });
 
 describe('GpuSurface ownership', () => {
@@ -274,5 +325,32 @@ describe('GpuSurface rendering', () => {
         // Should not bind a custom FBO
         expect(gl.bindFramebuffer).not.toHaveBeenCalled();
         expect(gl.viewport).toHaveBeenCalledWith(0, 0, surface.deviceWidth, surface.deviceHeight);
+    });
+
+    it('renderProgramTo clears with specified color when clear option is provided', () => {
+        const { gl, surface } = createSurface();
+        const program = surface.createProgram('void main() {}');
+        const target = surface.createRenderTarget(50, 40);
+
+        gl.clearColor.mockClear();
+        gl.clear.mockClear();
+
+        surface.renderProgramTo(program, target, undefined, { clear: '#ff0000' });
+
+        expect(gl.clearColor).toHaveBeenCalledWith(1, 0, 0, 1);
+        expect(gl.clear).toHaveBeenCalledWith(gl.COLOR_BUFFER_BIT);
+    });
+
+    it('renderProgramTo disables and restores blend when blend: none', () => {
+        const { gl, surface } = createSurface();
+        const program = surface.createProgram('void main() {}');
+
+        gl.disable.mockClear();
+        gl.enable.mockClear();
+
+        surface.renderProgramTo(program, null, undefined, { blend: 'none' });
+
+        expect(gl.disable).toHaveBeenCalledWith(gl.BLEND);
+        expect(gl.enable).toHaveBeenCalledWith(gl.BLEND);
     });
 });

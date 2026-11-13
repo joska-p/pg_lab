@@ -1,3 +1,4 @@
+import type { CssColor } from '../core/render';
 import type { ClockMixin, SurfaceBaseConfig } from '../core/surfaceTypes';
 import type { GpuSurface } from './GpuSurface';
 import type { Program } from './shader/Program';
@@ -14,6 +15,17 @@ export interface Viewport {
 }
 
 export type UniformValues = Record<string, UniformValue>;
+
+/** Options passed to a single program render pass. */
+export interface RenderPassOptions {
+    /** Clear color before drawing, or null/undefined to preserve existing pixels. */
+    readonly clear?: CssColor | null;
+    /**
+     * Blend mode during the pass. 'alpha' (default) preserves standard alpha blending. 'none'
+     * disables blending, completely replacing destination pixels.
+     */
+    readonly blend?: 'alpha' | 'none';
+}
 
 export interface GpuSurfaceConfig extends SurfaceBaseConfig, ClockMixin {
     canvas: HTMLCanvasElement;

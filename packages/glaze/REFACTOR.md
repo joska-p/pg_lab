@@ -1,6 +1,6 @@
 # @repo/glaze — Refactor: render targets, passes, lifecycle
 
-**Status:** P0 and P1 complete (2026-11-13); P2 not started
+**Status:** P0, P1, and core hardening of P2 complete (P2.1, P2.3, P2.4, P2.5 done; P2.2, P2.6, P2.7 remaining) (2026-11-13)
 **Scope:** `@repo/glaze` only
 **Related:** `packages/randomart-ui/POST-PROCESSING.md`, `PHASE1.md`, `REVISION.md` (paused)
 
@@ -501,22 +501,21 @@ pass to the canvas without touching raw GL or canvas event listeners.
 
 ### P2 — Polish and hardening
 
-- [ ] **P2.1 — Clear and blend policy**
-    - Decide whether `renderProgramTo` accepts `{ clear?: CssColor | null; blend?: 'alpha' | 'none' }`.
-    - Keep default behavior identical to today (alpha blend enabled, no automatic clear).
+- [x] **P2.1 — Clear and blend policy**
+    - `renderProgramTo` and `renderProgram` accept `RenderPassOptions: { clear?: CssColor | null; blend?: 'alpha' | 'none' }`.
+    - Default behavior is identical to before (alpha blend enabled, no automatic clear).
 - [ ] **P2.2 — DPR and resize**
     - Resolve DPR per resize instead of only at construction, or document the fixed-DPR contract.
     - Consider a `ResizeObserver` so idle/static surfaces still update size.
     - Add an explicit screen-target helper if repeated resize code appears in consumers.
-- [ ] **P2.3 — GPU limits**
-    - Validate target size against `MAX_TEXTURE_SIZE` / `MAX_RENDERBUFFER_SIZE`.
+- [x] **P2.3 — GPU limits**
+    - Validate target size against positive finite integers and `gl.MAX_TEXTURE_SIZE`.
     - Surface a clear error before allocating a target that cannot exist.
-- [ ] **P2.4 — Robust texture detection**
-    - Replace `instanceof WebGLTexture` with a realm-safe check, or introduce a small texture
-      wrapper type in `UniformValue`.
-- [ ] **P2.5 — Restore error isolation**
-    - One failing restore listener must not prevent the others from running.
-    - One failing resource `reinitialize()` should be reported with enough context to identify it.
+- [x] **P2.4 — Robust texture detection**
+    - Replaced brittle `instanceof WebGLTexture` with a realm-safe check (`Symbol.toStringTag`, `instanceof` guard, TypedArray/Array guard, and safe fallback).
+- [x] **P2.5 — Restore error isolation**
+    - Each resource `reinitialize()` (ShapeBatcher, Program, RenderTarget, RenderTargetPair, StateBuffer) is isolated with try/catch and detailed logging.
+    - Each `onContextRestored` listener is isolated in try/catch so one failure does not prevent subsequent listeners.
 - [ ] **P2.6 — Consumer cleanup**
     - Remove manual `webglcontextrestored` listeners from `fracture` and `randomart-ui`.
     - Re-seed `automa` through `onContextRestored`.
