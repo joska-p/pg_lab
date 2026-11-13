@@ -44,7 +44,6 @@ function createFakeElement(): FakeElement {
  * utilisée (listeners + capture de pointeur). L'assertion est confinée à cette factory.
  */
 function asElement(element: FakeElement): HTMLElement {
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return element as unknown as HTMLElement;
 }
 
