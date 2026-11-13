@@ -29,7 +29,7 @@ export function useDemandRender(params: object, cameraRig: CameraRig): DemandHan
 
     const handleMount = useCallback((surface: GpuSurface) => {
         forced.current = true;
-        surface.canvas.addEventListener('webglcontextrestored', () => {
+        surface.onContextRestored(() => {
             forced.current = true;
         });
     }, []);

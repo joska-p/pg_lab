@@ -1,6 +1,5 @@
 import type { DurationSeconds } from '@repo/glaze/core/time';
 import type { ShaderError } from '@repo/glaze/gpu/shader/ShaderError';
-import type { GpuSurface } from '@repo/glaze/gpu/types';
 import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
 import type { ClockStore } from '@repo/glaze/react/types';
 import * as stylex from '@stylexjs/stylex';
@@ -61,8 +60,8 @@ const styles = stylex.create({
  *
  * `shouldRender` records the key it approves before the draw happens. The only way a draw is
  * skipped after approval is a lost WebGL context (`GpuSurface.renderProgram` returns early), and
- * the `webglcontextrestored` handler in `handleMount` resets `lastRenderRef` so the next frame
- * redraws. Keep that reset in place if this gate changes.
+ * `onContextRestored` resets `lastRenderRef` so the next frame redraws. Keep that reset in place if
+ * this gate changes.
  */
 export function RandomArtCanvas({
     fragmentShader,
@@ -72,12 +71,6 @@ export function RandomArtCanvas({
     onClockStore,
 }: RandomArtCanvasProps) {
     const lastRenderRef = useRef<RenderKey | null>(null);
-
-    function handleMount(surface: GpuSurface): void {
-        surface.canvas.addEventListener('webglcontextrestored', () => {
-            lastRenderRef.current = null;
-        });
-    }
 
     return (
         <div {...stylex.props(styles.parentContainer)}>
@@ -112,7 +105,9 @@ export function RandomArtCanvas({
                     }}
                     onShaderError={onShaderError}
                     onClockStore={onClockStore}
-                    onMount={handleMount}
+                    onContextRestored={() => {
+                        lastRenderRef.current = null;
+                    }}
                     canvasInteractions={{ pan: false, zoom: false }}
                 />
             </div>

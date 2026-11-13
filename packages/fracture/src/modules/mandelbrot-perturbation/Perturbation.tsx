@@ -191,9 +191,7 @@ function Perturbation() {
     // Glaze reinitializes its programs on context restore, but our raw-GL orbit textures are
     // dead afterwards; recreate and re-upload the last orbits.
     useEffect(() => {
-        const canvas = surface?.canvas;
-
-        if (!canvas) {
+        if (!surface) {
             return;
         }
 
@@ -206,11 +204,7 @@ function Perturbation() {
             }
         };
 
-        canvas.addEventListener('webglcontextrestored', onRestored);
-
-        return () => {
-            canvas.removeEventListener('webglcontextrestored', onRestored);
-        };
+        return surface.onContextRestored(onRestored);
     }, [surface]);
 
     return (

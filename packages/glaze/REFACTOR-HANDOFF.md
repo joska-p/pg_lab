@@ -1,8 +1,8 @@
 # glaze refactor — session handoff
 
-**Plan:** `packages/glaze/REFACTOR.md`
-**State:** P0, P1, and core P2 hardening complete (P2.1, P2.3, P2.4, P2.5 done; P2.2, P2.6, P2.7 remaining) (2026-11-13)
-**Last verified:** `vp -C packages/glaze check` and `vp -C packages/glaze test` pass (105 tests). All consumer packages (`automa`, `randomart-ui`, `fracture`, `art-canvas`) pass `vp check`.
+**Plan:** `packages/glaze/REFACTOR.md`  
+**State:** P0, P1, and P2 complete; P3 (Consumer migration) remaining (2026-11-13)  
+**Last verified:** `vp check` passes across entire monorepo (807 files); `vp -C packages/glaze test` passes (105 tests).
 
 ---
 
@@ -16,38 +16,32 @@ Read `REFACTOR.md` §3–§6 before continuing. This file records what is done a
 
 ---
 
-## 2. What was done in this session (P2 core hardening)
+## 2. What was done in this session (P2 completion)
 
-| Area                           | Change                                                                                                                                                                                                                                                                |
-| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `RenderPassOptions` (P2.1)     | Added `RenderPassOptions { clear?: CssColor \| null; blend?: 'alpha' \| 'none' }` in `src/gpu/types.ts`. Supported in `GpuSurface.renderProgramTo` and `GpuSurface.renderProgram`. Defaults preserve existing behavior (alpha blend enabled, no clear).               |
-| GPU limits check (P2.3)        | Added dimension validation in `RenderTarget.ts` (construction and `resize`): enforces positive finite dimensions and checks against `MAX_TEXTURE_SIZE` via `gl.getParameter`.                                                                                         |
-| Realm-safe textures (P2.4)     | Replaced brittle `instanceof WebGLTexture` in `src/gpu/shader/setUniforms.ts` with a realm-safe check (`Symbol.toStringTag`, `instanceof` guard, TypedArray/Array guard, and safe fallback). Does not crash in environments without a global `WebGLTexture`.          |
-| Restore error isolation (P2.5) | In `GpuSurface.#onContextRestored`, isolated `#batch.reinitialize()`, each `program`, `target`, `pair`, `buffer` reinitialization, and each listener in independent try/catch blocks with diagnostic logging. Snapshotted `this.#programs` iteration.                 |
-| Tests                          | Added unit tests in `RenderTarget.test.ts` (dimensions and `MAX_TEXTURE_SIZE`), `GpuSurface.test.ts` (clear/blend options, restore error isolation for resources and listeners), and `Program.test.ts` (cross-realm texture detection). Total tests: **105 passing**. |
+| Area                       | Change                                                                                                                                                                                                                                                                                                                                                     |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Consumer cleanup (P2.6)    | Removed manual `canvas.addEventListener('webglcontextrestored')` in `fracture` (`Perturbation.tsx` and `demandRender.ts`) in favor of `surface.onContextRestored`. Migrated `randomart-ui` (`RandomArtCanvas.tsx`) to `<GpuCanvas onContextRestored={...}>`. Re-seeded `automa` (`Scene.tsx`) on context restore via `onContextRestored={initSimulation}`. |
+| DPR & resize review (P2.2) | Documented fixed-DPR contract at surface creation and dynamic frame-loop device resolution sizing. Target resize policy remains consumer-owned.                                                                                                                                                                                                            |
+| README alignment (P2.7)    | Updated `packages/glaze/README.md` with `RenderPassOptions` (`clear`, `blend`), context loss error isolation guarantees, resource lifecycle & ownership, and DPR/resize contracts.                                                                                                                                                                         |
 
 ---
 
 ## 3. Current State & Gotchas
 
-- **105/105 tests passing** in `glaze`.
-- **Consumer status:** All 4 consumer packages (`automa`, `randomart-ui`, `fracture`, `art-canvas`) pass formatting, linting, and type-checking without regressions.
-- **Pass options:** `renderProgramTo` and `renderProgram` accept `{ clear?: CssColor | null; blend?: 'alpha' | 'none' }`. `clear` uses `parseColor(color)`. `blend: 'none'` temporarily disables `gl.BLEND` during drawing and restores it.
-- **Restore error isolation:** Errors during context restore are logged to `console.error` and do not prevent remaining resources or listeners from running.
-- **Linter rules:** Keep using `new Set(this.#set)` for snapshot iterations and avoid unsafe assertions from `any` (e.g. `gl.getParameter` returns `any`, inspect with `typeof`).
+- **All tests pass:** 105/105 tests in `glaze`, 37/37 tests in `randomart-ui`.
+- **Full monorepo check passes:** `vp check` clean across all 807 files.
+- **Consumer status:** Consumers no longer register direct DOM WebGL event listeners on `canvas`; they use `surface.onContextRestored(...)` or `<GpuCanvas onContextRestored={...}>`.
+- **GpuCanvas draw guarantee:** `renderedProgramRef` is reset to `null` on restore, ensuring static/paused programs render immediately after context recovery even when `shouldRender` is gated.
 
 ---
 
 ## 4. Next action (for next session)
 
-Complete the remaining items of **P2 (Polish and hardening)** and proceed to **P3**:
+Proceed to **P3 — Consumer migration**:
 
-1. **P2.2 — DPR and resize:** Review dynamic DPR changes (e.g. moving windows between screens) and static surface resize observation (e.g. `ResizeObserver` for paused/idle canvases).
-2. **P2.6 — Consumer cleanup:**
-    - Remove manual `webglcontextrestored` listeners from `packages/fracture` and `packages/randomart-ui` (the internal `GpuCanvas` reset now handles this).
-    - Re-seed `automa` simulation through `onContextRestored` / `surface.onContextRestored`.
-3. **P2.7 — README alignment:** Align `packages/glaze/README.md` with final guarantees (clear/blend pass options, resource lifecycle, and context restore isolation).
-4. **P3 — Consumer migration:** Implement the post-processing pipeline in `randomart-ui` via `createRenderTargetPair` and `renderFrame` as planned in `packages/randomart-ui/POST-PROCESSING.md`.
+1. **`randomart-ui` post-processing pipeline:**
+   Implement offscreen pass chaining using `createRenderTargetPair` and `renderFrame` as specified in `packages/randomart-ui/POST-PROCESSING.md`.
+2. Ensure effect registry, UI controls, export pipeline, and post-process dirty flagging remain in `randomart-ui`.
 
 ---
 
@@ -56,8 +50,7 @@ Complete the remaining items of **P2 (Polish and hardening)** and proceed to **P
 ```bash
 vp -C packages/glaze test
 vp -C packages/glaze check --fix
-vp -C packages/automa check
+vp -C packages/randomart-ui test
 vp -C packages/randomart-ui check
-vp -C packages/fracture check
-vp -C packages/art-canvas check
+vp check
 ```

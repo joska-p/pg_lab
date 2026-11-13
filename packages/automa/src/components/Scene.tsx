@@ -22,6 +22,7 @@ export function Scene() {
             initialCamera={{ minZoom: 1, maxZoom: 64 }}
             fragmentShader={cellMeshShader}
             onMount={initSimulation}
+            onContextRestored={initSimulation}
             onFrame={(surface) => {
                 tickSimulation(surface.deltaTime);
             }}
