@@ -4,6 +4,7 @@ export interface RenderKey {
     readonly height: number;
     readonly dpr: number;
     readonly animated: boolean;
+    readonly postProcess?: string;
 }
 
 export function createPhase(progress: number): number {
@@ -21,7 +22,8 @@ export function needsRender(previous: RenderKey | null, next: RenderKey): boolea
     if (
         previous.width !== next.width ||
         previous.height !== next.height ||
-        previous.dpr !== next.dpr
+        previous.dpr !== next.dpr ||
+        previous.postProcess !== next.postProcess
     ) {
         return true;
     }

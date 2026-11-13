@@ -6,6 +6,7 @@ import { GrammarSelect } from './controls/GrammarSelect';
 import { Inspector } from './controls/Inspector';
 import { OperatorWeights } from './controls/OperatorWeights';
 import { PlaybackSection } from './controls/PlaybackSection';
+import { PostProcessSection } from './controls/PostProcessSection';
 import { PrimaryActions } from './controls/PrimaryActions';
 import { SeedSection } from './controls/SeedSection';
 import { ShaderSource } from './controls/ShaderSource';
@@ -29,6 +30,7 @@ export function Controls() {
                 <SeedSection />
                 <OperatorWeights />
                 <StructureSection />
+                <PostProcessSection />
                 <PlaybackSection />
                 <Inspector />
                 <ShaderSource />

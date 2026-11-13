@@ -50,4 +50,13 @@ describe('needsRender', () => {
             needsRender(base({ animated: false, phase: 0 }), base({ animated: false, phase: 0.5 })),
         ).toBe(false);
     });
+
+    it('renders when postProcess changes even when animated is false', () => {
+        expect(
+            needsRender(
+                base({ animated: false, phase: 0, postProcess: '' }),
+                base({ animated: false, phase: 0, postProcess: 'grain' }),
+            ),
+        ).toBe(true);
+    });
 });
