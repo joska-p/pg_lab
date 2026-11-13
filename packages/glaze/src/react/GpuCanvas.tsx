@@ -55,6 +55,11 @@ export function GpuCanvas({
     onMount,
     /** Appelée quand l'horloge interne est prête. Te donne accès au "store" qui contient le temps. */
     onClockStore,
+    /**
+     * Appelée après une perte puis restauration du contexte WebGL, une fois les ressources GPU
+     * recréées. À utiliser pour réamorcer les données applicatives (simulation, cibles custom).
+     */
+    onContextRestored,
 
     // ── Interactions et apparence ─────────────────────────────
 
@@ -79,6 +84,7 @@ export function GpuCanvas({
     const onShaderErrorRef = useLatest(onShaderError);
     const onMountRef = useLatest(onMount);
     const onClockStoreRef = useLatest(onClockStore);
+    const onContextRestoredRef = useLatest(onContextRestored);
     const gesturesRef = useLatest(createInteractionAdapter(canvasInteractions));
 
     // ─────────────────────────────────────────────────────────────
@@ -148,6 +154,23 @@ export function GpuCanvas({
         onMountRef.current?.(stack.surface);
         onClockStoreRef.current?.(stack.clockStore);
     }, [stack, onMountRef, onClockStoreRef]);
+
+    // ─────────────────────────────────────────────────────────────
+    // 5b. Reprise après perte de contexte WebGL
+    // ─────────────────────────────────────────────────────────────
+    // La surface recrée ses ressources, mais l'image est vide et le programme courant a déjà été
+    // marqué comme dessiné. On efface ce marqueur pour garantir un redessin, même si `shouldRender`
+    // répond "non" ; puis on prévient l'extérieur pour qu'il réamorce ses données applicatives.
+    useEffect(() => {
+        if (!stack) {
+            return;
+        }
+
+        return stack.surface.onContextRestored((surface) => {
+            renderedProgramRef.current = null;
+            onContextRestoredRef.current?.(surface);
+        });
+    }, [stack, onContextRestoredRef]);
 
     // ─────────────────────────────────────────────────────────────
     // 6. La boucle d'animation : appelée à chaque image

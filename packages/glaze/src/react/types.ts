@@ -145,6 +145,12 @@ export interface GpuCanvasProps extends GpuSurfaceOptions {
     onMount?: (surface: GpuSurface) => void;
     /** Called once per `GpuSurface` instance, alongside `onMount`. */
     onClockStore?: (clockStore: ClockStore) => void;
+    /**
+     * Called after `webglcontextlost` → `webglcontextrestored`, once the surface has recreated
+     * every GPU resource it owns. Application data (simulation state, custom targets) must be
+     * re-seeded here: `glaze` recreates resources empty.
+     */
+    onContextRestored?: (surface: GpuSurface) => void;
     canvasInteractions?: CanvasInteractions<GpuSurface>;
     className?: string;
     style?: CSSProperties;

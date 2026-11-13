@@ -40,7 +40,7 @@ interface MaDefinition {
 }
 
 export const REGISTRE = [
-    { id: '…', label: '…', /* … */ },
+    { id: '…', label: '…' /* … */ },
 ] as const satisfies readonly MaDefinition[];
 
 export type MaDefinition = (typeof REGISTRE)[number];
@@ -57,15 +57,21 @@ Fichier à créer : `packages/randomart-ui/src/postProcessing/effects.ts` (ou si
 
 ```ts
 interface PostProcessEffect {
-    readonly id: string;               // ex: 'grain'
-    readonly label: string;            // ex: 'Grain'
-    readonly order: number;            // ordre d'exécution (plus petit = d'abord)
-    readonly fragmentShader: string;   // GLSL de l'effet, lit une texture, écrit o_color
-    readonly defaultActive: boolean;   // état par défaut du toggle
+    readonly id: string; // ex: 'grain'
+    readonly label: string; // ex: 'Grain'
+    readonly order: number; // ordre d'exécution (plus petit = d'abord)
+    readonly fragmentShader: string; // GLSL de l'effet, lit une texture, écrit o_color
+    readonly defaultActive: boolean; // état par défaut du toggle
 }
 
 export const POST_PROCESS_EFFECTS = [
-    { id: 'grain', label: 'Grain', order: 10, fragmentShader: GRAIN_FRAGMENT_SHADER, defaultActive: false },
+    {
+        id: 'grain',
+        label: 'Grain',
+        order: 10,
+        fragmentShader: GRAIN_FRAGMENT_SHADER,
+        defaultActive: false,
+    },
 ] as const satisfies readonly PostProcessEffect[];
 ```
 
@@ -101,9 +107,9 @@ Modifier `RandomArtCanvas` (ou créer un composant wrapper) pour :
 
 1. **Pass 1** : le shader randomart dessine dans une texture intermédiaire (FBO) au lieu du canvas directement
 2. **Pass 2** : pour chaque effet actif, dans l'ordre `order`, faire un cycle ping-pong :
-   - lire la texture produite par l'étape précédente
-   - appliquer le shader de l'effet
-   - écrire dans la texture suivante (ou le canvas final si dernier effet)
+    - lire la texture produite par l'étape précédente
+    - appliquer le shader de l'effet
+    - écrire dans la texture suivante (ou le canvas final si dernier effet)
 3. Gérer le resize et `webglcontextrestored` (comme `StateBuffer.resize()` / `reinitialize()`)
 
 Si un seul effet est actif, on peut écrire directement dans le canvas final (pas besoin de ping-pong à deux textures). Si plusieurs effets sont actifs, il faudra alterner entre deux textures.
@@ -123,6 +129,7 @@ Composants de la lib `@repo/ui` existants, aucun nouveau design.
 ### 5. Shader de grain (à écrire)
 
 Fragment shader GLSL ES 3.00 qui :
+
 - reçoit en input la texture du rendu randomart (uniform sampler2D)
 - ajoute un bruit aléatoire par pixel
 - écrit `o_color`

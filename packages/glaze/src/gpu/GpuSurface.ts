@@ -55,6 +55,7 @@ export class GpuSurface {
         this.#programs.delete(program);
     };
     readonly #buffers = new Set<StateBuffer>();
+    readonly #restoreListeners = new Set<(surface: GpuSurface) => void>();
     readonly #batch: ShapeBatcher;
     #textRasterizer: TextRasterizer | null = null;
     #textProgram: Program | null = null;
@@ -98,6 +99,11 @@ export class GpuSurface {
         return this.#loop.isRunning;
     }
 
+    /** True between `webglcontextlost` and `webglcontextrestored`. */
+    get isLost(): boolean {
+        return this.#lost;
+    }
+
     /** Pointer position in world coordinates (camera-transformed). */
     get pointer(): Point2D {
         return this.camera.screenToWorld(this.input.pointer);
@@ -133,11 +139,26 @@ export class GpuSurface {
 
     /** Creates a StateBuffer owned by this surface: destroyed with it, recreated on context restore. */
     createStateBuffer(width: number, height: number): StateBuffer {
-        const buffer = createStateBuffer(this.#gl, width, height);
+        const buffer = createStateBuffer(this.#gl, width, height, (destroyed) => {
+            this.#buffers.delete(destroyed);
+        });
 
         this.#buffers.add(buffer);
 
         return buffer;
+    }
+
+    /**
+     * Subscribes to context-restore completion. Listeners run after every surface-owned GPU
+     * resource has been reinitialized, so they may safely recreate or destroy resources — and must
+     * re-seed their own application data, which `glaze` cannot restore.
+     */
+    onContextRestored(listener: (surface: GpuSurface) => void): () => void {
+        this.#restoreListeners.add(listener);
+
+        return () => {
+            this.#restoreListeners.delete(listener);
+        };
     }
 
     renderProgram(program: Program): this {
@@ -218,17 +239,19 @@ export class GpuSurface {
         this.canvas.removeEventListener('webglcontextlost', this.#onContextLost);
         this.canvas.removeEventListener('webglcontextrestored', this.#onContextRestored);
 
-        for (const program of this.#programs) {
+        // Snapshots: destroy hooks remove their resource from these sets while we iterate.
+        for (const program of new Set(this.#programs)) {
             program.destroy();
         }
 
         this.#programs.clear();
 
-        for (const buffer of this.#buffers) {
+        for (const buffer of new Set(this.#buffers)) {
             buffer.destroy();
         }
 
         this.#buffers.clear();
+        this.#restoreListeners.clear();
         this.#textProgram = null;
         this.#batch.destroy();
         this.#textRasterizer?.destroy();
@@ -330,8 +353,12 @@ export class GpuSurface {
             program.reinitialize();
         }
 
-        for (const buffer of this.#buffers) {
+        for (const buffer of new Set(this.#buffers)) {
             buffer.reinitialize();
+        }
+
+        for (const listener of new Set(this.#restoreListeners)) {
+            listener(this);
         }
     };
 

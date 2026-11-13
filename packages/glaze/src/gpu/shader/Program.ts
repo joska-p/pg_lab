@@ -43,13 +43,17 @@ export class Program {
         this.#gl.bindVertexArray(this.#vao);
     }
 
+    /**
+     * Uploads a self-contained set of uniforms. Texture units start at `0` on every call, so two
+     * consecutive calls can never drift across units.
+     */
     setUniforms(values: Record<string, UniformValue>): void {
+        this.#nextTextureUnit = 0;
         this.#gl.useProgram(this.#compiled.program);
         setUniforms(this.#gl, this.#compiled.uniforms, values, () => this.#nextTextureUnit++);
     }
 
     render(): void {
-        this.#nextTextureUnit = 0;
         this.#gl.useProgram(this.#compiled.program);
         this.#gl.bindVertexArray(this.#vao);
         this.#gl.viewport(0, 0, this.#gl.drawingBufferWidth, this.#gl.drawingBufferHeight);
@@ -69,6 +73,7 @@ export class Program {
 
         this.#compiled = compileProgram(this.#gl, this.#fragmentSource, this.#vertexSource);
         this.#vao = this.#gl.createVertexArray();
+        this.#nextTextureUnit = 0;
     }
 
     /** Idempotent: releases GPU resources and notifies the owner exactly once. */

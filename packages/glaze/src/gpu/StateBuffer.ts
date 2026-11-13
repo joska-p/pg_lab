@@ -5,6 +5,9 @@ import { createProgram } from './shader/Program';
 import type { Program } from './shader/Program';
 import type { UniformValue } from './shader/types';
 
+/** Called once, when the buffer is destroyed — lets an owner (the surface) stop tracking it. */
+export type StateBufferDestroyHook = (buffer: StateBuffer) => void;
+
 /** Ping-pong render targets; `swap()` exchanges the read and write roles. */
 export class StateBufferTargets {
     readonly #gl: WebGL2RenderingContext;
@@ -231,11 +234,21 @@ export class StateBuffer {
     readonly #gl: WebGL2RenderingContext;
     readonly #targets: StateBufferTargets;
     readonly #programs = new Map<string, Program>();
+    readonly #onDestroy: StateBufferDestroyHook | undefined;
     #activeName: string | null = null;
+    /** Values staged by `setUniforms`; re-applied on every step until overwritten. */
+    #staged: Record<string, UniformValue> = {};
+    #destroyed = false;
 
-    constructor(gl: WebGL2RenderingContext, width: number, height: number) {
+    constructor(
+        gl: WebGL2RenderingContext,
+        width: number,
+        height: number,
+        onDestroy?: StateBufferDestroyHook,
+    ) {
         this.#gl = gl;
         this.#targets = new StateBufferTargets(gl, width, height);
+        this.#onDestroy = onDestroy;
     }
 
     get targets(): StateBufferTargets {
@@ -268,26 +281,27 @@ export class StateBuffer {
         this.#activeName = name;
     }
 
+    /** Stages uniform values for the next and subsequent `step()` calls. */
     setUniforms(values: Record<string, UniformValue>): void {
-        this.#activeProgram().setUniforms(values);
+        this.#staged = { ...this.#staged, ...values };
     }
 
-    step(): void {
+    /**
+     * Renders one pass from `targets.read` into `targets.write`, then swaps. Staged and per-step
+     * values are merged into a single `Program.setUniforms` call, with the read texture bound last
+     * so it always wins over a staged `u_state`.
+     */
+    step(uniforms?: Record<string, UniformValue>): void {
         const program = this.#activeProgram();
 
+        program.setUniforms({
+            ...this.#staged,
+            ...uniforms,
+            u_state: this.#targets.getReadTexture(),
+        });
         program.use();
-        const gl = this.#gl;
-
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this.#targets.getReadTexture());
         this.#targets.bindWrite();
-        const stateEntry = program.uniforms.get('u_state');
-
-        if (stateEntry) {
-            gl.uniform1i(stateEntry.location, 0);
-        }
-
-        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        this.#gl.drawArrays(this.#gl.TRIANGLES, 0, 3);
         this.#targets.unbind();
         this.#targets.swap();
     }
@@ -304,18 +318,35 @@ export class StateBuffer {
         this.#targets.resize(width, height);
     }
 
-    /** Recreates both render targets at the current dimensions — used on `webglcontextrestored`. */
+    /** Recreates render targets and recompiles every program — the `webglcontextrestored` path. */
     reinitialize(): void {
+        if (this.#destroyed) {
+            return;
+        }
+
         this.#targets.reinitialize();
+
+        for (const program of this.#programs.values()) {
+            program.reinitialize();
+        }
     }
 
+    /** Idempotent: releases own resources and notifies the surface exactly once. */
     destroy(): void {
+        if (this.#destroyed) {
+            return;
+        }
+
+        this.#destroyed = true;
+
         for (const program of this.#programs.values()) {
             program.destroy();
         }
 
         this.#programs.clear();
+        this.#staged = {};
         this.#targets.destroy();
+        this.#onDestroy?.(this);
     }
 
     #activeProgram(): Program {
@@ -335,6 +366,7 @@ export function createStateBuffer(
     gl: WebGL2RenderingContext,
     width: number,
     height: number,
+    onDestroy?: StateBufferDestroyHook,
 ): StateBuffer {
-    return new StateBuffer(gl, width, height);
+    return new StateBuffer(gl, width, height, onDestroy);
 }

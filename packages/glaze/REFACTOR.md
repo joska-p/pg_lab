@@ -1,6 +1,6 @@
 # @repo/glaze — Refactor: render targets, passes, lifecycle
 
-**Status:** proposed / not started
+**Status:** P0 complete (2026-11-13); P1 not started
 **Scope:** `@repo/glaze` only
 **Related:** `packages/randomart-ui/POST-PROCESSING.md`, `PHASE1.md`, `REVISION.md` (paused)
 
@@ -426,35 +426,36 @@ destroy resources.
 
 Goal: make the current feature set honest before adding multi-pass primitives.
 
-- [ ] **P0.1 — Texture-unit ownership**
+- [x] **P0.1 — Texture-unit ownership**
     - `Program.setUniforms()` resets `#nextTextureUnit` to `0` at the start of each call.
     - `Program.render()` stops resetting the counter.
     - `Program.reinitialize()` resets it too.
     - Test: two sequential `setUniforms()` calls with textures both start at unit `0`.
-- [ ] **P0.2 — StateBuffer restore**
+- [x] **P0.2 — StateBuffer restore**
     - `StateBuffer.reinitialize()` recreates the pair and calls `reinitialize()` on every program.
     - Test: after `reinitialize()`, every program receives a fresh `WebGLProgram`.
-- [ ] **P0.3 — StateBuffer ownership**
+- [x] **P0.3 — StateBuffer ownership**
     - Add a `StateBufferDestroyHook`, mirroring `ProgramDestroyHook`.
     - `GpuSurface.createStateBuffer()` passes a hook that removes the buffer from `#buffers`.
     - Make `StateBuffer.destroy()` idempotent.
     - Test: early `destroy()` removes the surface entry, and a later `surface.destroy()` does not
       double-destroy or throw.
-- [ ] **P0.4 — Surface restore signal**
+- [x] **P0.4 — Surface restore signal**
     - Add `GpuSurface.isLost` and `GpuSurface.onContextRestored(listener)`.
-    - Notify listeners after programs, targets, pairs and buffers are reinitialized.
+    - Notify listeners after programs and buffers are reinitialized (targets/pairs arrive in P1).
     - Test: `webglcontextrestored` transitions `isLost` and calls each listener once.
-- [ ] **P0.5 — GpuCanvas restore gate**
+- [x] **P0.5 — GpuCanvas restore gate**
     - Reset `renderedProgramRef.current = null` on restore.
     - Add the `onContextRestored` prop, invoked after the internal reset.
-    - Test: a `shouldRender={() => false}` canvas draws once after restore.
-- [ ] **P0.6 — Destroy snapshots**
+    - Test: covered at surface level; a React-level test is deferred (no DOM test environment).
+- [x] **P0.6 — Destroy snapshots**
     - `GpuSurface.destroy()` iterates snapshots of its tracking sets.
     - Verify that destroy hooks that delete from the set cannot skip resources.
-- [ ] **P0.7 — Staged StateBuffer uniforms**
+- [x] **P0.7 — Staged StateBuffer uniforms**
     - `StateBuffer.setUniforms()` stages values.
     - `StateBuffer.step(uniforms?)` merges staged + per-step + input texture and calls
       `Program.setUniforms()` once.
+    - The input sampler is still the hardcoded `u_state` here; configurability lands with P1.5.
     - Test: no texture-unit drift across repeated `setUniforms` + `step` cycles.
 
 **P0 acceptance:** a context-loss/restore cycle leaves shaders usable, `StateBuffer` programs alive,

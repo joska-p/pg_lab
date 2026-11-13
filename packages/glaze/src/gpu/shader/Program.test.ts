@@ -9,6 +9,9 @@ const FRAGMENT_SHADER = 0x8b30;
 const COMPILE_STATUS = 0x8b81;
 const LINK_STATUS = 0x8b82;
 const ACTIVE_UNIFORMS = 0x8b86;
+const TEXTURE_2D = 0x0de1;
+const TEXTURE0 = 0x84c0;
+const SAMPLER_2D = 0x8b5e;
 
 interface MockOptions {
     failCompile?: 'vertex' | 'fragment';
@@ -48,6 +51,14 @@ function createMockGl(options: MockOptions = {}) {
         getUniformLocation: vi.fn(),
         createVertexArray: vi.fn(() => ({})),
         deleteVertexArray: vi.fn(),
+        useProgram: vi.fn(),
+        activeTexture: vi.fn((_unit: number) => {}),
+        bindTexture: vi.fn(),
+        uniform1i: vi.fn(),
+        isTexture: vi.fn(() => true),
+        TEXTURE_2D,
+        TEXTURE0,
+        SAMPLER_2D,
     };
 }
 
@@ -181,5 +192,53 @@ describe('Program destroy hook', () => {
             ShaderError,
         );
         expect(onDestroy).not.toHaveBeenCalled();
+    });
+});
+
+class FakeTexture {}
+
+/** Installs a `WebGLTexture` global so `setUniforms`' texture check can run under Node. */
+function withFakeWebGLTexture(run: () => void): void {
+    const target = globalThis as Record<string, unknown>;
+    const had = 'WebGLTexture' in target;
+    const prior = target.WebGLTexture;
+
+    target.WebGLTexture = FakeTexture;
+
+    try {
+        run();
+    } finally {
+        if (had) {
+            target.WebGLTexture = prior;
+        } else {
+            delete target.WebGLTexture;
+        }
+    }
+}
+
+describe('Program texture units', () => {
+    it('restarts texture units at 0 on every setUniforms call', () => {
+        withFakeWebGLTexture(() => {
+            const gl = createMockGl();
+            const program = createProgram(asGl(gl), 'void main() {}');
+            const location = {};
+
+            for (const name of ['u_a', 'u_b', 'u_c']) {
+                program.uniforms.set(name, { location, type: SAMPLER_2D, size: 1 });
+            }
+
+            const first = new FakeTexture();
+            const second = new FakeTexture();
+            const third = new FakeTexture();
+
+            program.setUniforms({ u_a: first, u_b: second });
+            program.setUniforms({ u_c: third });
+
+            expect(gl.activeTexture.mock.calls.map(([unit]) => unit)).toEqual([
+                TEXTURE0,
+                TEXTURE0 + 1,
+                TEXTURE0,
+            ]);
+        });
     });
 });
