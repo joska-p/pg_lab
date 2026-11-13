@@ -1,8 +1,8 @@
 # glaze refactor — session handoff
 
 **Plan:** `packages/glaze/REFACTOR.md`
-**State:** P0 complete, P1 not started (2026-11-13)
-**Last verified:** `vp -C packages/glaze check` and `vp -C packages/glaze test` pass (71 tests).
+**State:** P0 and P1 complete, P2 not started (2026-11-13)
+**Last verified:** `vp -C packages/glaze check` and `vp -C packages/glaze test` pass (97 tests). All consumer packages (`automa`, `randomart-ui`, `fracture`, `art-canvas`) pass `vp check`.
 
 ---
 
@@ -12,96 +12,60 @@ Turn `GpuSurface` into a small GPU primitive layer: render to the default frameb
 offscreen target, chain passes through ping-pong targets, survive context loss, and expose one
 custom-draw seam to React. Application policy (effects, ordering, UI, export) stays in consumers.
 
-Read `REFACTOR.md` §3–§6 before continuing. This file only records what is done and what comes
-next.
+Read `REFACTOR.md` §3–§6 before continuing. This file records what is done and what comes next.
 
 ---
 
-## 2. What was done in this session (P0)
+## 2. What was done in this session (P1)
 
-| Area          | Change                                                                                                                                                                                                                                                                         |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `Program`     | `setUniforms()` resets the texture-unit cursor to `0` on every call; `render()` no longer resets it; `reinitialize()` resets it.                                                                                                                                               |
-| `StateBuffer` | `reinitialize()` recreates the pair **and** recompiles every program. `destroy()` is idempotent and calls `StateBufferDestroyHook` once. `setUniforms()` stages values; `step(uniforms?)` merges staged + per-step + `u_state` and calls `Program.setUniforms()` exactly once. |
-| `GpuSurface`  | `createStateBuffer()` passes a forget-hook. `destroy()` iterates snapshots. Added `isLost` and `onContextRestored(listener)`; listeners run after resources are reinitialized.                                                                                                 |
-| `GpuCanvas`   | Added `onContextRestored` prop and subscription. On restore it clears `renderedProgramRef` **before** invoking the consumer callback, so a `shouldRender={() => false}` canvas still redraws once.                                                                             |
-| Tests         | `Program.test.ts` (texture-unit reset), `StateBuffer.test.ts` (restore, destroy hook, staged uniforms, swap), new `GpuSurface.test.ts` (fake canvas + fake GL, restore signal, ownership).                                                                                     |
-
-No public import path was removed. `StateBuffer.targets` and `StateBufferTargets` still exist; they
-become `StateBuffer.pair` / `RenderTargetPair` in P1 and are the next breaking change.
-
-### Deliberate deviations / notes
-
-- `StateBuffer.step()` still hardcodes `u_state`. Configurable `inputUniform` is P1.5.
-- `GpuSurface.onContextRestored` currently notifies after programs and buffers only because render
-  targets and pairs do not exist yet. Revisit the loop when P1 lands.
-- Snapshot loops use `Array.from(set)` rather than `[...set]`: the repo lint flags the spread as
-  useless. Semantics are identical (snapshot before iteration).
-- No React-level test for `GpuCanvas`: tests run in Node (no jsdom). The reset itself is covered by
-  the `GpuSurface` restore test plus a manual check in the app.
-- `vp check` sorts imports; run `vp -C packages/glaze check --fix` after edits.
+| Area               | Change                                                                                                                                                                                                                                                                                                                                                     |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RenderTarget`     | **New module** (`src/gpu/RenderTarget.ts`). Texture + private FBO, `resize(w, h)`, `reinitialize()`, `clear(r, g, b, a)`, idempotent `destroy()` with owner hook, and `filter: 'nearest' \| 'linear'` support.                                                                                                                                             |
+| `RenderTargetPair` | **New module** (`src/gpu/RenderTargetPair.ts`). Ping-pong pair exposing `.read` and `.write`, `swap()`, `resize()`, `reinitialize()`, `clear()`, idempotent `destroy()`.                                                                                                                                                                                   |
+| `Viewport` & types | Added `Viewport`, `RenderTargetOptions`, `UniformValues` to `src/gpu/types.ts`.                                                                                                                                                                                                                                                                            |
+| `Program`          | `render(viewport: Viewport)` now requires an explicit viewport (decoupling from drawing buffer size).                                                                                                                                                                                                                                                      |
+| `ShapeBatcher`     | `flush(viewport: Viewport)` accepts physical device pixels; projection stays CSS-dimensioned.                                                                                                                                                                                                                                                              |
+| `GpuSurface`       | Added `deviceWidth` / `deviceHeight`. Added `createRenderTarget()`, `createRenderTargetPair()`, tracking sets, snapshot iteration on `destroy()`, and recreation on `webglcontextrestored`. Added `renderProgramTo(program, target, uniforms?)` which handles FBO binding, target viewport, standard uniforms, and restoring default framebuffer/viewport. |
+| `setUniforms`      | Replaced positional `createStandardUniformValues(w, h, dpr, ...)` with options-object `StandardUniformInput` (`resolution` physical target, `pointerResolution` CSS canvas).                                                                                                                                                                               |
+| `StateBuffer`      | Replaced internal `StateBufferTargets` with `RenderTargetPair` (`buffer.pair`). Added configurable `inputUniform` option in `addProgram(name, src, { inputUniform })` (defaults to `'u_state'`). Deprecated alias `StateBufferTargets` preserved for backward safety.                                                                                      |
+| `GpuCanvas`        | Added `renderFrame?: (context: FrameRenderContext) => void` prop. Delegates drawing while keeping shader swapping, render gate, and clock store intact. Computes `uniforms` once and passes them in context.                                                                                                                                               |
+| Exports & README   | Added exports `./gpu/RenderTarget` and `./gpu/RenderTargetPair` in `package.json`. Updated README with targets, passes, and context loss rules.                                                                                                                                                                                                            |
+| Tests              | Added `RenderTarget.test.ts` (12 tests), `RenderTargetPair.test.ts` (10 tests). Added `GpuSurface.test.ts` cases for `renderProgramTo` and target forget hooks. Added `StateBuffer.test.ts` cases for configured `inputUniform` and `pair.read.texture`. Total tests: 97 passing.                                                                          |
 
 ---
 
-## 3. Next action
+## 3. Current State & Gotchas
 
-Start with **P1.1 + P1.2** (they are hard to separate in practice):
-
-1. Extract `RenderTarget` (texture + private FBO, `resize`, `reinitialize`, `clear`, idempotent
-   `destroy` with owner hook) and `RenderTargetPair` (`read`/`write`, `swap`, `resize`,
-   `reinitialize`, `clear`, idempotent `destroy`) from `StateBufferTargets`.
-2. Preserve current defaults: RGBA8, NEAREST, CLAMP_TO_EDGE, and FBO-failure cleanup that deletes
-   both texture and framebuffer.
-3. `RenderTargetOptions.filter: 'linear' | 'nearest'` (default `'nearest'`).
-4. Add `GpuSurface.createRenderTarget()` / `createRenderTargetPair()`, track them, recreate them on
-   restore, destroy them with the surface, and pass forget-hooks.
-5. `StateBuffer` constructs its own pair **without** a surface hook so the pair is not tracked
-   twice; keep its destroy path owning the pair.
-
-Then P1.3 → P1.7 in the order listed in `REFACTOR.md` §6. Do not pull consumer migration (P3) into
-this refactor.
-
-### Concrete gotchas for P1
-
-- `Program.render()` is called from `GpuSurface.renderProgram`, `GpuSurface.#drawText` and (soon)
-  `renderProgramTo`. When you add `render(viewport)`, update all three and `StateBuffer.step`
-  (which draws manually today).
-- `ShapeBatcher.flush(viewport)` must receive physical device pixels; its projection keeps using
-  CSS dimensions. `GpuSurface.#flushBatch()` is the single call site.
-- Standard uniforms: `u_resolution` becomes target physical size; pointer normalization must stay on
-  canvas CSS size. The options-object helper replaces the positional
-  `createStandardUniformValues(width, height, dpr, …)`; update `GpuSurface.renderProgram` and the
-  text draw path.
-- New files need entries in `packages/glaze/package.json` exports
-  (`./gpu/RenderTarget`, `./gpu/RenderTargetPair`).
-- `GpuCanvas.renderFrame` is P1.6. Keep the default path identical:
-  `surface.renderProgram(program, uniforms)`. `GpuCanvas` already subscribes to
-  `onContextRestored`; do not subscribe twice.
-- `README.md` still claims generic context-loss recovery and does not mention targets. Update it in
-  P1.7 (and make the restore claim precise: glaze resources only, app data must be re-seeded).
-
-### Tests to add with P1
-
-Follow the plan's §8: `RenderTarget.test.ts`, `RenderTargetPair.test.ts`, plus `GpuSurface`
-cases for `renderProgramTo` (bind target, viewport, restore default framebuffer/viewport) and
-`StateBuffer` cases for configured input uniform and `pair.swap()`.
-
-Node test environment notes:
-
-- There is no DOM. `GpuSurface.test.ts` stubs `globalThis.window` and builds a fake canvas.
-- Program texture detection needs a `WebGLTexture` global in Node; see
-  `withFakeWebGLTexture()` in `Program.test.ts`. P2.3 will remove this fragility.
+- **Breaking change landed:** `Program.render(viewport)` and `ShapeBatcher.flush(viewport)` take a viewport. Internal calls within `glaze` are updated.
+- **`StateBuffer.pair`:** `buffer.pair` is the primary way to access ping-pong targets (`buffer.pair.read`, `buffer.pair.write`). `buffer.targets` remains as a deprecated alias.
+- **Snapshot loops:** The linter prefers `new Set(this.#set)` over `[...this.#set]` or `Array.from(this.#set)` for snapshot iterations in `GpuSurface`.
+- **Consumer status:** All 4 existing consumers (`automa`, `randomart-ui`, `fracture`, `art-canvas`) pass formatting, linting, and type-checking without regressions.
 
 ---
 
-## 4. Useful commands
+## 4. Next action (for next session)
+
+Start with **P2 (Polish and hardening)** as described in `REFACTOR.md` §6:
+
+1. **P2.1 — Clear and blend policy:** Decide whether `renderProgramTo` accepts `{ clear?: CssColor | null; blend?: 'alpha' | 'none' }`.
+2. **P2.2 — DPR and resize:** Review dynamic DPR changes and static surface resize observation (e.g. `ResizeObserver`).
+3. **P2.3 — GPU limits:** Validate target dimensions against `MAX_TEXTURE_SIZE` / `MAX_RENDERBUFFER_SIZE` before allocating.
+4. **P2.4 — Robust texture detection:** Replace `instanceof WebGLTexture` with a realm-safe check in `setUniforms.ts`.
+5. **P2.5 — Restore error isolation:** Wrap listener and resource `reinitialize()` calls in try/catch to avoid one failure breaking the chain.
+6. **P2.6 — Consumer cleanup:** Clean up manual `webglcontextrestored` listeners in `fracture` and `randomart-ui`; re-seed `automa` on context restore.
+7. **P2.7 — README alignment:** Align docs with final guarantees.
+
+Followed by **P3 (Consumer migration)**, particularly implementing the post-processing pipeline in `randomart-ui` via `createRenderTargetPair` and `renderFrame`.
+
+---
+
+## 5. Useful commands
 
 ```bash
 vp -C packages/glaze test
 vp -C packages/glaze check --fix
-vp -C packages/automa check   # StateBuffer consumer, currently green
+vp -C packages/automa check
+vp -C packages/randomart-ui check
+vp -C packages/fracture check
+vp -C packages/art-canvas check
 ```
-
-Manual context-loss check (browser): `WEBGL_lose_context` on a canvas, then verify a static
-`shouldRender={() => false}` program redraws and a `StateBuffer` consumer can step again after its
-`onContextRestored` re-seed.

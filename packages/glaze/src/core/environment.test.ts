@@ -60,7 +60,7 @@ describe('surface frameLoopOptions injection (Step 4 sealing)', () => {
         };
 
         // Le mock ne couvre qu'un sous-ensemble de `HTMLCanvasElement` : l'assertion est confinée ici.
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+
         const mockCanvas = canvas as unknown as HTMLCanvasElement;
 
         const surface = createCpuSurface({

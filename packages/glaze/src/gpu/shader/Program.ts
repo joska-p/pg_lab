@@ -1,3 +1,4 @@
+import type { Viewport } from '../types';
 import { compileProgram, FULLSCREEN_TRIANGLE } from './compileProgram';
 import { setUniforms } from './setUniforms';
 import type { CompiledShaderProgram, UniformEntry, UniformValue } from './types';
@@ -53,10 +54,10 @@ export class Program {
         setUniforms(this.#gl, this.#compiled.uniforms, values, () => this.#nextTextureUnit++);
     }
 
-    render(): void {
+    render(viewport: Viewport): void {
         this.#gl.useProgram(this.#compiled.program);
         this.#gl.bindVertexArray(this.#vao);
-        this.#gl.viewport(0, 0, this.#gl.drawingBufferWidth, this.#gl.drawingBufferHeight);
+        this.#gl.viewport(0, 0, viewport.width, viewport.height);
         this.#gl.drawArrays(this.#gl.TRIANGLES, 0, 3);
     }
 

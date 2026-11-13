@@ -1,6 +1,7 @@
 import { createPositiveInteger } from '../core/brands';
 import { createStateData } from '../core/render';
 import type { StateData } from '../core/render';
+import { RenderTargetPair } from './RenderTargetPair';
 import { createProgram } from './shader/Program';
 import type { Program } from './shader/Program';
 import type { UniformValue } from './shader/types';
@@ -8,222 +9,18 @@ import type { UniformValue } from './shader/types';
 /** Called once, when the buffer is destroyed — lets an owner (the surface) stop tracking it. */
 export type StateBufferDestroyHook = (buffer: StateBuffer) => void;
 
-/** Ping-pong render targets; `swap()` exchanges the read and write roles. */
-export class StateBufferTargets {
-    readonly #gl: WebGL2RenderingContext;
-    #pingPong = 0;
-    #currentWidth: number;
-    #currentHeight: number;
-    #textures: WebGLTexture[] = [];
-    #framebuffers: WebGLFramebuffer[] = [];
-
-    constructor(gl: WebGL2RenderingContext, initialWidth: number, initialHeight: number) {
-        this.#gl = gl;
-        this.#currentWidth = initialWidth;
-        this.#currentHeight = initialHeight;
-        this.#createTargetPair(initialWidth, initialHeight);
-    }
-
-    get width(): number {
-        return this.#currentWidth;
-    }
-
-    get height(): number {
-        return this.#currentHeight;
-    }
-
-    bindWrite(): void {
-        const fbo = this.#framebuffers[this.#writeIndex()];
-
-        if (!fbo) {
-            throw new Error('Glaze: StateBuffer write target not initialized');
-        }
-
-        this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, fbo);
-        this.#gl.viewport(0, 0, this.#currentWidth, this.#currentHeight);
-    }
-
-    unbind(): void {
-        this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, null);
-    }
-
-    getReadTexture(): WebGLTexture {
-        const texture = this.#textures[this.#readIndex()];
-
-        if (!texture) {
-            throw new Error('Glaze: StateBuffer read target not initialized');
-        }
-
-        return texture;
-    }
-
-    getWriteTexture(): WebGLTexture {
-        const texture = this.#textures[this.#writeIndex()];
-
-        if (!texture) {
-            throw new Error('Glaze: StateBuffer write target not initialized');
-        }
-
-        return texture;
-    }
-
-    swap(): void {
-        this.#pingPong = 1 - this.#pingPong;
-    }
-
-    init(data: Uint8Array | StateData): void {
-        createStateData(
-            data,
-            createPositiveInteger(this.#currentWidth),
-            createPositiveInteger(this.#currentHeight),
-        );
-
-        const rgba = new Uint8Array(data.length * 4);
-
-        for (let i = 0; i < data.length; i++) {
-            const cell = data[i] ?? 0;
-            const j = i * 4;
-
-            rgba[j] = cell;
-            rgba[j + 1] = 0;
-            rgba[j + 2] = 0;
-            rgba[j + 3] = 255;
-        }
-
-        const gl = this.#gl;
-
-        for (const texture of this.#textures) {
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.texSubImage2D(
-                gl.TEXTURE_2D,
-                0,
-                0,
-                0,
-                this.#currentWidth,
-                this.#currentHeight,
-                gl.RGBA,
-                gl.UNSIGNED_BYTE,
-                rgba,
-            );
-        }
-    }
-
-    resize(width: number, height: number): void {
-        if (width === this.#currentWidth && height === this.#currentHeight) {
-            return;
-        }
-
-        this.#destroyTargetPair();
-        this.#createTargetPair(width, height);
-        this.#currentWidth = width;
-        this.#currentHeight = height;
-        this.#pingPong = 0;
-    }
-
-    /**
-     * Recreates both render targets at the current dimensions — the context-restore path, where
-     * `resize(w, h)` with identical dims would early-return and leave the dead GL textures behind.
-     */
-    reinitialize(): void {
-        this.#destroyTargetPair();
-        this.#createTargetPair(this.#currentWidth, this.#currentHeight);
-        this.#pingPong = 0;
-    }
-
-    destroy(): void {
-        this.#destroyTargetPair();
-    }
-
-    #createTarget(width: number, height: number): [WebGLTexture, WebGLFramebuffer] {
-        const gl = this.#gl;
-        const texture = gl.createTexture();
-
-        if (!texture) {
-            throw new Error('Glaze: StateBuffer texture creation failed');
-        }
-
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(
-            gl.TEXTURE_2D,
-            0,
-            gl.RGBA8,
-            width,
-            height,
-            0,
-            gl.RGBA,
-            gl.UNSIGNED_BYTE,
-            null,
-        );
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-        const fbo = gl.createFramebuffer();
-
-        if (!fbo) {
-            gl.deleteTexture(texture);
-            throw new Error('Glaze: StateBuffer framebuffer creation failed');
-        }
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
-
-        if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
-            gl.deleteTexture(texture);
-            gl.deleteFramebuffer(fbo);
-            throw new Error(
-                `Glaze: StateBuffer framebuffer incomplete (${String(width)}x${String(height)})`,
-            );
-        }
-
-        return [texture, fbo];
-    }
-
-    #createTargetPair(width: number, height: number): void {
-        const gl = this.#gl;
-        const created: [WebGLTexture, WebGLFramebuffer][] = [];
-
-        try {
-            created.push(this.#createTarget(width, height));
-            created.push(this.#createTarget(width, height));
-            this.#textures = created.map(([texture]) => texture);
-            this.#framebuffers = created.map(([, fbo]) => fbo);
-        } catch (error) {
-            for (const [texture, fbo] of created) {
-                gl.deleteTexture(texture);
-                gl.deleteFramebuffer(fbo);
-            }
-
-            throw error;
-        } finally {
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        }
-    }
-
-    #destroyTargetPair(): void {
-        const gl = this.#gl;
-
-        for (const texture of this.#textures) {
-            gl.deleteTexture(texture);
-        }
-
-        for (const fbo of this.#framebuffers) {
-            gl.deleteFramebuffer(fbo);
-        }
-
-        this.#textures = [];
-        this.#framebuffers = [];
-    }
-
-    #writeIndex(): number {
-        return this.#pingPong === 0 ? 0 : 1;
-    }
-
-    #readIndex(): number {
-        return this.#pingPong === 0 ? 1 : 0;
-    }
+export interface StateBufferProgramOptions {
+    /** Sampler that receives the read texture on each step. Default: 'u_state'. */
+    readonly inputUniform?: string;
 }
+
+interface ProgramEntry {
+    readonly program: Program;
+    readonly options?: StateBufferProgramOptions;
+}
+
+/** @deprecated Replaced by `RenderTargetPair`. */
+export { RenderTargetPair as StateBufferTargets };
 
 /**
  * Ping-pong texture pair holding evolving state, stepped by shader programs. Typical flow:
@@ -232,8 +29,8 @@ export class StateBufferTargets {
 // fallow-ignore-next-line unused-export -- public return type of createStateBuffer
 export class StateBuffer {
     readonly #gl: WebGL2RenderingContext;
-    readonly #targets: StateBufferTargets;
-    readonly #programs = new Map<string, Program>();
+    readonly #pair: RenderTargetPair;
+    readonly #programs = new Map<string, ProgramEntry>();
     readonly #onDestroy: StateBufferDestroyHook | undefined;
     #activeName: string | null = null;
     /** Values staged by `setUniforms`; re-applied on every step until overwritten. */
@@ -247,30 +44,39 @@ export class StateBuffer {
         onDestroy?: StateBufferDestroyHook,
     ) {
         this.#gl = gl;
-        this.#targets = new StateBufferTargets(gl, width, height);
+        // Construct own pair without a surface hook so ownership remains with this StateBuffer.
+        this.#pair = new RenderTargetPair(gl, width, height);
         this.#onDestroy = onDestroy;
     }
 
-    get targets(): StateBufferTargets {
-        return this.#targets;
+    get pair(): RenderTargetPair {
+        return this.#pair;
+    }
+
+    /** @deprecated Use `pair` instead (`pair.read`, `pair.write`). */
+    get targets(): RenderTargetPair {
+        return this.#pair;
     }
 
     get width(): number {
-        return this.#targets.width;
+        return this.#pair.width;
     }
 
     get height(): number {
-        return this.#targets.height;
+        return this.#pair.height;
     }
 
-    addProgram(name: string, fragmentSource: string): void {
+    addProgram(name: string, fragmentSource: string, options?: StateBufferProgramOptions): void {
         const prior = this.#programs.get(name);
 
         if (prior) {
-            prior.destroy();
+            prior.program.destroy();
         }
 
-        this.#programs.set(name, createProgram(this.#gl, fragmentSource));
+        this.#programs.set(name, {
+            program: createProgram(this.#gl, fragmentSource),
+            options,
+        });
     }
 
     useProgram(name: string): void {
@@ -287,35 +93,69 @@ export class StateBuffer {
     }
 
     /**
-     * Renders one pass from `targets.read` into `targets.write`, then swaps. Staged and per-step
-     * values are merged into a single `Program.setUniforms` call, with the read texture bound last
-     * so it always wins over a staged `u_state`.
+     * Renders one pass from `pair.read` into `pair.write`, then swaps. Staged and per-step values
+     * are merged into a single `Program.setUniforms` call, with the read texture bound last to the
+     * configured `inputUniform` (default 'u_state') so it always wins over staged values.
      */
     step(uniforms?: Record<string, UniformValue>): void {
-        const program = this.#activeProgram();
+        const entry = this.#activeEntry();
+        const inputUniform = entry.options?.inputUniform ?? 'u_state';
 
-        program.setUniforms({
+        entry.program.setUniforms({
             ...this.#staged,
             ...uniforms,
-            u_state: this.#targets.getReadTexture(),
+            [inputUniform]: this.#pair.read.texture,
         });
-        program.use();
-        this.#targets.bindWrite();
+        entry.program.use();
+        this.#pair.write.bindFramebuffer();
         this.#gl.drawArrays(this.#gl.TRIANGLES, 0, 3);
-        this.#targets.unbind();
-        this.#targets.swap();
+        this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, null);
+        this.#pair.swap();
     }
 
-    init(data: Uint8Array): void {
-        this.#targets.init(data);
+    init(data: Uint8Array | StateData): void {
+        createStateData(
+            data,
+            createPositiveInteger(this.width),
+            createPositiveInteger(this.height),
+        );
+
+        const rgba = new Uint8Array(data.length * 4);
+
+        for (let i = 0; i < data.length; i++) {
+            const cell = data[i] ?? 0;
+            const j = i * 4;
+
+            rgba[j] = cell;
+            rgba[j + 1] = 0;
+            rgba[j + 2] = 0;
+            rgba[j + 3] = 255;
+        }
+
+        const gl = this.#gl;
+
+        for (const texture of [this.#pair.read.texture, this.#pair.write.texture]) {
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texSubImage2D(
+                gl.TEXTURE_2D,
+                0,
+                0,
+                0,
+                this.width,
+                this.height,
+                gl.RGBA,
+                gl.UNSIGNED_BYTE,
+                rgba,
+            );
+        }
     }
 
     getTexture(): WebGLTexture {
-        return this.#targets.getReadTexture();
+        return this.#pair.read.texture;
     }
 
     resize(width: number, height: number): void {
-        this.#targets.resize(width, height);
+        this.#pair.resize(width, height);
     }
 
     /** Recreates render targets and recompiles every program — the `webglcontextrestored` path. */
@@ -324,10 +164,10 @@ export class StateBuffer {
             return;
         }
 
-        this.#targets.reinitialize();
+        this.#pair.reinitialize();
 
-        for (const program of this.#programs.values()) {
-            program.reinitialize();
+        for (const entry of this.#programs.values()) {
+            entry.program.reinitialize();
         }
     }
 
@@ -339,26 +179,26 @@ export class StateBuffer {
 
         this.#destroyed = true;
 
-        for (const program of this.#programs.values()) {
-            program.destroy();
+        for (const entry of this.#programs.values()) {
+            entry.program.destroy();
         }
 
         this.#programs.clear();
         this.#staged = {};
-        this.#targets.destroy();
+        this.#pair.destroy();
         this.#onDestroy?.(this);
     }
 
-    #activeProgram(): Program {
-        const program = this.#programs.get(this.#activeName ?? 'default');
+    #activeEntry(): ProgramEntry {
+        const entry = this.#programs.get(this.#activeName ?? 'default');
 
-        if (!program) {
+        if (!entry) {
             throw new Error(
                 `Glaze: StateBuffer program "${this.#activeName ?? 'default'}" not found`,
             );
         }
 
-        return program;
+        return entry;
     }
 }
 

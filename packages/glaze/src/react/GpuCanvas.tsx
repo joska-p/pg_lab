@@ -38,6 +38,11 @@ export function GpuCanvas({
      */
     uniforms,
     /**
+     * Replaces the default `surface.renderProgram(program, uniforms)` call. Runs only when the
+     * render gate allows a draw.
+     */
+    renderFrame,
+    /**
      * Fonction qui répond "oui" ou "non" : doit-on dessiner cette image ? Sert à économiser du
      * travail. Si absente, on dessine toujours. Un programme jamais dessiné l'est toujours une
      * fois, quelle que soit la réponse.
@@ -79,6 +84,7 @@ export function GpuCanvas({
     // Ces props changent souvent d'identité sans que leur sens change. Les mettre dans des boîtes
     // évite de relancer les effets pour rien. Les effets plus bas lisent le contenu des boîtes.
     const uniformsRef = useLatest(uniforms);
+    const renderFrameRef = useLatest(renderFrame);
     const shouldRenderRef = useLatest(shouldRender);
     const onFrameRef = useLatest(onFrame);
     const onShaderErrorRef = useLatest(onShaderError);
@@ -196,15 +202,25 @@ export function GpuCanvas({
                 const wanted = shouldRender ? shouldRender(frame) : true;
 
                 if (wanted || program !== renderedProgramRef.current) {
-                    program.setUniforms(uniformsRef.current?.(frame) ?? {});
-                    frame.renderProgram(program);
+                    const computedUniforms = uniformsRef.current?.(frame) ?? {};
+
+                    if (renderFrameRef.current) {
+                        renderFrameRef.current({
+                            surface: frame,
+                            program,
+                            uniforms: computedUniforms,
+                        });
+                    } else {
+                        frame.renderProgram(program, computedUniforms);
+                    }
+
                     renderedProgramRef.current = program;
                 }
             }
 
             onFrameRef.current?.(frame);
         });
-    }, [stack, needsFrameLoop, shouldRenderRef, uniformsRef, onFrameRef]);
+    }, [stack, needsFrameLoop, shouldRenderRef, uniformsRef, renderFrameRef, onFrameRef]);
 
     // ─────────────────────────────────────────────────────────────
     // 7. Ce qui s'affiche à l'écran

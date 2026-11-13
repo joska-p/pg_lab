@@ -13,9 +13,9 @@ Drawing primitives (`surface.circle`, `surface.rect`, `surface.line`, `surface.t
 The toolkit provides two sibling runtimes over a shared foundation:
 
 - **`CpuSurface`**: Immediate-mode Canvas2D wrapper with chainable fluent draw methods.
-- **`GpuSurface`**: WebGL2 surface supporting shape drawing, custom shader programs, and `StateBuffer` for GPGPU simulations on ping-pong texture pairs.
+- **`GpuSurface`**: WebGL2 surface supporting shape drawing, custom shader programs, offscreen render targets (`RenderTarget`, `RenderTargetPair` ping-pong), and `StateBuffer` for GPGPU simulations.
 
-Both share a common architecture including a frame loop, camera controller, and input store. Drawing operates entirely in **world space**, where the camera transformation matrix is automatically applied so pan, zoom, and pointer mapping are solved once globally rather than per sketch. React integration is provided through declarative wrappers (`<CpuCanvas>`, `<GpuCanvas>`) and headless hooks (`useCpuSurface`, `useGpuSurface`), cleanly decoupling lifecycle management from rendering loops.
+Both share a common architecture including a frame loop, camera controller, and input store. Drawing operates entirely in **world space**, where the camera transformation matrix is automatically applied so pan, zoom, and pointer mapping are solved once globally rather than per sketch. React integration is provided through declarative wrappers (`<CpuCanvas>`, `<GpuCanvas>`) and headless hooks (`useCpuSurface`, `useGpuSurface`), cleanly decoupling lifecycle management from rendering loops. Custom pass pipelines can plug directly into `<GpuCanvas renderFrame={...}>`.
 
 ## 🥷 Brainstorming, Inspirations & Credits
 
@@ -27,9 +27,10 @@ Both share a common architecture including a frame loop, camera controller, and 
 
 - **Batched GPU Shapes:** GPU shapes are tessellated on the CPU into a dynamic vertex buffer and rendered in a single draw call per frame to minimize state changes.
 - **World-Space Coordinate Mapping:** Drawing methods operate in world space. Camera pans and zooms are applied automatically, ensuring consistent pointer math and anti-aliased MSAA rendering.
+- **Offscreen Passes & Render Targets:** Use `surface.createRenderTarget(width, height, options)` and `surface.createRenderTargetPair(...)` for offscreen passes. Draw to targets using `surface.renderProgramTo(program, target, uniforms)`. Standard uniforms like `u_resolution` adapt to the target viewport while pointer normalization stays mapped to the canvas CSS size.
 - **Dynamic Interaction Bridge:** Gestures defined through `canvasInteractions` update seamlessly in React without forcing DOM event listener teardown or re-binding.
-- **Context Loss Recovery:** The GPU runtime intercepts `webglcontextlost` and automatically re-initializes shaders, textures, and GPU resources upon restoration.
-- **Classes over Factories:** Core modules (`CpuSurface`, `GpuSurface`, `Camera`, `FrameLoop`, `InputStore`, `StateBuffer`, `Program`) are pure imperative classes; `createX` functions act as thin instantiator wrappers.
+- **Context Loss Recovery:** The GPU runtime intercepts `webglcontextlost` and automatically re-initializes shaders, vertex arrays, render targets, and internal GPU buffers upon restoration. However, GPU resources are recreated empty: application data (simulation grids, seeds) must be re-seeded via `surface.onContextRestored(...)` or `<GpuCanvas onContextRestored={...}>`.
+- **Classes over Factories:** Core modules (`CpuSurface`, `GpuSurface`, `Camera`, `FrameLoop`, `InputStore`, `StateBuffer`, `RenderTarget`, `RenderTargetPair`, `Program`) are pure imperative classes; `createX` functions act as thin instantiator wrappers.
 
 ## 📚 References
 

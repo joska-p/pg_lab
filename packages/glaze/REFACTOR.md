@@ -1,6 +1,6 @@
 # @repo/glaze — Refactor: render targets, passes, lifecycle
 
-**Status:** P0 complete (2026-11-13); P1 not started
+**Status:** P0 and P1 complete (2026-11-13); P2 not started
 **Scope:** `@repo/glaze` only
 **Related:** `packages/randomart-ui/POST-PROCESSING.md`, `PHASE1.md`, `REVISION.md` (paused)
 
@@ -465,34 +465,34 @@ Goal: make the current feature set honest before adding multi-pass primitives.
 
 Goal: expose the smallest API that supports arbitrary offscreen passes.
 
-- [ ] **P1.1 — Extract render targets**
+- [x] **P1.1 — Extract render targets**
     - Move the texture/FBO code out of `StateBufferTargets` into `RenderTarget` and
       `RenderTargetPair`.
     - Preserve NEAREST/CLAMP behavior as the default; add `filter: 'linear'`.
     - Keep FBO creation failure cleanup (delete texture and framebuffer).
-- [ ] **P1.2 — Surface factories and tracking**
+- [x] **P1.2 — Surface factories and tracking**
     - Add `createRenderTarget`, `createRenderTargetPair`.
     - Track both resource kinds; recreate them on restore; destroy them with the surface.
     - `StateBuffer` creates its own pair internally so the pair is not tracked twice.
-- [ ] **P1.3 — Viewport correctness**
+- [x] **P1.3 — Viewport correctness**
     - `Program.render(viewport)`.
     - `ShapeBatcher.flush(viewport)`.
     - `GpuSurface` stores and exposes `deviceWidth/deviceHeight`.
-- [ ] **P1.4 — Offscreen draw primitive**
+- [x] **P1.4 — Offscreen draw primitive**
     - `GpuSurface.renderProgramTo(program, target, uniforms?)`.
     - Bind target, set viewport, draw, restore default framebuffer and viewport.
     - Update standard uniforms so `u_resolution` follows the target while pointer normalization
       stays on the canvas CSS size.
-- [ ] **P1.5 — StateBuffer on RenderTargetPair**
+- [x] **P1.5 — StateBuffer on RenderTargetPair**
     - Replace `StateBufferTargets` with `RenderTargetPair`.
     - Configurable `inputUniform`.
     - `step()` samples `pair.read.texture` and writes to `pair.write`.
     - `pair.swap()` after the draw.
-- [ ] **P1.6 — GpuCanvas `renderFrame`**
+- [x] **P1.6 — GpuCanvas `renderFrame`**
     - Add the prop and default to `surface.renderProgram(program, uniforms)`.
     - Add `onContextRestored`.
     - Keep shader swapping, `shouldRender`, `uniforms`, `onFrame` semantics unchanged.
-- [ ] **P1.7 — Exports and docs**
+- [x] **P1.7 — Exports and docs**
     - Update `package.json` exports.
     - Update README with render targets, `renderProgramTo`, `renderFrame` and restore rules.
 

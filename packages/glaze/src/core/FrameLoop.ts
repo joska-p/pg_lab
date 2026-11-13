@@ -15,9 +15,7 @@ const defaultSchedule = (callback: (time: Milliseconds) => void): (() => void) =
 };
 
 const issueFrameToken = (): FrameToken => {
-    // Safe: FrameToken is a nominal brand; an empty object is stamped as a fresh token by the loop.
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    return {} as FrameToken;
+    return {};
 };
 
 /**

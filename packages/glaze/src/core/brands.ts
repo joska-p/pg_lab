@@ -1,4 +1,8 @@
-export type Brand<T, B extends string> = T & { readonly __brand: B };
+declare const brands: unique symbol;
+
+export type Brand<T, Name extends string> = T & {
+    readonly [brands]?: Readonly<Record<Name, true>>;
+};
 
 /** A finite number strictly greater than zero (`> 0`). */
 export type PositiveNumber = Brand<number, 'PositiveNumber'>;

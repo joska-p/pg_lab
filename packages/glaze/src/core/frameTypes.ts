@@ -1,11 +1,8 @@
+import type { Brand } from './brands';
 import type { Milliseconds, NonNegativeSeconds, Seconds } from './time';
 
-declare const frameTokenBrand: unique symbol;
-
 /** Proof that a frame is actively being dispatched; issued fresh by the loop on every tick. */
-export interface FrameToken {
-    readonly [frameTokenBrand]: true;
-}
+export type FrameToken = Brand<object, 'FrameToken'>;
 
 /** The owner's frame step: stamped state, then the loop fans out to subscribers. */
 export type FrameStep = (time: Seconds, delta: NonNegativeSeconds, frameToken: FrameToken) => void;

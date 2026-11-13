@@ -15,6 +15,9 @@ import type { Circle, DrawStyle, Rectangle, Segment, TextStyle } from '../core/s
 import { createNonNegativeSeconds, createSeconds } from '../core/time';
 import type { NonNegativeSeconds, Seconds } from '../core/time';
 import { ShapeBatcher } from './batch/ShapeBatcher';
+import { RenderTarget } from './RenderTarget';
+import type { RenderTargetOptions } from './RenderTarget';
+import { RenderTargetPair } from './RenderTargetPair';
 import { createProgram } from './shader/Program';
 import type { Program } from './shader/Program';
 import { createStandardUniformValues } from './shader/setUniforms';
@@ -28,7 +31,7 @@ import {
 } from './shapes/TextRasterizer';
 import { createStateBuffer } from './StateBuffer';
 import type { StateBuffer } from './StateBuffer';
-import type { GpuSurfaceConfig, TryProgramResult } from './types';
+import type { GpuSurfaceConfig, TryProgramResult, UniformValues, Viewport } from './types';
 /**
  * WebGL2 surface sharing `CpuSurface`'s chainable, world-space drawing model. Context loss/restore
  * is handled internally.
@@ -55,12 +58,16 @@ export class GpuSurface {
         this.#programs.delete(program);
     };
     readonly #buffers = new Set<StateBuffer>();
+    readonly #targets = new Set<RenderTarget>();
+    readonly #pairs = new Set<RenderTargetPair>();
     readonly #restoreListeners = new Set<(surface: GpuSurface) => void>();
     readonly #batch: ShapeBatcher;
     #textRasterizer: TextRasterizer | null = null;
     #textProgram: Program | null = null;
     #cssWidth = 0;
     #cssHeight = 0;
+    #deviceWidth = 0;
+    #deviceHeight = 0;
     #lost = false;
 
     constructor(config: GpuSurfaceConfig) {
@@ -102,6 +109,16 @@ export class GpuSurface {
     /** True between `webglcontextlost` and `webglcontextrestored`. */
     get isLost(): boolean {
         return this.#lost;
+    }
+
+    /** Physical width of the default framebuffer in device pixels. */
+    get deviceWidth(): number {
+        return this.#deviceWidth;
+    }
+
+    /** Physical height of the default framebuffer in device pixels. */
+    get deviceHeight(): number {
+        return this.#deviceHeight;
     }
 
     /** Pointer position in world coordinates (camera-transformed). */
@@ -149,6 +166,38 @@ export class GpuSurface {
     }
 
     /**
+     * Creates a RenderTarget owned by this surface: destroyed with it, recreated on context
+     * restore.
+     */
+    createRenderTarget(width: number, height: number, options?: RenderTargetOptions): RenderTarget {
+        const target = new RenderTarget(this.#gl, width, height, options, (destroyed) => {
+            this.#targets.delete(destroyed);
+        });
+
+        this.#targets.add(target);
+
+        return target;
+    }
+
+    /**
+     * Creates a RenderTargetPair owned by this surface: destroyed with it, recreated on context
+     * restore.
+     */
+    createRenderTargetPair(
+        width: number,
+        height: number,
+        options?: RenderTargetOptions,
+    ): RenderTargetPair {
+        const pair = new RenderTargetPair(this.#gl, width, height, options, (destroyed) => {
+            this.#pairs.delete(destroyed);
+        });
+
+        this.#pairs.add(pair);
+
+        return pair;
+    }
+
+    /**
      * Subscribes to context-restore completion. Listeners run after every surface-owned GPU
      * resource has been reinitialized, so they may safely recreate or destroy resources — and must
      * re-seed their own application data, which `glaze` cannot restore.
@@ -161,25 +210,45 @@ export class GpuSurface {
         };
     }
 
-    renderProgram(program: Program): this {
+    /** Draw to the default framebuffer (existing behavior, now explicit). */
+    renderProgram(program: Program, uniforms?: UniformValues): this {
+        return this.renderProgramTo(program, null, uniforms);
+    }
+
+    /** Draw to an offscreen target; `null` means the default framebuffer. */
+    renderProgramTo(program: Program, target: RenderTarget | null, uniforms?: UniformValues): this {
         this.#flushBatch();
 
         if (this.#lost) {
             return this;
         }
 
-        program.setUniforms(
-            createStandardUniformValues(
-                this.width,
-                this.height,
-                this.dpr,
-                this.input.pointer,
-                this.camera,
-                this.time,
-                this.clock.time,
-            ),
-        );
-        program.render();
+        const viewport: Viewport = target
+            ? { width: target.width, height: target.height }
+            : { width: this.#deviceWidth, height: this.#deviceHeight };
+
+        const standardValues = createStandardUniformValues({
+            resolution: viewport,
+            pointerResolution: { width: this.width, height: this.height },
+            dpr: this.dpr,
+            mouse: this.input.pointer,
+            camera: this.camera,
+            time: this.time,
+            clockTime: this.clock.time,
+        });
+
+        program.setUniforms(uniforms ? { ...standardValues, ...uniforms } : standardValues);
+
+        if (target) {
+            target.bindFramebuffer();
+        }
+
+        program.render(viewport);
+
+        if (target) {
+            this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, null);
+            this.#gl.viewport(0, 0, this.#deviceWidth, this.#deviceHeight);
+        }
 
         return this;
     }
@@ -246,6 +315,18 @@ export class GpuSurface {
 
         this.#programs.clear();
 
+        for (const target of new Set(this.#targets)) {
+            target.destroy();
+        }
+
+        this.#targets.clear();
+
+        for (const pair of new Set(this.#pairs)) {
+            pair.destroy();
+        }
+
+        this.#pairs.clear();
+
         for (const buffer of new Set(this.#buffers)) {
             buffer.destroy();
         }
@@ -294,8 +375,7 @@ export class GpuSurface {
         const { texture, width, height } = rasterizer.get(text, font, size);
         const program = this.#getTextProgram();
 
-        program.setUniforms(textUniforms({ x, y }, width, height, size, texture, style));
-        this.renderProgram(program);
+        this.renderProgram(program, textUniforms({ x, y }, width, height, size, texture, style));
     }
 
     #getTextProgram(): Program {
@@ -326,6 +406,8 @@ export class GpuSurface {
             this.canvas.height = deviceHeight;
         }
 
+        this.#deviceWidth = deviceWidth;
+        this.#deviceHeight = deviceHeight;
         this.#gl.viewport(0, 0, deviceWidth, deviceHeight);
     }
 
@@ -334,7 +416,7 @@ export class GpuSurface {
             return;
         }
 
-        this.#batch.flush();
+        this.#batch.flush({ width: this.#deviceWidth, height: this.#deviceHeight });
     }
 
     #onContextLost = (event: Event): void => {
@@ -351,6 +433,14 @@ export class GpuSurface {
 
         for (const program of this.#programs) {
             program.reinitialize();
+        }
+
+        for (const target of new Set(this.#targets)) {
+            target.reinitialize();
+        }
+
+        for (const pair of new Set(this.#pairs)) {
+            pair.reinitialize();
         }
 
         for (const buffer of new Set(this.#buffers)) {

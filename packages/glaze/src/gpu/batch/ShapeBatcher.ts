@@ -3,6 +3,7 @@ import { createLineSegment, createNormalizedVec2 } from '../../core/geometry';
 import type { Point2D } from '../../core/geometry';
 import type { Circle, DrawStyle, Rectangle, Segment } from '../../core/shapes';
 import { colorArray } from '../shapes/color';
+import type { Viewport } from '../types';
 import {
     circleFillVertices,
     circleRing,
@@ -116,6 +117,8 @@ export class ShapeBatcher {
     #vertexCount = 0;
     #batchProjection: Mat3 | null = null;
     #initialized = false;
+    /** Last physical viewport passed to `flush`; used by internal `#setBatchProjection` flush. */
+    #lastViewport: Viewport = { width: 1, height: 1 };
 
     constructor(options: ShapeBatcherOptions) {
         this.#gl = options.gl;
@@ -187,7 +190,9 @@ export class ShapeBatcher {
         );
     }
 
-    flush(): void {
+    flush(viewport: Viewport): void {
+        this.#lastViewport = viewport;
+
         if (this.#vertexCount === 0) {
             this.#batchProjection = null;
 
@@ -225,7 +230,7 @@ export class ShapeBatcher {
             gl.DYNAMIC_DRAW,
         );
         gl.uniformMatrix3fv(this.#projectionLocation, false, projection);
-        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        gl.viewport(0, 0, viewport.width, viewport.height);
         gl.drawArrays(gl.TRIANGLES, 0, this.#vertexCount);
         this.#vertexCount = 0;
         this.#batchProjection = null;
@@ -515,7 +520,7 @@ export class ShapeBatcher {
         const projection = projectionFor(this.#camera, width, height);
 
         if (this.#batchProjection === null || !sameMat3(this.#batchProjection, projection)) {
-            this.flush();
+            this.flush(this.#lastViewport);
             this.#batchProjection = projection;
         }
     }

@@ -24,9 +24,7 @@ export function createStateData(
         );
     }
 
-    // StateData is a nominal brand over Uint8Array; the cast is intentional branding.
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    return data as StateData;
+    return data;
 }
 
 export function createCssColor(value: string): CssColor {

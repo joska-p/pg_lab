@@ -1,5 +1,6 @@
 import type { Camera } from '../../core/Camera';
 import type { Point2D } from '../../core/geometry';
+import type { Viewport } from '../types';
 import type { UniformEntry, UniformValue } from './types';
 
 function isWebGLTextureValue(
@@ -118,18 +119,27 @@ export function setUniforms(
     }
 }
 
+export interface StandardUniformInput {
+    readonly resolution: Viewport;
+    readonly pointerResolution: Viewport;
+    readonly dpr: number;
+    readonly mouse?: Point2D;
+    readonly camera?: Camera;
+    readonly time?: number;
+    readonly clockTime?: number;
+}
+
 export function createStandardUniformValues(
-    width: number,
-    height: number,
-    dpr: number,
-    mouse?: Point2D,
-    camera?: Camera,
-    time?: number,
-    clockTime?: number,
+    input: StandardUniformInput,
 ): Record<string, UniformValue> {
-    const u_resolution = [width * dpr, height * dpr];
-    const mouseX = mouse === undefined || width <= 0 ? 0 : mouse.x / width;
-    const mouseY = mouse === undefined || height <= 0 ? 1 : 1 - mouse.y / height;
+    const { resolution, pointerResolution, dpr, mouse, camera, time, clockTime } = input;
+    const u_resolution = [resolution.width, resolution.height];
+    const mouseX =
+        mouse === undefined || pointerResolution.width <= 0 ? 0 : mouse.x / pointerResolution.width;
+    const mouseY =
+        mouse === undefined || pointerResolution.height <= 0
+            ? 1
+            : 1 - mouse.y / pointerResolution.height;
     const u_mouse = [mouseX, mouseY];
     const u_camera = [
         camera === undefined ? 0 : camera.x,
@@ -139,7 +149,7 @@ export function createStandardUniformValues(
 
     return {
         u_resolution,
-        u_aspect: height > 0 ? width / height : 0,
+        u_aspect: resolution.height > 0 ? resolution.width / resolution.height : 0,
         u_mouse,
         u_camera,
         u_dpr: dpr,

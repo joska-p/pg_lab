@@ -9,9 +9,10 @@ import type { InteractionEvent, PanOptions, ZoomOptions } from '../core/gestureT
 import type { ClockMixin } from '../core/surfaceTypes';
 import type { DurationSeconds, Seconds } from '../core/time';
 import type { CpuDraw, CpuSurface } from '../cpu/types';
+import type { Program } from '../gpu/shader/Program';
 import type { ShaderError } from '../gpu/shader/ShaderError';
 import type { UniformValue } from '../gpu/shader/types';
-import type { GpuDraw, GpuSurface } from '../gpu/types';
+import type { GpuDraw, GpuSurface, UniformValues } from '../gpu/types';
 import type { InitialCamera } from './stackTypes';
 
 // ---------------------------------------------------------------------------
@@ -114,6 +115,12 @@ export interface CpuCanvasProps extends CpuSurfaceOptions {
     style?: CSSProperties;
 }
 
+export interface FrameRenderContext {
+    readonly surface: GpuSurface;
+    readonly program: Program;
+    readonly uniforms: UniformValues;
+}
+
 export interface GpuCanvasProps extends GpuSurfaceOptions {
     /** Compiled on mount and recompiled whenever the source changes. */
     fragmentShader?: string;
@@ -126,6 +133,11 @@ export interface GpuCanvasProps extends GpuSurfaceOptions {
     onShaderError?: (error: ShaderError | null) => void;
     /** Computed from the surface before each frame's draw. */
     uniforms?: (surface: GpuSurface) => Record<string, UniformValue>;
+    /**
+     * Replaces the default `surface.renderProgram(program, uniforms)` call. Runs only when the
+     * render gate allows a draw.
+     */
+    renderFrame?: (context: FrameRenderContext) => void;
     /**
      * Opt-in render gate evaluated before each frame's draw. Return false to skip `setUniforms` +
      * `renderProgram` for this frame (GPU stays idle); `onFrame` still runs. Defaults to always

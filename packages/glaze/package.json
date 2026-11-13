@@ -24,6 +24,8 @@
         "./cpu/CpuSurface": "./src/cpu/CpuSurface.ts",
         "./cpu/types": "./src/cpu/types.ts",
         "./gpu/GpuSurface": "./src/gpu/GpuSurface.ts",
+        "./gpu/RenderTarget": "./src/gpu/RenderTarget.ts",
+        "./gpu/RenderTargetPair": "./src/gpu/RenderTargetPair.ts",
         "./gpu/StateBuffer": "./src/gpu/StateBuffer.ts",
         "./gpu/batch/ShapeBatcher": "./src/gpu/batch/ShapeBatcher.ts",
         "./gpu/batch/geometry": "./src/gpu/batch/geometry.ts",

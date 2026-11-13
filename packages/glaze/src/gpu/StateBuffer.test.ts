@@ -69,7 +69,6 @@ type MockGl = ReturnType<typeof createMockGl>;
  * confinée à cette factory.
  */
 function createBuffer(gl: MockGl) {
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
     return createStateBuffer(gl as unknown as WebGL2RenderingContext, 100, 100);
 }
 
@@ -132,7 +131,7 @@ describe('StateBuffer ownership', () => {
     it('destroy() notifies the owner exactly once, even if called twice', () => {
         const gl = createMockGl();
         const onDestroy = vi.fn();
-        // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+
         const buffer = createStateBuffer(
             gl as unknown as WebGL2RenderingContext,
             100,
@@ -195,12 +194,32 @@ describe('StateBuffer stepping', () => {
         buffer.useProgram('default');
         vi.spyOn(Program.prototype, 'setUniforms').mockImplementation(() => undefined);
 
-        const readBefore = buffer.targets.getReadTexture();
+        const readBefore = buffer.pair.read.texture;
 
         buffer.step();
 
-        expect(buffer.targets.getReadTexture()).not.toBe(readBefore);
+        expect(buffer.pair.read.texture).not.toBe(readBefore);
         expect(gl.bindFramebuffer).toHaveBeenLastCalledWith(gl.FRAMEBUFFER, null);
         expect(gl.drawArrays).toHaveBeenCalledWith(gl.TRIANGLES, 0, 3);
+    });
+
+    it('binds configured inputUniform to pair.read.texture', () => {
+        const gl = createMockGl();
+        const buffer = createBuffer(gl);
+
+        buffer.addProgram('custom', 'void main() {}', { inputUniform: 'u_previous' });
+        buffer.useProgram('custom');
+
+        const setUniforms = vi
+            .spyOn(Program.prototype, 'setUniforms')
+            .mockImplementation(() => undefined);
+
+        buffer.step();
+
+        expect(setUniforms).toHaveBeenCalledWith(
+            expect.objectContaining({
+                u_previous: buffer.pair.read.texture,
+            }),
+        );
     });
 });

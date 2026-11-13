@@ -3,30 +3,19 @@ import type { Brand } from './brands';
 
 export type DurationSeconds = Brand<number, 'DurationSeconds'>;
 export type Seconds = Brand<number, 'Seconds'>;
-
-/**
- * Refinement of `Seconds` (assignable wherever `Seconds` is expected) rather than a sibling
- * `Brand`: stacking two brands on the same `__brand` key would intersect to `never`.
- */
-export type NonNegativeSeconds = Seconds & { readonly __nonNegative: true };
+export type NonNegativeSeconds = Seconds & Brand<number, 'NonNegative'>;
 export type Milliseconds = Brand<number, 'Milliseconds'>;
 
 const MS_PER_SECOND = 1000;
 
 export function createDurationSeconds(value: number): DurationSeconds {
     assertStrictlyPositive(value, 'duration');
-
-    // DurationSeconds is a nominal brand over number; the cast is intentional branding.
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    return value as DurationSeconds;
+    return value;
 }
 
 export function createSeconds(value: number): Seconds {
     assertFinite(value, 'seconds');
-
-    // Seconds is a nominal brand over number; the cast is intentional branding.
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    return value as Seconds;
+    return value;
 }
 
 export function createNonNegativeSeconds(value: number): NonNegativeSeconds {
@@ -36,17 +25,12 @@ export function createNonNegativeSeconds(value: number): NonNegativeSeconds {
         throw new Error(`Glaze: seconds must not be negative, received ${String(value)}`);
     }
 
-    // NonNegativeSeconds refines Seconds with a nominal marker; the cast is intentional branding.
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    return value as NonNegativeSeconds;
+    return value;
 }
 
 export function createMilliseconds(value: number): Milliseconds {
     assertFinite(value, 'milliseconds');
-
-    // Milliseconds is a nominal brand over number; the cast is intentional branding.
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    return value as Milliseconds;
+    return value;
 }
 
 export function msToSeconds(value: number): Seconds {

@@ -122,7 +122,7 @@ function createFakeCanvas(gl: ReturnType<typeof createMockGl>): FakeCanvas {
 function createSurface() {
     const gl = createMockGl();
     const canvas = createFakeCanvas(gl);
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+
     const surface = createGpuSurface({ canvas: canvas as unknown as HTMLCanvasElement });
 
     return { gl, canvas, surface };
@@ -220,5 +220,59 @@ describe('GpuSurface ownership', () => {
 
         expect(() => surface.destroy()).not.toThrow();
         expect(destroyProgram).toHaveBeenCalledTimes(2);
+    });
+
+    it('forgets RenderTarget and RenderTargetPair destroyed before surface', () => {
+        const { gl, surface } = createSurface();
+        const target = surface.createRenderTarget(16, 16);
+        const pair = surface.createRenderTargetPair(16, 16);
+
+        target.destroy();
+        pair.destroy();
+
+        expect(gl.deleteFramebuffer).toHaveBeenCalledTimes(3); // 1 for target, 2 for pair
+        expect(() => surface.destroy()).not.toThrow();
+        // Early destroy already released them, not destroyed again
+        expect(gl.deleteFramebuffer).toHaveBeenCalledTimes(3);
+    });
+});
+
+describe('GpuSurface rendering', () => {
+    it('renderProgramTo with target binds FBO and restores default framebuffer and viewport', () => {
+        const { gl, surface } = createSurface();
+        const program = surface.createProgram('void main() {}');
+        const target = surface.createRenderTarget(50, 40);
+
+        gl.bindFramebuffer.mockClear();
+        gl.viewport.mockClear();
+
+        surface.renderProgramTo(program, target);
+
+        // target.bindFramebuffer binds the target FBO (FRAMEBUFFER: 0x8d40)
+        expect(gl.bindFramebuffer).toHaveBeenCalledWith(gl.FRAMEBUFFER, expect.anything());
+        // renderProgramTo sets viewport to target size
+        expect(gl.viewport).toHaveBeenCalledWith(0, 0, 50, 40);
+        // And then restores default framebuffer (null) and default viewport (device dimensions)
+        expect(gl.bindFramebuffer).toHaveBeenLastCalledWith(gl.FRAMEBUFFER, null);
+        expect(gl.viewport).toHaveBeenLastCalledWith(
+            0,
+            0,
+            surface.deviceWidth,
+            surface.deviceHeight,
+        );
+    });
+
+    it('renderProgramTo with null target draws to default framebuffer', () => {
+        const { gl, surface } = createSurface();
+        const program = surface.createProgram('void main() {}');
+
+        gl.bindFramebuffer.mockClear();
+        gl.viewport.mockClear();
+
+        surface.renderProgramTo(program, null);
+
+        // Should not bind a custom FBO
+        expect(gl.bindFramebuffer).not.toHaveBeenCalled();
+        expect(gl.viewport).toHaveBeenCalledWith(0, 0, surface.deviceWidth, surface.deviceHeight);
     });
 });
