@@ -2,7 +2,7 @@ import type { SeededRandom } from '../assembly/seeded-random';
 import type { PalettePreset } from '../palettes/registry';
 
 export type ParamDefinition =
-    | { type: 'global'; value: string } // e.g. 'u_time', 'u_mouse'
+    | { type: 'global'; value: string } // e.g. 'iTime', 'u_mouse'
     | { type: 'range'; min: number; max: number; precision?: number } // e.g. rng scale between 2.0 and 7.0
     | { type: 'literal'; value: string | number }; // Fixed values
 

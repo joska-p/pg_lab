@@ -7,9 +7,9 @@ export const domainWarp: ShaderModule = {
     weight: 2.0,
     code,
     params: {
-        time: { type: 'global', value: 'u_time' },
+        time: { type: 'global', value: 'iTime' },
         intensity: { type: 'range', min: 0.1, max: 0.5 },
     },
-    getCall: ({ uv = 'uv', time = 'u_time', intensity = '0.1' }) =>
+    getCall: ({ uv = 'uv', time = 'iTime', intensity = '0.1' }) =>
         `${uv} = domainWarp(${uv}, ${time}, ${intensity});`,
 };

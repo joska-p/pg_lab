@@ -1,4 +1,4 @@
-import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
+import { SurfaceCanvas } from '@repo/surface/react/SurfaceCanvas';
 
 import spiraleFragment from './spiraleFragment.glsl?raw';
 import { useGap } from './store';
@@ -7,12 +7,11 @@ function Spirale() {
     const gap = useGap();
 
     return (
-        <GpuCanvas
+        <SurfaceCanvas
             fragmentShader={spiraleFragment}
             uniforms={() => ({
                 u_gap: gap,
             })}
-            canvasInteractions={{ pan: false, zoom: false }}
         />
     );
 }

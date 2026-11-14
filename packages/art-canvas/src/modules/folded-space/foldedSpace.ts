@@ -1,21 +1,12 @@
 import { cosinePalette } from '../../shaders/modules/effects/cosinePalette';
 import { repeatSpace } from '../../shaders/modules/space/repeatSpace';
 
-// GLSL 300 ES fragment shader — vertex shader is provided by QuadPipeline's
-// built-in fullscreen triangle (no vertex shader needed here).
-const fragmentShader = `#version 300 es
-  precision highp float;
-
-  uniform float u_time;
-  in vec2 vUv;
-
-  out vec4 fragColor;
-
+const fragmentShader = `
   ${repeatSpace.code}
   ${cosinePalette.code}
 
-  void main() {
-    vec2 uv = vUv - 0.5;
+  void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+    vec2 uv = fragCoord / iResolution.xy - 0.5;
     vec2 uv0 = uv;
     vec3 finalColor = vec3(0.0);
 
@@ -31,11 +22,11 @@ const fragmentShader = `#version 300 es
         d_space *= exp(-length(uv0));
 
         // 1/wave → thin bright peaks (neon glow)
-        float wave = sin(d_space * 8.0 + u_time);
+        float wave = sin(d_space * 8.0 + iTime);
         wave = abs(wave);
         wave = 0.02 / wave;
 
-        vec3 col = cosinePalette(length(uv0) + i * 0.4 + u_time * 0.4, a, b, c, d);
+        vec3 col = cosinePalette(length(uv0) + i * 0.4 + iTime * 0.4, a, b, c, d);
 
         finalColor += col * wave;
     }

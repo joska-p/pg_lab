@@ -8,9 +8,9 @@ export const flowField: ShaderModule = {
     code,
     deps: ['noise2d'],
     params: {
-        time: { type: 'global', value: 'u_time' },
+        time: { type: 'global', value: 'iTime' },
         strength: { type: 'range', min: 0.05, max: 0.2 },
     },
-    getCall: ({ uv = 'uv', time = 'u_time', strength = '0.1' }) =>
+    getCall: ({ uv = 'uv', time = 'iTime', strength = '0.1' }) =>
         `${uv} = flowField(${uv}, ${time}, ${strength});`,
 };

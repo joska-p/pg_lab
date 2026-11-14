@@ -1,17 +1,10 @@
-// GLSL 300 ES fragment shader — QuadPipeline provides the vertex shader; only the fragment program is needed here.
-export const SYLLABIC_FIBONACCI_FRAGMENT = `#version 300 es
-  precision highp float;
-
-  uniform float u_time;
+export const SYLLABIC_FIBONACCI_FRAGMENT = `
   uniform float uGridSize;
   uniform float uModulo;
   uniform float uSymbolType;
   uniform float uPalette;
   uniform float uGlitch;
   uniform float uSeedOffset;
-
-  in vec2 vUv;
-  out vec4 fragColor;
 
   // Binet's formula: avoids pow(negative, n) which returns NaN on several GPUs
   float fibonacci(float n) {
@@ -68,11 +61,11 @@ export const SYLLABIC_FIBONACCI_FRAGMENT = `#version 300 es
       }
   }
 
-  void main() {
-    vec2 uv = vUv;
+  void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+    vec2 uv = fragCoord / iResolution.xy;
 
     if (uGlitch > 0.02) {
-        float glitchLine = step(0.97 - (uGlitch * 0.02), sin(uv.y * 60.0 + u_time * 12.0));
+        float glitchLine = step(0.97 - (uGlitch * 0.02), sin(uv.y * 60.0 + iTime * 12.0));
         uv.x += glitchLine * sin(uv.y * 180.0) * 0.04 * uGlitch;
     }
 

@@ -4,24 +4,19 @@ const SinglePassTemplate: ShaderTemplate = {
     name: 'single-pass',
     weight: 0.8,
     generate: ({ spaceBlock, shapeBlock, effectBlock, palette, uniqueInjectedCode }) => `
-    precision highp float;
-
-    uniform float u_time;
-    uniform vec2 u_mouse;
-    in vec2 vUv;
-    out vec4 fragColor;
-
     ${uniqueInjectedCode}
 
-    void main() {
+    void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+      vec2 u_mouse = iMouse.xy / iResolution.xy;
+      vec2 vUv = fragCoord / iResolution.xy;
       vec2 uv = (vUv - 0.5) * 2.0;
       vec2 uv0 = uv;
       ${spaceBlock}
       ${shapeBlock}
       float interest = 1.0 - smoothstep(0.0, 0.5, abs(dist));
-      float wave = abs(sin(dist * 10.0 - u_time * 2.0));
+      float wave = abs(sin(dist * 10.0 - iTime * 2.0));
       ${effectBlock}
-      float t = wave + u_time * 0.06;
+      float t = wave + iTime * 0.06;
       vec3 a = ${palette.a}; vec3 b = ${palette.b}; vec3 c = ${palette.c}; vec3 d = ${palette.d};
       vec3 col = a + b * cos(6.28318 * (c * t + d));
       col *= interest;

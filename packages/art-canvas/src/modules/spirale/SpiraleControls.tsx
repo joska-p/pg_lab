@@ -1,10 +1,10 @@
-import { useClockPlayback } from '@repo/glaze/react/useClockStore';
+import { usePlayback } from '@repo/surface/react/usePlayback';
 import { Button } from '@repo/ui/components/Button';
 import { Slider } from '@repo/ui/components/Slider';
 import { space } from '@repo/ui/tokens/const.stylex';
 import * as stylex from '@stylexjs/stylex';
 
-import { useGap, setGap } from './store';
+import { setGap, useGap } from './store';
 
 const styles = stylex.create({
     actions: {
@@ -16,7 +16,7 @@ const styles = stylex.create({
 
 function SpiraleControls() {
     const gap = useGap();
-    const { isPlaying, togglePlay } = useClockPlayback();
+    const { isPlaying, togglePlay } = usePlayback();
 
     return (
         <div {...stylex.props(styles.actions)}>

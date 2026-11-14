@@ -1,15 +1,7 @@
-// GLSL 300 ES fragment shader — vertex shader is provided by QuadPipeline's
-// built-in fullscreen triangle (no vertex shader needed here).
-const fragmentShader = `#version 300 es
-  precision highp float;
-
+const fragmentShader = `
   uniform float uDivisions;
   uniform float uChroma;
   uniform float uLightness;
-
-  in vec2 vUv;
-
-  out vec4 fragColor;
 
   #define PI 3.141592653589793
 
@@ -44,10 +36,11 @@ const fragmentShader = `#version 300 es
       return clamp(rgb, 0.0, 1.0);
   }
 
-  void main() {
-      float columnId = floor(vUv.x * uDivisions);
+  void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+      vec2 uv = fragCoord / iResolution.xy;
+      float columnId = floor(uv.x * uDivisions);
       float normalizedId = columnId / (uDivisions - 1.0 == 0.0 ? 1.0 : uDivisions - 1.0);
-      bool isTop = vUv.y > 0.5;
+      bool isTop = uv.y > 0.5;
 
       float targetLightness = uLightness;
       float targetChroma = uChroma;

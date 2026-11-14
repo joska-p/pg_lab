@@ -1,4 +1,4 @@
-import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
+import { SurfaceCanvas } from '@repo/surface/react/SurfaceCanvas';
 
 import { generateShaderFromSeed } from '../../assembly/from-seed';
 import { useComplexity, useMood, usePalette, useSeed } from './store';
@@ -11,12 +11,7 @@ function SeedCanvas() {
 
     const fragmentShader = generateShaderFromSeed(seed, complexity, mood, palette);
 
-    return (
-        <GpuCanvas
-            fragmentShader={fragmentShader}
-            canvasInteractions={{ pan: false, zoom: false }}
-        />
-    );
+    return <SurfaceCanvas fragmentShader={fragmentShader} />;
 }
 
 export { SeedCanvas };

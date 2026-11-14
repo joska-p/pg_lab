@@ -1,11 +1,3 @@
-#version 300 es
-precision highp float;
-
-in vec2 vUv;
-out vec4 fragColor;
-
-uniform vec2 u_resolution;
-uniform float u_clockTime;
 uniform float u_gap;
 
 const float TWO_PI = 6.283185307179586;
@@ -65,8 +57,8 @@ float snoise(vec3 v) {
     return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
 }
 
-void main() {
-    vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / u_resolution.y;
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+    vec2 uv = (fragCoord - 0.5 * iResolution.xy) / iResolution.y;
 
     // 1. Baseline distance for noise scaling
     float rawR = length(uv);
@@ -115,7 +107,7 @@ void main() {
 
     // Define how fast the pen draws (radians per second)
     float drawSpeed = 12.0;
-    float currentMaxTheta = u_clockTime * drawSpeed;
+    float currentMaxTheta = iTime * drawSpeed;
 
     // Smoothly cut off the line right at the current pen tip location
     float penDelta = fwidth(totalTheta);
