@@ -470,9 +470,6 @@ importers:
 
   packages/fracture:
     dependencies:
-      '@repo/glaze':
-        specifier: workspace:*
-        version: link:../glaze
       '@repo/surface':
         specifier: workspace:*
         version: link:../surface
@@ -864,6 +861,9 @@ importers:
       '@repo/randomart-core':
         specifier: workspace:*
         version: link:../randomart-core
+      '@repo/surface':
+        specifier: workspace:*
+        version: link:../surface
       '@repo/ui':
         specifier: workspace:*
         version: link:../ui

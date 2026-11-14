@@ -1,4 +1,3 @@
-import type { DurationSeconds } from '@repo/glaze/core/time';
 import type { RenderTargetPair } from '@repo/glaze/gpu/RenderTargetPair';
 import type { Program } from '@repo/glaze/gpu/shader/Program';
 import type { ShaderError } from '@repo/glaze/gpu/shader/ShaderError';
@@ -25,7 +24,7 @@ interface RandomArtCanvasProps {
     /** True when the shader reads `u_phase` (CompiledShader.animated). Defaults to true. */
     animated?: boolean;
     /** Animation loop duration. Defaults to `DEFAULT_LOOP_DURATION`. */
-    duration?: DurationSeconds;
+    duration?: number;
     /** Active post-processing effects. */
     activeEffects?: Readonly<Record<PostProcessEffectId, boolean>>;
     /** Callback invoked whenever shader compilation succeeds (null) or fails (ShaderError). */
