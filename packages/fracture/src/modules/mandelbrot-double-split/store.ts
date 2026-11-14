@@ -1,7 +1,6 @@
+import { Camera2D } from '@repo/surface/core/Camera2D';
 import { useStore } from 'zustand';
 import { createStore } from 'zustand/vanilla';
-
-import { createCameraRig } from '../../core/observedCamera';
 
 export interface FractalParams {
     iterationBase: number;
@@ -49,5 +48,5 @@ export function setParam(key: ParamKey, value: number): void {
  */
 export const MAX_ZOOM = 1e11;
 
-/** Module-owned camera rig (D4): the glaze camera is the truth, the rig owns its change signal. */
-export const cameraRig = createCameraRig({ maxZoom: MAX_ZOOM });
+/** Module-owned camera (D4): live reactive Camera2D without brands. */
+export const camera = new Camera2D({ maxZoom: MAX_ZOOM });

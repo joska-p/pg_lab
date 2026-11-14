@@ -4,7 +4,7 @@ import { Text } from '@repo/ui/components/Text';
 
 import { computeMaxIterations } from '../../core/iterationPolicy';
 import { CameraSection } from '../../workshop/CameraSection';
-import { cameraRig, setParam, useParams } from './store';
+import { camera, setParam, useParams } from './store';
 import type { FractalParams, ParamKey } from './store';
 
 interface ParamSlider {
@@ -75,7 +75,7 @@ function DoubleSplitControls() {
     return (
         <>
             <CameraSection
-                rig={cameraRig}
+                camera={camera}
                 iterationBase={params.iterationBase}
                 iterationScale={params.iterationScale}
                 iterationCap={params.iterationCap}

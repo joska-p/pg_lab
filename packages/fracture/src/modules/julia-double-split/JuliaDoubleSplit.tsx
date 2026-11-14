@@ -1,8 +1,9 @@
-import type { UniformValue } from '@repo/glaze/gpu/shader/types';
-import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
+import type { UniformValue } from '@repo/surface/gpu/types';
+import { SurfaceCanvas } from '@repo/surface/react/SurfaceCanvas';
+import { useCameraControls } from '@repo/surface/react/useCameraControls';
 import { useEffect } from 'react';
 
-import { WORLD_SCALE, ZOOM_WHEEL_SPEED } from '../../core/camera';
+import { WORLD_SCALE } from '../../core/camera';
 import { splitDouble } from '../../core/doubleSplit';
 import { computeMaxIterations } from '../../core/iterationPolicy';
 import { useDemandRender } from '../../lib/demandRender';
@@ -12,7 +13,7 @@ import dsArithmeticChunk from '../../shaders/chunks/ds-arithmetic.glsl?raw';
 import lightingChunk from '../../shaders/chunks/lighting.glsl?raw';
 import oklchChunk from '../../shaders/chunks/oklch.glsl?raw';
 import juliaBody from './julia.glsl?raw';
-import { cameraRig, useParams } from './store';
+import { camera, useParams } from './store';
 import type { FractalParams } from './store';
 
 const juliaDoubleSplitShader = assemble(dsArithmeticChunk, oklchChunk, lightingChunk, juliaBody);
@@ -45,6 +46,8 @@ function juliaDoubleSplitUniforms(
     const [centerImHi, centerImLo] = splitDouble(centerIm);
 
     return {
+        u_camera: [camera.x, camera.y, camera.zoom],
+        u_aspect: aspect,
         u_centerRe: [centerReHi, centerReLo],
         u_centerIm: [centerImHi, centerImLo],
         u_iterationBase: params.iterationBase,
@@ -65,7 +68,11 @@ function juliaDoubleSplitUniforms(
 
 export function JuliaDoubleSplit() {
     const params = useParams();
-    const demand = useDemandRender(params, cameraRig);
+    const demand = useDemandRender(params, camera);
+    const cameraControls = useCameraControls(camera, {
+        pan: { buttons: ['left', 'middle'] },
+        zoom: { speed: 1.2 },
+    });
 
     useEffect(() => {
         if (!isPerfEnabled()) {
@@ -78,21 +85,24 @@ export function JuliaDoubleSplit() {
     }, []);
 
     return (
-        <GpuCanvas
+        <SurfaceCanvas
+            {...cameraControls}
             className="h-full w-full"
             fragmentShader={juliaDoubleSplitShader}
-            camera={cameraRig.camera}
-            cameraControls={cameraRig.controls}
-            canvasInteractions={{ zoom: { speed: ZOOM_WHEEL_SPEED } }}
             shouldRender={demand.shouldRender}
             onMount={demand.handleMount}
-            uniforms={({ camera, width, height }) => {
-                cameraRig.setViewport(width, height);
+            uniforms={(surface) => {
+                camera.setViewport({ width: surface.width, height: surface.height });
 
                 const t0 = isPerfEnabled() ? performance.now() : 0;
-                const result = juliaDoubleSplitUniforms(params, camera, width, height);
+                const result = juliaDoubleSplitUniforms(
+                    params,
+                    camera,
+                    surface.width,
+                    surface.height,
+                );
                 if (isPerfEnabled()) {
-                    recordFractalFrame(performance.now() - t0, width, height, {
+                    recordFractalFrame(performance.now() - t0, surface.width, surface.height, {
                         maxIterations: computeMaxIterations(
                             camera.zoom,
                             params.iterationBase,
