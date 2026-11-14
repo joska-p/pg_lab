@@ -1,4 +1,4 @@
-import type { ShaderError } from '@repo/glaze/gpu/shader/ShaderError';
+import type { ShaderError } from '@repo/surface/gpu/ShaderError';
 import { globalPlaybackStore, usePlayback } from '@repo/surface/react/usePlayback';
 import { create } from 'zustand';
 
@@ -57,8 +57,8 @@ export function attachClock(clockStore: ClockProgress): void {
     }
 }
 
-export function setShaderError(shaderError: ShaderError | null): void {
-    store.setState({ shaderError });
+export function setShaderError(shaderError: ShaderError | null | undefined): void {
+    store.setState({ shaderError: shaderError ?? null });
 }
 
 /** Called when the surface unmounts, so no handler can reach a disposed clock. */

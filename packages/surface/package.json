@@ -12,6 +12,7 @@
         "./gpu/TargetPair": "./src/gpu/TargetPair.ts",
         "./gpu/RenderTarget": "./src/gpu/RenderTarget.ts",
         "./gpu/Program": "./src/gpu/Program.ts",
+        "./gpu/ShaderError": "./src/gpu/ShaderError.ts",
         "./gpu/types": "./src/gpu/types.ts",
         "./core/Camera2D": "./src/core/Camera2D.ts",
         "./core/Clock": "./src/core/Clock.ts"

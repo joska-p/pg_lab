@@ -1,9 +1,6 @@
-import type { RenderTargetPair } from '@repo/glaze/gpu/RenderTargetPair';
-import type { Program } from '@repo/glaze/gpu/shader/Program';
-import type { ShaderError } from '@repo/glaze/gpu/shader/ShaderError';
-import type { GpuSurface } from '@repo/glaze/gpu/types';
-import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
-import type { ClockStore } from '@repo/glaze/react/types';
+import type { TargetPair } from '@repo/surface/gpu/TargetPair';
+import type { Program, ShaderError, Surface } from '@repo/surface/react/SurfaceCanvas';
+import { SurfaceCanvas } from '@repo/surface/react/SurfaceCanvas';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useRef } from 'react';
 
@@ -13,10 +10,7 @@ import type { PostProcessEffectId } from '../postProcessing/effects';
 import { createPhase, needsRender } from '../renderer/renderGate';
 import type { RenderKey } from '../renderer/renderGate';
 import { getActiveEffectsKey } from '../stores/postProcessingStore';
-
-const DEFAULT_CONTEXT_OPTIONS: WebGLContextAttributes = {
-    antialias: false,
-};
+import type { ClockProgress } from '../stores/surfaceStore';
 
 interface RandomArtCanvasProps {
     /** Fragment shader source code adhering to randomart's GLSL contract. */
@@ -27,15 +21,18 @@ interface RandomArtCanvasProps {
     duration?: number;
     /** Active post-processing effects. */
     activeEffects?: Readonly<Record<PostProcessEffectId, boolean>>;
-    /** Callback invoked whenever shader compilation succeeds (null) or fails (ShaderError). */
-    onShaderError?: (error: ShaderError | null) => void;
-    /** Callback connecting the clock store to the UI store. */
-    onClockStore?: (clockStore: ClockStore) => void;
+    /**
+     * Callback invoked whenever shader compilation succeeds (null/undefined) or fails
+     * (ShaderError).
+     */
+    onShaderError?: (error: ShaderError | null | undefined) => void;
+    /** Callback connecting the clock progress to the UI store. */
+    onClockStore?: (clockStore: ClockProgress) => void;
 }
 
 interface PipelineResources {
-    surface: GpuSurface;
-    pair: RenderTargetPair;
+    surface: Surface;
+    pair: TargetPair;
     programs: Map<string, Program>;
 }
 
@@ -64,17 +61,16 @@ const styles = stylex.create({
 });
 
 /**
- * Thin adapter around @repo/glaze GpuCanvas for randomart. Timed clock (paused at phase 0), WebGL
- * context flags, supplies `u_phase`. Lazy rendering: still/paused/static costs no GPU time. The
- * drawing buffer is not preserved; export re-renders offscreen.
+ * Thin adapter around @repo/surface SurfaceCanvas for randomart. Supplies `u_phase`. Lazy
+ * rendering: still/paused/static costs no GPU time. The drawing buffer is not preserved; export
+ * re-renders offscreen.
  *
- * A newly installed program is always drawn once by GpuCanvas, independently of `shouldRender`, so
- * changing the shader appears even while the clock is paused.
+ * A newly installed program is always drawn once by SurfaceCanvas, independently of `shouldRender`,
+ * so changing the shader appears even while the clock is paused.
  *
  * `shouldRender` records the key it approves before the draw happens. The only way a draw is
- * skipped after approval is a lost WebGL context (`GpuSurface.renderProgram` returns early), and
- * `onContextRestored` resets `lastRenderRef` so the next frame redraws. Keep that reset in place if
- * this gate changes.
+ * skipped after approval is a lost WebGL context, and `onContextRestored` resets `lastRenderRef` so
+ * the next frame redraws. Keep that reset in place if this gate changes.
  */
 export function RandomArtCanvas({
     fragmentShader,
@@ -86,6 +82,11 @@ export function RandomArtCanvas({
 }: RandomArtCanvasProps) {
     const lastRenderRef = useRef<RenderKey | null>(null);
     const pipelineRef = useRef<PipelineResources | null>(null);
+    const durationRef = useRef(duration);
+
+    useEffect(() => {
+        durationRef.current = duration;
+    }, [duration]);
 
     useEffect(() => {
         return () => {
@@ -93,25 +94,23 @@ export function RandomArtCanvas({
         };
     }, []);
 
+    const computeProgress = (time: number): number => {
+        const d = durationRef.current;
+        return d > 0 ? (time % d) / d : 0;
+    };
+
     return (
         <div {...stylex.props(styles.parentContainer)}>
             <div {...stylex.props(styles.canva)}>
-                <GpuCanvas
+                <SurfaceCanvas
                     fragmentShader={fragmentShader}
-                    clockOptions={{
-                        mode: 'timed',
-                        duration,
-                        loop: true,
-                        autoStart: false,
-                    }}
-                    contextOptions={DEFAULT_CONTEXT_OPTIONS}
                     uniforms={(surface) => ({
-                        u_phase: createPhase(surface.clock.progress),
+                        u_phase: createPhase(computeProgress(surface.clock.time)),
                     })}
                     shouldRender={(surface) => {
                         const postProcess = activeEffects ? getActiveEffectsKey(activeEffects) : '';
                         const key: RenderKey = {
-                            phase: createPhase(surface.clock.progress),
+                            phase: createPhase(computeProgress(surface.clock.time)),
                             width: surface.width,
                             height: surface.height,
                             dpr: surface.dpr,
@@ -127,6 +126,10 @@ export function RandomArtCanvas({
                         return render;
                     }}
                     renderFrame={({ surface, program, uniforms }) => {
+                        if (surface.deviceWidth <= 0 || surface.deviceHeight <= 0) {
+                            return;
+                        }
+
                         const activeList = POST_PROCESS_EFFECTS.filter(
                             (effect) => activeEffects?.[effect.id] === true,
                         ).sort((a, b) => a.order - b.order);
@@ -141,7 +144,7 @@ export function RandomArtCanvas({
                         if (!pipeline || pipeline.surface !== surface) {
                             pipeline = {
                                 surface,
-                                pair: surface.createRenderTargetPair(
+                                pair: surface.createTargetPair(
                                     surface.deviceWidth,
                                     surface.deviceHeight,
                                     { filter: 'linear' },
@@ -159,7 +162,7 @@ export function RandomArtCanvas({
                         const { pair, programs } = pipeline;
 
                         // Pass 1: Render the base shader into offscreen target pair.write
-                        surface.renderProgramTo(program, pair.write, uniforms);
+                        surface.renderTo(pair.write, program, uniforms);
                         pair.swap();
 
                         // Intermediate passes (if any)
@@ -174,8 +177,9 @@ export function RandomArtCanvas({
                                 programs.set(effect.id, effectProgram);
                             }
 
-                            surface.renderProgramTo(effectProgram, pair.write, {
+                            surface.renderTo(pair.write, effectProgram, {
                                 u_source: pair.read.texture,
+                                u_resolution: [surface.deviceWidth, surface.deviceHeight],
                             });
                             pair.swap();
                         }
@@ -189,14 +193,23 @@ export function RandomArtCanvas({
 
                         surface.renderProgram(finalProgram, {
                             u_source: pair.read.texture,
+                            u_resolution: [surface.deviceWidth, surface.deviceHeight],
                         });
                     }}
                     onShaderError={onShaderError}
-                    onClockStore={onClockStore}
+                    onMount={(surface) => {
+                        onClockStore?.({
+                            get progress() {
+                                return computeProgress(surface.clock.time);
+                            },
+                            play: () => surface.clock.play(),
+                            pause: () => surface.clock.pause(),
+                            reset: () => surface.clock.reset(),
+                        });
+                    }}
                     onContextRestored={() => {
                         lastRenderRef.current = null;
                     }}
-                    canvasInteractions={{ pan: false, zoom: false }}
                 />
             </div>
         </div>
