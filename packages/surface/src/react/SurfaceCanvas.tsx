@@ -79,9 +79,15 @@ export function SurfaceCanvas({
     ...canvasProps
 }: SurfaceCanvasProps): React.ReactElement {
     // Create a Surface when the canvas node mounts; destroy it when it unmounts.
-    const { ref, resource: surface } = useNodeResource(
-        (canvas: HTMLCanvasElement) => new Surface(canvas),
-    );
+    // Apply the current playback state immediately so the clock never runs ahead
+    // of the global store — even before the sync effect fires.
+    const { ref, resource: surface } = useNodeResource((canvas: HTMLCanvasElement) => {
+        const s = new Surface(canvas);
+        if (!globalPlaybackStore.isPlaying) {
+            s.clock.pause();
+        }
+        return s;
+    });
 
     // Stable references to callbacks (identity may change each render)
     const uniformsRef = useLatest(uniforms);
