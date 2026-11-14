@@ -1,6 +1,6 @@
 # randomart-ui
 
-Interactive playground for the **randomart** procedural art generator. Consumes `randomart-core` for grammar, generation, and GLSL compilation; renders via `@repo/glaze` WebGL abstraction.
+Interactive playground for the **randomart** procedural art generator. Consumes `randomart-core` for grammar, generation, and GLSL compilation; renders via `@repo/surface` WebGL abstraction.
 
 ## Architecture
 
@@ -24,7 +24,7 @@ Scene       Controls
 | Store           | Responsibility                                                                                                                                                                                  |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `artworkStore`  | Single source of truth: `Artwork { grammar, seed, space, expression, shader }`. Mutations go through `editGrammar`, `newSeed`, `setSpace`, `randomizeGrammar`, `applyPreset` (batched via RAF). |
-| `surfaceStore`  | Holds the live `ClockStore` for playback controls and duration sync.                                                                                                                            |
+| `surfaceStore`  | Holds the live clock progress for the PNG export, and syncs the surface clock with `globalPlaybackStore` (play/pause/reset).                                                                    |
 | `playbackStore` | Animation loop duration.                                                                                                                                                                        |
 | `errorStore`    | Action errors of the latest action (`actionErrors`), replaced by the next failing action and cleared by the next successful one.                                                                |
 
@@ -60,7 +60,7 @@ App
 
 ### Rendering
 
-`RandomArtCanvas` wraps `@repo/glaze/react/GpuCanvas`:
+`RandomArtCanvas` wraps `@repo/surface/react/SurfaceCanvas`:
 
 - **Timed clock** (paused at `phase = 0`), duration from `playbackStore`.
 - **Lazy rendering**: `shouldRender` gate only redraws on phase change, resize, or context restore.
