@@ -47,9 +47,10 @@ packages/surface/
 │   └── ShaderError.ts      # Structured shader compile error reporting
 └── react/
     ├── SurfaceCanvas.tsx   # React canvas component with render gating & DPR
+    ├── renderSurfaceFrame.ts# Frame rendering step with renderFrame interception
     ├── useCamera2D.ts      # useSyncExternalStore hook for Camera2D
     ├── useCameraControls.ts# Pointer / wheel canvas event handlers for pan & zoom
-    └── usePlayback.ts      # Synchronization hook for playback stores
+    └── usePlayback.ts      # Synchronization hook for playback stores (play/pause/reset)
 ```
 
 ---
@@ -78,8 +79,12 @@ Declarative React component wrapping `Surface`:
 ```tsx
 <SurfaceCanvas
     fragmentShader={glslSource}
-    uniforms={{ u_color: [1, 0, 0] }}
+    uniforms={(surface) => ({ u_color: [1, 0, 0] })}
     shouldRender={(surface) => isDirty} // Render gate: skips idle redraws
+    renderFrame={({ surface, program, uniforms }) => {
+        // Custom multi-pass pipeline: post-processing, FBO ping-pong, etc.
+        surface.renderProgram(program, uniforms);
+    }}
     onFrame={(surface) => {
         /* step simulation */
     }}
@@ -91,6 +96,21 @@ Declarative React component wrapping `Surface`:
 ```
 
 - **Render Gate (`shouldRender`)**: Prevents unnecessary continuous redraws for static or demand-rendered scenes (e.g. fractal deep zooms), while guaranteeing one-shot redraws on shader change or context restore.
+- **Custom Render Pass (`renderFrame`)**: Intercepts the default `surface.renderProgram(program, extraUniforms)` call, allowing consumers to route rendering through offscreen `TargetPair` / `RenderTarget` passes before blitting to screen.
+- **Playback Synchronization**: Subscribes to `globalPlaybackStore` play/pause state and reset events (calling `surface.clock.reset()` and scheduling a redraw).
+
+### `usePlayback` (`@repo/surface/react/usePlayback`)
+
+Shared playback controls across all `SurfaceCanvas` instances:
+
+```tsx
+const { isPlaying, togglePlay, play, pause, reset } = usePlayback();
+
+<button onClick={togglePlay}>{isPlaying ? 'Pause' : 'Play'}</button>
+<button onClick={reset}>Reset</button>
+```
+
+- `globalPlaybackStore` provides global synchronization: `play()`, `pause()`, `togglePlay()`, `reset()`, and `onReset(listener)`.
 
 ### `Camera2D` & `useCameraControls` (`@repo/surface/core/Camera2D`, `@repo/surface/react/useCameraControls`)
 

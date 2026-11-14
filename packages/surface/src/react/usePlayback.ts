@@ -4,21 +4,30 @@ type Notify = () => void;
 type Unsubscribe = () => void;
 
 /** Global playback state — one channel per page, shared by all SurfaceCanvas instances. */
-interface PlaybackStore {
+export interface PlaybackStore {
     isPlaying: boolean;
     togglePlay(): void;
     play(): void;
     pause(): void;
+    reset(): void;
     subscribe(fn: Notify): Unsubscribe;
+    onReset(fn: Notify): Unsubscribe;
     getSnapshot(): boolean;
 }
 
-function createPlaybackStore(): PlaybackStore {
+export function createPlaybackStore(): PlaybackStore {
     let isPlaying = true;
     const listeners = new Set<Notify>();
+    const resetListeners = new Set<Notify>();
 
     function notify(): void {
         for (const fn of listeners) {
+            fn();
+        }
+    }
+
+    function notifyReset(): void {
+        for (const fn of resetListeners) {
             fn();
         }
     }
@@ -45,10 +54,20 @@ function createPlaybackStore(): PlaybackStore {
             isPlaying = false;
             notify();
         },
+        reset() {
+            notifyReset();
+            notify();
+        },
         subscribe(fn: Notify): Unsubscribe {
             listeners.add(fn);
             return () => {
                 listeners.delete(fn);
+            };
+        },
+        onReset(fn: Notify): Unsubscribe {
+            resetListeners.add(fn);
+            return () => {
+                resetListeners.delete(fn);
             };
         },
         getSnapshot(): boolean {
@@ -69,6 +88,7 @@ export function usePlayback(): {
     togglePlay: () => void;
     play: () => void;
     pause: () => void;
+    reset: () => void;
 } {
     const isPlaying = useSyncExternalStore(
         globalPlaybackStore.subscribe.bind(globalPlaybackStore),
@@ -80,6 +100,7 @@ export function usePlayback(): {
         togglePlay: globalPlaybackStore.togglePlay.bind(globalPlaybackStore),
         play: globalPlaybackStore.play.bind(globalPlaybackStore),
         pause: globalPlaybackStore.pause.bind(globalPlaybackStore),
+        reset: globalPlaybackStore.reset.bind(globalPlaybackStore),
     };
 }
 

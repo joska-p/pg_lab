@@ -4,11 +4,13 @@ import type { Program } from '../gpu/Program';
 import type { ShaderError } from '../gpu/ShaderError';
 import { Surface } from '../gpu/Surface';
 import type { UniformValue } from '../gpu/types';
+import type { RenderFrameArgs } from './renderSurfaceFrame';
+import { renderSurfaceFrame } from './renderSurfaceFrame';
 import { useLatest } from './useLatest';
 import { useNodeResource } from './useNodeResource';
 import { globalPlaybackStore } from './usePlayback';
 
-export type { UniformValue, ShaderError, Surface };
+export type { UniformValue, ShaderError, Surface, Program, RenderFrameArgs };
 
 export interface SurfaceCanvasProps extends Omit<
     React.CanvasHTMLAttributes<HTMLCanvasElement>,
@@ -26,6 +28,11 @@ export interface SurfaceCanvasProps extends Omit<
      * on frames that are actually drawn; return a fresh object.
      */
     uniforms?: (surface: Surface) => Record<string, UniformValue>;
+    /**
+     * Custom frame render pass. When provided, replaces `surface.renderProgram(program,
+     * extraUniforms)`. Useful for multi-pass offscreen pipelines (e.g. post-processing ping-pong).
+     */
+    renderFrame?: (args: RenderFrameArgs) => void;
     /**
      * Called when the shader fails to compile or link (`ShaderError`), or `undefined` after a
      * successful recompilation.
@@ -55,12 +62,13 @@ export interface SurfaceCanvasProps extends Omit<
 /**
  * SurfaceCanvas — a fullscreen WebGL2 canvas driven by a Shadertoy-compatible fragment shader.
  *
- * Auto-injects: `iResolution`, `iTime`, `iTimeDelta`, `iFrame`, `iMouse`. Syncs play/pause with the
- * global `usePlayback()` store.
+ * Auto-injects: `iResolution`, `iTime`, `iTimeDelta`, `iFrame`, `iMouse`. Syncs play/pause and
+ * reset with the global `usePlayback()` store.
  */
 export function SurfaceCanvas({
     fragmentShader,
     uniforms,
+    renderFrame,
     shouldRender,
     onShaderError,
     onMount,
@@ -77,6 +85,7 @@ export function SurfaceCanvas({
 
     // Stable references to callbacks (identity may change each render)
     const uniformsRef = useLatest(uniforms);
+    const renderFrameRef = useLatest(renderFrame);
     const shouldRenderRef = useLatest(shouldRender);
     const onShaderErrorRef = useLatest(onShaderError);
     const onMountRef = useLatest(onMount);
@@ -141,7 +150,7 @@ export function SurfaceCanvas({
     }, [surface, fragmentShader, onShaderErrorRef]);
 
     // -------------------------------------------------------------------------
-    // Sync global play/pause store → surface clock
+    // Sync global playback store → surface clock
     useEffect(() => {
         if (!surface) {
             return;
@@ -154,14 +163,25 @@ export function SurfaceCanvas({
             surface.clock.pause();
         }
 
-        // Subscribe to future changes
-        return globalPlaybackStore.subscribe(() => {
+        // Subscribe to play/pause state changes
+        const unsubState = globalPlaybackStore.subscribe(() => {
             if (globalPlaybackStore.isPlaying) {
                 surface.clock.play();
             } else {
                 surface.clock.pause();
             }
         });
+
+        // Subscribe to reset signals
+        const unsubReset = globalPlaybackStore.onReset(() => {
+            surface.clock.reset();
+            renderedProgramRef.current = null;
+        });
+
+        return () => {
+            unsubState();
+            unsubReset();
+        };
     }, [surface]);
 
     // -------------------------------------------------------------------------
@@ -175,25 +195,16 @@ export function SurfaceCanvas({
             // `onFrame` runs first, every frame, whether or not a draw happens below.
             onFrameRef.current?.(s);
 
-            const program = programRef.current;
-
-            if (!program) {
-                return;
-            }
-
-            const gate = shouldRenderRef.current;
-            const wanted = gate ? gate(s) : true;
-
-            // A program that was never drawn (new shader, restored context) gets exactly one draw.
-            if (!wanted && program === renderedProgramRef.current) {
-                return;
-            }
-
-            const extraUniforms = uniformsRef.current?.(s);
-            s.renderProgram(program, extraUniforms);
-            renderedProgramRef.current = program;
+            renderedProgramRef.current = renderSurfaceFrame({
+                surface: s,
+                program: programRef.current,
+                renderedProgram: renderedProgramRef.current,
+                gate: shouldRenderRef.current,
+                uniforms: uniformsRef.current,
+                renderFrame: renderFrameRef.current,
+            });
         });
-    }, [surface, uniformsRef, shouldRenderRef, onFrameRef]);
+    }, [surface, uniformsRef, renderFrameRef, shouldRenderRef, onFrameRef]);
 
     return (
         <canvas
