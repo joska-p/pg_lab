@@ -855,9 +855,6 @@ importers:
 
   packages/randomart-ui:
     dependencies:
-      '@repo/glaze':
-        specifier: workspace:*
-        version: link:../glaze
       '@repo/randomart-core':
         specifier: workspace:*
         version: link:../randomart-core
