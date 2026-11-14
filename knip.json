@@ -63,10 +63,16 @@
         "packages/sequencer": {
             "project": ["src/**/*.{ts,tsx}"]
         },
-        "packages/three-stage": {
+        "packages/squared": {
             "project": ["src/**/*.{ts,tsx}"]
         },
-        "packages/squared": {
+        "packages/string-art": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
+        "packages/surface": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
+        "packages/three-stage": {
             "project": ["src/**/*.{ts,tsx}"]
         },
         "packages/ui": {

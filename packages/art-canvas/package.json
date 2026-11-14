@@ -14,6 +14,7 @@
     },
     "dependencies": {
         "@repo/glaze": "workspace:*",
+        "@repo/surface": "workspace:*",
         "@repo/ui": "workspace:*",
         "react": "catalog:",
         "react-dom": "catalog:",

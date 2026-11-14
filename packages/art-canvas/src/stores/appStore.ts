@@ -7,7 +7,7 @@ interface AppStore {
 }
 
 const appStore = create<AppStore>(() => ({
-    experimentKey: 'spirale',
+    experimentKey: 'draw',
 }));
 
 export function useExperimentKey() {

@@ -1,14 +1,9 @@
-import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
+import { SurfaceCanvas } from '@repo/surface/react/SurfaceCanvas';
 
-import cursorCircleFragment from './cursorCircle.glsl?raw';
+import fragment from './fragment.glsl?raw';
 
 function DrawCanvas() {
-    return (
-        <GpuCanvas
-            fragmentShader={cursorCircleFragment}
-            canvasInteractions={{ pan: false, zoom: false }}
-        />
-    );
+    return <SurfaceCanvas fragmentShader={fragment} />;
 }
 
 export { DrawCanvas };

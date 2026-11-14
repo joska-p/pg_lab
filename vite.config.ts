@@ -306,6 +306,7 @@ const reactPackages = [
     'packages/randomart-ui/**',
     'packages/sequencer/**',
     'packages/squared/**',
+    'packages/surface/**',
     'packages/string-art/**',
     'packages/three-stage/**',
     'packages/ui/**',

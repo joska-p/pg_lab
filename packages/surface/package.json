@@ -1,0 +1,16 @@
+{
+    "name": "@repo/surface",
+    "version": "0.0.0",
+    "type": "module",
+    "exports": {
+        "./react/SurfaceCanvas": "./src/react/SurfaceCanvas.tsx",
+        "./react/usePlayback": "./src/react/usePlayback.ts"
+    },
+    "devDependencies": {
+        "@types/react": "catalog:",
+        "react": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+        "vite-plus": "catalog:"
+    }
+}
