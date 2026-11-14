@@ -3,6 +3,9 @@ import { RenderTarget } from './RenderTarget';
 import type { RenderTargetOptions } from './RenderTarget';
 import type { UniformValue } from './types';
 
+/** Called once when a TargetPair is explicitly destroyed — lets an owner stop tracking it. */
+export type TargetPairDestroyHook = (pair: TargetPair) => void;
+
 /**
  * A ping-pong pair of `RenderTarget`s for multi-pass simulations (cellular automata, fluids, etc.).
  *
@@ -13,6 +16,7 @@ export class TargetPair {
     readonly #gl: WebGL2RenderingContext;
     readonly #a: RenderTarget;
     readonly #b: RenderTarget;
+    readonly #onDestroy: TargetPairDestroyHook | undefined;
     #pingPong = 0; // 0: read=a, write=b; 1: read=b, write=a
     #destroyed = false;
 
@@ -21,8 +25,10 @@ export class TargetPair {
         width: number,
         height: number,
         options?: RenderTargetOptions,
+        onDestroy?: TargetPairDestroyHook,
     ) {
         this.#gl = gl;
+        this.#onDestroy = onDestroy;
         this.#a = new RenderTarget(gl, width, height, options);
         this.#b = new RenderTarget(gl, width, height, options);
     }
@@ -114,6 +120,19 @@ export class TargetPair {
         this.#b.clear(r, g, b, a);
     }
 
+    /**
+     * Recreates the GPU textures and framebuffers after a WebGL context restore. Dimensions and
+     * filter are preserved; content is lost (context loss always discards texture data).
+     */
+    reinitialize(): void {
+        if (this.#destroyed) {
+            return;
+        }
+
+        this.#a.reinitialize();
+        this.#b.reinitialize();
+    }
+
     destroy(): void {
         if (this.#destroyed) {
             return;
@@ -122,5 +141,6 @@ export class TargetPair {
         this.#destroyed = true;
         this.#a.destroy();
         this.#b.destroy();
+        this.#onDestroy?.(this);
     }
 }

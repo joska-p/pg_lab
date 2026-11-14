@@ -3,14 +3,12 @@ import type { UniformData, UniformEntry, UniformValue } from './types';
 /**
  * Discriminates on the numeric side on purpose: `WebGLTexture` is an empty interface in lib.dom, so
  * a guard targeting it would make every other union member assignable to it and narrow to `never`.
+ *
+ * Uses `ArrayBuffer.isView` to catch all TypedArray subtypes (Float32Array, Int32Array, Uint8Array,
+ * etc.) without enumerating them explicitly. Plain JS arrays and scalars are covered separately.
  */
 function isUniformData(value: UniformValue): value is UniformData {
-    return (
-        typeof value === 'number' ||
-        Array.isArray(value) ||
-        value instanceof Float32Array ||
-        value instanceof Int32Array
-    );
+    return typeof value === 'number' || Array.isArray(value) || ArrayBuffer.isView(value);
 }
 
 function toFloat32Array(value: ArrayLike<number>): Float32Array {

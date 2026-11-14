@@ -6,6 +6,78 @@ import type { UniformValue } from './types';
 
 type FrameCallback = (time: number) => void;
 
+// ---------------------------------------------------------------------------
+// Minimal fake WebGL2 context
+
+interface FakeGl {
+    FRAMEBUFFER: number;
+    FRAMEBUFFER_COMPLETE: number;
+    COLOR_ATTACHMENT0: number;
+    COLOR_BUFFER_BIT: number;
+    TEXTURE_2D: number;
+    RGBA8: number;
+    RGBA: number;
+    UNSIGNED_BYTE: number;
+    TEXTURE_MIN_FILTER: number;
+    TEXTURE_MAG_FILTER: number;
+    TEXTURE_WRAP_S: number;
+    TEXTURE_WRAP_T: number;
+    NEAREST: number;
+    LINEAR: number;
+    CLAMP_TO_EDGE: number;
+    deleteTexture: ReturnType<typeof vi.fn>;
+    deleteFramebuffer: ReturnType<typeof vi.fn>;
+    createTexture: ReturnType<typeof vi.fn>;
+    createFramebuffer: ReturnType<typeof vi.fn>;
+    bindTexture: ReturnType<typeof vi.fn>;
+    texImage2D: ReturnType<typeof vi.fn>;
+    texParameteri: ReturnType<typeof vi.fn>;
+    bindFramebuffer: ReturnType<typeof vi.fn>;
+    framebufferTexture2D: ReturnType<typeof vi.fn>;
+    checkFramebufferStatus: ReturnType<typeof vi.fn>;
+    viewport: ReturnType<typeof vi.fn>;
+    clearColor: ReturnType<typeof vi.fn>;
+    clear: ReturnType<typeof vi.fn>;
+}
+
+let textureCounter = 0;
+let fboCounter = 0;
+
+function createFakeGl(): FakeGl {
+    return {
+        FRAMEBUFFER: 0x8d40,
+        FRAMEBUFFER_COMPLETE: 0x8cd5,
+        COLOR_ATTACHMENT0: 0x8ce0,
+        COLOR_BUFFER_BIT: 0x4000,
+        TEXTURE_2D: 0x0de1,
+        RGBA8: 0x8058,
+        RGBA: 0x1908,
+        UNSIGNED_BYTE: 0x1401,
+        TEXTURE_MIN_FILTER: 0x2801,
+        TEXTURE_MAG_FILTER: 0x2800,
+        TEXTURE_WRAP_S: 0x2802,
+        TEXTURE_WRAP_T: 0x2803,
+        NEAREST: 0x2600,
+        LINEAR: 0x2601,
+        CLAMP_TO_EDGE: 0x812f,
+        deleteTexture: vi.fn(),
+        deleteFramebuffer: vi.fn(),
+        createTexture: vi.fn(() => ({ _id: ++textureCounter })),
+        createFramebuffer: vi.fn(() => ({ _id: ++fboCounter })),
+        bindTexture: vi.fn(),
+        texImage2D: vi.fn(),
+        texParameteri: vi.fn(),
+        bindFramebuffer: vi.fn(),
+        framebufferTexture2D: vi.fn(),
+        checkFramebufferStatus: vi.fn(() => 0x8cd5), // FRAMEBUFFER_COMPLETE
+        viewport: vi.fn(),
+        clearColor: vi.fn(),
+        clear: vi.fn(),
+    };
+}
+
+// ---------------------------------------------------------------------------
+
 interface FakeCanvas {
     clientWidth: number;
     clientHeight: number;
@@ -30,6 +102,7 @@ interface Harness {
     program: FakeProgram;
     dispatch: (type: string, event: object) => void;
     nextFrame: (time?: number) => void;
+    fakeGl: FakeGl;
 }
 
 let scheduled: FrameCallback[] = [];
@@ -38,13 +111,14 @@ function createHarness(options?: { width?: number; height?: number; dpr?: number
     const windowStub = { devicePixelRatio: options?.dpr ?? 1 };
     vi.stubGlobal('window', windowStub);
 
+    const fakeGl = createFakeGl();
     const listeners = new Map<string, (event: Event) => void>();
     const canvas: FakeCanvas = {
         clientWidth: options?.width ?? 300,
         clientHeight: options?.height ?? 150,
         width: 0,
         height: 0,
-        getContext: () => ({}),
+        getContext: () => fakeGl,
         getBoundingClientRect: () => ({
             left: 0,
             top: 0,
@@ -74,6 +148,7 @@ function createHarness(options?: { width?: number; height?: number; dpr?: number
         canvas,
         window: windowStub,
         program,
+        fakeGl,
         dispatch: (type, event) => {
             listeners.get(type)?.(event as Event);
         },
@@ -89,6 +164,8 @@ function renderedUniforms(program: FakeProgram): Record<string, UniformValue> {
 
 beforeEach(() => {
     scheduled = [];
+    textureCounter = 0;
+    fboCounter = 0;
     vi.stubGlobal('requestAnimationFrame', (callback: FrameCallback) => {
         scheduled.push(callback);
         return scheduled.length;
@@ -163,5 +240,103 @@ describe('Surface standard uniforms', () => {
         dispatch('pointerup', { pointerId: 1 });
         surface.renderProgram(program as unknown as Program);
         expect(renderedUniforms(program).iMouse).toEqual([0, 0, 300, 150]);
+    });
+});
+
+describe('Surface resource ownership — RenderTarget', () => {
+    it('destroys tracked RenderTargets when the surface is destroyed', () => {
+        const { surface, fakeGl } = createHarness();
+
+        const target = surface.createRenderTarget(64, 64);
+        expect(fakeGl.deleteTexture).not.toHaveBeenCalled();
+
+        surface.destroy();
+
+        // destroy() calls deleteTexture and deleteFramebuffer for the tracked target
+        expect(fakeGl.deleteTexture).toHaveBeenCalledTimes(1);
+        expect(fakeGl.deleteFramebuffer).toHaveBeenCalledTimes(1);
+
+        // Calling destroy again on the surface is idempotent
+        surface.destroy();
+        expect(fakeGl.deleteTexture).toHaveBeenCalledTimes(1);
+
+        // Prevent unused variable warning
+        void target;
+    });
+
+    it('forgets a RenderTarget that was explicitly destroyed before the surface', () => {
+        const { surface, fakeGl } = createHarness();
+
+        const target = surface.createRenderTarget(64, 64);
+        target.destroy();
+
+        // GL cleanup happened exactly once (from target.destroy)
+        expect(fakeGl.deleteTexture).toHaveBeenCalledTimes(1);
+
+        // Surface destroy should not destroy the already-destroyed target again
+        const callsBefore = fakeGl.deleteTexture.mock.calls.length;
+        surface.destroy();
+        expect(fakeGl.deleteTexture).toHaveBeenCalledTimes(callsBefore);
+    });
+
+    it('reinitialises tracked RenderTargets on context restore', () => {
+        const { surface, fakeGl, dispatch } = createHarness();
+
+        surface.createRenderTarget(64, 64);
+
+        // 1 createTexture call so far (from createRenderTarget)
+        expect(fakeGl.createTexture).toHaveBeenCalledTimes(1);
+
+        dispatch('webglcontextrestored', {});
+
+        // reinitialize() should create a new texture and FBO
+        expect(fakeGl.createTexture).toHaveBeenCalledTimes(2);
+        expect(fakeGl.createFramebuffer).toHaveBeenCalledTimes(2);
+    });
+});
+
+describe('Surface resource ownership — TargetPair', () => {
+    it('destroys tracked TargetPairs when the surface is destroyed', () => {
+        const { surface, fakeGl } = createHarness();
+
+        const pair = surface.createTargetPair(32, 32);
+        expect(fakeGl.deleteTexture).not.toHaveBeenCalled();
+
+        surface.destroy();
+
+        // TargetPair has 2 internal RenderTargets → 2 textures + 2 FBOs deleted
+        expect(fakeGl.deleteTexture).toHaveBeenCalledTimes(2);
+        expect(fakeGl.deleteFramebuffer).toHaveBeenCalledTimes(2);
+
+        void pair;
+    });
+
+    it('forgets a TargetPair that was explicitly destroyed before the surface', () => {
+        const { surface, fakeGl } = createHarness();
+
+        const pair = surface.createTargetPair(32, 32);
+        pair.destroy();
+
+        // 2 textures deleted by pair.destroy()
+        expect(fakeGl.deleteTexture).toHaveBeenCalledTimes(2);
+
+        const callsBefore = fakeGl.deleteTexture.mock.calls.length;
+        surface.destroy();
+        expect(fakeGl.deleteTexture).toHaveBeenCalledTimes(callsBefore);
+    });
+
+    it('reinitialises tracked TargetPairs on context restore', () => {
+        const { surface, fakeGl, dispatch } = createHarness();
+
+        surface.createTargetPair(32, 32);
+
+        // 2 createTexture calls (a + b targets)
+        expect(fakeGl.createTexture).toHaveBeenCalledTimes(2);
+
+        dispatch('webglcontextrestored', {});
+
+        // reinitialize() on pair recreates both internal targets → 4 total
+        expect(fakeGl.createTexture).toHaveBeenCalledTimes(4);
+        expect(fakeGl.createFramebuffer).toHaveBeenCalledTimes(4);
     });
 });

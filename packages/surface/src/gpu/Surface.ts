@@ -34,6 +34,15 @@ interface MouseState {
  *
  * Size contract: `width`/`height` are CSS pixels (layout and pointer space), while
  * `deviceWidth`/`deviceHeight` are physical pixels (drawing buffer and `iResolution` space).
+ *
+ * Resource ownership: `RenderTarget` and `TargetPair` created via `createRenderTarget` /
+ * `createTargetPair` are tracked by the surface. They are destroyed automatically with the surface
+ * and reinitialised (GPU objects recreated) on WebGL context restore. Calling `.destroy()` on a
+ * target removes it from tracking; the surface will not touch it again.
+ *
+ * Sampler arrays (`sampler2D[]`): not currently supported by `setUniforms`. Each texture must be
+ * bound to its own named uniform (e.g. `u_orbit`, `u_orbit2`). Explicit support can be added when a
+ * concrete app requires it.
  */
 export class Surface {
     readonly canvas: HTMLCanvasElement;
@@ -43,6 +52,8 @@ export class Surface {
     readonly #loop: FrameLoop;
     readonly #contextRestoredCallbacks = new Set<ContextRestoredCallback>();
     readonly #programs = new Set<Program>();
+    readonly #renderTargets = new Set<RenderTarget>();
+    readonly #targetPairs = new Set<TargetPair>();
 
     #frameCount = 0;
     #width = 0;
@@ -94,6 +105,24 @@ export class Surface {
                     program.reinitialize();
                 } catch {
                     // If a program can't be restored, skip it gracefully
+                }
+            }
+
+            // Re-initialize all tracked render targets
+            for (const target of this.#renderTargets) {
+                try {
+                    target.reinitialize();
+                } catch {
+                    // Skip gracefully — a failed target is unusable but shouldn't crash the restore
+                }
+            }
+
+            // Re-initialize all tracked target pairs
+            for (const pair of this.#targetPairs) {
+                try {
+                    pair.reinitialize();
+                } catch {
+                    // Skip gracefully
                 }
             }
 
@@ -212,12 +241,32 @@ export class Surface {
         }
     }
 
+    /**
+     * Creates an offscreen RGBA8 render target owned by this surface. The target is automatically
+     * destroyed with the surface and reinitialised on WebGL context restore. Calling `.destroy()`
+     * on the returned target removes it from surface tracking.
+     */
     createRenderTarget(width: number, height: number, options?: RenderTargetOptions): RenderTarget {
-        return new RenderTarget(this.#gl, width, height, options);
+        const target = new RenderTarget(this.#gl, width, height, options, (t) => {
+            this.#renderTargets.delete(t);
+        });
+
+        this.#renderTargets.add(target);
+        return target;
     }
 
+    /**
+     * Creates a ping-pong `TargetPair` owned by this surface. The pair is automatically destroyed
+     * with the surface and reinitialised on WebGL context restore. Calling `.destroy()` on the
+     * returned pair removes it from surface tracking.
+     */
     createTargetPair(width: number, height: number, options?: RenderTargetOptions): TargetPair {
-        return new TargetPair(this.#gl, width, height, options);
+        const pair = new TargetPair(this.#gl, width, height, options, (p) => {
+            this.#targetPairs.delete(p);
+        });
+
+        this.#targetPairs.add(pair);
+        return pair;
     }
 
     /**
@@ -316,6 +365,19 @@ export class Surface {
         }
 
         this.#programs.clear();
+
+        for (const target of this.#renderTargets) {
+            target.destroy();
+        }
+
+        this.#renderTargets.clear();
+
+        for (const pair of this.#targetPairs) {
+            pair.destroy();
+        }
+
+        this.#targetPairs.clear();
+
         this.canvas.removeEventListener('webglcontextlost', this.#onContextLost);
         this.canvas.removeEventListener('webglcontextrestored', this.#onContextRestored);
         this.canvas.removeEventListener('pointerdown', this.#onPointerDown);

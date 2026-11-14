@@ -2,10 +2,14 @@ export interface RenderTargetOptions {
     readonly filter?: 'nearest' | 'linear';
 }
 
+/** Called once when the target is explicitly destroyed — lets an owner stop tracking it. */
+export type RenderTargetDestroyHook = (target: RenderTarget) => void;
+
 /** An offscreen RGBA8 texture attached to a private framebuffer. */
 export class RenderTarget {
     readonly #gl: WebGL2RenderingContext;
     readonly #filter: 'nearest' | 'linear';
+    readonly #onDestroy: RenderTargetDestroyHook | undefined;
     #width: number;
     #height: number;
     #texture: WebGLTexture;
@@ -17,9 +21,11 @@ export class RenderTarget {
         width: number,
         height: number,
         options?: RenderTargetOptions,
+        onDestroy?: RenderTargetDestroyHook,
     ) {
         this.#gl = gl;
         this.#filter = options?.filter ?? 'nearest';
+        this.#onDestroy = onDestroy;
         this.#width = width;
         this.#height = height;
 
@@ -81,6 +87,25 @@ export class RenderTarget {
         this.#height = height;
     }
 
+    /**
+     * Recreates the GPU texture and framebuffer after a WebGL context restore. The dimensions and
+     * filter are preserved; the new texture is blank (content is lost on context loss).
+     */
+    reinitialize(): void {
+        if (this.#destroyed) {
+            return;
+        }
+
+        const [texture, fbo] = RenderTarget.#createTarget(
+            this.#gl,
+            this.#width,
+            this.#height,
+            this.#filter,
+        );
+        this.#texture = texture;
+        this.#fbo = fbo;
+    }
+
     destroy(): void {
         if (this.#destroyed) {
             return;
@@ -88,6 +113,7 @@ export class RenderTarget {
 
         this.#destroyed = true;
         this.#destroyTarget();
+        this.#onDestroy?.(this);
     }
 
     #destroyTarget(): void {
