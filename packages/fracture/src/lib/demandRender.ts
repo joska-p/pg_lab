@@ -1,13 +1,21 @@
-import type { GpuSurface } from '@repo/glaze/gpu/types';
+import type { Surface } from '@repo/surface/gpu/Surface';
 import { useCallback, useRef } from 'react';
 
-import type { CameraRig } from '../core/observedCamera';
+export interface DemandSurface {
+    readonly width: number;
+    readonly height: number;
+    onContextRestored?(callback: (surface?: unknown) => void): (() => void) | void;
+}
+
+export interface DemandCamera {
+    getVersion(): number;
+}
 
 export interface DemandHandle {
-    /** Pass to GpuCanvas `shouldRender`: renders only when inputs changed. */
-    shouldRender: (surface: GpuSurface) => boolean;
-    /** Pass to GpuCanvas `onMount` (or combine): forces a render + arms context-restore. */
-    handleMount: (surface: GpuSurface) => void;
+    /** Pass to SurfaceCanvas (or GpuCanvas) `shouldRender`: renders only when inputs changed. */
+    shouldRender: (surface: DemandSurface | Surface) => boolean;
+    /** Pass to SurfaceCanvas (or GpuCanvas) `onMount`: forces a render + arms context-restore. */
+    handleMount: (surface: DemandSurface | Surface) => void;
 }
 
 interface DemandSnapshot {
@@ -23,20 +31,20 @@ interface DemandSnapshot {
  * params store reference changed, canvas size changed, or the GL context was restored (framebuffer
  * is dead).
  */
-export function useDemandRender(params: object, cameraRig: CameraRig): DemandHandle {
+export function useDemandRender(params: object, camera: DemandCamera): DemandHandle {
     const last = useRef<DemandSnapshot>({ version: -1, params: null, w: 0, h: 0 });
     const forced = useRef(true);
 
-    const handleMount = useCallback((surface: GpuSurface) => {
+    const handleMount = useCallback((surface: DemandSurface | Surface) => {
         forced.current = true;
-        surface.onContextRestored(() => {
+        surface.onContextRestored?.(() => {
             forced.current = true;
         });
     }, []);
 
     const shouldRender = useCallback(
-        (surface: GpuSurface) => {
-            const version = cameraRig.getVersion();
+        (surface: DemandSurface | Surface) => {
+            const version = camera.getVersion();
             const w = surface.width;
             const h = surface.height;
             const prev = last.current;
@@ -54,7 +62,7 @@ export function useDemandRender(params: object, cameraRig: CameraRig): DemandHan
 
             return dirty;
         },
-        [params, cameraRig],
+        [params, camera],
     );
 
     return { shouldRender, handleMount };

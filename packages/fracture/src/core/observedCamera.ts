@@ -1,93 +1,63 @@
 import { createPositiveNumber } from '@repo/glaze/core/brands';
 import { createCamera } from '@repo/glaze/core/Camera';
 import type { Camera } from '@repo/glaze/core/Camera';
-import { createCameraControls } from '@repo/glaze/core/CameraControls';
 import { DEFAULT_ZOOM_BOUNDS } from '@repo/glaze/core/cameraTypes';
 import type { CameraControls } from '@repo/glaze/core/cameraTypes';
+import { Camera2D } from '@repo/surface/core/Camera2D';
+import type { Point2D } from '@repo/surface/core/Camera2D';
 
 /**
- * Camera rig owned by one experiment module (D4): the glaze `Camera` stays the single source of
- * truth, and the rig owns the change signal around it. All mutations flow through the wrapped
- * `CameraControls` (the only writer glaze gestures use), which bumps a version cookie consumed via
- * `useSyncExternalStore`. The viewport size is tracked alongside so complex-plane mapping stays
- * aspect-correct without reaching for the live `GpuSurface`.
+ * Camera rig owned by one experiment module (D4).
+ *
+ * Extends `Camera2D` from `@repo/surface` so modern modules interact with a genuine reactive
+ * camera, while maintaining backward-compatibility wrappers (`camera` and `controls`) for scenes
+ * that still use `@repo/glaze`'s `GpuCanvas`.
  */
-export interface CameraRig {
+export class CameraRig extends Camera2D {
     readonly camera: Camera;
     readonly controls: CameraControls;
-    readonly minZoom: number;
-    readonly maxZoom: number;
-    subscribe(fn: () => void): () => void;
-    getVersion(): number;
-    setViewport(width: number, height: number): void;
-    getViewport(): { width: number; height: number };
-}
 
-export function createCameraRig(options?: { minZoom?: number; maxZoom?: number }): CameraRig {
-    const minZoom = options?.minZoom ?? DEFAULT_ZOOM_BOUNDS.minZoom;
-    const maxZoom = options?.maxZoom ?? DEFAULT_ZOOM_BOUNDS.maxZoom;
-    const camera = createCamera(0, 0, createPositiveNumber(1));
-    const inner = createCameraControls(camera, minZoom, maxZoom);
+    constructor(options?: { minZoom?: number; maxZoom?: number }) {
+        const minZoom = options?.minZoom ?? DEFAULT_ZOOM_BOUNDS.minZoom;
+        const maxZoom = options?.maxZoom ?? DEFAULT_ZOOM_BOUNDS.maxZoom;
+        super({ minZoom, maxZoom });
 
-    let version = 0;
-    const listeners = new Set<() => void>();
-    const viewport = { width: 1, height: 1 };
+        const glazeCamera = createCamera(this.x, this.y, createPositiveNumber(this.zoom));
+        this.camera = glazeCamera;
 
-    function notify(): void {
-        version += 1;
-        listeners.forEach((fn) => {
-            fn();
+        this.subscribe(() => {
+            glazeCamera.x = this.x;
+            glazeCamera.y = this.y;
+            glazeCamera.zoom = createPositiveNumber(this.zoom);
         });
+
+        this.controls = {
+            panTo: (position: Point2D) => this.panTo(position.x, position.y),
+            panBy: (dx: number, dy: number) => this.panBy(dx, dy),
+            zoomTo: (zoom: number, focalPoint?: Point2D) => this.zoomTo(zoom, focalPoint),
+            zoomAt: (focalPoint: Point2D, zoom: number) => this.zoomTo(zoom, focalPoint),
+            zoomBy: (factor: number, focalPoint?: Point2D) => this.zoomBy(factor, focalPoint),
+            reset: () => this.reset(),
+            patch: (partial) => this.patch(partial),
+        };
     }
 
-    function changed(before: { x: number; y: number; zoom: number }): boolean {
-        return before.x !== camera.x || before.y !== camera.y || before.zoom !== camera.zoom;
-    }
-
-    function commit(run: () => void): void {
-        const before = { x: camera.x, y: camera.y, zoom: camera.zoom };
-
-        run();
-
-        if (changed(before)) {
-            notify();
+    override setViewport(
+        viewportOrWidth: { width: number; height: number } | number,
+        maybeHeight?: number,
+    ): void {
+        if (typeof viewportOrWidth === 'number') {
+            super.setViewport({ width: viewportOrWidth, height: maybeHeight ?? 1 });
+        } else {
+            super.setViewport(viewportOrWidth);
         }
     }
 
-    const controls: CameraControls = {
-        panTo: (position) => commit(() => inner.panTo(position)),
-        panBy: (dx, dy) => commit(() => inner.panBy(dx, dy)),
-        zoomTo: (zoom, focalPoint) => commit(() => inner.zoomTo(zoom, focalPoint)),
-        zoomAt: (focalPoint, zoom) => commit(() => inner.zoomAt(focalPoint, zoom)),
-        zoomBy: (factor, focalPoint) => commit(() => inner.zoomBy(factor, focalPoint)),
-        reset: () => commit(() => inner.reset()),
-        patch: (partial) => commit(() => inner.patch(partial)),
-    };
+    override getViewport(): { width: number; height: number } {
+        return super.getViewport() ?? { width: 1, height: 1 };
+    }
+}
 
-    return {
-        camera,
-        controls,
-        minZoom,
-        maxZoom,
-        subscribe(fn: () => void): () => void {
-            listeners.add(fn);
-
-            return () => {
-                listeners.delete(fn);
-            };
-        },
-        getVersion(): number {
-            return version;
-        },
-        setViewport(width: number, height: number): void {
-            if (viewport.width !== width || viewport.height !== height) {
-                viewport.width = width;
-                viewport.height = height;
-                notify();
-            }
-        },
-        getViewport(): { width: number; height: number } {
-            return { ...viewport };
-        },
-    };
+export function createCameraRig(options?: { minZoom?: number; maxZoom?: number }): CameraRig {
+    return new CameraRig(options);
 }

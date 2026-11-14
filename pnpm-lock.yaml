@@ -473,6 +473,9 @@ importers:
       '@repo/glaze':
         specifier: workspace:*
         version: link:../glaze
+      '@repo/surface':
+        specifier: workspace:*
+        version: link:../surface
       '@repo/ui':
         specifier: workspace:*
         version: link:../ui

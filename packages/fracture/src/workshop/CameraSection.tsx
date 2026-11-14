@@ -1,21 +1,21 @@
+import type { Camera2D } from '@repo/surface/core/Camera2D';
+import { useCamera2D } from '@repo/surface/react/useCamera2D';
 import { Button } from '@repo/ui/components/Button';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Readout } from '@repo/ui/components/Readout';
 import { Stack } from '@repo/ui/components/Stack';
-import { useState, useSyncExternalStore } from 'react';
+import { useState } from 'react';
 
 import { cameraToComplex, complexToCamera } from '../core/camera';
 import { computeMaxIterations } from '../core/iterationPolicy';
-import type { CameraRig } from '../core/observedCamera';
 import { CURATED_PRESETS } from '../core/presets';
 import type { CameraPreset } from '../core/presets';
 
-interface CameraSectionProps {
-    rig: CameraRig;
+type CameraSectionProps = {
     iterationBase: number;
     iterationScale: number;
     iterationCap: number;
-}
+} & ({ camera: Camera2D; rig?: never } | { rig: Camera2D; camera?: never });
 
 function formatCenter(value: number): string {
     return value.toPrecision(8);
@@ -25,39 +25,34 @@ function formatZoom(zoom: number): string {
     return zoom >= 10000 ? zoom.toExponential(2) : zoom.toFixed(1);
 }
 
-function applyView(rig: CameraRig, centerRe: number, centerIm: number, zoom: number): void {
-    const clampedZoom = Math.min(Math.max(zoom, rig.minZoom), rig.maxZoom);
-    const { width, height } = rig.getViewport();
+function applyView(camera: Camera2D, centerRe: number, centerIm: number, zoom: number): void {
+    const clampedZoom = Math.min(Math.max(zoom, camera.minZoom), camera.maxZoom);
+    const viewport = camera.getViewport();
+    const width = viewport?.width ?? 1;
+    const height = viewport?.height ?? 1;
     const { x, y } = complexToCamera(centerRe, centerIm, clampedZoom, width, height);
 
-    rig.controls.patch({ x, y, zoom: clampedZoom });
+    camera.patch({ x, y, zoom: clampedZoom });
 }
 
-export function CameraSection({
-    rig,
-    iterationBase,
-    iterationScale,
-    iterationCap,
-}: CameraSectionProps) {
-    useSyncExternalStore(
-        (notify) => rig.subscribe(notify),
-        () => rig.getVersion(),
-    );
+export function CameraSection(props: CameraSectionProps) {
+    const { iterationBase, iterationScale, iterationCap } = props;
+    const camera = props.camera ?? props.rig;
+    useCamera2D(camera);
     const [captured, setCaptured] = useState<CameraPreset[]>([]);
 
-    const { x, y, zoom } = rig.camera;
-    const { width, height } = rig.getViewport();
+    const { x, y, zoom } = camera;
+    const viewport = camera.getViewport();
+    const width = viewport?.width ?? 1;
+    const height = viewport?.height ?? 1;
     const { centerRe, centerIm } = cameraToComplex(x, y, zoom, width, height);
     const maxIterations = computeMaxIterations(zoom, iterationBase, iterationScale, iterationCap);
 
     function captureCurrentView(): void {
-        const view = cameraToComplex(
-            rig.camera.x,
-            rig.camera.y,
-            rig.camera.zoom,
-            rig.getViewport().width,
-            rig.getViewport().height,
-        );
+        const vp = camera.getViewport();
+        const w = vp?.width ?? 1;
+        const h = vp?.height ?? 1;
+        const view = cameraToComplex(camera.x, camera.y, camera.zoom, w, h);
 
         setCaptured((previous) => [
             ...previous,
@@ -66,7 +61,7 @@ export function CameraSection({
                 label: `Captured ${previous.length + 1}`,
                 centerRe: view.centerRe,
                 centerIm: view.centerIm,
-                zoom: rig.camera.zoom,
+                zoom: camera.zoom,
             },
         ]);
     }
@@ -88,7 +83,7 @@ export function CameraSection({
                         <Button
                             key={preset.id}
                             onClick={() =>
-                                applyView(rig, preset.centerRe, preset.centerIm, preset.zoom)
+                                applyView(camera, preset.centerRe, preset.centerIm, preset.zoom)
                             }
                         >
                             {preset.label}
@@ -98,14 +93,14 @@ export function CameraSection({
                         <Button
                             key={preset.id}
                             onClick={() =>
-                                applyView(rig, preset.centerRe, preset.centerIm, preset.zoom)
+                                applyView(camera, preset.centerRe, preset.centerIm, preset.zoom)
                             }
                         >
                             {preset.label}
                         </Button>
                     ))}
                     <Button onClick={captureCurrentView}>Capture current view</Button>
-                    <Button onClick={() => rig.controls.reset()}>Reset view</Button>
+                    <Button onClick={() => camera.reset()}>Reset view</Button>
                 </Stack>
             </ControlSection>
         </>

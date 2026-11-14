@@ -1,8 +1,8 @@
-import type { UniformValue } from '@repo/glaze/gpu/shader/types';
-import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
+import type { UniformValue } from '@repo/surface/gpu/types';
+import { SurfaceCanvas } from '@repo/surface/react/SurfaceCanvas';
+import { useCameraControls } from '@repo/surface/react/useCameraControls';
 import { useEffect } from 'react';
 
-import { ZOOM_WHEEL_SPEED } from '../../core/camera';
 import { computeMaxIterations } from '../../core/iterationPolicy';
 import { useDemandRender } from '../../lib/demandRender';
 import { isPerfEnabled, perfLoopEnter, perfLoopExit, recordFractalFrame } from '../../lib/perf';
@@ -10,7 +10,7 @@ import { assemble } from '../../shaders/assemble';
 import lightingChunk from '../../shaders/chunks/lighting.glsl?raw';
 import oklchChunk from '../../shaders/chunks/oklch.glsl?raw';
 import juliaBody from './julia.glsl?raw';
-import { cameraRig, useParams } from './store';
+import { camera, useParams } from './store';
 import type { FractalParams } from './store';
 
 const juliaShader = assemble(oklchChunk, lightingChunk, juliaBody);
@@ -36,7 +36,9 @@ function juliaUniforms(
     const drift = 1.0 - 1.0 / view.zoom;
 
     return {
+        u_camera: [view.x, view.y, view.zoom],
         u_panOffset: [-panNormX - 0.5 * drift, panNormY + 0.5 * drift],
+        u_aspect: width / height,
         u_iterationBase: params.iterationBase,
         u_iterationScale: params.iterationScale,
         u_iterationCap: params.iterationCap,
@@ -55,7 +57,11 @@ function juliaUniforms(
 
 export function Julia() {
     const params = useParams();
-    const demand = useDemandRender(params, cameraRig);
+    const demand = useDemandRender(params, camera);
+    const cameraControls = useCameraControls(camera, {
+        pan: { buttons: ['left', 'middle'] },
+        zoom: { speed: 1.2 },
+    });
 
     useEffect(() => {
         if (!isPerfEnabled()) {
@@ -68,28 +74,26 @@ export function Julia() {
     }, []);
 
     return (
-        <GpuCanvas
+        <SurfaceCanvas
+            {...cameraControls}
             className="h-full w-full"
             fragmentShader={juliaShader}
-            camera={cameraRig.camera}
-            cameraControls={cameraRig.controls}
-            canvasInteractions={{ zoom: { speed: ZOOM_WHEEL_SPEED } }}
             shouldRender={demand.shouldRender}
             onMount={demand.handleMount}
-            uniforms={({ camera: view, width, height }) => {
-                cameraRig.setViewport(width, height);
+            uniforms={(surface) => {
+                camera.setViewport({ width: surface.width, height: surface.height });
 
                 const t0 = isPerfEnabled() ? performance.now() : 0;
-                const result = juliaUniforms(params, view, width, height);
+                const result = juliaUniforms(params, camera, surface.width, surface.height);
                 if (isPerfEnabled()) {
-                    recordFractalFrame(performance.now() - t0, width, height, {
+                    recordFractalFrame(performance.now() - t0, surface.width, surface.height, {
                         maxIterations: computeMaxIterations(
-                            view.zoom,
+                            camera.zoom,
                             params.iterationBase,
                             params.iterationScale,
                             params.iterationCap,
                         ),
-                        zoom: view.zoom,
+                        zoom: camera.zoom,
                     });
                 }
 
