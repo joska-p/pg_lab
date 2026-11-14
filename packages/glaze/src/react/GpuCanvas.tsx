@@ -5,6 +5,7 @@ import { createInteractionAdapter } from './interactions';
 import { swapProgram } from './programSwap';
 import { createGpuStack } from './surfaceStack';
 import type { GpuCanvasProps } from './types';
+import { setGlobalClockStore } from './useClockStore';
 import { useLatest } from './useLatest';
 import { useNodeResource } from './useNodeResource';
 
@@ -159,6 +160,7 @@ export function GpuCanvas({
 
         onMountRef.current?.(stack.surface);
         onClockStoreRef.current?.(stack.clockStore);
+        setGlobalClockStore(stack.clockStore);
     }, [stack, onMountRef, onClockStoreRef]);
 
     // ─────────────────────────────────────────────────────────────

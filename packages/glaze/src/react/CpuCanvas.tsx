@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { createInteractionAdapter } from './interactions';
 import { createCpuStack } from './surfaceStack';
 import type { CpuCanvasProps } from './types';
+import { setGlobalClockStore } from './useClockStore';
 import { useLatest } from './useLatest';
 import { useNodeResource } from './useNodeResource';
 
@@ -31,6 +32,7 @@ export function CpuCanvas({
 
         onMountRef.current?.(stack.surface);
         onClockStoreRef.current?.(stack.clockStore);
+        setGlobalClockStore(stack.clockStore);
     }, [onMountRef, onClockStoreRef, stack]);
 
     // ── Frame Loop Effect ──

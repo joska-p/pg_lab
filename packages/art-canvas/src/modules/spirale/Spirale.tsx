@@ -1,7 +1,7 @@
 import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
 
 import spiraleFragment from './spiraleFragment.glsl?raw';
-import { useGap, setClockStore } from './store';
+import { useGap } from './store';
 
 function Spirale() {
     const gap = useGap();
@@ -12,7 +12,6 @@ function Spirale() {
             uniforms={() => ({
                 u_gap: gap,
             })}
-            onClockStore={setClockStore}
             canvasInteractions={{ pan: false, zoom: false }}
         />
     );

@@ -46,6 +46,7 @@
         "./react/observable": "./src/react/observable.ts",
         "./react/stackTypes": "./src/react/stackTypes.ts",
         "./react/surfaceStack": "./src/react/surfaceStack.ts",
+        "./react/useClockStore": "./src/react/useClockStore.ts",
         "./react/types": "./src/react/types.ts",
         "./react/useNodeResource": "./src/react/useNodeResource.ts"
     },

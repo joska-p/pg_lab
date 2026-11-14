@@ -1,10 +1,10 @@
+import { useClockPlayback } from '@repo/glaze/react/useClockStore';
 import { Button } from '@repo/ui/components/Button';
 import { Slider } from '@repo/ui/components/Slider';
 import { space } from '@repo/ui/tokens/const.stylex';
 import * as stylex from '@stylexjs/stylex';
-import { useSyncExternalStore } from 'react';
 
-import { setGap, useClockStore, useGap, useHasClockStore } from './store';
+import { useGap, setGap } from './store';
 
 const styles = stylex.create({
     actions: {
@@ -16,24 +16,11 @@ const styles = stylex.create({
 
 function SpiraleControls() {
     const gap = useGap();
-    const clockStore = useClockStore();
-    const hasClockStore = useHasClockStore();
-
-    const isPlaying = useSyncExternalStore(
-        (onStoreChange) => clockStore.subscribe(onStoreChange),
-        () => clockStore.getIsPlaying(),
-    );
+    const { isPlaying, togglePlay } = useClockPlayback();
 
     return (
         <div {...stylex.props(styles.actions)}>
-            <Button
-                onClick={() => {
-                    clockStore.togglePlay();
-                }}
-                disabled={!hasClockStore}
-            >
-                {isPlaying ? 'Pause' : 'Play'}
-            </Button>
+            <Button onClick={togglePlay}>{isPlaying ? 'Pause' : 'Play'}</Button>
             <Slider
                 label="Gap"
                 value={gap}
