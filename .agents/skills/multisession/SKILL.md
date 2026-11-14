@@ -1,68 +1,115 @@
 ---
 name: multisession
-description: Prepare large tasks for work across multiple sessions. Create minimal persistent context so a new session can quickly understand the goal, current state, and most useful next action without reconstructing the previous conversation.
+description: Prepare, structure, and execute large tasks across multiple stateless agent sessions. Defines the standard entry-point PLAN.md workflow, pre-flight deep dive analysis, per-session protocol, and crash resilience rules.
 ---
 
-# Multisession Work
+# Multisession Workflow Playbook
 
-Use this skill when a task is large enough to span multiple sessions.
+Use this skill whenever a task is too large, complex, or risky to execute in a single agent turn/session (e.g., library migrations, multi-package refactors, architectural evolutions).
 
-The goal is to make restarting cheap, not to preserve the previous session.
+The goal is to make session starts **instant, stateless, and crash-resilient**, relying strictly on the repository and a persistent entry point rather than conversation memory.
 
-## Persistent context
+---
 
-Create one short entry-point file containing:
+## 1. Core Principles
 
-- the overall goal;
-- the current state;
-- the most useful next action.
+1. **Stateless Continuity**: Any agent must be able to crash or wake up in a fresh session and know immediately what to do without reading conversation history.
+2. **The Repository is Ground Truth**: Git history and code are the reality. Planning files track intent, current state, and next actions.
+3. **Decoupled Increments**: Work is split into discrete sessions. Each session has a clear intent, concrete deliverables, and rigorous verification commands.
+4. **Negative Guardrails**: Explicitly state what NOT to build, what abstractions to reject, and what debts must not be introduced.
 
-Keep it minimal. The repository is the source of truth.
+---
 
-Create additional files only when they provide useful persistent context that does not belong in the entry point.
+## 2. The Standard Two-File Setup
 
-Do not create documentation merely to preserve session history. Git already provides history.
+Before touching code on a large task, create a workspace directory (e.g. `_TMP/<project>/`):
 
-## Planning
+```
+_TMP/<project>/
+├── analyse.md    # Phase 0: Deep-dive diagnostic, technical audit, and trade-offs
+├── PLAN.md       # The living Single Source of Truth and entry point for all sessions
+└── prompt.md     # Optional: ready-to-run prompt for the next session
+```
 
-Before starting, understand the task well enough to divide it into reasonable sessions.
+> [!IMPORTANT]
+> Keep `_TMP/` gitignored so planning files can be edited and referenced across sessions without polluting repository commits.
 
-The plan should describe intent and milestones, not detailed implementation instructions.
+---
 
-The plan is guidance, not a contract. Adapt it whenever the actual state of the project suggests a better direction.
+## 3. Phase 0: Deep-Dive Analysis (`analyse.md`)
 
-A session may reorder, merge, split, replace, or abandon planned work.
+Before writing a session plan, perform a rigorous discovery phase:
 
-## Starting a session
+1. **Baseline Health Check**: Run `vp check` / tests to confirm the starting state is green.
+2. **Usage & Dependency Audit**: Search all call sites across the monorepo (`rg`, AST, package.json).
+3. **Contract Gap Analysis**:
+    - Compare source vs target APIs.
+    - Scrutinize units and coordinates (e.g. CSS pixels vs physical/device pixels, aspect ratios).
+    - Identify lifecycle subtleties (context loss/restore, resize, resource tracking, subscription cleanup).
+4. **Categorize Findings**:
+    - **Blocking**: Must be resolved before consumer can function.
+    - **Cross-cutting Debts**: Cleanups that should be fixed at the source.
+    - **Explicit Non-goals**: Things that look tempting to build but must be deferred.
 
-Read the entry-point file first.
+See detailed template in [references/analysis_template.md](./references/analysis_template.md).
 
-Then inspect the repository and other documentation as needed for the current task.
+---
 
-Do not read unrelated planning, historical, or session files just because they exist.
+## 4. Phase 1: Structuring `PLAN.md`
 
-Treat persistent context as a navigation aid, not as a substitute for inspecting the actual project state.
+`PLAN.md` is the **obligatory entry point** read at the start of every session. It must contain:
 
-## Working
+- **Header**:
+    - `Status`: Current session progress and date.
+    - `Entry point`: Reminder that this file is read first.
+    - `Detailed analysis`: Link to `analyse.md`.
+- **Goal**: High-level intent and core architecture principles.
+- **Current state**: Chronological log of what landed session-by-session.
+- **Decisions**: Table of key architectural choices and agreed conventions.
+- **Session plan**: Sessions 1 to N, each structured as:
+    - `### Session X — <Title> [— ✅ complete (YYYY-MM-DD)]`
+    - `**Intent:**` Why this session exists.
+    - `**Deliverables:**` Bullet list of files and modifications.
+    - `**Verify:**` Exact shell commands or test scenarios.
+- **Guardrails**: Explicit negative constraints.
+- **Useful commands**: Copy-pasteable CLI commands.
+- **Next action**: Explicit pointer to the active session.
 
-Work normally within the current session.
+See detailed template in [references/plan_template.md](./references/plan_template.md).
 
-Preserve only information that is likely to matter to a future session.
+---
 
-Prefer existing source code, documentation, Git history, and other repository state over duplicating information into planning files.
+## 5. Session Execution Protocol
 
-Do not claim work is complete without appropriate verification.
+During each session, follow this strict lifecycle:
 
-Do not run tests or other validation merely because this skill requires it. Validate when it provides useful evidence for the current task.
+### Step 1: Ingestion
 
-## Ending a session
+- Read `_TMP/<project>/PLAN.md` first.
+- Read files mentioned in the current session's deliverables.
+- Check `git status` to verify working tree.
 
-Before stopping, update the entry-point file so that another session can continue without reconstructing the conversation.
+### Step 2: Implementation
 
-Record important decisions or discoveries only when they are likely to matter later.
+- Implement **only** the deliverables assigned to the current session.
+- Respect guardrails (do not add speculative features or branded wrappers).
 
-Leave the repository in the state that the normal project workflow expects.
+### Step 3: Verification
 
-The goal is not to preserve the session.
+- Run the targeted package check & tests (`vp -C packages/<pkg> check`, `vp -C packages/<pkg> test`).
+- Run global repository validation (`vp check`, `vp test`).
+- Fix any formatting/lint issues immediately (`vp check --fix`).
 
-The goal is to make the next session start cleanly.
+### Step 4: Close Session & Handoff
+
+- Update `_TMP/<project>/PLAN.md`:
+    - Update `Status` header.
+    - Append completed deliverables to `Current state`.
+    - Mark session header with `— ✅ complete (date)`.
+    - Update `Next action` to point to Session N+1 (or mark closed if final).
+- Commit code changes to git:
+    - Format: `<type>(<scope>): <summary> (session N)`
+    - Do NOT commit `_TMP/` files.
+- (Optional) Prepare `_TMP/<project>/prompt.md` with instructions for the next agent turn.
+
+See prompt template in [references/session_prompt_template.md](./references/session_prompt_template.md).
