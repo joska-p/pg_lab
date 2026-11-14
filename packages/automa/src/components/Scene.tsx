@@ -12,7 +12,7 @@ import { initSimulation, tickSimulation } from '../stores/automa/actions';
 import { automaStore } from '../stores/automa/store';
 
 export function Scene() {
-    const camera = useMemo(() => new Camera2D(), []);
+    const camera = useMemo(() => new Camera2D({ minZoom: 1, maxZoom: 64 }), []);
     const handlers = useCellPainting(camera);
 
     return (

@@ -80,7 +80,7 @@ export function useCellPainting(camera: Camera2D): CellPaintingHandlers {
             y: event.clientY - rect.top,
         };
         const zoomFactor = event.deltaY < 0 ? 1.15 : 0.85;
-        camera.zoomAt(focalPoint, zoomFactor, 1, 64);
+        camera.zoomBy(zoomFactor, focalPoint);
     };
 
     const onContextMenu = (event: React.MouseEvent<HTMLCanvasElement>): void => {
