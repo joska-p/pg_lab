@@ -4,7 +4,14 @@
     "type": "module",
     "exports": {
         "./react/SurfaceCanvas": "./src/react/SurfaceCanvas.tsx",
-        "./react/usePlayback": "./src/react/usePlayback.ts"
+        "./react/usePlayback": "./src/react/usePlayback.ts",
+        "./gpu/Surface": "./src/gpu/Surface.ts",
+        "./gpu/TargetPair": "./src/gpu/TargetPair.ts",
+        "./gpu/RenderTarget": "./src/gpu/RenderTarget.ts",
+        "./gpu/Program": "./src/gpu/Program.ts",
+        "./gpu/types": "./src/gpu/types.ts",
+        "./core/Camera2D": "./src/core/Camera2D.ts",
+        "./core/Clock": "./src/core/Clock.ts"
     },
     "devDependencies": {
         "@types/react": "catalog:",

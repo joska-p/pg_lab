@@ -396,9 +396,6 @@ importers:
 
   packages/art-canvas:
     dependencies:
-      '@repo/glaze':
-        specifier: workspace:*
-        version: link:../glaze
       '@repo/surface':
         specifier: workspace:*
         version: link:../surface
@@ -436,9 +433,9 @@ importers:
 
   packages/automa:
     dependencies:
-      '@repo/glaze':
+      '@repo/surface':
         specifier: workspace:*
-        version: link:../glaze
+        version: link:../surface
       '@repo/ui':
         specifier: workspace:*
         version: link:../ui

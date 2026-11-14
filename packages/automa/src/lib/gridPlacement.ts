@@ -1,4 +1,4 @@
-import type { Point2D } from '@repo/glaze/core/geometry';
+import type { Point2D } from '@repo/surface/core/Camera2D';
 
 export interface GridRect {
     /** World units per cell edge. */

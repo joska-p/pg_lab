@@ -3,34 +3,21 @@ import type { CompiledShaderProgram, UniformEntry } from './types';
 
 /**
  * Vertex shader: draws a fullscreen triangle via gl_VertexID (no attributes needed). Passes
- * fragCoord_ in pixels (Shadertoy convention: 0.5 to resolution-0.5).
+ * fragCoord in pixels (Shadertoy convention: 0.5 to resolution-0.5).
  */
 export const VERTEX_SHADER_SOURCE = /* glsl */ `
 #version 300 es
 precision highp float;
 uniform vec3 iResolution;
-out vec2 fragCoord_;
+out vec2 fragCoord;
+out vec2 vUv;
 void main() {
   vec2 pos[3] = vec2[3](vec2(-1.0, -1.0), vec2(3.0, -1.0), vec2(-1.0, 3.0));
   vec2 clip = pos[gl_VertexID];
   gl_Position = vec4(clip, 0.0, 1.0);
-  // fragCoord: 0.5 to resolution-0.5 (Shadertoy convention)
-  fragCoord_ = (clip * 0.5 + 0.5) * iResolution.xy;
+  vUv = clip * 0.5 + 0.5;
+  fragCoord = vUv * iResolution.xy;
 }
-`.trim();
-
-/** Shadertoy-style uniform declarations injected before user code. */
-const SHADERTOY_PREAMBLE = /* glsl */ `
-precision highp float;
-
-uniform vec3 iResolution;
-uniform float iTime;
-uniform float iTimeDelta;
-uniform int iFrame;
-uniform vec4 iMouse;
-
-in vec2 fragCoord_;
-out vec4 fragColor;
 `.trim();
 
 /**
@@ -45,11 +32,49 @@ function wrapFragmentShader(source: string): string {
 
     if (hasMain) {
         // Legacy path: shader already has a main(); inject preamble but don't wrap.
-        return `#version 300 es\n${SHADERTOY_PREAMBLE}\n\n${stripped}`;
+        const extraDeclarations: string[] = [];
+        if (!/\bin\s+vec2\s+fragCoord\b/.test(stripped)) {
+            extraDeclarations.push('in vec2 fragCoord;');
+        }
+        if (!/\bin\s+vec2\s+vUv\b/.test(stripped)) {
+            extraDeclarations.push('in vec2 vUv;');
+        }
+        if (!/\bout\s+vec4\s+\w+\b/.test(stripped)) {
+            extraDeclarations.push('out vec4 fragColor;');
+        }
+
+        const preamble = [
+            'precision highp float;',
+            '',
+            'uniform vec3 iResolution;',
+            'uniform float iTime;',
+            'uniform float iTimeDelta;',
+            'uniform int iFrame;',
+            'uniform vec4 iMouse;',
+            '',
+            ...extraDeclarations,
+        ].join('\n');
+
+        return `#version 300 es\n${preamble}\n\n${stripped}`;
     }
 
     // Shadertoy path: wrap mainImage into main().
-    return `#version 300 es\n${SHADERTOY_PREAMBLE}\n\n${stripped}\n\nvoid main() {\n  mainImage(fragColor, fragCoord_);\n}\n`;
+    // Stage output and inputs MUST be declared at file scope for the generated main().
+    const preamble = [
+        'precision highp float;',
+        '',
+        'uniform vec3 iResolution;',
+        'uniform float iTime;',
+        'uniform float iTimeDelta;',
+        'uniform int iFrame;',
+        'uniform vec4 iMouse;',
+        '',
+        'in vec2 fragCoord;',
+        'in vec2 vUv;',
+        'out vec4 fragColor;',
+    ].join('\n');
+
+    return `#version 300 es\n${preamble}\n\n${stripped}\n\nvoid main() {\n  mainImage(fragColor, fragCoord);\n}\n`;
 }
 
 function withVersionDirective(source: string): string {

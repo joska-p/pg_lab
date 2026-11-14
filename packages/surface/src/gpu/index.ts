@@ -4,3 +4,7 @@ export type { UniformEntry, UniformValue, CompiledShaderProgram } from './types'
 export { compileProgram, VERTEX_SHADER_SOURCE } from './compileProgram';
 export { Program } from './Program';
 export { setUniforms, buildStandardUniforms } from './setUniforms';
+export { Surface } from './Surface';
+export { RenderTarget } from './RenderTarget';
+export type { RenderTargetOptions } from './RenderTarget';
+export { TargetPair } from './TargetPair';

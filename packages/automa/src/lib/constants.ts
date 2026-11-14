@@ -1,5 +1,4 @@
-import { createCssColor } from '@repo/glaze/core/render';
-import type { CssColor } from '@repo/glaze/core/render';
+export type CssColor = string;
 
 export const SPEED_MIN_MS = 50;
 export const SPEED_MAX_MS = 1000;
@@ -13,7 +12,4 @@ export const TRAIL_STRENGTH = 0.6;
 
 export const MAX_STATE_COUNT = 8;
 
-export const DEFAULT_STATE_COLORS: CssColor[] = [
-    createCssColor('#070a14'),
-    createCssColor('#d97706'),
-];
+export const DEFAULT_STATE_COLORS: CssColor[] = ['#070a14', '#d97706'];

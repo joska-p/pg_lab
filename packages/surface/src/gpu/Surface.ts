@@ -1,11 +1,14 @@
 import { Clock } from '../core/Clock';
 import { FrameLoop } from '../core/FrameLoop';
 import { Program } from './Program';
+import { RenderTarget } from './RenderTarget';
+import type { RenderTargetOptions } from './RenderTarget';
 import { buildStandardUniforms } from './setUniforms';
 import { ShaderError } from './ShaderError';
+import { TargetPair } from './TargetPair';
 import type { UniformValue } from './types';
 
-export type { UniformValue };
+export type { UniformValue, RenderTargetOptions };
 
 type FrameCallback = (surface: Surface) => void;
 type ContextRestoredCallback = (surface: Surface) => void;
@@ -129,6 +132,10 @@ export class Surface {
     // -------------------------------------------------------------------------
     // Public state
 
+    get gl(): WebGL2RenderingContext {
+        return this.#gl;
+    }
+
     get width(): number {
         return this.#width;
     }
@@ -179,6 +186,14 @@ export class Surface {
         }
     }
 
+    createRenderTarget(width: number, height: number, options?: RenderTargetOptions): RenderTarget {
+        return new RenderTarget(this.#gl, width, height, options);
+    }
+
+    createTargetPair(width: number, height: number, options?: RenderTargetOptions): TargetPair {
+        return new TargetPair(this.#gl, width, height, options);
+    }
+
     /**
      * Renders a program with the standard Shadertoy uniforms auto-injected. Pass `extraUniforms`
      * for any application-specific uniforms on top.
@@ -204,6 +219,31 @@ export class Surface {
 
         program.setUniforms(allUniforms);
         program.render(this.#width, this.#height);
+    }
+
+    /** Renders a program into an offscreen RenderTarget. */
+    renderTo(
+        target: RenderTarget,
+        program: Program,
+        extraUniforms?: Record<string, UniformValue>,
+    ): void {
+        const standardUniforms = buildStandardUniforms({
+            width: target.width,
+            height: target.height,
+            time: this.clock.time,
+            timeDelta: this.clock.deltaTime,
+            frame: this.#frameCount,
+            mouse: [0, 0, 0, 0],
+        });
+
+        const allUniforms = extraUniforms
+            ? { ...standardUniforms, ...extraUniforms }
+            : standardUniforms;
+
+        target.bind();
+        program.setUniforms(allUniforms);
+        program.render(target.width, target.height);
+        target.unbind();
     }
 
     // -------------------------------------------------------------------------

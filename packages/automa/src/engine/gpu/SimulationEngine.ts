@@ -1,7 +1,6 @@
-import { createClock } from '@repo/glaze/core/Clock';
-import { msToSeconds } from '@repo/glaze/core/time';
-import type { NonNegativeSeconds, Seconds } from '@repo/glaze/core/time';
-import type { StateBuffer } from '@repo/glaze/gpu/StateBuffer';
+import { Clock } from '@repo/surface/core/Clock';
+import type { Program } from '@repo/surface/gpu/Program';
+import type { TargetPair } from '@repo/surface/gpu/TargetPair';
 
 import { AGE_DECAY_RATE, AGE_GROWTH_RATE, SPEED_DEFAULT_MS } from '../../lib/constants';
 import {
@@ -30,10 +29,12 @@ export interface SimulationOptions {
 const MAX_STEPS_PER_TICK = 4;
 
 export class SimulationEngine {
-    readonly #buffer: StateBuffer;
+    readonly #buffer: TargetPair;
+    readonly #simProgram: Program;
+    readonly #paintProgram: Program;
     readonly #birthBuffer = new Int32Array(9);
     readonly #surviveBuffer = new Int32Array(9);
-    readonly #clock = createClock({ autoStart: false });
+    readonly #clock = new Clock().pause();
     readonly #onGenerationChange: ((generation: number) => void) | undefined;
 
     #rule: Rule;
@@ -44,36 +45,36 @@ export class SimulationEngine {
     #generation = 0;
     #accumulator = 0;
     /** Generation interval in seconds — deltas arrive in seconds, so the threshold must match. */
-    #interval: Seconds;
+    #interval: number;
 
     constructor(
-        buffer: StateBuffer,
-        simShaderSource: string,
-        paintShaderSource: string,
+        buffer: TargetPair,
+        simProgram: Program,
+        paintProgram: Program,
         options: SimulationOptions = {},
     ) {
         this.#buffer = buffer;
-        buffer.addProgram('default', simShaderSource);
-        buffer.addProgram('paint', paintShaderSource);
+        this.#simProgram = simProgram;
+        this.#paintProgram = paintProgram;
 
         this.#rows = options.rows ?? GRID_DEFAULT_ROWS;
         this.#cols = options.cols ?? GRID_DEFAULT_COLS;
         this.#rule = options.rule ?? conwayRule;
         this.#density = options.density ?? GRID_DEFAULT_DENSITY;
         this.#seed = options.seed ?? GRID_DEFAULT_SEED;
-        this.#interval = msToSeconds(options.speedMs ?? SPEED_DEFAULT_MS);
+        this.#interval = (options.speedMs ?? SPEED_DEFAULT_MS) / 1000;
         this.#onGenerationChange = options.onGenerationChange;
 
         const grid = createGrid(this.#rows, this.#cols);
 
         seedGrid(grid, this.#density, this.#seed);
-        this.#buffer.init(grid);
+        this.#buffer.initFromGrid(grid);
     }
 
     // ── Frame-driven stepping ──
 
     /** Feed the surface's frame delta (seconds); runs generations while the clock plays. */
-    tick(delta: NonNegativeSeconds): void {
+    tick(delta: number): void {
         this.#clock.update(delta);
 
         if (!this.#clock.isPlaying) {
@@ -108,7 +109,7 @@ export class SimulationEngine {
     }
 
     setSpeed(ms: number): void {
-        this.#interval = msToSeconds(ms);
+        this.#interval = ms / 1000;
     }
 
     setRule(rule: Rule): void {
@@ -180,13 +181,15 @@ export class SimulationEngine {
 
     destroy(): void {
         this.pause();
+        this.#simProgram.destroy();
+        this.#paintProgram.destroy();
         this.#buffer.destroy();
     }
 
     // ── Getters ──
 
     getDisplayTexture(): WebGLTexture {
-        return this.#buffer.getTexture();
+        return this.#buffer.read.texture;
     }
 
     get width(): number {
@@ -218,7 +221,7 @@ export class SimulationEngine {
             this.#buffer.resize(this.#cols, this.#rows);
         }
 
-        this.#buffer.init(grid);
+        this.#buffer.initFromGrid(grid);
         this.#setGeneration(0);
     }
 
@@ -233,8 +236,7 @@ export class SimulationEngine {
             this.#surviveBuffer[i] = rule.survive[i] ? 1 : 0;
         }
 
-        this.#buffer.useProgram('default');
-        this.#buffer.setUniforms({
+        this.#buffer.step(this.#simProgram, {
             u_gridSize: [this.#buffer.width, this.#buffer.height],
             u_birth: this.#birthBuffer,
             u_survive: this.#surviveBuffer,
@@ -242,15 +244,12 @@ export class SimulationEngine {
             u_ageGrowth: AGE_GROWTH_RATE,
             u_ageDecay: AGE_DECAY_RATE,
         });
-        this.#buffer.step();
     }
 
     #gpuPaint(col: number, row: number, value: number): void {
-        this.#buffer.useProgram('paint');
-        this.#buffer.setUniforms({
+        this.#buffer.step(this.#paintProgram, {
             u_targetCell: [col, row],
             u_value: value,
         });
-        this.#buffer.step();
     }
 }

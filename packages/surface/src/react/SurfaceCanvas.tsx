@@ -10,7 +10,10 @@ import { globalPlaybackStore } from './usePlayback';
 
 export type { UniformValue, ShaderError, Surface };
 
-export interface SurfaceCanvasProps {
+export interface SurfaceCanvasProps extends Omit<
+    React.CanvasHTMLAttributes<HTMLCanvasElement>,
+    'style' | 'className'
+> {
     /**
      * Fragment shader source — Shadertoy syntax: `void mainImage(out vec4 fragColor, in vec2
      * fragCoord)`
@@ -22,7 +25,7 @@ export interface SurfaceCanvasProps {
      * Additional uniforms (on top of the auto-injected `iResolution`, `iTime`, etc.). Called each
      * frame; return a fresh object.
      */
-    uniforms?: () => Record<string, UniformValue>;
+    uniforms?: (surface: Surface) => Record<string, UniformValue>;
     /**
      * Called when the shader fails to compile or link (`ShaderError`), or `undefined` after a
      * successful recompilation.
@@ -30,6 +33,10 @@ export interface SurfaceCanvasProps {
     onShaderError?: (error: ShaderError | undefined) => void;
     /** Called once, right after the Surface is created — the right place for one-time setup. */
     onMount?: (surface: Surface) => void;
+    /** Called each frame. */
+    onFrame?: (surface: Surface) => void;
+    /** Called when the WebGL context is restored. */
+    onContextRestored?: (surface: Surface) => void;
     className?: string;
     style?: React.CSSProperties;
 }
@@ -45,8 +52,11 @@ export function SurfaceCanvas({
     uniforms,
     onShaderError,
     onMount,
+    onFrame,
+    onContextRestored,
     className,
     style,
+    ...canvasProps
 }: SurfaceCanvasProps): React.ReactElement {
     // Create a Surface when the canvas node mounts; destroy it when it unmounts.
     const { ref, resource: surface } = useNodeResource(
@@ -57,6 +67,8 @@ export function SurfaceCanvas({
     const uniformsRef = useLatest(uniforms);
     const onShaderErrorRef = useLatest(onShaderError);
     const onMountRef = useLatest(onMount);
+    const onFrameRef = useLatest(onFrame);
+    const onContextRestoredRef = useLatest(onContextRestored);
 
     // Current compiled program — managed imperatively, not through effect cleanup.
     // Kept as ref so the frame loop always reads the latest version.
@@ -70,6 +82,18 @@ export function SurfaceCanvas({
         }
         onMountRef.current?.(surface);
     }, [surface, onMountRef]);
+
+    // -------------------------------------------------------------------------
+    // onContextRestored callback
+    useEffect(() => {
+        if (!surface) {
+            return;
+        }
+
+        return surface.onContextRestored((s) => {
+            onContextRestoredRef.current?.(s);
+        });
+    }, [surface, onContextRestoredRef]);
 
     // -------------------------------------------------------------------------
     // Compile shader whenever fragmentShader source or surface changes.
@@ -88,8 +112,12 @@ export function SurfaceCanvas({
             programRef.current = result.program;
             onShaderErrorRef.current?.(undefined);
         } else {
-            // Keep the previous program alive as a fallback; just report the error.
-            onShaderErrorRef.current?.(result.error);
+            // Keep the previous program alive as a fallback; report the error.
+            if (onShaderErrorRef.current) {
+                onShaderErrorRef.current(result.error);
+            } else {
+                console.error('SurfaceCanvas shader compilation error:', result.error);
+            }
         }
     }, [surface, fragmentShader, onShaderErrorRef]);
 
@@ -125,16 +153,18 @@ export function SurfaceCanvas({
         }
 
         return surface.onFrame((s) => {
+            onFrameRef.current?.(s);
+
             const program = programRef.current;
 
             if (!program) {
                 return;
             }
 
-            const extraUniforms = uniformsRef.current?.();
+            const extraUniforms = uniformsRef.current?.(s);
             s.renderProgram(program, extraUniforms);
         });
-    }, [surface, uniformsRef]);
+    }, [surface, uniformsRef, onFrameRef]);
 
     return (
         <canvas
@@ -144,8 +174,10 @@ export function SurfaceCanvas({
                 display: 'block',
                 width: '100%',
                 height: '100%',
+                touchAction: 'none',
                 ...style,
             }}
+            {...canvasProps}
         />
     );
 }

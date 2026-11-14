@@ -1,25 +1,23 @@
-import { createCssColor } from '@repo/glaze/core/render';
-import type { UniformValue } from '@repo/glaze/gpu/shader/types';
-import { parseColor } from '@repo/glaze/gpu/shapes/color';
-import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
+import { Camera2D } from '@repo/surface/core/Camera2D';
+import type { UniformValue } from '@repo/surface/gpu/types';
+import { SurfaceCanvas } from '@repo/surface/react/SurfaceCanvas';
+import { useMemo } from 'react';
 
 import cellMeshShader from '../engine/gpu/shaders/cell-mesh.frag?raw';
 import { useCellPainting } from '../hooks/useCellPainting';
-import { buildStateColorArray } from '../lib/colors';
+import { buildStateColorArray, parseColor } from '../lib/colors';
 import { TRAIL_COLOR, TRAIL_STRENGTH } from '../lib/constants';
 import { computeGridRect } from '../lib/gridPlacement';
 import { initSimulation, tickSimulation } from '../stores/automa/actions';
 import { automaStore } from '../stores/automa/store';
 
 export function Scene() {
-    const interactions = useCellPainting();
+    const camera = useMemo(() => new Camera2D(), []);
+    const handlers = useCellPainting(camera);
 
     return (
-        <GpuCanvas
-            // No `pan` option here: providing onStart/onMove disables glaze's
-            // built-in pan, so useCellPainting handles middle-drag pan itself.
-            canvasInteractions={interactions}
-            initialCamera={{ minZoom: 1, maxZoom: 64 }}
+        <SurfaceCanvas
+            {...handlers}
             fragmentShader={cellMeshShader}
             onMount={initSimulation}
             onContextRestored={initSimulation}
@@ -33,11 +31,9 @@ export function Scene() {
                     return {};
                 }
 
-                // Same placement math as eventToGridPoint: the display and the
-                // picking share computeGridRect, so cells stay under the cursor
-                // at every zoom level.
                 const rect = computeGridRect(surface.width, surface.height, cols, rows);
-                const dead = parseColor(stateColors[0] ?? createCssColor('#000000'));
+                const dead = parseColor(stateColors[0] ?? '#000000');
+                const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio ?? 1) : 1;
 
                 return {
                     u_grid: engine.getDisplayTexture(),
@@ -48,6 +44,9 @@ export function Scene() {
                     u_gridOrigin: [rect.originX, rect.originY],
                     u_gridScale: rect.scale,
                     u_gridSize: [cols, rows],
+                    u_resolution: [surface.width, surface.height],
+                    u_dpr: dpr,
+                    u_camera: [camera.x, camera.y, camera.zoom],
                 };
             }}
         />

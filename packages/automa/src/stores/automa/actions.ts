@@ -1,7 +1,4 @@
-import { createCssColor } from '@repo/glaze/core/render';
-import type { CssColor } from '@repo/glaze/core/render';
-import type { NonNegativeSeconds } from '@repo/glaze/core/time';
-import type { GpuSurface } from '@repo/glaze/gpu/GpuSurface';
+import type { Surface } from '@repo/surface/gpu/Surface';
 
 import { GRID_DEFAULT_DENSITY, GRID_DEFAULT_SEED } from '../../engine/config';
 import { getCreature } from '../../engine/creature/registry';
@@ -9,14 +6,15 @@ import type { CreatureId } from '../../engine/creature/registry';
 import gpuPaintShader from '../../engine/gpu/shaders/gpu-paint.frag?raw';
 import simStepShader from '../../engine/gpu/shaders/sim-step.frag?raw';
 import { SimulationEngine } from '../../engine/gpu/SimulationEngine';
-import { rules, getRule } from '../../engine/rules/registry';
+import { getRule, rules } from '../../engine/rules/registry';
 import type { RuleId } from '../../engine/rules/registry';
 import { computeDerivedColors } from '../../lib/colors';
+import type { CssColor } from '../../lib/constants';
 import { automaStore } from './store';
 import type { BrushMode } from './store';
 
-const DEAD_COLOR_FALLBACK = createCssColor('#070a14');
-const ALIVE_COLOR_FALLBACK = createCssColor('#d97706');
+const DEAD_COLOR_FALLBACK = '#070a14';
+const ALIVE_COLOR_FALLBACK = '#d97706';
 
 // ── Engine lifecycle ──
 
@@ -31,12 +29,15 @@ export function destroySimulation(): void {
     automaStore.setState({ engine: null });
 }
 
-export function initSimulation(surface: GpuSurface): void {
+export function initSimulation(surface: Surface): void {
     destroySimulation();
 
     const { cols, rows, ruleId, speedMs } = automaStore.getState();
-    const buffer = surface.createStateBuffer(cols, rows);
-    const engine = new SimulationEngine(buffer, simStepShader, gpuPaintShader, {
+    const buffer = surface.createTargetPair(cols, rows);
+    const simProgram = surface.createProgram(simStepShader);
+    const paintProgram = surface.createProgram(gpuPaintShader);
+
+    const engine = new SimulationEngine(buffer, simProgram, paintProgram, {
         cols,
         rows,
         rule: rules.get(ruleId),
@@ -74,7 +75,7 @@ export function stepOnce(): void {
 }
 
 /** Driven by the surface's frame loop; steps generations while the clock plays. */
-export function tickSimulation(delta: NonNegativeSeconds): void {
+export function tickSimulation(delta: number): void {
     automaStore.getState().engine?.tick(delta);
 }
 

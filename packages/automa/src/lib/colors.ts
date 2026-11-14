@@ -1,8 +1,21 @@
-import { createCssColor } from '@repo/glaze/core/render';
-import type { CssColor } from '@repo/glaze/core/render';
-import { parseColor } from '@repo/glaze/gpu/shapes/color';
-
+import type { CssColor } from './constants';
 import { MAX_STATE_COUNT } from './constants';
+
+export interface RgbColor {
+    r: number;
+    g: number;
+    b: number;
+}
+
+export function parseColor(hex: string): RgbColor {
+    const clean = hex.replace('#', '');
+    const num = parseInt(clean, 16);
+    return {
+        r: ((num >> 16) & 255) / 255,
+        g: ((num >> 8) & 255) / 255,
+        b: (num & 255) / 255,
+    };
+}
 
 export function buildStateColorArray(stateColors: CssColor[]): Float32Array {
     const floats = new Float32Array(MAX_STATE_COUNT * 3);
@@ -37,7 +50,7 @@ function lerpColor(hexA: CssColor, hexB: CssColor, t: number): CssColor {
     const g = Math.round(gA + (gB - gA) * t);
     const b = Math.round(bA + (bB - bA) * t);
 
-    return createCssColor(`#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`);
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
 }
 
 // Computes all derived state colors given a rule's stateCount plus the dead and alive colors.

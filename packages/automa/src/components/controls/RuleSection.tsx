@@ -1,4 +1,3 @@
-import { createCssColor } from '@repo/glaze/core/render';
 import { ColorField } from '@repo/ui/components/ColorField';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Select } from '@repo/ui/components/Select';
@@ -29,7 +28,7 @@ export function RuleSection() {
                     label={`Age ${String(i)}`}
                     value={color}
                     onValueChange={(value) => {
-                        setStateColor(i, createCssColor(value));
+                        setStateColor(i, value);
                     }}
                 />
             ))}

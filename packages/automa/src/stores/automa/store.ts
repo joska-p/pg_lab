@@ -1,10 +1,10 @@
-import type { CssColor } from '@repo/glaze/core/render';
 import { createStore } from 'zustand/vanilla';
 
 import { GRID_DEFAULT_COLS, GRID_DEFAULT_ROWS } from '../../engine/config';
 import type { CreatureId } from '../../engine/creature/registry';
 import type { SimulationEngine } from '../../engine/gpu/SimulationEngine';
 import type { RuleId } from '../../engine/rules/registry';
+import type { CssColor } from '../../lib/constants';
 import { DEFAULT_STATE_COLORS, SPEED_DEFAULT_MS } from '../../lib/constants';
 
 export type BrushMode = 'draw' | 'erase';

@@ -1,20 +1,15 @@
-import type { GpuSurface } from '@repo/glaze/gpu/GpuSurface';
-import type { CanvasInteractions, LiveInteractionEvent } from '@repo/glaze/react/types';
+import type { Camera2D } from '@repo/surface/core/Camera2D';
+import type React from 'react';
 import { useRef } from 'react';
 
 import { eventToGridPoint } from '../lib/coordinates';
 import { paintCell, placeCreature } from '../stores/automa/actions';
 import { automaStore } from '../stores/automa/store';
 
-function paintAtEvent(event: PointerEvent, surface: GpuSurface): void {
+function paintAtEvent(event: React.PointerEvent<HTMLCanvasElement>, camera: Camera2D): void {
     const canvas = event.currentTarget;
-
-    if (!(canvas instanceof HTMLCanvasElement)) {
-        return;
-    }
-
     const { cols, rows, toolMode, paletteBrush } = automaStore.getState();
-    const cell = eventToGridPoint(event, canvas, cols, rows, surface.camera);
+    const cell = eventToGridPoint(event, canvas, cols, rows, camera);
 
     if (!cell) {
         return;
@@ -22,7 +17,6 @@ function paintAtEvent(event: PointerEvent, surface: GpuSurface): void {
 
     if (toolMode !== 'erase' && paletteBrush !== 'pixel') {
         placeCreature(cell.column, cell.row, paletteBrush);
-
         return;
     }
 
@@ -31,49 +25,73 @@ function paintAtEvent(event: PointerEvent, surface: GpuSurface): void {
 
 type DragMode = 'paint' | 'pan';
 
-export function useCellPainting(): CanvasInteractions<GpuSurface> {
-    // `onStart`/`onMove` replace glaze's built-in pan (createInteractionAdapter only
-    // registers PanGesture when both are absent), so middle-drag panning lives here.
+export interface CellPaintingHandlers {
+    onPointerDown: (event: React.PointerEvent<HTMLCanvasElement>) => void;
+    onPointerMove: (event: React.PointerEvent<HTMLCanvasElement>) => void;
+    onPointerUp: (event: React.PointerEvent<HTMLCanvasElement>) => void;
+    onWheel: (event: React.WheelEvent<HTMLCanvasElement>) => void;
+    onContextMenu: (event: React.MouseEvent<HTMLCanvasElement>) => void;
+}
+
+export function useCellPainting(camera: Camera2D): CellPaintingHandlers {
     const drag = useRef<DragMode | null>(null);
+    const lastPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
-    const onStart = (event: LiveInteractionEvent<PointerEvent, GpuSurface>): void => {
-        const { nativeEvent, surface } = event;
+    const onPointerDown = (event: React.PointerEvent<HTMLCanvasElement>): void => {
+        const canvas = event.currentTarget;
+        lastPos.current = { x: event.clientX, y: event.clientY };
 
-        if (nativeEvent.button === 1) {
-            // Stop the browser's middle-click autoscroll while we own the drag.
-            nativeEvent.preventDefault();
+        if (event.button === 1) {
+            // Middle-click: pan
+            event.preventDefault();
             drag.current = 'pan';
-        } else if (nativeEvent.button === 0) {
+            canvas.setPointerCapture(event.pointerId);
+        } else if (event.button === 0) {
+            // Left-click: paint
             drag.current = 'paint';
-            paintAtEvent(nativeEvent, surface);
-        } else {
-            return;
-        }
-
-        // Mirror the router's capture policy: a claimed drag keeps receiving
-        // events when the cursor leaves the canvas.
-        const canvas = nativeEvent.currentTarget;
-
-        if (canvas instanceof HTMLCanvasElement) {
-            canvas.setPointerCapture(nativeEvent.pointerId);
+            paintAtEvent(event, camera);
+            canvas.setPointerCapture(event.pointerId);
         }
     };
 
-    const onMove = (event: LiveInteractionEvent<PointerEvent, GpuSurface>): void => {
+    const onPointerMove = (event: React.PointerEvent<HTMLCanvasElement>): void => {
         if (drag.current === 'paint') {
-            paintAtEvent(event.nativeEvent, event.surface);
+            paintAtEvent(event, camera);
         } else if (drag.current === 'pan') {
-            event.cameraControls.panBy(event.input.pointerDelta.x, event.input.pointerDelta.y);
+            const dx = event.clientX - lastPos.current.x;
+            const dy = event.clientY - lastPos.current.y;
+            camera.panBy(dx, dy);
+        }
+        lastPos.current = { x: event.clientX, y: event.clientY };
+    };
+
+    const onPointerUp = (event: React.PointerEvent<HTMLCanvasElement>): void => {
+        drag.current = null;
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+            event.currentTarget.releasePointerCapture(event.pointerId);
         }
     };
 
-    const onEnd = (_event: LiveInteractionEvent<PointerEvent, GpuSurface>): void => {
-        drag.current = null;
+    const onWheel = (event: React.WheelEvent<HTMLCanvasElement>): void => {
+        event.preventDefault();
+        const rect = event.currentTarget.getBoundingClientRect();
+        const focalPoint = {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top,
+        };
+        const zoomFactor = event.deltaY < 0 ? 1.15 : 0.85;
+        camera.zoomAt(focalPoint, zoomFactor, 1, 64);
     };
 
-    const onContextMenu = ({ nativeEvent }: LiveInteractionEvent<MouseEvent, GpuSurface>): void => {
-        nativeEvent.preventDefault();
+    const onContextMenu = (event: React.MouseEvent<HTMLCanvasElement>): void => {
+        event.preventDefault();
     };
 
-    return { onStart, onMove, onEnd, onContextMenu };
+    return {
+        onPointerDown,
+        onPointerMove,
+        onPointerUp,
+        onWheel,
+        onContextMenu,
+    };
 }
