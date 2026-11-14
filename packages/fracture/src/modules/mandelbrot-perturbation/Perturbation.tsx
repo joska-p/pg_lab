@@ -1,9 +1,11 @@
-import type { UniformValue } from '@repo/glaze/gpu/shader/types';
-import { GpuCanvas } from '@repo/glaze/react/GpuCanvas';
+import type { Surface } from '@repo/surface/gpu/Surface';
+import type { UniformValue } from '@repo/surface/gpu/types';
+import { SurfaceCanvas } from '@repo/surface/react/SurfaceCanvas';
+import { useCameraControls } from '@repo/surface/react/useCameraControls';
 import { useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
 
-import { ZOOM_WHEEL_SPEED, WORLD_SCALE } from '../../core/camera';
+import { WORLD_SCALE } from '../../core/camera';
 import { splitDouble } from '../../core/doubleSplit';
 import { computeMaxIterations } from '../../core/iterationPolicy';
 import { createOrbitTextures } from '../../core/orbitTextures';
@@ -17,7 +19,7 @@ import dsArithmeticChunk from '../../shaders/chunks/ds-arithmetic.glsl?raw';
 import lightingChunk from '../../shaders/chunks/lighting.glsl?raw';
 import oklchChunk from '../../shaders/chunks/oklch.glsl?raw';
 import perturbationBody from './perturbation.glsl?raw';
-import { cameraRig, setPerturbationSurface, useParams, usePerturbationSurface } from './store';
+import { camera, useParams } from './store';
 import type { FractalParams } from './store';
 
 const perturbationShader = assemble(dsArithmeticChunk, oklchChunk, lightingChunk, perturbationBody);
@@ -33,9 +35,8 @@ interface Orbits {
     secondary: ReferenceOrbit;
 }
 
-/** Per-frame canvas + the component-owned refs the perturbation provider mutates. */
+/** Per-frame component-owned refs the perturbation provider mutates. */
 interface PerturbationRuntime {
-    canvas: HTMLCanvasElement;
     texturesRef: RefObject<OrbitTextures | null>;
     orbitsRef: RefObject<Orbits | null>;
     lastCenterReRef: RefObject<number>;
@@ -55,11 +56,11 @@ function perturbationUniforms(
     view: CameraView,
     width: number,
     height: number,
+    gl: WebGL2RenderingContext,
     runtime: PerturbationRuntime,
     stats?: PerturbationStats,
 ): Record<string, UniformValue> {
-    const { canvas, texturesRef, orbitsRef, lastCenterReRef, lastCenterImRef, lastZoomRef } =
-        runtime;
+    const { texturesRef, orbitsRef, lastCenterReRef, lastCenterImRef, lastZoomRef } = runtime;
 
     // Same camera → complex-plane mapping as double-split: the view centre uses the fixed
     // zoom = 1 width (WORLD_SCALE); viewScale is the per-frame width driving the per-pixel
@@ -72,17 +73,10 @@ function perturbationUniforms(
     const centerIm = panNormY * WORLD_SCALE + 0.5 * WORLD_SCALE * drift;
     const viewScale = WORLD_SCALE / view.zoom;
 
-    // Lazily bind the orbit textures to the glaze-owned GL context (the first frame runs only
-    // once the runtime is live); the texture object keeps its own gl across context restores.
+    // Lazily bind the orbit textures using the surface's WebGL context.
     let textures = texturesRef.current;
 
     if (!textures) {
-        const gl = canvas.getContext('webgl2');
-
-        if (!gl) {
-            return {};
-        }
-
         textures = createOrbitTextures(gl);
         texturesRef.current = textures;
     }
@@ -139,6 +133,8 @@ function perturbationUniforms(
     const [scaleHi, scaleLo] = splitDouble(viewScale);
 
     return {
+        u_camera: [view.x, view.y, view.zoom],
+        u_aspect: aspect,
         u_scale: [scaleHi, scaleLo],
 
         u_orbit: textures.tex1,
@@ -162,8 +158,11 @@ function perturbationUniforms(
 
 function Perturbation() {
     const params = useParams();
-    const surface = usePerturbationSurface();
-    const demand = useDemandRender(params, cameraRig);
+    const demand = useDemandRender(params, camera);
+    const cameraControls = useCameraControls(camera, {
+        pan: { buttons: ['left', 'middle'] },
+        zoom: { speed: 1.2 },
+    });
 
     const texturesRef = useRef<OrbitTextures | null>(null);
     const orbitsRef = useRef<Orbits | null>(null);
@@ -171,8 +170,15 @@ function Perturbation() {
     const lastCenterImRef = useRef(NaN);
     const lastZoomRef = useRef(NaN);
 
-    // Dispose the raw-GL orbit textures with the component and drop the glaze surface from the
-    // store; the glaze runtime owns its own resources and cleans those up when the canvas unmounts.
+    const runtime: PerturbationRuntime = {
+        texturesRef,
+        orbitsRef,
+        lastCenterReRef,
+        lastCenterImRef,
+        lastZoomRef,
+    };
+
+    // Dispose the raw-GL orbit textures with the component.
     useEffect(() => {
         if (isPerfEnabled()) {
             perfLoopEnter();
@@ -181,71 +187,49 @@ function Perturbation() {
             texturesRef.current?.dispose();
             texturesRef.current = null;
             orbitsRef.current = null;
-            setPerturbationSurface(null);
             if (isPerfEnabled()) {
                 perfLoopExit();
             }
         };
     }, []);
 
-    // Glaze reinitializes its programs on context restore, but our raw-GL orbit textures are
-    // dead afterwards; recreate and re-upload the last orbits.
-    useEffect(() => {
-        if (!surface) {
-            return;
-        }
-
-        const onRestored = () => {
-            const orbits = orbitsRef.current;
-
-            if (orbits) {
-                texturesRef.current?.dispose();
-                texturesRef.current?.upload(orbits.primary, orbits.secondary);
-            }
-        };
-
-        return surface.onContextRestored(onRestored);
-    }, [surface]);
-
     return (
-        <GpuCanvas
+        <SurfaceCanvas
+            {...cameraControls}
             className="h-full w-full"
             fragmentShader={perturbationShader}
-            camera={cameraRig.camera}
-            cameraControls={cameraRig.controls}
-            canvasInteractions={{ zoom: { speed: ZOOM_WHEEL_SPEED } }}
-            onMount={(s) => {
-                setPerturbationSurface(s);
-                demand.handleMount(s);
-            }}
             shouldRender={demand.shouldRender}
-            uniforms={({ camera: view, width, height, canvas }) => {
-                cameraRig.setViewport(width, height);
+            onMount={demand.handleMount}
+            onContextRestored={(surface: Surface) => {
+                const orbits = orbitsRef.current;
+                if (orbits) {
+                    texturesRef.current?.dispose();
+                    const textures = createOrbitTextures(surface.gl);
+                    texturesRef.current = textures;
+                    textures.upload(orbits.primary, orbits.secondary);
+                }
+            }}
+            uniforms={(surface) => {
+                camera.setViewport({ width: surface.width, height: surface.height });
 
                 const perf = isPerfEnabled();
                 const t0 = perf ? performance.now() : 0;
                 const stats: PerturbationStats = { orbitMs: 0, orbitLength: 0, maxIterations: 0 };
                 const result = perturbationUniforms(
                     params,
-                    view,
-                    width,
-                    height,
-                    {
-                        canvas,
-                        texturesRef,
-                        orbitsRef,
-                        lastCenterReRef,
-                        lastCenterImRef,
-                        lastZoomRef,
-                    },
+                    camera,
+                    surface.width,
+                    surface.height,
+                    surface.gl,
+                    runtime,
                     stats,
                 );
                 if (perf) {
-                    recordFractalFrame(performance.now() - t0, width, height, {
+                    recordFractalFrame(performance.now() - t0, surface.width, surface.height, {
                         orbitMs: stats.orbitMs,
                         orbitLength: stats.orbitLength,
                         maxIterations: stats.maxIterations,
-                        zoom: view.zoom,
+                        zoom: camera.zoom,
                     });
                 }
 

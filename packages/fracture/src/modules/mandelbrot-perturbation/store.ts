@@ -1,8 +1,6 @@
-import type { GpuSurface } from '@repo/glaze/gpu/types';
+import { Camera2D } from '@repo/surface/core/Camera2D';
 import { useStore } from 'zustand';
 import { createStore } from 'zustand/vanilla';
-
-import { createCameraRig } from '../../core/observedCamera';
 
 export interface FractalParams {
     iterationBase: number;
@@ -44,25 +42,8 @@ export function setParam(key: ParamKey, value: number): void {
     store.setState({ [key]: value } as Partial<FractalParams>);
 }
 
-// The glaze surface is a live object owned by GpuCanvas (conventions §3.2): the store only
-// provides reachability, so the perturbation experiment can attach its `webglcontextrestored`
-// handler the moment the surface materializes. Dereferenced on unmount.
-interface SurfaceState {
-    surface: GpuSurface | null;
-}
-
-const surfaceStore = createStore<SurfaceState>(() => ({ surface: null }));
-
-export function usePerturbationSurface(): GpuSurface | null {
-    return useStore(surfaceStore, (state) => state.surface);
-}
-
-export function setPerturbationSurface(surface: GpuSurface | null): void {
-    surfaceStore.setState({ surface });
-}
-
 /** Perturbation (reference orbit + double-single): the deepest honest tier, up to 1e15 (D10). */
 export const MAX_ZOOM = 1e15;
 
-/** Module-owned camera rig (D4): the glaze camera is the truth, the rig owns its change signal. */
-export const cameraRig = createCameraRig({ maxZoom: MAX_ZOOM });
+/** Module-owned camera (D4): live reactive Camera2D without brands. */
+export const camera = new Camera2D({ maxZoom: MAX_ZOOM });
