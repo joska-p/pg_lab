@@ -22,7 +22,7 @@ uniform float u_chromaScale;
 // View
 uniform vec2 u_centerRe; // double-single pair (hi, lo)
 uniform vec2 u_centerIm; // double-single pair (hi, lo)
-uniform vec3 u_camera; // [x, y, zoom] — glaze built-in, y-down screen px
+uniform vec3 u_camera; // [x, y, zoom] — y-down screen px
 uniform float u_aspect;
 
 in vec2 vUv;

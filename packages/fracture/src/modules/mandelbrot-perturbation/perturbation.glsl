@@ -26,7 +26,7 @@ uniform float u_hueFrequency;
 uniform float u_chromaScale;
 
 // View
-uniform vec3 u_camera; // [x, y, zoom] — glaze built-in, y-down screen px
+uniform vec3 u_camera; // [x, y, zoom] — y-down screen px
 uniform vec2 u_scale; // DS (hi, lo)
 uniform float u_aspect;
 

@@ -53,7 +53,7 @@ uniform float u_hueFrequency; // how quickly hue cycles with height
 uniform float u_chromaScale; // global saturation multiplier
 
 // View
-uniform vec3 u_camera; // [x, y, zoom] — glaze built-in, y-down screen px
+uniform vec3 u_camera; // [x, y, zoom] — y-down screen px
 uniform vec2 u_panOffset; // pan, in UV space, applied after zoom
 uniform float u_aspect; // canvas width / height, for non-square canvases
 
