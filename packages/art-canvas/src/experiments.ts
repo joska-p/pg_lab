@@ -5,10 +5,21 @@ export interface Experiment<TId extends string = string> {
     readonly id: TId;
     readonly label: string;
     readonly Scene: ComponentType;
-    readonly Controls: ComponentType;
+    readonly Controls: ComponentType | null;
 }
 
 export const EXPERIMENTS = [
+    {
+        id: 'draw',
+        label: 'Draw',
+        Scene: lazy(() =>
+            import('./modules/draw/DrawCanvas').then((m) => ({
+                default: m.DrawCanvas,
+            })),
+        ),
+        Controls: null,
+    },
+
     {
         id: 'spirale',
         label: 'Spirale',

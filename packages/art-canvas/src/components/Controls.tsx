@@ -19,11 +19,13 @@ export function Controls() {
                 onValueChange={setExperimentKey}
                 options={experimentOptions}
             />
-            <ControlSection title={label}>
-                <Suspense fallback={null}>
-                    <Controls />
-                </Suspense>
-            </ControlSection>
+            {Controls != null && (
+                <ControlSection title={label}>
+                    <Suspense fallback={null}>
+                        <Controls />
+                    </Suspense>
+                </ControlSection>
+            )}
         </ControlPanel>
     );
 }
