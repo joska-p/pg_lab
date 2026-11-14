@@ -8,8 +8,7 @@ uniform float u_trailStrength;
 uniform vec2 u_gridOrigin;
 uniform float u_gridScale;
 uniform vec2 u_gridSize;
-uniform vec2 u_resolution;
-uniform float u_dpr;
+uniform vec2 u_viewSize;
 uniform vec3 u_camera;
 
 in vec2 vUv;
@@ -19,7 +18,7 @@ void main() {
     // Parity contract with Camera.screenToWorld: the camera lives in DOM-style
     // CSS pixels (Y-down) while vUv is Y-up, so flip once here. From this line
     // on, `world` matches exactly what getCellAtWorld() computes on the CPU.
-    vec2 css = vec2(vUv.x, 1.0 - vUv.y) * (u_resolution / u_dpr);
+    vec2 css = vec2(vUv.x, 1.0 - vUv.y) * u_viewSize;
     vec2 world = (css - u_camera.xy) / u_camera.z;
 
     // Grid placement comes from computeGridRect(), shared with pointer picking.

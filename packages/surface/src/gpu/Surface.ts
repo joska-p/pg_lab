@@ -13,7 +13,10 @@ export type { UniformValue, RenderTargetOptions };
 type FrameCallback = (surface: Surface) => void;
 type ContextRestoredCallback = (surface: Surface) => void;
 
-/** Mouse state following Shadertoy iMouse semantics. */
+/**
+ * Mouse state following Shadertoy iMouse semantics. Positions are stored in CSS pixels (the input
+ * space) and converted to device pixels when uploaded as `iMouse`.
+ */
 interface MouseState {
     /** Current position (CSS pixels) when button is pressed, else 0,0. */
     x: number;
@@ -28,6 +31,9 @@ interface MouseState {
 /**
  * Surface manages a WebGL2 context, the frame loop, resize, context loss, and mouse tracking. It
  * follows the Shadertoy uniform contract (iResolution, iTime, iTimeDelta, iFrame, iMouse).
+ *
+ * Size contract: `width`/`height` are CSS pixels (layout and pointer space), while
+ * `deviceWidth`/`deviceHeight` are physical pixels (drawing buffer and `iResolution` space).
  */
 export class Surface {
     readonly canvas: HTMLCanvasElement;
@@ -41,6 +47,9 @@ export class Surface {
     #frameCount = 0;
     #width = 0;
     #height = 0;
+    #deviceWidth = 0;
+    #deviceHeight = 0;
+    #dpr = 1;
     #destroyed = false;
 
     // iMouse state
@@ -136,12 +145,29 @@ export class Surface {
         return this.#gl;
     }
 
+    /** Canvas width in CSS pixels. */
     get width(): number {
         return this.#width;
     }
 
+    /** Canvas height in CSS pixels. */
     get height(): number {
         return this.#height;
+    }
+
+    /** Canvas width in physical pixels (the drawing buffer size). */
+    get deviceWidth(): number {
+        return this.#deviceWidth;
+    }
+
+    /** Canvas height in physical pixels (the drawing buffer size). */
+    get deviceHeight(): number {
+        return this.#deviceHeight;
+    }
+
+    /** Device pixel ratio used for the last resize. */
+    get dpr(): number {
+        return this.#dpr;
     }
 
     get time(): number {
@@ -199,17 +225,19 @@ export class Surface {
      * for any application-specific uniforms on top.
      */
     renderProgram(program: Program, extraUniforms?: Record<string, UniformValue>): void {
+        // Mouse positions are tracked in CSS pixels and converted here to match iResolution.
+        const { dpr } = this;
         const standardUniforms = buildStandardUniforms({
-            width: this.#width,
-            height: this.#height,
+            width: this.#deviceWidth,
+            height: this.#deviceHeight,
             time: this.clock.time,
             timeDelta: this.clock.deltaTime,
             frame: this.#frameCount,
             mouse: [
-                this.#mouse.pressed ? this.#mouse.x : 0,
-                this.#mouse.pressed ? this.#mouse.y : 0,
-                this.#mouse.clickX,
-                this.#mouse.clickY,
+                this.#mouse.pressed ? this.#mouse.x * dpr : 0,
+                this.#mouse.pressed ? this.#mouse.y * dpr : 0,
+                this.#mouse.clickX * dpr,
+                this.#mouse.clickY * dpr,
             ],
         });
 
@@ -218,7 +246,7 @@ export class Surface {
             : standardUniforms;
 
         program.setUniforms(allUniforms);
-        program.render(this.#width, this.#height);
+        program.render(this.#deviceWidth, this.#deviceHeight);
     }
 
     /** Renders a program into an offscreen RenderTarget. */
@@ -300,14 +328,20 @@ export class Surface {
 
     #resize(): void {
         const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio ?? 1) : 1;
-        const w = Math.round(this.canvas.clientWidth * dpr);
-        const h = Math.round(this.canvas.clientHeight * dpr);
+        const width = this.canvas.clientWidth;
+        const height = this.canvas.clientHeight;
+        const deviceWidth = Math.round(width * dpr);
+        const deviceHeight = Math.round(height * dpr);
 
-        if (w !== this.#width || h !== this.#height) {
-            this.#width = w;
-            this.#height = h;
-            this.canvas.width = w;
-            this.canvas.height = h;
+        this.#dpr = dpr;
+        this.#width = width;
+        this.#height = height;
+
+        if (deviceWidth !== this.#deviceWidth || deviceHeight !== this.#deviceHeight) {
+            this.#deviceWidth = deviceWidth;
+            this.#deviceHeight = deviceHeight;
+            this.canvas.width = deviceWidth;
+            this.canvas.height = deviceHeight;
         }
     }
 }

@@ -145,9 +145,9 @@ export function setUniforms(
 }
 
 export interface StandardUniformInput {
-    /** Canvas width in physical pixels. */
+    /** Canvas width in physical (device) pixels — the `iResolution` width. */
     width: number;
-    /** Canvas height in physical pixels. */
+    /** Canvas height in physical (device) pixels — the `iResolution` height. */
     height: number;
     /** Wall time in seconds since start. */
     time: number;
@@ -156,9 +156,9 @@ export interface StandardUniformInput {
     /** Frame counter (integer). */
     frame: number;
     /**
-     * `[x, y, clickX, clickY]` in CSS pixels, with Shadertoy `iMouse` semantics: `x, y` is the
-     * current position while the button is down (0, 0 otherwise), `clickX, clickY` is the last
-     * click.
+     * `[x, y, clickX, clickY]` in physical (device) pixels, with Shadertoy `iMouse` semantics: `x,
+     * y` is the current position while the button is down (0, 0 otherwise), `clickX, clickY` is the
+     * last click.
      */
     mouse: readonly [x: number, y: number, clickX: number, clickY: number];
 }

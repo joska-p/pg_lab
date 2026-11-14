@@ -31,9 +31,9 @@ export function Scene() {
                     return {};
                 }
 
+                // Layout, pointer picking and the display shader all share the CSS-pixel world.
                 const rect = computeGridRect(surface.width, surface.height, cols, rows);
                 const dead = parseColor(stateColors[0] ?? '#000000');
-                const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio ?? 1) : 1;
 
                 return {
                     u_grid: engine.getDisplayTexture(),
@@ -44,8 +44,7 @@ export function Scene() {
                     u_gridOrigin: [rect.originX, rect.originY],
                     u_gridScale: rect.scale,
                     u_gridSize: [cols, rows],
-                    u_resolution: [surface.width, surface.height],
-                    u_dpr: dpr,
+                    u_viewSize: [surface.width, surface.height],
                     u_camera: [camera.x, camera.y, camera.zoom],
                 };
             }}
