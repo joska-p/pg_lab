@@ -5,6 +5,8 @@
     "exports": {
         "./react/SurfaceCanvas": "./src/react/SurfaceCanvas.tsx",
         "./react/usePlayback": "./src/react/usePlayback.ts",
+        "./react/useCamera2D": "./src/react/useCamera2D.ts",
+        "./react/useCameraControls": "./src/react/useCameraControls.ts",
         "./gpu/Surface": "./src/gpu/Surface.ts",
         "./gpu/TargetPair": "./src/gpu/TargetPair.ts",
         "./gpu/RenderTarget": "./src/gpu/RenderTarget.ts",
