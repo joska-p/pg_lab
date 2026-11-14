@@ -22,8 +22,8 @@ export interface SurfaceCanvasProps extends Omit<
      */
     fragmentShader: string;
     /**
-     * Additional uniforms (on top of the auto-injected `iResolution`, `iTime`, etc.). Called each
-     * frame; return a fresh object.
+     * Additional uniforms (on top of the auto-injected `iResolution`, `iTime`, etc.). Called only
+     * on frames that are actually drawn; return a fresh object.
      */
     uniforms?: (surface: Surface) => Record<string, UniformValue>;
     /**
@@ -31,9 +31,20 @@ export interface SurfaceCanvasProps extends Omit<
      * successful recompilation.
      */
     onShaderError?: (error: ShaderError | undefined) => void;
+    /**
+     * Render gate. When absent, every frame is drawn. When `false`, `uniforms` is not called and
+     * nothing is drawn — but `onFrame` still runs.
+     *
+     * A program that has never been drawn is always drawn once, regardless of this gate. The same
+     * one-shot redraw happens after a successful shader swap and after a WebGL context restore.
+     */
+    shouldRender?: (surface: Surface) => boolean;
     /** Called once, right after the Surface is created — the right place for one-time setup. */
     onMount?: (surface: Surface) => void;
-    /** Called each frame. */
+    /**
+     * Called each frame, before the draw and before `uniforms` — even when `shouldRender` skips the
+     * draw. Per-frame order: `onFrame` → `uniforms` → `renderProgram`.
+     */
     onFrame?: (surface: Surface) => void;
     /** Called when the WebGL context is restored. */
     onContextRestored?: (surface: Surface) => void;
@@ -50,6 +61,7 @@ export interface SurfaceCanvasProps extends Omit<
 export function SurfaceCanvas({
     fragmentShader,
     uniforms,
+    shouldRender,
     onShaderError,
     onMount,
     onFrame,
@@ -65,6 +77,7 @@ export function SurfaceCanvas({
 
     // Stable references to callbacks (identity may change each render)
     const uniformsRef = useLatest(uniforms);
+    const shouldRenderRef = useLatest(shouldRender);
     const onShaderErrorRef = useLatest(onShaderError);
     const onMountRef = useLatest(onMount);
     const onFrameRef = useLatest(onFrame);
@@ -73,6 +86,10 @@ export function SurfaceCanvas({
     // Current compiled program — managed imperatively, not through effect cleanup.
     // Kept as ref so the frame loop always reads the latest version.
     const programRef = useRef<Program | null>(null);
+
+    // Last program actually drawn. A never-drawn program (fresh shader swap) always gets one
+    // redraw even when `shouldRender` says no; otherwise the previous image would stay on screen.
+    const renderedProgramRef = useRef<Program | null>(null);
 
     // -------------------------------------------------------------------------
     // onMount callback — fires once per Surface instance
@@ -91,6 +108,8 @@ export function SurfaceCanvas({
         }
 
         return surface.onContextRestored((s) => {
+            // The framebuffer is gone; force one redraw even if the gate says no.
+            renderedProgramRef.current = null;
             onContextRestoredRef.current?.(s);
         });
     }, [surface, onContextRestoredRef]);
@@ -146,13 +165,14 @@ export function SurfaceCanvas({
     }, [surface]);
 
     // -------------------------------------------------------------------------
-    // Animation frame loop — renders every frame
+    // Animation frame loop
     useEffect(() => {
         if (!surface) {
             return;
         }
 
         return surface.onFrame((s) => {
+            // `onFrame` runs first, every frame, whether or not a draw happens below.
             onFrameRef.current?.(s);
 
             const program = programRef.current;
@@ -161,10 +181,19 @@ export function SurfaceCanvas({
                 return;
             }
 
+            const gate = shouldRenderRef.current;
+            const wanted = gate ? gate(s) : true;
+
+            // A program that was never drawn (new shader, restored context) gets exactly one draw.
+            if (!wanted && program === renderedProgramRef.current) {
+                return;
+            }
+
             const extraUniforms = uniformsRef.current?.(s);
             s.renderProgram(program, extraUniforms);
+            renderedProgramRef.current = program;
         });
-    }, [surface, uniformsRef, onFrameRef]);
+    }, [surface, uniformsRef, shouldRenderRef, onFrameRef]);
 
     return (
         <canvas
