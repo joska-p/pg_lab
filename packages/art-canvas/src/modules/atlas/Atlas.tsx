@@ -1,4 +1,4 @@
-import { SurfaceCanvas } from '@repo/surface/react/SurfaceCanvas';
+import { GpuCanvas } from '@repo/surface/react/GpuCanvas';
 
 import {
     useComplexity,
@@ -27,7 +27,7 @@ function Atlas() {
     const seedOffset = Math.abs(hash % 1000);
 
     return (
-        <SurfaceCanvas
+        <GpuCanvas
             fragmentShader={SYLLABIC_FIBONACCI_FRAGMENT}
             uniforms={() => ({
                 uGridSize: complexity,

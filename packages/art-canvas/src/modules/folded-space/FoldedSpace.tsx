@@ -1,9 +1,9 @@
-import { SurfaceCanvas } from '@repo/surface/react/SurfaceCanvas';
+import { GpuCanvas } from '@repo/surface/react/GpuCanvas';
 
 import { foldedSpaceFragment } from './foldedSpace';
 
 function FoldedSpace() {
-    return <SurfaceCanvas fragmentShader={foldedSpaceFragment} />;
+    return <GpuCanvas fragmentShader={foldedSpaceFragment} />;
 }
 
 export { FoldedSpace };

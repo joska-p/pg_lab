@@ -95,7 +95,7 @@ function compileStage(
     const shader = gl.createShader(type);
 
     if (!shader) {
-        throw new Error(`Surface: shader "${stage}" creation failed`);
+        throw new Error(`GpuSurface: shader "${stage}" creation failed`);
     }
 
     gl.shaderSource(shader, source);
@@ -138,7 +138,7 @@ export function compileProgram(
     if (!program) {
         gl.deleteShader(vertexShader);
         gl.deleteShader(fragmentShader);
-        throw new Error('Surface: shader "link" program creation failed');
+        throw new Error('GpuSurface: shader "link" program creation failed');
     }
 
     gl.attachShader(program, vertexShader);

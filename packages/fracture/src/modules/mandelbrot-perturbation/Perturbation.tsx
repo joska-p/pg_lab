@@ -1,6 +1,6 @@
-import type { Surface } from '@repo/surface/gpu/Surface';
+import type { GpuSurface } from '@repo/surface/gpu/GpuSurface';
 import type { UniformValue } from '@repo/surface/gpu/types';
-import { SurfaceCanvas } from '@repo/surface/react/SurfaceCanvas';
+import { GpuCanvas } from '@repo/surface/react/GpuCanvas';
 import { useCameraControls } from '@repo/surface/react/useCameraControls';
 import { useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
@@ -194,13 +194,13 @@ function Perturbation() {
     }, []);
 
     return (
-        <SurfaceCanvas
+        <GpuCanvas
             {...cameraControls}
             className="h-full w-full"
             fragmentShader={perturbationShader}
             shouldRender={demand.shouldRender}
             onMount={demand.handleMount}
-            onContextRestored={(surface: Surface) => {
+            onContextRestored={(surface: GpuSurface) => {
                 const orbits = orbitsRef.current;
                 if (orbits) {
                     texturesRef.current?.dispose();

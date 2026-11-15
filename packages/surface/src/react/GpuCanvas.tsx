@@ -1,18 +1,18 @@
 import React, { useEffect, useRef } from 'react';
 
+import { GpuSurface } from '../gpu/GpuSurface';
 import type { Program } from '../gpu/Program';
 import type { ShaderError } from '../gpu/ShaderError';
-import { Surface } from '../gpu/Surface';
 import type { UniformValue } from '../gpu/types';
-import type { RenderFrameArgs } from './renderSurfaceFrame';
-import { renderSurfaceFrame } from './renderSurfaceFrame';
+import type { RenderFrameArgs } from './renderGpuFrame';
+import { renderGpuFrame } from './renderGpuFrame';
 import { useLatest } from './useLatest';
 import { useNodeResource } from './useNodeResource';
 import { globalPlaybackStore } from './usePlayback';
 
-export type { UniformValue, ShaderError, Surface, Program, RenderFrameArgs };
+export type { UniformValue, ShaderError, GpuSurface, Program, RenderFrameArgs };
 
-export interface SurfaceCanvasProps extends Omit<
+export interface GpuCanvasProps extends Omit<
     React.CanvasHTMLAttributes<HTMLCanvasElement>,
     'style' | 'className'
 > {
@@ -27,7 +27,7 @@ export interface SurfaceCanvasProps extends Omit<
      * Additional uniforms (on top of the auto-injected `iResolution`, `iTime`, etc.). Called only
      * on frames that are actually drawn; return a fresh object.
      */
-    uniforms?: (surface: Surface) => Record<string, UniformValue>;
+    uniforms?: (surface: GpuSurface) => Record<string, UniformValue>;
     /**
      * Custom frame render pass. When provided, replaces `surface.renderProgram(program,
      * extraUniforms)`. Useful for multi-pass offscreen pipelines (e.g. post-processing ping-pong).
@@ -45,27 +45,27 @@ export interface SurfaceCanvasProps extends Omit<
      * A program that has never been drawn is always drawn once, regardless of this gate. The same
      * one-shot redraw happens after a successful shader swap and after a WebGL context restore.
      */
-    shouldRender?: (surface: Surface) => boolean;
-    /** Called once, right after the Surface is created — the right place for one-time setup. */
-    onMount?: (surface: Surface) => void;
+    shouldRender?: (surface: GpuSurface) => boolean;
+    /** Called once, right after the GpuSurface is created — the right place for one-time setup. */
+    onMount?: (surface: GpuSurface) => void;
     /**
      * Called each frame, before the draw and before `uniforms` — even when `shouldRender` skips the
      * draw. Per-frame order: `onFrame` → `uniforms` → `renderProgram`.
      */
-    onFrame?: (surface: Surface) => void;
+    onFrame?: (surface: GpuSurface) => void;
     /** Called when the WebGL context is restored. */
-    onContextRestored?: (surface: Surface) => void;
+    onContextRestored?: (surface: GpuSurface) => void;
     className?: string;
     style?: React.CSSProperties;
 }
 
 /**
- * SurfaceCanvas — a fullscreen WebGL2 canvas driven by a Shadertoy-compatible fragment shader.
+ * GpuCanvas — a fullscreen WebGL2 canvas driven by a Shadertoy-compatible fragment shader.
  *
  * Auto-injects: `iResolution`, `iTime`, `iTimeDelta`, `iFrame`, `iMouse`. Syncs play/pause and
  * reset with the global `usePlayback()` store.
  */
-export function SurfaceCanvas({
+export function GpuCanvas({
     fragmentShader,
     uniforms,
     renderFrame,
@@ -77,12 +77,12 @@ export function SurfaceCanvas({
     className,
     style,
     ...canvasProps
-}: SurfaceCanvasProps): React.ReactElement {
-    // Create a Surface when the canvas node mounts; destroy it when it unmounts.
+}: GpuCanvasProps): React.ReactElement {
+    // Create a GpuSurface when the canvas node mounts; destroy it when it unmounts.
     // Apply the current playback state immediately so the clock never runs ahead
     // of the global store — even before the sync effect fires.
     const { ref, resource: surface } = useNodeResource((canvas: HTMLCanvasElement) => {
-        const s = new Surface(canvas);
+        const s = new GpuSurface(canvas);
         if (!globalPlaybackStore.isPlaying) {
             s.clock.pause();
         }
@@ -107,7 +107,7 @@ export function SurfaceCanvas({
     const renderedProgramRef = useRef<Program | null>(null);
 
     // -------------------------------------------------------------------------
-    // onMount callback — fires once per Surface instance
+    // onMount callback — fires once per GpuSurface instance
     useEffect(() => {
         if (!surface) {
             return;
@@ -132,7 +132,7 @@ export function SurfaceCanvas({
     // -------------------------------------------------------------------------
     // Compile shader whenever fragmentShader source or surface changes.
     // Strategy: on success → replace the program; on failure → keep the previous one (fallback).
-    // The previous surface's program is destroyed when the surface itself is destroyed (Surface.destroy).
+    // The previous surface's program is destroyed when the surface itself is destroyed (GpuSurface.destroy).
     useEffect(() => {
         if (!surface) {
             return;
@@ -150,7 +150,7 @@ export function SurfaceCanvas({
             if (onShaderErrorRef.current) {
                 onShaderErrorRef.current(result.error);
             } else {
-                console.error('SurfaceCanvas shader compilation error:', result.error);
+                console.error('GpuCanvas shader compilation error:', result.error);
             }
         }
     }, [surface, fragmentShader, onShaderErrorRef]);
@@ -201,7 +201,7 @@ export function SurfaceCanvas({
             // `onFrame` runs first, every frame, whether or not a draw happens below.
             onFrameRef.current?.(s);
 
-            renderedProgramRef.current = renderSurfaceFrame({
+            renderedProgramRef.current = renderGpuFrame({
                 surface: s,
                 program: programRef.current,
                 renderedProgram: renderedProgramRef.current,

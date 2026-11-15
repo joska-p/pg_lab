@@ -1,4 +1,4 @@
-import type { Surface } from '@repo/surface/gpu/Surface';
+import type { GpuSurface } from '@repo/surface/gpu/GpuSurface';
 
 import { GRID_DEFAULT_DENSITY, GRID_DEFAULT_SEED } from '../../engine/config';
 import { getCreature } from '../../engine/creature/registry';
@@ -29,7 +29,7 @@ export function destroySimulation(): void {
     automaStore.setState({ engine: null });
 }
 
-export function initSimulation(surface: Surface): void {
+export function initSimulation(surface: GpuSurface): void {
     destroySimulation();
 
     const { cols, rows, ruleId, speedMs } = automaStore.getState();

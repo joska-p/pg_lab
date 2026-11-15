@@ -16,7 +16,7 @@ export class ShaderError extends Error {
         const truncated = log.slice(0, MAX_LOG_LENGTH);
         const verb = stage === 'link' ? 'link' : 'compile';
 
-        super(`Surface: shader "${stage}" ${verb} failed: ${truncated}`);
+        super(`GpuSurface: shader "${stage}" ${verb} failed: ${truncated}`);
         this.name = 'ShaderError';
         this.stage = stage;
         this.log = truncated;

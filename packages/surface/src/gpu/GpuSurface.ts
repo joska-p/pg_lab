@@ -10,8 +10,8 @@ import type { UniformValue } from './types';
 
 export type { UniformValue, RenderTargetOptions };
 
-type FrameCallback = (surface: Surface) => void;
-type ContextRestoredCallback = (surface: Surface) => void;
+type FrameCallback = (surface: GpuSurface) => void;
+type ContextRestoredCallback = (surface: GpuSurface) => void;
 
 /**
  * Mouse state following Shadertoy iMouse semantics. Positions are stored in CSS pixels (the input
@@ -29,7 +29,7 @@ interface MouseState {
 }
 
 /**
- * Surface manages a WebGL2 context, the frame loop, resize, context loss, and mouse tracking. It
+ * GpuSurface manages a WebGL2 context, the frame loop, resize, context loss, and mouse tracking. It
  * follows the Shadertoy uniform contract (iResolution, iTime, iTimeDelta, iFrame, iMouse).
  *
  * Size contract: `width`/`height` are CSS pixels (layout and pointer space), while
@@ -44,7 +44,7 @@ interface MouseState {
  * bound to its own named uniform (e.g. `u_orbit`, `u_orbit2`). Explicit support can be added when a
  * concrete app requires it.
  */
-export class Surface {
+export class GpuSurface {
     readonly canvas: HTMLCanvasElement;
     readonly clock: Clock;
 
@@ -80,7 +80,7 @@ export class Surface {
         const gl = canvas.getContext('webgl2');
 
         if (!gl) {
-            throw new Error('Surface: WebGL2 is not supported in this environment.');
+            throw new Error('GpuSurface: WebGL2 is not supported in this environment.');
         }
 
         this.#gl = gl;
@@ -328,7 +328,8 @@ export class Surface {
 
     /**
      * Subscribe to the frame loop. Returns an unsubscribe function. The loop starts on the first
-     * subscriber and stops on the last. The callback receives this Surface instance on each frame.
+     * subscriber and stops on the last. The callback receives this GpuSurface instance on each
+     * frame.
      */
     onFrame(cb: FrameCallback): () => void {
         return this.#loop.subscribe(() => {

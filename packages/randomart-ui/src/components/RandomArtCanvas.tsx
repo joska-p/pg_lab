@@ -1,6 +1,6 @@
 import type { TargetPair } from '@repo/surface/gpu/TargetPair';
-import type { Program, ShaderError, Surface } from '@repo/surface/react/SurfaceCanvas';
-import { SurfaceCanvas } from '@repo/surface/react/SurfaceCanvas';
+import type { Program, ShaderError, GpuSurface } from '@repo/surface/react/GpuCanvas';
+import { GpuCanvas } from '@repo/surface/react/GpuCanvas';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useRef } from 'react';
 
@@ -31,7 +31,7 @@ interface RandomArtCanvasProps {
 }
 
 interface PipelineResources {
-    surface: Surface;
+    surface: GpuSurface;
     pair: TargetPair;
     programs: Map<string, Program>;
 }
@@ -61,12 +61,12 @@ const styles = stylex.create({
 });
 
 /**
- * Thin adapter around @repo/surface SurfaceCanvas for randomart. Supplies `u_phase`. Lazy
- * rendering: still/paused/static costs no GPU time. The drawing buffer is not preserved; export
- * re-renders offscreen.
+ * Thin adapter around @repo/surface GpuCanvas for randomart. Supplies `u_phase`. Lazy rendering:
+ * still/paused/static costs no GPU time. The drawing buffer is not preserved; export re-renders
+ * offscreen.
  *
- * A newly installed program is always drawn once by SurfaceCanvas, independently of `shouldRender`,
- * so changing the shader appears even while the clock is paused.
+ * A newly installed program is always drawn once by GpuCanvas, independently of `shouldRender`, so
+ * changing the shader appears even while the clock is paused.
  *
  * `shouldRender` records the key it approves before the draw happens. The only way a draw is
  * skipped after approval is a lost WebGL context, and `onContextRestored` resets `lastRenderRef` so
@@ -102,7 +102,7 @@ export function RandomArtCanvas({
     return (
         <div {...stylex.props(styles.parentContainer)}>
             <div {...stylex.props(styles.canva)}>
-                <SurfaceCanvas
+                <GpuCanvas
                     fragmentShader={fragmentShader}
                     uniforms={(surface) => ({
                         u_phase: createPhase(computeProgress(surface.clock.time)),

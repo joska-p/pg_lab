@@ -9,11 +9,14 @@
 `@repo/surface` replaces heavy, monolithic canvas abstractions (such as `@repo/glaze`) with a focused, composable foundation:
 
 1. **Shadertoy-style Simplicity**: A single full-screen triangle (`gl_VertexID`) driven by standard fragment shaders (`mainImage` or `main`), with automatic injection of Shadertoy uniforms (`iResolution`, `iTime`, `iTimeDelta`, `iFrame`, `iMouse`).
-2. **Separation of Concerns**:
-    - `SurfaceCanvas` is strictly a reactive WebGL2 canvas viewport.
+2. **Explicit Backend Vocabulary**:
+    - `GpuSurface` / `CpuSurface` name the backend runtime; the React components mirror it with
+      `<GpuCanvas>` / `<CpuCanvas>`. There is no bare `Surface` abstraction.
+3. **Separation of Concerns**:
+    - `GpuCanvas` is strictly a reactive WebGL2 canvas viewport.
     - Camera state and interaction handling are decoupled from rendering into standalone modules (`Camera2D`, `useCameraControls`).
-3. **No Over-Engineering**: Clean TypeScript primitives without branded wrappers (`createPositiveNumber`, `CssColor`, etc.) or unnecessary observable hierarchies.
-4. **Resilient GPU Lifecycle**: Seamless context loss and restoration (`webglcontextrestored`), zero-flicker shader hot-reloading (maintains previous valid program on compile error), and resource ownership tracking.
+4. **No Over-Engineering**: Clean TypeScript primitives without branded wrappers (`createPositiveNumber`, `CssColor`, etc.) or unnecessary observable hierarchies.
+5. **Resilient GPU Lifecycle**: Seamless context loss and restoration (`webglcontextrestored`), zero-flicker shader hot-reloading (maintains previous valid program on compile error), and resource ownership tracking.
 
 ---
 
@@ -39,15 +42,15 @@ packages/surface/
 │   ├── Clock.ts            # Animation clock with play/pause and delta time
 │   └── FrameLoop.ts        # RAF management synchronized with playback
 ├── gpu/
-│   ├── Surface.ts          # WebGL2 lifecycle, full-screen quad, context restore
+│   ├── GpuSurface.ts       # WebGL2 lifecycle, full-screen quad, context restore
 │   ├── Program.ts          # Shader compilation and active program caching
 │   ├── setUniforms.ts      # Uniform setters with texture binding & TypedArray support
 │   ├── RenderTarget.ts     # Offscreen FBO + texture wrapper
 │   ├── TargetPair.ts       # Ping-pong double-buffer for GPGPU simulation
 │   └── ShaderError.ts      # Structured shader compile error reporting
 └── react/
-    ├── SurfaceCanvas.tsx   # React canvas component with render gating & DPR
-    ├── renderSurfaceFrame.ts# Frame rendering step with renderFrame interception
+    ├── GpuCanvas.tsx       # React canvas component with render gating & DPR
+    ├── renderGpuFrame.ts   # Frame rendering step with renderFrame interception
     ├── useCamera2D.ts      # useSyncExternalStore hook for Camera2D
     ├── useCameraControls.ts# Pointer / wheel canvas event handlers for pan & zoom
     └── usePlayback.ts      # Synchronization hook for playback stores (play/pause/reset)
@@ -57,12 +60,12 @@ packages/surface/
 
 ## 4. Key APIs
 
-### `Surface` (`@repo/surface/gpu/Surface`)
+### `GpuSurface` (`@repo/surface/gpu/GpuSurface`)
 
 Main engine managing the WebGL2 context, program swapping, resource tracking, and drawing:
 
 ```ts
-const surface = new Surface(canvas, { dpr: window.devicePixelRatio });
+const surface = new GpuSurface(canvas);
 surface.setProgram(fragmentSource);
 surface.createRenderTarget({ width: 512, height: 512 });
 surface.createTargetPair({ width: 512, height: 512 });
@@ -72,12 +75,12 @@ surface.destroy();
 
 - **Resource Ownership**: Render targets and target pairs created via `surface.createRenderTarget` / `surface.createTargetPair` are automatically owned, reinitialized on context restoration, and destroyed when the surface is destroyed.
 
-### `SurfaceCanvas` (`@repo/surface/react/SurfaceCanvas`)
+### `GpuCanvas` (`@repo/surface/react/GpuCanvas`)
 
-Declarative React component wrapping `Surface`:
+Declarative React component wrapping `GpuSurface`:
 
 ```tsx
-<SurfaceCanvas
+<GpuCanvas
     fragmentShader={glslSource}
     uniforms={(surface) => ({ u_color: [1, 0, 0] })}
     shouldRender={(surface) => isDirty} // Render gate: skips idle redraws
@@ -101,7 +104,7 @@ Declarative React component wrapping `Surface`:
 
 ### `usePlayback` (`@repo/surface/react/usePlayback`)
 
-Shared playback controls across all `SurfaceCanvas` instances:
+Shared playback controls across all `GpuCanvas` instances:
 
 ```tsx
 const { isPlaying, togglePlay, play, pause, reset } = usePlayback();
@@ -131,7 +134,7 @@ function InteractiveCanvas({ camera }: { camera: Camera2D }) {
     });
 
     return (
-        <SurfaceCanvas
+        <GpuCanvas
             fragmentShader={fractalShader}
             uniforms={{
                 u_camera: [camera.x, camera.y, camera.zoom],

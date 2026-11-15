@@ -1,30 +1,30 @@
 import { describe, expect, it, vi } from 'vite-plus/test';
 
+import type { GpuSurface } from '../gpu/GpuSurface';
 import type { Program } from '../gpu/Program';
-import type { Surface } from '../gpu/Surface';
-import { renderSurfaceFrame } from './renderSurfaceFrame';
+import { renderGpuFrame } from './renderGpuFrame';
 
 interface FakeSurface {
     renderProgram: ReturnType<typeof vi.fn>;
 }
 
-function createFakeSurface(): { surface: Surface; fake: FakeSurface } {
+function createFakeSurface(): { surface: GpuSurface; fake: FakeSurface } {
     const fake: FakeSurface = {
         renderProgram: vi.fn(),
     };
-    return { surface: fake as unknown as Surface, fake };
+    return { surface: fake as unknown as GpuSurface, fake };
 }
 
 function fakeProgram(name = 'prog'): Program {
     return { name } as unknown as Program;
 }
 
-describe('renderSurfaceFrame', () => {
+describe('renderGpuFrame', () => {
     it('returns renderedProgram without drawing when program is null', () => {
         const { surface, fake } = createFakeSurface();
         const prev = fakeProgram('prev');
 
-        const result = renderSurfaceFrame({
+        const result = renderGpuFrame({
             surface,
             program: null,
             renderedProgram: prev,
@@ -39,7 +39,7 @@ describe('renderSurfaceFrame', () => {
         const program = fakeProgram('prog1');
         const uniformsFn = vi.fn(() => ({ u_val: 42 }));
 
-        const result = renderSurfaceFrame({
+        const result = renderGpuFrame({
             surface,
             program,
             renderedProgram: null,
@@ -56,7 +56,7 @@ describe('renderSurfaceFrame', () => {
         const renderFrame = vi.fn();
         const uniformsFn = vi.fn(() => ({ u_val: 99 }));
 
-        const result = renderSurfaceFrame({
+        const result = renderGpuFrame({
             surface,
             program,
             renderedProgram: null,
@@ -78,7 +78,7 @@ describe('renderSurfaceFrame', () => {
         const program = fakeProgram('prog1');
         const renderFrame = vi.fn();
 
-        const result = renderSurfaceFrame({
+        const result = renderGpuFrame({
             surface,
             program,
             renderedProgram: program,
@@ -97,7 +97,7 @@ describe('renderSurfaceFrame', () => {
         const oldProgram = fakeProgram('old');
         const renderFrame = vi.fn();
 
-        const result = renderSurfaceFrame({
+        const result = renderGpuFrame({
             surface,
             program: newProgram,
             renderedProgram: oldProgram,
@@ -114,7 +114,7 @@ describe('renderSurfaceFrame', () => {
         const program = fakeProgram('prog1');
         const renderFrame = vi.fn();
 
-        renderSurfaceFrame({
+        renderGpuFrame({
             surface,
             program,
             renderedProgram: null,

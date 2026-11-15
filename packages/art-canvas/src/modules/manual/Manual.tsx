@@ -1,4 +1,4 @@
-import { SurfaceCanvas } from '@repo/surface/react/SurfaceCanvas';
+import { GpuCanvas } from '@repo/surface/react/GpuCanvas';
 
 import { manual } from './manual';
 import { useChroma, useDivisions, useLightness } from './store';
@@ -9,7 +9,7 @@ function Manual() {
     const chroma = useChroma();
 
     return (
-        <SurfaceCanvas
+        <GpuCanvas
             fragmentShader={manual.fragmentShader}
             uniforms={() => ({
                 uDivisions: divisions,

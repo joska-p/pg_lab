@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
+import { GpuSurface } from './GpuSurface';
 import type { Program } from './Program';
-import { Surface } from './Surface';
 import type { UniformValue } from './types';
 
 type FrameCallback = (time: number) => void;
@@ -96,7 +96,7 @@ interface FakeProgram {
 }
 
 interface Harness {
-    surface: Surface;
+    surface: GpuSurface;
     canvas: FakeCanvas;
     window: { devicePixelRatio: number };
     program: FakeProgram;
@@ -134,7 +134,7 @@ function createHarness(options?: { width?: number; height?: number; dpr?: number
         setPointerCapture: () => {},
     };
 
-    const surface = new Surface(canvas as unknown as HTMLCanvasElement);
+    const surface = new GpuSurface(canvas as unknown as HTMLCanvasElement);
     // Subscribing starts the frame loop, which resizes the surface before the first callback.
     surface.onFrame(() => {});
 
@@ -178,7 +178,7 @@ afterEach(() => {
     vi.restoreAllMocks();
 });
 
-describe('Surface size contract', () => {
+describe('GpuSurface size contract', () => {
     it('exposes CSS dimensions and physical dimensions separately', () => {
         const { surface, canvas } = createHarness({ width: 320, height: 180, dpr: 2 });
 
@@ -213,7 +213,7 @@ describe('Surface size contract', () => {
     });
 });
 
-describe('Surface standard uniforms', () => {
+describe('GpuSurface standard uniforms', () => {
     it('reports iResolution in device pixels', () => {
         const { surface, program } = createHarness({ width: 320, height: 180, dpr: 2 });
 
@@ -243,7 +243,7 @@ describe('Surface standard uniforms', () => {
     });
 });
 
-describe('Surface resource ownership — RenderTarget', () => {
+describe('GpuSurface resource ownership — RenderTarget', () => {
     it('destroys tracked RenderTargets when the surface is destroyed', () => {
         const { surface, fakeGl } = createHarness();
 
@@ -273,7 +273,7 @@ describe('Surface resource ownership — RenderTarget', () => {
         // GL cleanup happened exactly once (from target.destroy)
         expect(fakeGl.deleteTexture).toHaveBeenCalledTimes(1);
 
-        // Surface destroy should not destroy the already-destroyed target again
+        // GpuSurface destroy should not destroy the already-destroyed target again
         const callsBefore = fakeGl.deleteTexture.mock.calls.length;
         surface.destroy();
         expect(fakeGl.deleteTexture).toHaveBeenCalledTimes(callsBefore);
@@ -295,7 +295,7 @@ describe('Surface resource ownership — RenderTarget', () => {
     });
 });
 
-describe('Surface resource ownership — TargetPair', () => {
+describe('GpuSurface resource ownership — TargetPair', () => {
     it('destroys tracked TargetPairs when the surface is destroyed', () => {
         const { surface, fakeGl } = createHarness();
 

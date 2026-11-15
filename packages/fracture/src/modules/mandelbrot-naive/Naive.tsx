@@ -1,5 +1,5 @@
 import type { UniformValue } from '@repo/surface/gpu/types';
-import { SurfaceCanvas } from '@repo/surface/react/SurfaceCanvas';
+import { GpuCanvas } from '@repo/surface/react/GpuCanvas';
 import { useCameraControls } from '@repo/surface/react/useCameraControls';
 import { useEffect } from 'react';
 
@@ -72,7 +72,7 @@ export function Naive() {
     }, []);
 
     return (
-        <SurfaceCanvas
+        <GpuCanvas
             {...cameraControls}
             className="h-full w-full"
             fragmentShader={naiveShader}

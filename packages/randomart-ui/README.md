@@ -60,7 +60,7 @@ App
 
 ### Rendering
 
-`RandomArtCanvas` wraps `@repo/surface/react/SurfaceCanvas`:
+`RandomArtCanvas` wraps `@repo/surface/react/GpuCanvas`:
 
 - **Timed clock** (paused at `phase = 0`), duration from `playbackStore`.
 - **Lazy rendering**: `shouldRender` gate only redraws on phase change, resize, or context restore.

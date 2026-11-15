@@ -3,7 +3,7 @@ import { useSyncExternalStore } from 'react';
 type Notify = () => void;
 type Unsubscribe = () => void;
 
-/** Global playback state — one channel per page, shared by all SurfaceCanvas instances. */
+/** Global playback state — one channel per page, shared by all GpuCanvas instances. */
 export interface PlaybackStore {
     isPlaying: boolean;
     togglePlay(): void;
@@ -80,8 +80,8 @@ export function createPlaybackStore(): PlaybackStore {
 const globalPlaybackStore = createPlaybackStore();
 
 /**
- * Returns the global playback controls and reactive state. All SurfaceCanvas instances share the
- * same play/pause state.
+ * Returns the global playback controls and reactive state. All GpuCanvas instances share the same
+ * play/pause state.
  */
 export function usePlayback(): {
     isPlaying: boolean;
@@ -104,5 +104,5 @@ export function usePlayback(): {
     };
 }
 
-/** Direct access to the store (for SurfaceCanvas to sync the clock). */
+/** Direct access to the store (for GpuCanvas to sync the clock). */
 export { globalPlaybackStore };

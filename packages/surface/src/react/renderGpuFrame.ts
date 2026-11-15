@@ -1,19 +1,19 @@
+import type { GpuSurface } from '../gpu/GpuSurface';
 import type { Program } from '../gpu/Program';
-import type { Surface } from '../gpu/Surface';
 import type { UniformValue } from '../gpu/types';
 
 export interface RenderFrameArgs {
-    surface: Surface;
+    surface: GpuSurface;
     program: Program;
     uniforms?: Record<string, UniformValue>;
 }
 
-export interface RenderSurfaceFrameParams {
-    surface: Surface;
+export interface RenderGpuFrameParams {
+    surface: GpuSurface;
     program: Program | null;
     renderedProgram: Program | null;
-    gate?: (surface: Surface) => boolean;
-    uniforms?: (surface: Surface) => Record<string, UniformValue>;
+    gate?: (surface: GpuSurface) => boolean;
+    uniforms?: (surface: GpuSurface) => Record<string, UniformValue>;
     renderFrame?: (args: RenderFrameArgs) => void;
 }
 
@@ -21,14 +21,14 @@ export interface RenderSurfaceFrameParams {
  * Executes one frame render step, respecting render gating and delegating to renderFrame if
  * provided.
  */
-export function renderSurfaceFrame({
+export function renderGpuFrame({
     surface,
     program,
     renderedProgram,
     gate,
     uniforms,
     renderFrame,
-}: RenderSurfaceFrameParams): Program | null {
+}: RenderGpuFrameParams): Program | null {
     if (!program) {
         return renderedProgram;
     }

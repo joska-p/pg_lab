@@ -1,4 +1,4 @@
-import type { Surface } from '@repo/surface/gpu/Surface';
+import type { GpuSurface } from '@repo/surface/gpu/GpuSurface';
 import { useCallback, useRef } from 'react';
 
 export interface DemandSurface {
@@ -12,10 +12,10 @@ export interface DemandCamera {
 }
 
 export interface DemandHandle {
-    /** Pass to SurfaceCanvas (or GpuCanvas) `shouldRender`: renders only when inputs changed. */
-    shouldRender: (surface: DemandSurface | Surface) => boolean;
-    /** Pass to SurfaceCanvas (or GpuCanvas) `onMount`: forces a render + arms context-restore. */
-    handleMount: (surface: DemandSurface | Surface) => void;
+    /** Pass to `GpuCanvas` `shouldRender`: renders only when inputs changed. */
+    shouldRender: (surface: DemandSurface | GpuSurface) => boolean;
+    /** Pass to `GpuCanvas` `onMount`: forces a render + arms context-restore. */
+    handleMount: (surface: DemandSurface | GpuSurface) => void;
 }
 
 interface DemandSnapshot {
@@ -35,7 +35,7 @@ export function useDemandRender(params: object, camera: DemandCamera): DemandHan
     const last = useRef<DemandSnapshot>({ version: -1, params: null, w: 0, h: 0 });
     const forced = useRef(true);
 
-    const handleMount = useCallback((surface: DemandSurface | Surface) => {
+    const handleMount = useCallback((surface: DemandSurface | GpuSurface) => {
         forced.current = true;
         surface.onContextRestored?.(() => {
             forced.current = true;
@@ -43,7 +43,7 @@ export function useDemandRender(params: object, camera: DemandCamera): DemandHan
     }, []);
 
     const shouldRender = useCallback(
-        (surface: DemandSurface | Surface) => {
+        (surface: DemandSurface | GpuSurface) => {
             const version = camera.getVersion();
             const w = surface.width;
             const h = surface.height;

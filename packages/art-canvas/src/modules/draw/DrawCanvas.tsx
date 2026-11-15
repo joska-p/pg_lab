@@ -1,9 +1,9 @@
-import { SurfaceCanvas } from '@repo/surface/react/SurfaceCanvas';
+import { GpuCanvas } from '@repo/surface/react/GpuCanvas';
 
 import fragment from './fragment.glsl?raw';
 
 function DrawCanvas() {
-    return <SurfaceCanvas fragmentShader={fragment} />;
+    return <GpuCanvas fragmentShader={fragment} />;
 }
 
 export { DrawCanvas };

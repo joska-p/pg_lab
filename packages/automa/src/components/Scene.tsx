@@ -1,6 +1,6 @@
 import { Camera2D } from '@repo/surface/core/Camera2D';
 import type { UniformValue } from '@repo/surface/gpu/types';
-import { SurfaceCanvas } from '@repo/surface/react/SurfaceCanvas';
+import { GpuCanvas } from '@repo/surface/react/GpuCanvas';
 import { useMemo } from 'react';
 
 import cellMeshShader from '../engine/gpu/shaders/cell-mesh.frag?raw';
@@ -16,7 +16,7 @@ export function Scene() {
     const handlers = useCellPainting(camera);
 
     return (
-        <SurfaceCanvas
+        <GpuCanvas
             {...handlers}
             fragmentShader={cellMeshShader}
             onMount={initSimulation}
