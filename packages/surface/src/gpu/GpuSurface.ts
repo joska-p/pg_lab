@@ -1,3 +1,4 @@
+import { applyCanvasSize, measureCanvas } from '../core/canvasSize';
 import { Clock } from '../core/Clock';
 import { FrameLoop } from '../core/FrameLoop';
 import { Program } from './Program';
@@ -390,21 +391,14 @@ export class GpuSurface {
     // Private
 
     #resize(): void {
-        const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio ?? 1) : 1;
-        const width = this.canvas.clientWidth;
-        const height = this.canvas.clientHeight;
-        const deviceWidth = Math.round(width * dpr);
-        const deviceHeight = Math.round(height * dpr);
+        const size = measureCanvas(this.canvas);
 
-        this.#dpr = dpr;
-        this.#width = width;
-        this.#height = height;
+        this.#dpr = size.dpr;
+        this.#width = size.width;
+        this.#height = size.height;
+        this.#deviceWidth = size.deviceWidth;
+        this.#deviceHeight = size.deviceHeight;
 
-        if (deviceWidth !== this.#deviceWidth || deviceHeight !== this.#deviceHeight) {
-            this.#deviceWidth = deviceWidth;
-            this.#deviceHeight = deviceHeight;
-            this.canvas.width = deviceWidth;
-            this.canvas.height = deviceHeight;
-        }
+        applyCanvasSize(this.canvas, size);
     }
 }

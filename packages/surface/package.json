@@ -4,11 +4,13 @@
     "type": "module",
     "exports": {
         "./react/GpuCanvas": "./src/react/GpuCanvas.tsx",
+        "./react/CpuCanvas": "./src/react/CpuCanvas.tsx",
         "./react/renderGpuFrame": "./src/react/renderGpuFrame.ts",
         "./react/usePlayback": "./src/react/usePlayback.ts",
         "./react/useCamera2D": "./src/react/useCamera2D.ts",
         "./react/useCameraControls": "./src/react/useCameraControls.ts",
         "./gpu/GpuSurface": "./src/gpu/GpuSurface.ts",
+        "./cpu/CpuSurface": "./src/cpu/CpuSurface.ts",
         "./gpu/TargetPair": "./src/gpu/TargetPair.ts",
         "./gpu/RenderTarget": "./src/gpu/RenderTarget.ts",
         "./gpu/Program": "./src/gpu/Program.ts",
