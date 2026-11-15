@@ -1,4 +1,4 @@
-import type { CpuSurface } from '@repo/glaze/cpu/CpuSurface';
+import type { CpuSurface } from '@repo/surface/cpu/CpuSurface';
 
 import type { PlacedRect } from './types';
 
@@ -18,23 +18,17 @@ export function toBlittableImage(data: ImageData): BlittableImage {
     return canvas;
 }
 
-/** Copie l'image aux coordonnées écran (ignore la caméra), en CSS pixels. */
+/** Copie l'image aux coordonnées écran en CSS pixels. */
 export function blit(
     surface: CpuSurface,
     source: BlittableImage,
     placement: PlacedRect,
     smoothing = true,
 ): void {
-    const context = surface.canvas.getContext('2d');
+    const { ctx } = surface;
 
-    if (!context) {
-        throw new Error('Canvas 2D context unavailable');
-    }
-
-    context.save();
-    context.setTransform(1, 0, 0, 1, 0, 0); // annule la caméra appliquée par applyCamera()
-    context.scale(surface.dpr, surface.dpr);
-    context.imageSmoothingEnabled = smoothing;
-    context.drawImage(source, placement.x, placement.y, placement.w, placement.h);
-    context.restore();
+    ctx.save();
+    ctx.imageSmoothingEnabled = smoothing;
+    ctx.drawImage(source, placement.x, placement.y, placement.w, placement.h);
+    ctx.restore();
 }

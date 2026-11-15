@@ -1,6 +1,5 @@
-import { createCssColor } from '@repo/glaze/core/render';
-import type { CpuSurface } from '@repo/glaze/cpu/CpuSurface';
-import { CpuCanvas } from '@repo/glaze/react/CpuCanvas';
+import type { CpuSurface } from '@repo/surface/cpu/CpuSurface';
+import { CpuCanvas } from '@repo/surface/react/CpuCanvas';
 import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
@@ -20,7 +19,7 @@ import { useTheme, setTheme } from './stores/appStore';
 import { useOutput, setOutput, setSource } from './stores/store';
 
 const TRANSFORMS: readonly PixelTransform[] = [];
-const BACKGROUND = createCssColor('#000000'); // hoisté, sinon recréé à chaque frame
+const BACKGROUND = '#000000';
 
 function handleImageUpload(file: File): void {
     fileToImageData(file)

@@ -969,9 +969,9 @@ importers:
 
   packages/string-art:
     dependencies:
-      '@repo/glaze':
+      '@repo/surface':
         specifier: workspace:*
-        version: link:../glaze
+        version: link:../surface
       '@repo/ui':
         specifier: workspace:*
         version: link:../ui
