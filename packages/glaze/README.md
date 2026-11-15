@@ -1,4 +1,13 @@
-# @repo/glaze
+# @repo/glaze [RETIRED]
+
+> [!WARNING]
+> **RETIRED PACKAGE**
+> `@repo/glaze` is retired and no longer active. All consumers across the monorepo have migrated to:
+>
+> - **`@repo/surface`**: High-performance, minimalist 2D GPU (WebGL2) and CPU (Canvas2D) runtimes (`CpuSurface`, `CpuCanvas`, `GpuSurface`, `GpuCanvas`).
+> - **`@repo/glaze3d`**: 3D scene-graph and procedural rendering engine.
+>
+> This package is kept for archival reference. Do not add new dependencies to `@repo/glaze`.
 
 > p5-style drawing immediacy and three.js-style shader freedom, in one package.
 

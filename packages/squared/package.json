@@ -13,7 +13,6 @@
         "lint": "vp lint"
     },
     "dependencies": {
-        "@repo/glaze": "workspace:*",
         "@repo/ui": "workspace:*",
         "react": "catalog:",
         "react-dom": "catalog:",

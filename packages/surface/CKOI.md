@@ -6,7 +6,7 @@
 
 ## 1. Philosophy & Design Principles
 
-`@repo/surface` replaces heavy, monolithic canvas abstractions (such as `@repo/glaze`) with a focused, composable foundation:
+`@repo/surface` replaces legacy, heavy canvas abstractions with a focused, composable foundation:
 
 1. **Shadertoy-style Simplicity**: A single full-screen triangle (`gl_VertexID`) driven by standard fragment shaders (`mainImage` or `main`), with automatic injection of Shadertoy uniforms (`iResolution`, `iTime`, `iTimeDelta`, `iFrame`, `iMouse`).
 2. **Explicit Backend Vocabulary**:
@@ -206,8 +206,16 @@ pair.swap();
 
 ## 5. Ecosystem Adoption
 
-`@repo/surface` powers the interactive GPU workspaces in the monorepo:
+`@repo/surface` powers both GPU (WebGL2) and CPU (Canvas2D) interactive workspaces across the monorepo:
+
+### GPU Backend (`GpuSurface` / `<GpuCanvas>`)
 
 - **`@repo/art-canvas`**: Generative art workbench with live shader editing and hot reload.
 - **`@repo/automa`**: GPGPU cellular automata using `TargetPair` ping-pong passes and `useCameraControls`.
 - **`@repo/fracture`**: High-precision fractal explorer (Mandelbrot & Julia naive, double-split ~48-bit precision, and orbit perturbation) with demand rendering and deep-zoom camera navigation.
+- **`@repo/randomart-ui`**: Procedural visual art rendering powered by Shadertoy-compatible uniforms.
+
+### CPU Backend (`CpuSurface` / `<CpuCanvas>`)
+
+- **`@repo/string-art`**: Algorithmic string art thread synthesis and visualization on HTML5 Canvas2D.
+- **`@repo/oeis-signal`**: Mathematical sequence signals and accumulators visualization using Canvas2D.

@@ -42,7 +42,7 @@
         "packages/notebook": {
             "project": ["src/**/*.{ts,tsx}"]
         },
-        "packages/oeis-sgnal": {
+        "packages/oeis-signal": {
             "project": ["src/**/*.{ts,tsx}"]
         },
         "packages/palette": {
