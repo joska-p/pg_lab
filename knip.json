@@ -27,9 +27,6 @@
         "packages/fracture": {
             "project": ["src/**/*.{ts,tsx}"]
         },
-        "packages/glaze": {
-            "project": ["src/**/*.{ts,tsx}"]
-        },
         "packages/glaze3d": {
             "project": ["src/**/*.{ts,tsx}"]
         },

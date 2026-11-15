@@ -294,7 +294,6 @@ const reactPackages = [
     'packages/art-canvas/**',
     'packages/automa/**',
     'packages/fracture/**',
-    'packages/glaze/**',
     'packages/mol-demo/**',
     'packages/mosaic-maker/**',
     'packages/notebook/**',
