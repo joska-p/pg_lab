@@ -16,7 +16,7 @@ Generators and viz live in the **same package** because they are tightly related
 
 - **Visual Inspo:** waveform/oscilloscope-style plots of integer sequences (polyline viz).
 - **Math / Papers:** OEIS — the On-Line Encyclopedia of Integer Sequences; classic sequences (natural numbers, Recamán, Collatz).
-- **Borrowed Code & Algorithms:** the iterator protocol (`IteratorResult`), lazy pull-based streams, `@repo/glaze` `CpuSurface` for rendering.
+- **Borrowed Code & Algorithms:** the iterator protocol (`IteratorResult`), lazy pull-based streams, `@repo/surface` `CpuSurface` for rendering.
 
 ## Patterns & Gotchas
 
