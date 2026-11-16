@@ -21,12 +21,11 @@ Scene       Controls
 
 ### Stores
 
-| Store           | Responsibility                                                                                                                                                                                  |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `artworkStore`  | Single source of truth: `Artwork { grammar, seed, space, expression, shader }`. Mutations go through `editGrammar`, `newSeed`, `setSpace`, `randomizeGrammar`, `applyPreset` (batched via RAF). |
-| `surfaceStore`  | Holds the live clock progress for the PNG export, and syncs the surface clock with `globalPlaybackStore` (play/pause/reset).                                                                    |
-| `playbackStore` | Animation loop duration.                                                                                                                                                                        |
-| `errorStore`    | Action errors of the latest action (`actionErrors`), replaced by the next failing action and cleared by the next successful one.                                                                |
+| Store          | Responsibility                                                                                                                                                                                  |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `artworkStore` | Single source of truth: `Artwork { grammar, seed, space, expression, shader }`. Mutations go through `editGrammar`, `newSeed`, `setSpace`, `randomizeGrammar`, `applyPreset` (batched via RAF). |
+| `surfaceStore` | Holds the live surface clock time for the PNG export, and syncs the surface clock with `globalPlaybackStore` (play/pause/reset).                                                                |
+| `errorStore`   | Action errors of the latest action (`actionErrors`), replaced by the next failing action and cleared by the next successful one.                                                                |
 
 ### Components
 
@@ -46,7 +45,6 @@ App
     ├── SeedSection (seed input)  # fine controls
     ├── OperatorWeights (weights, grouped by family)
     ├── StructureSection (depth, nodes, share)
-    ├── PlaybackSection (loop (s))
     ├── Inspector (formatted formulas)
     ├── ShaderSource (popover with compiled GLSL)
     └── ErrorReadout
@@ -62,10 +60,10 @@ App
 
 `RandomArtCanvas` wraps `@repo/surface/react/GpuCanvas`:
 
-- **Timed clock** (paused at `progress = 0`), duration from `playbackStore`.
-- **Lazy rendering**: `shouldRender` gate only redraws on phase change, resize, or context restore.
+- **Timed clock** (paused at `time = 0` by default in the app).
+- **Lazy rendering**: `shouldRender` gate only redraws on time change (animated shaders), resize, or context restore.
 - **Square canvas** via CSS `aspect-ratio: 1/1`.
-- **Time mapping**: the only UI-side mapping is `iTime = surface.clock.time * (PHASE_PERIOD_SECONDS / duration)` (guarding `duration > 0`). The shader's `ra_phase()` hook (from `@repo/randomart-core/glsl`) turns `iTime` into phase; render gating still keys on normalized progress.
+- **Time**: `@repo/surface` auto-injects `iTime = surface.clock.time`. The shader's `ra_phase()` hook (from `@repo/randomart-core/glsl`) scales that continuous time; there is no UI loop duration.
 
 ### Color spaces
 
@@ -91,7 +89,7 @@ CPU reference `toSrgb(id, raw)` exists in core for testing / headless rendering.
 vp -C packages/randomart-ui dev        # Dev server
 vp -C packages/randomart-ui build      # Production build
 vp check --fix                         # Format, lint, type-check (all packages)
-vp test                                # All tests
+vp test --exclude '.Trash-1000/**'     # All tests (skips the deleted glaze tree)
 ```
 
 ### Adding a grammar preset
@@ -108,9 +106,9 @@ both the grammar and the current space.
 
 `exportPng` renders the compiled shader offscreen in a dedicated WebGL2 `OffscreenCanvas` via
 `@repo/surface/gpu/Program` at `EXPORT_SIZE` px square (capped by the GPU viewport limits),
-independent of the displayed canvas. It keeps the public `phase` option (normalized `[0, 1)`) and
-converts it to `time = phase * PHASE_PERIOD_SECONDS` when uploading `iTime`. For static shaders the
-phase is irrelevant. Filename: `randomart-<sanitized-seed>.png`.
+independent of the displayed canvas. It exports at the current surface clock `time` (the same
+`iTime` as the canvas), so the PNG matches the live image. For static shaders time is irrelevant.
+Filename: `randomart-<sanitized-seed>.png`.
 
 ### Conventions
 

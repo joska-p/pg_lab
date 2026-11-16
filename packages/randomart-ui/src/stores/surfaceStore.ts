@@ -2,8 +2,8 @@ import type { ShaderError } from '@repo/surface/gpu/ShaderError';
 import { globalPlaybackStore, usePlayback } from '@repo/surface/react/usePlayback';
 import { create } from 'zustand';
 
-export interface ClockProgress {
-    readonly progress: number;
+export interface SurfaceClock {
+    readonly time: number;
     play?(): void;
     pause?(): void;
     reset?(): void;
@@ -11,7 +11,7 @@ export interface ClockProgress {
 
 interface SurfaceState {
     /** Null until the canvas is mounted. */
-    readonly clockStore: ClockProgress | null;
+    readonly clockStore: SurfaceClock | null;
     readonly shaderError: ShaderError | null;
 }
 
@@ -22,7 +22,7 @@ const store = create<SurfaceState>(() => INITIAL);
 let unsubscribePlayback: (() => void) | null = null;
 let unsubscribeReset: (() => void) | null = null;
 
-export function useClockStore(): ClockProgress | null {
+export function useClockStore(): SurfaceClock | null {
     return store((state) => state.clockStore);
 }
 
@@ -30,7 +30,7 @@ export function useShaderError(): ShaderError | null {
     return store((state) => state.shaderError);
 }
 
-export function attachClock(clockStore: ClockProgress): void {
+export function attachClock(clockStore: SurfaceClock): void {
     store.setState({ clockStore });
 
     // Sync play/pause and reset with global playback store

@@ -1,25 +1,21 @@
-import { PHASE_PERIOD_SECONDS } from '@repo/randomart-core/glsl';
 import type { TargetPair } from '@repo/surface/gpu/TargetPair';
 import type { Program, ShaderError, GpuSurface } from '@repo/surface/react/GpuCanvas';
 import { GpuCanvas } from '@repo/surface/react/GpuCanvas';
 import * as stylex from '@stylexjs/stylex';
 import { useEffect, useRef } from 'react';
 
-import { DEFAULT_LOOP_DURATION } from '../constants';
 import { POST_PROCESS_EFFECTS } from '../postProcessing/effects';
 import type { PostProcessEffectId } from '../postProcessing/effects';
-import { createPhase, needsRender } from '../renderer/renderGate';
+import { needsRender } from '../renderer/renderGate';
 import type { RenderKey } from '../renderer/renderGate';
 import { getActiveEffectsKey } from '../stores/postProcessingStore';
-import type { ClockProgress } from '../stores/surfaceStore';
+import type { SurfaceClock } from '../stores/surfaceStore';
 
 interface RandomArtCanvasProps {
     /** Fragment shader source code (Shadertoy image shader) from randomart-core. */
     fragmentShader: string;
     /** True when the shader is animated (uses iTime/ra_phase). Defaults to true. */
     animated?: boolean;
-    /** Animation loop duration in seconds (UI slider). Defaults to `DEFAULT_LOOP_DURATION`. */
-    duration?: number;
     /** Active post-processing effects. */
     activeEffects?: Readonly<Record<PostProcessEffectId, boolean>>;
     /**
@@ -27,8 +23,8 @@ interface RandomArtCanvasProps {
      * (ShaderError).
      */
     onShaderError?: (error: ShaderError | null | undefined) => void;
-    /** Callback connecting the clock progress to the UI store. */
-    onClockStore?: (clockStore: ClockProgress) => void;
+    /** Callback connecting the surface clock to the UI store. */
+    onClockStore?: (clockStore: SurfaceClock) => void;
 }
 
 interface PipelineResources {
@@ -62,9 +58,9 @@ const styles = stylex.create({
 });
 
 /**
- * Thin adapter around @repo/surface GpuCanvas for randomart. Provides `iTime` scaled to the UI loop
- * duration. Lazy rendering: still/paused/static costs no GPU time. The drawing buffer is not
- * preserved; export re-renders offscreen.
+ * Thin adapter around @repo/surface GpuCanvas for randomart. `iTime` is the surface clock time;
+ * `ra_phase()` scales it inside the shader. Lazy rendering: still/paused/static costs no GPU time.
+ * The drawing buffer is not preserved; export re-renders offscreen.
  *
  * A newly installed program is always drawn once by GpuCanvas, independently of `shouldRender`, so
  * changing the shader appears even while the clock is paused.
@@ -76,18 +72,12 @@ const styles = stylex.create({
 export function RandomArtCanvas({
     fragmentShader,
     animated = true,
-    duration = DEFAULT_LOOP_DURATION,
     activeEffects,
     onShaderError,
     onClockStore,
 }: RandomArtCanvasProps) {
     const lastRenderRef = useRef<RenderKey | null>(null);
     const pipelineRef = useRef<PipelineResources | null>(null);
-    const durationRef = useRef(duration);
-
-    useEffect(() => {
-        durationRef.current = duration;
-    }, [duration]);
 
     useEffect(() => {
         return () => {
@@ -95,26 +85,15 @@ export function RandomArtCanvas({
         };
     }, []);
 
-    const computeProgress = (time: number): number => {
-        const d = durationRef.current;
-        return d > 0 ? (time % d) / d : 0;
-    };
-
     return (
         <div {...stylex.props(styles.parentContainer)}>
             <div {...stylex.props(styles.canva)}>
                 <GpuCanvas
                     fragmentShader={fragmentShader}
-                    uniforms={(surface) => {
-                        const d = durationRef.current;
-                        // Only UI-side time mapping: scale surface clock.time to the selected loop duration.
-                        const iTime = d > 0 ? surface.clock.time * (PHASE_PERIOD_SECONDS / d) : 0;
-                        return { iTime };
-                    }}
                     shouldRender={(surface) => {
                         const postProcess = activeEffects ? getActiveEffectsKey(activeEffects) : '';
                         const key: RenderKey = {
-                            phase: createPhase(computeProgress(surface.clock.time)),
+                            time: surface.clock.time,
                             width: surface.width,
                             height: surface.height,
                             dpr: surface.dpr,
@@ -202,8 +181,8 @@ export function RandomArtCanvas({
                     onShaderError={onShaderError}
                     onMount={(surface) => {
                         onClockStore?.({
-                            get progress() {
-                                return computeProgress(surface.clock.time);
+                            get time() {
+                                return surface.clock.time;
                             },
                             play: () => surface.clock.play(),
                             pause: () => surface.clock.pause(),

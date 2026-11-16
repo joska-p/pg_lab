@@ -13,7 +13,7 @@ float ra_sqr(float value) {
 
 // Single time hook. Change this function to alter the animation model.
 float ra_phase() {
-    return fract(iTime / 60.0);
+    return iTime / 60.0;
 }
 
 vec3 ra_oklabToLinear(vec3 lab) {
@@ -83,7 +83,7 @@ float ra_sqr(float value) {
 
 // Single time hook. Change this function to alter the animation model.
 float ra_phase() {
-    return fract(iTime / 60.0);
+    return iTime / 60.0;
 }
 
 vec3 ra_srgb(vec3 raw) {
@@ -104,7 +104,7 @@ exports[`emit golden > preset monochrome 1`] = `
 
 // Single time hook. Change this function to alter the animation model.
 float ra_phase() {
-    return fract(iTime / 60.0);
+    return iTime / 60.0;
 }
 
 vec3 ra_srgb(vec3 raw) {
@@ -127,7 +127,7 @@ exports[`emit golden > preset prism 1`] = `
 
 // Single time hook. Change this function to alter the animation model.
 float ra_phase() {
-    return fract(iTime / 60.0);
+    return iTime / 60.0;
 }
 
 vec3 ra_oklabToLinear(vec3 lab) {
@@ -195,7 +195,7 @@ vec2 ra_fold2(vec2 v) {
 
 // Single time hook. Change this function to alter the animation model.
 float ra_phase() {
-    return fract(iTime / 60.0);
+    return iTime / 60.0;
 }
 
 vec3 ra_hsl(vec3 raw) {
@@ -229,7 +229,7 @@ float ra_sqr(float value) {
 
 // Single time hook. Change this function to alter the animation model.
 float ra_phase() {
-    return fract(iTime / 60.0);
+    return iTime / 60.0;
 }
 
 vec3 ra_hsl(vec3 raw) {
@@ -258,7 +258,7 @@ float ra_sqr(float value) {
 
 // Single time hook. Change this function to alter the animation model.
 float ra_phase() {
-    return fract(iTime / 60.0);
+    return iTime / 60.0;
 }
 
 vec3 ra_oklabToLinear(vec3 lab) {
@@ -324,7 +324,7 @@ float ra_sqr(float value) {
 
 // Single time hook. Change this function to alter the animation model.
 float ra_phase() {
-    return fract(iTime / 60.0);
+    return iTime / 60.0;
 }
 
 vec3 ra_oklabToLinear(vec3 lab) {
@@ -392,7 +392,7 @@ float ra_sqr(float value) {
 
 // Single time hook. Change this function to alter the animation model.
 float ra_phase() {
-    return fract(iTime / 60.0);
+    return iTime / 60.0;
 }
 
 vec3 ra_srgb(vec3 raw) {

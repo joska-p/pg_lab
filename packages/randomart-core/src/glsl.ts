@@ -1,5 +1,5 @@
-/** Duration in seconds of one `ra_phase()` cycle. The UI maps its own loop duration with `iTime`. */
-export const PHASE_PERIOD_SECONDS = 60;
+/** Seconds of `iTime` per unit of the continuous `u_phase` time. */
+export const TIME_SCALE_SECONDS = 60;
 
 /**
  * Shadertoy prelude shared with the renderer: the host provides `iResolution`, `iTime` and
@@ -17,12 +17,13 @@ export function glslFloat(value: number): string {
 }
 
 /**
- * Single time hook. `iTime` is converted to a normalised phase here so operators can keep reading
- * the local `u_phase`; changing the animation model starts with this function.
+ * Single time hook. `u_phase` is a continuous, non-looping time in units of `TIME_SCALE_SECONDS`;
+ * operators keep reading the local `u_phase`. Changing the animation model starts with this
+ * function.
  */
 export const GLSL_TIME_HOOK = `// Single time hook. Change this function to alter the animation model.
 float ra_phase() {
-    return fract(iTime / ${glslFloat(PHASE_PERIOD_SECONDS)});
+    return iTime / ${glslFloat(TIME_SCALE_SECONDS)};
 }`;
 
 /** Helper functions referenced by operators through `OpDef.requires`. */

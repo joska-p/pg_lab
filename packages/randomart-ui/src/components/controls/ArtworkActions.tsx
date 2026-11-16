@@ -3,7 +3,6 @@ import { Grid } from '@repo/ui/components/Grid';
 import { useState } from 'react';
 
 import { exportPng } from '../../commands/exportPng';
-import { createPhase } from '../../renderer/renderGate';
 import { newSeed, useCompiledShader, useSeed } from '../../stores/artworkStore';
 import { reportError } from '../../stores/errorStore';
 import { useClockStore } from '../../stores/surfaceStore';
@@ -31,12 +30,11 @@ export function ArtworkActions() {
                 color="purple"
                 disabled={exporting}
                 onClick={() => {
-                    const progress = clockStore?.progress ?? 0;
-                    const phase = compiledShader.animated ? createPhase(progress) : 0;
+                    const time = compiledShader.animated ? (clockStore?.time ?? 0) : 0;
                     setExporting(true);
                     void exportPng({
                         fragmentShader: compiledShader.source,
-                        phase,
+                        time,
                         seed,
                     })
                         .catch(reportError)

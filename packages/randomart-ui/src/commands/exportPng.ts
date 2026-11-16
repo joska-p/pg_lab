@@ -1,4 +1,3 @@
-import { PHASE_PERIOD_SECONDS } from '@repo/randomart-core/glsl';
 import type { Seed } from '@repo/randomart-core/seed';
 
 import { renderToBlob } from '../renderer/renderOffscreen';
@@ -24,14 +23,13 @@ export function filenameSeed(seed: Seed): string {
 
 export interface ExportPngOptions {
     readonly fragmentShader: string;
-    /** Normalized phase in [0, 1); mapped to `iTime` for the shader. Irrelevant for static shaders. */
-    readonly phase: number;
+    /** Value of `iTime` in seconds; irrelevant for a static shader. */
+    readonly time: number;
     readonly seed: Seed;
 }
 
 /** Render the artwork offscreen at `EXPORT_SIZE` and download it. Failures are thrown. */
-export async function exportPng({ fragmentShader, phase, seed }: ExportPngOptions): Promise<void> {
-    const time = phase * PHASE_PERIOD_SECONDS;
+export async function exportPng({ fragmentShader, time, seed }: ExportPngOptions): Promise<void> {
     const blob = await renderToBlob({ fragmentShader, time, size: EXPORT_SIZE });
     downloadBlob(blob, `randomart-${filenameSeed(seed)}.png`);
 }
