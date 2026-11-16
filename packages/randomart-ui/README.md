@@ -63,7 +63,7 @@ App
 - **Timed clock** (paused at `time = 0` by default in the app).
 - **Lazy rendering**: `shouldRender` gate only redraws on time change (animated shaders), resize, or context restore.
 - **Square canvas** via CSS `aspect-ratio: 1/1`.
-- **Time**: `@repo/surface` auto-injects `iTime = surface.clock.time`. The shader's `ra_phase()` hook (from `@repo/randomart-core/glsl`) scales that continuous time; there is no UI loop duration.
+- **Time**: `@repo/surface` auto-injects `iTime = surface.clock.time`. The shader's `ra_phase()` hook (from `@repo/randomart-core/glsl`) derives continuous animation time from it.
 
 ### Color spaces
 
@@ -100,7 +100,9 @@ both the grammar and the current space.
 
 ### Shader export
 
-`ShaderSource` popover shows the compiled fragment shader. "Copy source" uses Clipboard API (fail-soft).
+`ShaderSource` popover shows the compiled Shadertoy fragment shader. "Copy for Shadertoy" copies the
+exact rendered source for pasting into `shadertoy.com/new` (Image tab), using the Clipboard API
+(fail-soft).
 
 ### PNG export
 

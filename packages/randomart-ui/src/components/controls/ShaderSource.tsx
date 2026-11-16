@@ -118,11 +118,12 @@ export function ShaderSource() {
             >
                 <Card style={styles.panel}>
                     <div {...stylex.props(styles.header)}>
-                        <Text variant="muted">Compiled fragment shader</Text>
+                        <Text variant="muted">Shadertoy fragment shader</Text>
                         <Button popoverTarget={POPOVER_ID} popoverTargetAction="hide">
                             Close
                         </Button>
                     </div>
+                    <Text variant="muted">Paste into shadertoy.com/new (Image tab).</Text>
                     {open && (
                         <TextArea
                             rows={20}
@@ -136,7 +137,7 @@ export function ShaderSource() {
                             void copySource();
                         }}
                     >
-                        {feedback ?? 'Copy source'}
+                        {feedback ?? 'Copy for Shadertoy'}
                     </Button>
                 </Card>
             </div>

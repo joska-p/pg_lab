@@ -61,16 +61,15 @@ Dependencies only flow downwards: `glsl`/`colors` → `ops` → `tree` → `gram
 - `void mainImage(out vec4 fragColor, in vec2 fragCoord)`;
 - no `#version`, no precision qualifier, no user uniforms: `iResolution` and `iTime` are Shadertoy
   built-ins;
-- `v_p` is `fragCoord / iResolution.xy` remapped to `[-1, 1]²`;
+- coordinates are `fragCoord / iResolution.xy` remapped to `[-1, 1]²`;
 - `fragColor`, already in sRGB.
 
-When `Compiled.animated` is true, the source also contains the `ra_phase()` hook and `mainImage`
-assigns `float u_phase = ra_phase();`. Static expressions emit no time code at all.
+When `Compiled.animated` is true, the source also contains the `ra_phase()` hook and derives a
+continuous phase value from it. Static expressions emit no time code at all.
 
-`ra_phase()` is the single time hook; it currently returns `iTime / 60.0`, a continuous
-(non-looping) time in units of `TIME_SCALE_SECONDS`. Changing the animation model starts there.
-`@repo/surface` wraps `mainImage` into a WebGL 2 fragment shader, and the same source can be pasted
-as-is into Shadertoy.
+`ra_phase()` is the single time hook; it currently returns `iTime / 60.0` (scaled by
+`TIME_SCALE_SECONDS`). Changing the animation model starts there. `@repo/surface` wraps `mainImage`
+into a WebGL 2 fragment shader, and the same source can be pasted as-is into Shadertoy.
 
 ## Operator contract
 
