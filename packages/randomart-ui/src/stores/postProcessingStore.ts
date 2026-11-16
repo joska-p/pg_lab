@@ -4,13 +4,11 @@ import { POST_PROCESS_EFFECTS } from '../postProcessing/effects';
 import type { PostProcessEffectId } from '../postProcessing/effects';
 
 interface PostProcessingState {
-    readonly activeEffects: Readonly<Record<PostProcessEffectId, boolean>>;
+    readonly activeEffects: Readonly<Partial<Record<PostProcessEffectId, boolean>>>;
 }
 
-function createInitialActiveEffects(): Record<PostProcessEffectId, boolean> {
-    const effects: Record<PostProcessEffectId, boolean> = {
-        grain: false,
-    };
+function createInitialActiveEffects(): Partial<Record<PostProcessEffectId, boolean>> {
+    const effects: Partial<Record<PostProcessEffectId, boolean>> = {};
     for (const effect of POST_PROCESS_EFFECTS) {
         effects[effect.id] = effect.defaultActive;
     }
@@ -23,7 +21,7 @@ const store = create<PostProcessingState>(() => ({
     activeEffects: initialActiveEffects,
 }));
 
-export function getActiveEffects(): Readonly<Record<PostProcessEffectId, boolean>> {
+export function getActiveEffects(): Readonly<Partial<Record<PostProcessEffectId, boolean>>> {
     return store.getState().activeEffects;
 }
 
@@ -31,7 +29,7 @@ export function isEffectActive(id: PostProcessEffectId): boolean {
     return store.getState().activeEffects[id] ?? false;
 }
 
-export function useActiveEffects(): Readonly<Record<PostProcessEffectId, boolean>> {
+export function useActiveEffects(): Readonly<Partial<Record<PostProcessEffectId, boolean>>> {
     return store((state) => state.activeEffects);
 }
 
@@ -53,7 +51,7 @@ export function resetPostProcessing(): void {
 }
 
 export function getActiveEffectsKey(
-    activeEffects: Readonly<Record<PostProcessEffectId, boolean>>,
+    activeEffects: Readonly<Partial<Record<PostProcessEffectId, boolean>>>,
 ): string {
     return POST_PROCESS_EFFECTS.filter((effect) => activeEffects[effect.id])
         .map((effect) => effect.id)

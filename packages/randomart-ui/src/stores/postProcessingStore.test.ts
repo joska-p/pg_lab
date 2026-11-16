@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vite-plus/test';
 
 import { POST_PROCESS_EFFECTS } from '../postProcessing/effects';
+import type { PostProcessEffectId } from '../postProcessing/effects';
 import {
     getActiveEffects,
     getActiveEffectsKey,
@@ -8,6 +9,15 @@ import {
     resetPostProcessing,
     setEffectActive,
 } from './postProcessingStore';
+
+/** Builds a complete effect map from the registry, so new effects do not break the test. */
+function activeEffects(
+    overrides: Partial<Record<PostProcessEffectId, boolean>> = {},
+): Record<PostProcessEffectId, boolean> {
+    return Object.fromEntries(
+        POST_PROCESS_EFFECTS.map((effect) => [effect.id, overrides[effect.id] ?? false]),
+    ) as Record<PostProcessEffectId, boolean>;
+}
 
 describe('postProcessingStore', () => {
     beforeEach(() => {
@@ -30,7 +40,8 @@ describe('postProcessingStore', () => {
     });
 
     it('computes deterministically sorted active effects key', () => {
-        expect(getActiveEffectsKey({ grain: false })).toBe('');
-        expect(getActiveEffectsKey({ grain: true })).toBe('grain');
+        expect(getActiveEffectsKey(activeEffects())).toBe('');
+        expect(getActiveEffectsKey(activeEffects({ grain: true }))).toBe('grain');
+        expect(getActiveEffectsKey(activeEffects({ smin: true, smax: true }))).toBe('smax,smin');
     });
 });

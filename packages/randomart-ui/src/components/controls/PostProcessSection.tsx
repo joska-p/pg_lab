@@ -4,7 +4,7 @@ import { Toggle } from '@repo/ui/components/Toggle';
 import { POST_PROCESS_EFFECTS } from '../../postProcessing/effects';
 import { setEffectActive, useActiveEffects } from '../../stores/postProcessingStore';
 
-/** Post-processing effects toggles (e.g. film grain). */
+/** Post-processing effects toggles (e.g. film grain, soft luminance clips). */
 export function PostProcessSection() {
     const activeEffects = useActiveEffects();
 

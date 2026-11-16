@@ -35,6 +35,16 @@ export const GLSL_FUNCTIONS = {
     ra_sqr: `float ra_sqr(float value) {
     return value * value;
 }`,
+    ra_smin: `float ra_smin(float a, float b, float k) {
+    float h = clamp(0.5 - 0.5 * (a - b) / k, 0.0, 1.0);
+    return clamp(mix(b, a, h) - k * h * (1.0 - h), -1.0, 1.0);
+}`,
+    // Smooth max is the negation twin of smooth min: `h` compares `a` against `b` (`a - b`), not
+    // `b` against `a`. Flipping that term silently turns the operator back into a smooth min.
+    ra_smax: `float ra_smax(float a, float b, float k) {
+    float h = clamp(0.5 + 0.5 * (a - b) / k, 0.0, 1.0);
+    return clamp(mix(b, a, h) + k * h * (1.0 - h), -1.0, 1.0);
+}`,
 } as const;
 
 export type GlslFunctionId = keyof typeof GLSL_FUNCTIONS;

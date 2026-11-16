@@ -13,7 +13,7 @@ import type { Expression, Node } from './tree';
  * Bumped whenever a change to generation would make an existing `(grammar, seed)` produce a
  * different expression. Persisted seeds must be replayed with the version they were created with.
  */
-export const GENERATOR_VERSION = 2;
+export const GENERATOR_VERSION = 3;
 
 const PARAM_DECIMALS = 3;
 const PARAM_SCALE = 10 ** PARAM_DECIMALS;
@@ -58,12 +58,19 @@ function drawContinuous(rng: Rng, min: number, max: number): number {
     return clampToRange(roundToPrecision(min + rng.next() * (max - min)), min, max);
 }
 
-function drawStepped(rng: Rng, min: number, max: number, step: number): number {
-    const levelCount = Math.round((max - min) / step) + 1;
+/**
+ * Draws a value on the `step` lattice inside `[min, max]`. Only full steps are offered, so a range
+ * that is not a multiple of `step` never draws a clamped partial level.
+ *
+ * The epsilon keeps the last level reachable when floating-point error makes an exact ratio land
+ * just below the next integer (`(0.3 - 0.1) / 0.1 < 2`).
+ */
+export function drawStepped(rng: Rng, min: number, max: number, step: number): number {
+    const levelCount = Math.floor((max - min) / step + 1e-9) + 1;
     if (levelCount <= 1) {
         return min;
     }
-    return roundToPrecision(min + rng.int(levelCount) * step);
+    return clampToRange(roundToPrecision(min + rng.int(levelCount) * step), min, max);
 }
 
 function drawParams(state: GenState, name: OpName): Record<string, number> {

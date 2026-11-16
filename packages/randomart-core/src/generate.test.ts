@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vite-plus/test';
 
-import { generate } from './generate';
+import { drawStepped, generate } from './generate';
 import { createGrammar, getGrammarPreset, vocabulary } from './grammar';
 import { getOp } from './ops';
 import type { OpName } from './ops';
+import { createRng } from './rng';
 import { seedOf, SIZE_GRAMMARS, defined } from './testing/fixtures';
 import { formatFormula } from './tree';
 import type { Expression, Node } from './tree';
@@ -131,5 +132,28 @@ describe('generate', () => {
                 expect(depthOf(channel)).toBeGreaterThanOrEqual(minDepth);
             }
         }
+    });
+});
+
+describe('drawStepped', () => {
+    function drawAll(min: number, max: number, step: number): readonly number[] {
+        const rng = createRng(seedOf(1234));
+        return Array.from({ length: 200 }, () => drawStepped(rng, min, max, step));
+    }
+
+    it('reaches the top level of an exact grid despite floating-point error', () => {
+        const values = new Set(drawAll(0.1, 0.3, 0.1));
+        expect([...values].sort((a, b) => a - b)).toEqual([0.1, 0.2, 0.3]);
+    });
+
+    it('never overshoots a range that is not a multiple of the step', () => {
+        for (const value of drawAll(0, 0.35, 0.1)) {
+            expect(value).toBeLessThanOrEqual(0.35);
+            expect(Math.abs(value / 0.1 - Math.round(value / 0.1))).toBeLessThan(1e-9);
+        }
+    });
+
+    it('returns min when the range is narrower than one step', () => {
+        expect(drawAll(0.2, 0.22, 0.1)).toEqual(Array(200).fill(0.2));
     });
 });

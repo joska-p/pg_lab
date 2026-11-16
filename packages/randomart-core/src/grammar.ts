@@ -301,6 +301,8 @@ export const GRAMMAR_PRESETS = [
                 neg: 2,
                 select: 2,
                 sin: 4,
+                smin: 4,
+                smax: 4,
                 sqr: 4,
                 warp: 2,
                 x: 8,

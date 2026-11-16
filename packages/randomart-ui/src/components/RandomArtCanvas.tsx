@@ -17,7 +17,7 @@ interface RandomArtCanvasProps {
     /** True when the shader is animated (uses iTime/ra_phase). Defaults to true. */
     animated?: boolean;
     /** Active post-processing effects. */
-    activeEffects?: Readonly<Record<PostProcessEffectId, boolean>>;
+    activeEffects?: Readonly<Partial<Record<PostProcessEffectId, boolean>>>;
     /**
      * Callback invoked whenever shader compilation succeeds (null/undefined) or fails
      * (ShaderError).

@@ -65,6 +65,18 @@ App
 - **Square canvas** via CSS `aspect-ratio: 1/1`.
 - **Time**: `@repo/surface` auto-injects `iTime = surface.clock.time`. The shader's `ra_phase()` hook (from `@repo/randomart-core/glsl`) derives continuous animation time from it.
 
+### Post-processing
+
+`postProcessing/effects.ts` is the registry of full-screen passes applied after the artwork shader,
+sorted by `order` (lower runs first). Each pass reads `u_source` and writes color back, so an effect
+must preserve the artwork unless it is explicitly a debug view.
+
+- `grain` adds deterministic per-pixel noise.
+- `smin` / `smax` soft-clip highlights / shadows toward mid-gray using the shared
+  `ra_smin` / `ra_smax` helpers from `randomart-core/glsl`, then apply the luminance change as a
+  gain so hue and alpha are preserved. Enabling both flattens the image toward mid-gray by
+  construction: one compressor followed by one lifter leaves little range.
+
 ### Color spaces
 
 The color space is selected independently of the grammar (in `ColorSection`, via `useSpace` /

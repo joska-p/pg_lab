@@ -77,6 +77,9 @@ const MODULATION_PARAMS = {
     cycles: { min: 1, max: 4, step: 1 },
 } as const;
 
+/** Radius shared by the smooth min/max operators. */
+const SMOOTH_RADIUS = { min: 0.05, max: 0.5, step: 0.05 } as const;
+
 function paramValue(
     params: Readonly<Record<string, number>>,
     name: string,
@@ -126,6 +129,18 @@ function foldComponent(value: number): number {
 
 function usesModulation(params: Readonly<Record<string, number>>): boolean {
     return paramValue(params, 'amp', 0) > 0;
+}
+
+/** CPU twin of `ra_smin`. */
+function sminCpu(a: number, b: number, k: number): number {
+    const h = Math.max(0, Math.min(1, 0.5 - (0.5 * (a - b)) / k));
+    return Math.max(-1, Math.min(1, b + (a - b) * h - k * h * (1 - h)));
+}
+
+/** CPU twin of `ra_smax`; smooth max is the negation twin of smooth min. */
+function smaxCpu(a: number, b: number, k: number): number {
+    const h = Math.max(0, Math.min(1, 0.5 + (0.5 * (a - b)) / k));
+    return Math.max(-1, Math.min(1, b + (a - b) * h + k * h * (1 - h)));
 }
 
 /** Reads operand `index` and throws when it is missing (guards against a violated arity). */
@@ -187,6 +202,32 @@ function ternary<TId extends string>(
         arity: 3,
         glsl: ({ inputs }) => spec.glsl(operand(inputs, 0), operand(inputs, 1), operand(inputs, 2)),
         eval: ({ inputs }) => spec.eval(operand(inputs, 0), operand(inputs, 1), operand(inputs, 2)),
+    };
+}
+
+/** Two-input smooth min/max sharing the `k` radius parameter. */
+function smoothBinary<TId extends string>(
+    id: TId,
+    spec: {
+        readonly requires: GlslFunctionId;
+        readonly glsl: (a: string, b: string, k: string) => string;
+        readonly eval: (a: number, b: number, k: number) => number;
+    },
+): PointwiseOp<TId> {
+    return {
+        id,
+        family: 'arithmetic',
+        params: { k: SMOOTH_RADIUS },
+        arity: 2,
+        requires: [spec.requires],
+        glsl: ({ inputs, params }) =>
+            spec.glsl(
+                operand(inputs, 0),
+                operand(inputs, 1),
+                glslFloat(paramValue(params, 'k', 0.1)),
+            ),
+        eval: ({ inputs, params }) =>
+            spec.eval(operand(inputs, 0), operand(inputs, 1), paramValue(params, 'k', 0.1)),
     };
 }
 
@@ -260,6 +301,16 @@ export const OPS = [
     binary('max', 'arithmetic', {
         glsl: (a, b) => `max(${a},${b})`,
         eval: (a, b) => Math.max(a, b),
+    }),
+    smoothBinary('smin', {
+        requires: 'ra_smin',
+        glsl: (a, b, k) => `ra_smin(${a},${b},${k})`,
+        eval: sminCpu,
+    }),
+    smoothBinary('smax', {
+        requires: 'ra_smax',
+        glsl: (a, b, k) => `ra_smax(${a},${b},${k})`,
+        eval: smaxCpu,
     }),
     ternary('mix', 'arithmetic', {
         glsl: (a, b, c) => `mix(${a},${b},(${c}+1.0)*0.5)`,
