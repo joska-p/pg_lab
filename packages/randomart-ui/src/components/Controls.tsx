@@ -26,10 +26,10 @@ export function Controls() {
                 <ColorSection />
 
                 {/* Fine controls: everything needed to hand-tune the artwork. */}
+                <PostProcessSection />
                 <SeedSection />
                 <OperatorWeights />
                 <StructureSection />
-                <PostProcessSection />
                 <Inspector />
                 <ShaderSource />
 
