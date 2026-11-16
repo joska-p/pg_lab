@@ -3,59 +3,21 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pg_lab — design system CSS natif</title>
+    <title>pg_lab</title>
     <link rel="stylesheet" href="src/css/theme.css">
-    <style>
-        /* Page témoin — vérification rapide du rendu CSS */
-        body {
-            display: grid;
-            place-items: center;
-            gap: var(--pg-space-6);
-            padding: var(--pg-space-6);
-        }
-        .card {
-            border: var(--pg-border-hairline) solid var(--pg-dark2);
-            border-radius: var(--pg-radius-lg);
-            padding: var(--pg-space-6);
-            max-width: var(--pg-layout-text-max-width);
-            text-align: center;
-        }
-        h1 {
-            font-size: var(--pg-font-size-2xl);
-            font-weight: var(--pg-font-weight-semibold);
-            margin: 0 0 var(--pg-space-2) 0;
-            color: var(--pg-color-aurora);
-        }
-        p {
-            margin: 0;
-            color: var(--pg-gray244);
-        }
-        .swatch {
-            display: inline-flex;
-            gap: var(--pg-space-2);
-            margin-top: var(--pg-space-4);
-        }
-        .swatch div {
-            width: var(--pg-layout-color-swatch-width);
-            height: var(--pg-layout-color-swatch-height);
-            border-radius: var(--pg-radius-md);
-        }
-    </style>
+    
 </head>
 <body>
-    <main class="card">
         <h1>pg_lab</h1>
-        <p>Design system CSS natif — variables <code>--pg-*</code> sur <code>:root</code> / <code>[data-theme="dark"]</code>.</p>
-        <p>Fond, police, contraste et <code>min-height: 100dvh</code> doivent être corrects sans erreur console.</p>
-        <div class="swatch">
-            <div style="background: var(--pg-color-aurora);"></div>
-            <div style="background: var(--pg-color-solder);"></div>
-            <div style="background: var(--pg-color-purple);"></div>
-            <div style="background: var(--pg-color-amber);"></div>
-            <div style="background: var(--pg-color-error);"></div>
-            <div style="background: var(--pg-color-aqua);"></div>
-            <div style="background: var(--pg-color-orange);"></div>
-        </div>
-    </main>
-</body>
+        <nav>
+            <ul>
+                <li><a href="exp/test/">Témoin</a></li>
+            </ul>
+        </nav>
+        <p>
+            Site statique généré par
+            <code>scripts/build-static.js</code>
+            (tsc seul, pas de bundler, pas de React).
+        </p>
+    </body>
 </html>
