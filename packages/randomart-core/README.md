@@ -22,7 +22,7 @@ Procedural formula generator and GLSL compiler, consumed by `randomart-ui`.
 | `lower.ts`    | Expression → DAG: sharing, usage counts, warp coordinate contexts                              |
 | `emit.ts`     | `(Expression, space) → fragment shader` (`compile`)                                            |
 | `colors.ts`   | Color spaces as GLSL sources + CPU reference `toSrgb`                                          |
-| `glsl.ts`     | Shader header, shared GLSL helpers, float literals                                             |
+| `glsl.ts`     | Shadertoy prelude, time hook, shared GLSL helpers, float literals                              |
 
 Dependencies only flow downwards: `glsl`/`colors` → `ops` → `tree` → `grammar`/`generate`/
 `evaluate`/`lower` → `emit`. There is no `index.ts`: consumers import the module they need.
@@ -56,15 +56,20 @@ Dependencies only flow downwards: `glsl`/`colors` → `ops` → `tree` → `gram
 
 ## GLSL contract
 
-`compile` emits a complete GLSL ES 3.00 fragment shader:
+`compile` emits a self-contained Shadertoy image shader:
 
-- `#version 300 es` and `precision highp float`;
-- `in vec2 vUv` in `[0, 1]²`;
-- `uniform float u_phase` in `[0, 1)`, only read when `Compiled.animated` is true;
-- `out vec4 o_color`, already in sRGB.
+- `void mainImage(out vec4 fragColor, in vec2 fragCoord)`;
+- no `#version`, no precision qualifier, no user uniforms: `iResolution` and `iTime` are Shadertoy
+  built-ins;
+- `v_p` is `fragCoord / iResolution.xy` remapped to `[-1, 1]²`;
+- `fragColor`, already in sRGB.
 
-The renderer is expected to provide a fullscreen triangle and the `u_phase` uniform. `v_p` is the
-pixel position remapped to `[-1, 1]²`.
+When `Compiled.animated` is true, the source also contains the `ra_phase()` hook and `mainImage`
+assigns `float u_phase = ra_phase();`. Static expressions emit no time code at all.
+
+`ra_phase()` is the single time hook; it currently returns `fract(iTime / 60.0)`, using the exported
+`PHASE_PERIOD_SECONDS`. Changing the animation model starts there. `@repo/surface` wraps
+`mainImage` into a WebGL 2 fragment shader, and the same source can be pasted as-is into Shadertoy.
 
 ## Operator contract
 

@@ -6,7 +6,7 @@ import { compile } from './emit';
 import { generate } from './generate';
 import { lower } from './lower';
 import { SEEDS, seedOf, SIZE_GRAMMARS } from './testing/fixtures';
-import { usesTime } from './tree';
+import { createNode, usesTime } from './tree';
 import type { Expression } from './tree';
 
 interface Sample {
@@ -34,18 +34,46 @@ function drawSamples(): readonly Sample[] {
 }
 
 describe('compile', () => {
-    it('emits a well-formed shader for every size, space and seed', () => {
+    it('emits a Shadertoy shader for every size, space and seed', () => {
         for (const { label, space, expression } of drawSamples()) {
             const compiled = compile(expression, { space });
+            const { source } = compiled;
+            const animated = usesTime(expression);
 
-            expect(compiled.source, label).toMatch(/^#version 300 es\n/);
-            expect(compiled.source, label).toContain('void main()');
-            expect(compiled.source, label).toContain(`ra_${space}(vec3(`);
-            expect(compiled.source, label).not.toMatch(/undefined|NaN|Infinity/);
-            expect(compiled.stats.sourceLength, label).toBe(compiled.source.length);
+            expect(source, label).toContain(
+                'void mainImage(out vec4 fragColor, in vec2 fragCoord)',
+            );
+            expect(source, label).toContain('vec2 v_p = fragCoord / iResolution.xy * 2.0 - 1.0;');
+            expect(source, label).toContain(`ra_${space}(vec3(`);
+            expect(source, label).toContain('fragColor = vec4(');
+            expect(source, label).not.toMatch(/^#version/m);
+            expect(source, label).not.toMatch(/\buniform\s/);
+            expect(source, label).not.toContain('out vec4 o_color');
+            expect(source, label).not.toContain('void main()');
+            expect(source, label).not.toMatch(/undefined|NaN|Infinity/);
+            expect(compiled.stats.sourceLength, label).toBe(source.length);
             expect(compiled.stats.vertices, label).toBeGreaterThan(0);
-            expect(compiled.animated, label).toBe(usesTime(expression));
+            expect(compiled.animated, label).toBe(animated);
+
+            if (animated) {
+                expect(source, label).toContain('float ra_phase()');
+                expect(source, label).toContain('float u_phase = ra_phase();');
+                expect(source, label).toContain('iTime');
+            } else {
+                expect(source, label).not.toContain('ra_phase(');
+                expect(source, label).not.toContain('iTime');
+                expect(source, label).not.toContain('u_phase');
+            }
         }
+    });
+
+    it('omits the time hook for a static expression', () => {
+        const constant = createNode('const', [], { value: 0.5 });
+        const compiled = compile({ r: constant, g: constant, b: constant }, { space: 'srgb' });
+
+        expect(compiled.animated).toBe(false);
+        expect(compiled.source).not.toContain('ra_phase');
+        expect(compiled.source).not.toContain('iTime');
     });
 
     describe('stats coherence', () => {

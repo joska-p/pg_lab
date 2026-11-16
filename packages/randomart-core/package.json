@@ -9,6 +9,7 @@
         "./errors": "./src/errors.ts",
         "./evaluate": "./src/evaluate.ts",
         "./generate": "./src/generate.ts",
+        "./glsl": "./src/glsl.ts",
         "./grammar": "./src/grammar.ts",
         "./lower": "./src/lower.ts",
         "./ops": "./src/ops.ts",

@@ -48,6 +48,32 @@ describe('glslangValidator', () => {
         };
     }
 
+    // Mirrors the preamble injected by `@repo/surface` (`compileProgram`) around a Shadertoy
+    // `mainImage` shader; duplicated here because core does not depend on the renderer.
+    const SHADERTOY_PREAMBLE = `#version 300 es
+precision highp float;
+
+uniform vec3 iResolution;
+uniform float iTime;
+uniform float iTimeDelta;
+uniform int iFrame;
+uniform vec4 iMouse;
+
+in vec2 fragCoord;
+in vec2 vUv;
+out vec4 fragColor;`;
+
+    function asWebGlFragment(source: string): string {
+        return `${SHADERTOY_PREAMBLE}
+
+${source}
+
+void main() {
+  mainImage(fragColor, fragCoord);
+}
+`;
+    }
+
     it('validates default grammar shaders', () => {
         const preset = getGrammarPreset('default');
         const grammar = preset.grammar;
@@ -57,11 +83,11 @@ describe('glslangValidator', () => {
             const seed = createSeed(String(seedValue));
             const expression = generate(grammar, seed);
             const compiled = compile(expression, { space: preset.space });
-            const validation = validateGlsl(compiled.source);
+            const validation = validateGlsl(asWebGlFragment(compiled.source));
 
             if (!validation.valid) {
                 console.error('GLSL validation failed for seed', seedValue);
-                console.error('Shader source:', compiled.source);
+                console.error('Shader source:', asWebGlFragment(compiled.source));
                 console.error('glslangValidator output:', validation.output);
             }
 
@@ -75,11 +101,11 @@ describe('glslangValidator', () => {
             const grammar = preset.grammar;
             const expression = generate(grammar, seed);
             const compiled = compile(expression, { space: preset.space });
-            const validation = validateGlsl(compiled.source);
+            const validation = validateGlsl(asWebGlFragment(compiled.source));
 
             if (!validation.valid) {
                 console.error('GLSL validation failed for grammar', preset.id);
-                console.error('Shader source:', compiled.source);
+                console.error('Shader source:', asWebGlFragment(compiled.source));
                 console.error('glslangValidator output:', validation.output);
             }
 
@@ -95,12 +121,12 @@ describe('glslangValidator', () => {
             const grammar = drawGrammar(rng);
             const expression = generate(grammar, createSeed(String(i)));
             const compiled = compile(expression, { space: 'srgb' });
-            const validation = validateGlsl(compiled.source);
+            const validation = validateGlsl(asWebGlFragment(compiled.source));
 
             if (!validation.valid) {
                 console.error('GLSL validation failed for drawn grammar', i);
                 console.error('Grammar:', JSON.stringify(grammar, null, 2));
-                console.error('Shader source:', compiled.source);
+                console.error('Shader source:', asWebGlFragment(compiled.source));
                 console.error('glslangValidator output:', validation.output);
             }
 

@@ -1,7 +1,7 @@
 import { colorSpaceFunction, getColorSpace, isColorSpaceId } from './colors';
 import type { ColorSpaceId } from './colors';
 import { RandomArtError } from './errors';
-import { GLSL_FUNCTIONS, SHADER_HEADER } from './glsl';
+import { GLSL_FUNCTIONS, GLSL_TIME_HOOK, SHADER_HEADER } from './glsl';
 import type { GlslFunctionId } from './glsl';
 import { lower } from './lower';
 import type { LoweredContext, LoweredDag, LoweredVertex } from './lower';
@@ -143,7 +143,7 @@ function emitDag(dag: LoweredDag): Emitted {
     };
 }
 
-/** Compile an expression to a self-contained GLSL ES 3.00 fragment shader. */
+/** Compile an expression to a self-contained Shadertoy image shader. */
 export function compile(expression: Expression, options: CompileOptions): Compiled {
     if (!isColorSpaceId(options.space)) {
         throw new RandomArtError(`Unknown color space: ${String(options.space)}`);
@@ -152,20 +152,32 @@ export function compile(expression: Expression, options: CompileOptions): Compil
     const dag = lower(expression);
     const emitted = emitDag(dag);
     const { space } = options;
+    const animated = usesTime(expression);
 
     const fragments = [SHADER_HEADER];
     for (const id of emitted.functions) {
         fragments.push('', GLSL_FUNCTIONS[id]);
     }
-    fragments.push('', getColorSpace(space).source, '', 'void main() {');
-    fragments.push('    vec2 v_p = vUv * 2.0 - 1.0;');
+    if (animated) {
+        fragments.push('', GLSL_TIME_HOOK);
+    }
+    fragments.push(
+        '',
+        getColorSpace(space).source,
+        '',
+        'void mainImage(out vec4 fragColor, in vec2 fragCoord) {',
+        '    vec2 v_p = fragCoord / iResolution.xy * 2.0 - 1.0;',
+    );
+    if (animated) {
+        fragments.push('', '    float u_phase = ra_phase();');
+    }
     if (emitted.lines.length > 0) {
         fragments.push('', ...emitted.lines);
     }
     const [r, g, b] = emitted.roots;
     fragments.push(
         '',
-        `    o_color = vec4(${colorSpaceFunction(space)}(vec3(${r}, ${g}, ${b})), 1.0);`,
+        `    fragColor = vec4(${colorSpaceFunction(space)}(vec3(${r}, ${g}, ${b})), 1.0);`,
         '}',
     );
 
@@ -178,7 +190,7 @@ export function compile(expression: Expression, options: CompileOptions): Compil
 
     return {
         source,
-        animated: usesTime(expression),
+        animated,
         stats: {
             vertices: emitted.vertices,
             contexts: emitted.contexts,

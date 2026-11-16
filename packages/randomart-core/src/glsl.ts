@@ -1,16 +1,29 @@
+/** Duration in seconds of one `ra_phase()` cycle. The UI maps its own loop duration with `iTime`. */
+export const PHASE_PERIOD_SECONDS = 60;
+
 /**
- * GLSL ES 3.00 contract shared with the renderer: a fullscreen fragment shader reading `vUv`
- * (0..1), `u_phase` (0..1) and writing `o_color`.
+ * Shadertoy prelude shared with the renderer: the host provides `iResolution`, `iTime` and
+ * `fragCoord`, then calls `mainImage(fragColor, fragCoord)`.
  */
-export const SHADER_HEADER = `#version 300 es
-precision highp float;
+export const SHADER_HEADER = `const float PI = 3.141592653589793;`;
 
-in vec2 vUv;
-out vec4 o_color;
+/**
+ * GLSL float literal. Integers gain a decimal point so they are not typed as `int`; `-0` is
+ * normalised to `0.0`.
+ */
+export function glslFloat(value: number): string {
+    const text = String(value === 0 ? 0 : value);
+    return text.includes('.') || /[eE]/.test(text) ? text : `${text}.0`;
+}
 
-uniform float u_phase;
-
-const float PI = 3.141592653589793;`;
+/**
+ * Single time hook. `iTime` is converted to a normalised phase here so operators can keep reading
+ * the local `u_phase`; changing the animation model starts with this function.
+ */
+export const GLSL_TIME_HOOK = `// Single time hook. Change this function to alter the animation model.
+float ra_phase() {
+    return fract(iTime / ${glslFloat(PHASE_PERIOD_SECONDS)});
+}`;
 
 /** Helper functions referenced by operators through `OpDef.requires`. */
 export const GLSL_FUNCTIONS = {
@@ -24,12 +37,3 @@ export const GLSL_FUNCTIONS = {
 } as const;
 
 export type GlslFunctionId = keyof typeof GLSL_FUNCTIONS;
-
-/**
- * GLSL float literal. Integers gain a decimal point so they are not typed as `int`; `-0` is
- * normalised to `0.0`.
- */
-export function glslFloat(value: number): string {
-    const text = String(value === 0 ? 0 : value);
-    return text.includes('.') || /[eE]/.test(text) ? text : `${text}.0`;
-}
