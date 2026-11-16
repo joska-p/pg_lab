@@ -32,8 +32,8 @@ catalog:
     react-router: ^8.5.1
     three: ^0.186.1
     typescript: ^7.0.2
-    vite: npm:@voidzero-dev/vite-plus-core@1.4.0
-    vite-plus: 1.4.0
+    vite: npm:@voidzero-dev/vite-plus-core@1.6.0
+    vite-plus: 1.6.0
     zod: ^4.6.7
     zustand: ^5.1.0
 overrides:
