@@ -16,4 +16,9 @@ export const experiments: readonly Experiment[] = [
         title: 'Témoin',
         entry: 'exp/test/main.js',
     },
+    {
+        id: 'home',
+        title: 'Home',
+        entry: 'exp/home/main.js',
+    },
 ];
