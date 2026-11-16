@@ -30,6 +30,7 @@ VÉRIFICATION
 FIN DE SESSION
 
 - Mettre à jour dans _TMP/<project>/PLAN.md : Status, Current state, Next action.
+- Mettre à jours _TMP/<project>/prompt.md pour le prochain agent.
 - Marquer la Session <N> comme terminée.
 - Committer uniquement les changements pertinents (ne pas committer _TMP/<project>/PLAN.md).
 ```
