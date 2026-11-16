@@ -54,18 +54,18 @@ App
 
 ### Commands
 
-| Command     | File                    | Notes                                                                                                                                                     |
-| ----------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `exportPng` | `commands/exportPng.ts` | Renders the compiled shader offscreen (WebGL2 `OffscreenCanvas`, `EXPORT_SIZE` px square, capped by the GPU limits). Independent of the displayed canvas. |
+| Command     | File                    | Notes                                                                                                                                                               |
+| ----------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `exportPng` | `commands/exportPng.ts` | Renders the compiled Shadertoy shader offscreen (WebGL2 `OffscreenCanvas`, `EXPORT_SIZE` px square, capped by the GPU limits). Independent of the displayed canvas. |
 
 ### Rendering
 
 `RandomArtCanvas` wraps `@repo/surface/react/GpuCanvas`:
 
-- **Timed clock** (paused at `phase = 0`), duration from `playbackStore`.
+- **Timed clock** (paused at `progress = 0`), duration from `playbackStore`.
 - **Lazy rendering**: `shouldRender` gate only redraws on phase change, resize, or context restore.
-- **Square canvas** via CSS `aspect-ratio: 1/1` (shader coordinates unchanged).
-- **Uniforms**: `u_phase` from clock progress; `v_p` declared in `main()` by randomart-core from `vUv`.
+- **Square canvas** via CSS `aspect-ratio: 1/1`.
+- **Time mapping**: the only UI-side mapping is `iTime = surface.clock.time * (PHASE_PERIOD_SECONDS / duration)` (guarding `duration > 0`). The shader's `ra_phase()` hook (from `@repo/randomart-core/glsl`) turns `iTime` into phase; render gating still keys on normalized progress.
 
 ### Color spaces
 
@@ -106,7 +106,11 @@ both the grammar and the current space.
 
 ### PNG export
 
-`exportPng` renders the compiled shader offscreen in a dedicated WebGL2 `OffscreenCanvas` at `EXPORT_SIZE` px square (capped by the GPU viewport limits), independent of the displayed canvas. The phase is the current clock progress for animated shaders, `0` otherwise. Filename: `randomart-<sanitized-seed>.png`.
+`exportPng` renders the compiled shader offscreen in a dedicated WebGL2 `OffscreenCanvas` via
+`@repo/surface/gpu/Program` at `EXPORT_SIZE` px square (capped by the GPU viewport limits),
+independent of the displayed canvas. It keeps the public `phase` option (normalized `[0, 1)`) and
+converts it to `time = phase * PHASE_PERIOD_SECONDS` when uploading `iTime`. For static shaders the
+phase is irrelevant. Filename: `randomart-<sanitized-seed>.png`.
 
 ### Conventions
 

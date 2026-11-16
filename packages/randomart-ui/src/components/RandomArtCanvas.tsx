@@ -1,3 +1,4 @@
+import { PHASE_PERIOD_SECONDS } from '@repo/randomart-core/glsl';
 import type { TargetPair } from '@repo/surface/gpu/TargetPair';
 import type { Program, ShaderError, GpuSurface } from '@repo/surface/react/GpuCanvas';
 import { GpuCanvas } from '@repo/surface/react/GpuCanvas';
@@ -13,11 +14,11 @@ import { getActiveEffectsKey } from '../stores/postProcessingStore';
 import type { ClockProgress } from '../stores/surfaceStore';
 
 interface RandomArtCanvasProps {
-    /** Fragment shader source code adhering to randomart's GLSL contract. */
+    /** Fragment shader source code (Shadertoy image shader) from randomart-core. */
     fragmentShader: string;
-    /** True when the shader reads `u_phase` (CompiledShader.animated). Defaults to true. */
+    /** True when the shader is animated (uses iTime/ra_phase). Defaults to true. */
     animated?: boolean;
-    /** Animation loop duration. Defaults to `DEFAULT_LOOP_DURATION`. */
+    /** Animation loop duration in seconds (UI slider). Defaults to `DEFAULT_LOOP_DURATION`. */
     duration?: number;
     /** Active post-processing effects. */
     activeEffects?: Readonly<Record<PostProcessEffectId, boolean>>;
@@ -61,9 +62,9 @@ const styles = stylex.create({
 });
 
 /**
- * Thin adapter around @repo/surface GpuCanvas for randomart. Supplies `u_phase`. Lazy rendering:
- * still/paused/static costs no GPU time. The drawing buffer is not preserved; export re-renders
- * offscreen.
+ * Thin adapter around @repo/surface GpuCanvas for randomart. Provides `iTime` scaled to the UI loop
+ * duration. Lazy rendering: still/paused/static costs no GPU time. The drawing buffer is not
+ * preserved; export re-renders offscreen.
  *
  * A newly installed program is always drawn once by GpuCanvas, independently of `shouldRender`, so
  * changing the shader appears even while the clock is paused.
@@ -104,9 +105,12 @@ export function RandomArtCanvas({
             <div {...stylex.props(styles.canva)}>
                 <GpuCanvas
                     fragmentShader={fragmentShader}
-                    uniforms={(surface) => ({
-                        u_phase: createPhase(computeProgress(surface.clock.time)),
-                    })}
+                    uniforms={(surface) => {
+                        const d = durationRef.current;
+                        // Only UI-side time mapping: scale surface clock.time to the selected loop duration.
+                        const iTime = d > 0 ? surface.clock.time * (PHASE_PERIOD_SECONDS / d) : 0;
+                        return { iTime };
+                    }}
                     shouldRender={(surface) => {
                         const postProcess = activeEffects ? getActiveEffectsKey(activeEffects) : '';
                         const key: RenderKey = {
@@ -133,7 +137,6 @@ export function RandomArtCanvas({
                         const activeList = POST_PROCESS_EFFECTS.filter(
                             (effect) => activeEffects?.[effect.id] === true,
                         ).sort((a, b) => a.order - b.order);
-
                         const finalEffect = activeList[activeList.length - 1];
                         if (!finalEffect) {
                             surface.renderProgram(program, uniforms);
