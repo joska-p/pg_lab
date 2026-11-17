@@ -1,0 +1,69 @@
+/*
+ * Shared building blocks for experiment stages and panels.
+ * Used by every Tier A experiment: intro copy, status line, native controls
+ * and panel buttons. Experiment stylesheets only add what is specific to them.
+ */
+
+.pg-intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pg-space-3);
+    max-width: var(--pg-layout-text-max-width);
+}
+
+.pg-intro h1 {
+    margin: 0;
+    font-size: var(--pg-font-size-3xl);
+    font-weight: var(--pg-font-weight-semibold);
+}
+
+.pg-lead {
+    margin: 0;
+}
+
+.pg-status {
+    font-family: var(--pg-font-mono);
+    font-size: var(--pg-font-size-sm);
+}
+
+.pg-shell__content button {
+    min-height: var(--pg-layout-control-touch-target);
+    border: 1px solid currentColor;
+    border-radius: var(--pg-radius-sm);
+    background-color: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.pg-shell__content button:hover {
+    background-color: var(--pg-color-neutral);
+}
+
+.pg-control {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pg-space-2);
+    font-size: var(--pg-font-size-sm);
+}
+
+.pg-control--inline {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.pg-control select,
+.pg-control input[type='range'],
+.pg-control input[type='text'] {
+    width: 100%;
+}
+
+.pg-control input[type='checkbox'] {
+    width: var(--pg-layout-checkbox-size);
+    height: var(--pg-layout-checkbox-size);
+    accent-color: var(--pg-color-aurora);
+}
+
+.pg-control output {
+    font-family: var(--pg-font-mono);
+}

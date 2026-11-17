@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>pg_lab — Randomart</title>
+        <link rel="stylesheet" href="../../ui/styles/tokens.css" />
+        <link rel="stylesheet" href="../../ui/styles/reset.css" />
+        <link rel="stylesheet" href="../../ui/styles/shell.css" />
+        <link rel="stylesheet" href="../../ui/styles/controls.css" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body>
+        <pg-shell class="pg-shell" data-background="auroral-fluid">
+            <section class="pg-shell__stage pg-bg--auroral-fluid" aria-label="Randomart">
+                <div class="pg-intro">
+                    <h1>Randomart</h1>
+                    <p class="pg-lead">
+                        Une grammaire, une graine et un espace de couleur : le shader est généré,
+                        compilé puis affiché en WebGL2.
+                    </p>
+                </div>
+
+                <div class="pg-randomart__viewport">
+                    <canvas
+                        class="pg-randomart__canvas"
+                        data-canvas
+                        aria-label="Rendu randomart"
+                    ></canvas>
+                    <p class="pg-randomart__error" data-error role="alert" hidden></p>
+                </div>
+
+                <p class="pg-randomart__status pg-status" data-status aria-live="polite">
+                    Initialisation…
+                </p>
+            </section>
+
+            <aside class="pg-shell__panel" aria-label="Contrôles">
+                <button type="button" class="pg-shell__handle" aria-hidden="true" tabindex="-1">
+                    ≶
+                </button>
+                <div class="pg-shell__content">
+                    <h2>Contrôles</h2>
+
+                    <label class="pg-control">
+                        <span>Grammaire</span>
+                        <span data-control="grammar"></span>
+                    </label>
+
+                    <label class="pg-control">
+                        <span>Graine</span>
+                        <span data-control="seed"></span>
+                    </label>
+                    <button type="button" data-new-seed>Nouvelle graine</button>
+
+                    <label class="pg-control">
+                        <span>Espace de couleur</span>
+                        <span data-control="space"></span>
+                    </label>
+
+                    <div class="pg-control pg-control--inline">
+                        <span>Lecture</span>
+                        <button type="button" data-play-toggle data-playing="false">Lecture</button>
+                    </div>
+
+                    <button type="button" data-regenerate>Régénérer</button>
+
+                    <p class="pg-randomart__stats pg-status" data-stats aria-live="polite">
+                        Taille : — · Animé : —
+                    </p>
+
+                    <details class="pg-randomart__details">
+                        <summary>Formule</summary>
+                        <pre><code data-formula></code></pre>
+                    </details>
+
+                    <details class="pg-randomart__details">
+                        <summary>Code source du shader</summary>
+                        <pre><code data-shader-source></code></pre>
+                    </details>
+
+                    <button type="button" data-theme-toggle>Thème</button>
+                </div>
+            </aside>
+        </pg-shell>
+        <script type="module" src="./main.ts"></script>
+    </body>
+</html>
