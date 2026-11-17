@@ -21,21 +21,15 @@
                     </p>
                 </div>
 
-                <div class="pg-randomart__viewport">
-                    <canvas
-                        class="pg-randomart__canvas pg-canvas"
-                        data-canvas
-                        aria-label="Rendu randomart"
-                    ></canvas>
-                    <p
-                        class="pg-randomart__error pg-canvas__error"
-                        data-error
-                        role="alert"
-                        hidden
-                    ></p>
+                <div class="pg-canvas-viewport">
+                    <canvas class="pg-canvas" data-canvas aria-label="Rendu randomart"></canvas>
+                    <p class="pg-canvas__error pg-error" data-error role="alert" hidden></p>
                 </div>
 
-                <p class="pg-randomart__status pg-status" data-status aria-live="polite">
+                <p class="pg-loading pg-randomart__loading" data-loading hidden>
+                    Compilation du shader…
+                </p>
+                <p class="pg-status pg-randomart__status" data-status aria-live="polite">
                     Initialisation…
                 </p>
             </section>
@@ -70,19 +64,19 @@
 
                     <button type="button" data-regenerate>Régénérer</button>
 
-                    <p class="pg-randomart__stats pg-status" data-stats aria-live="polite">
-                        Taille : — · Animé : —
-                    </p>
+                    <p class="pg-badge pg-randomart__stats" data-stats>Taille : — · Animé : —</p>
 
-                    <details class="pg-randomart__details">
-                        <summary>Formule</summary>
-                        <pre><code data-formula></code></pre>
-                    </details>
-
-                    <details class="pg-randomart__details">
-                        <summary>Code source du shader</summary>
-                        <pre><code data-shader-source></code></pre>
-                    </details>
+                    <section class="pg-section" aria-labelledby="randomart-details-title">
+                        <h3 id="randomart-details-title">Détails du shader</h3>
+                        <details class="pg-card pg-randomart__details">
+                            <summary>Formule</summary>
+                            <pre><code data-formula></code></pre>
+                        </details>
+                        <details class="pg-card pg-randomart__details">
+                            <summary>Code source du shader</summary>
+                            <pre><code data-shader-source></code></pre>
+                        </details>
+                    </section>
 
                     <button type="button" data-theme-toggle>Thème</button>
                 </div>

@@ -62,9 +62,10 @@ function createSeedInput(mount: HTMLElement, value: string): HTMLInputElement {
     return input;
 }
 
-const stage = required<HTMLElement>('.pg-shell__stage');
+const viewport = required<HTMLElement>('.pg-canvas-viewport');
 const canvas = required<HTMLCanvasElement>('[data-canvas]');
 const errorBox = required<HTMLElement>('[data-error]');
+const loading = required<HTMLElement>('[data-loading]');
 const status = required<HTMLElement>('[data-status]');
 const stats = required<HTMLElement>('[data-stats]');
 const formula = required<HTMLElement>('[data-formula]');
@@ -91,18 +92,22 @@ let surface: GpuSurface | null = null;
 let program: Program | null = null;
 let playing = false;
 let unsubscribeFrame: (() => void) | null = null;
+let renderScheduled = false;
+let initialPlayPending = true;
+let firstFrame = 0;
+let secondFrame = 0;
 
 function reportError(message: string): void {
     errorBox.textContent = message;
     errorBox.hidden = false;
-    stage.classList.add('pg-randomart--error');
+    canvas.classList.add('pg-canvas--error');
     status.textContent = 'Erreur.';
 }
 
 function clearError(): void {
     errorBox.textContent = '';
     errorBox.hidden = true;
-    stage.classList.remove('pg-randomart--error');
+    canvas.classList.remove('pg-canvas--error');
 }
 
 function stopProgram(): void {
@@ -236,6 +241,45 @@ function refresh(): void {
     if (!playing) {
         renderOnce();
     }
+
+    // The initial render used to be followed by a manual setPlaying(true) at startup.
+    if (initialPlayPending) {
+        initialPlayPending = false;
+        if (surface !== null && program !== null) {
+            setPlaying(true);
+        }
+    }
+}
+
+function setLoading(active: boolean): void {
+    loading.hidden = !active;
+    regenerateButton.disabled = active;
+    viewport.setAttribute('aria-busy', String(active));
+}
+
+/** Compilation is synchronous: yield two frames so the loading state is painted before the work. */
+function scheduleRefresh(): void {
+    if (renderScheduled) {
+        return;
+    }
+
+    renderScheduled = true;
+    setLoading(true);
+    status.textContent = 'Compilation du shader…';
+
+    firstFrame = requestAnimationFrame(() => {
+        secondFrame = requestAnimationFrame(() => {
+            firstFrame = 0;
+            secondFrame = 0;
+
+            try {
+                refresh();
+            } finally {
+                renderScheduled = false;
+                setLoading(false);
+            }
+        });
+    });
 }
 
 grammarSelect.addEventListener('change', () => {
@@ -249,7 +293,7 @@ grammarSelect.addEventListener('change', () => {
     grammar = preset.grammar;
     space = preset.space;
     spaceSelect.value = space;
-    refresh();
+    scheduleRefresh();
 });
 
 spaceSelect.addEventListener('change', () => {
@@ -259,7 +303,7 @@ spaceSelect.addEventListener('change', () => {
     }
 
     space = value;
-    refresh();
+    scheduleRefresh();
 });
 
 seedInput.addEventListener('change', () => {
@@ -273,17 +317,17 @@ seedInput.addEventListener('change', () => {
 
     seed = parsed;
     seedInput.value = seed;
-    refresh();
+    scheduleRefresh();
 });
 
 newSeedButton.addEventListener('click', () => {
     seed = randomSeed();
     seedInput.value = seed;
-    refresh();
+    scheduleRefresh();
 });
 
 regenerateButton.addEventListener('click', () => {
-    refresh();
+    scheduleRefresh();
 });
 
 playButton.addEventListener('click', () => {
@@ -300,6 +344,13 @@ try {
 window.addEventListener(
     'pagehide',
     () => {
+        if (firstFrame !== 0) {
+            cancelAnimationFrame(firstFrame);
+        }
+        if (secondFrame !== 0) {
+            cancelAnimationFrame(secondFrame);
+        }
+
         setPlaying(false);
         stopProgram();
 
@@ -312,8 +363,4 @@ window.addEventListener(
 
 defineShellElement();
 initTheme();
-refresh();
-
-if (surface !== null && program !== null) {
-    setPlaying(true);
-}
+scheduleRefresh();

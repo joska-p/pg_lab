@@ -154,6 +154,8 @@
     --pg-layout-swatch-min-width: 160px;
     --pg-layout-swatch-height: 64px;
     --pg-layout-text-max-width: 62ch;
+    --pg-layout-canvas-viewport-min-height: 280px;
+    --pg-layout-code-max-height: 14rem;
 
     /* Base shell */
     --pg-shell-min-height: 100dvh;

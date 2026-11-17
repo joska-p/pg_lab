@@ -12,26 +12,28 @@ This folder holds the shared CSS layer for all experiments:
 
 All tokens live in `tokens.css` and are overridden per theme via `[data-theme='dark']` on `<html>`.
 
-| Category | Token                                     | Role                                       |
-| -------- | ----------------------------------------- | ------------------------------------------ |
-| Surface  | `--pg-surface-background`                 | Page, panel and stage background           |
-| Surface  | `--pg-surface-foreground`                 | Primary text, titles                       |
-| Text     | `--pg-color-neutral`                      | Fine borders only (not body text)          |
-| Text     | `--pg-text-muted`                         | Secondary text, hints, labels              |
-| Accent   | `--pg-color-aurora`                       | Primary buttons, active links, focus rings |
-| Accent   | `--pg-color-solder`                       | Success / validation                       |
-| Accent   | `--pg-color-amber`                        | Warning / loading                          |
-| Accent   | `--pg-color-error`                        | Errors, deletion, alerts                   |
-| Border   | `--pg-border-hairline` (1px)              | Component borders                          |
-| Radius   | `--pg-radius-sm` / `--pg-radius-md`       | Rounded corners                            |
-| Space    | `--pg-space-0` … `--pg-space-16`          | Margins and padding                        |
-| Touch    | `--pg-layout-control-touch-target` (44px) | Min height of buttons / inputs             |
-| Font     | `--pg-font-sans`                          | Interface text                             |
-| Font     | `--pg-font-mono`                          | Code, stats, metadata                      |
-| Motion   | `--pg-motion-duration-fast/normal/slow`   | Transition durations                       |
-| Motion   | `--pg-motion-easing-out/in-out/linear`    | Easing curves                              |
-| Layout   | `--pg-layout-text-max-width` (62ch)       | Max width for readable text                |
-| Layout   | `--pg-layout-panel-width` (320px)         | Default panel width                        |
+| Category | Token                                            | Role                                       |
+| -------- | ------------------------------------------------ | ------------------------------------------ |
+| Surface  | `--pg-surface-background`                        | Page, panel and stage background           |
+| Surface  | `--pg-surface-foreground`                        | Primary text, titles                       |
+| Text     | `--pg-color-neutral`                             | Fine borders only (not body text)          |
+| Text     | `--pg-text-muted`                                | Secondary text, hints, labels              |
+| Accent   | `--pg-color-aurora`                              | Primary buttons, active links, focus rings |
+| Accent   | `--pg-color-solder`                              | Success / validation                       |
+| Accent   | `--pg-color-amber`                               | Warning / loading                          |
+| Accent   | `--pg-color-error`                               | Errors, deletion, alerts                   |
+| Border   | `--pg-border-hairline` (1px)                     | Component borders                          |
+| Radius   | `--pg-radius-sm` / `--pg-radius-md`              | Rounded corners                            |
+| Space    | `--pg-space-0` … `--pg-space-16`                 | Margins and padding                        |
+| Touch    | `--pg-layout-control-touch-target` (44px)        | Min height of buttons / inputs             |
+| Font     | `--pg-font-sans`                                 | Interface text                             |
+| Font     | `--pg-font-mono`                                 | Code, stats, metadata                      |
+| Motion   | `--pg-motion-duration-fast/normal/slow`          | Transition durations                       |
+| Motion   | `--pg-motion-easing-out/in-out/linear`           | Easing curves                              |
+| Layout   | `--pg-layout-text-max-width` (62ch)              | Max width for readable text                |
+| Layout   | `--pg-layout-panel-width` (320px)                | Default panel width                        |
+| Layout   | `--pg-layout-canvas-viewport-min-height` (280px) | Min height of shared canvas viewport       |
+| Layout   | `--pg-layout-code-max-height` (14rem)            | Scroll cap for `<pre>` / code blocks       |
 
 `--pg-text-muted` is the semantic token for secondary text. It is defined per theme and was
 verified with WCAG 2.1 contrast against `--pg-surface-background`:
@@ -76,6 +78,20 @@ or on a light page (homepage, art-canvas index), where `.pg-shell__content` is n
 `.pg-section[hidden]` and any other hidden control group.
 
 **Rule**: shared classes take precedence over experiment-local styles. Extend rather than duplicate.
+
+## Canvas viewport, code blocks and shader errors
+
+`.pg-canvas-viewport` and `.pg-canvas` take their minimum height from
+`--pg-layout-canvas-viewport-min-height` (280px): a page adopting the shared viewport does not need
+a local height rule. Their borders, and the one on `.pg-canvas__error`, use `--pg-border-hairline`.
+
+`--pg-layout-code-max-height` (14rem) caps the scrollable `<pre>` blocks in the randomart shader
+details. It stays page-local for now; the `.pg-code` primitive planned for D6 (and reused in D14)
+will use the same token.
+
+When shader compilation fails, or WebGL2 is unavailable, add `.pg-canvas--error` to the canvas and
+reveal the `.pg-canvas__error.pg-error` overlay (`role="alert"`). Remove both on the next successful
+render, so the dimmed canvas and the error message never disagree.
 
 ## Page pattern
 

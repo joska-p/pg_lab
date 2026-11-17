@@ -1,15 +1,9 @@
-/* Randomart experiment: canvas viewport and panel additions only. */
+/* Randomart additions: state placeholders and local code blocks. Canvas shell comes from controls.css. */
 
-.pg-randomart__viewport {
-    position: relative;
+.pg-randomart__loading {
     display: flex;
-    min-height: 280px;
-    height: clamp(280px, 68dvh, 760px);
-    margin-top: var(--pg-space-6);
-    overflow: hidden;
-    border: 1px solid var(--pg-color-neutral);
-    border-radius: var(--pg-radius-md);
-    background-color: var(--pg-dark0Hard);
+    width: fit-content;
+    margin-top: var(--pg-space-3);
 }
 
 .pg-randomart__status {
@@ -26,10 +20,11 @@
 
 .pg-randomart__details summary {
     cursor: pointer;
+    color: var(--pg-text-muted);
 }
 
 .pg-randomart__details pre {
-    max-height: 14rem;
+    max-height: var(--pg-layout-code-max-height);
     margin: var(--pg-space-2) 0 0;
     overflow: auto;
     padding: var(--pg-space-2);
@@ -39,4 +34,12 @@
     font-size: var(--pg-font-size-xs);
     white-space: pre-wrap;
     overflow-wrap: anywhere;
+}
+
+/* 720px literal: custom properties are not usable in @media conditions (aligned on --pg-breakpoint-narrow-max). */
+@media (max-width: 720px) {
+    .pg-shell__stage,
+    .pg-shell__content {
+        padding: var(--pg-space-3);
+    }
 }
