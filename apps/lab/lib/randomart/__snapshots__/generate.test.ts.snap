@@ -1,0 +1,21 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generate > pins the generated formulas for fixed seeds 1`] = `
+{
+  "seed0": {
+    "b": "min(y(amp=0.5, phase=0.9, cycles=1), x(amp=0.9, phase=0.2, cycles=4))",
+    "g": "min(y(amp=0.5, phase=0.9, cycles=1), x(amp=0.9, phase=0.2, cycles=4))",
+    "r": "min(y(amp=0.5, phase=0.9, cycles=1), x(amp=0.9, phase=0.2, cycles=4))",
+  },
+  "seed1234": {
+    "b": "sqr(y(amp=0.5, phase=0.3, cycles=2))",
+    "g": "sqr(y(amp=0.5, phase=0.3, cycles=2))",
+    "r": "sqr(y(amp=0.5, phase=0.3, cycles=2))",
+  },
+  "seed42": {
+    "b": "add(max(mul(y(amp=0, phase=0.1, cycles=2), mul(const(value=-0.263), y(amp=0.2, phase=0.5, cycles=4))), abs(y(amp=0.6, phase=0.3, cycles=1))), x(amp=0.3, phase=0.8, cycles=1))",
+    "g": "add(max(x(amp=0.2, phase=0.9, cycles=3), add(abs(y(amp=0.4, phase=0.8, cycles=3)), x(amp=0.3, phase=0.8, cycles=1))), x(amp=0.3, phase=0.8, cycles=1))",
+    "r": "add(max(cos(smax(k=0.5)(const(value=-0.574), x(amp=0.3, phase=1, cycles=1))), mix(y(amp=0.9, phase=1, cycles=4), x(amp=0.2, phase=0.7, cycles=4), mul(y(amp=0.9, phase=0.7, cycles=1), y(amp=0.8, phase=0.8, cycles=1)))), x(amp=0.3, phase=0.8, cycles=1))",
+  },
+}
+`;

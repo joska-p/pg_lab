@@ -1,0 +1,99 @@
+import { describe, expect, it } from 'vite-plus/test';
+
+import { COLOR_SPACE_IDS } from './colors';
+import { compile } from './emit';
+import { RandomArtError } from './errors';
+import { generate } from './generate';
+import { getGrammarPreset } from './grammar';
+import { seedOf, SIZE_GRAMMARS } from './testing/fixtures';
+import { createNode, deserialize, formatFormula, serialize, warpOperands } from './tree';
+import type { Expression } from './tree';
+
+function canonical(expression: Expression): string {
+    return JSON.stringify(serialize(expression));
+}
+
+function formulas(expression: Expression): readonly string[] {
+    return [formatFormula(expression.r), formatFormula(expression.g), formatFormula(expression.b)];
+}
+
+/** The real persistence path: serialize, cross a JSON boundary, deserialize. */
+function throughJson(expression: Expression): Expression {
+    return deserialize(JSON.parse(JSON.stringify(serialize(expression))));
+}
+
+describe('tree serialization', () => {
+    it('preserves the formula through JSON for every depth/node bound', () => {
+        for (const grammar of SIZE_GRAMMARS) {
+            for (const seed of [0, 42]) {
+                const expression = generate(grammar, seedOf(seed));
+
+                expect(formulas(throughJson(expression))).toEqual(formulas(expression));
+            }
+        }
+    });
+
+    it('produces byte-identical JSON and shader after a round-trip', () => {
+        const expression = generate(getGrammarPreset('default').grammar, seedOf(2024));
+        const restored = throughJson(expression);
+
+        expect(canonical(restored)).toBe(canonical(expression));
+
+        for (const space of COLOR_SPACE_IDS) {
+            expect(compile(restored, { space })).toEqual(compile(expression, { space }));
+        }
+    });
+
+    it('rejects malformed data at the boundary', () => {
+        const terminal = { op: 'const', params: { value: 0 } };
+        const valid = { version: 2, r: terminal, g: terminal, b: terminal };
+
+        expect(() => deserialize({ ...valid, version: 1 })).toThrow(RandomArtError);
+        expect(() => deserialize({ ...valid, version: 1 })).toThrow(/version mismatch/);
+        expect(() => deserialize({ ...valid, r: { op: 'bogus' } })).toThrow(/unknown operator/);
+        expect(() => deserialize({ ...valid, r: { op: 'sin' } })).toThrow(/1 input\(s\) expected/);
+        expect(() => deserialize({ ...valid, r: { op: 'add', in: [terminal] } })).toThrow(
+            /2 input\(s\) expected/,
+        );
+        expect(() => deserialize({ ...valid, r: { op: 'const', params: { value: 2 } } })).toThrow(
+            /out of/,
+        );
+        expect(() =>
+            deserialize({ ...valid, r: { op: 'const', params: { value: 0, nope: 1 } } }),
+        ).toThrow(/no parameter/);
+        expect(() =>
+            deserialize({ ...valid, r: { op: 'const', params: { value: 0 }, extra: 1 } }),
+        ).toThrow(/unknown field/);
+    });
+});
+
+describe('createNode', () => {
+    const a = createNode('const', [], { value: 0 });
+    const b = createNode('const', [], { value: 1 });
+
+    it('rejects an unknown parameter on a terminal', () => {
+        expect(() => createNode('const', [], { value: 0, nope: 1 })).toThrow(/no parameter/);
+    });
+
+    it('rejects an unknown parameter on an operator with inputs', () => {
+        expect(() => createNode('add', [a, b], { foo: 1 })).toThrow(/no parameter/);
+    });
+
+    it('rejects a parameter out of range', () => {
+        expect(() => createNode('x', [], { amp: 2, phase: 0, cycles: 1 })).toThrow(/out of/);
+    });
+});
+
+describe('warpOperands', () => {
+    it('returns the warp inputs in order as a tuple', () => {
+        const dx = createNode('x', [], { amp: 0.3, phase: 0.1, cycles: 2 });
+        const dy = createNode('y', [], { amp: 0.3, phase: 0.1, cycles: 2 });
+        const body = createNode('add', [dx, dy]);
+        const warp = createNode('warp', [dx, dy, body]);
+
+        const [opDx, opDy, opBody] = warpOperands(warp);
+        expect(opDx).toBe(dx);
+        expect(opDy).toBe(dy);
+        expect(opBody).toBe(body);
+    });
+});
