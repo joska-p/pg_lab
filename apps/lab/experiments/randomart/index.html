@@ -23,11 +23,16 @@
 
                 <div class="pg-randomart__viewport">
                     <canvas
-                        class="pg-randomart__canvas"
+                        class="pg-randomart__canvas pg-canvas"
                         data-canvas
                         aria-label="Rendu randomart"
                     ></canvas>
-                    <p class="pg-randomart__error" data-error role="alert" hidden></p>
+                    <p
+                        class="pg-randomart__error pg-canvas__error"
+                        data-error
+                        role="alert"
+                        hidden
+                    ></p>
                 </div>
 
                 <p class="pg-randomart__status pg-status" data-status aria-live="polite">

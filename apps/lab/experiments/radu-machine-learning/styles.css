@@ -163,7 +163,7 @@
     padding: var(--pg-space-2);
     border-radius: var(--pg-radius-sm);
     background: rgb(20 20 24 / 92%);
-    color: #ffffff;
+    color: var(--pg-light0);
     font-family: var(--pg-font-sans);
     font-size: var(--pg-font-size-xs);
     text-transform: capitalize;

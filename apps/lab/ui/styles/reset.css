@@ -36,6 +36,7 @@ textarea:focus-visible {
 }
 
 body {
+    height: var(--pg-shell-min-height);
     min-height: var(--pg-shell-min-height);
     background: var(--pg-surface-background);
     color: var(--pg-surface-foreground);

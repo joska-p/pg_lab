@@ -49,6 +49,7 @@
     flex-shrink: 0;
     min-width: 0;
     min-height: 0;
+    overflow-y: auto;
     border-radius: var(--pg-radius-md);
     width: var(--panel-width, var(--pg-layout-panel-width));
     max-width: 70%;

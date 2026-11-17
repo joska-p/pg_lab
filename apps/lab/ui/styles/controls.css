@@ -122,3 +122,139 @@
 .pg-canvas__status {
     margin: var(--pg-space-4) 0 0;
 }
+
+/* États de bouton partagés. */
+.pg-shell__content button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Carte : container avec bordure, radius, padding, fond de surface. */
+.pg-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pg-space-3);
+    padding: var(--pg-space-4);
+    border: var(--pg-border-hairline) solid var(--pg-color-neutral);
+    border-radius: var(--pg-radius-md);
+    background-color: var(--pg-surface-background);
+}
+
+/* Section : groupe de contrôles avec titre et séparateur supérieur. */
+.pg-section {
+    margin-top: var(--pg-space-6);
+    padding-top: var(--pg-space-3);
+    border-top: var(--pg-border-hairline) solid var(--pg-color-neutral);
+}
+
+.pg-section h3,
+.pg-section h4 {
+    margin: 0 0 var(--pg-space-2);
+    font-size: var(--pg-font-size-sm);
+    font-weight: var(--pg-font-weight-semibold);
+}
+
+/* Badge : petite étiquette arrondie, texte mono. */
+.pg-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pg-space-1);
+    padding: var(--pg-space-1) var(--pg-space-2);
+    border: var(--pg-border-hairline) solid currentColor;
+    border-radius: var(--pg-radius-full);
+    font-family: var(--pg-font-mono);
+    font-size: var(--pg-font-size-xs);
+    line-height: var(--pg-line-height-normal);
+}
+
+/* État vide : aucun résultat, texte centré et atténué. */
+.pg-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--pg-space-3);
+    padding: var(--pg-space-8);
+    color: color-mix(in oklab, var(--pg-surface-foreground) 60%, transparent);
+    text-align: center;
+}
+
+/* État d’erreur : bordure et texte erreur, fond mixte. */
+.pg-error {
+    padding: var(--pg-space-3) var(--pg-space-4);
+    border: var(--pg-border-hairline) solid var(--pg-color-error);
+    border-radius: var(--pg-radius-sm);
+    background-color: color-mix(in oklab, var(--pg-color-error) 12%, transparent);
+    color: var(--pg-color-error);
+    font-family: var(--pg-font-mono);
+    font-size: var(--pg-font-size-sm);
+    text-align: center;
+}
+
+/* État de chargement : indicateur animé, couleur aurora. */
+.pg-loading {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pg-space-2);
+    padding: var(--pg-space-2) var(--pg-space-3);
+    border: var(--pg-border-hairline) solid currentColor;
+    border-radius: var(--pg-radius-full);
+    color: var(--pg-color-aurora);
+    font-family: var(--pg-font-mono);
+    font-size: var(--pg-font-size-sm);
+}
+
+.pg-loading::before {
+    content: '';
+    width: var(--pg-layout-spinner-size);
+    height: var(--pg-layout-spinner-size);
+    border: var(--pg-layout-spinner-ring-width) solid currentColor;
+    border-top-color: transparent;
+    border-radius: var(--pg-radius-full);
+    animation: pg-loading-spin var(--pg-motion-duration-normal) linear
+        var(--pg-motion-iteration-infinite);
+}
+
+@keyframes pg-loading-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pg-loading::before {
+        animation: none;
+    }
+}
+
+/* Puces de statut : indicateur coloré (ok / error / pending). */
+.pg-status-ok,
+.pg-status-error,
+.pg-status-pending {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pg-space-1);
+    padding: var(--pg-space-1) var(--pg-space-2);
+    border-radius: var(--pg-radius-full);
+    font-family: var(--pg-font-mono);
+    font-size: var(--pg-font-size-xs);
+    line-height: var(--pg-line-height-normal);
+}
+
+.pg-status-ok {
+    border: var(--pg-border-hairline) solid var(--pg-color-solder);
+    background-color: color-mix(in oklab, var(--pg-color-solder) 12%, transparent);
+    color: var(--pg-color-solder);
+}
+
+.pg-status-error {
+    border: var(--pg-border-hairline) solid var(--pg-color-error);
+    background-color: color-mix(in oklab, var(--pg-color-error) 12%, transparent);
+    color: var(--pg-color-error);
+}
+
+.pg-status-pending {
+    border: var(--pg-border-hairline) solid var(--pg-color-amber);
+    background-color: color-mix(in oklab, var(--pg-color-amber) 12%, transparent);
+    color: var(--pg-color-amber);
+}
