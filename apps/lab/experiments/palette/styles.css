@@ -1,0 +1,101 @@
+/* Palette experiment: stage results and panel control layout. */
+
+.pg-palette__intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pg-space-3);
+    max-width: var(--pg-layout-text-max-width);
+}
+
+.pg-palette__intro h1 {
+    margin: 0;
+    font-size: var(--pg-font-size-3xl);
+    font-weight: var(--pg-font-weight-semibold);
+}
+
+.pg-palette__lead {
+    margin: 0;
+}
+
+.pg-palette__base,
+.pg-palette__result {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--pg-space-4);
+    margin-top: var(--pg-space-6);
+}
+
+.pg-palette__base {
+    align-items: center;
+    gap: var(--pg-space-3);
+}
+
+.pg-palette__base-label {
+    font-size: var(--pg-font-size-sm);
+}
+
+.pg-palette__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--pg-space-2);
+}
+
+.pg-palette__swatch {
+    flex-shrink: 0;
+    width: var(--pg-layout-color-swatch-width);
+    height: var(--pg-layout-color-swatch-height);
+    border: 1px solid var(--pg-color-neutral);
+    border-radius: var(--pg-radius-sm);
+}
+
+.pg-palette__swatch--base {
+    width: calc(var(--pg-layout-color-swatch-width) * 1.5);
+}
+
+.pg-palette__status {
+    margin-top: var(--pg-space-4);
+    font-family: var(--pg-font-mono);
+    font-size: var(--pg-font-size-sm);
+}
+
+.pg-palette__control {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pg-space-2);
+    font-size: var(--pg-font-size-sm);
+}
+
+.pg-palette__control--inline {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.pg-palette__control select,
+.pg-palette__control input[type='range'] {
+    width: 100%;
+}
+
+.pg-palette__control input[type='checkbox'] {
+    width: var(--pg-layout-checkbox-size);
+    height: var(--pg-layout-checkbox-size);
+    accent-color: var(--pg-color-aurora);
+}
+
+.pg-palette__control output {
+    font-family: var(--pg-font-mono);
+}
+
+.pg-shell__content button {
+    min-height: var(--pg-layout-control-touch-target);
+    border: 1px solid currentColor;
+    border-radius: var(--pg-radius-sm);
+    background-color: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.pg-shell__content button:hover {
+    background-color: var(--pg-color-neutral);
+}

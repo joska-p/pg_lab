@@ -9,6 +9,9 @@
         "preview": "vp preview",
         "check": "vp check"
     },
+    "dependencies": {
+        "colorjs.io": "catalog:"
+    },
     "devDependencies": {
         "typescript": "catalog:",
         "vite": "catalog:",
