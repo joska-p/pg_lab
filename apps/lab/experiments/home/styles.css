@@ -1,9 +1,0 @@
-/* Home experiment: only the additions to the shared stage/panel styles. */
-
-.pg-home__status {
-    align-self: flex-start;
-    margin: 0;
-    padding: var(--pg-space-2) var(--pg-space-3);
-    border-radius: var(--pg-radius-sm);
-    background-color: color-mix(in oklab, var(--pg-surface-background) 80%, transparent);
-}
