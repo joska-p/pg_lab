@@ -13,7 +13,9 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "erasableSyntaxOnly": true,
+        "noUncheckedIndexedAccess": true
     },
     "include": ["ui/**/*.ts", "lib/**/*.ts", "experiments/**/*.ts"],
     "exclude": ["node_modules", "dist"]

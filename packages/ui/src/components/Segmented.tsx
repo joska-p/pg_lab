@@ -101,8 +101,8 @@ export function Segmented<T extends string>({
     const generatedName = useId();
     const name = nameProp ?? generatedName;
 
-    const items: SegmentOption<T>[] = (options as readonly (T | SegmentOption<T>)[]).map(
-        (option) => (typeof option === 'string' ? { value: option } : option),
+    const items: SegmentOption<T>[] = (options as readonly (T | SegmentOption<T>)[]).map((option) =>
+        typeof option === 'string' ? { value: option } : option,
     );
     const [internal, setInternal] = useState(defaultValue ?? items[0]?.value);
     const isControlled = value !== undefined;
