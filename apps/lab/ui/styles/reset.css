@@ -35,6 +35,16 @@ textarea:focus-visible {
     outline-offset: 2px;
 }
 
+/* Interactive elements: visible focus ring driven by the accent token. */
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible,
+[role='button']:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--pg-color-aurora);
+    outline-offset: 2px;
+}
+
 body {
     height: var(--pg-shell-min-height);
     min-height: var(--pg-shell-min-height);

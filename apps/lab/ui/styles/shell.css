@@ -49,7 +49,6 @@
     flex-shrink: 0;
     min-width: 0;
     min-height: 0;
-    overflow-y: auto;
     border-radius: var(--pg-radius-md);
     width: var(--panel-width, var(--pg-layout-panel-width));
     max-width: 70%;
@@ -68,7 +67,7 @@
 .pg-shell__handle {
     position: absolute;
     top: 50%;
-    left: -0.5rem;
+    left: calc(-0.25 * var(--pg-layout-control-touch-target));
     aspect-ratio: 1 / 1;
     min-width: var(--pg-layout-control-touch-target);
     min-height: var(--pg-layout-control-touch-target);
@@ -90,8 +89,11 @@
 }
 
 @media (orientation: portrait) {
+    .pg-shell__panel {
+        max-width: 100%;
+    }
     .pg-shell__handle {
-        top: -0.5rem;
+        top: calc(-0.25 * var(--pg-layout-control-touch-target));
         left: 50%;
         cursor: ns-resize;
         translate: -50% -50%;
