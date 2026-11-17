@@ -1,0 +1,55 @@
+/* Fracture page: only section/readout styling; canvas and panel chrome come from ui/styles/. */
+
+.pg-fracture__stage {
+    display: flex;
+    flex-direction: column;
+}
+
+.pg-fracture__section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pg-space-2);
+}
+
+.pg-fracture__section h3 {
+    margin: 0;
+    font-size: var(--pg-font-size-sm);
+    font-weight: var(--pg-font-weight-semibold);
+}
+
+.pg-fracture__section[hidden] {
+    display: none;
+}
+
+.pg-fracture__readouts {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: var(--pg-space-1) var(--pg-space-3);
+    margin: 0;
+    font-family: var(--pg-font-mono);
+    font-size: var(--pg-font-size-sm);
+}
+
+.pg-fracture__readouts dt {
+    color: var(--pg-color-neutral);
+}
+
+.pg-fracture__readouts dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    text-align: right;
+}
+
+.pg-fracture__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--pg-space-2);
+}
+
+.pg-fracture__buttons button {
+    font-size: var(--pg-font-size-sm);
+}
+
+.pg-fracture__section .pg-control input[type='text'] {
+    font-family: var(--pg-font-mono);
+}

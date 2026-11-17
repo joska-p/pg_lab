@@ -59,3 +59,26 @@ export function createToggle(mount: HTMLElement, checked: boolean): HTMLInputEle
 
     return toggle;
 }
+
+export function createTextInput(mount: HTMLElement, value: string): HTMLInputElement {
+    const input = document.createElement('input');
+
+    input.type = 'text';
+    input.autocomplete = 'off';
+    input.spellcheck = false;
+    input.value = value;
+    mount.append(input);
+
+    return input;
+}
+
+export function createTextArea(mount: HTMLElement, value: string): HTMLTextAreaElement {
+    const area = document.createElement('textarea');
+
+    area.rows = 2;
+    area.spellcheck = false;
+    area.value = value;
+    mount.append(area);
+
+    return area;
+}

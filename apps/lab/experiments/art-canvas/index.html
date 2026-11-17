@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>pg_lab — Art Canvas</title>
+        <link rel="stylesheet" href="../../ui/styles/tokens.css" />
+        <link rel="stylesheet" href="../../ui/styles/reset.css" />
+        <link rel="stylesheet" href="../../ui/styles/shell.css" />
+        <link rel="stylesheet" href="../../ui/styles/controls.css" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body>
+        <main class="pg-index">
+            <p><a class="pg-index__back" href="../../">← Accueil</a></p>
+            <h1>Art Canvas</h1>
+            <p class="pg-index__lead">
+                Six ateliers de génération d'images : chacun possède sa propre page, son canvas et
+                ses contrôles. Le rendu est piloté par lib/surface/, sans React.
+            </p>
+
+            <nav class="pg-index__grid" aria-label="Ateliers Art Canvas">
+                <a class="pg-index__card" href="./draw/">
+                    <strong>Draw</strong>
+                    <span>Le shader cosine animé minimal, plein écran.</span>
+                </a>
+                <a class="pg-index__card" href="./spirale/">
+                    <strong>Spirale</strong>
+                    <span>Une spirale paramétrique générée par shader.</span>
+                </a>
+                <a class="pg-index__card" href="./seed/">
+                    <strong>Seed</strong>
+                    <span>Une composition reproduite à partir d'une graine.</span>
+                </a>
+                <a class="pg-index__card" href="./folded-space/">
+                    <strong>Folded Space</strong>
+                    <span>Un espace plié itérativement en 2D.</span>
+                </a>
+                <a class="pg-index__card" href="./atlas/">
+                    <strong>Atlas</strong>
+                    <span>Une mosaïque de syllabes fibonacciennes.</span>
+                </a>
+                <a class="pg-index__card" href="./manual/">
+                    <strong>Manual</strong>
+                    <span>Une bande de teintes OKLCH réglable à la volée.</span>
+                </a>
+            </nav>
+
+            <p><button type="button" data-theme-toggle>Thème</button></p>
+        </main>
+        <script type="module">
+            import { initTheme } from '../../ui/theme.ts';
+
+            initTheme();
+        </script>
+    </body>
+</html>

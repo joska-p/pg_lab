@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>pg_lab — Pixel Manipulator</title>
+        <link rel="stylesheet" href="../../ui/styles/tokens.css" />
+        <link rel="stylesheet" href="../../ui/styles/reset.css" />
+        <link rel="stylesheet" href="../../ui/styles/shell.css" />
+        <link rel="stylesheet" href="../../ui/styles/controls.css" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body>
+        <pg-shell class="pg-shell" data-background="auroral-fluid">
+            <section
+                class="pg-shell__stage pg-bg--auroral-fluid pg-pixel-stage"
+                aria-label="Pixel Manipulator"
+            >
+                <div class="pg-intro">
+                    <h1>Pixel Manipulator</h1>
+                    <p class="pg-lead">
+                        Stack image manipulations in a workflow, run the whole chain in a module Web
+                        Worker, then drag the compare handle to check the result against the
+                        original.
+                    </p>
+                </div>
+
+                <div class="pg-pixel__empty" data-empty>
+                    <p>Upload an image to begin.</p>
+                    <button type="button" data-load-sample>Load sample image</button>
+                </div>
+
+                <div class="pg-pixel__toolbar" data-toolbar hidden>
+                    <div class="pg-pixel__view-switch" role="tablist" aria-label="Result view">
+                        <button type="button" role="tab" data-view="grid" aria-selected="true">
+                            Grid view
+                        </button>
+                        <button type="button" role="tab" data-view="compare" aria-selected="false">
+                            Compare
+                        </button>
+                    </div>
+                    <label class="pg-pixel__compare-pick" data-compare-pick hidden>
+                        <span>Compare step</span>
+                        <span data-control="compare-step"></span>
+                    </label>
+                </div>
+
+                <ul class="pg-pixel__grid" data-grid hidden>
+                    <li class="pg-pixel__card" data-source-card>
+                        <h3>0. Original</h3>
+                        <canvas data-canvas="source" aria-label="Original image"></canvas>
+                        <p class="pg-status" data-dimension="source"></p>
+                    </li>
+                    <li class="pg-pixel__card" data-output="0" hidden>
+                        <h3 data-output-title="0"></h3>
+                        <canvas data-canvas="output-0" aria-label="Step 1 result"></canvas>
+                        <button type="button" data-download="0" disabled>Download</button>
+                        <p class="pg-status" data-dimension="output-0"></p>
+                    </li>
+                    <li class="pg-pixel__card" data-output="1" hidden>
+                        <h3 data-output-title="1"></h3>
+                        <canvas data-canvas="output-1" aria-label="Step 2 result"></canvas>
+                        <button type="button" data-download="1" disabled>Download</button>
+                        <p class="pg-status" data-dimension="output-1"></p>
+                    </li>
+                    <li class="pg-pixel__card" data-output="2" hidden>
+                        <h3 data-output-title="2"></h3>
+                        <canvas data-canvas="output-2" aria-label="Step 3 result"></canvas>
+                        <button type="button" data-download="2" disabled>Download</button>
+                        <p class="pg-status" data-dimension="output-2"></p>
+                    </li>
+                    <li class="pg-pixel__card" data-output="3" hidden>
+                        <h3 data-output-title="3"></h3>
+                        <canvas data-canvas="output-3" aria-label="Step 4 result"></canvas>
+                        <button type="button" data-download="3" disabled>Download</button>
+                        <p class="pg-status" data-dimension="output-3"></p>
+                    </li>
+                    <li class="pg-pixel__card" data-output="4" hidden>
+                        <h3 data-output-title="4"></h3>
+                        <canvas data-canvas="output-4" aria-label="Step 5 result"></canvas>
+                        <button type="button" data-download="4" disabled>Download</button>
+                        <p class="pg-status" data-dimension="output-4"></p>
+                    </li>
+                    <li class="pg-pixel__card" data-output="5" hidden>
+                        <h3 data-output-title="5"></h3>
+                        <canvas data-canvas="output-5" aria-label="Step 6 result"></canvas>
+                        <button type="button" data-download="5" disabled>Download</button>
+                        <p class="pg-status" data-dimension="output-5"></p>
+                    </li>
+                    <li class="pg-pixel__card" data-output="6" hidden>
+                        <h3 data-output-title="6"></h3>
+                        <canvas data-canvas="output-6" aria-label="Step 7 result"></canvas>
+                        <button type="button" data-download="6" disabled>Download</button>
+                        <p class="pg-status" data-dimension="output-6"></p>
+                    </li>
+                    <li class="pg-pixel__card" data-output="7" hidden>
+                        <h3 data-output-title="7"></h3>
+                        <canvas data-canvas="output-7" aria-label="Step 8 result"></canvas>
+                        <button type="button" data-download="7" disabled>Download</button>
+                        <p class="pg-status" data-dimension="output-7"></p>
+                    </li>
+                </ul>
+
+                <div class="pg-pixel__compare" data-compare-view hidden>
+                    <div class="pg-pixel__compare-frame" data-compare-frame>
+                        <canvas
+                            class="pg-pixel__compare-canvas"
+                            data-canvas="compare"
+                            aria-label="Original and processed image comparison"
+                        ></canvas>
+                    </div>
+                    <p class="pg-status">Drag the handle to compare before and after.</p>
+                </div>
+
+                <div class="pg-pixel__overlay" data-overlay role="status" aria-live="polite" hidden>
+                    <span class="pg-pixel__spinner" aria-hidden="true"></span>
+                    <p>Processing…</p>
+                </div>
+
+                <p class="pg-status" data-status aria-live="polite">
+                    Ready. Upload an image to begin.
+                </p>
+                <p class="pg-pixel__error" data-error role="alert" hidden></p>
+
+                <canvas data-canvas="decode" hidden></canvas>
+            </section>
+
+            <aside class="pg-shell__panel" aria-label="Controls">
+                <button type="button" class="pg-shell__handle" aria-hidden="true" tabindex="-1">
+                    ≶
+                </button>
+                <div class="pg-shell__content">
+                    <h2>Controls</h2>
+
+                    <h3>Image source</h3>
+                    <label class="pg-pixel__dropzone" data-dropzone>
+                        <input type="file" accept="image/*" data-upload-input hidden />
+                        <span data-dropzone-label>Drop an image here or click to browse</span>
+                        <small>PNG, JPG, WebP — max 50MB</small>
+                    </label>
+                    <div class="pg-pixel__source-info" data-source-info hidden>
+                        <span data-source-name></span>
+                        <span class="pg-status" data-source-size></span>
+                        <button type="button" data-clear-source>Remove image</button>
+                    </div>
+                    <div class="pg-pixel__actions">
+                        <button type="button" data-clear-outputs>Clear outputs</button>
+                        <button type="button" data-load-sample>Load sample</button>
+                    </div>
+
+                    <h3>Presets</h3>
+                    <div class="pg-pixel__presets" data-presets></div>
+
+                    <h3>Manipulation</h3>
+                    <label class="pg-control">
+                        <span>Effect</span>
+                        <span data-control="manipulation"></span>
+                    </label>
+                    <button type="button" data-add-step>Add to workflow</button>
+
+                    <h3>Workflow <span class="pg-status" data-step-count>(0)</span></h3>
+                    <div class="pg-pixel__workflow" data-workflow>
+                        <p class="pg-status">Add manipulations to build your pipeline.</p>
+                    </div>
+                    <div class="pg-pixel__actions">
+                        <button type="button" data-execute disabled>Execute workflow</button>
+                        <button type="button" data-clear-workflow>Clear workflow</button>
+                    </div>
+
+                    <button type="button" data-theme-toggle>Theme</button>
+                </div>
+            </aside>
+        </pg-shell>
+        <script type="module" src="./main.ts"></script>
+    </body>
+</html>

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>pg_lab — Fracture</title>
+        <link rel="stylesheet" href="../../ui/styles/tokens.css" />
+        <link rel="stylesheet" href="../../ui/styles/reset.css" />
+        <link rel="stylesheet" href="../../ui/styles/shell.css" />
+        <link rel="stylesheet" href="../../ui/styles/controls.css" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body>
+        <pg-shell class="pg-shell" data-background="auroral-fluid">
+            <section
+                class="pg-shell__stage pg-bg--auroral-fluid pg-fracture__stage"
+                aria-label="Fracture"
+            >
+                <div class="pg-intro">
+                    <h1>Fracture</h1>
+                    <p class="pg-lead">
+                        Five fractal pipelines: float32, double-single and reference-orbit
+                        perturbation, for Mandelbrot and Julia sets. Drag to pan, wheel to zoom.
+                    </p>
+                </div>
+
+                <div class="pg-canvas-viewport">
+                    <canvas class="pg-canvas" data-canvas aria-label="Fractal render"></canvas>
+                    <p class="pg-canvas__error" data-error role="alert" hidden></p>
+                </div>
+
+                <p class="pg-status pg-canvas__status" data-status aria-live="polite">
+                    Initialising…
+                </p>
+            </section>
+
+            <aside class="pg-shell__panel" aria-label="Controls">
+                <button type="button" class="pg-shell__handle" aria-hidden="true" tabindex="-1">
+                    ≶
+                </button>
+                <div class="pg-shell__content">
+                    <h2>Controls</h2>
+
+                    <label class="pg-control">
+                        <span>Experiment</span>
+                        <span data-control="experiment"></span>
+                    </label>
+
+                    <section class="pg-fracture__section">
+                        <h3>View</h3>
+                        <dl class="pg-fracture__readouts">
+                            <div>
+                                <dt>centerRe</dt>
+                                <dd data-readout="center-re">—</dd>
+                            </div>
+                            <div>
+                                <dt>centerIm</dt>
+                                <dd data-readout="center-im">—</dd>
+                            </div>
+                            <div>
+                                <dt>zoom</dt>
+                                <dd data-readout="zoom">—</dd>
+                            </div>
+                            <div>
+                                <dt>iterations</dt>
+                                <dd data-readout="iterations">—</dd>
+                            </div>
+                        </dl>
+                    </section>
+
+                    <section class="pg-fracture__section">
+                        <h3>Presets</h3>
+                        <div class="pg-fracture__buttons" data-presets-curated></div>
+                        <div class="pg-fracture__buttons" data-presets-captured></div>
+                        <div class="pg-fracture__buttons">
+                            <button type="button" data-capture-view>Capture current view</button>
+                            <button type="button" data-reset-view>Reset view</button>
+                        </div>
+                    </section>
+
+                    <section class="pg-fracture__section" data-julia-section hidden>
+                        <h3>Julia constant</h3>
+                        <label class="pg-control">
+                            <span>c · real</span>
+                            <span data-control="julia-re"></span>
+                        </label>
+                        <label class="pg-control">
+                            <span>c · imaginary</span>
+                            <span data-control="julia-im"></span>
+                        </label>
+                    </section>
+
+                    <section class="pg-fracture__section">
+                        <h3>Iterations</h3>
+                        <label class="pg-control">
+                            <span>Baseline</span>
+                            <span data-control="iterationBase"></span>
+                        </label>
+                        <label class="pg-control">
+                            <span>Iterations / octave</span>
+                            <span data-control="iterationScale"></span>
+                        </label>
+                        <label class="pg-control">
+                            <span>Iteration cap (perf)</span>
+                            <span data-control="iterationCap"></span>
+                        </label>
+                        <p class="pg-status" data-iterations-hint></p>
+                    </section>
+
+                    <section class="pg-fracture__section">
+                        <h3>Lighting</h3>
+                        <label class="pg-control">
+                            <span>Pixel epsilon</span>
+                            <span data-control="pixelEps"></span>
+                        </label>
+                        <label class="pg-control">
+                            <span>Interior scale</span>
+                            <span data-control="interiorScale"></span>
+                        </label>
+                        <label class="pg-control">
+                            <span>Sun angle</span>
+                            <span data-control="sunAngle"></span>
+                        </label>
+                        <label class="pg-control">
+                            <span>Bump height</span>
+                            <span data-control="bumpHeight"></span>
+                        </label>
+                        <label class="pg-control">
+                            <span>Ambient light</span>
+                            <span data-control="ambientLight"></span>
+                        </label>
+                    </section>
+
+                    <section class="pg-fracture__section">
+                        <h3>Color</h3>
+                        <label class="pg-control">
+                            <span>Hue shift</span>
+                            <span data-control="hueShift"></span>
+                        </label>
+                        <label class="pg-control">
+                            <span>Hue frequency</span>
+                            <span data-control="hueFrequency"></span>
+                        </label>
+                        <label class="pg-control">
+                            <span>Chroma scale</span>
+                            <span data-control="chromaScale"></span>
+                        </label>
+                    </section>
+
+                    <div class="pg-control pg-control--inline">
+                        <span>Playback</span>
+                        <button type="button" data-play-toggle data-playing="false">Play</button>
+                    </div>
+
+                    <button type="button" data-theme-toggle>Theme</button>
+                </div>
+            </aside>
+        </pg-shell>
+        <script type="module" src="./main.ts"></script>
+    </body>
+</html>

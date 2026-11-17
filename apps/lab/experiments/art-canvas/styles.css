@@ -1,0 +1,49 @@
+/* Art Canvas summary page: a simple, readable index of the six workshops. */
+
+.pg-index {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: var(--pg-space-8) var(--pg-space-6);
+}
+
+.pg-index__back {
+    font-size: var(--pg-font-size-sm);
+}
+
+.pg-index h1 {
+    margin: var(--pg-space-4) 0 var(--pg-space-2);
+    font-size: var(--pg-font-size-3xl);
+    font-weight: var(--pg-font-weight-semibold);
+}
+
+.pg-index__lead {
+    max-width: var(--pg-layout-text-max-width);
+    margin: 0 0 var(--pg-space-8);
+}
+
+.pg-index__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--pg-space-4);
+}
+
+.pg-index__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pg-space-2);
+    min-height: 8rem;
+    padding: var(--pg-space-4);
+    border: 1px solid var(--pg-color-neutral);
+    border-radius: var(--pg-radius-md);
+    color: inherit;
+    text-decoration: none;
+}
+
+.pg-index__card:hover {
+    border-color: var(--pg-color-aurora);
+    background-color: color-mix(in oklab, var(--pg-color-neutral) 25%, transparent);
+}
+
+.pg-index__card span {
+    font-size: var(--pg-font-size-sm);
+}

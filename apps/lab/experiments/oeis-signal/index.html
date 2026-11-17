@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>pg_lab — OEIS Signal</title>
+        <link rel="stylesheet" href="../../ui/styles/tokens.css" />
+        <link rel="stylesheet" href="../../ui/styles/reset.css" />
+        <link rel="stylesheet" href="../../ui/styles/shell.css" />
+        <link rel="stylesheet" href="../../ui/styles/controls.css" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body>
+        <pg-shell class="pg-shell" data-background="auroral-fluid">
+            <section class="pg-shell__stage pg-bg--auroral-fluid" aria-label="OEIS Signal">
+                <div class="pg-intro">
+                    <h1>OEIS Signal</h1>
+                    <p class="pg-lead">
+                        Une suite d'entiers devient un signal : une valeur par terme, dessinée sur
+                        un canvas 2D dont le contexte n'est jamais recréé.
+                    </p>
+                </div>
+
+                <div class="pg-canvas-viewport">
+                    <canvas
+                        class="pg-canvas"
+                        data-canvas
+                        aria-label="Visualisation du signal"
+                    ></canvas>
+                </div>
+
+                <p class="pg-status pg-canvas__status" data-status aria-live="polite">
+                    Initialisation…
+                </p>
+            </section>
+
+            <aside class="pg-shell__panel" aria-label="Contrôles">
+                <button type="button" class="pg-shell__handle" aria-hidden="true" tabindex="-1">
+                    ≶
+                </button>
+                <div class="pg-shell__content">
+                    <h2>Contrôles</h2>
+
+                    <h3>Signal</h3>
+                    <p class="pg-oeis__note">Suite disponible : a(n) = n (0, 1, 2, 3, …)</p>
+
+                    <label class="pg-control">
+                        <span>Visualisation</span>
+                        <span data-control="mode"></span>
+                    </label>
+
+                    <label class="pg-control">
+                        <span>Termes maximum</span>
+                        <span data-control="terms"></span>
+                        <output data-value="terms">1000</output>
+                    </label>
+
+                    <label class="pg-control">
+                        <span>Termes par image</span>
+                        <span data-control="rate"></span>
+                        <output data-value="rate">1</output>
+                    </label>
+
+                    <div class="pg-control pg-control--inline">
+                        <span>Lecture</span>
+                        <button type="button" data-play-toggle data-playing="false">Lecture</button>
+                    </div>
+
+                    <button type="button" data-reset>Réinitialiser</button>
+
+                    <h3>Affichage</h3>
+                    <label class="pg-control">
+                        <span>Thème</span>
+                        <span data-control="theme"></span>
+                    </label>
+
+                    <button type="button" data-theme-toggle>Thème (bascule)</button>
+                </div>
+            </aside>
+        </pg-shell>
+        <script type="module" src="./main.ts"></script>
+    </body>
+</html>

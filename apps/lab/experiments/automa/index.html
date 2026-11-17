@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>pg_lab — Automa</title>
+        <link rel="stylesheet" href="../../ui/styles/tokens.css" />
+        <link rel="stylesheet" href="../../ui/styles/reset.css" />
+        <link rel="stylesheet" href="../../ui/styles/shell.css" />
+        <link rel="stylesheet" href="../../ui/styles/controls.css" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body>
+        <pg-shell class="pg-shell" data-background="auroral-fluid">
+            <section
+                class="pg-shell__stage pg-bg--auroral-fluid pg-automa-stage"
+                aria-label="Automa"
+            >
+                <div class="pg-intro">
+                    <h1>Automa</h1>
+                    <p class="pg-lead">
+                        Un automate cellulaire sur GPU : peignez des cellules, déposez des motifs et
+                        laissez-les évoluer sous différentes règles.
+                    </p>
+                </div>
+
+                <div class="pg-canvas-viewport">
+                    <canvas
+                        class="pg-canvas"
+                        data-canvas
+                        aria-label="Grille de l’automate"
+                    ></canvas>
+                    <p class="pg-canvas__error" data-error role="alert" hidden></p>
+                </div>
+
+                <p class="pg-status pg-canvas__status" data-status aria-live="polite">
+                    Initialisation…
+                </p>
+                <p class="pg-automa__hint">
+                    Clic gauche : peindre · Clic molette : déplacer · Molette : zoomer
+                </p>
+            </section>
+
+            <aside class="pg-shell__panel" aria-label="Contrôles">
+                <button type="button" class="pg-shell__handle" aria-hidden="true" tabindex="-1">
+                    ≶
+                </button>
+                <div class="pg-shell__content">
+                    <h2>Contrôles</h2>
+
+                    <section class="pg-automa__section" aria-label="Simulation">
+                        <h3>Simulation</h3>
+                        <p class="pg-automa__readout">
+                            <span>Génération</span>
+                            <output data-generation>0</output>
+                        </p>
+                    </section>
+
+                    <section class="pg-automa__section" aria-label="Lecture">
+                        <h3>Lecture</h3>
+                        <div class="pg-automa__actions">
+                            <button type="button" data-play-toggle data-playing="false">
+                                Lecture
+                            </button>
+                            <button type="button" data-step>Pas</button>
+                        </div>
+                        <label class="pg-control">
+                            <span>Vitesse</span>
+                            <span data-control="speed"></span>
+                            <output data-value="speed">100 ms</output>
+                        </label>
+                    </section>
+
+                    <section class="pg-automa__section" aria-label="Édition">
+                        <h3>Édition</h3>
+                        <div class="pg-automa__actions">
+                            <button type="button" data-randomize>Aléatoire</button>
+                            <button type="button" data-clear>Effacer</button>
+                            <button type="button" data-tool="draw" aria-pressed="true">
+                                Dessiner
+                            </button>
+                            <button type="button" data-tool="erase" aria-pressed="false">
+                                Effacer cellule
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="pg-automa__section" aria-label="Règle">
+                        <h3>Règle</h3>
+                        <label class="pg-control">
+                            <span>Règle</span>
+                            <span data-control="rule"></span>
+                        </label>
+                        <label class="pg-control pg-automa__color">
+                            <span>Morte</span>
+                            <span data-control="color-dead"></span>
+                        </label>
+                        <label class="pg-control pg-automa__color">
+                            <span>Vivante</span>
+                            <span data-control="color-alive"></span>
+                        </label>
+                    </section>
+
+                    <section class="pg-automa__section" aria-label="Créature">
+                        <h3>Créature</h3>
+                        <label class="pg-control">
+                            <span>Motif</span>
+                            <span data-control="creature"></span>
+                        </label>
+                    </section>
+
+                    <button type="button" data-theme-toggle>Thème</button>
+                </div>
+            </aside>
+        </pg-shell>
+        <script type="module" src="./main.ts"></script>
+    </body>
+</html>

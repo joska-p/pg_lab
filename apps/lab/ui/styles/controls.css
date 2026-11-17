@@ -54,6 +54,16 @@
 
 .pg-control select,
 .pg-control input[type='range'],
+.pg-control textarea {
+    font: inherit;
+    color: inherit;
+    background: var(--pg-surface-background);
+    border: 1px solid currentColor;
+    border-radius: var(--pg-radius-sm);
+    padding: var(--pg-space-2) var(--pg-space-3);
+    resize: vertical;
+}
+
 .pg-control input[type='text'] {
     width: 100%;
 }
@@ -66,4 +76,49 @@
 
 .pg-control output {
     font-family: var(--pg-font-mono);
+}
+
+/* Shared canvas viewport for the Tier B experiments. */
+.pg-canvas-viewport {
+    position: relative;
+    display: flex;
+    flex: 1;
+    min-height: 280px;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--pg-color-neutral);
+    border-radius: var(--pg-radius-md);
+    background-color: var(--pg-dark0Hard);
+}
+
+.pg-canvas {
+    display: block;
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    min-height: 280px;
+    touch-action: none;
+}
+
+.pg-canvas--error {
+    opacity: 0.2;
+}
+
+.pg-canvas__error {
+    position: absolute;
+    inset: var(--pg-space-4);
+    max-width: 60ch;
+    margin: auto;
+    padding: var(--pg-space-3) var(--pg-space-4);
+    border: 1px solid currentColor;
+    border-radius: var(--pg-radius-sm);
+    background-color: color-mix(in oklab, var(--pg-surface-background) 94%, transparent);
+    color: var(--pg-surface-foreground);
+    font-family: var(--pg-font-mono);
+    font-size: var(--pg-font-size-sm);
+    text-align: center;
+}
+
+.pg-canvas__status {
+    margin: var(--pg-space-4) 0 0;
 }

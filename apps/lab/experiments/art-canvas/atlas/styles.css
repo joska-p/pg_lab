@@ -1,0 +1,14 @@
+/* Stage, panel and shared canvas styling live in ui/styles/; this file holds page-specific tweaks. */
+
+.pg-shell__content > p a {
+    font-size: var(--pg-font-size-sm);
+}
+
+.pg-control--stacked {
+    align-items: stretch;
+}
+
+.pg-control--stacked input[type='text'],
+.pg-control--stacked textarea {
+    width: 100%;
+}
