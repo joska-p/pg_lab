@@ -1,23 +1,22 @@
-<!DOCTYPE html>
-<html lang="fr" data-theme="dark">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pg_lab</title>
-    <link rel="stylesheet" href="src/css/theme.css">
-    
-</head>
-<body>
-        <h1>pg_lab</h1>
-        <nav>
-            <ul>
-                <li><a href="exp/test/">Témoin</a></li><li><a href="exp/home/">Home</a></li>
-            </ul>
-        </nav>
-        <p>
-            Site statique généré par
-            <code>scripts/build-static.js</code>
-            (tsc seul, pas de bundler, pas de React).
-        </p>
+<!doctype html>
+<html lang="fr" data-theme="light">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>pg_lab</title>
+        <link rel="stylesheet" href="/ui/styles/tokens.css" />
+        <link rel="stylesheet" href="/ui/styles/reset.css" />
+    </head>
+    <body>
+        <header class="pg-home__header">
+            <h1>pg_lab</h1>
+            <button type="button" data-theme-toggle>Thème</button>
+            <nav class="pg-home__nav" aria-label="Expériences"></nav>
+        </header>
+        <script type="module">
+            import { initTheme } from '/ui/theme.ts';
+
+            initTheme();
+        </script>
     </body>
 </html>

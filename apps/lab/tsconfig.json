@@ -1,21 +1,20 @@
 {
+    "$schema": "https://json.schemastore.org/tsconfig",
     "compilerOptions": {
         "target": "ES2022",
-        "lib": ["ES2022", "DOM"],
+        "lib": ["ES2022", "DOM", "DOM.Iterable"],
         "module": "ESNext",
         "moduleResolution": "Bundler",
-        "rootDir": "src",
-        "outDir": "dist",
+        "types": ["vite/client"],
         "strict": true,
-        "noEmitOnError": true,
+        "noEmit": true,
         "skipLibCheck": true,
         "verbatimModuleSyntax": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
-        "forceConsistentCasingInFileNames": true,
-        "types": []
+        "forceConsistentCasingInFileNames": true
     },
-    "include": ["src/**/*.ts"],
+    "include": ["ui/**/*.ts", "lib/**/*.ts", "experiments/**/*.ts"],
     "exclude": ["node_modules", "dist"]
 }

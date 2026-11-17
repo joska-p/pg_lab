@@ -1,0 +1,60 @@
+/* Minimal reset and document base for pg_lab. */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+}
+
+html {
+    color-scheme: dark light;
+}
+
+html[data-theme='light'] {
+    color-scheme: light;
+}
+
+html[data-theme='dark'] {
+    color-scheme: dark;
+}
+
+::selection {
+    background: var(--pg-brightAqua);
+    color: var(--pg-dark0);
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+body {
+    min-height: var(--pg-shell-min-height);
+    background: var(--pg-surface-background);
+    color: var(--pg-surface-foreground);
+    font-family: var(--pg-font-sans);
+    font-size: var(--pg-font-size-md);
+    font-weight: var(--pg-font-weight-regular);
+    line-height: var(--pg-line-height-normal);
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+img,
+svg,
+video,
+canvas {
+    display: block;
+}
