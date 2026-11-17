@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>pg_lab — Sequencer</title>
+        <link rel="stylesheet" href="../../ui/styles/tokens.css" />
+        <link rel="stylesheet" href="../../ui/styles/reset.css" />
+        <link rel="stylesheet" href="../../ui/styles/shell.css" />
+        <link rel="stylesheet" href="../../ui/styles/controls.css" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body>
+        <pg-shell class="pg-shell" data-background="lava-flow">
+            <section
+                class="pg-shell__stage pg-bg--lava-flow pg-sequencer-stage"
+                aria-label="Sequencer"
+            >
+                <div class="pg-intro">
+                    <h1>Sequencer</h1>
+                    <p class="pg-lead">
+                        Générez une suite numérique, puis empilez des couches visuelles pour en
+                        révéler la structure. Le canvas reste le même : seul le rendu change.
+                    </p>
+                </div>
+
+                <div class="pg-canvas-viewport">
+                    <canvas
+                        class="pg-canvas"
+                        data-canvas
+                        aria-label="Représentation visuelle de la suite"
+                    ></canvas>
+                </div>
+
+                <p class="pg-status pg-canvas__status" data-status aria-live="polite">
+                    Initialisation…
+                </p>
+                <p class="pg-sequencer__hint">
+                    Molette : zoomer autour du curseur · Glisser : déplacer · Réinitialiser : vue
+                    d’origine
+                </p>
+            </section>
+
+            <aside class="pg-shell__panel" aria-label="Contrôles">
+                <button type="button" class="pg-shell__handle" aria-hidden="true" tabindex="-1">
+                    ≶
+                </button>
+                <div class="pg-shell__content">
+                    <h2>Contrôles</h2>
+                    <button type="button" class="pg-sequencer__theme" data-theme-toggle>
+                        Thème
+                    </button>
+
+                    <section class="pg-sequencer__section" aria-label="Suite">
+                        <h3>Suite</h3>
+                        <label class="pg-control">
+                            <span>Règle</span>
+                            <span data-control="rule"></span>
+                        </label>
+                        <label class="pg-control">
+                            <span>Pas</span>
+                            <span data-control="steps"></span>
+                            <output data-value="steps">2</output>
+                        </label>
+                        <label class="pg-control">
+                            <span>Graine</span>
+                            <span data-control="seed"></span>
+                        </label>
+                    </section>
+
+                    <section class="pg-sequencer__section" aria-label="Vue">
+                        <h3>Vue</h3>
+                        <div class="pg-sequencer__actions">
+                            <button type="button" data-reset-viewport>Réinitialiser</button>
+                            <output data-zoom>100 %</output>
+                        </div>
+                    </section>
+
+                    <section class="pg-sequencer__section" aria-label="Couches">
+                        <h3>Couches</h3>
+                        <div class="pg-sequencer__layers" data-layer-list></div>
+                        <button type="button" data-add-layer>+ Ajouter une couche</button>
+                        <div class="pg-sequencer__add" data-add-layer-list hidden></div>
+                        <div class="pg-sequencer__options" data-layer-options hidden></div>
+                    </section>
+                </div>
+            </aside>
+        </pg-shell>
+        <script type="module" src="./main.ts"></script>
+    </body>
+</html>

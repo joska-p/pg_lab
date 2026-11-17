@@ -1,4 +1,4 @@
-import { WorkerPool } from '../../../../lib/worker-pool/worker-pool';
+import { WorkerPool } from '../../worker-pool/worker-pool';
 import { ALL_MANIPULATIONS } from '../processor/manipulations/manifest';
 import type { Step } from '../processor/manipulations/manifest';
 import { PixelData } from '../processor/pixel-data';
@@ -29,9 +29,8 @@ export interface PipelinePool {
 }
 
 /**
- * The factory is injected so the page owns the Vite worker URL instead of this module: `new
- * Worker(new URL('./core/worker/pipeline-worker.ts', import.meta.url), { type: 'module' })`. One
- * worker keeps replies in request order; the caller still discards stale generations.
+ * The factory is injected so a caller can supply its own worker URL. One worker keeps replies in
+ * request order; the caller still discards stale generations.
  */
 export function createPipelinePool(workerFactory: () => Worker): PipelinePool {
     const pool = new WorkerPool<RunConfig, ImageData[]>({
@@ -86,6 +85,16 @@ export function createPipelinePool(workerFactory: () => Worker): PipelinePool {
         run: (config) => pool.run(config),
         teardown: () => pool.teardown(),
     };
+}
+
+/** Creates the shared Vite module worker; both pixel pages use the same pool. */
+export function createPixelPool(): PipelinePool {
+    return createPipelinePool(
+        () =>
+            new Worker(new URL('./pipeline-worker.ts', import.meta.url), {
+                type: 'module',
+            }),
+    );
 }
 
 function buildCatalog(): Record<string, ManipulationInfo> {

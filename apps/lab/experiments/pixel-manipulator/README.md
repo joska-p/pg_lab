@@ -9,26 +9,27 @@ engine behind it into `apps/lab/`. No React, no state library, no StyleX and no 
 Worker → `Registry` + `FusionScheduler` + tiled convolution → `ImageData[]` snapshots → fixed preview
 canvases / before-and-after compare canvas.
 
-The copied engine is unchanged:
+The DOM-free engine now lives once in `apps/lab/lib/pixel-core/`, shared with the `pixel` docs page:
 
-- `core/processor/**` — `processImage()`, the manifest-derived `Step` union, buffer manager,
-  fusion scheduler, step dispatcher, neighborhood tiling and all 18 manipulations.
-- `core/worker/pipeline-worker.ts` — the worker entry point, with a locally declared worker scope
-  (the app tsconfig uses DOM types) and one cast of the transferred `ArrayBufferLike` buffers.
-- `core/worker/serialization.ts` — response validation, copied verbatim.
+- `lib/pixel-core/processor/**` — `processImage()`, the manifest-derived `Step` union, buffer
+  manager, fusion scheduler, step dispatcher, neighborhood tiling and all 18 manipulations.
+- `lib/pixel-core/worker/pipeline-worker.ts` — the worker entry point, with a locally declared
+  worker scope (the app tsconfig uses DOM types) and a runtime filter on the transferred buffers.
+- `lib/pixel-core/worker/serialization.ts` — response validation, copied verbatim.
 
-`core/worker/process-image-in-worker.ts` keeps the catalog helpers (`getManipulations`,
-`getManipulationsByAccess`) and the same serialize/deserialize rules, but its module-level pool is
-replaced by `createPipelinePool(workerFactory)`. The page passes the worker factory so the worker is
-created with Vite's bundler pattern directly in `main.ts`:
+`lib/pixel-core/worker/process-image-in-worker.ts` keeps the catalog helpers (`getManipulations`,
+`getManipulationsByAccess`) and the same serialize/deserialize rules. Its module-level pool became
+`createPixelPool()`, which creates the worker with Vite's bundler pattern next to the bridge:
 
 ```ts
-new Worker(new URL('./core/worker/pipeline-worker.ts', import.meta.url), { type: 'module' });
+new Worker(new URL('./pipeline-worker.ts', import.meta.url), { type: 'module' });
 ```
 
-That keeps the emitted worker chunk correctly hashed. The pool is the shared
+That keeps the emitted worker chunk correctly hashed for both pages. The pool is the shared
 `apps/lab/lib/worker-pool` with `maxPoolSize: 1`, so replies stay in request order; a generation
-counter in `main.ts` additionally drops any stale result.
+counter in `main.ts` additionally drops any stale result. This extraction happened in Session 7:
+the former `core/processor/**` and `core/worker/**` copies inside this experiment were removed, and
+`main.ts` / `presets.ts` now import from `../../lib/pixel-core/**`.
 
 ## Porting choices
 

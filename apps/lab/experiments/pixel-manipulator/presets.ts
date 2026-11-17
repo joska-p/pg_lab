@@ -1,4 +1,4 @@
-import type { Step } from './core/processor/manipulations/manifest';
+import type { Step } from '../../lib/pixel-core/processor/manipulations/manifest';
 
 export interface WorkflowPreset {
     name: string;

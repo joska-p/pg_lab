@@ -1,10 +1,14 @@
 import './styles.css';
+import type { Step } from '../../lib/pixel-core/processor/manipulations/manifest';
+import type { ArgDefinition } from '../../lib/pixel-core/processor/types';
+import {
+    createPixelPool,
+    getManipulations,
+} from '../../lib/pixel-core/worker/process-image-in-worker';
 import { createSelect, createSlider } from '../../ui/controls';
+import { createSampleImageData } from '../../ui/image-data';
 import { defineShellElement } from '../../ui/shell';
 import { initTheme } from '../../ui/theme';
-import type { Step } from './core/processor/manipulations/manifest';
-import type { ArgDefinition } from './core/processor/types';
-import { createPipelinePool, getManipulations } from './core/worker/process-image-in-worker';
 import { WORKFLOW_PRESETS } from './presets';
 
 const MAX_STEPS = 8;
@@ -91,13 +95,8 @@ const compareSelect = createSelect(
     '0',
 );
 
-/* The page owns the worker URL so Vite emits and hashes the module worker chunk. */
-const pool = createPipelinePool(
-    () =>
-        new Worker(new URL('./core/worker/pipeline-worker.ts', import.meta.url), {
-            type: 'module',
-        }),
-);
+/* The shared bridge owns the worker URL so Vite emits and hashes the module worker chunk. */
+const pool = createPixelPool();
 const listeners = new AbortController();
 
 let sourceImageData: ImageData | null = null;
@@ -354,39 +353,6 @@ async function decodeFile(file: File): Promise<ImageData> {
     } finally {
         bitmap.close();
     }
-}
-
-function createSampleImageData(): ImageData {
-    const size = 200;
-    const context = decodeCanvas.getContext('2d');
-
-    if (!context) {
-        throw new Error('Canvas 2D context unavailable');
-    }
-
-    decodeCanvas.width = size;
-    decodeCanvas.height = size;
-
-    const gradient = context.createRadialGradient(
-        size / 2,
-        size / 2,
-        0,
-        size / 2,
-        size / 2,
-        size / 2,
-    );
-
-    gradient.addColorStop(0, '#ff6b6b');
-    gradient.addColorStop(0.2, '#feca57');
-    gradient.addColorStop(0.4, '#48dbfb');
-    gradient.addColorStop(0.6, '#54a0ff');
-    gradient.addColorStop(0.8, '#5f27cd');
-    gradient.addColorStop(1, '#222222');
-
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, size, size);
-
-    return context.getImageData(0, 0, size, size);
 }
 
 async function loadFile(file: File): Promise<void> {
