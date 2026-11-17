@@ -1,49 +1,82 @@
-/* Art Canvas summary page: a simple, readable index of the six workshops. */
+/* Art Canvas summary page: a light index aligned with the home page (D1). */
 
-.pg-index {
+.pg-art-index {
+    /* No shared token defines a light-page content width; keep 72rem as on home (D1). */
     max-width: 72rem;
     margin: 0 auto;
     padding: var(--pg-space-8) var(--pg-space-6);
 }
 
-.pg-index__back {
-    font-size: var(--pg-font-size-sm);
+.pg-art-index .pg-lead {
+    color: var(--pg-text-muted);
+    font-size: var(--pg-font-size-lg);
 }
 
-.pg-index h1 {
-    margin: var(--pg-space-4) 0 var(--pg-space-2);
-    font-size: var(--pg-font-size-3xl);
-    font-weight: var(--pg-font-weight-semibold);
-}
-
-.pg-index__lead {
-    max-width: var(--pg-layout-text-max-width);
-    margin: 0 0 var(--pg-space-8);
-}
-
-.pg-index__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-    gap: var(--pg-space-4);
-}
-
-.pg-index__card {
+.pg-art-index__actions {
     display: flex;
-    flex-direction: column;
-    gap: var(--pg-space-2);
-    min-height: 8rem;
-    padding: var(--pg-space-4);
-    border: 1px solid var(--pg-color-neutral);
-    border-radius: var(--pg-radius-md);
+    flex-wrap: wrap;
+    gap: var(--pg-space-3);
+}
+
+.pg-art-index .pg-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 var(--pg-space-3);
     color: inherit;
     text-decoration: none;
 }
 
-.pg-index__card:hover {
-    border-color: var(--pg-color-aurora);
-    background-color: color-mix(in oklab, var(--pg-color-neutral) 25%, transparent);
+.pg-art-index__nav h2 {
+    display: flex;
+    align-items: center;
+    gap: var(--pg-space-2);
+    margin: 0 0 var(--pg-space-2);
+    color: var(--pg-color-aurora);
+    font-size: var(--pg-font-size-xl);
+    font-weight: var(--pg-font-weight-semibold);
 }
 
-.pg-index__card span {
+.pg-art-index__description {
+    color: var(--pg-text-muted);
     font-size: var(--pg-font-size-sm);
+}
+
+.pg-art-index__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: var(--pg-space-3);
+}
+
+.pg-art-index__grid a {
+    color: inherit;
+    text-decoration: none;
+    transition:
+        border-color var(--pg-motion-duration-fast) var(--pg-motion-easing-out),
+        background-color var(--pg-motion-duration-fast) var(--pg-motion-easing-out);
+}
+
+.pg-art-index__grid a:hover {
+    border-color: var(--pg-color-aurora);
+    background-color: color-mix(in oklab, var(--pg-color-aurora) 8%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pg-art-index__grid a {
+        transition: none;
+    }
+}
+
+/* Custom properties cannot be used in @media conditions; 720px mirrors --pg-breakpoint-narrow-max. */
+@media (max-width: 720px) {
+    .pg-art-index {
+        padding: var(--pg-space-6) var(--pg-space-4);
+    }
+
+    .pg-art-index__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pg-art-index__grid a {
+        padding: var(--pg-space-3);
+    }
 }

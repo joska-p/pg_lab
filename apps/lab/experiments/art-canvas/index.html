@@ -6,47 +6,72 @@
         <title>pg_lab — Art Canvas</title>
         <link rel="stylesheet" href="../../ui/styles/tokens.css" />
         <link rel="stylesheet" href="../../ui/styles/reset.css" />
-        <link rel="stylesheet" href="../../ui/styles/shell.css" />
         <link rel="stylesheet" href="../../ui/styles/controls.css" />
         <link rel="stylesheet" href="./styles.css" />
     </head>
     <body>
-        <main class="pg-index">
-            <p><a class="pg-index__back" href="../../">← Accueil</a></p>
-            <h1>Art Canvas</h1>
-            <p class="pg-index__lead">
-                Six ateliers de génération d'images : chacun possède sa propre page, son canvas et
-                ses contrôles. Le rendu est piloté par lib/surface/, sans React.
-            </p>
+        <main class="pg-art-index">
+            <header class="pg-intro">
+                <h1>Art Canvas</h1>
+                <p class="pg-lead">
+                    Six ateliers de génération d'images : chacun possède sa propre page, son canvas
+                    et ses contrôles. Le rendu est piloté par lib/surface/, sans React.
+                </p>
+                <div class="pg-art-index__actions">
+                    <a class="pg-button" href="../../">← Accueil</a>
+                    <button type="button" class="pg-button" data-theme-toggle>Thème</button>
+                </div>
+            </header>
 
-            <nav class="pg-index__grid" aria-label="Ateliers Art Canvas">
-                <a class="pg-index__card" href="./draw/">
-                    <strong>Draw</strong>
-                    <span>Le shader cosine animé minimal, plein écran.</span>
-                </a>
-                <a class="pg-index__card" href="./spirale/">
-                    <strong>Spirale</strong>
-                    <span>Une spirale paramétrique générée par shader.</span>
-                </a>
-                <a class="pg-index__card" href="./seed/">
-                    <strong>Seed</strong>
-                    <span>Une composition reproduite à partir d'une graine.</span>
-                </a>
-                <a class="pg-index__card" href="./folded-space/">
-                    <strong>Folded Space</strong>
-                    <span>Un espace plié itérativement en 2D.</span>
-                </a>
-                <a class="pg-index__card" href="./atlas/">
-                    <strong>Atlas</strong>
-                    <span>Une mosaïque de syllabes fibonacciennes.</span>
-                </a>
-                <a class="pg-index__card" href="./manual/">
-                    <strong>Manual</strong>
-                    <span>Une bande de teintes OKLCH réglable à la volée.</span>
-                </a>
+            <nav class="pg-art-index__nav" aria-label="Ateliers Art Canvas">
+                <section class="pg-section" aria-labelledby="art-ateliers">
+                    <h2 id="art-ateliers">Ateliers <span class="pg-badge">Tier B</span></h2>
+                    <div class="pg-art-index__grid">
+                        <a class="pg-card" href="./draw/">
+                            <span class="pg-badge">Atelier 1</span>
+                            <strong>Draw</strong>
+                            <span class="pg-art-index__description">
+                                Le shader cosine animé minimal, plein écran.
+                            </span>
+                        </a>
+                        <a class="pg-card" href="./spirale/">
+                            <span class="pg-badge">Atelier 2</span>
+                            <strong>Spirale</strong>
+                            <span class="pg-art-index__description">
+                                Une spirale paramétrique générée par shader.
+                            </span>
+                        </a>
+                        <a class="pg-card" href="./seed/">
+                            <span class="pg-badge">Atelier 3</span>
+                            <strong>Seed</strong>
+                            <span class="pg-art-index__description">
+                                Une composition reproduite à partir d'une graine.
+                            </span>
+                        </a>
+                        <a class="pg-card" href="./folded-space/">
+                            <span class="pg-badge">Atelier 4</span>
+                            <strong>Folded Space</strong>
+                            <span class="pg-art-index__description">
+                                Un espace plié itérativement en 2D.
+                            </span>
+                        </a>
+                        <a class="pg-card" href="./atlas/">
+                            <span class="pg-badge">Atelier 5</span>
+                            <strong>Atlas</strong>
+                            <span class="pg-art-index__description">
+                                Une mosaïque de syllabes fibonacciennes.
+                            </span>
+                        </a>
+                        <a class="pg-card" href="./manual/">
+                            <span class="pg-badge">Atelier 6</span>
+                            <strong>Manual</strong>
+                            <span class="pg-art-index__description">
+                                Une bande de teintes OKLCH réglable à la volée.
+                            </span>
+                        </a>
+                    </div>
+                </section>
             </nav>
-
-            <p><button type="button" data-theme-toggle>Thème</button></p>
         </main>
         <script type="module">
             import { initTheme } from '../../ui/theme.ts';
