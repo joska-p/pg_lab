@@ -21,16 +21,91 @@
                     </p>
                 </div>
 
-                <div class="pg-palette__base">
+                <div class="pg-palette__base pg-card">
                     <span class="pg-palette__base-label">Couleur de base</span>
+                    <span class="pg-badge pg-palette__color-value" data-base-value
+                        >oklch(0.7 0.1 196)</span
+                    >
                     <div
                         class="pg-palette__swatch pg-palette__swatch--base"
                         data-base-swatch
-                        title=""
+                        role="img"
+                        aria-label="Couleur de base"
                     ></div>
                 </div>
 
-                <div class="pg-palette__result" data-palettes aria-live="polite"></div>
+                <div class="pg-palette__result" data-palettes aria-live="polite">
+                    <p class="pg-loading" data-loading hidden>Génération de la palette…</p>
+
+                    <div class="pg-swatches pg-palette__swatches" data-swatches hidden>
+                        <div class="pg-card pg-palette__color" data-color-card>
+                            <span class="pg-palette__color-label" data-color-label>Couleur 1</span>
+                            <span class="pg-badge pg-palette__color-value" data-color-value></span>
+                            <div
+                                class="pg-palette__swatch"
+                                data-color-swatch
+                                role="img"
+                                aria-label="Couleur 1"
+                            ></div>
+                        </div>
+                        <div class="pg-card pg-palette__color" data-color-card>
+                            <span class="pg-palette__color-label" data-color-label>Couleur 2</span>
+                            <span class="pg-badge pg-palette__color-value" data-color-value></span>
+                            <div
+                                class="pg-palette__swatch"
+                                data-color-swatch
+                                role="img"
+                                aria-label="Couleur 2"
+                            ></div>
+                        </div>
+                        <div class="pg-card pg-palette__color" data-color-card>
+                            <span class="pg-palette__color-label" data-color-label>Couleur 3</span>
+                            <span class="pg-badge pg-palette__color-value" data-color-value></span>
+                            <div
+                                class="pg-palette__swatch"
+                                data-color-swatch
+                                role="img"
+                                aria-label="Couleur 3"
+                            ></div>
+                        </div>
+                        <div class="pg-card pg-palette__color" data-color-card>
+                            <span class="pg-palette__color-label" data-color-label>Couleur 4</span>
+                            <span class="pg-badge pg-palette__color-value" data-color-value></span>
+                            <div
+                                class="pg-palette__swatch"
+                                data-color-swatch
+                                role="img"
+                                aria-label="Couleur 4"
+                            ></div>
+                        </div>
+                        <div class="pg-card pg-palette__color" data-color-card>
+                            <span class="pg-palette__color-label" data-color-label>Couleur 5</span>
+                            <span class="pg-badge pg-palette__color-value" data-color-value></span>
+                            <div
+                                class="pg-palette__swatch"
+                                data-color-swatch
+                                role="img"
+                                aria-label="Couleur 5"
+                            ></div>
+                        </div>
+                        <div class="pg-card pg-palette__color" data-color-card>
+                            <span class="pg-palette__color-label" data-color-label>Couleur 6</span>
+                            <span class="pg-badge pg-palette__color-value" data-color-value></span>
+                            <div
+                                class="pg-palette__swatch"
+                                data-color-swatch
+                                role="img"
+                                aria-label="Couleur 6"
+                            ></div>
+                        </div>
+                    </div>
+
+                    <p class="pg-empty" data-empty>
+                        Aucune palette générée. Ajustez les contrôles ou cliquez sur Générer.
+                    </p>
+                    <p class="pg-error" data-error role="alert" hidden></p>
+                </div>
+
                 <p class="pg-palette__status pg-status" data-status aria-live="polite">Prêt.</p>
             </section>
 

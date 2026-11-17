@@ -1,34 +1,41 @@
-/* Palette experiment: stage results and panel control layout. */
+/* Palette experiment: stable swatch cards and mutually exclusive result states. */
 
 .pg-palette__base,
 .pg-palette__result {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: var(--pg-space-4);
     margin-top: var(--pg-space-6);
 }
 
 .pg-palette__base {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--pg-space-3);
 }
 
-.pg-palette__base-label {
+.pg-palette__base-label,
+.pg-palette__color-label {
+    color: var(--pg-text-muted);
     font-size: var(--pg-font-size-sm);
 }
 
-.pg-palette__row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--pg-space-2);
+/* Local .pg-swatches grid: promote to ui/ only if mosaic-maker reuses it (D7/D21). */
+.pg-swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(var(--pg-layout-swatch-min-width), 1fr));
+    gap: var(--pg-space-3);
+    margin-top: var(--pg-space-4);
+}
+
+.pg-palette__color-value {
+    overflow-wrap: anywhere;
 }
 
 .pg-palette__swatch {
     flex-shrink: 0;
     width: var(--pg-layout-color-swatch-width);
     height: var(--pg-layout-color-swatch-height);
-    border: 1px solid var(--pg-color-neutral);
+    border: var(--pg-border-hairline) solid var(--pg-color-neutral);
     border-radius: var(--pg-radius-sm);
 }
 
@@ -38,4 +45,11 @@
 
 .pg-palette__status {
     margin-top: var(--pg-space-4);
+}
+
+/* Custom properties cannot be used in @media conditions; 720px mirrors --pg-breakpoint-narrow-max. */
+@media (max-width: 720px) {
+    .pg-swatches {
+        grid-template-columns: 1fr;
+    }
 }
