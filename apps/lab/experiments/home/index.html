@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>pg_lab — Home</title>
+        <link rel="stylesheet" href="../../ui/styles/tokens.css" />
+        <link rel="stylesheet" href="../../ui/styles/reset.css" />
+        <link rel="stylesheet" href="../../ui/styles/shell.css" />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body>
+        <pg-shell class="pg-shell" data-background="lava-flow">
+            <section class="pg-shell__stage pg-bg--lava-flow" aria-label="Home">
+                <div class="pg-home__intro">
+                    <h1>Home</h1>
+                    <p class="pg-home__lead">
+                        Première tranche verticale : le shell statique, ses contrôles et le thème.
+                    </p>
+                    <p class="pg-home__status" data-background-status aria-live="polite">
+                        Fond : Lava flow
+                    </p>
+                </div>
+            </section>
+
+            <aside class="pg-shell__panel" aria-label="Contrôles">
+                <button type="button" class="pg-shell__handle" aria-hidden="true" tabindex="-1">
+                    ≶
+                </button>
+                <div class="pg-shell__content">
+                    <h2>Contrôles</h2>
+                    <label for="pg-home-background">Fond</label>
+                    <select id="pg-home-background" name="background">
+                        <option value="lava-flow">Lava flow</option>
+                        <option value="auroral-fluid">Auroral fluid</option>
+                        <option value="thermal-magma">Thermal magma</option>
+                    </select>
+                    <button type="button" data-background-reset>Réinitialiser</button>
+                    <button type="button" data-theme-toggle>Thème</button>
+                </div>
+            </aside>
+        </pg-shell>
+        <script type="module" src="./main.ts"></script>
+    </body>
+</html>

@@ -1,0 +1,41 @@
+/* Home experiment: stage content and panel controls. */
+
+.pg-home__intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pg-space-3);
+    max-width: var(--pg-layout-text-max-width);
+}
+
+.pg-home__intro h1 {
+    margin: 0;
+    font-size: var(--pg-font-size-3xl);
+    font-weight: var(--pg-font-weight-semibold);
+}
+
+.pg-home__lead {
+    margin: 0;
+}
+
+.pg-home__status {
+    align-self: flex-start;
+    margin: 0;
+    padding: var(--pg-space-2) var(--pg-space-3);
+    border-radius: var(--pg-radius-sm);
+    background-color: color-mix(in oklab, var(--pg-surface-background) 80%, transparent);
+    font-family: var(--pg-font-mono);
+    font-size: var(--pg-font-size-sm);
+}
+
+.pg-shell__content button {
+    min-height: var(--pg-layout-control-touch-target);
+    border: 1px solid currentColor;
+    border-radius: var(--pg-radius-sm);
+    background-color: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.pg-shell__content button:hover {
+    background-color: var(--pg-color-neutral);
+}
