@@ -1,7 +1,0 @@
-/* OEIS Signal: only the panel note is specific; the stage and canvas are shared. */
-
-.pg-oeis__note {
-    margin: 0;
-    color: var(--pg-text-muted, inherit);
-    font-size: var(--pg-font-size-sm);
-}
