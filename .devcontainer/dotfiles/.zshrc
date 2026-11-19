@@ -1,24 +1,44 @@
-# Interactive shell for the pg_lab dev container (Ubuntu 26.04).
-HISTFILE=~/.histfile
-HISTSIZE=1000
-SAVEHIST=1000
+# --- Powerlevel10k instant prompt (keep at top) ---
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 
-eval "$(starship init zsh)"
+# --- Oh My Zsh ---
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+plugins=(
+  git
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+  docker
+  python
+)
+source "$ZSH/oh-my-zsh.sh"
 
-# Syntax highlighting must be sourced after autosuggestions.
-source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# --- p10k config ---
+[[ -f "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
 
-export PATH="$HOME/.opencode/bin:$HOME/.local/bin:$PATH"
+# --- pyenv ---
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
 
-alias ll='eza -l --icons --group-directories-first'
-alias la='eza -la --icons --group-directories-first'
-alias lt='eza --tree --icons'
+# --- uv ---
+export PATH="$HOME/.local/bin:$PATH"
 
-alias ..='cd ..'
-alias ...='cd ../..'
+# --- General ---
+export PATH="$HOME/.local/bin:$PATH"
+export HISTSIZE=50000
+export HISTFILESIZE=100000
+export HISTCONTROL=ignoredups:erasedups
 
+# --- Aliases ---
+alias ll='ls -lah --color=auto'
 alias gs='git status'
-alias ga='git add'
-alias gc='git commit'
 alias gp='git push'
+alias gl='git pull'
+alias py='python'
+alias ipy='ipython'
+alias jl='jupyter lab --no-browser --port=8888'
+alias serve='npx serve'
+alias bat='batcat'

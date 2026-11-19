@@ -1,19 +1,14 @@
-// Declarative description of the pg_lab dev container.
-//
-// scripts/dev mirrors these settings for everyday terminal use; keep both in
-// sync when changing mounts, ports, user or user namespace flags.
 {
-    "name": "pg_lab — Ubuntu 26.04",
-    "build": {
-        "dockerfile": "Dockerfile",
-        "context": "."
+    "name": "pg-container",
+    "image": "mcr.microsoft.com/devcontainers/base:debian",
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "configureZshAsDefaultShell": true
+        },
+        "ghcr.io/devcontainers-extra/features/ffmpeg-apt-get:1": {}
     },
-    "mounts": ["source=${localEnv:HOME}/Work/dev/pg_lab-home,target=/home/dev,type=bind"],
-    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/pg_lab,type=bind",
-    "workspaceFolder": "/workspaces/pg_lab",
-    "containerUser": "dev",
-    "remoteUser": "dev",
-    "updateRemoteUserUID": false,
-    "runArgs": ["--userns=keep-id", "--net=host"],
-    "postCreateCommand": "bash .devcontainer/post-create.sh"
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/pg-container,type=bind",
+    "workspaceFolder": "/workspaces/pg-container",
+    "remoteUser": "vscode",
+    "runArgs": ["--userns=keep-id", "--net=host"]
 }
