@@ -38,9 +38,9 @@ configs.
 
 ```bash
 vp install                                  # from the repository root
-vp -C packages/solid-project dev --host      # http://localhost:3000
-vp -C packages/solid-project build
-vp -C packages/solid-project test --run
+vp -C apps/solid-project dev --host      # http://localhost:3000
+vp -C apps/solid-project build
+vp -C apps/solid-project test --run
 ```
 
 Run `vp check` at the root to format, lint and type-check this package together
