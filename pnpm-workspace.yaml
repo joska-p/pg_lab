@@ -9,8 +9,16 @@ catalog:
     '@react-three/drei': ^10.7.9
     '@react-three/fiber': ^9.8.2
     '@repo/randomart-core': workspace:*
+    '@solidjs/diagnostics': ^2.0.0
+    '@solidjs/meta': ^2.0.0
+    '@solidjs/router': ^2.0.0
+    '@solidjs/start-devtools': ^1.0.0-next.4
+    '@solidjs/testing-library': ^1.0.0-rc.2
+    '@solidjs/vite-plugin': ^3.0.0
+    '@solidjs/web': ^2.0.0
     '@stylexjs/stylex': ^0.19.1
     '@stylexjs/unplugin': ^0.19.1
+    '@testing-library/jest-dom': ^7.0.0
     '@types/node': ^24.19.2
     '@types/react': ^19.3.0
     '@types/react-dom': ^19.3.0
@@ -18,8 +26,11 @@ catalog:
     '@vitejs/plugin-react': ^6.2.1
     bingo: ^0.13.2
     colorjs.io: ^0.7.1
+    eslint-plugin-solid: ~0.20.0
     fast-check: ^4.10.2
+    filesystem-routing: 0.5.0
     jscpd: ^5.4.3
+    jsdom: ^31.0.0
     knip: ^6.44.2
     leva: ^0.10.1
     lightningcss: ^1.33.0
@@ -30,10 +41,12 @@ catalog:
     react: ^19.3.1
     react-dom: ^19.3.1
     react-router: ^8.5.1
+    solid-js: ^2.0.0
     three: ^0.186.1
     typescript: ^7.0.2
     vite: npm:@voidzero-dev/vite-plus-core@1.6.0
     vite-plus: 1.6.0
+    vitest: 5.1.0
     zod: ^4.6.7
     zustand: ^5.1.0
 overrides:

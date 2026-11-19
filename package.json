@@ -12,6 +12,7 @@
         "@stylexjs/unplugin": "catalog:",
         "@types/node": "catalog:",
         "@vitejs/plugin-react": "catalog:",
+        "eslint-plugin-solid": "catalog:",
         "jscpd": "catalog:",
         "knip": "catalog:",
         "lightningcss": "catalog:",
