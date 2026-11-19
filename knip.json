@@ -60,10 +60,6 @@
         "packages/sequencer": {
             "project": ["src/**/*.{ts,tsx}"]
         },
-        "apps/solid-project": {
-            "project": ["src/**/*.{ts,tsx}"],
-            "entry": ["src/App.tsx", "src/Document.tsx"]
-        },
         "packages/squared": {
             "project": ["src/**/*.{ts,tsx}"]
         },
