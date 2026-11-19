@@ -2,6 +2,7 @@
 /reports/
 .pnpm-store
 .Trash-1000
+.devcontainer_home
 
 # Logs
 logs
