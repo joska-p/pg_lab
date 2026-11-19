@@ -4,6 +4,7 @@ import { Loading } from 'solid-js';
 import { paths, Router } from './router';
 
 import './App.css';
+import './styles/tokens.css';
 
 export default function App() {
     return (
@@ -11,11 +12,13 @@ export default function App() {
             {(props) => (
                 <>
                     <Title>Solid App</Title>
-                    <nav>
-                        <a href={paths()}>Home</a>
-                        <a href={paths.users()}>Users</a>
+                    <nav class="app-nav" aria-label="Main">
+                        <a href={paths()}>Catalogue</a>
+                        <a href={paths.lab()}>Lab</a>
                     </nav>
-                    <Loading fallback={<main>Loading…</main>}>{props.children}</Loading>
+                    <Loading fallback={<main class="route-loading">Loading…</main>}>
+                        {props.children}
+                    </Loading>
                 </>
             )}
         </Router>

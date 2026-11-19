@@ -1,72 +1,115 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
-    font-family: system-ui, -apple-system, sans-serif;
-    text-align: center;
+    min-height: 100dvh;
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    text-align: left;
 }
 
-nav {
-    padding: 1rem;
-    background-color: #282c34;
+button,
+input,
+select,
+textarea {
+    font: inherit;
 }
 
-nav > a {
-    display: inline-block;
-    margin: 0 0.125rem;
-    padding: 0.4rem 0.75rem;
-    border-radius: 0.5rem;
-    color: #93c5fd;
+.app-nav,
+.lab-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-surface);
+    border-bottom: var(--border-hairline) solid var(--color-border);
+}
+
+.lab-nav {
+    background: var(--color-surface-strong);
+}
+
+.app-nav a,
+.lab-nav a,
+.catalogue a,
+.lab-landing a,
+.not-found a {
+    color: var(--color-accent);
     font-weight: 600;
     text-decoration: none;
-    transition:
-        background-color 150ms ease,
-        color 150ms ease;
 }
 
-nav > a:hover {
-    background-color: rgb(255 255 255 / 10%);
-    color: #dbeafe;
-}
-
-main {
-    padding: 3rem 1rem;
-}
-
-.logo {
-    animation: logo-spin infinite 20s linear;
-    height: 24vmin;
-    pointer-events: none;
-}
-
-.increment {
-    font-size: 1rem;
-    padding: 0.5rem 1.5rem;
-    cursor: pointer;
-}
-
-main a {
-    color: #1d5f91;
-    font-weight: 600;
-    text-decoration-color: #7bb6df;
-    text-decoration-thickness: 0.1em;
-    text-underline-offset: 0.2em;
-    transition: color 150ms ease;
-}
-
-main a:hover {
-    color: #123f63;
+.app-nav a:hover,
+.lab-nav a:hover,
+.catalogue a:hover,
+.lab-landing a:hover,
+.not-found a:hover {
+    text-decoration: underline;
 }
 
 a:focus-visible {
-    outline: 3px solid #0284c7;
+    outline: 3px solid var(--color-accent);
     outline-offset: 3px;
-    border-radius: 0.2rem;
+    border-radius: var(--radius-sm);
 }
 
-@keyframes logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+.catalogue,
+.lab-landing,
+.not-found,
+.route-loading {
+    max-width: 72ch;
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-4);
+}
+
+.catalogue h1,
+.lab-landing h1,
+.not-found h1 {
+    font-size: var(--font-size-2xl);
+    line-height: 1.25;
+}
+
+.catalogue p,
+.lab-landing p,
+.not-found p {
+    color: var(--color-muted);
+    line-height: 1.6;
+}
+
+.experiment-list {
+    display: grid;
+    gap: var(--space-2);
+    margin: var(--space-6) 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.experiment-list li {
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-surface);
+    border: var(--border-hairline) solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.lab-layout {
+    min-height: calc(100dvh - var(--space-8));
+}
+
+.lab-content {
+    padding: 0;
+}
+
+.increment {
+    padding: var(--space-2) var(--space-6);
+    border: var(--border-hairline) solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-foreground);
+    cursor: pointer;
+    font-size: var(--font-size-md);
 }
