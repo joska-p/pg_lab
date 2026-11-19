@@ -1,4 +1,4 @@
-import { createRouter, intentPreload } from '@solidjs/router';
+import { createRouter, hashHistory, intentPreload } from '@solidjs/router';
 import { fileRoutes } from '@solidjs/router/fs';
 import { pageRoutes } from 'virtual:file-routes';
 
@@ -6,6 +6,7 @@ import { pageRoutes } from 'virtual:file-routes';
 // its preload when the pointer rests on it (or on focus/touch).
 export const Router = createRouter({
     routes: fileRoutes(pageRoutes),
+    history: hashHistory(),
     preloadLinks: intentPreload(),
 });
 

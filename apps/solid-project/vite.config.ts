@@ -3,6 +3,9 @@ import { fileRoutes } from 'filesystem-routing/vite';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 
 export default defineConfig({
+    // GitHub Pages serves the site under /pg_lab/; assets follow the Vite base
+    // while the router keeps application paths in the URL hash.
+    base: '/pg_lab/',
     // Turnkey client mode: no index.html and no mount file — the plugin generates
     // the entries around src/App.tsx (wrapped in src/Document.tsx) and `vite build`
     // prerenders the shell into a purely static dist/client.
