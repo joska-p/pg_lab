@@ -1,6 +1,6 @@
 {
     "schemaVersion": 2,
-    "generatedAt": "2026-11-20T15:16:00Z",
+    "generatedAt": "2026-11-20T16:50:14Z",
     "title": "Design System: PG_LAB",
     "extensions": {
         "colorMeta": {
@@ -34,6 +34,21 @@
                     "oklch(0.84 0.001 219)"
                 ]
             },
+            "dark-ground-soft": {
+                "role": "neutral",
+                "displayName": "Dark Ground Soft",
+                "canonical": "oklch(0.311 0.003 48.619)",
+                "tonalRamp": [
+                    "oklch(0.16 0.001 49)",
+                    "oklch(0.23 0.002 49)",
+                    "oklch(0.311 0.003 48.619)",
+                    "oklch(0.39 0.003 49)",
+                    "oklch(0.48 0.003 49)",
+                    "oklch(0.58 0.003 49)",
+                    "oklch(0.70 0.002 49)",
+                    "oklch(0.84 0.001 49)"
+                ]
+            },
             "warm-parchment": {
                 "role": "neutral",
                 "displayName": "Warm Parchment",
@@ -49,6 +64,21 @@
                     "oklch(0.956 0.055 96.155)"
                 ]
             },
+            "warm-parchment-hard": {
+                "role": "neutral",
+                "displayName": "Warm Parchment Hard",
+                "canonical": "oklch(0.965 0.039 100.862)",
+                "tonalRamp": [
+                    "oklch(0.28 0.010 101)",
+                    "oklch(0.40 0.016 101)",
+                    "oklch(0.52 0.022 101)",
+                    "oklch(0.64 0.028 101)",
+                    "oklch(0.75 0.032 101)",
+                    "oklch(0.85 0.035 101)",
+                    "oklch(0.92 0.037 101)",
+                    "oklch(0.965 0.039 100.862)"
+                ]
+            },
             "neutral": {
                 "role": "neutral",
                 "displayName": "Neutral Mid",
@@ -62,6 +92,21 @@
                     "oklch(0.62 0.018 52)",
                     "oklch(0.76 0.013 52)",
                     "oklch(0.90 0.007 52)"
+                ]
+            },
+            "gray-mid": {
+                "role": "neutral",
+                "displayName": "Gray Mid",
+                "canonical": "oklch(0.619 0.029 67.258)",
+                "tonalRamp": [
+                    "oklch(0.22 0.008 67)",
+                    "oklch(0.32 0.013 67)",
+                    "oklch(0.43 0.020 67)",
+                    "oklch(0.53 0.025 67)",
+                    "oklch(0.619 0.029 67.258)",
+                    "oklch(0.72 0.027 67)",
+                    "oklch(0.83 0.020 67)",
+                    "oklch(0.94 0.010 67)"
                 ]
             },
             "aurora": {
@@ -173,11 +218,11 @@
         "typographyMeta": {
             "label": {
                 "displayName": "Label",
-                "purpose": "Field labels and control names. Sans-serif, tight tracking."
+                "purpose": "Field labels and control names. Sans-serif, tight tracking, no explicit line height."
             },
             "heading": {
                 "displayName": "Heading",
-                "purpose": "Panel and section titles. Sans-serif, uppercase, wide tracking."
+                "purpose": "Level-1 panel and section titles. Sans-serif, uppercase, wide tracking."
             },
             "value": {
                 "displayName": "Value",
@@ -185,14 +230,19 @@
             },
             "section": {
                 "displayName": "Section",
-                "purpose": "Sub-section headers. Monospace, uppercase, smallest size. Reads like a terminal label."
+                "purpose": "Level-3 sub-section headers. Monospace, uppercase, smallest size. Reads like a terminal label."
             }
         },
         "shadows": [
             {
+                "name": "flat",
+                "value": "none",
+                "purpose": "Default rest state for cards, toggles, and checkboxes."
+            },
+            {
                 "name": "raised",
                 "value": "0 1px 2px color-mix(in oklab, oklch(0.241 0.005 219.672) 18%, transparent), 0 0 12px -2px color-mix(in oklab, var(--tint-color) 18%, transparent)",
-                "purpose": "Standard elevated surface: buttons, badges, panels. Tight structural shadow + subtle tint glow."
+                "purpose": "Standard elevated surface: buttons, badges, panels. Tight structural shadow + subtle tint halo."
             },
             {
                 "name": "sunken",
@@ -214,7 +264,7 @@
             {
                 "name": "duration-fast",
                 "value": "120ms",
-                "purpose": "Toggle knob, thumb scale, micro-interactions."
+                "purpose": "Toggle knob, slider thumb scale, micro-interactions."
             },
             {
                 "name": "duration-normal",
@@ -235,6 +285,11 @@
                 "name": "easing-in-out",
                 "value": "cubic-bezier(0.65, 0, 0.35, 1)",
                 "purpose": "Symmetric easing for opacity and handle transitions."
+            },
+            {
+                "name": "reduced-duration",
+                "value": "1ms",
+                "purpose": "Reduced-motion duration in shared recipes; the slider thumb still uses 0ms."
             }
         ],
         "breakpoints": [
@@ -281,7 +336,7 @@
             "refersTo": "toggle-track",
             "description": "Sliding switch with a knob that gains opacity and translates on check.",
             "html": "<div class=\"ds-toggle-row\"><label class=\"ds-toggle-label\" for=\"ds-toggle\">Setting</label><div class=\"ds-toggle\"><input class=\"ds-toggle-input\" id=\"ds-toggle\" type=\"checkbox\" role=\"switch\" checked /><span class=\"ds-toggle-knob\"></span></div></div>",
-            "css": ".ds-toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; } .ds-toggle-label { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 0.875rem; font-weight: 500; letter-spacing: -0.01em; color: oklch(0.956 0.055 96.155); } .ds-toggle { position: relative; width: 34px; height: 20px; } .ds-toggle-input { appearance: none; position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; background-color: oklch(0.411 0.012 51.866); border: 1px solid color-mix(in oklab, oklch(0.411 0.012 51.866) 72%, transparent); border-radius: 9999px; cursor: pointer; } .ds-toggle-knob { position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background-color: oklch(0.956 0.055 96.155); opacity: 0.5; pointer-events: none; transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), opacity 120ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-toggle-input:checked + .ds-toggle-knob { transform: translateX(16px); opacity: 1; } .ds-toggle-input:focus-visible { outline: 2px solid oklch(0.956 0.055 96.155); outline-offset: 2px; }"
+            "css": ".ds-toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; } .ds-toggle-label { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 0.875rem; font-weight: 500; letter-spacing: -0.01em; color: oklch(0.956 0.055 96.155); } .ds-toggle { position: relative; width: 34px; height: 20px; } .ds-toggle-input { appearance: none; position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; background-color: oklch(0.411 0.012 51.866); border: 1px solid color-mix(in oklab, oklch(0.411 0.012 51.866) 72%, transparent); border-radius: 9999px; cursor: pointer; } .ds-toggle-knob { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background-color: oklch(0.956 0.055 96.155); opacity: 0.5; pointer-events: none; transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), opacity 120ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-toggle-input:checked + .ds-toggle-knob { transform: translateX(16px); opacity: 1; } .ds-toggle-input:focus-visible { outline: 2px solid oklch(0.956 0.055 96.155); outline-offset: 2px; }"
         },
         {
             "name": "Select",
@@ -294,11 +349,12 @@
     ],
     "narrative": {
         "northStar": "The Neon Workbench",
-        "overview": "PG_LAB's visual system is a workshop lit by neon: a dark, dense ground where every surface earns its place through function, and color arrives as signal — a tinted glow on hover, a solid accent on a control's active state, a soft wash behind a grouped parameter panel. The interface is an instrument, not a decoration. It recedes when the experiment (canvas, shader, simulation) demands attention, and tightens when the operator needs precision.\n\nThe system is built on a tint architecture: a single CSS variable (tintVars.color) sets the hue for an entire surface tree — background, border, shadow, and text all derive from it through color-mix() in OKLCH. Swapping one variable re-tints an entire component without touching its structure. This makes the palette composable rather than fixed: any of the eight named tints can dress any surface recipe.\n\nDensity is high by design. The control panel is a column of compact fields — sliders, selects, toggles, checkboxes — each with a 44px touch target but minimal visual footprint. The shell splits into a resizable panel and a stage, adapting from landscape (panel right) to portrait (panel bottom) with no breakpoint gap.",
+        "overview": "PG_LAB's visual system is a workshop lit by neon: a dark, dense ground where every surface earns its place through function, and color arrives as signal — a tinted glow on hover, a solid accent on a control's active state, a soft wash behind a grouped parameter panel. The interface is an instrument, not a decoration. It recedes when the experiment (canvas, shader, simulation) demands attention, and tightens when the operator needs precision.\n\nThe system is built on a tint architecture: one CSS variable (tintVars.color) sets the hue for an entire surface tree — background, border, shadow, and text derive from it through color-mix() in OKLCH. Its companion tintVars.onColor keeps text legible on a solid tint. Swapping both variables re-tints a component without touching its structure. Every surface is described by five independent axes — color, background, border, radius, elevation — exposed by surfaceStyles() in packages/ui.\n\nDensity is high by design. The control panel is a column of compact fields — sliders, selects, toggles, checkboxes — each with a 44px touch target but minimal visual footprint. The shell splits into a resizable panel and a stage, switching from row to column on (orientation: portrait); at 1024px and above its outer gap and padding grow from 8px to 16px.",
         "keyCharacteristics": [
             "Dark-first with automatic light mode via light-dark() and color-scheme",
-            "OKLCH palette with three tonal registers per hue: bright, neutral, and faded",
-            "Tint-driven surface system: one variable tints an entire subtree",
+            "OKLCH palette with three tonal registers per hue: bright (light mode), neutral, faded (dark mode)",
+            "Tint-driven surface system: one variable pair tints and labels an entire subtree",
+            "Five orthogonal surface axes: color, background, border, radius, elevation",
             "Tactile interactions: scale(0.98) on press, neon glow on hover, focus ring on keyboard",
             "System font stack — no custom fonts, no loading delay",
             "Monospace for values, sans-serif for labels — two voices, one density"
@@ -332,17 +388,18 @@
         ],
         "dos": [
             "Do set tintVars.color and tintVars.onColor together on every tinted surface. Never set one without the other.",
-            "Do use color-mix(in oklab, ...) for all tint-derived backgrounds, borders, and shadows. The mix percentages are the system's vocabulary: 25% for soft backgrounds, 38% for subtle borders, 72% for strong borders.",
+            "Do use color-mix(in oklab, ...) for all tint-derived backgrounds, borders, and shadows. The mix percentages are the system's vocabulary: 25% for soft backgrounds, 38% for subtle borders, 72% for strong borders, 18% for the resting halo, 32%/48% for hover/active glow.",
             "Do use light-dark() for every color that adapts to theme. Never branch with a media query when light-dark() works.",
-            "Do respect prefers-reduced-motion: reduce on every transition. Use 1ms as the reduced duration, not 0ms.",
-            "Do keep every interactive element at or above the 44×44px touch target, using an invisible ::before when the visual element is smaller."
+            "Do respect prefers-reduced-motion: reduce on every transition. Use 1ms as the reduced duration in shared recipes (interactions.pressable, Toggle); the slider thumb currently uses 0ms and should be aligned on the next pass.",
+            "Do keep every interactive element at or above the 44×44px touch target, using an invisible ::before when the visual element is smaller.",
+            "Do compose surfaces from the five axes color, background, border, radius, elevation via surfaceStyles()."
         ],
         "donts": [
             "Don't apply a permanent glow or shadow as decoration. Glow signals state; shadows signal elevation. A resting element should be flat or raised — never glowing.",
-            "Don't use hardcoded color values in component styles. All colors flow through tintVars.color, surface.foreground, or surface.background. Direct palette references belong only in token definitions.",
-            "Don't mix sans-serif and monospace within a single text element. Labels are sans; values are mono.",
-            "Don't introduce new hues outside the eight named tints (neutral, aurora, solder, purple, amber, error, aqua, orange). The palette is closed by design.",
-            "Don't use border-radius: 50% for circles. Use radius.full (9999px) which produces a pill on rectangles and a circle on squares."
+            "Don't use hardcoded color values inside packages/ui components. All colors flow through tintVars.color, tintVars.onColor, surface.foreground, or surface.background. Direct palette references belong in token definitions (and in experiment-specific chart code, which is outside the shared primitives).",
+            "Don't mix sans-serif and monospace within a single text element. Labels are sans; values are mono. If a string serves both roles, split it into two elements.",
+            "Don't introduce new hues outside the eight named tints (neutral, aurora, solder, purple, amber, error, aqua, orange). The palette is closed by design; each hue exists in three registers and needs all three to work.",
+            "Don't add ad-hoc circular radii. Use radius.full (9999px), which produces a pill on rectangles and a circle on squares. The toggle knob's 50% is a holdout to migrate, not a precedent."
         ]
     }
 }
