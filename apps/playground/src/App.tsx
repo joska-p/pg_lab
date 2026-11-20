@@ -35,14 +35,18 @@ const styles = stylex.create({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingInline: space['3'],
-        paddingBlock: space['2'],
+        paddingInline: space['2'],
+        paddingBlock: space['1'],
         borderBottomWidth: borderWidth.hairline,
         borderBottomStyle: 'solid',
         borderBottomColor: `color-mix(in oklab, ${surface.foreground} 12%, transparent)`,
-        gap: space['3'],
+        gap: space['2'],
         flexShrink: 0,
         zIndex: 10,
+        '@media (min-width: 1024px)': {
+            gap: space['4'],
+            paddingInline: space['4'],
+        },
     },
     brandGroup: {
         display: 'flex',
@@ -130,7 +134,11 @@ function StudioHeader({
     return (
         <header
             {...stylex.props(
-                surfaceStyles({ background: 'soft', border: 'none', elevation: 'flat' }),
+                surfaceStyles({
+                    background: 'soft',
+                    border: 'none',
+                    elevation: 'flat',
+                }),
                 styles.header,
             )}
         >
