@@ -344,7 +344,7 @@ export default defineConfig({
         '*.{js,jsx,ts,tsx}': 'vp check --fix',
     },
     fmt: {
-        ignorePatterns: ['dist/**', 'apps/solid-project/file-routes.d.ts'],
+        ignorePatterns: ['dist/**', '.agents/skills'],
         tabWidth: 4,
         singleQuote: true,
         sortImports: true,
