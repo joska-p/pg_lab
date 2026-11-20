@@ -2,90 +2,90 @@
 name: PG_LAB
 description: A dark-first creative coding workbench with neon-tinted surfaces and tactile controls.
 colors:
-  dark-ground: "oklch(0.277 0 0)"
-  dark-ground-hard: "oklch(0.241 0.005 219.672)"
-  dark-ground-soft: "oklch(0.311 0.003 48.619)"
-  warm-parchment: "oklch(0.956 0.055 96.155)"
-  warm-parchment-hard: "oklch(0.965 0.039 100.862)"
-  neutral: "oklch(0.411 0.012 51.866)"
-  aurora: "oklch(0.693 0.042 169.768)"
-  solder: "oklch(0.765 0.158 110.835)"
-  purple: "oklch(0.705 0.098 2.189)"
-  amber: "oklch(0.832 0.159 82.987)"
-  error: "oklch(0.66 0.218 30.392)"
-  aqua: "oklch(0.756 0.108 137.676)"
-  orange: "oklch(0.731 0.182 51.693)"
+    dark-ground: 'oklch(0.277 0 0)'
+    dark-ground-hard: 'oklch(0.241 0.005 219.672)'
+    dark-ground-soft: 'oklch(0.311 0.003 48.619)'
+    warm-parchment: 'oklch(0.956 0.055 96.155)'
+    warm-parchment-hard: 'oklch(0.965 0.039 100.862)'
+    neutral: 'oklch(0.411 0.012 51.866)'
+    aurora: 'oklch(0.693 0.042 169.768)'
+    solder: 'oklch(0.765 0.158 110.835)'
+    purple: 'oklch(0.705 0.098 2.189)'
+    amber: 'oklch(0.832 0.159 82.987)'
+    error: 'oklch(0.66 0.218 30.392)'
+    aqua: 'oklch(0.756 0.108 137.676)'
+    orange: 'oklch(0.731 0.182 51.693)'
 typography:
-  label:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 500
-    lineHeight: 1.25
-    letterSpacing: "-0.01em"
-  heading:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
-    fontSize: "1.125rem"
-    fontWeight: 600
-    lineHeight: 1.25
-    letterSpacing: "0.02em"
-  value:
-    fontFamily: "\"SFMono-Regular\", Consolas, \"Liberation Mono\", monospace"
-    fontSize: "0.875rem"
-    fontWeight: 400
-    lineHeight: 1.5
-  section:
-    fontFamily: "\"SFMono-Regular\", Consolas, \"Liberation Mono\", monospace"
-    fontSize: "0.75rem"
-    fontWeight: 500
-    lineHeight: 1.25
-    letterSpacing: "0.02em"
+    label:
+        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+        fontSize: '0.875rem'
+        fontWeight: 500
+        lineHeight: 1.25
+        letterSpacing: '-0.01em'
+    heading:
+        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+        fontSize: '1.125rem'
+        fontWeight: 600
+        lineHeight: 1.25
+        letterSpacing: '0.02em'
+    value:
+        fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", monospace'
+        fontSize: '0.875rem'
+        fontWeight: 400
+        lineHeight: 1.5
+    section:
+        fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", monospace'
+        fontSize: '0.75rem'
+        fontWeight: 500
+        lineHeight: 1.25
+        letterSpacing: '0.02em'
 rounded:
-  none: "0px"
-  sm: "4px"
-  md: "6px"
-  lg: "8px"
-  xl: "12px"
-  full: "9999px"
+    none: '0px'
+    sm: '4px'
+    md: '6px'
+    lg: '8px'
+    xl: '12px'
+    full: '9999px'
 spacing:
-  "1": "4px"
-  "2": "8px"
-  "3": "12px"
-  "4": "16px"
-  "5": "20px"
-  "6": "24px"
-  "8": "32px"
-  "10": "40px"
-  "12": "48px"
-  "16": "64px"
+    '1': '4px'
+    '2': '8px'
+    '3': '12px'
+    '4': '16px'
+    '5': '20px'
+    '6': '24px'
+    '8': '32px'
+    '10': '40px'
+    '12': '48px'
+    '16': '64px'
 components:
-  button-primary:
-    backgroundColor: "{colors.neutral}"
-    textColor: "{colors.warm-parchment}"
-    rounded: "{rounded.md}"
-    padding: "8px 16px"
-  button-primary-hover:
-    backgroundColor: "{colors.neutral}"
-    textColor: "{colors.warm-parchment}"
-  badge-solid:
-    backgroundColor: "{colors.neutral}"
-    textColor: "{colors.warm-parchment}"
-    rounded: "{rounded.full}"
-    padding: "2px 8px"
-  card-soft:
-    backgroundColor: "{colors.neutral}"
-    textColor: "{colors.warm-parchment}"
-    rounded: "{rounded.md}"
-    padding: "16px"
-  input-well:
-    backgroundColor: "{colors.neutral}"
-    textColor: "{colors.warm-parchment}"
-    rounded: "{rounded.sm}"
-    padding: "8px 12px"
-  toggle-track:
-    backgroundColor: "{colors.neutral}"
-    rounded: "{rounded.full}"
-    width: "34px"
-    height: "20px"
+    button-primary:
+        backgroundColor: '{colors.neutral}'
+        textColor: '{colors.warm-parchment}'
+        rounded: '{rounded.md}'
+        padding: '8px 16px'
+    button-primary-hover:
+        backgroundColor: '{colors.neutral}'
+        textColor: '{colors.warm-parchment}'
+    badge-solid:
+        backgroundColor: '{colors.neutral}'
+        textColor: '{colors.warm-parchment}'
+        rounded: '{rounded.full}'
+        padding: '2px 8px'
+    card-soft:
+        backgroundColor: '{colors.neutral}'
+        textColor: '{colors.warm-parchment}'
+        rounded: '{rounded.md}'
+        padding: '16px'
+    input-well:
+        backgroundColor: '{colors.neutral}'
+        textColor: '{colors.warm-parchment}'
+        rounded: '{rounded.sm}'
+        padding: '8px 12px'
+    toggle-track:
+        backgroundColor: '{colors.neutral}'
+        rounded: '{rounded.full}'
+        width: '34px'
+        height: '20px'
 ---
 
 # Design System: PG_LAB
@@ -101,6 +101,7 @@ The system is built on a **tint architecture**: a single CSS variable (`tintVars
 Density is high by design. The control panel is a column of compact fields — sliders, selects, toggles, checkboxes — each with a 44px touch target but minimal visual footprint. The shell splits into a resizable panel and a stage, adapting from landscape (panel right) to portrait (panel bottom) with no breakpoint gap.
 
 **Key Characteristics:**
+
 - Dark-first with automatic light mode via `light-dark()` and `color-scheme`
 - OKLCH palette with three tonal registers per hue: bright (light mode), neutral, and faded (dark mode)
 - Tint-driven surface system: one variable tints an entire subtree
@@ -146,7 +147,7 @@ The palette is an OKLCH ramp organized by role, not by hue. Each hue exists in t
 **UI Font:** System UI stack (system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif)
 **Value Font:** Monospace stack ("SFMono-Regular", Consolas, "Liberation Mono", monospace)
 
-**Character:** Two voices sharing one density. Sans-serif carries labels, headings, and actions — everything the operator reads to understand *what*. Monospace carries values, readouts, and error messages — everything that says *how much* or *what exactly*. The pairing is functional, not decorative: no custom fonts, no loading penalty, no typographic personality beyond clarity.
+**Character:** Two voices sharing one density. Sans-serif carries labels, headings, and actions — everything the operator reads to understand _what_. Monospace carries values, readouts, and error messages — everything that says _how much_ or _what exactly_. The pairing is functional, not decorative: no custom fonts, no loading penalty, no typographic personality beyond clarity.
 
 ### Hierarchy
 

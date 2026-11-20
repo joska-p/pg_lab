@@ -4,7 +4,7 @@ import { useId } from 'react';
 
 import { wellStyles } from '../recipes/fields';
 import { fieldText } from '../recipes/typography';
-import { interaction, layout, space } from '../tokens/const.stylex';
+import { interaction, layout, space, typography } from '../tokens/const.stylex';
 
 interface SelectOption<T extends string> {
     value: T;
@@ -22,6 +22,7 @@ interface SelectProps<T extends string> extends Omit<
     value?: T;
     defaultValue?: T;
     placeholder?: string;
+    font?: 'mono' | 'sans';
     onValueChange?: (value: T) => void;
     style?: StyleXStyles;
 }
@@ -47,6 +48,9 @@ const styles = stylex.create({
         paddingLeft: space['3'],
         paddingRight: space['8'],
     },
+    fontSans: {
+        fontFamily: typography.fontFamilySans,
+    },
     chevron: {
         position: 'absolute',
         right: space['3'],
@@ -69,6 +73,7 @@ export function Select<T extends string>({
     value,
     defaultValue,
     placeholder,
+    font = 'mono',
     onValueChange,
     disabled = false,
     id: idProp,
@@ -125,7 +130,7 @@ export function Select<T extends string>({
                     aria-describedby={errorMessage ? messageId : undefined}
                     {...stylex.props(
                         styles.select,
-                        fieldText.value,
+                        font === 'sans' ? styles.fontSans : fieldText.value,
                         ...wellStyles({ invalid, disabled }),
                     )}
                 >

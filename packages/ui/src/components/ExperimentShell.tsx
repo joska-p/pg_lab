@@ -3,14 +3,18 @@ import type { StyleXStyles } from '@stylexjs/stylex';
 import { useRef, useState } from 'react';
 
 import { surfaceStyles } from '../recipes/surface';
-import { layout, radius, space, motion, typography } from '../tokens/const.stylex';
+import { layout, radius, space, motion } from '../tokens/const.stylex';
 import { Button } from './Button';
 
 const COLLAPSED_SIZE = 16;
 const COLLAPSE_BELOW = COLLAPSED_SIZE * 1.5;
 const PORTRAIT_QUERY = '(orientation: portrait)';
 
-const surface = surfaceStyles({ background: 'soft', border: 'subtle', elevation: 'raised' });
+const surface = surfaceStyles({
+    background: 'soft',
+    border: 'subtle',
+    elevation: 'raised',
+});
 
 const styles = stylex.create({
     base: {
@@ -102,16 +106,15 @@ const styles = stylex.create({
         top: '50%',
         left: '-0.5rem',
         aspectRatio: '1 / 1',
-        fontSize: typography.fontSize2xl,
-        fontWeight: typography.fontWeightBold,
         minWidth: layout.controlTouchTarget,
         minHeight: layout.controlTouchTarget,
         paddingBlock: 0,
         paddingInline: 0,
         zIndex: 2,
         opacity: {
-            default: 0.5,
+            default: 0.7,
             ':hover': 1,
+            ':focus-visible': 1,
         },
         transitionProperty: 'opacity',
         transitionDuration: motion.durationNormal,
@@ -134,51 +137,88 @@ interface Drag {
     vertical: boolean;
     pointerStart: number;
     sizeStart: number;
+    hasMoved: boolean;
 }
 
 interface ExperimentShellProps extends Omit<React.ComponentProps<'div'>, 'style' | 'className'> {
     children: React.ReactNode;
     panel?: React.ReactNode;
     style?: StyleXStyles;
+    collapsed?: boolean;
+    defaultCollapsed?: boolean;
+    onCollapsedChange?: (collapsed: boolean) => void;
 }
 
-export function ExperimentShell({ children, panel, style, ...props }: ExperimentShellProps) {
+export function ExperimentShell({
+    children,
+    panel,
+    style,
+    collapsed: controlledCollapsed,
+    defaultCollapsed = false,
+    onCollapsedChange,
+    ...props
+}: ExperimentShellProps) {
     const panelRef = useRef<HTMLDivElement>(null);
     const dragRef = useRef<Drag | null>(null);
-    const [collapsed, setCollapsed] = useState(false);
+    const [uncontrolledCollapsed, setUncontrolledCollapsed] = useState(defaultCollapsed);
+
+    const isControlled = controlledCollapsed !== undefined;
+    const collapsed = isControlled ? controlledCollapsed : uncontrolledCollapsed;
+
+    const setCollapsedState = (next: boolean) => {
+        if (!isControlled) {
+            setUncontrolledCollapsed(next);
+        }
+        onCollapsedChange?.(next);
+    };
 
     const handlePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
-        const panel = panelRef.current;
-        if (!panel || event.button !== 0) {
+        const panelEl = panelRef.current;
+        if (!panelEl || event.button !== 0) {
             return;
         }
 
         const vertical = window.matchMedia(PORTRAIT_QUERY).matches;
-        const rect = panel.getBoundingClientRect();
+        const rect = panelEl.getBoundingClientRect();
         dragRef.current = {
             vertical,
             pointerStart: vertical ? event.clientY : event.clientX,
             sizeStart: vertical ? rect.height : rect.width,
+            hasMoved: false,
         };
         event.currentTarget.setPointerCapture(event.pointerId);
     };
 
     const handlePointerMove = (event: React.PointerEvent<HTMLButtonElement>) => {
         const drag = dragRef.current;
-        const panel = panelRef.current;
-        if (!drag || !panel) {
+        const panelEl = panelRef.current;
+        if (!drag || !panelEl) {
             return;
         }
 
         const pointer = drag.vertical ? event.clientY : event.clientX;
-        const size = drag.sizeStart + drag.pointerStart - pointer;
+        if (Math.abs(pointer - drag.pointerStart) > 4) {
+            drag.hasMoved = true;
+        }
 
-        panel.style.setProperty(drag.vertical ? '--panel-height' : '--panel-width', `${size}px`);
-        setCollapsed(size <= COLLAPSE_BELOW);
+        const size = Math.max(0, drag.sizeStart + drag.pointerStart - pointer);
+
+        panelEl.style.setProperty(drag.vertical ? '--panel-height' : '--panel-width', `${size}px`);
+        setCollapsedState(size <= COLLAPSE_BELOW);
     };
 
-    const handlePointerEnd = () => {
+    const handlePointerEnd = (event: React.PointerEvent<HTMLButtonElement>) => {
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+        }
         dragRef.current = null;
+    };
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            setCollapsedState(!collapsed);
+        }
     };
 
     return (
@@ -194,12 +234,18 @@ export function ExperimentShell({ children, panel, style, ...props }: Experiment
                         color="aurora"
                         background="solid"
                         style={styles.handle}
-                        tabIndex={-1}
-                        aria-hidden="true"
+                        aria-label={
+                            collapsed
+                                ? 'Agrandir le panneau de contrôles'
+                                : 'Réduire le panneau de contrôles'
+                        }
+                        aria-expanded={!collapsed}
+                        onKeyDown={handleKeyDown}
                         onPointerDown={handlePointerDown}
                         onPointerMove={handlePointerMove}
                         onPointerUp={handlePointerEnd}
                         onPointerCancel={handlePointerEnd}
+                        onLostPointerCapture={handlePointerEnd}
                     >
                         ≶
                     </Button>
