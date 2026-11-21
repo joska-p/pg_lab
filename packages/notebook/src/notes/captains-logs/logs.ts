@@ -20,6 +20,12 @@ import { log2026306 } from './logs/stardate-2026-306';
 import { log2026307 } from './logs/stardate-2026-307';
 import { log2026308 } from './logs/stardate-2026-308';
 import { log2026309 } from './logs/stardate-2026-309';
+import { log2026312 } from './logs/stardate-2026-312';
+import { log2026315 } from './logs/stardate-2026-315';
+import { log2026317 } from './logs/stardate-2026-317';
+import { log2026319 } from './logs/stardate-2026-319';
+import { log2026321 } from './logs/stardate-2026-321';
+import { log2026325 } from './logs/stardate-2026-325';
 import type { CaptainLog, LogSortOrder } from './types';
 
 /** Chronological order is the canonical order, used to derive days between entries. */
@@ -46,6 +52,12 @@ export const CAPTAIN_LOGS: readonly CaptainLog[] = [
     log2026307,
     log2026308,
     log2026309,
+    log2026312,
+    log2026315,
+    log2026317,
+    log2026319,
+    log2026321,
+    log2026325,
 ];
 
 export function sortLogs(
