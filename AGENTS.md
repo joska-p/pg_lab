@@ -9,6 +9,7 @@ High-performance Monorepo powered by **Vite+** and **React 19**.
 
 - **Before starting any task**: Make sure to have a well define scope and that you understand the underlying goal.
 - **Coding conventions**: codex/docs/conventions/README.md.
+- **Vocabulary**: when clarifying or renaming a project concept, use the `domain-modeling` skill; the glossary is `codex/docs/GLOSSARY.md` (§2.1.8, §2.1.9).
 - **Tooling**: `uv`, `rg`, `fd` `jq`.
 - **Language**: French for discussions, English for code, docs, and specs.
 - **SSOT**: Ecosystem conventions and docs live in `./codex/`. Propose updates when patterns evolve.

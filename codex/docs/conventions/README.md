@@ -20,6 +20,8 @@ The goal is to make good judgment easier.
 
 Section numbers (`§2.3`, `§4`, …) are stable across files: cite them when referring to a rule.
 
+Project vocabulary lives in `codex/docs/GLOSSARY.md`, not in this folder. When a concept is clarified or renamed, use the `domain-modeling` skill and update that file in the same change (§2.1.8, §2.1.9). Its entry format is defined in `.agents/skills/domain-modeling/GLOSSARY-FORMAT.md`.
+
 ---
 
 ## Table of contents
@@ -39,18 +41,19 @@ Section numbers (`§2.3`, `§4`, …) are stable across files: cite them when re
 
 ## Quick routing
 
-| If you are…                                   | Read                                     |
-| --------------------------------------------- | ---------------------------------------- |
-| Adding a new function or helper               | §2.2, §2.3 (one abstraction level), §1.5 |
-| Adding state                                  | §3, §5, §1.3                             |
-| Making a component re-render on a mutation    | §4                                       |
-| Writing a render loop or simulation step      | §6, §1.2                                 |
-| Mounting something with `start`/`stop`        | §7                                       |
-| Calling `fetch` or any async API              | §9                                       |
-| Loading a static asset from a library package | §12.3                                    |
-| Tempted to write `useMemo` / `useCallback`    | §12.4                                    |
-| Splitting a file                              | §2.6                                     |
-| Deciding where a type lives                   | §2.6                                     |
+| If you are…                                   | Read                                      |
+| --------------------------------------------- | ----------------------------------------- |
+| Adding a new function or helper               | §2.2, §2.3 (one abstraction level), §1.5  |
+| Adding state                                  | §3, §5, §1.3                              |
+| Making a component re-render on a mutation    | §4                                        |
+| Writing a render loop or simulation step      | §6, §1.2                                  |
+| Mounting something with `start`/`stop`        | §7                                        |
+| Calling `fetch` or any async API              | §9                                        |
+| Loading a static asset from a library package | §12.3                                     |
+| Tempted to write `useMemo` / `useCallback`    | §12.4                                     |
+| Splitting a file                              | §2.6                                      |
+| Deciding where a type lives                   | §2.6                                      |
+| Naming or renaming a project concept          | §2.1.8, §2.1.9 + `codex/docs/GLOSSARY.md` |
 
 ---
 

@@ -199,13 +199,15 @@ Do not invent abbreviations for local convenience. Use a full word unless the ab
 
 ### 2.1.8 Domain vocabulary
 
-Overloaded domain words are expensive to rediscover. Each project therefore keeps a glossary, and that glossary is the source of truth for its vocabulary. The convention is about what the glossary must contain, not about any particular domain.
+Overloaded project words are expensive to rediscover. `codex/docs/GLOSSARY.md` is the single source of truth for PG_LAB's vocabulary. Use the `domain-modeling` skill when a term is introduced, clarified, or renamed; update the glossary in the same change (§2.1.9).
 
-A useful glossary records:
+A glossary entry records:
 
 - the canonical word for each concept, and the synonyms that are forbidden;
 - the distinctions between near-synonyms that are genuinely different concepts;
 - the unit or range carried by a numeric name when it is not obvious.
+
+The entry format is defined in `.agents/skills/domain-modeling/GLOSSARY-FORMAT.md`. Keep entries short, in English, and free of implementation details. Do not add generic programming concepts (timeouts, stores, hooks) even when they are used often.
 
 Example of the kind of distinction worth writing down:
 
