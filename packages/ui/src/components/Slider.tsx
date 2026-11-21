@@ -2,8 +2,8 @@ import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
-import { surfaceStyles } from '../recipes/surface';
-import type { SurfaceProps } from '../recipes/surface';
+import { surfaceStyle } from '../recipes/surface';
+import type { SurfaceStyleProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { layout, space } from '../tokens/const.stylex';
 import { tintVars } from '../tokens/tint.stylex';
@@ -121,7 +121,7 @@ interface SliderProps
             | 'max'
             | 'step'
         >,
-        SurfaceProps {
+        SurfaceStyleProps {
     label?: string;
     min: number;
     max: number;
@@ -158,14 +158,14 @@ export function Slider({
     const precision = decimals(step);
     const ratio = max > min ? (current - min) / (max - min) : 0;
 
-    const trackSurface = surfaceStyles({ color, background, border, radius, elevation: 'flat' });
-    const fillSurface = surfaceStyles({
+    const trackSurface = surfaceStyle({ color, background, border, radius, elevation: 'flat' });
+    const fillSurface = surfaceStyle({
         color,
         background: 'solid',
         border: 'none',
         radius: 'none', // la piste clippe déjà avec overflow: hidden
     });
-    const thumbSurface = surfaceStyles({
+    const thumbSurface = surfaceStyle({
         color,
         background: 'solid',
         border,

@@ -2,7 +2,7 @@ import { Card } from '@repo/ui/components/Card';
 import { Grid } from '@repo/ui/components/Grid';
 import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
-import { surfaceStyles } from '@repo/ui/recipes/surface';
+import { surfaceStyle } from '@repo/ui/recipes/surface';
 import { heading } from '@repo/ui/recipes/typography';
 import { space, typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
@@ -135,7 +135,7 @@ function OverviewView({ sourceData }: OverviewViewProps) {
                 background="soft"
                 border="strong"
                 {...stylex.props(
-                    surfaceStyles({ color: 'amber', background: 'soft', border: 'strong' }),
+                    surfaceStyle({ color: 'amber', background: 'soft', border: 'strong' }),
                 )}
             >
                 <h3 {...stylex.props(heading.level2)}>pixel (recommended)</h3>

@@ -1,6 +1,6 @@
 import { Badge } from '@repo/ui/components/Badge';
 import { Button } from '@repo/ui/components/Button';
-import { surfaceStyles } from '@repo/ui/recipes/surface';
+import { surfaceStyle } from '@repo/ui/recipes/surface';
 import { space, typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
 import * as stylex from '@stylexjs/stylex';
@@ -171,7 +171,7 @@ export function Scene() {
             {items.length === 0 ? (
                 <div
                     {...stylex.props(
-                        surfaceStyles({
+                        surfaceStyle({
                             color: 'neutral',
                             background: 'soft',
                             border: 'subtle',

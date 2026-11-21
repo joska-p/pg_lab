@@ -3,8 +3,8 @@ import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId, useRef } from 'react';
 
 import { interactionStyles } from '../recipes/interactions';
-import { surfaceStyles } from '../recipes/surface';
-import type { SurfaceProps } from '../recipes/surface';
+import { surfaceStyle } from '../recipes/surface';
+import type { SurfaceStyleProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { interaction, layout, space, typography } from '../tokens/const.stylex';
 
@@ -45,7 +45,7 @@ const styles = stylex.create({
     },
 });
 
-export interface FileInputProps extends SurfaceProps {
+export interface FileInputProps extends SurfaceStyleProps {
     readonly label?: string;
     readonly accept?: string;
     readonly multiple?: boolean;
@@ -129,7 +129,7 @@ export function FileInput({
                 onClick={handleClick}
                 {...stylex.props(
                     styles.button,
-                    surfaceStyles({ color, background, border, radius, elevation }),
+                    surfaceStyle({ color, background, border, radius, elevation }),
                     interactionStyles({ disabled }),
                 )}
             >

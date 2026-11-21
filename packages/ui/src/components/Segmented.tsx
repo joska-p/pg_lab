@@ -3,8 +3,8 @@ import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId, useState } from 'react';
 
 import { interactionStyles } from '../recipes/interactions';
-import { surfaceStyles } from '../recipes/surface';
-import type { SurfaceProps } from '../recipes/surface';
+import { surfaceStyle } from '../recipes/surface';
+import type { SurfaceStyleProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { layout, space } from '../tokens/const.stylex';
 
@@ -13,7 +13,7 @@ interface SegmentOption<T extends string> {
     label?: string;
 }
 
-interface SegmentedProps<T extends string> extends SurfaceProps {
+interface SegmentedProps<T extends string> extends SurfaceStyleProps {
     label?: string;
     options: readonly T[] | readonly SegmentOption<T>[];
     value?: T;
@@ -107,7 +107,7 @@ export function Segmented<T extends string>({
     const [internal, setInternal] = useState(defaultValue ?? items[0]?.value);
     const isControlled = value !== undefined;
     const current = isControlled ? value : internal;
-    const surface = surfaceStyles({ color, background, border, radius, elevation });
+    const surface = surfaceStyle({ color, background, border, radius, elevation });
 
     function commit(next: T) {
         if (!isControlled) {

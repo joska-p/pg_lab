@@ -76,7 +76,7 @@ export class FrameLoop {
 
         this.#running = true;
         this.#lastTime = this.#now();
-        this.#tick(this.#lastTime);
+        this.#onAnimationFrame(this.#lastTime);
     }
 
     #stop(): void {
@@ -89,7 +89,7 @@ export class FrameLoop {
      * Schedule-before-dispatch: the next frame is re-linked before any callback runs, so a throwing
      * callback can never kill the animation chain.
      */
-    #tick = (rafTime: number): void => {
+    #onAnimationFrame = (rafTime: number): void => {
         if (!this.#running) {
             return;
         }
@@ -101,7 +101,7 @@ export class FrameLoop {
         this.#lastTime = timeSec;
 
         // Keep-alive first: re-link before any callback runs.
-        this.#cancelScheduled = this.#schedule(this.#tick);
+        this.#cancelScheduled = this.#schedule(this.#onAnimationFrame);
 
         this.#step(timeSec, delta);
     };

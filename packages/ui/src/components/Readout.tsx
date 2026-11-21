@@ -2,8 +2,8 @@ import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId } from 'react';
 
-import { surfaceStyles } from '../recipes/surface';
-import type { SurfaceProps } from '../recipes/surface';
+import { surfaceStyle } from '../recipes/surface';
+import type { SurfaceStyleProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { space } from '../tokens/const.stylex';
 
@@ -17,7 +17,7 @@ const styles = stylex.create({
     },
 });
 
-interface ReadoutProps extends SurfaceProps {
+interface ReadoutProps extends SurfaceStyleProps {
     label: string;
     value?: React.ReactNode;
     style?: StyleXStyles;
@@ -39,7 +39,7 @@ export function Readout({
         <div
             {...stylex.props(
                 styles.base,
-                surfaceStyles({ color, background, border, radius, elevation }),
+                surfaceStyle({ color, background, border, radius, elevation }),
                 style,
             )}
         >

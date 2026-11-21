@@ -4,7 +4,7 @@ import { useId, useState } from 'react';
 
 import { field } from '../recipes/fields';
 import { interactionStyles } from '../recipes/interactions';
-import { surfaceStyles } from '../recipes/surface';
+import { surfaceStyle } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { layout, space } from '../tokens/const.stylex';
 import type { ColorNames } from '../tokens/tint.stylex';
@@ -111,7 +111,7 @@ export function ColorField({
                     aria-invalid={invalid || undefined}
                     aria-describedby={errorMessage ? messageId : undefined}
                     {...stylex.props(
-                        surfaceStyles({
+                        surfaceStyle({
                             color: invalid ? 'error' : 'neutral',
                             background: 'soft',
                             border: 'strong',

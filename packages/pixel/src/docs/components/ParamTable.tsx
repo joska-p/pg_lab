@@ -1,4 +1,4 @@
-import { surfaceStyles } from '@repo/ui/recipes/surface';
+import { surfaceStyle } from '@repo/ui/recipes/surface';
 import { typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
 import * as stylex from '@stylexjs/stylex';
@@ -51,7 +51,7 @@ function ParamTable({ params }: ParamTableProps) {
         <div {...stylex.props(styles.wrapper)}>
             <table {...stylex.props(styles.table)}>
                 <thead>
-                    <tr {...stylex.props(surfaceStyles({ background: 'soft' }))}>
+                    <tr {...stylex.props(surfaceStyle({ background: 'soft' }))}>
                         <th {...stylex.props(styles.th)}>Name</th>
                         <th {...stylex.props(styles.th)}>Type</th>
                         <th {...stylex.props(styles.th)}>Default</th>

@@ -1,8 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { surfaceStyles } from '../recipes/surface';
-import type { SurfaceProps } from '../recipes/surface';
+import { surfaceStyle } from '../recipes/surface';
+import type { SurfaceStyleProps } from '../recipes/surface';
 import { layout, typography, space } from '../tokens/const.stylex';
 
 const styles = stylex.create({
@@ -20,7 +20,7 @@ const styles = stylex.create({
 });
 
 interface BadgeProps
-    extends Omit<React.ComponentProps<'span'>, 'style' | 'className' | 'color'>, SurfaceProps {
+    extends Omit<React.ComponentProps<'span'>, 'style' | 'className' | 'color'>, SurfaceStyleProps {
     disabled?: boolean;
     style?: StyleXStyles;
     children?: React.ReactNode;
@@ -39,7 +39,7 @@ export function Badge({
         <span
             {...stylex.props(
                 styles.base,
-                surfaceStyles({ color, background, border, radius, elevation }),
+                surfaceStyle({ color, background, border, radius, elevation }),
                 style,
             )}
         >

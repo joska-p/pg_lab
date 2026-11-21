@@ -2,7 +2,7 @@ import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 import { useRef, useState } from 'react';
 
-import { surfaceStyles } from '../recipes/surface';
+import { surfaceStyle } from '../recipes/surface';
 import { layout, radius, space, motion } from '../tokens/const.stylex';
 import { Button } from './Button';
 
@@ -10,7 +10,7 @@ const COLLAPSED_SIZE = 16;
 const COLLAPSE_BELOW = COLLAPSED_SIZE * 1.5;
 const PORTRAIT_QUERY = '(orientation: portrait)';
 
-const surface = surfaceStyles({
+const surface = surfaceStyle({
     background: 'soft',
     border: 'subtle',
     elevation: 'raised',

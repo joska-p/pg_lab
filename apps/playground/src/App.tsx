@@ -6,7 +6,7 @@ import { Select } from '@repo/ui/components/Select';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Stage } from '@repo/ui/components/Stage';
 import { ThemeToggle } from '@repo/ui/components/ThemeToggle';
-import { surfaceStyles } from '@repo/ui/recipes/surface';
+import { surfaceStyle } from '@repo/ui/recipes/surface';
 import { borderWidth, space, typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
 import * as stylex from '@stylexjs/stylex';
@@ -134,7 +134,7 @@ function StudioHeader({
     return (
         <header
             {...stylex.props(
-                surfaceStyles({
+                surfaceStyle({
                     background: 'soft',
                     border: 'none',
                     elevation: 'flat',

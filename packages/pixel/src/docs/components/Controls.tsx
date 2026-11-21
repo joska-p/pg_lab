@@ -1,6 +1,6 @@
 import { Badge } from '@repo/ui/components/Badge';
 import { Stack } from '@repo/ui/components/Stack';
-import { surfaceStyles } from '@repo/ui/recipes/surface';
+import { surfaceStyle } from '@repo/ui/recipes/surface';
 import { heading } from '@repo/ui/recipes/typography';
 import { space, typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
@@ -174,7 +174,7 @@ function Controls() {
                                                 styles.item,
                                                 isActive && styles.itemActive,
                                                 isActive &&
-                                                    surfaceStyles({
+                                                    surfaceStyle({
                                                         color,
                                                         background: 'soft',
                                                         border: 'none',

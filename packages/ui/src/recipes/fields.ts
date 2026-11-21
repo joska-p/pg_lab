@@ -2,7 +2,7 @@ import * as stylex from '@stylexjs/stylex';
 
 import { layout, space } from '../tokens/const.stylex';
 import { interactions } from './interactions';
-import { surfaceStyles } from './surface';
+import { surfaceStyle } from './surface';
 
 // Mise en page commune aux champs de formulaire (label + contrôle + message).
 export const field = stylex.create({
@@ -19,7 +19,7 @@ export const field = stylex.create({
         gap: space['2'],
     },
     // Gabarit d'un puits de saisie (texte, nombre, select...) : dimensions et
-    // padding seulement. Fond, bordure, rayon et ombre viennent de surfaceStyles.
+    // padding seulement. Fond, bordure, rayon et ombre viennent de surfaceStyle.
     // `minHeight` porte le plancher tactile de 44px — le padding vertical ne le
     // fait plus, il ne sert que le textarea et les polices plus hautes. Le
     // navigateur centre la valeur dans la boîte, donc le texte reste centré.
@@ -43,7 +43,7 @@ export function wellStyles({
     disabled = false,
 }: { invalid?: boolean; disabled?: boolean } = {}) {
     return [
-        surfaceStyles({
+        surfaceStyle({
             color: invalid ? 'error' : 'neutral',
             background: 'soft',
             border: 'strong',

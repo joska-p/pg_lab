@@ -3,7 +3,7 @@ import type { StyleXStyles } from '@stylexjs/stylex';
 import { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 
-import { surfaceStyles } from '../recipes/surface';
+import { surfaceStyle } from '../recipes/surface';
 import { space } from '../tokens/const.stylex';
 import { Button } from './Button';
 
@@ -79,7 +79,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                     role="alert"
                     {...stylex.props(
                         styles.base,
-                        surfaceStyles({ color: 'error', background: 'solid', elevation: 'raised' }),
+                        surfaceStyle({ color: 'error', background: 'solid', elevation: 'raised' }),
                         style,
                     )}
                 >

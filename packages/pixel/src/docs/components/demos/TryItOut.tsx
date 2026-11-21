@@ -1,5 +1,5 @@
 import { Slider } from '@repo/ui/components/Slider';
-import { surfaceStyles } from '@repo/ui/recipes/surface';
+import { surfaceStyle } from '@repo/ui/recipes/surface';
 import { fieldText } from '@repo/ui/recipes/typography';
 import { space, typography } from '@repo/ui/tokens/const.stylex';
 import { colors } from '@repo/ui/tokens/tint.stylex';
@@ -162,7 +162,7 @@ function TryItOut({ sourceData, manip, paramValues, onParamChange }: TryItOutPro
                             style={{ imageRendering: 'pixelated' }}
                             {...stylex.props(
                                 styles.image,
-                                surfaceStyles({ background: 'none', border: 'subtle' }),
+                                surfaceStyle({ background: 'none', border: 'subtle' }),
                             )}
                         />
                     </div>

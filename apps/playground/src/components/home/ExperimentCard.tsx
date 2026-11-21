@@ -1,7 +1,7 @@
 import { Badge } from '@repo/ui/components/Badge';
 import { Button } from '@repo/ui/components/Button';
 import { interactionStyles } from '@repo/ui/recipes/interactions';
-import { surfaceStyles } from '@repo/ui/recipes/surface';
+import { surfaceStyle } from '@repo/ui/recipes/surface';
 import { colorText } from '@repo/ui/recipes/tint';
 import { layout, space, typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
@@ -138,7 +138,7 @@ export function ExperimentCard({ item, onSelectTag }: ExperimentCardProps) {
             onClick={handleNavigate}
             onKeyDown={handleKeyDown}
             {...stylex.props(
-                surfaceStyles({
+                surfaceStyle({
                     color: item.tint,
                     background: 'soft',
                     border: 'subtle',

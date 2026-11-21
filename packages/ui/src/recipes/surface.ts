@@ -79,8 +79,8 @@ export const elevations = stylex.create({
 
 export type Elevation = keyof typeof elevations;
 
-// Les 5 axes d'une surface, à étendre dans les props de chaque composant.
-export interface SurfaceProps {
+// Les 5 axes d'un style de surface, à étendre dans les props de chaque composant.
+export interface SurfaceStyleProps {
     color?: ColorNames;
     background?: Background;
     border?: Borders;
@@ -93,13 +93,13 @@ export interface SurfaceProps {
  * remplissage visuel (backgrounds/borders/corners/elevations lisent ces vars). Ne sait rien du
  * survol ou du disabled — voir interactionStyles() dans interactions.ts.
  */
-export function surfaceStyles({
+export function surfaceStyle({
     color = 'neutral',
     background = 'soft',
     border = 'subtle',
     radius = 'md',
     elevation = 'flat',
-}: SurfaceProps = {}) {
+}: SurfaceStyleProps = {}) {
     return [
         tint[color],
         backgrounds[background],

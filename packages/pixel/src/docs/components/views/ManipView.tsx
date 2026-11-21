@@ -2,7 +2,7 @@ import { Badge } from '@repo/ui/components/Badge';
 import { Card } from '@repo/ui/components/Card';
 import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
-import { surfaceStyles } from '@repo/ui/recipes/surface';
+import { surfaceStyle } from '@repo/ui/recipes/surface';
 import { heading } from '@repo/ui/recipes/typography';
 import { space, typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
@@ -117,7 +117,7 @@ function ManipView({
             <div
                 {...stylex.props(
                     styles.howItWorks,
-                    surfaceStyles({ color, background: 'soft', border: 'subtle' }),
+                    surfaceStyle({ color, background: 'soft', border: 'subtle' }),
                 )}
             >
                 <h3 {...stylex.props(heading.level3, styles.howItWorksTitle)}>How It Works</h3>

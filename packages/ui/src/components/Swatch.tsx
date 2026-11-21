@@ -1,8 +1,8 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
-import { surfaceStyles } from '../recipes/surface';
-import type { SurfaceProps } from '../recipes/surface';
+import { surfaceStyle } from '../recipes/surface';
+import type { SurfaceStyleProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { layout, space } from '../tokens/const.stylex';
 
@@ -21,7 +21,7 @@ const styles = stylex.create({
 
 // Un Swatch montre maintenant le rendu d'une combinaison de la recette de surface,
 // au lieu d'une couleur brute de token.
-interface SwatchProps extends SurfaceProps {
+interface SwatchProps extends SurfaceStyleProps {
     name?: string;
     meta?: string;
     style?: StyleXStyles;
@@ -43,7 +43,7 @@ export function Swatch({
                 aria-hidden
                 {...stylex.props(
                     styles.box,
-                    surfaceStyles({ color, background, border, radius, elevation }),
+                    surfaceStyle({ color, background, border, radius, elevation }),
                 )}
             />
             <span {...stylex.props(fieldText.label)}>{name ?? `${color} / ${background}`}</span>

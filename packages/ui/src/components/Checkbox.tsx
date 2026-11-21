@@ -3,8 +3,8 @@ import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId } from 'react';
 
 import { interactionStyles } from '../recipes/interactions';
-import { surfaceStyles } from '../recipes/surface';
-import type { SurfaceProps } from '../recipes/surface';
+import { surfaceStyle } from '../recipes/surface';
+import type { SurfaceStyleProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { interaction, layout, space } from '../tokens/const.stylex';
 
@@ -73,7 +73,7 @@ const styles = stylex.create({
 interface CheckboxProps
     extends
         Omit<React.ComponentProps<'input'>, 'style' | 'className' | 'color' | 'type' | 'onChange'>,
-        SurfaceProps {
+        SurfaceStyleProps {
     label?: string;
     onCheckedChange?: (checked: boolean) => void;
     style?: StyleXStyles;
@@ -118,7 +118,7 @@ export function Checkbox({
                 onChange={(event) => onCheckedChange?.(event.target.checked)}
                 {...stylex.props(
                     styles.input,
-                    surfaceStyles({ color, background, border, radius, elevation }),
+                    surfaceStyle({ color, background, border, radius, elevation }),
                     interactionStyles({ disabled }),
                     style,
                 )}

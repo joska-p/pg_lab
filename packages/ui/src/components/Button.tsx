@@ -2,8 +2,8 @@ import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
 import { interactionStyles } from '../recipes/interactions';
-import { surfaceStyles } from '../recipes/surface';
-import type { SurfaceProps } from '../recipes/surface';
+import { surfaceStyle } from '../recipes/surface';
+import type { SurfaceStyleProps } from '../recipes/surface';
 import { layout, typography, space } from '../tokens/const.stylex';
 
 const styles = stylex.create({
@@ -24,7 +24,9 @@ const styles = stylex.create({
 });
 
 interface ButtonProps
-    extends Omit<React.ComponentProps<'button'>, 'style' | 'className' | 'color'>, SurfaceProps {
+    extends
+        Omit<React.ComponentProps<'button'>, 'style' | 'className' | 'color'>,
+        SurfaceStyleProps {
     disabled?: boolean;
     style?: StyleXStyles;
 }
@@ -48,7 +50,7 @@ export function Button({
             disabled={disabled}
             {...stylex.props(
                 styles.base,
-                surfaceStyles({ color, background, border, radius, elevation }),
+                surfaceStyle({ color, background, border, radius, elevation }),
                 interactionStyles({ disabled }),
                 style,
             )}

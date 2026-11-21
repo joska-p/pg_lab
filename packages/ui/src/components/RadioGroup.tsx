@@ -3,8 +3,8 @@ import type { StyleXStyles } from '@stylexjs/stylex';
 import { useId } from 'react';
 
 import { interactionStyles } from '../recipes/interactions';
-import { surfaceStyles } from '../recipes/surface';
-import type { SurfaceProps } from '../recipes/surface';
+import { surfaceStyle } from '../recipes/surface';
+import type { SurfaceStyleProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { interaction, layout, space } from '../tokens/const.stylex';
 
@@ -13,7 +13,7 @@ interface RadioOption<T extends string> {
     label?: string;
 }
 
-interface RadioGroupProps<T extends string> extends SurfaceProps {
+interface RadioGroupProps<T extends string> extends SurfaceStyleProps {
     label?: string;
     options: readonly T[] | readonly RadioOption<T>[];
     value?: T;
@@ -146,7 +146,7 @@ export function RadioGroup<T extends string>({
                             onChange={() => onValueChange?.(option.value)}
                             {...stylex.props(
                                 styles.input,
-                                surfaceStyles({ color, background, border, radius, elevation }),
+                                surfaceStyle({ color, background, border, radius, elevation }),
                                 interactionStyles({ disabled }),
                             )}
                         />

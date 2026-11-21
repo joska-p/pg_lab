@@ -1,7 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
-import type { SurfaceProps } from '../recipes/surface';
+import type { SurfaceStyleProps } from '../recipes/surface';
 import { heading } from '../recipes/typography';
 import { space } from '../tokens/const.stylex';
 import { Led } from './Led';
@@ -17,7 +17,7 @@ const styles = stylex.create({
 interface SectionHeadingProps {
     index?: string;
     title: string;
-    color?: SurfaceProps['color'];
+    color?: SurfaceStyleProps['color'];
     style?: StyleXStyles;
 }
 

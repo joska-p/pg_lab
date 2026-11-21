@@ -3,7 +3,7 @@ import type { StyleXStyles } from '@stylexjs/stylex';
 import { useSyncExternalStore } from 'react';
 
 import { useTheme } from '../hooks/useTheme';
-import type { SurfaceProps } from '../recipes/surface';
+import type { SurfaceStyleProps } from '../recipes/surface';
 import { layout, motion } from '../tokens/const.stylex';
 import { Button } from './Button';
 
@@ -72,7 +72,7 @@ const styles = stylex.create({
 interface ThemeToggleProps
     extends
         Omit<React.ComponentProps<'button'>, 'style' | 'className' | 'color' | 'type' | 'children'>,
-        SurfaceProps {
+        SurfaceStyleProps {
     style?: StyleXStyles;
 }
 

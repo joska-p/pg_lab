@@ -1,6 +1,6 @@
 import { Stack } from '@repo/ui/components/Stack';
 import { Text } from '@repo/ui/components/Text';
-import { surfaceStyles } from '@repo/ui/recipes/surface';
+import { surfaceStyle } from '@repo/ui/recipes/surface';
 import { heading } from '@repo/ui/recipes/typography';
 import { space, typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
@@ -112,7 +112,7 @@ function InfoBox({
         <div
             {...stylex.props(
                 styles.infoBox,
-                surfaceStyles({ color, background: 'soft', border: 'subtle' }),
+                surfaceStyle({ color, background: 'soft', border: 'subtle' }),
             )}
         >
             {title && <h3 {...stylex.props(heading.level3, styles.infoBoxTitle)}>{title}</h3>}
@@ -132,7 +132,7 @@ function MonoBlock({
         <div
             {...stylex.props(
                 styles.monoBlock,
-                surfaceStyles({ color, background: 'soft', border: 'subtle' }),
+                surfaceStyle({ color, background: 'soft', border: 'subtle' }),
             )}
         >
             {children}
@@ -266,7 +266,7 @@ output = top * (1 - dy) + bottom * dy`}</MonoBlock>
                 <div {...stylex.props(styles.tableWrapper)}>
                     <table {...stylex.props(styles.table)}>
                         <thead>
-                            <tr {...stylex.props(surfaceStyles({ background: 'soft' }))}>
+                            <tr {...stylex.props(surfaceStyle({ background: 'soft' }))}>
                                 <th {...stylex.props(styles.th)}>Case</th>
                                 <th {...stylex.props(styles.th)}>Result</th>
                             </tr>
@@ -323,7 +323,7 @@ Dispatch: postMessage with Transferable buffers
                 <div {...stylex.props(styles.tableWrapper)}>
                     <table {...stylex.props(styles.table)}>
                         <thead>
-                            <tr {...stylex.props(surfaceStyles({ background: 'soft' }))}>
+                            <tr {...stylex.props(surfaceStyle({ background: 'soft' }))}>
                                 <th {...stylex.props(styles.th)}>Constant</th>
                                 <th {...stylex.props(styles.th)}>Value</th>
                                 <th {...stylex.props(styles.th)}>Description</th>
