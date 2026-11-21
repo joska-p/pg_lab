@@ -36,7 +36,6 @@ const styles = stylex.create({
             gap: space['4'],
         },
     },
-
     stage: {
         position: 'relative',
         flex: 1,
@@ -54,7 +53,6 @@ const styles = stylex.create({
             gap: space['4'],
         },
     },
-
     panel: {
         '--panel-width': layout.panelWidth,
         '--panel-height': 'auto',
@@ -83,7 +81,6 @@ const styles = stylex.create({
             '@media (orientation: portrait)': layout.panelMaxMobileHeight,
         },
     },
-
     panelCollapsed: {
         width: {
             default: COLLAPSED_SIZE,
@@ -94,7 +91,6 @@ const styles = stylex.create({
             '@media (orientation: portrait)': COLLAPSED_SIZE,
         },
     },
-
     panelContent: {
         display: 'flex',
         flex: 1,
@@ -109,11 +105,9 @@ const styles = stylex.create({
             gap: space['4'],
         },
     },
-
     contentHidden: {
         display: 'none',
     },
-
     handle: {
         position: 'absolute',
         top: '50%',

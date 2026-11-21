@@ -12,6 +12,7 @@ import * as stylex from '@stylexjs/stylex';
 import { Activity, Suspense, use, useEffect, useState } from 'react';
 import { Routes, Route, useParams, useNavigate } from 'react-router';
 
+import { RandomJumpButton } from './components/RandomJumpButton';
 import {
     EXPERIMENTS,
     experimentOptions,
@@ -21,7 +22,6 @@ import {
     loadScene,
 } from './experiments';
 import type { ExperimentDefinition, ExperimentId } from './experiments';
-import { useShellBackground } from './stores/appStore';
 
 const styles = stylex.create({
     workbench: {
@@ -105,10 +105,8 @@ const styles = stylex.create({
 });
 
 function LoadingFallback() {
-    const shellBackground = useShellBackground();
-
     return (
-        <ShellWrapper background={shellBackground}>
+        <ShellWrapper>
             <ExperimentShell stageLabel="loading">
                 <p>Loading…</p>
             </ExperimentShell>
@@ -154,6 +152,7 @@ function StudioHeader({
                         options={experimentOptions}
                     />
                 </div>
+                <RandomJumpButton />
             </div>
 
             <div {...stylex.props(styles.headerActions)}>
@@ -237,7 +236,6 @@ function ExperimentContent({
 }
 
 function ExperimentLayout() {
-    const shellBackground = useShellBackground();
     const { experiment } = useParams();
     const navigate = useNavigate();
     const [panelCollapsed, setPanelCollapsed] = useState(false);
@@ -287,7 +285,7 @@ function ExperimentLayout() {
     }, [currentExperiment.id, navigate]);
 
     return (
-        <ShellWrapper background={shellBackground}>
+        <ShellWrapper>
             <div {...stylex.props(styles.workbench)}>
                 <StudioHeader
                     currentExperiment={currentExperiment}

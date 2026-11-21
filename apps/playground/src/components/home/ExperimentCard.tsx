@@ -1,13 +1,11 @@
-import { Badge } from '@repo/ui/components/Badge';
 import { Button } from '@repo/ui/components/Button';
 import { interactionStyles } from '@repo/ui/recipes/interactions';
 import { surfaceStyle } from '@repo/ui/recipes/surface';
-import { colorText } from '@repo/ui/recipes/tint';
 import { layout, space, typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
 import { tintVars } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
-import type { KeyboardEvent, MouseEvent } from 'react';
+import type { KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router';
 
 import { experimentPath } from '../../experiments';
@@ -32,26 +30,6 @@ const styles = stylex.create({
         padding: space['4'],
         gap: space['3'],
     },
-    headerRow: {
-        display: 'flex',
-        alignItems: 'baseline',
-        justifyContent: 'space-between',
-        gap: space['2'],
-    },
-    slug: {
-        fontFamily: typography.fontFamilyMono,
-        fontSize: typography.fontSizeXs,
-        letterSpacing: typography.letterSpacingNormal,
-    },
-    statusBadge: {
-        fontFamily: typography.fontFamilyMono,
-        fontSize: typography.fontSizeXs,
-        paddingBlock: '1px',
-        paddingInline: space['2'],
-    },
-    dimmed: {
-        opacity: 0.5,
-    },
     title: {
         fontFamily: typography.fontFamilySans,
         fontSize: typography.fontSizeLg,
@@ -67,26 +45,6 @@ const styles = stylex.create({
         color: `color-mix(in oklab, ${surface.foreground} 75%, transparent)`,
         margin: 0,
         flex: 1,
-    },
-    tagRow: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: space['1'],
-        marginTop: 'auto',
-    },
-    tagButton: {
-        background: 'none',
-        border: 'none',
-        padding: 0,
-        cursor: 'pointer',
-        fontFamily: 'inherit',
-    },
-    tagText: {
-        fontFamily: typography.fontFamilyMono,
-        fontSize: typography.fontSizeXs,
-        paddingBlock: '1px',
-        paddingInline: space['2'],
-        color: `color-mix(in oklab, ${surface.foreground} 80%, transparent)`,
     },
     footer: {
         display: 'flex',
@@ -109,10 +67,9 @@ const styles = stylex.create({
 
 interface ExperimentCardProps {
     readonly item: Experiment;
-    readonly onSelectTag?: (tag: string) => void;
 }
 
-export function ExperimentCard({ item, onSelectTag }: ExperimentCardProps) {
+export function ExperimentCard({ item }: ExperimentCardProps) {
     const navigate = useNavigate();
     const path = experimentPath(item);
 
@@ -125,11 +82,6 @@ export function ExperimentCard({ item, onSelectTag }: ExperimentCardProps) {
             event.preventDefault();
             handleNavigate();
         }
-    };
-
-    const handleTagClick = (event: MouseEvent, tag: string) => {
-        event.stopPropagation();
-        onSelectTag?.(tag);
     };
 
     return (
@@ -154,50 +106,8 @@ export function ExperimentCard({ item, onSelectTag }: ExperimentCardProps) {
             <ExperimentVisual mark={item.mark} />
 
             <div {...stylex.props(styles.body)}>
-                <div {...stylex.props(styles.headerRow)}>
-                    <span {...stylex.props(styles.slug, colorText[item.tint])}>
-                        {path === '/' ? 'pg:/' : `pg:${path}`}
-                    </span>
-                    {item.isHome ? (
-                        <Badge
-                            color="neutral"
-                            background="soft"
-                            border="subtle"
-                            radius="sm"
-                            style={styles.statusBadge}
-                        >
-                            Hub
-                        </Badge>
-                    ) : (
-                        <span {...stylex.props(styles.slug, styles.dimmed)}>exp</span>
-                    )}
-                </div>
-
                 <h3 {...stylex.props(styles.title)}>{item.label}</h3>
-
                 <p {...stylex.props(styles.summary)}>{item.summary}</p>
-
-                <div {...stylex.props(styles.tagRow)}>
-                    {item.tags.map((tag) => (
-                        <button
-                            key={tag}
-                            type="button"
-                            onClick={(e) => handleTagClick(e, tag)}
-                            title={`Filtrer par #${tag}`}
-                            {...stylex.props(styles.tagButton)}
-                        >
-                            <Badge
-                                color={item.tint}
-                                background="none"
-                                border="subtle"
-                                radius="full"
-                                style={styles.tagText}
-                            >
-                                #{tag}
-                            </Badge>
-                        </button>
-                    ))}
-                </div>
             </div>
 
             <div {...stylex.props(styles.footer)}>
