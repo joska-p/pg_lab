@@ -9,8 +9,8 @@ import { surface } from '@repo/ui/tokens/surface.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useNavigate } from 'react-router';
 
+import { experimentPath, interactiveExperiments, POPULAR_TAGS } from '../../experiments';
 import { setShellBackground, useShellBackground } from '../../stores/appStore';
-import { EXPERIMENT_ITEMS, POPULAR_TAGS } from './data';
 import { useHomeStore } from './homeStore';
 import type { SortMode } from './homeStore';
 
@@ -66,11 +66,10 @@ export function Controls() {
     const hasActiveFilters = searchQuery.trim().length > 0 || Boolean(selectedTag);
 
     const handleRandomJump = () => {
-        const interactiveExperiments = EXPERIMENT_ITEMS.filter((item) => !item.isHome);
         const randomItem =
             interactiveExperiments[Math.floor(Math.random() * interactiveExperiments.length)];
         if (randomItem) {
-            void navigate(randomItem.path);
+            void navigate(experimentPath(randomItem));
         }
     };
 
@@ -159,7 +158,8 @@ export function Controls() {
                         🎲 Expérience au hasard
                     </Button>
                     <p {...stylex.props(styles.hint)}>
-                        Saute directement dans une des 13 expériences interactives.
+                        Saute directement dans une des {interactiveExperiments.length} expériences
+                        interactives.
                     </p>
                 </div>
             </ControlSection>

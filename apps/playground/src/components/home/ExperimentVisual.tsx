@@ -22,7 +22,7 @@ const styles = stylex.create({
     },
 });
 
-export function ExperimentVisual({ id }: { id: string }) {
+export function ExperimentVisual({ mark }: { mark: string }) {
     return (
         <div {...stylex.props(styles.container)} aria-hidden="true">
             <svg
@@ -31,7 +31,7 @@ export function ExperimentVisual({ id }: { id: string }) {
                 {...stylex.props(styles.svg)}
             >
                 <defs>
-                    <linearGradient id={`grad-${id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                    <linearGradient id={`grad-${mark}`} x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop
                             offset="0%"
                             stopColor="var(--tint-color, currentColor)"
@@ -50,7 +50,7 @@ export function ExperimentVisual({ id }: { id: string }) {
 
                 <rect width="320" height="96" fill="url(#dot-grid)" />
 
-                {id === 'home' && (
+                {mark === 'home' && (
                     <g stroke="currentColor" fill="none">
                         <circle
                             cx="160"
@@ -76,7 +76,7 @@ export function ExperimentVisual({ id }: { id: string }) {
                     </g>
                 )}
 
-                {id === 'art-canvas' && (
+                {mark === 'art-canvas' && (
                     <g stroke="currentColor" fill="none">
                         <path
                             d="M0 64 C 60 20, 100 80, 160 48 C 220 16, 260 76, 320 32"
@@ -103,7 +103,7 @@ export function ExperimentVisual({ id }: { id: string }) {
                     </g>
                 )}
 
-                {id === 'mosaic-maker' && (
+                {mark === 'mosaic-maker' && (
                     <g stroke="currentColor" fill="none" opacity="0.6">
                         {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
                             const x = 20 + i * 40;
@@ -138,7 +138,7 @@ export function ExperimentVisual({ id }: { id: string }) {
                     </g>
                 )}
 
-                {id === 'mol-demo' && (
+                {mark === 'mol-demo' && (
                     <g stroke="currentColor" fill="none">
                         <circle
                             cx="160"
@@ -176,7 +176,7 @@ export function ExperimentVisual({ id }: { id: string }) {
                     </g>
                 )}
 
-                {id === 'automa' && (
+                {mark === 'automa' && (
                     <g fill="currentColor">
                         {/* Glider */}
                         <g transform="translate(60, 24)">
@@ -207,7 +207,7 @@ export function ExperimentVisual({ id }: { id: string }) {
                     </g>
                 )}
 
-                {id === 'fracture' && (
+                {mark === 'fracture' && (
                     <g stroke="currentColor" fill="none">
                         {/* Main cardioid */}
                         <path
@@ -234,7 +234,7 @@ export function ExperimentVisual({ id }: { id: string }) {
                     </g>
                 )}
 
-                {id === 'radu-machine-learning' && (
+                {mark === 'radu-machine-learning' && (
                     <g stroke="currentColor">
                         {/* Layer connections */}
                         <g strokeWidth="1" opacity="0.35">
@@ -285,7 +285,7 @@ export function ExperimentVisual({ id }: { id: string }) {
                     </g>
                 )}
 
-                {id === 'randomart' && (
+                {mark === 'randomart' && (
                     <g stroke="currentColor" fill="none">
                         {/* AST Tree */}
                         <circle cx="160" cy="18" r="6" fill="currentColor" opacity="0.8" />
@@ -304,7 +304,7 @@ export function ExperimentVisual({ id }: { id: string }) {
                     </g>
                 )}
 
-                {id === 'oeis-signal' && (
+                {mark === 'oeis-signal' && (
                     <g stroke="currentColor">
                         {/* Impulse train */}
                         {[
@@ -345,7 +345,7 @@ export function ExperimentVisual({ id }: { id: string }) {
                     </g>
                 )}
 
-                {id === 'palette' && (
+                {mark === 'palette' && (
                     <g stroke="currentColor" fill="none">
                         <circle
                             cx="160"
@@ -385,7 +385,7 @@ export function ExperimentVisual({ id }: { id: string }) {
                     </g>
                 )}
 
-                {id === 'pixel' && (
+                {mark === 'pixel' && (
                     <g stroke="currentColor" fill="none">
                         {/* Pipeline nodes */}
                         <rect
@@ -431,7 +431,7 @@ export function ExperimentVisual({ id }: { id: string }) {
                     </g>
                 )}
 
-                {id === 'pixel-manipulator' && (
+                {mark === 'pixel-manipulator' && (
                     <g fill="currentColor">
                         {/* 3x3 Convolution Matrix */}
                         <g transform="translate(132, 20)">
@@ -468,7 +468,7 @@ export function ExperimentVisual({ id }: { id: string }) {
                     </g>
                 )}
 
-                {id === 'notebook' && (
+                {mark === 'notebook' && (
                     <g stroke="currentColor" fill="none">
                         {/* Markdown cell notebook */}
                         <rect
@@ -499,7 +499,7 @@ export function ExperimentVisual({ id }: { id: string }) {
                     </g>
                 )}
 
-                {id === 'sequencer' && (
+                {mark === 'sequencer' && (
                     <g fill="currentColor">
                         {/* 16-step grid across 4 tracks */}
                         {[0, 1, 2, 3].map((track) => {

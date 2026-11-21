@@ -31,7 +31,7 @@ packages/random-art/
 ├── .gitignore
 └── src/
     ├── main.tsx
-    ├── App.tsx            ← ExperimentShell + ControlPanel + Stage
+    ├── App.tsx            ← ExperimentShell + ControlPanel
     ├── style.css
     └── stores/
         └── appStore.tsx   ← zustand (theme light/dark/system)
@@ -51,4 +51,4 @@ La mini-app générée est identique à `packages/specimen` :
 - React 19 + React Compiler
 - StyleX (via `@repo/ui/stylex-preset`)
 - Zustand pour le state UI
-- `ExperimentShell` / `Stage` / `ControlPanel` de `@repo/ui`
+- `ExperimentShell` / `ControlPanel` de `@repo/ui`

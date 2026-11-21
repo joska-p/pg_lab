@@ -5,6 +5,7 @@ import { space, typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
 import * as stylex from '@stylexjs/stylex';
 
+import { experimentCount } from '../../experiments';
 import { ExperimentCard } from './ExperimentCard';
 import { useFilteredExperiments, useHomeStore } from './homeStore';
 
@@ -14,16 +15,10 @@ const styles = stylex.create({
         flexDirection: 'column',
         width: '100%',
         minHeight: '100%',
-        paddingInline: {
-            default: space['4'],
-            '@media (min-width: 768px)': space['6'],
-            '@media (min-width: 1200px)': space['8'],
+        gap: space['2'],
+        '@media (min-width: 1024px)': {
+            gap: space['4'],
         },
-        paddingBlock: {
-            default: space['4'],
-            '@media (min-width: 768px)': space['6'],
-        },
-        gap: space['6'],
     },
     hero: {
         display: 'flex',
@@ -124,8 +119,8 @@ export function Scene() {
             <header {...stylex.props(styles.hero)}>
                 <h1 {...stylex.props(styles.heading)}>Creative Coding Laboratory</h1>
                 <p {...stylex.props(styles.lead)}>
-                    Quatorze environnements d'art procédural, de physique moléculaire, d'automates
-                    cellulaires, de fractales profondes et de synthèse sonore.
+                    {experimentCount} environnements d'art procédural, de physique moléculaire,
+                    d'automates cellulaires, de fractales profondes et de synthèse sonore.
                 </p>
 
                 <div {...stylex.props(styles.metaRow)}>

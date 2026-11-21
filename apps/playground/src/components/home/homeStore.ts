@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { create } from 'zustand';
 
-import { EXPERIMENT_ITEMS } from './data';
-import type { ExperimentItem } from './data';
+import { EXPERIMENTS, experimentCount, experimentPath } from '../../experiments';
+import type { Experiment } from '../../experiments';
 
 export type SortMode = 'registry' | 'alpha' | 'tint';
 
@@ -28,7 +28,7 @@ export const useHomeStore = create<HomeState>((set) => ({
         set((state) => ({
             selectedTag: state.selectedTag === tag ? null : tag,
         })),
-    resetFilters: () => set({ searchQuery: '', selectedTag: '', sortBy: 'registry' }),
+    resetFilters: () => set({ searchQuery: '', selectedTag: null, sortBy: 'registry' }),
 }));
 
 const TINT_ORDER: Record<string, number> = {
@@ -42,7 +42,7 @@ const TINT_ORDER: Record<string, number> = {
 };
 
 export function useFilteredExperiments(): {
-    items: readonly ExperimentItem[];
+    items: readonly Experiment[];
     totalCount: number;
     matchingCount: number;
     hasActiveFilters: boolean;
@@ -55,7 +55,7 @@ export function useFilteredExperiments(): {
     const hasActiveFilters = trimmedQuery.length > 0 || Boolean(selectedTag);
 
     const items = useMemo(() => {
-        let result = EXPERIMENT_ITEMS.filter((item) => {
+        let result = EXPERIMENTS.filter((item: Experiment) => {
             if (selectedTag && !item.tags.includes(selectedTag)) {
                 return false;
             }
@@ -63,7 +63,7 @@ export function useFilteredExperiments(): {
             if (trimmedQuery.length > 0) {
                 const matchTitle = item.label.toLowerCase().includes(trimmedQuery);
                 const matchSummary = item.summary.toLowerCase().includes(trimmedQuery);
-                const matchPath = item.path.toLowerCase().includes(trimmedQuery);
+                const matchPath = experimentPath(item).toLowerCase().includes(trimmedQuery);
                 const matchTag = item.tags.some((tag) => tag.toLowerCase().includes(trimmedQuery));
                 return matchTitle || matchSummary || matchPath || matchTag;
             }
@@ -89,7 +89,7 @@ export function useFilteredExperiments(): {
 
     return {
         items,
-        totalCount: EXPERIMENT_ITEMS.length,
+        totalCount: experimentCount,
         matchingCount: items.length,
         hasActiveFilters,
     };

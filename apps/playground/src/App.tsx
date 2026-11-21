@@ -4,7 +4,6 @@ import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { Select } from '@repo/ui/components/Select';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
-import { Stage } from '@repo/ui/components/Stage';
 import { ThemeToggle } from '@repo/ui/components/ThemeToggle';
 import { surfaceStyle } from '@repo/ui/recipes/surface';
 import { borderWidth, space, typography } from '@repo/ui/tokens/const.stylex';
@@ -16,6 +15,7 @@ import { Routes, Route, useParams, useNavigate } from 'react-router';
 import {
     EXPERIMENTS,
     experimentOptions,
+    experimentPath,
     getExperiment,
     loadControls,
     loadScene,
@@ -109,9 +109,9 @@ function LoadingFallback() {
 
     return (
         <ShellWrapper background={shellBackground}>
-            <Stage label="loading">
+            <ExperimentShell stageLabel="loading">
                 <p>Loading…</p>
-            </Stage>
+            </ExperimentShell>
         </ShellWrapper>
     );
 }
@@ -217,6 +217,8 @@ function ExperimentContent({
 
     return (
         <ExperimentShell
+            stageLabel={currentExperiment.stageLabel}
+            stageProps={stageProps}
             collapsed={panelCollapsed}
             onCollapsedChange={onCollapsedChange}
             panel={
@@ -227,11 +229,9 @@ function ExperimentContent({
                 </Activity>
             }
         >
-            <Stage label={currentExperiment.stageLabel} {...stageProps}>
-                <Activity>
-                    <Scene />
-                </Activity>
-            </Stage>
+            <Activity>
+                <Scene />
+            </Activity>
         </ExperimentShell>
     );
 }
@@ -277,7 +277,7 @@ function ExperimentLayout() {
                         : (currentIndex + 1) % EXPERIMENTS.length;
                 const nextExp = EXPERIMENTS[nextIndex];
                 if (nextExp) {
-                    void navigate(`/${nextExp.id === 'home' ? '' : nextExp.id}`);
+                    void navigate(experimentPath(nextExp));
                 }
             }
         };

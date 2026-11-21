@@ -4,7 +4,6 @@ import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { Segmented } from '@repo/ui/components/Segmented';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
-import { Stage } from '@repo/ui/components/Stage';
 import { useEffect } from 'react';
 
 import { GetStarted } from './components/GetStarted';
@@ -21,6 +20,7 @@ export function App() {
         <ShellWrapper>
             <ErrorBoundary showStack={import.meta.env.DEV}>
                 <ExperimentShell
+                    stageLabel="three-stage"
                     panel={
                         <ControlPanel title="three-stage controls">
                             <ControlSection title="Theme">
@@ -33,9 +33,7 @@ export function App() {
                         </ControlPanel>
                     }
                 >
-                    <Stage label="three-stage">
-                        <GetStarted />
-                    </Stage>
+                    <GetStarted />
                 </ExperimentShell>
             </ErrorBoundary>
         </ShellWrapper>

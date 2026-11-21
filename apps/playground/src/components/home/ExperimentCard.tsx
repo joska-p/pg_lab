@@ -10,7 +10,8 @@ import * as stylex from '@stylexjs/stylex';
 import type { KeyboardEvent, MouseEvent } from 'react';
 import { useNavigate } from 'react-router';
 
-import type { ExperimentItem } from './data';
+import { experimentPath } from '../../experiments';
+import type { Experiment } from '../../experiments';
 import { ExperimentVisual } from './ExperimentVisual';
 
 const styles = stylex.create({
@@ -107,15 +108,16 @@ const styles = stylex.create({
 });
 
 interface ExperimentCardProps {
-    readonly item: ExperimentItem;
+    readonly item: Experiment;
     readonly onSelectTag?: (tag: string) => void;
 }
 
 export function ExperimentCard({ item, onSelectTag }: ExperimentCardProps) {
     const navigate = useNavigate();
+    const path = experimentPath(item);
 
     const handleNavigate = () => {
-        void navigate(item.path);
+        void navigate(path);
     };
 
     const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
@@ -149,12 +151,12 @@ export function ExperimentCard({ item, onSelectTag }: ExperimentCardProps) {
                 interactionStyles(),
             )}
         >
-            <ExperimentVisual id={item.id} />
+            <ExperimentVisual mark={item.mark} />
 
             <div {...stylex.props(styles.body)}>
                 <div {...stylex.props(styles.headerRow)}>
                     <span {...stylex.props(styles.slug, colorText[item.tint])}>
-                        {item.path === '/' ? 'pg:/' : `pg:${item.path}`}
+                        {path === '/' ? 'pg:/' : `pg:${path}`}
                     </span>
                     {item.isHome ? (
                         <Badge

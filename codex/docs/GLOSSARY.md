@@ -10,6 +10,10 @@ PG_LAB is a personal creative coding playground. This glossary defines the canon
 A registered playground entry that can be opened in the shell and contributes a Scene and optional Controls.
 _Avoid_: App, project, demo, package
 
+**Experiment mark**:
+A decorative visual identity for an Experiment on a card. It is not the Scene, and it is not a Visual layer.
+_Avoid_: Visual layer, logo, icon, thumbnail, artwork
+
 **Scene**:
 The component an Experiment contributes for the Stage.
 _Avoid_: Canvas, view, screen, artwork, 3D scene, scene graph

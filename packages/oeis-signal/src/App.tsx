@@ -4,7 +4,6 @@ import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { Segmented } from '@repo/ui/components/Segmented';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
-import { Stage } from '@repo/ui/components/Stage';
 import { useEffect } from 'react';
 
 import { NaturalsDemo } from './components/NaturalsDemo';
@@ -21,6 +20,7 @@ export function App() {
         <ShellWrapper>
             <ErrorBoundary showStack={import.meta.env.DEV}>
                 <ExperimentShell
+                    stageLabel="oes-signal"
                     panel={
                         <ControlPanel title="oes-signal controls">
                             <ControlSection title="Theme">
@@ -38,9 +38,7 @@ export function App() {
                         </ControlPanel>
                     }
                 >
-                    <Stage label="oes-signal">
-                        <NaturalsDemo />
-                    </Stage>
+                    <NaturalsDemo />
                 </ExperimentShell>
             </ErrorBoundary>
         </ShellWrapper>

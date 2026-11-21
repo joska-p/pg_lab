@@ -1,7 +1,6 @@
 import { globalPlaybackStore } from '@repo/surface/react/usePlayback';
 import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
-import { Stage } from '@repo/ui/components/Stage';
 
 import { AppErrorBoundary } from './components/AppErrorBoundary';
 import { Controls } from './components/Controls';
@@ -15,17 +14,16 @@ export function App() {
         <ShellWrapper>
             <AppErrorBoundary>
                 <ExperimentShell
+                    stageLabel="randomart"
                     panel={
                         <AppErrorBoundary>
                             <Controls />
                         </AppErrorBoundary>
                     }
                 >
-                    <Stage label="randomart">
-                        <AppErrorBoundary>
-                            <Scene />
-                        </AppErrorBoundary>
-                    </Stage>
+                    <AppErrorBoundary>
+                        <Scene />
+                    </AppErrorBoundary>
                 </ExperimentShell>
             </AppErrorBoundary>
         </ShellWrapper>

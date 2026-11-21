@@ -85,7 +85,6 @@ import { ShellWrapper } from "@repo/ui/components/ShellWrapper";
 import { useTheme, setTheme } from "./stores/appStore";
 import { ControlPanel } from "@repo/ui/components/ControlPanel";
 import { ExperimentShell } from "@repo/ui/components/ExperimentShell";
-import { Stage } from "@repo/ui/components/Stage";
 import { ControlSection } from "@repo/ui/components/ControlSection";
 import { Segmented } from "@repo/ui/components/Segmented";
 import { ErrorBoundary } from "@repo/ui/components/ErrorBoundary";
@@ -101,6 +100,7 @@ export function App() {
     <ShellWrapper>
       <ErrorBoundary showStack={import.meta.env.DEV}>
         <ExperimentShell
+          stageLabel="${name}"
           panel={
             <ControlPanel title="${name} controls">
               <ControlSection title="Theme">
@@ -113,9 +113,7 @@ export function App() {
             </ControlPanel>
           }
         >
-          <Stage label="${name}">
-            <h1>${name}</h1>
-          </Stage>
+          <h1>${name}</h1>
         </ExperimentShell>
       </ErrorBoundary>
     </ShellWrapper>

@@ -25,15 +25,15 @@ const styles = stylex.create({
             default: 'row',
             '@media (orientation: portrait)': 'column',
         },
-        gap: space['2'],
         width: '100%',
         height: '100%',
         overflow: 'hidden',
         containerType: 'inline-size',
         padding: space['2'],
+        gap: space['2'],
         '@media (min-width: 1024px)': {
-            gap: space['4'],
             padding: space['4'],
+            gap: space['4'],
         },
     },
 
@@ -41,11 +41,18 @@ const styles = stylex.create({
         position: 'relative',
         flex: 1,
         display: 'flex',
+        flexDirection: 'column',
         minWidth: 0,
         minHeight: 0,
         overflowY: 'auto',
         overflowX: 'hidden',
         scrollbarGutter: 'stable',
+        padding: space['2'],
+        gap: space['2'],
+        '@media (min-width: 1024px)': {
+            padding: space['4'],
+            gap: space['4'],
+        },
     },
 
     panel: {
@@ -88,14 +95,19 @@ const styles = stylex.create({
         },
     },
 
-    content: {
+    panelContent: {
         display: 'flex',
         flex: 1,
         flexDirection: 'column',
         minWidth: 0,
         minHeight: 0,
         overflow: 'auto',
-        padding: space['4'],
+        padding: space['2'],
+        gap: space['2'],
+        '@media (min-width: 1024px)': {
+            padding: space['4'],
+            gap: space['4'],
+        },
     },
 
     contentHidden: {
@@ -141,8 +153,17 @@ interface Drag {
     hasMoved: boolean;
 }
 
+export interface StageProps extends Omit<
+    React.ComponentProps<'section'>,
+    'style' | 'children' | 'aria-label'
+> {
+    style?: StyleXStyles;
+}
+
 interface ExperimentShellProps extends Omit<React.ComponentProps<'div'>, 'style' | 'className'> {
     children: React.ReactNode;
+    stageLabel?: string;
+    stageProps?: StageProps;
     panel?: React.ReactNode;
     style?: StyleXStyles;
     collapsed?: boolean;
@@ -152,6 +173,8 @@ interface ExperimentShellProps extends Omit<React.ComponentProps<'div'>, 'style'
 
 export function ExperimentShell({
     children,
+    stageLabel = 'stage',
+    stageProps,
     panel,
     style,
     collapsed: controlledCollapsed,
@@ -162,6 +185,7 @@ export function ExperimentShell({
     const panelRef = useRef<HTMLDivElement>(null);
     const dragRef = useRef<Drag | null>(null);
     const [uncontrolledCollapsed, setUncontrolledCollapsed] = useState(defaultCollapsed);
+    const { style: stageStyle, ...stageSectionProps } = stageProps ?? {};
 
     const isControlled = controlledCollapsed !== undefined;
     const collapsed = isControlled ? controlledCollapsed : uncontrolledCollapsed;
@@ -224,7 +248,13 @@ export function ExperimentShell({
 
     return (
         <div {...props} {...stylex.props(styles.base, style)}>
-            <div {...stylex.props(surface, styles.stage)}>{children}</div>
+            <section
+                aria-label={stageLabel}
+                {...stageSectionProps}
+                {...stylex.props(surface, styles.stage, stageStyle)}
+            >
+                {children}
+            </section>
 
             {panel != null && (
                 <div
@@ -251,7 +281,7 @@ export function ExperimentShell({
                         ≶
                     </Button>
 
-                    <div {...stylex.props(styles.content, collapsed && styles.contentHidden)}>
+                    <div {...stylex.props(styles.panelContent, collapsed && styles.contentHidden)}>
                         {panel}
                     </div>
                 </div>

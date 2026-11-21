@@ -7,7 +7,6 @@ import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { FileInput } from '@repo/ui/components/FileInput';
 import { Segmented } from '@repo/ui/components/Segmented';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
-import { Stage } from '@repo/ui/components/Stage';
 import { useEffect } from 'react';
 
 import { computeFit, toPixelAligned } from './core/fit';
@@ -58,6 +57,7 @@ export function App() {
         <ShellWrapper>
             <ErrorBoundary showStack={import.meta.env.DEV}>
                 <ExperimentShell
+                    stageLabel="string-art"
                     panel={
                         <ControlPanel title="string-art controls">
                             <ControlSection title="Theme">
@@ -74,12 +74,7 @@ export function App() {
                         </ControlPanel>
                     }
                 >
-                    <Stage label="string-art">
-                        <CpuCanvas
-                            style={{ width: '100%', height: '100%' }}
-                            onFrame={handleOnFrame}
-                        />
-                    </Stage>
+                    <CpuCanvas style={{ width: '100%', height: '100%' }} onFrame={handleOnFrame} />
                 </ExperimentShell>
             </ErrorBoundary>
         </ShellWrapper>
