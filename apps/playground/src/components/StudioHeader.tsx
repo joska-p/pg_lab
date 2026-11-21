@@ -7,7 +7,7 @@ import { surface } from '@repo/ui/tokens/surface.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useNavigate } from 'react-router';
 
-import { experimentOptions } from '../experiments';
+import { experimentOptions, experimentPath, getExperiment } from '../experiments';
 import type { ExperimentDefinition, ExperimentId } from '../experiments';
 import { RandomJumpButton } from './RandomJumpButton';
 
@@ -93,8 +93,8 @@ export function StudioHeader({
 }: StudioHeaderProps) {
     const navigate = useNavigate();
 
-    const handleSelectChange = (value: ExperimentId) => {
-        void navigate(`/${value === 'home' ? '' : value}`);
+    const navigateToExperiment = (id: ExperimentId) => {
+        void navigate(experimentPath(getExperiment(id)));
     };
 
     return (
@@ -116,11 +116,22 @@ export function StudioHeader({
                         aria-label="Sélectionner une expérience"
                         font="sans"
                         value={currentExperiment.id}
-                        onValueChange={handleSelectChange}
+                        onValueChange={navigateToExperiment}
                         options={experimentOptions}
                     />
                 </div>
                 <RandomJumpButton />
+                <Button
+                    color="orange"
+                    background="solid"
+                    border="subtle"
+                    radius="md"
+                    elevation="flat"
+                    onClick={() => navigateToExperiment('home')}
+                    title="Revenir à l'accueil"
+                >
+                    Rentrer maison
+                </Button>
             </div>
 
             <div {...stylex.props(styles.headerActions)}>
