@@ -1,14 +1,16 @@
-import type { ColorSpacesId } from '../../core/colorSpaces';
+import type { ColorPickerSpaceId } from '../../core/colorPickerSpaces';
 
-interface RenderColorSpaceTask {
-    spaceId: ColorSpacesId;
+interface RenderColorPickerSpaceTask {
+    pickerSpaceId: ColorPickerSpaceId;
     zValue: number;
     size: number;
 }
 
-type ColorSpaceCanvasResponse = { ok: true; bitmap: ImageBitmap } | { ok: false; error: string };
+type ColorPickerSpaceCanvasResponse =
+    | { ok: true; bitmap: ImageBitmap }
+    | { ok: false; error: string };
 
-function isColorSpaceCanvasResponse(value: unknown): value is ColorSpaceCanvasResponse {
+function isColorPickerSpaceCanvasResponse(value: unknown): value is ColorPickerSpaceCanvasResponse {
     if (typeof value !== 'object' || value === null || !('ok' in value)) {
         return false;
     }
@@ -20,5 +22,5 @@ function isColorSpaceCanvasResponse(value: unknown): value is ColorSpaceCanvasRe
     return value.ok === false && 'error' in value && typeof value.error === 'string';
 }
 
-export type { ColorSpaceCanvasResponse, RenderColorSpaceTask };
-export { isColorSpaceCanvasResponse };
+export type { ColorPickerSpaceCanvasResponse, RenderColorPickerSpaceTask };
+export { isColorPickerSpaceCanvasResponse };

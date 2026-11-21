@@ -33,9 +33,9 @@ Dependencies only flow downwards: `glsl`/`colors` → `ops` → `tree` → `gram
   consumes the injected `Rng`; the core never reads ambient state. `GENERATOR_VERSION` must be
   bumped whenever a generation change would alter an existing `(grammar, seed)` pair.
 - **Color space is a compile parameter.** `space` belongs to `compile`, not to `Grammar` and not
-  to `generate`: it is a palette applied after generation. The same `(grammar, seed)` yields the
-  same expression whatever the space; only the emitted GLSL changes. Presets may suggest a space,
-  but generation never reads it.
+  to `generate`: it is a ColorSpace mapping applied after generation. The same `(grammar, seed)`
+  yields the same expression whatever the space; only the emitted GLSL changes. Presets may suggest
+  a space, but generation never reads it.
 - **Seed identity.** A `Seed` is a trimmed, non-empty string of at most `MAX_SEED_LENGTH`
   characters. Numbers are not a separate representation: `42` is the seed `'42'`. Ambient
   randomness is the UI's job (`randomSeed()`); the core only accepts a `Seed`.

@@ -3,12 +3,12 @@ import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Stack } from '@repo/ui/components/Stack';
 import type Color from 'colorjs.io';
 
-import { colorSpaceOptions } from '../core/colorSpaces';
+import { colorPickerSpaceOptions } from '../core/colorPickerSpaces';
 import { generatePalette } from '../core/generatePalette';
 import { getRule, RULES } from '../core/rules/registry';
 import type { RulesId } from '../core/rules/registry';
 import { addPalette, usePaletteBaseColor } from '../stores/paletteStore';
-import { ColorSpaceControls } from './color-picker/ColorSpaceControls';
+import { ColorPickerSpaceControls } from './color-picker/ColorPickerSpaceControls';
 
 function Controls() {
     const baseColor = usePaletteBaseColor();
@@ -21,9 +21,9 @@ function Controls() {
 
     return (
         <>
-            {colorSpaceOptions.map((option) => (
+            {colorPickerSpaceOptions.map((option) => (
                 <ControlSection key={option.label} title={option.label}>
-                    <ColorSpaceControls spaceId={option.label} size={200} />
+                    <ColorPickerSpaceControls pickerSpaceId={option.label} size={200} />
                 </ControlSection>
             ))}
 

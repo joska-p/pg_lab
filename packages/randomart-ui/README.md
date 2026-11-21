@@ -80,7 +80,7 @@ must preserve the artwork unless it is explicitly a debug view.
 ### Color spaces
 
 The color space is selected independently of the grammar (in `ColorSection`, via `useSpace` /
-`setSpace`) and passed to `compile` as a palette. Generation never reads it: changing the space
+`setSpace`) and passed to `compile` as its ColorSpace. Generation never reads it: changing the space
 keeps the same expression and only recompiles the shader.
 
 Raw channel triplets `[-1, 1]³` → sRGB via `randomart-core/colors.ts`:
@@ -107,7 +107,7 @@ vp test --exclude '.Trash-1000/**'     # All tests (skips the deleted glaze tree
 ### Adding a grammar preset
 
 Add a `preset('id', label, description, options, space)` entry to `GRAMMAR_PRESETS` in
-`randomart-core/src/grammar.ts`. The space is only a suggested palette: applying the preset sets
+`randomart-core/src/grammar.ts`. The space is only a suggested ColorSpace: applying the preset sets
 both the grammar and the current space.
 
 ### Shader export

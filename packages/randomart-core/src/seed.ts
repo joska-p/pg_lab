@@ -1,11 +1,11 @@
 declare const seedBrand: unique symbol;
 
 /**
- * Identity of an artwork: the same seed with the same grammar replays the same expression.
+ * Identity of an expression: the same seed with the same grammar replays the same expression.
  *
  * Seeds are strings, not numbers. A numeric-looking seed is just a string whose characters happen
  * to be digits, so there is a single representation and one hashing path for every seed. Values are
- * trimmed before they become identity; `'42'` and `' 42 '` are the same artwork.
+ * trimmed before they become identity; `'42'` and `' 42 '` are the same Seed.
  */
 export type Seed = string & { readonly [seedBrand]: true };
 
@@ -21,7 +21,8 @@ function brandSeed(trimmed: string): Seed {
 
 /**
  * Seeds are identity, not an editing quantity: an invalid value throws instead of being repaired,
- * because a repaired seed would describe a different artwork. Text input goes through `parseSeed`.
+ * because a repaired seed would generate a different expression. Text input goes through
+ * `parseSeed`.
  */
 export function createSeed(value: string): Seed {
     const trimmed = value.trim();

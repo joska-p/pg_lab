@@ -2,19 +2,22 @@ import { Slider } from '@repo/ui/components/Slider';
 import { Stack } from '@repo/ui/components/Stack';
 import { useRef, useState } from 'react';
 
-import { getColorSpace } from '../../core/colorSpaces';
-import type { ColorSpacesId } from '../../core/colorSpaces';
+import { getColorPickerSpace } from '../../core/colorPickerSpaces';
+import type { ColorPickerSpaceId } from '../../core/colorPickerSpaces';
 import { setPaletteBaseColor } from '../../stores/paletteStore';
-import { ColorSpaceCanvas } from './ColorSpaceCanvas';
+import { ColorPickerSpaceCanvas } from './ColorPickerSpaceCanvas';
 
-interface ColorSpaceControlsProps {
-    spaceId?: ColorSpacesId;
+interface ColorPickerSpaceControlsProps {
+    pickerSpaceId?: ColorPickerSpaceId;
     size?: number;
 }
 
-function ColorSpaceControls({ spaceId = 'oklch', size = 200 }: ColorSpaceControlsProps) {
+function ColorPickerSpaceControls({
+    pickerSpaceId = 'oklch',
+    size = 200,
+}: ColorPickerSpaceControlsProps) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const { zSlider, getColor, xAxis, yAxis } = getColorSpace(spaceId);
+    const { zSlider, getColor, xAxis, yAxis } = getColorPickerSpace(pickerSpaceId);
     const { min, max, step } = zSlider;
     const [zValue, setZValue] = useState<number>(max / 2);
 
@@ -40,9 +43,9 @@ function ColorSpaceControls({ spaceId = 'oklch', size = 200 }: ColorSpaceControl
 
     return (
         <Stack gap="3">
-            <ColorSpaceCanvas
+            <ColorPickerSpaceCanvas
                 ref={canvasRef}
-                spaceId={spaceId}
+                pickerSpaceId={pickerSpaceId}
                 zValue={zValue}
                 size={size}
                 onPick={handlePointer}
@@ -60,4 +63,4 @@ function ColorSpaceControls({ spaceId = 'oklch', size = 200 }: ColorSpaceControl
     );
 }
 
-export { ColorSpaceControls };
+export { ColorPickerSpaceControls };

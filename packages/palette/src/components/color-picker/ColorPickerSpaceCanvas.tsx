@@ -2,8 +2,8 @@ import * as stylex from '@stylexjs/stylex';
 import { useEffect, useState } from 'react';
 import type { RefObject } from 'react';
 
-import type { ColorSpacesId } from '../../core/colorSpaces';
-import { createColorSpaceCanvasPool } from './colorSpaceCanvasPool';
+import type { ColorPickerSpaceId } from '../../core/colorPickerSpaces';
+import { createColorPickerSpaceCanvasPool } from './colorPickerSpaceCanvasPool';
 
 const styles = stylex.create({
     canvas: {
@@ -13,16 +13,22 @@ const styles = stylex.create({
     },
 });
 
-interface ColorSpaceCanvasProps {
+interface ColorPickerSpaceCanvasProps {
     ref: RefObject<HTMLCanvasElement | null>;
-    spaceId: ColorSpacesId;
+    pickerSpaceId: ColorPickerSpaceId;
     zValue: number;
     size?: number;
     onPick?: (event: React.PointerEvent<HTMLCanvasElement>) => void;
 }
 
-function ColorSpaceCanvas({ ref, spaceId, zValue, size = 200, onPick }: ColorSpaceCanvasProps) {
-    const [pool] = useState(createColorSpaceCanvasPool);
+function ColorPickerSpaceCanvas({
+    ref,
+    pickerSpaceId,
+    zValue,
+    size = 200,
+    onPick,
+}: ColorPickerSpaceCanvasProps) {
+    const [pool] = useState(createColorPickerSpaceCanvasPool);
 
     useEffect(() => {
         return () => {
@@ -34,7 +40,7 @@ function ColorSpaceCanvas({ ref, spaceId, zValue, size = 200, onPick }: ColorSpa
         let cancelled = false;
 
         void pool
-            .run({ spaceId, zValue, size })
+            .run({ pickerSpaceId, zValue, size })
             .then((bitmap) => {
                 if (cancelled) {
                     bitmap.close();
@@ -53,21 +59,21 @@ function ColorSpaceCanvas({ ref, spaceId, zValue, size = 200, onPick }: ColorSpa
             })
             .catch((error: unknown) => {
                 if (!cancelled) {
-                    console.error('Color space canvas render failed', error);
+                    console.error('Color picker space canvas render failed', error);
                 }
             });
 
         return () => {
             cancelled = true;
         };
-    }, [pool, ref, spaceId, size, zValue]);
+    }, [pool, ref, pickerSpaceId, size, zValue]);
 
     return (
         <canvas
             ref={ref}
             width={size}
             height={size}
-            aria-label={`${spaceId} color space`}
+            aria-label={`${pickerSpaceId} color picker`}
             {...stylex.props(styles.canvas)}
             onPointerDown={onPick}
             onPointerMove={onPick}
@@ -75,4 +81,4 @@ function ColorSpaceCanvas({ ref, spaceId, zValue, size = 200, onPick }: ColorSpa
     );
 }
 
-export { ColorSpaceCanvas };
+export { ColorPickerSpaceCanvas };

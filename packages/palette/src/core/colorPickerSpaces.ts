@@ -7,7 +7,7 @@ interface Axis {
     step?: number;
 }
 
-interface ColorSpace<TId extends string = string> {
+interface ColorPickerSpace<TId extends string = string> {
     id: TId;
     label: string;
     description?: string;
@@ -17,7 +17,7 @@ interface ColorSpace<TId extends string = string> {
     getColor: (x: number, y: number, z: number) => Color;
 }
 
-const oklab: ColorSpace = {
+const oklab: ColorPickerSpace = {
     id: 'oklab',
     label: 'OKLab',
     description: 'OKLab color space',
@@ -27,7 +27,7 @@ const oklab: ColorSpace = {
     getColor: (x, y, z) => new Color('oklab', [z, x, y]),
 };
 
-const oklch: ColorSpace = {
+const oklch: ColorPickerSpace = {
     id: 'oklch',
     label: 'OKLCh',
     description: 'OKLCh color space',
@@ -37,7 +37,7 @@ const oklch: ColorSpace = {
     getColor: (x, y, z) => new Color('oklch', [z, x, y]),
 };
 
-const hsl: ColorSpace = {
+const hsl: ColorPickerSpace = {
     id: 'hsl',
     label: 'HSL',
     description: 'HSL color space',
@@ -47,7 +47,7 @@ const hsl: ColorSpace = {
     getColor: (x, y, z) => new Color('hsl', [x, y, z]),
 };
 
-const srgb: ColorSpace = {
+const srgb: ColorPickerSpace = {
     id: 'srgb',
     label: 'sRGB',
     description: 'sRGB color space',
@@ -57,25 +57,32 @@ const srgb: ColorSpace = {
     getColor: (x, y, z) => new Color('srgb', [x / 255, y / 255, z / 255]),
 };
 
-const COLORSPACES = [oklab, oklch, hsl, srgb] as const satisfies readonly ColorSpace[];
+const COLOR_PICKER_SPACES = [
+    oklab,
+    oklch,
+    hsl,
+    srgb,
+] as const satisfies readonly ColorPickerSpace[];
 
 // Derive the types directly from the registry.
-export type ColorspacetDefinition = (typeof COLORSPACES)[number];
-export type ColorSpacesId = ColorspacetDefinition['id'];
+export type ColorPickerSpaceDefinition = (typeof COLOR_PICKER_SPACES)[number];
+export type ColorPickerSpaceId = ColorPickerSpaceDefinition['id'];
 
-export const ColorSpacesById = new Map<string, ColorspacetDefinition>(
-    COLORSPACES.map((colorspace): [ColorSpacesId, ColorspacetDefinition] => [
-        colorspace.id,
-        colorspace,
-    ]),
+export const colorPickerSpacesById = new Map<string, ColorPickerSpaceDefinition>(
+    COLOR_PICKER_SPACES.map(
+        (colorPickerSpace): [ColorPickerSpaceId, ColorPickerSpaceDefinition] => [
+            colorPickerSpace.id,
+            colorPickerSpace,
+        ],
+    ),
 );
 
-export function getColorSpace(id: string | undefined): ColorspacetDefinition {
-    return ColorSpacesById.get(id ?? '') ?? COLORSPACES[0];
+export function getColorPickerSpace(id: string | undefined): ColorPickerSpaceDefinition {
+    return colorPickerSpacesById.get(id ?? '') ?? COLOR_PICKER_SPACES[0];
 }
 
 // Select options share the registry's ordering and metadata.
-export const colorSpaceOptions = COLORSPACES.map(({ id, label }) => ({
+export const colorPickerSpaceOptions = COLOR_PICKER_SPACES.map(({ id, label }) => ({
     value: id,
     label,
 }));

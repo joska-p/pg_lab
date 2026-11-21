@@ -53,3 +53,28 @@ _Range_: `iFrame` is a nonnegative integer
 The Surface-owned source of animation time and delta.
 _Avoid_: Playback store, timer, wall clock
 _Unit_: `time`, `deltaTime`, `iTime`, `iTimeDelta` in seconds; raw durations use the `*Ms` suffix
+
+### Creative concepts
+
+**Seed**:
+A trimmed, non-empty string that, with a Grammar, identifies the expression of an Artwork. An Rng is the deterministic generator derived from a Seed, not the Seed itself.
+_Avoid_: Random number, RNG, noise, key
+_Range_: 1–64 characters after trimming
+
+**Grammar**:
+The weighted operator vocabulary and structure limits used to generate an expression. A preset pairs a Grammar with a suggested ColorSpace, label and description; it is not the Grammar.
+_Avoid_: Preset, config, ruleset, formula
+_Range_: weights are integers `0..16`; `minDepth >= 1`; `maxDepth >= minDepth`; `maxNodes >= 1`; `shareDepth` in `[0, maxDepth]`
+
+**Artwork**:
+The immutable result of a Grammar, a Seed and a ColorSpace: an expression and its compiled shader. Its identity includes the ColorSpace; changing it yields a different Artwork with the same expression.
+_Avoid_: Image, PNG, Scene, shader, expression
+
+**ColorSpace**:
+The compile-time mapping from raw channel triplets to sRGB. It is applied after generation, not a set of colors; changing it keeps the expression and recompiles the shader.
+_Avoid_: Palette, tint, theme
+_Range_: raw channels in `[-1,1]^3`; sRGB output in `[0,1]`
+
+**Visual layer**:
+A pluggable drawing rule in a sequence's layer stack. Only the two-word term is canonical; a bare layer may mean an architecture layer.
+_Avoid_: Pass, effect, overlay, architecture layer

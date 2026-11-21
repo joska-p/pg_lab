@@ -1,11 +1,15 @@
 /// <reference lib="webworker" />
 
 import { scaleTo255 } from '../../core/color';
-import { getColorSpace } from '../../core/colorSpaces';
-import type { RenderColorSpaceTask } from './types';
+import { getColorPickerSpace } from '../../core/colorPickerSpaces';
+import type { RenderColorPickerSpaceTask } from './types';
 
-function renderColorSpace({ spaceId, zValue, size }: RenderColorSpaceTask): ImageBitmap {
-    const { xAxis, yAxis, getColor } = getColorSpace(spaceId);
+function renderColorPickerSpace({
+    pickerSpaceId,
+    zValue,
+    size,
+}: RenderColorPickerSpaceTask): ImageBitmap {
+    const { xAxis, yAxis, getColor } = getColorPickerSpace(pickerSpaceId);
     const canvas = new OffscreenCanvas(size, size);
     const context = canvas.getContext('2d');
 
@@ -18,7 +22,7 @@ function renderColorSpace({ spaceId, zValue, size }: RenderColorSpaceTask): Imag
 
     for (let pixelY = 0; pixelY < size; pixelY++) {
         for (let pixelX = 0; pixelX < size; pixelX++) {
-            // Each pixel is a point on the (x, y) plane of the color space; the slider supplies z.
+            // Each pixel is a point on the (x, y) plane of the picker space; the slider supplies z.
             const x = xAxis.min + (pixelX / size) * (xAxis.max - xAxis.min);
             const y = yAxis.max - (pixelY / size) * (yAxis.max - yAxis.min);
 
@@ -40,9 +44,9 @@ function renderColorSpace({ spaceId, zValue, size }: RenderColorSpaceTask): Imag
 
 declare const self: DedicatedWorkerGlobalScope;
 
-self.onmessage = (event: MessageEvent<RenderColorSpaceTask>) => {
+self.onmessage = (event: MessageEvent<RenderColorPickerSpaceTask>) => {
     try {
-        const bitmap = renderColorSpace(event.data);
+        const bitmap = renderColorPickerSpace(event.data);
 
         self.postMessage({ ok: true, bitmap }, [bitmap]);
     } catch (error) {
