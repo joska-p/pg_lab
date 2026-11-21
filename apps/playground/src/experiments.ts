@@ -14,21 +14,20 @@ export interface ControlsModule {
 export interface Experiment<TId extends string = string> {
     readonly id: TId;
     readonly label: string;
-    readonly panelTitle: string;
+    readonly panelTitle?: string;
     readonly stageLabel: string;
     readonly tint: ColorNames;
     readonly summary: string;
     readonly isHome?: boolean;
     readonly mark: string;
     readonly loadScene: () => Promise<SceneModule>;
-    readonly loadControls: () => Promise<ControlsModule>;
+    readonly loadControls?: () => Promise<ControlsModule>;
 }
 
 export const EXPERIMENTS = [
     {
         id: 'home',
         label: 'Home',
-        panelTitle: 'Home Controls',
         stageLabel: 'home',
         tint: 'neutral',
         summary:
@@ -36,7 +35,6 @@ export const EXPERIMENTS = [
         isHome: true,
         mark: 'home',
         loadScene: () => import('./components/home/Scene'),
-        loadControls: () => import('./components/home/Controls'),
     },
     {
         id: 'art-canvas',
@@ -196,9 +194,9 @@ export const EXPERIMENTS = [
     },
 ] as const satisfies readonly Experiment[];
 
-// Derive the types directly from the registry.
-export type ExperimentDefinition = (typeof EXPERIMENTS)[number];
-export type ExperimentId = ExperimentDefinition['id'];
+// Derive the ids from the registry, then use the interface so optional fields stay visible.
+export type ExperimentId = (typeof EXPERIMENTS)[number]['id'];
+export type ExperimentDefinition = Experiment<ExperimentId>;
 
 export const experimentCount = EXPERIMENTS.length;
 export const interactiveExperiments = EXPERIMENTS.filter(
@@ -256,10 +254,14 @@ const sceneCache = new Map<ExperimentId, Promise<SceneModule>>();
 
 const controlsCache = new Map<ExperimentId, Promise<ControlsModule>>();
 
+const NO_CONTROLS: Promise<null> = Promise.resolve(null);
+
 export function loadScene(experiment: ExperimentDefinition): Promise<SceneModule> {
     return cached(sceneCache, experiment.id, experiment.loadScene);
 }
 
-export function loadControls(experiment: ExperimentDefinition): Promise<ControlsModule> {
-    return cached(controlsCache, experiment.id, experiment.loadControls);
+export function loadControls(experiment: ExperimentDefinition): Promise<ControlsModule | null> {
+    return experiment.loadControls
+        ? cached(controlsCache, experiment.id, experiment.loadControls)
+        : NO_CONTROLS;
 }
