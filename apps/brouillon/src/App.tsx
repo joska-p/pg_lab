@@ -26,7 +26,8 @@ import { Toggle } from '@repo/ui/components/Toggle';
 import type { Background, Borders, Elevation, Radius } from '@repo/ui/recipes/surface';
 import { space } from '@repo/ui/tokens/const.stylex';
 import type { ColorNames } from '@repo/ui/tokens/tint.stylex';
-import { AtlasPaths } from '@repo/ui/visuals/atlas/AtlasPaths';
+import type { CardStyleId } from '@repo/ui/visuals';
+import { CARD_STYLES, Visual } from '@repo/ui/visuals';
 import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
 
@@ -67,11 +68,38 @@ const ELEVATION_OPTIONS = [
     { value: 'sunken', label: 'Sunken' },
 ] as const satisfies readonly { value: Elevation; label: string }[];
 
+const VISUAL_MODE_OPTIONS = [
+    { value: 'gallery', label: 'All 10 Styles' },
+    { value: 'focus', label: 'Color Focus' },
+] as const satisfies readonly { value: 'gallery' | 'focus'; label: string }[];
+
+const VISUAL_STYLE_OPTIONS = CARD_STYLES.map((s) => ({
+    value: s.id,
+    label: `${s.label} (${s.id})`,
+}));
+
 const styles = stylex.create({
-    AtlasPaths: {
+    visualCard: {
+        position: 'relative',
         minHeight: '20rem',
         minWidth: '20rem',
         aspectRatio: 1,
+        overflow: 'hidden',
+    },
+    visualOverlay: {
+        position: 'absolute',
+        top: space['3'],
+        left: space['3'],
+        right: space['3'],
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        pointerEvents: 'none',
+        zIndex: 1,
+    },
+    visualBlurb: {
+        fontSize: '0.75rem',
+        opacity: 0.85,
     },
     cardContent: {
         display: 'flex',
@@ -107,6 +135,11 @@ export function App() {
     const [activeRadius, setActiveRadius] = useState<Radius>('md');
     const [activeElevation, setActiveElevation] = useState<Elevation>('raised');
     const [isDisabled, setIsDisabled] = useState(false);
+
+    // Visuals explorer state
+    const [visualMode, setVisualMode] = useState<'gallery' | 'focus'>('gallery');
+    const [selectedStyle, setSelectedStyle] = useState<CardStyleId>('circuit');
+    const [visualSeed, setVisualSeed] = useState(42);
 
     // Interactive form values
     const [sliderVal, setSliderVal] = useState(64);
@@ -194,6 +227,30 @@ export function App() {
                                 />
                             </ControlSection>
 
+                            <ControlSection title="Visuals Explorer">
+                                <Segmented<'gallery' | 'focus'>
+                                    label="View Mode"
+                                    value={visualMode}
+                                    onValueChange={setVisualMode}
+                                    options={VISUAL_MODE_OPTIONS}
+                                />
+                                {visualMode === 'focus' ? (
+                                    <Select<CardStyleId>
+                                        label="Focused Style"
+                                        value={selectedStyle}
+                                        onValueChange={setSelectedStyle}
+                                        options={VISUAL_STYLE_OPTIONS}
+                                    />
+                                ) : null}
+                                <NumberField
+                                    label="Visual Seed"
+                                    min={1}
+                                    max={99999}
+                                    value={visualSeed}
+                                    onValueChange={setVisualSeed}
+                                />
+                            </ControlSection>
+
                             <ControlSection title="System Diagnostics">
                                 <Stack direction="vertical" gap="2">
                                     <Readout
@@ -213,13 +270,48 @@ export function App() {
                         </ControlPanel>
                     }
                 >
-                    <Grid columns="2" gap="4">
-                        {ALL_COLORS.map((color, index) => (
-                            <Card key={color} style={styles.AtlasPaths}>
-                                <AtlasPaths seed={index} color={color} />
-                            </Card>
-                        ))}
-                    </Grid>
+                    {visualMode === 'gallery' ? (
+                        <Grid columns="2" gap="4">
+                            {CARD_STYLES.map((style) => (
+                                <Card key={style.id} style={styles.visualCard}>
+                                    <Visual
+                                        styleVariant={style.id}
+                                        seed={visualSeed}
+                                        color={activeColor}
+                                    />
+                                    <div {...stylex.props(styles.visualOverlay)}>
+                                        <Badge
+                                            color={activeColor}
+                                            background="solid"
+                                            border="subtle"
+                                        >
+                                            {style.label}
+                                        </Badge>
+                                        <span {...stylex.props(styles.visualBlurb)}>
+                                            {style.blurb}
+                                        </span>
+                                    </div>
+                                </Card>
+                            ))}
+                        </Grid>
+                    ) : (
+                        <Grid columns="2" gap="4">
+                            {ALL_COLORS.map((color, index) => (
+                                <Card key={color} style={styles.visualCard}>
+                                    <Visual
+                                        styleVariant={selectedStyle}
+                                        seed={visualSeed + index}
+                                        color={color}
+                                    />
+                                    <div {...stylex.props(styles.visualOverlay)}>
+                                        <Badge color={color} background="solid" border="subtle">
+                                            {selectedStyle} • {color}
+                                        </Badge>
+                                    </div>
+                                </Card>
+                            ))}
+                        </Grid>
+                    )}
 
                     {/* Section 1: Live Composition Studio */}
                     <Card
