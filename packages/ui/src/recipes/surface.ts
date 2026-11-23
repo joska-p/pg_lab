@@ -48,6 +48,7 @@ export type Borders = keyof typeof borders;
 
 export const corners = stylex.create({
     none: { borderRadius: radius.none },
+    xs: { borderRadius: radius.xs },
     sm: { borderRadius: radius.sm },
     md: { borderRadius: radius.md },
     lg: { borderRadius: radius.lg },

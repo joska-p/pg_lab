@@ -143,6 +143,7 @@ export function App() {
 
     // Interactive form values
     const [sliderVal, setSliderVal] = useState(64);
+    const [sdkSliderVal, setSdkSliderVal] = useState(40);
     const [speedVal, setSpeedVal] = useState(1.2);
     const [toggleVal, setToggleVal] = useState(true);
     const [checkboxVal, setCheckboxVal] = useState(true);
@@ -175,7 +176,10 @@ export function App() {
                                     label="Surface Color"
                                     value={activeColor}
                                     onValueChange={setActiveColor}
-                                    options={ALL_COLORS.map((c) => ({ value: c, label: c }))}
+                                    options={ALL_COLORS.map((c) => ({
+                                        value: c,
+                                        label: c,
+                                    }))}
                                 />
                                 <Segmented<Background>
                                     label="Background"
@@ -547,9 +551,18 @@ export function App() {
                                 <RadioGroup
                                     label="Precision Target"
                                     options={[
-                                        { value: 'performance', label: '16-bit Float (Fast)' },
-                                        { value: 'balanced', label: '32-bit Float (Standard)' },
-                                        { value: 'cinematic', label: '64-bit IEEE Double' },
+                                        {
+                                            value: 'performance',
+                                            label: '16-bit Float (Fast)',
+                                        },
+                                        {
+                                            value: 'balanced',
+                                            label: '32-bit Float (Standard)',
+                                        },
+                                        {
+                                            value: 'cinematic',
+                                            label: '64-bit IEEE Double',
+                                        },
                                     ]}
                                     value={radioVal}
                                     onValueChange={setRadioVal}
@@ -561,7 +574,10 @@ export function App() {
                                     options={[
                                         { value: 'wire', label: 'Wireframe' },
                                         { value: 'shaded', label: 'Shaded' },
-                                        { value: 'gpgpu', label: 'GPGPU State' },
+                                        {
+                                            value: 'gpgpu',
+                                            label: 'GPGPU State',
+                                        },
                                     ]}
                                     defaultValue="shaded"
                                     color="aqua"
@@ -583,6 +599,35 @@ export function App() {
                                     errorMessage="Index out of range in vertex layout stream"
                                     disabled={isDisabled}
                                 />
+                            </div>
+                        </div>
+                    </Card>
+
+                    {/* ui-sdk smoke test: square thumb and lib colors, styled with StyleX */}
+                    <Card color="neutral" background="soft" border="subtle" radius="md">
+                        <div {...stylex.props(styles.cardContent)}>
+                            <SectionHeading title="ui-sdk Smoke Test" color="aqua" />
+                            <Slider
+                                label="SDK Volume"
+                                color="aurora"
+                                min={0}
+                                max={100}
+                                step={1}
+                                value={sdkSliderVal}
+                                onValueChange={setSdkSliderVal}
+                                disabled={isDisabled}
+                            />
+                            <Readout label="SDK VALUE" value={`${sdkSliderVal}%`} color="aqua" />
+                            <div {...stylex.props(styles.controlsGrid)}>
+                                {ALL_COLORS.map((sdkColor) => (
+                                    <Slider
+                                        key={sdkColor}
+                                        label={`SDK ${sdkColor}`}
+                                        defaultValue={40}
+                                        color={sdkColor}
+                                        disabled={isDisabled}
+                                    />
+                                ))}
                             </div>
                         </div>
                     </Card>

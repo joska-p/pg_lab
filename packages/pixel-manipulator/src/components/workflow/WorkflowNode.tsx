@@ -29,9 +29,6 @@ const styles = stylex.create({
         flexDirection: 'column',
         gap: space['1'],
     },
-    label: {
-        fontSize: typography.fontSizeSm,
-    },
 });
 
 function getNumberOption(options: Record<string, unknown>, key: string, fallback: number): number {
@@ -47,8 +44,8 @@ function WorkflowNode({ step, index, name, argDefinitions }: WorkflowNodeProps) 
             <WorkflowNodeControls index={index} />
             {argDefinitions.map((def) => (
                 <div key={def.key} {...stylex.props(styles.field)}>
-                    <span {...stylex.props(styles.label)}>{def.label}</span>
                     <Slider
+                        label={def.label}
                         value={getNumberOption(step.options, def.key, def.min)}
                         min={def.min}
                         max={def.max}

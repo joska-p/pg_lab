@@ -1,6 +1,5 @@
 import { Slider } from '@repo/ui/components/Slider';
 import { surfaceStyle } from '@repo/ui/recipes/surface';
-import { fieldText } from '@repo/ui/recipes/typography';
 import { space, typography } from '@repo/ui/tokens/const.stylex';
 import { colors } from '@repo/ui/tokens/tint.stylex';
 import * as stylex from '@stylexjs/stylex';
@@ -20,21 +19,6 @@ const styles = stylex.create({
         display: 'flex',
         flexDirection: 'column',
         gap: space['3'],
-    },
-    sliderRow: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: space['1'],
-    },
-    sliderHeader: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        fontSize: typography.fontSizeXs,
-    },
-    valueReadout: {
-        fontVariantNumeric: 'tabular-nums',
-        opacity: 0.6,
     },
     errorBox: {
         borderRadius: '0.375rem',
@@ -123,29 +107,17 @@ function TryItOut({ sourceData, manip, paramValues, onParamChange }: TryItOutPro
                             paramValues[`${manip.id}:${param.key}`] ?? param.default;
 
                         return (
-                            <div key={param.key} {...stylex.props(styles.sliderRow)}>
-                                <div {...stylex.props(styles.sliderHeader)}>
-                                    <label
-                                        htmlFor={`${manip.id}-${param.key}`}
-                                        {...stylex.props(fieldText.label)}
-                                    >
-                                        {param.label}
-                                    </label>
-                                    <span {...stylex.props(fieldText.value, styles.valueReadout)}>
-                                        {value.toFixed(param.step >= 1 ? 0 : 2)}
-                                    </span>
-                                </div>
-                                <Slider
-                                    id={`${manip.id}-${param.key}`}
-                                    min={param.min}
-                                    max={param.max}
-                                    step={param.step}
-                                    value={value}
-                                    onValueChange={(v) => {
-                                        onParamChange(manip.id, param.key, v);
-                                    }}
-                                />
-                            </div>
+                            <Slider
+                                color="orange"
+                                label={`${manip.id}-${param.key}`}
+                                min={param.min}
+                                max={param.max}
+                                step={param.step}
+                                value={value}
+                                onValueChange={(v) => {
+                                    onParamChange(manip.id, param.key, v);
+                                }}
+                            />
                         );
                     })}
                 </div>
@@ -162,7 +134,10 @@ function TryItOut({ sourceData, manip, paramValues, onParamChange }: TryItOutPro
                             style={{ imageRendering: 'pixelated' }}
                             {...stylex.props(
                                 styles.image,
-                                surfaceStyle({ background: 'none', border: 'subtle' }),
+                                surfaceStyle({
+                                    background: 'none',
+                                    border: 'subtle',
+                                }),
                             )}
                         />
                     </div>
