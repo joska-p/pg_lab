@@ -20,8 +20,14 @@ export {
 export { generateConstellation } from './constellation/generateConstellation';
 export { ContourVisual, type ContourVisualProps } from './contour/ContourVisual';
 export { generateContour } from './contour/generateContour';
+export { GlyphBannerVisual, type GlyphBannerVisualProps } from './glyph/GlyphBannerVisual';
+export {
+    buildGlyphBanner,
+    generateGlyphBanner,
+    type GlyphBannerOptions,
+} from './glyph/generateGlyphBanner';
 export { GlyphVisual, type GlyphVisualProps } from './glyph/GlyphVisual';
-export { generateGlyph } from './glyph/generateGlyph';
+export { generateGlyph, runeStrokes, RUNE_COUNT } from './glyph/generateGlyph';
 export { LatticeVisual, type LatticeVisualProps } from './lattice/LatticeVisual';
 export { generateLattice } from './lattice/generateLattice';
 export { OrbitVisual, type OrbitVisualProps } from './orbit/OrbitVisual';

@@ -2,105 +2,190 @@ import { emptyGraphic, f } from '../core/geometry';
 import { mulberry32, randInt, toSeed } from '../core/rng';
 import type { CardGraphic, GraphicCircle, GraphicPath } from '../core/types';
 
-function runeStrokes(ox: number, oy: number, u: number, idx: number): string {
-    const X = (t: number) => f(ox + t * u);
-    const Y = (t: number) => f(oy + t * u);
+/* ==========================================================================
+ * Principe général
+ * --------------------------------------------------------------------------
+ * On dessine une grille de 4 x 4 cases. Dans chaque case (sauf quelques-unes
+ * laissées vides au hasard), on superpose 3 à 6 "runes" (petits traits
+ * simples) pour former un glyphe. Selon le hasard, on ajoute aussi :
+ *   - une animation CSS sur le tracé,
+ *   - un petit point qui scintille,
+ *   - un cadre fin autour de la case.
+ *
+ * Le générateur aléatoire est "seedé" : même graine => même résultat.
+ * ATTENTION : l'ordre des appels à rand() compte. Si on le change, les
+ * glyphes obtenus pour une graine donnée changent aussi.
+ * ========================================================================== */
 
-    switch (idx) {
-        case 0: {
-            return `M${X(0.22)},${Y(0.18)} L${X(0.22)},${Y(0.82)}`;
-        }
-        case 1: {
-            return `M${X(0.78)},${Y(0.18)} L${X(0.78)},${Y(0.82)}`;
-        }
-        case 2: {
-            return `M${X(0.2)},${Y(0.5)} L${X(0.8)},${Y(0.5)}`;
-        }
-        case 3: {
-            return `M${X(0.22)},${Y(0.22)} L${X(0.78)},${Y(0.78)}`;
-        }
-        case 4: {
-            return `M${X(0.78)},${Y(0.22)} L${X(0.22)},${Y(0.78)}`;
-        }
-        case 5: {
-            return `M${X(0.5)},${Y(0.16)} L${X(0.5)},${Y(0.84)}`;
-        }
-        case 6: {
-            return `M${X(0.2)},${Y(0.22)} L${X(0.8)},${Y(0.22)} L${X(0.8)},${Y(0.52)}`;
-        }
-        case 7: {
-            return `M${X(0.2)},${Y(0.72)} Q${X(0.5)},${Y(0.28)} ${X(0.8)},${Y(0.72)}`;
-        }
-        case 8: {
-            return `M${X(0.22)},${Y(0.78)} L${X(0.5)},${Y(0.2)} L${X(0.78)},${Y(0.78)}`;
-        }
-        default: {
-            return `M${X(0.28)},${Y(0.28)} L${X(0.72)},${Y(0.28)} L${X(0.72)},${Y(0.72)} L${X(0.28)},${Y(0.72)} Z`;
-        }
-    }
+/* ------------------------------ Constantes ------------------------------ */
+
+const GRID_SIZE = 4; // 4 x 4 cases
+const GRID_PADDING = 22; // marge autour de la grille
+const CELL_SIZE = 64; // taille d'une case
+const CELL_INSET = 8; // marge intérieure d'une case
+const GLYPH_SIZE = CELL_SIZE - CELL_INSET * 2; // taille réelle du dessin (48)
+
+const MIN_RUNES_PER_GLYPH = 3;
+const EXTRA_RUNES_MAX = 3; // => entre 3 et 6 runes
+
+// Probabilités (entre 0 et 1)
+const CHANCE_EMPTY_CELL = 0.18;
+const CHANCE_ANIMATED_PATH = 0.3; // rand() > 0.7
+const CHANCE_TWINKLE_DOT = 0.28; // rand() > 0.72
+const CHANCE_FRAME = 0.18; // rand() > 0.82
+
+const FRAME_MARGIN = 3; // le cadre dépasse du glyphe de 3px
+
+/* -------------------------------- Runes --------------------------------- */
+
+/**
+ * Convertit des coordonnées relatives (0 à 1, dans le carré du glyphe) en coordonnées réelles "x,y"
+ * utilisables dans un attribut SVG `d`.
+ */
+type ToPoint = (x: number, y: number) => string;
+
+/** Une rune = une fonction qui renvoie un morceau de tracé SVG. */
+type Rune = (p: ToPoint) => string;
+
+/**
+ * Les 10 runes possibles. Les coordonnées vont de 0 (haut/gauche) à 1 (bas/droite) dans le carré du
+ * glyphe.
+ */
+
+// Rune de repli (carré fermé), aussi utilisée comme dernière entrée de RUNES
+const SQUARE_RUNE: Rune = (p) =>
+    `M${p(0.28, 0.28)} L${p(0.72, 0.28)} L${p(0.72, 0.72)} L${p(0.28, 0.72)} Z`;
+
+const RUNES: Rune[] = [
+    // 0 : barre verticale gauche
+    (p) => `M${p(0.22, 0.18)} L${p(0.22, 0.82)}`,
+    // 1 : barre verticale droite
+    (p) => `M${p(0.78, 0.18)} L${p(0.78, 0.82)}`,
+    // 2 : barre horizontale au milieu
+    (p) => `M${p(0.2, 0.5)} L${p(0.8, 0.5)}`,
+    // 3 : diagonale haut-gauche -> bas-droite
+    (p) => `M${p(0.22, 0.22)} L${p(0.78, 0.78)}`,
+    // 4 : diagonale haut-droite -> bas-gauche
+    (p) => `M${p(0.78, 0.22)} L${p(0.22, 0.78)}`,
+    // 5 : barre verticale centrale
+    (p) => `M${p(0.5, 0.16)} L${p(0.5, 0.84)}`,
+    // 6 : coin (haut, puis descend à droite)
+    (p) => `M${p(0.2, 0.22)} L${p(0.8, 0.22)} L${p(0.8, 0.52)}`,
+    // 7 : arc (courbe de Bézier)
+    (p) => `M${p(0.2, 0.72)} Q${p(0.5, 0.28)} ${p(0.8, 0.72)}`,
+    // 8 : chevron / "A" sans barre
+    (p) => `M${p(0.22, 0.78)} L${p(0.5, 0.2)} L${p(0.78, 0.78)}`,
+    // 9 : carré fermé
+    SQUARE_RUNE,
+];
+
+export const RUNE_COUNT = RUNES.length; // 10
+
+/**
+ * Renvoie le tracé SVG de la rune n° `idx`, placée avec son coin haut-gauche en (ox, oy) et dont le
+ * côté mesure `u` pixels.
+ */
+export function runeStrokes(ox: number, oy: number, u: number, idx: number): string {
+    const toPoint: ToPoint = (x, y) => `${f(ox + x * u)},${f(oy + y * u)}`;
+    const rune = RUNES[idx] ?? SQUARE_RUNE;
+    return rune(toPoint);
 }
 
-const RUNE_COUNT = 10;
+/* --------------------------- Construction d'une case --------------------- */
 
+/**
+ * Tire `count` index de runes au hasard en essayant d'éviter les doublons (au bout de 8 tentatives
+ * ratées, on accepte un doublon).
+ */
+function pickRunes(rand: () => number, count: number): number[] {
+    const picked: number[] = [];
+    const used = new Set<number>();
+
+    for (let i = 0; i < count; i++) {
+        let idx = randInt(rand, 0, RUNE_COUNT - 1);
+        let attempts = 0;
+
+        while (used.has(idx) && attempts < 8) {
+            idx = randInt(rand, 0, RUNE_COUNT - 1);
+            attempts += 1;
+        }
+
+        used.add(idx);
+        picked.push(idx);
+    }
+
+    return picked;
+}
+
+/** Tracé principal du glyphe : toutes les runes choisies mises bout à bout. */
+function buildGlyphPath(rand: () => number, ox: number, oy: number): GraphicPath {
+    const runeCount = MIN_RUNES_PER_GLYPH + randInt(rand, 0, EXTRA_RUNES_MAX);
+    const d = pickRunes(rand, runeCount)
+        .map((idx) => runeStrokes(ox, oy, GLYPH_SIZE, idx))
+        .join('');
+
+    return {
+        d,
+        strokeWidth: 1.1,
+        strokeLinecap: 'round',
+        strokeLinejoin: 'round',
+        // Parfois, on ajoute la classe CSS qui anime le tracé
+        ...(rand() > 1 - CHANCE_ANIMATED_PATH ? { className: 'snake-path' } : {}),
+    };
+}
+
+/** Petit point scintillant placé aléatoirement dans la zone centrale du glyphe. */
+function buildTwinkleDot(rand: () => number, ox: number, oy: number): GraphicCircle {
+    // Position entre 28 % et 72 % de la taille du glyphe
+    const cx = ox + GLYPH_SIZE * (0.28 + rand() * 0.44);
+    const cy = oy + GLYPH_SIZE * (0.28 + rand() * 0.44);
+    const r = 1.4 + rand() * 1.2;
+
+    return { cx, cy, r, className: 'twinkle' };
+}
+
+/** Cadre fin et semi-transparent autour du glyphe. */
+function buildFrame(ox: number, oy: number): GraphicPath {
+    const left = f(ox - FRAME_MARGIN);
+    const top = f(oy - FRAME_MARGIN);
+    const right = f(ox + GLYPH_SIZE + FRAME_MARGIN);
+    const bottom = f(oy + GLYPH_SIZE + FRAME_MARGIN);
+
+    return {
+        d: `M${left},${top} L${right},${top} L${right},${bottom} L${left},${bottom} Z`,
+        strokeWidth: 0.4,
+        strokeOpacity: 0.45,
+    };
+}
+
+/* ------------------------------ Fonctions publiques ---------------------- */
+
+/** Construit le dessin complet (grille de glyphes) à partir d'un générateur aléatoire. */
 export function buildGlyph(rand: () => number): CardGraphic {
     const paths: GraphicPath[] = [];
     const circles: GraphicCircle[] = [];
-    const grid = 4;
-    const pad = 22;
-    const cell = 64;
-    const inset = 8;
 
-    for (let row = 0; row < grid; row++) {
-        for (let col = 0; col < grid; col++) {
-            if (rand() < 0.18) {
+    for (let row = 0; row < GRID_SIZE; row++) {
+        for (let col = 0; col < GRID_SIZE; col++) {
+            // Certaines cases restent vides
+            if (rand() < CHANCE_EMPTY_CELL) {
                 continue;
             }
 
-            const ox = pad + col * cell + inset;
-            const oy = pad + row * cell + inset;
-            const u = cell - inset * 2;
-            const complexity = 3 + randInt(rand, 0, 3);
-            const used = new Set<number>();
-            let d = '';
+            // Coin haut-gauche du glyphe dans cette case
+            const ox = GRID_PADDING + col * CELL_SIZE + CELL_INSET;
+            const oy = GRID_PADDING + row * CELL_SIZE + CELL_INSET;
 
-            for (let k = 0; k < complexity; k++) {
-                let idx = randInt(rand, 0, RUNE_COUNT - 1);
-                let guard = 0;
+            // L'ORDRE des appels ci-dessous doit rester celui-ci
+            // pour que chaque graine produise toujours le même résultat.
+            paths.push(buildGlyphPath(rand, ox, oy));
 
-                while (used.has(idx) && guard < 8) {
-                    idx = randInt(rand, 0, RUNE_COUNT - 1);
-                    guard += 1;
-                }
-
-                used.add(idx);
-                d += runeStrokes(ox, oy, u, idx);
+            if (rand() > 1 - CHANCE_TWINKLE_DOT) {
+                circles.push(buildTwinkleDot(rand, ox, oy));
             }
 
-            paths.push({
-                d,
-                strokeWidth: 1.1,
-                strokeLinecap: 'round',
-                strokeLinejoin: 'round',
-                ...(rand() > 0.7 ? { className: 'snake-path' } : {}),
-            });
-
-            if (rand() > 0.72) {
-                circles.push({
-                    cx: ox + u * (0.28 + rand() * 0.44),
-                    cy: oy + u * (0.28 + rand() * 0.44),
-                    r: 1.4 + rand() * 1.2,
-                    className: 'twinkle',
-                });
-            }
-
-            if (rand() > 0.82) {
-                const m = 3;
-
-                paths.push({
-                    d: `M${f(ox - m)},${f(oy - m)} L${f(ox + u + m)},${f(oy - m)} L${f(ox + u + m)},${f(oy + u + m)} L${f(ox - m)},${f(oy + u + m)} Z`,
-                    strokeWidth: 0.4,
-                    strokeOpacity: 0.45,
-                });
+            if (rand() > 1 - CHANCE_FRAME) {
+                paths.push(buildFrame(ox, oy));
             }
         }
     }
@@ -108,8 +193,8 @@ export function buildGlyph(rand: () => number): CardGraphic {
     return { ...emptyGraphic(), paths, circles };
 }
 
+/** Point d'entrée : génère un glyphe reproductible à partir d'une graine (nombre ou texte). */
 export function generateGlyph(seedInput: number | string = 42): CardGraphic {
-    const seed = toSeed(seedInput);
-    const rand = mulberry32(seed);
+    const rand = mulberry32(toSeed(seedInput));
     return buildGlyph(rand);
 }

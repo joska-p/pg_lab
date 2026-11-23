@@ -66,7 +66,7 @@ export function Scene() {
             </header>
 
             <div {...stylex.props(styles.grid)}>
-                {EXPERIMENTS.map((experiment) => (
+                {EXPERIMENTS.filter((experiment) => experiment.id != 'home').map((experiment) => (
                     <ExperimentCard key={experiment.id} item={experiment} />
                 ))}
             </div>

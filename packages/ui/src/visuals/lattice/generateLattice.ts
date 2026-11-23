@@ -2,13 +2,13 @@ import { dist, emptyGraphic, f } from '../core/geometry';
 import { mulberry32, randInt, toSeed } from '../core/rng';
 import type { CardGraphic, GraphicCircle, GraphicPath } from '../core/types';
 
-interface LatticeCell {
+export interface LatticeCell {
     x: number;
     y: number;
     live: boolean;
 }
 
-function hexCorners(cx: number, cy: number, r: number): [number, number][] {
+export function hexCorners(cx: number, cy: number, r: number): [number, number][] {
     const pts: [number, number][] = [];
 
     for (let i = 0; i < 6; i++) {
@@ -20,7 +20,7 @@ function hexCorners(cx: number, cy: number, r: number): [number, number][] {
     return pts;
 }
 
-function meshSegments(cell: LatticeCell, r: number, rand: () => number): string {
+export function meshSegments(cell: LatticeCell, r: number, rand: () => number): string {
     const pts = hexCorners(cell.x, cell.y, r * 0.92);
     const skipEdge = rand() > 0.78 ? randInt(rand, 0, 5) : -1;
     let mesh = '';
@@ -42,7 +42,7 @@ function meshSegments(cell: LatticeCell, r: number, rand: () => number): string 
     return mesh;
 }
 
-function filledCell(cell: LatticeCell, r: number): string {
+export function filledCell(cell: LatticeCell, r: number): string {
     const pts = hexCorners(cell.x, cell.y, r * 0.92);
 
     return `M${pts.map((p, i) => `${i === 0 ? '' : 'L'}${f(p[0])},${f(p[1])}`).join(' ')} Z`;
@@ -59,7 +59,7 @@ function nextLiveCell(
         .sort((a, b) => a.d - b.d)[0]?.c;
 }
 
-function trailPath(
+export function trailPath(
     cells: readonly LatticeCell[],
     rand: () => number,
     r: number,

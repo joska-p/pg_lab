@@ -29,7 +29,7 @@ export const EXPERIMENTS = [
         id: 'home',
         label: 'Home',
         stageLabel: 'home',
-        tint: 'neutral',
+        tint: 'aqua',
         summary:
             'Central creative coding workbench and exploration gallery for procedural art, mathematics, and audio systems.',
         isHome: true,
@@ -173,7 +173,7 @@ export const EXPERIMENTS = [
         label: 'Notebook',
         panelTitle: 'Notebook Controls',
         stageLabel: 'notebook',
-        tint: 'neutral',
+        tint: 'aqua',
         summary:
             'Creative coding notebook and research scratchpad for capturing algorithm notes and design ideas.',
         mark: 'notebook',

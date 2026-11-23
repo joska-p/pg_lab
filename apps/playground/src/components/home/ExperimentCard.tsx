@@ -103,7 +103,7 @@ export function ExperimentCard({ item }: ExperimentCardProps) {
                 interactionStyles(),
             )}
         >
-            <ExperimentVisual mark={item.mark} />
+            <ExperimentVisual mark={item.mark} seed={item.id} color={item.tint} />
 
             <div {...stylex.props(styles.body)}>
                 <h3 {...stylex.props(styles.title)}>{item.label}</h3>
@@ -111,37 +111,20 @@ export function ExperimentCard({ item }: ExperimentCardProps) {
             </div>
 
             <div {...stylex.props(styles.footer)}>
-                {item.isHome ? (
-                    <Button
-                        color="neutral"
-                        background="soft"
-                        border="subtle"
-                        radius="md"
-                        elevation="flat"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleNavigate();
-                        }}
-                        style={styles.actionButton}
-                    >
-                        Accueil · Vue actuelle
-                    </Button>
-                ) : (
-                    <Button
-                        color={item.tint}
-                        background="solid"
-                        border="subtle"
-                        radius="md"
-                        elevation="raised"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleNavigate();
-                        }}
-                        style={styles.actionButton}
-                    >
-                        Explorer {item.label} →
-                    </Button>
-                )}
+                <Button
+                    color={item.tint}
+                    background="solid"
+                    border="subtle"
+                    radius="md"
+                    elevation="raised"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleNavigate();
+                    }}
+                    style={styles.actionButton}
+                >
+                    Explorer {item.label} →
+                </Button>
             </div>
         </article>
     );
