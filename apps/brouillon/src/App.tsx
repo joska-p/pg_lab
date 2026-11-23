@@ -148,6 +148,7 @@ export function App() {
     const [toggleVal, setToggleVal] = useState(true);
     const [checkboxVal, setCheckboxVal] = useState(true);
     const [radioVal, setRadioVal] = useState('balanced');
+    const [renderMode, setRenderMode] = useState<'wire' | 'shaded' | 'gpgpu'>('shaded');
     const [numberVal, setNumberVal] = useState(42);
     const [textVal, setTextVal] = useState('kernel_frag_atlas');
     const [colorHex, setColorHex] = useState('#34d399');
@@ -569,17 +570,20 @@ export function App() {
                                     color="amber"
                                     disabled={isDisabled}
                                 />
-                                <Segmented
+                                <Segmented<'wire' | 'shaded' | 'gpgpu'>
                                     label="Render Mode Pipeline"
-                                    options={[
-                                        { value: 'wire', label: 'Wireframe' },
-                                        { value: 'shaded', label: 'Shaded' },
-                                        {
-                                            value: 'gpgpu',
-                                            label: 'GPGPU State',
-                                        },
-                                    ]}
-                                    defaultValue="shaded"
+                                    options={
+                                        [
+                                            { value: 'wire', label: 'Wireframe' },
+                                            { value: 'shaded', label: 'Shaded' },
+                                            {
+                                                value: 'gpgpu',
+                                                label: 'GPGPU State',
+                                            },
+                                        ] as const
+                                    }
+                                    value={renderMode}
+                                    onValueChange={setRenderMode}
                                     color="aqua"
                                     disabled={isDisabled}
                                 />

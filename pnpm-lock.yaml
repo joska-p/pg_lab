@@ -209,6 +209,9 @@ catalogs:
     jscpd:
       specifier: ^5.4.3
       version: 5.4.3
+    jsdom:
+      specifier: ^31.0.0
+      version: 31.0.1
     knip:
       specifier: ^6.44.2
       version: 6.44.2
@@ -1073,6 +1076,9 @@ importers:
       '@ui-sdk/react':
         specifier: 'catalog:'
         version: 0.1.0-beta.14(@types/react@19.3.0)(@ui-sdk/core@0.1.0-beta.14)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      jsdom:
+        specifier: 'catalog:'
+        version: 31.0.1
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -4653,8 +4659,7 @@ snapshots:
       tslib: 2.9.1
     optional: true
 
-  '@exodus/bytes@1.16.0':
-    optional: true
+  '@exodus/bytes@1.16.0': {}
 
   '@floating-ui/core@1.8.0':
     dependencies:
@@ -5957,15 +5962,13 @@ snapshots:
 
   baseline-browser-mapping@2.11.35: {}
 
-  bcp-47-match@2.0.3:
-    optional: true
+  bcp-47-match@2.0.3: {}
 
   bcp-47@2.1.2:
     dependencies:
       is-alphabetical: 2.0.1
       is-alphanumerical: 2.0.1
       is-decimal: 2.0.1
-    optional: true
 
   before-after-hook@4.0.0: {}
 
@@ -6103,7 +6106,6 @@ snapshots:
       whatwg-url: 17.3.0
     transitivePeerDependencies:
       - '@noble/hashes'
-    optional: true
 
   debug@4.4.3(supports-color@7.2.0):
     dependencies:
@@ -6111,8 +6113,7 @@ snapshots:
     optionalDependencies:
       supports-color: 7.2.0
 
-  decimal.js@10.6.0:
-    optional: true
+  decimal.js@10.6.0: {}
 
   decircular@0.1.1: {}
 
@@ -6209,8 +6210,7 @@ snapshots:
 
   entities@7.0.1: {}
 
-  entities@9.0.0:
-    optional: true
+  entities@9.0.0: {}
 
   es-errors@1.3.0: {}
 
@@ -6383,7 +6383,6 @@ snapshots:
       '@exodus/bytes': 1.16.0
     transitivePeerDependencies:
       - '@noble/hashes'
-    optional: true
 
   human-signals@8.0.1: {}
 
@@ -6401,21 +6400,18 @@ snapshots:
     dependencies:
       loose-envify: 1.4.0
 
-  is-alphabetical@2.0.1:
-    optional: true
+  is-alphabetical@2.0.1: {}
 
   is-alphanumerical@2.0.1:
     dependencies:
       is-alphabetical: 2.0.1
       is-decimal: 2.0.1
-    optional: true
 
   is-core-module@2.18.0:
     dependencies:
       hasown: 2.0.4
 
-  is-decimal@2.0.1:
-    optional: true
+  is-decimal@2.0.1: {}
 
   is-extendable@0.1.1: {}
 
@@ -6435,8 +6431,7 @@ snapshots:
     dependencies:
       isobject: 3.0.1
 
-  is-potential-custom-element-name@1.0.1:
-    optional: true
+  is-potential-custom-element-name@1.0.1: {}
 
   is-promise@2.2.2: {}
 
@@ -6526,7 +6521,6 @@ snapshots:
       xml-name-validator: 5.0.0
     transitivePeerDependencies:
       - '@noble/hashes'
-    optional: true
 
   jsesc@3.1.0: {}
 
@@ -6925,12 +6919,10 @@ snapshots:
   parse5-parser-stream@8.1.1:
     dependencies:
       parse5: 8.1.1
-    optional: true
 
   parse5@8.1.1:
     dependencies:
       entities: 9.0.0
-    optional: true
 
   path-key@3.1.1: {}
 
@@ -7012,8 +7004,7 @@ snapshots:
 
   protocols@2.0.2: {}
 
-  punycode@2.3.1:
-    optional: true
+  punycode@2.3.1: {}
 
   pure-rand@8.4.2: {}
 
@@ -7120,7 +7111,6 @@ snapshots:
   saxes@6.0.0:
     dependencies:
       xmlchars: 2.2.0
-    optional: true
 
   scheduler@0.28.0: {}
 
@@ -7268,13 +7258,11 @@ snapshots:
 
   tinyrainbow@3.2.0: {}
 
-  tldts-core@7.5.4:
-    optional: true
+  tldts-core@7.5.4: {}
 
   tldts@7.5.4:
     dependencies:
       tldts-core: 7.5.4
-    optional: true
 
   toad-cache@3.7.4: {}
 
@@ -7283,12 +7271,10 @@ snapshots:
   tough-cookie@6.1.0:
     dependencies:
       tldts: 7.5.4
-    optional: true
 
   tr46@7.0.0:
     dependencies:
       punycode: 2.3.1
-    optional: true
 
   troika-three-text@0.52.5(three@0.186.1):
     dependencies:
@@ -7366,8 +7352,7 @@ snapshots:
 
   undici-types@7.24.6: {}
 
-  undici@8.12.4:
-    optional: true
+  undici@8.12.4: {}
 
   unicorn-magic@0.3.0: {}
 
@@ -7513,7 +7498,6 @@ snapshots:
   w3c-xmlserializer@6.0.0:
     dependencies:
       xml-name-validator: 5.0.0
-    optional: true
 
   walk-up-path@4.0.0: {}
 
@@ -7527,13 +7511,11 @@ snapshots:
 
   webgl-sdf-generator@1.1.1: {}
 
-  webidl-conversions@8.0.1:
-    optional: true
+  webidl-conversions@8.0.1: {}
 
   webpack-virtual-modules@0.6.2: {}
 
-  whatwg-mimetype@5.0.0:
-    optional: true
+  whatwg-mimetype@5.0.0: {}
 
   whatwg-url@17.3.0:
     dependencies:
@@ -7542,7 +7524,6 @@ snapshots:
       webidl-conversions: 8.0.1
     transitivePeerDependencies:
       - '@noble/hashes'
-    optional: true
 
   which@2.0.2:
     dependencies:
@@ -7554,11 +7535,9 @@ snapshots:
 
   ws@8.22.1: {}
 
-  xml-name-validator@5.0.0:
-    optional: true
+  xml-name-validator@5.0.0: {}
 
-  xmlchars@2.2.0:
-    optional: true
+  xmlchars@2.2.0: {}
 
   yallist@3.1.1: {}
 
