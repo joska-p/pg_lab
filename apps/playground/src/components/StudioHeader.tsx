@@ -130,7 +130,7 @@ export function StudioHeader({
                     onClick={() => navigateToExperiment('home')}
                     title="Revenir à l'accueil"
                 >
-                    Rentrer maison
+                    maison
                 </Button>
             </div>
 

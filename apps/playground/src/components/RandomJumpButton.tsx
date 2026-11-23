@@ -22,8 +22,9 @@ export function RandomJumpButton() {
             radius="md"
             elevation="raised"
             onClick={handleRandomJump}
+            title="Explorer une experience au hasard"
         >
-            🎲 Expérience au hasard
+            hasard
         </Button>
     );
 }
