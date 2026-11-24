@@ -1,14 +1,15 @@
 {
-    "name": "@repo/string-art",
+    "name": "@repo/scratchpad",
     "version": "0.0.0",
     "private": true,
     "type": "module",
     "scripts": {
         "dev": "vp dev --host",
-        "lint": "vp lint"
+        "build": "tsc -b && vp build",
+        "lint": "vp lint",
+        "preview": "vp preview"
     },
     "dependencies": {
-        "@repo/surface": "workspace:*",
         "@repo/ui": "workspace:*",
         "react": "catalog:",
         "react-dom": "catalog:",

@@ -217,5 +217,4 @@ pair.swap();
 
 ### CPU Backend (`CpuSurface` / `<CpuCanvas>`)
 
-- **`@repo/string-art`**: Algorithmic string art thread synthesis and visualization on HTML5 Canvas2D.
 - **`oeis-signal` Experiment**: Mathematical sequence signals and accumulators visualization using Canvas2D.

@@ -15,7 +15,7 @@
         "apps/playground": {
             "project": ["src/**/*.{ts,tsx}"]
         },
-        "apps/brouillon": {
+        "apps/scratchpad": {
             "project": ["src/**/*.{ts,tsx}"]
         },
         "packages/art-canvas": {
@@ -58,12 +58,6 @@
             "project": ["src/**/*.{ts,tsx}"]
         },
         "packages/sequencer": {
-            "project": ["src/**/*.{ts,tsx}"]
-        },
-        "packages/squared": {
-            "project": ["src/**/*.{ts,tsx}"]
-        },
-        "packages/string-art": {
             "project": ["src/**/*.{ts,tsx}"]
         },
         "packages/surface": {

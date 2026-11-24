@@ -295,7 +295,7 @@ const ignorePatterns = ['dist/**', '**/vendor/*.js', '.agents/**/*.{js,ts}'];
 
 // Packages that depend on React (see each package.json).
 const reactPackages = [
-    'apps/brouillon/**',
+    'apps/scratchpad/**',
     'apps/playground/**',
     'packages/art-canvas/**',
     'packages/automa/**',
