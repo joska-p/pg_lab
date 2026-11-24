@@ -188,12 +188,6 @@ catalogs:
     '@types/three':
       specifier: ^0.186.0
       version: 0.186.0
-    '@ui-sdk/core':
-      specifier: 0.1.0-beta.14
-      version: 0.1.0-beta.14
-    '@ui-sdk/react':
-      specifier: 0.1.0-beta.14
-      version: 0.1.0-beta.14
     '@vitejs/plugin-react':
       specifier: ^6.2.1
       version: 6.2.1
@@ -1070,12 +1064,6 @@ importers:
       '@types/react-dom':
         specifier: 'catalog:'
         version: 19.3.0(@types/react@19.3.0)
-      '@ui-sdk/core':
-        specifier: 'catalog:'
-        version: 0.1.0-beta.14
-      '@ui-sdk/react':
-        specifier: 'catalog:'
-        version: 0.1.0-beta.14(@types/react@19.3.0)(@ui-sdk/core@0.1.0-beta.14)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       jsdom:
         specifier: 'catalog:'
         version: 31.0.1
@@ -2575,20 +2563,6 @@ packages:
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [win32]
-
-  '@ui-sdk/core@0.1.0-beta.14':
-    resolution: {integrity: sha512-SHm5qLYBqxT5+d3svaBeP5uoBMIQbETKBqcZ/6b+WhhXlz6YoeNqjtMfpmq4yGA329DFwzu+y7+xGJjw4fnTPQ==}
-
-  '@ui-sdk/react@0.1.0-beta.14':
-    resolution: {integrity: sha512-qfriaLQEd+Iy7+PhAK6d2j3e1Hs6A4lh50+d+6rSAADoBwkQ/jf11SGzfXV5pCuYFGps3Ekz2W4RwtiR6yryjg==}
-    peerDependencies:
-      '@types/react': '>=19.2.10'
-      '@ui-sdk/core': ^0.1.0-beta.14
-      react: '>=19'
-      react-dom: '>=19'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@use-gesture/core@10.3.1':
     resolution: {integrity: sha512-WcINiDt8WjqBdUXye25anHiNxPc0VOrlT8F6LLkU6cycrOGUDyY/yyFmsg3k8i5OLvv25llc0QC45GhR/C8llw==}
@@ -5656,16 +5630,6 @@ snapshots:
 
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
-
-  '@ui-sdk/core@0.1.0-beta.14': {}
-
-  '@ui-sdk/react@0.1.0-beta.14(@types/react@19.3.0)(@ui-sdk/core@0.1.0-beta.14)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
-    dependencies:
-      '@ui-sdk/core': 0.1.0-beta.14
-      react: 19.3.1
-      react-dom: 19.3.1(react@19.3.1)
-    optionalDependencies:
-      '@types/react': 19.3.0
 
   '@use-gesture/core@10.3.1': {}
 

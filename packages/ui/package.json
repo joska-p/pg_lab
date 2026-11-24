@@ -21,8 +21,6 @@
         "@stylexjs/stylex": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
-        "@ui-sdk/core": "catalog:",
-        "@ui-sdk/react": "catalog:",
         "jsdom": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",
