@@ -14,4 +14,3 @@ High-performance Monorepo powered by **Vite+** and **React 19**.
 - **Language**: French for discussions, English for code, docs, and specs.
 - **SSOT**: Ecosystem conventions and docs live in `./codex/`. Propose updates when patterns evolve.
 - **UI SDK**: Before using `ui-sdk`, follow the `ui-sdk` skill if it's installed, and read `packages/ui/node_modules/@ui-sdk/react/docs/llms.txt`.
-    - To build a new component, also search `node_modules/@ui-sdk/react/docs/core.md` by heading, and read `rendering.md` next to it.

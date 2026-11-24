@@ -1,65 +1,102 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
-import { Field, FieldLabel } from '@ui-sdk/react/field';
-import {
-    Slider as SliderInternal,
-    SliderControl,
-    SliderIndicator,
-    SliderThumb,
-    SliderTrack,
-    SliderValue,
-} from '@ui-sdk/react/slider';
-import type { SliderValueChangeDetails } from '@ui-sdk/react/slider';
+import { useId, useState } from 'react';
 
 import { surfaceStyle } from '../recipes/surface';
+import type { SurfaceStyleProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
 import { layout, space } from '../tokens/const.stylex';
-import type { ColorNames } from '../tokens/tint.stylex';
 import { tintVars } from '../tokens/tint.stylex';
 
+// Dimensions locales (px). À remplacer par des tokens `layout.*` si tu les agrandis.
 const RAIL = 6;
 const THUMB = 18;
 
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+function decimals(step: number) {
+    if (Number.isInteger(step)) {
+        return 0;
+    }
+    return (
+        step
+            .toFixed(10)
+            .replace(/\.?0+$/, '')
+            .split('.')[1]?.length ?? 0
+    );
+}
+
+// Position (0 à 1) → distance depuis la gauche, mesurée au centre du thumb.
+// Le thumb reste ainsi entièrement dans le conteneur aux deux extrémités.
+const centerAt = (ratio: number) => `calc(${THUMB / 2}px + (100% - ${THUMB}px) * ${ratio})`;
+
 const styles = stylex.create({
-    root: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: space['1'],
-        width: '100%',
-        minWidth: '12rem',
-    },
     row: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
         gap: space['3'],
     },
-    control: {
-        display: 'flex',
-        alignItems: 'center',
-        width: '100%',
-        height: layout.controlTouchTarget,
-        touchAction: 'none',
+    rowDisabled: {
+        opacity: 0.5,
+    },
+    container: {
+        position: 'relative',
+        flex: 1,
+        minHeight: layout.controlTouchTarget,
+        touchAction: 'pan-y',
     },
     track: {
-        position: 'relative',
-        width: '100%',
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: '50%',
+        transform: 'translateY(-50%)',
         height: RAIL,
+        overflow: 'hidden',
     },
-    indicator: {
-        height: '100%',
-    },
+    // Le fill porte la couleur via sa propre surface solide.
+    fill: (ratio: number) => ({
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        width: centerAt(ratio),
+    }),
     thumb: {
+        position: 'absolute',
+        top: '50%',
         width: THUMB,
         height: THUMB,
-        outline: 'none',
-        ':focus-within': {
-            outline: `3px solid ${tintVars.color}`,
-            outlineOffset: 3,
+        pointerEvents: 'none',
+        transform: {
+            default: 'translate(-50%, -50%) scale(1)',
+            [stylex.when.siblingAfter(':hover')]: 'translate(-50%, -50%) scale(1.1)',
+            [stylex.when.siblingAfter(':active')]: 'translate(-50%, -50%) scale(0.94)',
         },
+        transitionProperty: 'transform',
+        transitionDuration: {
+            default: '120ms',
+            '@media (prefers-reduced-motion: reduce)': '0ms',
+        },
+        outline: {
+            default: 'none',
+            [stylex.when.siblingAfter(':focus-visible')]: `3px solid ${tintVars.color}`,
+        },
+        outlineOffset: 3,
     },
-    thumbDisabled: {
-        opacity: 0.5,
+    thumbAt: (ratio: number) => ({
+        left: centerAt(ratio),
+    }),
+    input: {
+        position: 'absolute',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        margin: 0,
+        opacity: 0,
+        cursor: 'pointer',
+    },
+    inputDisabled: {
         cursor: 'not-allowed',
     },
     value: {
@@ -69,82 +106,117 @@ const styles = stylex.create({
     },
 });
 
-interface SliderProps {
-    label: string;
-    color?: ColorNames;
-    min?: number;
-    max?: number;
+interface SliderProps
+    extends
+        Omit<
+            React.ComponentProps<'input'>,
+            | 'style'
+            | 'className'
+            | 'color'
+            | 'type'
+            | 'onChange'
+            | 'value'
+            | 'defaultValue'
+            | 'min'
+            | 'max'
+            | 'step'
+        >,
+        SurfaceStyleProps {
+    label?: string;
+    min: number;
+    max: number;
     step?: number;
     value?: number;
     defaultValue?: number;
-    onValueChange?: (value: number, details: SliderValueChangeDetails) => void;
-    disabled?: boolean;
+    onValueChange?: (value: number) => void;
     style?: StyleXStyles;
 }
 
 export function Slider({
     label,
-    color = 'aurora',
-    min = 0,
-    max = 100,
+    color = 'neutral',
+    background = 'soft', // la piste est un voile teinté ; le fill et le thumb sont pleins
+    border = 'strong',
+    radius = 'full',
+    elevation = 'raised', // appliqué au thumb
+    min,
+    max,
     step = 1,
     value,
     defaultValue = min,
     onValueChange,
     disabled = false,
+    id: idProp,
     style,
+    ...props
 }: SliderProps) {
-    const trackSurface = surfaceStyle({
-        color: 'neutral',
-        background: 'solid',
-        border: 'none',
-        radius: 'full',
-    });
-    const indicatorSurface = surfaceStyle({
+    const id = useId();
+    const controlId = idProp ?? id;
+    const [internal, setInternal] = useState(defaultValue);
+    const isControlled = value !== undefined;
+    const current = clamp(isControlled ? value : internal, min, max);
+    const precision = decimals(step);
+    const ratio = max > min ? (current - min) / (max - min) : 0;
+
+    const trackSurface = surfaceStyle({ color, background, border, radius, elevation: 'flat' });
+    const fillSurface = surfaceStyle({
         color,
         background: 'solid',
         border: 'none',
-        radius: 'none',
+        radius: 'none', // la piste clippe déjà avec overflow: hidden
     });
     const thumbSurface = surfaceStyle({
         color,
         background: 'solid',
-        border: 'strong',
-        radius: 'xs',
-        elevation: 'raised',
+        border,
+        radius: 'full',
+        elevation,
     });
 
+    function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+        // Arrondi à la précision du pas pour éviter 0.30000000000000004.
+        const next = clamp(Number(Number(event.currentTarget.value).toFixed(precision)), min, max);
+        if (!isControlled) {
+            setInternal(next);
+        }
+        onValueChange?.(next);
+    }
+
     return (
-        <Field>
-            <SliderInternal<number>
-                {...stylex.props(styles.root, style)}
-                min={min}
-                max={max}
-                step={step}
-                value={value}
-                defaultValue={defaultValue}
-                onValueChange={onValueChange}
-                disabled={disabled}
-            >
-                <div data-slot="row" {...stylex.props(styles.row)}>
-                    <FieldLabel {...stylex.props(fieldText.label)}>{label}</FieldLabel>
-                    <SliderValue {...stylex.props(styles.value, fieldText.value)} />
+        <div {...stylex.props(styles.row, disabled && styles.rowDisabled)}>
+            {label && (
+                <label htmlFor={controlId} {...stylex.props(fieldText.label)}>
+                    {label}
+                </label>
+            )}
+
+            <div {...stylex.props(styles.container, style)}>
+                <div {...stylex.props(trackSurface, styles.track)}>
+                    <div {...stylex.props(fillSurface, styles.fill(ratio))} />
                 </div>
-                <SliderControl {...stylex.props(styles.control)}>
-                    <SliderTrack {...stylex.props(styles.track, trackSurface)}>
-                        <SliderIndicator {...stylex.props(styles.indicator, indicatorSurface)} />
-                        <SliderThumb
-                            className={(state) =>
-                                stylex.props(
-                                    styles.thumb,
-                                    thumbSurface,
-                                    state.disabled && styles.thumbDisabled,
-                                ).className
-                            }
-                        />
-                    </SliderTrack>
-                </SliderControl>
-            </SliderInternal>
-        </Field>
+                <div {...stylex.props(thumbSurface, styles.thumb, styles.thumbAt(ratio))} />
+
+                <input
+                    {...props}
+                    id={controlId}
+                    type="range"
+                    min={min}
+                    max={max}
+                    step={step}
+                    value={current}
+                    onChange={handleChange}
+                    disabled={disabled}
+                    {...stylex.props(
+                        styles.input,
+                        disabled && styles.inputDisabled,
+                        stylex.defaultMarker(),
+                    )}
+                />
+            </div>
+
+            <output htmlFor={controlId} {...stylex.props(styles.value, fieldText.value)}>
+                {current.toFixed(precision)}
+            </output>
+        </div>
     );
 }
