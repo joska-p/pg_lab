@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router';
 
-import { ExperimentLayout } from './components/ExperimentLayout';
+import { ExperimentLayout } from './shell/ExperimentLayout';
 
 export function App() {
     return (

@@ -11,17 +11,13 @@
     "type": "module",
     "exports": {
         "./processor": "./src/processor/process-image.ts",
+        "./processor/*": "./src/processor/*",
         "./worker": "./src/worker/process-image-in-worker.ts",
         "./worker/*": "./src/worker/*",
         "./react": "./src/react/usePixel.ts",
-        "./react/*": "./src/react/*",
-        "./docs/*": "./src/docs/*",
-        "./App": "./src/docs/App.tsx",
-        "./Scene": "./src/docs/components/Scene.tsx",
-        "./Controls": "./src/docs/components/Controls.tsx"
+        "./react/*": "./src/react/*"
     },
     "scripts": {
-        "dev": "vp dev --host",
         "lint": "vp lint"
     },
     "dependencies": {
