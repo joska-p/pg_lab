@@ -1,3 +1,3 @@
-import { defineAppConfig } from '../../vite.config.ts';
+import { defineAppConfig } from '../../tooling/vite/app.ts';
 
 export default defineAppConfig();

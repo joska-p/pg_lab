@@ -1,4 +1,4 @@
-import { defineAppConfig } from '../../vite.config.ts';
+import { defineAppConfig } from '../../tooling/vite/app.ts';
 
 // Check for existence of the variables rather than exact string matches
 const isVercel = Boolean(process.env.VERCEL);

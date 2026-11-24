@@ -534,7 +534,7 @@ importers:
         specifier: 'catalog:'
         version: 1.6.0(@types/node@24.19.2)(@vitest/ui@5.1.0)(jiti@2.7.0)(jsdom@31.0.1)(typescript@7.0.2)(yaml@2.9.1)
 
-  tools/new-mini-app:
+  tools/new-experiment:
     dependencies:
       bingo:
         specifier: 'catalog:'

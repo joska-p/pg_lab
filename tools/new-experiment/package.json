@@ -1,8 +1,8 @@
 {
-    "name": "@repo/new-mini-app",
+    "name": "@repo/new-experiment",
     "version": "0.0.0",
     "private": true,
-    "description": "Generator: scaffold a new mini-app from the specimen template.",
+    "description": "Generator: scaffold a new Experiment folder in the Workbench.",
     "keywords": [
         "vite-plus-generator"
     ],
