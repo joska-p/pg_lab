@@ -291,38 +291,6 @@ const nodeLint = {
 // an app: those load the app's local `vite.config.ts`.
 // ═══════════════════════════════════════════════════════════════════════════
 
-const ignorePatterns = ['dist/**', '**/vendor/*.js', '.agents/**/*.{js,ts}'];
-
-// Packages that depend on React (see each package.json).
-const reactPackages = [
-    'apps/brouillon/**',
-    'apps/playground/**',
-    'packages/art-canvas/**',
-    'packages/automa/**',
-    'packages/fracture/**',
-    'packages/mol-demo/**',
-    'packages/mosaic-maker/**',
-    'packages/notebook/**',
-    'packages/oeis-signal/**',
-    'packages/palette/**',
-    'packages/pixel/**',
-    'packages/pixel-manipulator/**',
-    'packages/radu-machine-learning/**',
-    'packages/randomart-ui/**',
-    'packages/sequencer/**',
-    'packages/squared/**',
-    'packages/surface/**',
-    'packages/string-art/**',
-    'packages/three-stage/**',
-    'packages/ui/**',
-];
-
-const nodePackages = [
-    'packages/palette/src/core/**',
-    'packages/randomart-core/**',
-    'tools/new-mini-app/**',
-];
-
 export default defineConfig({
     defaultPackage: './apps/playground',
     server: {
@@ -352,35 +320,43 @@ export default defineConfig({
     },
     lint: {
         ...baseLint,
-        ignorePatterns,
+        ignorePatterns: ['dist/**', '.agents/skills'],
         jsPlugins: [{ name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' }],
         options: { typeAware: true, typeCheck: true },
         overrides: [
             {
-                files: reactPackages,
+                files: [
+                    'apps/brouillon/**',
+                    'apps/playground/**',
+                    'packages/art-canvas/**',
+                    'packages/automa/**',
+                    'packages/fracture/**',
+                    'packages/mol-demo/**',
+                    'packages/mosaic-maker/**',
+                    'packages/notebook/**',
+                    'packages/oeis-signal/**',
+                    'packages/palette/**',
+                    'packages/pixel/**',
+                    'packages/pixel-manipulator/**',
+                    'packages/radu-machine-learning/**',
+                    'packages/randomart-ui/**',
+                    'packages/sequencer/**',
+                    'packages/squared/**',
+                    'packages/surface/**',
+                    'packages/string-art/**',
+                    'packages/three-stage/**',
+                    'packages/ui/**',
+                ],
                 ...reactLint,
             },
             {
-                // The randomart core is pure TypeScript: no browser environment, no storage.
-                files: ['packages/randomart-core/**'],
-                rules: {
-                    'no-restricted-globals': [
-                        'error',
-                        'document',
-                        'window',
-                        'navigator',
-                        'requestAnimationFrame',
-                        'localStorage',
-                        'sessionStorage',
-                        'indexedDB',
-                    ],
-                },
-            },
-            {
-                files: nodePackages,
+                files: [
+                    'packages/palette/src/core/**',
+                    'packages/randomart-core/**',
+                    'tools/new-mini-app/**',
+                ],
                 ...nodeLint,
             },
-
             {
                 // Config files and CLI templates require default exports.
                 files: ['**/vite.config.ts', 'tools/new-mini-app/src/template.ts'],
@@ -388,7 +364,6 @@ export default defineConfig({
                     'import/no-default-export': 'off',
                 },
             },
-
             {
                 // Tests need assertion.
                 files: ['**/*.test.ts'],
