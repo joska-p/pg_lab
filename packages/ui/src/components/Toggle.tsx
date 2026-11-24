@@ -6,7 +6,7 @@ import { interactionStyles } from '../recipes/interactions';
 import { surfaceStyle } from '../recipes/surface';
 import type { SurfaceStyleProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
-import { interaction, layout, motion, space } from '../tokens/const.stylex';
+import { interaction, layout, motion, space, radius } from '../tokens/const.stylex';
 
 const styles = stylex.create({
     row: {
@@ -43,7 +43,7 @@ const styles = stylex.create({
             left: '2px',
             width: layout.toggleKnobSize,
             height: layout.toggleKnobSize,
-            borderRadius: '50%',
+            borderRadius: radius.sm,
             pointerEvents: 'none',
             backgroundColor: 'currentColor',
             opacity: {
@@ -84,7 +84,7 @@ export function Toggle({
     color = 'neutral',
     background = 'solid',
     border = 'strong',
-    radius = 'full',
+    radius = 'sm',
     elevation = 'flat',
     checked,
     defaultChecked,
@@ -119,7 +119,13 @@ export function Toggle({
                 onChange={(event) => onCheckedChange?.(event.target.checked)}
                 {...stylex.props(
                     styles.input,
-                    surfaceStyle({ color, background, border, radius, elevation }),
+                    surfaceStyle({
+                        color,
+                        background,
+                        border,
+                        radius,
+                        elevation,
+                    }),
                     interactionStyles({ disabled }),
                     style,
                 )}

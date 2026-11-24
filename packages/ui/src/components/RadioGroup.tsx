@@ -6,7 +6,7 @@ import { interactionStyles } from '../recipes/interactions';
 import { surfaceStyle } from '../recipes/surface';
 import type { SurfaceStyleProps } from '../recipes/surface';
 import { fieldText } from '../recipes/typography';
-import { interaction, layout, space } from '../tokens/const.stylex';
+import { interaction, layout, radius, space } from '../tokens/const.stylex';
 
 interface RadioOption<T extends string> {
     value: T;
@@ -76,7 +76,7 @@ const styles = stylex.create({
             transform: 'translate(-50%, -50%)',
             width: layout.radioDotSize,
             height: layout.radioDotSize,
-            borderRadius: '50%',
+            borderRadius: radius.sm,
             pointerEvents: 'none',
             backgroundColor: {
                 default: 'transparent',
@@ -91,7 +91,7 @@ export function RadioGroup<T extends string>({
     color = 'neutral',
     background = 'solid',
     border = 'strong',
-    radius = 'full',
+    radius = 'sm',
     elevation = 'flat',
     options,
     value,
@@ -146,7 +146,13 @@ export function RadioGroup<T extends string>({
                             onChange={() => onValueChange?.(option.value)}
                             {...stylex.props(
                                 styles.input,
-                                surfaceStyle({ color, background, border, radius, elevation }),
+                                surfaceStyle({
+                                    color,
+                                    background,
+                                    border,
+                                    radius,
+                                    elevation,
+                                }),
                                 interactionStyles({ disabled }),
                             )}
                         />
