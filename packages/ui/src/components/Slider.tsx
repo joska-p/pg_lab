@@ -134,9 +134,9 @@ interface SliderProps
 
 export function Slider({
     label,
-    color = 'neutral',
-    background = 'soft', // la piste est un voile teinté ; le fill et le thumb sont pleins
-    border = 'strong',
+    color = 'aurora',
+    background = 'solid',
+    border = 'none',
     radius = 'full',
     elevation = 'raised', // appliqué au thumb
     min,
@@ -158,18 +158,24 @@ export function Slider({
     const precision = decimals(step);
     const ratio = max > min ? (current - min) / (max - min) : 0;
 
-    const trackSurface = surfaceStyle({ color, background, border, radius, elevation: 'flat' });
+    const trackSurface = surfaceStyle({
+        color: 'neutral',
+        background,
+        border,
+        radius,
+        elevation: 'flat',
+    });
     const fillSurface = surfaceStyle({
         color,
         background: 'solid',
         border: 'none',
-        radius: 'none', // la piste clippe déjà avec overflow: hidden
+        radius: 'none',
     });
     const thumbSurface = surfaceStyle({
         color,
         background: 'solid',
         border,
-        radius: 'full',
+        radius: 'sm',
         elevation,
     });
 
