@@ -5,8 +5,8 @@ import type { Template } from 'bingo';
 
 import template from '../src/template.ts';
 
-// runTemplateCLI accepts the base `Template` type, which is wider than the
-// strongly typed template returned by createTemplate(). The value is created locally by
-// createTemplate(), so the cast only bridges bingo's incompatible generic parameters.
+// `runTemplateCLI` is not generic over the options shape and only accepts the
+// broad `Template` type. `createTemplate()` returns a narrower, strongly typed
+// template, so cast through `unknown` to bridge bingo's incompatible generics.
 // oxlint-disable-next-line typescript/no-unsafe-type-assertion
 process.exitCode = await runTemplateCLI(template as unknown as Template);
