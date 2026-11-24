@@ -32,8 +32,8 @@ jobs:
               with:
                   node-version: '24'
                   cache: true
-            - run: vp install
-            - run: vp check --fix
+            - run: vp install --frozen-lockfile
+            - run: vp ready
             - run: vp run playground#build
 
             # Téléverse le dossier de sortie généré par le build de l'application
