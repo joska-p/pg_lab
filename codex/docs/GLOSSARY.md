@@ -1,14 +1,22 @@
 # PG_LAB
 
-PG_LAB is a personal creative coding playground. This glossary defines the canonical vocabulary for discussing its concepts so the author and an agent can use the same words without guessing.
+PG_LAB is a personal creative coding workbench. This glossary defines the canonical vocabulary for discussing its concepts so the author and an agent can use the same words without guessing.
 
 ## Language
 
-### Playground shell
+### Workbench
+
+**Workbench**:
+The personal creative coding environment: the Shell together with the collection of Experiments available in it. The Workbench is the whole system; the Shell is only the host for one open Experiment.
+_Avoid_: framework, project, app
+
+**Scratchpad**:
+An area of the Workbench for unpublished trials and dormant ideas. It is not part of the registered Experiment set opened in the published Workbench.
+_Avoid_: draft, sandbox, testing ground, brouillon
 
 **Experiment**:
 A registered playground entry that can be opened in the shell and contributes a Scene and optional Controls.
-_Avoid_: App, project, demo, package
+_Avoid_: App, project, demo, package, mini-app
 
 **Experiment mark**:
 A decorative visual identity for an Experiment on a card. It is not the Scene, and it is not a Visual layer.
@@ -32,7 +40,7 @@ _Avoid_: Sidebar, drawer, controls
 
 **Shell**:
 The playground host around every Experiment: routing, chrome, Stage and Panel. It owns real time and external I/O.
-_Avoid_: App, framework, core shell
+_Avoid_: App, framework, core shell, workbench
 
 ### Rendering
 
