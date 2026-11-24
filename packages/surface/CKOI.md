@@ -192,7 +192,7 @@ function InteractiveCanvas({ camera }: { camera: Camera2D }) {
 
 ### Offscreen GPGPU (`@repo/surface/gpu/TargetPair`)
 
-Lightweight ping-pong buffers for iterative compute simulations (used by the `automa` Experiment):
+Lightweight ping-pong buffers for iterative compute simulations (used by `@repo/automa`):
 
 ```ts
 const pair = surface.createTargetPair({ width: 512, height: 512, type: gl.FLOAT });
@@ -210,11 +210,12 @@ pair.swap();
 
 ### GPU Backend (`GpuSurface` / `<GpuCanvas>`)
 
-- **`art-canvas` Experiment**: Generative art workbench with live shader editing and hot reload.
-- **`automa` Experiment**: GPGPU cellular automata using `TargetPair` ping-pong passes and `useCameraControls`.
-- **`fracture` Experiment**: High-precision fractal explorer (Mandelbrot & Julia naive, double-split ~48-bit precision, and orbit perturbation) with demand rendering and deep-zoom camera navigation.
-- **`randomart` Experiment**: Procedural visual art rendering powered by Shadertoy-compatible uniforms.
+- **`@repo/art-canvas`**: Generative art workbench with live shader editing and hot reload.
+- **`@repo/automa`**: GPGPU cellular automata using `TargetPair` ping-pong passes and `useCameraControls`.
+- **`@repo/fracture`**: High-precision fractal explorer (Mandelbrot & Julia naive, double-split ~48-bit precision, and orbit perturbation) with demand rendering and deep-zoom camera navigation.
+- **`@repo/randomart-ui`**: Procedural visual art rendering powered by Shadertoy-compatible uniforms.
 
 ### CPU Backend (`CpuSurface` / `<CpuCanvas>`)
 
-- **`oeis-signal` Experiment**: Mathematical sequence signals and accumulators visualization using Canvas2D.
+- **`@repo/string-art`**: Algorithmic string art thread synthesis and visualization on HTML5 Canvas2D.
+- **`@repo/oeis-signal`**: Mathematical sequence signals and accumulators visualization using Canvas2D.

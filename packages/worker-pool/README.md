@@ -10,11 +10,11 @@ You already know how to write a Web Worker: `new Worker(...)`, `postMessage`, li
 
 `@repo/worker-pool` does that. You provide three hooks that describe _your_ worker (`workerFactory`, `serialize`, `deserialize`); the package handles dispatch, concurrency, queuing, and teardown.
 
-**The origin:** three experiments (`automa`, `graph-viz`, `pixel`) each invented their own version of this same boilerplate. This module extracts the common shape into a single, testable class.
+**The origin:** three packages (`automa`, `graph-viz`, `pixel`) each invented their own version of this same boilerplate. This module extracts the common shape into a single, testable class.
 
 ## Brainstorming, Inspirations & Credits
 
-- **Borrowed Code & Algorithms:** the worker boilerplate patterns extracted from the `automa` Experiment (single dedicated worker, buffer round-trip), `@repo/graph-viz` (one-shot force simulation), and `@repo/pixel` (image pipeline with transferables + custom error protocol).
+- **Borrowed Code & Algorithms:** the worker boilerplate patterns extracted from `@repo/automa` (single dedicated worker, buffer round-trip), `@repo/graph-viz` (one-shot force simulation), and `@repo/pixel` (image pipeline with transferables + custom error protocol).
 
 ## Patterns & Gotchas
 

@@ -1,0 +1,31 @@
+{
+    "name": "@repo/randomart-ui",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./App": "./src/App.tsx",
+        "./Scene": "./src/components/Scene.tsx",
+        "./Controls": "./src/components/Controls.tsx"
+    },
+    "scripts": {
+        "dev": "vp dev --host",
+        "lint": "vp lint"
+    },
+    "dependencies": {
+        "@repo/randomart-core": "workspace:*",
+        "@repo/surface": "workspace:*",
+        "@repo/ui": "workspace:*",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "zustand": "catalog:"
+    },
+    "devDependencies": {
+        "@stylexjs/stylex": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+        "vite-plus": "catalog:"
+    }
+}

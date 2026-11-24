@@ -1,0 +1,7 @@
+{
+    "extends": "../../tsconfig.node",
+    "compilerOptions": {
+        "lib": ["ES2022", "WebWorker"]
+    },
+    "include": ["src/**/*.worker.ts"]
+}
