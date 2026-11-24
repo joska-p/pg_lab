@@ -8,30 +8,31 @@ web
 
 ## Users
 
-The sole user is the author — a developer who experiments with generative art, data visualization, simulations, and visual tools. The playground is used in focused sessions to prototype ideas, learn techniques, and iterate on creative code. There is no external audience or public-facing deployment at this time.
+The sole user is the author — a developer who experiments with generative art, data visualization, simulations, and visual tools. The Workbench is used in focused sessions to prototype ideas, learn techniques, and iterate on creative code. There is no external audience or public-facing deployment at this time.
 
 ## Product Purpose
 
-PG_LAB is a personal creative coding laboratory. It exists to give its author a consistent, well-tooled environment for exploring visual programming ideas: generative art algorithms, cellular automata, shader experiments, audio sequencers, palette generation, and anything else curiosity leads to. Success means the environment stays out of the way, each experiment loads fast, and switching between ideas is instant.
+PG_LAB is a personal creative coding laboratory. It exists to give its author a consistent, well-tooled environment for exploring visual programming ideas: generative art algorithms, cellular automata, shader experiments, audio sequencers, palette generation, and anything else curiosity leads to. Success means the environment stays out of the way, each Experiment loads fast, and switching between ideas is instant.
 
 ## Positioning
 
-This is not a product competing with other tools. Its value is personal: a single curated workspace that grows with the author's interests, backed by a shared component and rendering infrastructure (`@repo/ui`, `@repo/surface`, `@repo/worker-pool`) that reduces boilerplate across experiments.
+This is not a product competing with other tools. Its value is personal: a single curated Workbench that grows with the author's interests, backed by shared component and rendering infrastructure (`@repo/ui`, `@repo/surface`, `@repo/worker-pool`) that reduces boilerplate across Experiments.
 
 ## Operating Context
 
 - Monorepo managed by **pnpm 12** workspaces, orchestrated by **Vite+** (`vp` CLI).
-- Each experiment lives in its own package under `packages/`, exporting a `Scene` and `Controls` component pair.
-- The main app (`apps/playground`) lazily loads experiments via a route-based registry and renders them inside a unified shell: a control panel on one side, a stage (canvas) on the other.
-- A second app (`apps/brouillon`) serves as a scratch pad for rougher exploration.
-- Shared infrastructure: `@repo/ui` (components, tokens, hooks, StyleX), `@repo/surface` (GPU/CPU canvas, camera, shaders, render targets), `@repo/worker-pool`, `@repo/randomart-core`, `@repo/pixel`.
+- The published Workbench is `apps/playground`: its Shell hosts one open Experiment at a time, with a Panel of Controls beside a Stage for the Scene.
+- An Experiment is a folder in `apps/playground`, not a pnpm package. It contributes a Scene and optional Controls; the registry is derived from folders by `import.meta.glob`.
+- The **Scratchpad** is a separate, unpublished local area for rougher exploration. It is not part of the registered Experiment set.
+- Shared infrastructure stays in real workspace packages: `@repo/ui`, `@repo/surface`, `@repo/worker-pool`, `@repo/randomart-core`, `@repo/pixel`, `@repo/glaze3d`.
 - Stack: React 19, Zustand, StyleX, TypeScript, Vite.
 
 ## Capabilities and Constraints
 
-- ~15 registered experiments: art-canvas, mosaic-maker, squared, string-art, fracture, automa, randomart, oeis-signal, palette, pixel, pixel-manipulator, notebook, sequencer, radu-machine-learning, mol-demo.
+- Registered Experiments cover generative art, automata, palettes, signal plots, pixel tools, sequencers and molecule views; the exact set is derived from Experiment folders.
+- Dormant ideas are kept as short notes rather than maintained as packages.
 - Rendering targets both Canvas 2D and WebGL (via `@repo/surface`).
-- The UI library provides a cohesive set of controls (sliders, selects, toggles, color pickers, text inputs, segmented controls, grids) designed for parameter-tweaking workflows.
+- The UI library provides a cohesive set of input widgets (sliders, selects, toggles, color pickers, text inputs, segmented controls, grids) designed for parameter-tweaking workflows.
 - No backend, no authentication, no persistence beyond local state.
 - The monorepo uses `vp check --fix` for formatting, linting, and type-checking.
 
@@ -41,14 +42,14 @@ None. The name "PG_LAB" and "Creative Playground" are informal and may change. T
 
 ## Evidence on Hand
 
-- All experiment code is in-repo and runnable with `vp dev`.
+- All Experiment code is in-repo and runnable with `vp dev` from the root.
 - No external content, testimonials, or marketing assets exist.
 - Design tokens live in `packages/ui/src/tokens/` (StyleX: `const.stylex.ts`, `surface.stylex.ts`, `tint.stylex.ts`).
 
 ## Product Principles
 
-1. **Curiosity over completeness.** An experiment that teaches something is worth keeping, even unfinished.
-2. **Shared infrastructure, independent experiments.** Common rendering, UI, and state patterns live in shared packages; each experiment owns its logic without coupling to others.
-3. **Instant context switching.** Moving between experiments should feel like flipping pages, not booting apps.
-4. **The environment should disappear.** Controls, shell, and tooling exist to serve the visual output, never to compete with it.
-5. **Dark-first, minimal.** The interface recedes; the canvas leads.
+1. **Curiosity over completeness.** An Experiment that teaches something is worth keeping, even unfinished.
+2. **Shared infrastructure, independent Experiments.** Common rendering, UI, and state patterns live in shared packages; each Experiment owns its logic without coupling to others.
+3. **Instant context switching.** Moving between Experiments should feel like flipping pages, not booting apps.
+4. **The environment should disappear.** The Panel, Shell, and tooling exist to serve the visual output, never to compete with it.
+5. **Dark-first, minimal.** The interface recedes; the Stage leads.
