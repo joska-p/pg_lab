@@ -13,7 +13,7 @@ permissions:
 
 # Allow only one concurrent deployment
 concurrency:
-    group: 'pages'
+    group: "pages"
     cancel-in-progress: true
 
 jobs:
@@ -30,10 +30,10 @@ jobs:
             # Installe Vite+, gère Node.js, pnpm et le cache global des packages en une étape
             - uses: voidzero-dev/setup-vp@v1.21.2
               with:
-                  node-version: '24'
+                  node-version: "24"
                   cache: true
             - run: vp install --frozen-lockfile
-            - run: vp ready
+            - run: vp check --fix
             - run: vp run playground#build
 
             # Téléverse le dossier de sortie généré par le build de l'application
