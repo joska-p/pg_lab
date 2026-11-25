@@ -1,5 +1,4 @@
 import type { PixelData } from './pixel-data';
-import type { Registry } from './registry';
 
 // ─── UI Metadata ──────────────────────────────────────────────────────────────
 
@@ -85,7 +84,12 @@ export type NeighborhoodManipulationDefinition = Extract<
 
 // ─── Pipeline Types ──────────────────────────────────────────────────────────
 
+export interface ManipulationRegistry {
+    register(definition: ManipulationDefinition): void;
+    get(identifier: string): ManipulationDefinition;
+}
+
 export interface PipelineContext {
-    registry: Registry;
+    registry: ManipulationRegistry;
     maximumPixels: number;
 }

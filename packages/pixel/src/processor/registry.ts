@@ -1,6 +1,6 @@
-import type { ManipulationDefinition } from './types';
+import type { ManipulationRegistry, ManipulationDefinition } from './types';
 
-export class Registry {
+export class Registry implements ManipulationRegistry {
     private readonly manipulationsMap = new Map<string, ManipulationDefinition>();
 
     static from(definitions: readonly ManipulationDefinition[]) {
