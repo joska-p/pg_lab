@@ -20,7 +20,7 @@ const styles = stylex.create({
         display: 'flex',
         flexDirection: 'column',
         gap: space['3'],
-        maxWidth: '820px',
+        alignItems: 'center',
     },
     heading: {
         fontFamily: typography.fontFamilySans,
@@ -58,10 +58,10 @@ export function Scene() {
     return (
         <div {...stylex.props(styles.container)}>
             <header {...stylex.props(styles.hero)}>
-                <h1 {...stylex.props(styles.heading)}>Creative Coding Laboratory</h1>
+                <h1 {...stylex.props(styles.heading)}>Ma cours de récré</h1>
                 <p {...stylex.props(styles.lead)}>
-                    {experimentCount} environnements d'art procédural, de physique moléculaire,
-                    d'automates cellulaires, de fractales profondes et de synthèse sonore.
+                    {experimentCount} machins plus ou moins bien determinés, plus ou moins inspirés,
+                    jamais terminés et en vrac.
                 </p>
             </header>
 

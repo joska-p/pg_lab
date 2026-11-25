@@ -27,7 +27,7 @@ export interface Experiment<TId extends string = string> {
 export const EXPERIMENTS = [
     {
         id: 'home',
-        label: 'Home',
+        label: 'Maison',
         stageLabel: 'home',
         tint: 'aqua',
         summary:
