@@ -66,7 +66,7 @@ export const EXPERIMENTS = [
         stageLabel: 'mol-demo',
         tint: 'aqua',
         summary:
-            "Une molécule en 3D qu'on fait tourner pour voir son motif de diffraction bouger à côté : vol sans honte du mol-demo.js de davidromano.dev et prétexte pour bricoler glaze3d.",
+            'Une molécule en 3D et son motif de diffraction. Vol sans honte du mol-demo.js de davidromano.dev.',
         mark: 'mol-demo',
         loadScene: () => import('@repo/mol-demo/Scene'),
         loadControls: () => import('@repo/mol-demo/Controls'),
@@ -78,7 +78,7 @@ export const EXPERIMENTS = [
         stageLabel: 'automa',
         tint: 'solder',
         summary:
-            'Un automate cellulaire discret bricolé pour faire tourner le Game of Life de John Conway, avec un registre de règles écrites en notation B3/S23.',
+            "Un automate cellulaire discret bricolé, pour faire tourner 'The Game of Life' de John Conway.",
         mark: 'automa',
         loadScene: () => import('@repo/automa/Scene'),
         loadControls: () => import('@repo/automa/Controls'),
@@ -90,7 +90,7 @@ export const EXPERIMENTS = [
         stageLabel: 'fracture',
         tint: 'purple',
         summary:
-            "Un atelier de fractales dans l'atelier : des modules interchangeables et une collection de trucs pour repousser le zoom jusqu'à la limite des flottants.",
+            "Un atelier de fractales et une collection de trucs pour repousser le zoom jusqu'à la limite.",
         mark: 'fracture',
         loadScene: () => import('@repo/fracture/Scene'),
         loadControls: () => import('@repo/fracture/Controls'),
@@ -124,8 +124,7 @@ export const EXPERIMENTS = [
         panelTitle: 'OEIS Signal',
         stageLabel: 'oeis-signal',
         tint: 'aqua',
-        summary:
-            "Des suites de nombres de l'OEIS traitées comme des signaux : on tire les termes un par un et on regarde ce que ça dessine.",
+        summary: "Des suites de nombres de l'OEIS traitées comme des signaux.",
         mark: 'oeis-signal',
         loadScene: () => import('@repo/oeis-signal/Scene'),
         loadControls: () => import('@repo/oeis-signal/Controls'),
@@ -137,7 +136,7 @@ export const EXPERIMENTS = [
         stageLabel: 'Palette generator',
         tint: 'aurora',
         summary:
-            "Un générateur de palettes à partir d'une couleur de base, avec des règles d'harmonie et un sélecteur qui travaille dans plusieurs espaces de couleur.",
+            'Un générateur de palettes, avec un sélecteur qui travaille dans plusieurs espaces de couleur.',
         mark: 'palette',
         loadScene: () => import('@repo/palette/Scene'),
         loadControls: () => import('@repo/palette/Controls'),
