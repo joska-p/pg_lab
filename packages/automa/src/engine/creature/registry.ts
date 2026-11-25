@@ -18,14 +18,7 @@ import {
     toad,
     pixel,
 } from './builtin';
-
-interface Creature<TId extends string = string> {
-    readonly id: TId;
-    readonly name: string;
-    readonly width: number;
-    readonly height: number;
-    readonly cells: number[][];
-}
+import type { Creature } from './types';
 
 const allCreatures = [
     block,

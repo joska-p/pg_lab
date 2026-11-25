@@ -1,4 +1,4 @@
-import type { Creature } from './registry';
+import type { Creature } from './types';
 
 const pixel = {
     id: 'pixel',
