@@ -43,7 +43,7 @@ export const EXPERIMENTS = [
         stageLabel: 'art-canvas',
         tint: 'aurora',
         summary:
-            'GPU shader workshop container with live fragment compilation and parametric raymarching.',
+            'Un workbench dans le workbench : le plus versatile du registre. Le plus experimental aussi',
         mark: 'art-canvas',
         loadScene: () => import('@repo/art-canvas/Scene'),
         loadControls: () => import('@repo/art-canvas/Controls'),
@@ -54,8 +54,7 @@ export const EXPERIMENTS = [
         panelTitle: 'Mosaic Maker',
         stageLabel: 'Mosaic',
         tint: 'solder',
-        summary:
-            'Procedural geometric mosaic patterns generated with modular SVG tiles and dynamic CSS variables.',
+        summary: 'Un générateur de mosaïques plus ou moins aléatoire, à coups de « shuffle ».',
         mark: 'mosaic-maker',
         loadScene: () => import('@repo/mosaic-maker/Scene'),
         loadControls: () => import('@repo/mosaic-maker/Controls'),
@@ -67,7 +66,7 @@ export const EXPERIMENTS = [
         stageLabel: 'mol-demo',
         tint: 'aqua',
         summary:
-            'Interactive 3D molecular lattice simulator paired with real-time X-ray scattering diffraction.',
+            "Une molécule en 3D qu'on fait tourner pour voir son motif de diffraction bouger à côté : vol sans honte du mol-demo.js de davidromano.dev et prétexte pour bricoler glaze3d.",
         mark: 'mol-demo',
         loadScene: () => import('@repo/mol-demo/Scene'),
         loadControls: () => import('@repo/mol-demo/Controls'),
@@ -79,7 +78,7 @@ export const EXPERIMENTS = [
         stageLabel: 'automa',
         tint: 'solder',
         summary:
-            'GPU-driven cellular automaton grid with live drawing brushes and switchable evolution rules.',
+            'Un automate cellulaire discret bricolé pour faire tourner le Game of Life de John Conway, avec un registre de règles écrites en notation B3/S23.',
         mark: 'automa',
         loadScene: () => import('@repo/automa/Scene'),
         loadControls: () => import('@repo/automa/Controls'),
@@ -91,7 +90,7 @@ export const EXPERIMENTS = [
         stageLabel: 'fracture',
         tint: 'purple',
         summary:
-            'Extreme-depth fractal explorer using double-split precision and perturbation mathematics.',
+            "Un atelier de fractales dans l'atelier : des modules interchangeables et une collection de trucs pour repousser le zoom jusqu'à la limite des flottants.",
         mark: 'fracture',
         loadScene: () => import('@repo/fracture/Scene'),
         loadControls: () => import('@repo/fracture/Controls'),
@@ -102,8 +101,7 @@ export const EXPERIMENTS = [
         panelTitle: 'Radu Machine Learning',
         stageLabel: 'Radu machine learning',
         tint: 'amber',
-        summary:
-            'Visual machine learning lab exploring neural networks, spatial clustering, and digit recognition.',
+        summary: "Début d'implémentation du cours de machine learning de Radu.",
         mark: 'radu-machine-learning',
         loadScene: () => import('@repo/radu-machine-learning/Scene'),
         loadControls: () => import('@repo/radu-machine-learning/Controls'),
@@ -115,7 +113,7 @@ export const EXPERIMENTS = [
         stageLabel: 'randomart',
         tint: 'orange',
         summary:
-            'Generative art synthesis converting recursive mathematical ASTs into live GLSL fragment shaders.',
+            "Du Random Art d'après Tsoding et le papier de Perrig & Song : une graine donne une formule aléatoire, la formule donne une image.",
         mark: 'randomart',
         loadScene: () => import('@repo/randomart-ui/Scene'),
         loadControls: () => import('@repo/randomart-ui/Controls'),
@@ -127,7 +125,7 @@ export const EXPERIMENTS = [
         stageLabel: 'oeis-signal',
         tint: 'aqua',
         summary:
-            'Signal processing workbench translating On-Line Encyclopedia integer sequences into audio and waveforms.',
+            "Des suites de nombres de l'OEIS traitées comme des signaux : on tire les termes un par un et on regarde ce que ça dessine.",
         mark: 'oeis-signal',
         loadScene: () => import('@repo/oeis-signal/Scene'),
         loadControls: () => import('@repo/oeis-signal/Controls'),
@@ -139,7 +137,7 @@ export const EXPERIMENTS = [
         stageLabel: 'Palette generator',
         tint: 'aurora',
         summary:
-            'Perceptual color palette designer and harmonic palette generator calculated in OKLCH space.',
+            "Un générateur de palettes à partir d'une couleur de base, avec des règles d'harmonie et un sélecteur qui travaille dans plusieurs espaces de couleur.",
         mark: 'palette',
         loadScene: () => import('@repo/palette/Scene'),
         loadControls: () => import('@repo/palette/Controls'),
@@ -150,8 +148,7 @@ export const EXPERIMENTS = [
         panelTitle: 'Pixel Docs',
         stageLabel: 'Pixel docs',
         tint: 'purple',
-        summary:
-            'Interactive visual documentation and testbed for browser-based image transform pipelines.',
+        summary: "La doc interactive d'un moteur de filtres d'image.",
         mark: 'pixel',
         loadScene: () => import('@repo/pixel/Scene'),
         loadControls: () => import('@repo/pixel/Controls'),
@@ -162,8 +159,7 @@ export const EXPERIMENTS = [
         panelTitle: 'Pixel Manipulator',
         stageLabel: 'Pixel manipulator',
         tint: 'amber',
-        summary:
-            'Multi-pass image convolution laboratory featuring custom kernels, matrix filters, and dithering.',
+        summary: "Un manipulateur d'images par étapes, avec des presets et un comparateur.",
         mark: 'pixel-manipulator',
         loadScene: () => import('@repo/pixel-manipulator/Scene'),
         loadControls: () => import('@repo/pixel-manipulator/Controls'),
@@ -174,8 +170,7 @@ export const EXPERIMENTS = [
         panelTitle: 'Notebook Controls',
         stageLabel: 'notebook',
         tint: 'aqua',
-        summary:
-            'Creative coding notebook and research scratchpad for capturing algorithm notes and design ideas.',
+        summary: 'Des notes en vrac et ce qui ne va pas ailleurs.',
         mark: 'notebook',
         loadScene: () => import('@repo/notebook/Scene'),
         loadControls: () => import('@repo/notebook/Controls'),
@@ -187,7 +182,7 @@ export const EXPERIMENTS = [
         stageLabel: 'Sequencer',
         tint: 'orange',
         summary:
-            'Polyphonic multi-track step sequencer and audio synthesizer engine running on the Web Audio API.',
+            'Première tentative pour visualiser des algorithmes : je sépare la suite de la visualisation, sans trop savoir quoi en faire, encore un prétexte pour apprendre à coder.',
         mark: 'sequencer',
         loadScene: () => import('@repo/sequencer/Scene'),
         loadControls: () => import('@repo/sequencer/Controls'),
