@@ -60,10 +60,20 @@ const viteConfig = `import { defineAppConfig } from '../../vite.config.ts';
 export default defineAppConfig();`;
 
 const tsconfig = `{
+    "files": [],
+    "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
+}`;
+
+const tsconfigApp = `{
     "$schema": "https://json.schemastore.org/tsconfig",
     "extends": "../../tsconfig.app",
     "include": ["src"]
 }`;
+
+const tsconfigNode = `{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "extends": "../../tsconfig.node",
+    "include": ["vite.config.ts"]}`;
 
 const mainTsx = `import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
@@ -195,6 +205,8 @@ export default createTemplate({
                 'index.html': indexHtml(name),
                 'vite.config.ts': viteConfig,
                 'tsconfig.json': tsconfig,
+                'tsconfig.app.json': tsconfigApp,
+                'tsconfig.node.json': tsconfigNode,
                 '.gitignore': gitignore,
                 src: {
                     'main.tsx': mainTsx,
