@@ -57,10 +57,13 @@ const styles = stylex.create({
         flex: 1,
     },
     headerActions: {
-        display: 'flex',
+        display: 'none',
         alignItems: 'center',
         gap: space['2'],
         flexShrink: 0,
+        '@media (min-width: 640)': {
+            display: 'flex',
+        },
     },
     toggleButton: {
         paddingBlock: space['1'],
@@ -109,6 +112,8 @@ export function StudioHeader({
             )}
         >
             <div {...stylex.props(styles.brandGroup)}>
+                <ThemeToggle />
+
                 <span {...stylex.props(styles.brand)}>PG_LAB</span>
                 <span {...stylex.props(styles.divider)} aria-hidden="true" />
                 <div {...stylex.props(styles.selectWrap)}>
@@ -120,6 +125,9 @@ export function StudioHeader({
                         options={experimentOptions}
                     />
                 </div>
+            </div>
+
+            <div {...stylex.props(styles.headerActions)}>
                 <RandomJumpButton />
                 <Button
                     color="orange"
@@ -132,9 +140,7 @@ export function StudioHeader({
                 >
                     maison
                 </Button>
-            </div>
 
-            <div {...stylex.props(styles.headerActions)}>
                 {hasPanel ? (
                     <Button
                         background="soft"
@@ -174,7 +180,6 @@ export function StudioHeader({
                         </span>
                     </Button>
                 ) : null}
-                <ThemeToggle />
             </div>
         </header>
     );
