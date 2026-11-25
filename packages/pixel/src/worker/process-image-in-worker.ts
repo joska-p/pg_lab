@@ -27,7 +27,7 @@ export interface RunConfig {
 const pool = new WorkerPool<RunConfig, ImageData[]>({
     maxPoolSize: navigator.hardwareConcurrency,
     workerFactory: () =>
-        new Worker(new URL('./pipeline-worker', import.meta.url), {
+        new Worker(new URL('./pipeline.worker', import.meta.url), {
             type: 'module',
         }),
     serialize: (task) => {
