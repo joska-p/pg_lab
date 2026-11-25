@@ -1,5 +1,3 @@
-/// <reference lib="webworker" />
-
 import { scaleTo255 } from '../../core/color';
 import { getColorPickerSpace } from '../../core/colorPickerSpaces';
 import type { RenderColorPickerSpaceTask } from './types';

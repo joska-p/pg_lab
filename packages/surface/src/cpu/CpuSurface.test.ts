@@ -10,7 +10,12 @@ interface FakeCanvas {
     width: number;
     height: number;
     getContext: ReturnType<typeof vi.fn>;
-    getBoundingClientRect: () => { left: number; top: number; width: number; height: number };
+    getBoundingClientRect: () => {
+        left: number;
+        top: number;
+        width: number;
+        height: number;
+    };
 }
 
 interface FakeContext2D {
@@ -142,7 +147,11 @@ describe('CpuSurface constructor & size contract', () => {
     });
 
     it('performs initial sizing and sets transform on construction', () => {
-        const { surface, canvas, ctx } = createHarness({ width: 320, height: 180, dpr: 2 });
+        const { surface, canvas, ctx } = createHarness({
+            width: 320,
+            height: 180,
+            dpr: 2,
+        });
 
         expect(surface.width).toBe(320);
         expect(surface.height).toBe(180);
@@ -195,7 +204,11 @@ describe('CpuSurface constructor & size contract', () => {
     });
 
     it('handles 0x0 canvas without division by zero or errors', () => {
-        const { surface, canvas } = createHarness({ width: 0, height: 0, dpr: 2 });
+        const { surface, canvas } = createHarness({
+            width: 0,
+            height: 0,
+            dpr: 2,
+        });
 
         expect(surface.width).toBe(0);
         expect(surface.height).toBe(0);
@@ -224,7 +237,9 @@ describe('CpuSurface frame loop & clock', () => {
 
     it('ticks clock and advances time & deltaTime', () => {
         let currentTime = 1000;
-        const { surface, nextFrame } = createHarness({ now: () => currentTime });
+        const { surface, nextFrame } = createHarness({
+            now: () => currentTime,
+        });
 
         surface.onFrame(() => {});
 
@@ -261,7 +276,11 @@ describe('CpuSurface frame loop & clock', () => {
 
 describe('CpuSurface clear', () => {
     it('clears canvas using device dimensions and identity transform', () => {
-        const { surface, ctx } = createHarness({ width: 320, height: 180, dpr: 2 });
+        const { surface, ctx } = createHarness({
+            width: 320,
+            height: 180,
+            dpr: 2,
+        });
 
         surface.clear();
 
@@ -272,7 +291,11 @@ describe('CpuSurface clear', () => {
     });
 
     it('fills canvas with specified color and restores previous fillStyle', () => {
-        const { surface, ctx } = createHarness({ width: 200, height: 100, dpr: 1 });
+        const { surface, ctx } = createHarness({
+            width: 200,
+            height: 100,
+            dpr: 1,
+        });
         ctx.fillStyle = '#123456';
 
         surface.clear('#ff0000');

@@ -88,7 +88,9 @@ describe('setUniforms', () => {
         const gl = createFakeGl();
         const locFloat = { name: 'u_float' } as unknown as WebGLUniformLocation;
         const locInt = { name: 'u_int' } as unknown as WebGLUniformLocation;
-        const locSampler = { name: 'u_unit' } as unknown as WebGLUniformLocation;
+        const locSampler = {
+            name: 'u_unit',
+        } as unknown as WebGLUniformLocation;
 
         const uniforms = new Map<string, UniformEntry>([
             ['u_float', uniformEntry(locFloat, gl.FLOAT)],

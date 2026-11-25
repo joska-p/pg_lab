@@ -84,7 +84,12 @@ interface FakeCanvas {
     width: number;
     height: number;
     getContext: () => object;
-    getBoundingClientRect: () => { left: number; top: number; width: number; height: number };
+    getBoundingClientRect: () => {
+        left: number;
+        top: number;
+        width: number;
+        height: number;
+    };
     addEventListener: (type: string, listener: (event: Event) => void) => void;
     removeEventListener: (type: string) => void;
     setPointerCapture: () => void;
@@ -180,7 +185,11 @@ afterEach(() => {
 
 describe('GpuSurface size contract', () => {
     it('exposes CSS dimensions and physical dimensions separately', () => {
-        const { surface, canvas } = createHarness({ width: 320, height: 180, dpr: 2 });
+        const { surface, canvas } = createHarness({
+            width: 320,
+            height: 180,
+            dpr: 2,
+        });
 
         expect(surface.width).toBe(320);
         expect(surface.height).toBe(180);
@@ -215,7 +224,11 @@ describe('GpuSurface size contract', () => {
 
 describe('GpuSurface standard uniforms', () => {
     it('reports iResolution in device pixels', () => {
-        const { surface, program } = createHarness({ width: 320, height: 180, dpr: 2 });
+        const { surface, program } = createHarness({
+            width: 320,
+            height: 180,
+            dpr: 2,
+        });
 
         surface.renderProgram(program as unknown as Program);
 
@@ -223,7 +236,11 @@ describe('GpuSurface standard uniforms', () => {
     });
 
     it('converts iMouse from CSS to device pixels with Shadertoy semantics', () => {
-        const { surface, program, dispatch } = createHarness({ width: 300, height: 150, dpr: 2 });
+        const { surface, program, dispatch } = createHarness({
+            width: 300,
+            height: 150,
+            dpr: 2,
+        });
 
         surface.renderProgram(program as unknown as Program);
         expect(renderedUniforms(program).iMouse).toEqual([0, 0, 0, 0]);
