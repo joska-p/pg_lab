@@ -97,9 +97,12 @@ const experimentsById = new Map<string, ExperimentDefinition>(
     EXPERIMENTS.map((experiment) => [experiment.id, experiment]),
 );
 
+// The registry reports absence; callers own the UX default.
+export const DEFAULT_EXPERIMENT = EXPERIMENTS[0];
+
 // Resolve an experiment from an external identifier.
-export function getExperiment(id: string | undefined): ExperimentDefinition {
-    return experimentsById.get(id ?? '') ?? EXPERIMENTS[0];
+export function getExperiment(id: string | undefined): ExperimentDefinition | undefined {
+    return experimentsById.get(id ?? '');
 }
 
 // Select options derived from the registry.

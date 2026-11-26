@@ -1,18 +1,16 @@
 import { Suspense } from 'react';
 
-import { getExperiment } from '../experiments';
 import { setPerfExperiment } from '../lib/perf';
-import { useExperimentId } from '../stores/appStore';
+import { useExperiment } from '../stores/appStore';
 
 export function Scene() {
-    const experimentId = useExperimentId();
-    const { Scene } = getExperiment(experimentId);
+    const { Scene: ActiveScene, id } = useExperiment();
 
-    setPerfExperiment(experimentId);
+    setPerfExperiment(id);
 
     return (
         <Suspense fallback={null}>
-            <Scene />
+            <ActiveScene />
         </Suspense>
     );
 }

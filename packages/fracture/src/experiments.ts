@@ -63,8 +63,11 @@ const experimentsById = new Map<string, ExperimentDefinition>(
     ]),
 );
 
-export function getExperiment(id: string | undefined): ExperimentDefinition {
-    return experimentsById.get(id ?? '') ?? EXPERIMENTS[0];
+// The registry reports absence; the store boundary owns the UX default.
+export const DEFAULT_EXPERIMENT = EXPERIMENTS[0];
+
+export function getExperiment(id: string | undefined): ExperimentDefinition | undefined {
+    return experimentsById.get(id ?? '');
 }
 
 // Select options share the registry's ordering and metadata.
