@@ -184,7 +184,6 @@ export type ExperimentId = (typeof EXPERIMENTS)[number]['id'];
 export type ExperimentDefinition = Experiment<ExperimentId>;
 
 export const experimentCount = EXPERIMENTS.length;
-export const interactiveExperiments: readonly ExperimentDefinition[] = EXPERIMENTS;
 
 export function experimentPath(experiment: Experiment): string {
     return `/${experiment.id}`;

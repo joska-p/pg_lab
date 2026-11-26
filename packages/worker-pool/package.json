@@ -3,7 +3,8 @@
     "version": "0.0.0",
     "type": "module",
     "exports": {
-        "./worker-pool": "./src/worker-pool.ts"
+        "./worker-pool": "./src/worker-pool.ts",
+        "./mock-worker-pool": "./src/mock-worker-pool.ts"
     },
     "scripts": {
         "check": "vp check"

@@ -26,8 +26,7 @@
         "@repo/ui": "workspace:*",
         "react": "catalog:",
         "react-dom": "catalog:",
-        "react-router": "catalog:",
-        "zustand": "catalog:"
+        "react-router": "catalog:"
     },
     "devDependencies": {
         "@stylexjs/stylex": "catalog:",

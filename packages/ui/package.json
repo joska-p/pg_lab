@@ -20,8 +20,6 @@
     "devDependencies": {
         "@stylexjs/stylex": "catalog:",
         "@types/react": "catalog:",
-        "@types/react-dom": "catalog:",
-        "jsdom": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",
         "vite-plus": "catalog:"

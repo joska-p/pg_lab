@@ -15,11 +15,9 @@
     "dependencies": {
         "@repo/ui": "workspace:*",
         "react": "catalog:",
-        "react-dom": "catalog:",
-        "zustand": "catalog:"
+        "react-dom": "catalog:"
     },
     "devDependencies": {
-        "@stylexjs/stylex": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
         "typescript": "catalog:",

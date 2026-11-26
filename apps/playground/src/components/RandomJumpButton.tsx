@@ -1,14 +1,13 @@
 import { Button } from '@repo/ui/components/Button';
 import { useNavigate } from 'react-router';
 
-import { experimentPath, interactiveExperiments } from '../experiments';
+import { EXPERIMENTS, experimentPath } from '../experiments';
 
 export function RandomJumpButton() {
     const navigate = useNavigate();
 
     const handleRandomJump = () => {
-        const randomItem =
-            interactiveExperiments[Math.floor(Math.random() * interactiveExperiments.length)];
+        const randomItem = EXPERIMENTS[Math.floor(Math.random() * EXPERIMENTS.length)];
         if (randomItem) {
             void navigate(experimentPath(randomItem));
         }
