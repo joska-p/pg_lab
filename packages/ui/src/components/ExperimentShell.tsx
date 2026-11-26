@@ -1,6 +1,6 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { usePanelChrome } from '../hooks/usePanelChrome';
 import { surfaceStyle } from '../recipes/surface';
@@ -160,6 +160,28 @@ export function ExperimentShell({
     const { collapsed, sizePx, resize, toggle } = usePanelChrome();
     const dragRef = useRef<Drag | null>(null);
     const { style: stageStyle, ...stageSectionProps } = stageProps ?? {};
+    const hasPanel = panel != null;
+
+    useEffect(() => {
+        if (!hasPanel) {
+            return;
+        }
+
+        const handleShortcut = (event: KeyboardEvent) => {
+            if (event.key.toLowerCase() !== 'b' || !(event.metaKey || event.ctrlKey)) {
+                return;
+            }
+
+            event.preventDefault();
+            toggle();
+        };
+
+        document.addEventListener('keydown', handleShortcut);
+
+        return () => {
+            document.removeEventListener('keydown', handleShortcut);
+        };
+    }, [hasPanel, toggle]);
 
     const handlePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
         if (event.button !== 0) {
@@ -210,7 +232,7 @@ export function ExperimentShell({
                 {children}
             </section>
 
-            {panel != null && (
+            {hasPanel && (
                 <div {...stylex.props(surface, styles.panel, styles.panelSize(sizePx))}>
                     <Button
                         color="aurora"

@@ -152,16 +152,16 @@ export function StudioHeader({ currentExperiment, hasPanel }: StudioHeaderProps)
                         elevation="flat"
                         aria-label={
                             collapsed
-                                ? 'Afficher les contrôles (Cmd+B)'
-                                : 'Masquer les contrôles (Cmd+B)'
+                                ? 'Afficher les contrôles (Cmd/Ctrl+B)'
+                                : 'Masquer les contrôles (Cmd/Ctrl+B)'
                         }
                         aria-expanded={!collapsed}
                         onClick={toggle}
                         style={styles.toggleButton}
                         title={
                             collapsed
-                                ? 'Afficher les contrôles (Cmd+B)'
-                                : 'Masquer les contrôles (Cmd+B)'
+                                ? 'Afficher les contrôles (Cmd/Ctrl+B)'
+                                : 'Masquer les contrôles (Cmd/Ctrl+B)'
                         }
                     >
                         <svg
