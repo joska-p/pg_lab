@@ -5,7 +5,7 @@ description: Prepare, structure, and execute large tasks across multiple statele
 
 # Multisession Workflow Playbook
 
-Use this skill whenever a task is too large, complex, or risky to execute in a single agent turn/session (e.g., library migrations, multi-package refactors, architectural evolutions).
+Use this skill whenever a task is too large, complex, or risky to execute in a single agent turn/session (e.g., library migrations, multi-package refactors, architectural evolutions). Use the skill `writing-for-agents` if you write for an agent.
 
 The goal is to make session starts **instant, stateless, and crash-resilient**, relying strictly on the repository and a persistent entry point rather than conversation memory.
 
