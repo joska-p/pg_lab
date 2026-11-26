@@ -1,14 +1,14 @@
-import Color from 'colorjs.io';
 import { create } from 'zustand';
 
-import type { Palette } from '../core/types';
+import { createColor } from '../core/color';
+import type { Color, Palette } from '../core/types';
 
 interface PaletteState {
     palettes: Palette[];
     baseColor: Color;
 }
 
-const INITIAL_BASE_COLOR = new Color('oklch', [0.7, 0.1, 196]);
+const INITIAL_BASE_COLOR = createColor('oklch', [0.7, 0.1, 196]);
 
 const paletteStore = create<PaletteState>(() => ({
     palettes: [],

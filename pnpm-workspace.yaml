@@ -16,7 +16,6 @@ catalog:
     '@types/three': ^0.186.0
     '@vitejs/plugin-react': ^6.2.1
     bingo: ^0.13.2
-    colorjs.io: ^0.7.1
     fast-check: ^4.10.2
     jscpd: ^5.4.3
     knip: ^6.44.2

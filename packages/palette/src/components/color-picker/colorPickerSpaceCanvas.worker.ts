@@ -1,4 +1,4 @@
-import { scaleTo255 } from '../../core/color';
+import { scaleTo255, srgbOf } from '../../core/color';
 import { getColorPickerSpace } from '../../core/colorPickerSpaces';
 import type { RenderColorPickerSpaceTask } from './types';
 
@@ -25,7 +25,7 @@ function renderColorPickerSpace({
             const y = yAxis.max - (pixelY / size) * (yAxis.max - yAxis.min);
 
             const color = getColor(x, y, zValue);
-            const [red, green, blue] = color.srgb;
+            const [red, green, blue] = srgbOf(color);
             const index = (pixelY * size + pixelX) * 4;
 
             data[index] = scaleTo255(red);

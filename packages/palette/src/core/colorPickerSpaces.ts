@@ -1,4 +1,5 @@
-import Color from 'colorjs.io';
+import { createColor } from './color';
+import type { Color } from './types';
 
 interface Axis {
     label: string;
@@ -24,7 +25,7 @@ const oklab: ColorPickerSpace = {
     xAxis: { label: 'a (green-red)', min: -0.4, max: 0.4 },
     yAxis: { label: 'b (blue-yellow)', min: -0.4, max: 0.4 },
     zSlider: { label: 'Lightness', min: 0, max: 1, step: 0.01 },
-    getColor: (x, y, z) => new Color('oklab', [z, x, y]),
+    getColor: (x, y, z) => createColor('oklab', [z, x, y]),
 };
 
 const oklch: ColorPickerSpace = {
@@ -34,7 +35,7 @@ const oklch: ColorPickerSpace = {
     xAxis: { label: 'Chroma', min: 0, max: 0.4 },
     yAxis: { label: 'Hue', min: 0, max: 360 },
     zSlider: { label: 'Lightness', min: 0, max: 1, step: 0.01 },
-    getColor: (x, y, z) => new Color('oklch', [z, x, y]),
+    getColor: (x, y, z) => createColor('oklch', [z, x, y]),
 };
 
 const hsl: ColorPickerSpace = {
@@ -44,7 +45,7 @@ const hsl: ColorPickerSpace = {
     xAxis: { label: 'Hue', min: 0, max: 360 },
     yAxis: { label: 'Saturation', min: 0, max: 100 },
     zSlider: { label: 'Lightness', min: 0, max: 100, step: 1 },
-    getColor: (x, y, z) => new Color('hsl', [x, y, z]),
+    getColor: (x, y, z) => createColor('hsl', [x, y, z]),
 };
 
 const srgb: ColorPickerSpace = {
@@ -54,7 +55,7 @@ const srgb: ColorPickerSpace = {
     xAxis: { label: 'Red', min: 0, max: 255 },
     yAxis: { label: 'Green', min: 0, max: 255 },
     zSlider: { label: 'Blue', min: 0, max: 255, step: 1 },
-    getColor: (x, y, z) => new Color('srgb', [x / 255, y / 255, z / 255]),
+    getColor: (x, y, z) => createColor('srgb', [x / 255, y / 255, z / 255]),
 };
 
 const COLOR_PICKER_SPACES = [

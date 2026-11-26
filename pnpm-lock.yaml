@@ -194,9 +194,6 @@ catalogs:
     bingo:
       specifier: ^0.13.2
       version: 0.13.2
-    colorjs.io:
-      specifier: ^0.7.1
-      version: 0.7.1
     fast-check:
       specifier: ^4.10.2
       version: 4.10.2
@@ -658,9 +655,6 @@ importers:
       '@repo/worker-pool':
         specifier: workspace:*
         version: link:../worker-pool
-      colorjs.io:
-        specifier: 'catalog:'
-        version: 0.7.1
       react:
         specifier: 'catalog:'
         version: 19.3.1
@@ -2968,9 +2962,6 @@ packages:
 
   colord@2.10.0:
     resolution: {integrity: sha512-AidJptpBJmjTclAp9BkLwJi0T93fo5epJnbaZslpg6QVzpHjAiveF55mE9AcUJiGMqRHgMDY8soMsQtuNYMHfw==}
-
-  colorjs.io@0.7.1:
-    resolution: {integrity: sha512-LY7OHnJZxHwT5UlzNa9bbhHHDbzB6yE5+3MIPwJEQKRvSCt/T4G7epsj+9j2BExUIIfXFIJGsIXUKdfrK9Q5tA==}
 
   commander@12.1.0:
     resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
@@ -6037,8 +6028,6 @@ snapshots:
   color-name@1.1.4: {}
 
   colord@2.10.0: {}
-
-  colorjs.io@0.7.1: {}
 
   commander@12.1.0: {}
 

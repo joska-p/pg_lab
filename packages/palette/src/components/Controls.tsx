@@ -1,12 +1,12 @@
 import { Button } from '@repo/ui/components/Button';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Stack } from '@repo/ui/components/Stack';
-import type Color from 'colorjs.io';
 
 import { colorPickerSpaceOptions } from '../core/colorPickerSpaces';
 import { generatePalette } from '../core/generatePalette';
 import { getRule, RULES } from '../core/rules/registry';
 import type { RulesId } from '../core/rules/registry';
+import type { Color } from '../core/types';
 import { addPalette, usePaletteBaseColor } from '../stores/paletteStore';
 import { ColorPickerSpaceControls } from './color-picker/ColorPickerSpaceControls';
 
@@ -23,7 +23,7 @@ function Controls() {
         <>
             {colorPickerSpaceOptions.map((option) => (
                 <ControlSection key={option.label} title={option.label}>
-                    <ColorPickerSpaceControls pickerSpaceId={option.label} size={200} />
+                    <ColorPickerSpaceControls pickerSpaceId={option.value} size={200} />
                 </ControlSection>
             ))}
 

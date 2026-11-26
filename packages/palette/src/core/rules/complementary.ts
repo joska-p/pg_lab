@@ -1,6 +1,5 @@
-import type Color from 'colorjs.io';
-
-import type { Rule } from '../types';
+import { deriveColor, rotateHue } from '../color';
+import type { Color, Rule } from '../types';
 
 /** Base + its 180°-opposite hue, each with light/dark variants so the palette isn't just two colors. */
 const complementary = {
@@ -8,30 +7,17 @@ const complementary = {
     label: 'Complementary',
     description: 'The base color and its opposite on the hue wheel, with lightness variations.',
 
-    apply: (color: Color) => {
-        const base = color.clone().to('oklch');
-        const complement = base.clone();
+    apply: (color: Color): Color[] => {
+        const complement = rotateHue(color, 180);
 
-        complement.oklch.h = ((complement.oklch.h ?? 0) + 180) % 360;
+        const light = (source: Color): Color =>
+            deriveColor(source, { l: Math.min(1, source.oklch.l + 0.2) });
+
+        const dark = (source: Color): Color =>
+            deriveColor(source, { l: Math.max(0, source.oklch.l - 0.2) });
 
         // Generate variations: [base-light, base, base-dark, comp-light, comp, comp-dark]
-        const baseLight = base.clone();
-
-        baseLight.oklch.l = Math.min(1, (baseLight.oklch.l ?? 0) + 0.2);
-
-        const baseDark = base.clone();
-
-        baseDark.oklch.l = Math.max(0, (base.oklch.l ?? 0) - 0.2);
-
-        const compLight = complement.clone();
-
-        compLight.oklch.l = Math.min(1, (complement.oklch.l ?? 0) + 0.2);
-
-        const compDark = complement.clone();
-
-        compDark.oklch.l = Math.max(0, (complement.oklch.l ?? 0) - 0.2);
-
-        return [baseLight, base, baseDark, compLight, complement, compDark];
+        return [light(color), color, dark(color), light(complement), complement, dark(complement)];
     },
 } as const satisfies Rule;
 

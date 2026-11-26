@@ -1,7 +1,8 @@
 import { space } from '@repo/ui/tokens/const.stylex';
 import * as stylex from '@stylexjs/stylex';
-import type Color from 'colorjs.io';
 
+import { serializeLchCss } from '../core/color';
+import type { Color } from '../core/types';
 import { usePaletteBaseColor, usePalettePalettes } from '../stores/paletteStore';
 
 const styles = stylex.create({
@@ -23,7 +24,7 @@ const styles = stylex.create({
 });
 
 function colorCss(color: Color): string {
-    return color.to('lch').toString({ precision: 3 });
+    return serializeLchCss(color, 3);
 }
 
 function Scene() {
@@ -40,12 +41,12 @@ function Scene() {
 
             {palettes.map((palette, paletteIndex) => (
                 <div
-                    key={`${palette.colors.join(',')}-${paletteIndex}`}
+                    key={`${palette.colors.map((color): string => colorCss(color)).join(',')}-${paletteIndex}`}
                     {...stylex.props(styles.palette)}
                 >
                     {palette.colors.map((color, colorIndex) => (
                         <div
-                            key={`${color.to('lch').toString()}-${colorIndex}`}
+                            key={`${colorCss(color)}-${colorIndex}`}
                             title={colorCss(color)}
                             {...stylex.props(styles.swatch)}
                             style={{ backgroundColor: colorCss(color) }}
