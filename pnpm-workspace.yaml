@@ -5,6 +5,8 @@ packages:
 
 catalogMode: prefer
 
+storeDir: /workspaces/pg-container/node_modules/.pnpm-store/v11
+
 catalog:
     '@react-three/drei': ^10.7.9
     '@react-three/fiber': ^9.8.2
