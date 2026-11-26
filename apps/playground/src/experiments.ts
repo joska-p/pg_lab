@@ -177,6 +177,17 @@ export const EXPERIMENTS = [
         loadScene: () => import('@repo/sequencer/Scene'),
         loadControls: () => import('@repo/sequencer/Controls'),
     },
+    {
+        id: 'three-stage',
+        label: 'three-stage',
+        panelTitle: 'three-stage',
+        stageLabel: 'three-stage',
+        tint: 'aurora',
+        summary: 'Atelier Threejs et r3f.',
+        mark: 'three-stage',
+        loadScene: () => import('@repo/three-stage/Scene'),
+        loadControls: () => import('@repo/three-stage/Controls'),
+    },
 ] as const satisfies readonly Experiment[];
 
 // Derive the ids from the registry, then use the interface so optional fields stay visible.

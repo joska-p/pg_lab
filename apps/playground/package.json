@@ -23,6 +23,7 @@
         "@repo/radu-machine-learning": "workspace:*",
         "@repo/randomart-ui": "workspace:*",
         "@repo/sequencer": "workspace:*",
+        "@repo/three-stage": "workspace:*",
         "@repo/ui": "workspace:*",
         "react": "catalog:",
         "react-dom": "catalog:",

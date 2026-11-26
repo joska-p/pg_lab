@@ -1,19 +1,19 @@
 import { create } from 'zustand';
 
-type theme = 'light' | 'dark' | 'system';
+import type { ExperimentKey } from '../experiments';
 
-interface appStore {
-    theme: theme;
+interface AppStore {
+    experimentKey: ExperimentKey;
 }
 
-const appStore = create<appStore>(() => ({
-    theme: 'dark',
+const appStore = create<AppStore>(() => ({
+    experimentKey: 'getStarted',
 }));
 
-export function useTheme(): theme {
-    return appStore((s) => s.theme);
+export function useExperimentKey() {
+    return appStore((state) => state.experimentKey);
 }
 
-export function setTheme(theme: theme): void {
-    appStore.setState({ theme });
+export function setExperimentKey(experimentKey: ExperimentKey) {
+    appStore.setState({ experimentKey });
 }
