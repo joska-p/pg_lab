@@ -18,6 +18,10 @@ _Avoid_: draft, sandbox, testing ground, brouillon
 A registered playground entry that contributes a Scene and optional Controls.
 _Avoid_: App, project, demo, package, mini-app
 
+**Experiment id**:
+The stable identifier of an entry in an experiment registry. The Workbench catalogue and a package's own set of Scenes are separate registries: an identical id in each does not denote the same Experiment.
+_Avoid_: Experiment key
+
 **Experiment mark**:
 A decorative visual identity for an Experiment on a card. It is not the Scene, and it is not a Visual layer.
 _Avoid_: Visual layer, logo, icon, thumbnail, artwork

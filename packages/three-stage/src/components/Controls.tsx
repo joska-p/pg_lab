@@ -2,18 +2,18 @@ import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { Select } from '@repo/ui/components/Select';
 
 import { experimentOptions } from '../experiments';
-import type { ExperimentKey } from '../experiments';
-import { setExperimentKey, useExperimentKey } from '../stores/appStore';
+import type { ExperimentId } from '../experiments';
+import { setExperimentId, useExperiment } from '../stores/appStore';
 
 export function Controls() {
-    const experimentKey = useExperimentKey();
+    const { id } = useExperiment();
 
     return (
         <ControlPanel>
-            <Select<ExperimentKey>
+            <Select<ExperimentId>
                 label="Experiment"
-                value={experimentKey}
-                onValueChange={setExperimentKey}
+                value={id}
+                onValueChange={setExperimentId}
                 options={experimentOptions}
             />
         </ControlPanel>

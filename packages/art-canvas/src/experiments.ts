@@ -90,7 +90,7 @@ const EXPERIMENTS = [
 
 // Derive types directly from the registry.
 export type ExperimentDefinition = (typeof EXPERIMENTS)[number];
-export type ExperimentKey = ExperimentDefinition['id'];
+export type ExperimentId = ExperimentDefinition['id'];
 
 // Index experiments by ID for direct lookup.
 const experimentsById = new Map<string, ExperimentDefinition>(

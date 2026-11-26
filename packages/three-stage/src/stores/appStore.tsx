@@ -1,19 +1,23 @@
 import { create } from 'zustand';
 
-import type { ExperimentKey } from '../experiments';
+import { DEFAULT_EXPERIMENT, getExperiment } from '../experiments';
+import type { ExperimentDefinition, ExperimentId } from '../experiments';
 
 interface AppStore {
-    experimentKey: ExperimentKey;
+    experimentId: ExperimentId;
 }
 
 const appStore = create<AppStore>(() => ({
-    experimentKey: 'getStarted',
+    experimentId: DEFAULT_EXPERIMENT.id,
 }));
 
-export function useExperimentKey() {
-    return appStore((state) => state.experimentKey);
+// Store read seam: consumers always receive a definition, never an absent
+// lookup. The default is explicit here rather than hidden in the registry.
+export function useExperiment(): ExperimentDefinition {
+    const experimentId = appStore((s) => s.experimentId);
+    return getExperiment(experimentId) ?? DEFAULT_EXPERIMENT;
 }
 
-export function setExperimentKey(experimentKey: ExperimentKey) {
-    appStore.setState({ experimentKey });
+export function setExperimentId(experimentId: ExperimentId): void {
+    appStore.setState({ experimentId });
 }

@@ -3,20 +3,19 @@ import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Select } from '@repo/ui/components/Select';
 import { Suspense } from 'react';
 
-import { DEFAULT_EXPERIMENT, experimentOptions, getExperiment } from '../experiments';
-import type { ExperimentKey } from '../experiments';
-import { setExperimentKey, useExperimentKey } from '../stores/appStore';
+import { experimentOptions } from '../experiments';
+import type { ExperimentId } from '../experiments';
+import { setExperimentId, useExperiment } from '../stores/appStore';
 
 export function Controls() {
-    const experimentKey = useExperimentKey();
-    const { Controls: ActiveControls, label } = getExperiment(experimentKey) ?? DEFAULT_EXPERIMENT;
+    const { Controls: ActiveControls, label, id } = useExperiment();
 
     return (
         <ControlPanel>
-            <Select<ExperimentKey>
+            <Select<ExperimentId>
                 label="Experiment"
-                value={experimentKey}
-                onValueChange={setExperimentKey}
+                value={id}
+                onValueChange={setExperimentId}
                 options={experimentOptions}
             />
             {ActiveControls != null && (
