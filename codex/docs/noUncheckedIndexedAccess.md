@@ -106,20 +106,14 @@ const experimentsById = new Map<string, ExperimentDefinition>(
     EXPERIMENTS.map((experiment) => [experiment.id, experiment]),
 );
 
-export function getExperiment(id: string | undefined): ExperimentDefinition {
-    const experiment = experimentsById.get(id ?? '');
-
-    if (experiment === undefined) {
-        return EXPERIMENTS[0];
-    }
-
-    return experiment;
+export function getExperiment(id: string | undefined): ExperimentDefinition | undefined {
+    return id === undefined ? undefined : experimentsById.get(id);
 }
 ```
 
 Le `string` de la `Map` est volontaire : une valeur venant d'une URL, d'un paramètre externe ou d'un stockage est une chaîne arbitraire, pas nécessairement un `ExperimentKey`.
 
-La fonction `getExperiment` centralise la résolution et le fallback. Elle constitue aussi la frontière entre une entrée externe non vérifiée et les données internes typées.
+La fonction `getExperiment` centralise la résolution. Elle constitue aussi la frontière entre une entrée externe non vérifiée et les données internes typées : un identifiant inconnu reste `undefined`, c'est à l'appelant de décider quoi afficher (page 404, retour à l'accueil…). Ne pas substituer un Experiment par défaut : ce serait masquer une URL invalide.
 
 **Principes à retenir :**
 

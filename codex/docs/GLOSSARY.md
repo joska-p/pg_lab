@@ -7,7 +7,7 @@ PG_LAB is a personal creative coding workbench. This glossary defines the canoni
 ### Workbench
 
 **Workbench**:
-The personal creative coding environment: the Shell together with the collection of Experiments available in it. The Workbench is the whole system; the Shell is only the host for one open Experiment.
+The personal creative coding environment: the pages that host the Experiments together with the collection of Experiments available in it. The Workbench is the whole system; a page hosts one open view.
 _Avoid_: framework, project, app
 
 **Scratchpad**:
@@ -15,7 +15,7 @@ An area of the Workbench for unpublished trials and dormant ideas. It is not par
 _Avoid_: draft, sandbox, testing ground, brouillon
 
 **Experiment**:
-A registered playground entry that can be opened in the shell and contributes a Scene and optional Controls.
+A registered playground entry that contributes a Scene and optional Controls.
 _Avoid_: App, project, demo, package, mini-app
 
 **Experiment mark**:
@@ -31,16 +31,12 @@ The component an Experiment contributes for the Panel.
 _Avoid_: Settings, config, sidebar, panel, camera controls
 
 **Stage**:
-The shell region that hosts the current Experiment's Scene.
+The playground region that hosts the current Experiment's Scene.
 _Avoid_: Canvas, viewport, shader stage
 
 **Panel**:
-The shell region opposite the Stage that hosts the Experiment's Controls.
+The playground region opposite the Stage that hosts the Experiment's Controls.
 _Avoid_: Sidebar, drawer, controls
-
-**Shell**:
-The playground host around every Experiment: routing, chrome, Stage and Panel. It owns real time and external I/O.
-_Avoid_: App, framework, core shell, workbench
 
 ### Rendering
 

@@ -61,7 +61,7 @@ const styles = stylex.create({
         alignItems: 'center',
         gap: space['2'],
         flexShrink: 0,
-        '@media (min-width: 640)': {
+        '@media (min-width: 640px)': {
             display: 'flex',
         },
     },
