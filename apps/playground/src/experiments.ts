@@ -18,24 +18,15 @@ export interface Experiment<TId extends string = string> {
     readonly stageLabel: string;
     readonly tint: ColorNames;
     readonly summary: string;
-    readonly isHome?: boolean;
     readonly mark: string;
     readonly loadScene: () => Promise<SceneModule>;
     readonly loadControls?: () => Promise<ControlsModule>;
 }
 
+/** Metadata the Shell needs to render chrome, without requiring a Scene loader. */
+export type ShellExperiment = Omit<Experiment, 'loadScene' | 'loadControls'>;
+
 export const EXPERIMENTS = [
-    {
-        id: 'home',
-        label: 'Maison',
-        stageLabel: 'home',
-        tint: 'aqua',
-        summary:
-            'Central creative coding workbench and exploration gallery for procedural art, mathematics, and audio systems.',
-        isHome: true,
-        mark: 'home',
-        loadScene: () => import('./components/home/Scene'),
-    },
     {
         id: 'art-canvas',
         label: 'Art Canvas',
@@ -193,12 +184,10 @@ export type ExperimentId = (typeof EXPERIMENTS)[number]['id'];
 export type ExperimentDefinition = Experiment<ExperimentId>;
 
 export const experimentCount = EXPERIMENTS.length;
-export const interactiveExperiments = EXPERIMENTS.filter(
-    (experiment: Experiment) => !experiment.isHome,
-);
+export const interactiveExperiments: readonly ExperimentDefinition[] = EXPERIMENTS;
 
 export function experimentPath(experiment: Experiment): string {
-    return experiment.isHome ? '/' : `/${experiment.id}`;
+    return `/${experiment.id}`;
 }
 
 export const experimentsById = new Map<string, ExperimentDefinition>(
@@ -208,8 +197,8 @@ export const experimentsById = new Map<string, ExperimentDefinition>(
     ]),
 );
 
-export function getExperiment(id: string | undefined): ExperimentDefinition {
-    return experimentsById.get(id ?? '') ?? EXPERIMENTS[0];
+export function getExperiment(id: string | undefined): ExperimentDefinition | undefined {
+    return id === undefined ? undefined : experimentsById.get(id);
 }
 
 // Select options share the registry's ordering and metadata.

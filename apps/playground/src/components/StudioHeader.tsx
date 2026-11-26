@@ -8,7 +8,7 @@ import * as stylex from '@stylexjs/stylex';
 import { useNavigate } from 'react-router';
 
 import { experimentOptions, experimentPath, getExperiment } from '../experiments';
-import type { ExperimentDefinition, ExperimentId } from '../experiments';
+import type { ShellExperiment } from '../experiments';
 import { RandomJumpButton } from './RandomJumpButton';
 
 const styles = stylex.create({
@@ -82,7 +82,7 @@ const styles = stylex.create({
 });
 
 interface StudioHeaderProps {
-    readonly currentExperiment: ExperimentDefinition;
+    readonly currentExperiment: ShellExperiment;
     readonly hasPanel: boolean;
     readonly panelCollapsed: boolean;
     readonly onTogglePanel: () => void;
@@ -96,8 +96,16 @@ export function StudioHeader({
 }: StudioHeaderProps) {
     const navigate = useNavigate();
 
-    const navigateToExperiment = (id: ExperimentId) => {
-        void navigate(experimentPath(getExperiment(id)));
+    const navigateToExperiment = (id: string) => {
+        if (id === 'home') {
+            void navigate('/');
+            return;
+        }
+
+        const experiment = getExperiment(id);
+        if (experiment) {
+            void navigate(experimentPath(experiment));
+        }
     };
 
     return (
@@ -122,7 +130,7 @@ export function StudioHeader({
                         font="sans"
                         value={currentExperiment.id}
                         onValueChange={navigateToExperiment}
-                        options={experimentOptions}
+                        options={[{ value: 'home', label: 'Maison' }, ...experimentOptions]}
                     />
                 </div>
             </div>
@@ -135,7 +143,7 @@ export function StudioHeader({
                     border="subtle"
                     radius="md"
                     elevation="flat"
-                    onClick={() => navigateToExperiment('home')}
+                    onClick={() => void navigate('/')}
                     title="Revenir à l'accueil"
                 >
                     maison

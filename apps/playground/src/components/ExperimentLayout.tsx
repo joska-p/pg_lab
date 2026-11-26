@@ -3,10 +3,9 @@ import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import * as stylex from '@stylexjs/stylex';
 import { Suspense, useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import type { ReactNode } from 'react';
 
-import { getExperiment } from '../experiments';
-import { ExperimentContent } from './ExperimentContent';
+import type { ShellExperiment } from '../experiments';
 import { StudioHeader } from './StudioHeader';
 
 const styles = stylex.create({
@@ -36,12 +35,20 @@ function LoadingFallback() {
     );
 }
 
-export function ExperimentLayout() {
-    const { experiment } = useParams();
-    const [panelCollapsed, setPanelCollapsed] = useState(false);
+export interface Chrome {
+    readonly panelCollapsed: boolean;
+    readonly onTogglePanel: () => void;
+}
 
-    const currentExperiment = getExperiment(experiment);
-    const hasPanel = currentExperiment.loadControls != null;
+interface ExperimentLayoutProps {
+    readonly currentExperiment: ShellExperiment;
+    readonly hasPanel: boolean;
+    readonly children: (chrome: Chrome) => ReactNode;
+}
+
+export function ExperimentLayout({ currentExperiment, hasPanel, children }: ExperimentLayoutProps) {
+    const [panelCollapsed, setPanelCollapsed] = useState(false);
+    const onTogglePanel = () => setPanelCollapsed((prev) => !prev);
 
     useEffect(() => {
         document.title = `${currentExperiment.label} · PG_LAB`;
@@ -54,16 +61,12 @@ export function ExperimentLayout() {
                     currentExperiment={currentExperiment}
                     hasPanel={hasPanel}
                     panelCollapsed={panelCollapsed}
-                    onTogglePanel={() => setPanelCollapsed((prev) => !prev)}
+                    onTogglePanel={onTogglePanel}
                 />
                 <div {...stylex.props(styles.workspace)}>
                     <Suspense fallback={<LoadingFallback />}>
                         <ErrorBoundary showStack={import.meta.env.DEV}>
-                            <ExperimentContent
-                                currentExperiment={currentExperiment}
-                                panelCollapsed={panelCollapsed}
-                                onCollapsedChange={setPanelCollapsed}
-                            />
+                            {children({ panelCollapsed, onTogglePanel })}
                         </ErrorBoundary>
                     </Suspense>
                 </div>

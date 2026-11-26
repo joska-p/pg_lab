@@ -1,12 +1,13 @@
 import { Route, Routes } from 'react-router';
 
-import { ExperimentLayout } from './components/ExperimentLayout';
+import { ExperimentRoute, HomeRoute, NotFoundRoute } from './routes';
 
 export function App() {
     return (
         <Routes>
-            <Route path="/" element={<ExperimentLayout />} />
-            <Route path="/:experiment" element={<ExperimentLayout />} />
+            <Route path="/" element={<HomeRoute />} />
+            <Route path="/:experiment" element={<ExperimentRoute />} />
+            <Route path="*" element={<NotFoundRoute />} />
         </Routes>
     );
 }
