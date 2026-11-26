@@ -12,14 +12,14 @@ import { DoubleSplit, DoubleSplitControls } from './modules/mandelbrot-double-sp
 import { Naive, NaiveControls } from './modules/mandelbrot-naive/experiment';
 import { Perturbation, PerturbationControls } from './modules/mandelbrot-perturbation/experiment';
 
-export interface Experiment<TId extends string = string> {
+interface Experiment<TId extends string = string> {
     readonly id: TId;
     readonly label: string;
     readonly Scene: ComponentType;
     readonly Controls: ComponentType;
 }
 
-export const EXPERIMENTS = [
+const EXPERIMENTS = [
     {
         id: 'mandelbrot-naive',
         label: 'Mandelbrot · Naive',
@@ -56,7 +56,7 @@ export const EXPERIMENTS = [
 export type ExperimentDefinition = (typeof EXPERIMENTS)[number];
 export type ExperimentId = ExperimentDefinition['id'];
 
-export const experimentsById = new Map<string, ExperimentDefinition>(
+const experimentsById = new Map<string, ExperimentDefinition>(
     EXPERIMENTS.map((experiment): [ExperimentId, ExperimentDefinition] => [
         experiment.id,
         experiment,

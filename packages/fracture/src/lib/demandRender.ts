@@ -1,7 +1,7 @@
 import type { GpuSurface } from '@repo/surface/gpu/GpuSurface';
 import { useCallback, useRef } from 'react';
 
-export interface DemandSurface {
+interface DemandSurface {
     readonly width: number;
     readonly height: number;
     onContextRestored?(callback: (surface?: unknown) => void): (() => void) | void;

@@ -1,10 +1,4 @@
 /**
- * Wheel zoom factor for the fracture scenes. Applies `exp(−deltaY · speed)`; configured with twice
- * the default (0.002) so the wheel keeps pace with the fracture shaders' zoom speed.
- */
-export const ZOOM_WHEEL_SPEED = 1 / 250;
-
-/**
  * Complex-plane width of the view at zoom = 1. The shaders map (uv − 0.5) · (3 / zoom) onto the
  * complex plane, so the camera → center mapping uses this fixed width.
  */

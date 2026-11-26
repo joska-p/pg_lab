@@ -33,10 +33,6 @@ export function useActiveEffects(): Readonly<Partial<Record<PostProcessEffectId,
     return store((state) => state.activeEffects);
 }
 
-export function useIsEffectActive(id: PostProcessEffectId): boolean {
-    return store((state) => state.activeEffects[id] ?? false);
-}
-
 export function setEffectActive(id: PostProcessEffectId, active: boolean): void {
     store.setState((state) => ({
         activeEffects: {

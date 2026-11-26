@@ -12,8 +12,8 @@ export interface ProjectedAtom {
     vy: number;
 }
 
-export const PATTERN_GRID = 32;
-export const PATTERN_SMOOTHING = 0.25;
+const PATTERN_GRID = 32;
+const PATTERN_SMOOTHING = 0.25;
 export const PATTERN_PAT_MS = 33;
 export const PATTERN_ANGLE_EPS = 0.003;
 
@@ -115,5 +115,3 @@ export function createPatternNorm() {
         },
     };
 }
-
-export type PatternNorm = ReturnType<typeof createPatternNorm>;

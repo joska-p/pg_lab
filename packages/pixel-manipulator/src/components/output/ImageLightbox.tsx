@@ -61,4 +61,3 @@ function ImageLightbox({ imageData, onClose }: ImageLightboxProps) {
 }
 
 export { ImageLightbox };
-export type { ImageLightboxProps };

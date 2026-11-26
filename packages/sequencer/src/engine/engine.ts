@@ -1,6 +1,6 @@
 import type { SequenceRule } from './rules/types';
 
-export interface GenerateSequenceOptions {
+interface GenerateSequenceOptions {
     sequenceRule: SequenceRule;
     steps: number;
     seed?: string;

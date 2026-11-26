@@ -10,10 +10,6 @@ const store = create<StoreState>(() => ({
     output: null,
 }));
 
-export function useSource(): ImageData | null {
-    return store((state) => state.source);
-}
-
 export function useOutput(): ImageData | null {
     return store((state) => state.output);
 }

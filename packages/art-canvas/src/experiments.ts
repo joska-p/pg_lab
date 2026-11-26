@@ -1,14 +1,14 @@
 import { lazy } from 'react';
 import type { ComponentType } from 'react';
 
-export interface Experiment<TId extends string = string> {
+interface Experiment<TId extends string = string> {
     readonly id: TId;
     readonly label: string;
     readonly Scene: ComponentType;
     readonly Controls: ComponentType | null;
 }
 
-export const EXPERIMENTS = [
+const EXPERIMENTS = [
     {
         id: 'draw',
         label: 'Draw',
@@ -93,7 +93,7 @@ export type ExperimentDefinition = (typeof EXPERIMENTS)[number];
 export type ExperimentKey = ExperimentDefinition['id'];
 
 // Index experiments by ID for direct lookup.
-export const experimentsById = new Map<string, ExperimentDefinition>(
+const experimentsById = new Map<string, ExperimentDefinition>(
     EXPERIMENTS.map((experiment) => [experiment.id, experiment]),
 );
 

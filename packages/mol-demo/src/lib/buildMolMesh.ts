@@ -12,15 +12,15 @@ import { Vec3 } from '@repo/glaze3d/math';
 import { atomDisplay } from './atoms';
 import type { Molecule } from './parseMol';
 
-export const ATOM_SPHERE_SCALE = 0.45;
-export const ATOM_SPHERE_WIDTH_SEGS = 32;
-export const ATOM_SPHERE_HEIGHT_SEGS = 20;
-export const BOND_RADIUS = 0.065;
-export const BOND_RADIAL_SEGS = 16;
-export const BOND_COLOR = 0x888888;
-export const BOND_SHININESS = 70;
-export const ATOM_SHININESS = 100;
-export const ATOM_SPECULAR = 0x333333;
+const ATOM_SPHERE_SCALE = 0.45;
+const ATOM_SPHERE_WIDTH_SEGS = 32;
+const ATOM_SPHERE_HEIGHT_SEGS = 20;
+const BOND_RADIUS = 0.065;
+const BOND_RADIAL_SEGS = 16;
+const BOND_COLOR = 0x888888;
+const BOND_SHININESS = 70;
+const ATOM_SHININESS = 100;
+const ATOM_SPECULAR = 0x333333;
 
 const UP = new Vec3(0, 1, 0);
 

@@ -49,5 +49,3 @@ export function clearPaths(): void {
 export function setStrokeColor(color: string): void {
     sketchpadStore.setState({ strokeColor: color });
 }
-
-export { sketchpadStore };

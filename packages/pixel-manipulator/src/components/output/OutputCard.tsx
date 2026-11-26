@@ -124,4 +124,3 @@ function OutputCard({
 }
 
 export { OutputCard };
-export type { OutputCardProps };

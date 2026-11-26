@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 export type LogSortOrder = 'newest-first' | 'oldest-first';
 
-export interface LogDetail {
+interface LogDetail {
     label: string;
     value: ReactNode;
 }

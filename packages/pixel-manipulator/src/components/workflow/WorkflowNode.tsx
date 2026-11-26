@@ -61,4 +61,3 @@ function WorkflowNode({ step, index, name, argDefinitions }: WorkflowNodeProps) 
 }
 
 export { WorkflowNode };
-export type { WorkflowNodeProps };

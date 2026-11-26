@@ -8,7 +8,7 @@ export interface LatticeCell {
     live: boolean;
 }
 
-export function hexCorners(cx: number, cy: number, r: number): [number, number][] {
+function hexCorners(cx: number, cy: number, r: number): [number, number][] {
     const pts: [number, number][] = [];
 
     for (let i = 0; i < 6; i++) {

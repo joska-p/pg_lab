@@ -15,16 +15,10 @@ export const RULES = [
 export type RuleDefinition = (typeof RULES)[number];
 export type RulesId = RuleDefinition['id'];
 
-export const RulesById = new Map<string, RuleDefinition>(
+const RulesById = new Map<string, RuleDefinition>(
     RULES.map((rule): [RulesId, RuleDefinition] => [rule.id, rule]),
 );
 
 export function getRule(id: string | undefined): RuleDefinition {
     return RulesById.get(id ?? '') ?? RULES[0];
 }
-
-// Select options share the registry's ordering and metadata.
-export const ruleOptions = RULES.map(({ id, label }) => ({
-    value: id,
-    label,
-}));

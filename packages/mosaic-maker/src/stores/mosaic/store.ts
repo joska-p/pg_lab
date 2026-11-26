@@ -10,7 +10,7 @@ export interface TileInstance {
     rotation: string;
 }
 
-export interface MosaicState {
+interface MosaicState {
     mosaicRef: React.RefObject<HTMLDivElement | null>;
     paletteStock: Palette[];
     currentPalettesIndex: number;

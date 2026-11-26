@@ -20,7 +20,7 @@ export interface ManipulationUIMetadata {
 
 // ─── Manipulation Function Parameters ────────────────────────────────────────
 
-export interface PixelParameters<Options> {
+interface PixelParameters<Options> {
     options: Options;
     red: number;
     green: number;
@@ -28,7 +28,7 @@ export interface PixelParameters<Options> {
     alpha: number;
 }
 
-export interface NeighborhoodParameters<Options> {
+interface NeighborhoodParameters<Options> {
     options: Options;
     source: Uint8ClampedArray;
     destination: Uint8ClampedArray;
@@ -36,7 +36,7 @@ export interface NeighborhoodParameters<Options> {
     height: number;
 }
 
-export interface WholeImageParameters<Options> {
+interface WholeImageParameters<Options> {
     options: Options;
     imageData: PixelData;
 }

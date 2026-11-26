@@ -3,24 +3,6 @@ import { expect } from 'vite-plus/test';
 import { getOrThrow } from '../core/getOrThrow';
 import type { GeometryData } from './geometry';
 
-export function checkBounds(data: GeometryData): void {
-    const vertexCount = data.positions.length / 3;
-    for (const index of data.indices) {
-        expect(index).toBeGreaterThanOrEqual(0);
-        expect(index).toBeLessThan(vertexCount);
-    }
-}
-
-export function checkUnitNormals(data: GeometryData): void {
-    for (let i = 0; i < data.normals.length; i += 3) {
-        const nx = getOrThrow(data.normals, i);
-        const ny = getOrThrow(data.normals, i + 1);
-        const nz = getOrThrow(data.normals, i + 2);
-        const length = Math.hypot(nx, ny, nz);
-        expect(length).toBeCloseTo(1, 5);
-    }
-}
-
 // Face normal dotted with the face centroid must point outward (away from
 // the origin-centered solid) for every non-degenerate triangle. Polar rows
 // of the sphere emit zero-area triangles, skipped here.

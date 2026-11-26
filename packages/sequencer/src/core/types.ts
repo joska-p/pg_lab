@@ -19,7 +19,7 @@ export interface CanvasViewport {
     panY: number;
 }
 
-export type LayerCategory = 'cosmetic' | 'drawing';
+type LayerCategory = 'cosmetic' | 'drawing';
 
 export interface VisualLayer {
     id: string;

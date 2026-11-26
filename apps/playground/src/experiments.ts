@@ -180,7 +180,7 @@ export const EXPERIMENTS = [
 ] as const satisfies readonly Experiment[];
 
 // Derive the ids from the registry, then use the interface so optional fields stay visible.
-export type ExperimentId = (typeof EXPERIMENTS)[number]['id'];
+type ExperimentId = (typeof EXPERIMENTS)[number]['id'];
 export type ExperimentDefinition = Experiment<ExperimentId>;
 
 export const experimentCount = EXPERIMENTS.length;
@@ -189,7 +189,7 @@ export function experimentPath(experiment: Experiment): string {
     return `/${experiment.id}`;
 }
 
-export const experimentsById = new Map<string, ExperimentDefinition>(
+const experimentsById = new Map<string, ExperimentDefinition>(
     EXPERIMENTS.map((experiment): [ExperimentId, ExperimentDefinition] => [
         experiment.id,
         experiment,

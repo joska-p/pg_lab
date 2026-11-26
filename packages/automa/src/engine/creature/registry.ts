@@ -57,5 +57,5 @@ function getCreature(id: CreatureId): Creature<CreatureId> {
     return creature;
 }
 
-export { allCreatures, creatures, getCreature };
+export { allCreatures, getCreature };
 export type { Creature, CreatureId };

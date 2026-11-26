@@ -68,7 +68,7 @@ const COLOR_PICKER_SPACES = [
 export type ColorPickerSpaceDefinition = (typeof COLOR_PICKER_SPACES)[number];
 export type ColorPickerSpaceId = ColorPickerSpaceDefinition['id'];
 
-export const colorPickerSpacesById = new Map<string, ColorPickerSpaceDefinition>(
+const colorPickerSpacesById = new Map<string, ColorPickerSpaceDefinition>(
     COLOR_PICKER_SPACES.map(
         (colorPickerSpace): [ColorPickerSpaceId, ColorPickerSpaceDefinition] => [
             colorPickerSpace.id,

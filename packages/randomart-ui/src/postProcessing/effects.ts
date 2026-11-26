@@ -34,9 +34,5 @@ export const POST_PROCESS_EFFECTS = [
     },
 ] as const satisfies readonly PostProcessEffect[];
 
-export type PostProcessEffectDefinition = (typeof POST_PROCESS_EFFECTS)[number];
+type PostProcessEffectDefinition = (typeof POST_PROCESS_EFFECTS)[number];
 export type PostProcessEffectId = PostProcessEffectDefinition['id'];
-
-export const postProcessEffectsById = new Map<string, PostProcessEffectDefinition>(
-    POST_PROCESS_EFFECTS.map((effect) => [effect.id, effect]),
-);

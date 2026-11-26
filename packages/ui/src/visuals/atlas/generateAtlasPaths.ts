@@ -12,7 +12,7 @@ export interface Paths {
     dots: Dot[];
 }
 
-export function mulberry32(seed: number) {
+function mulberry32(seed: number) {
     return function random() {
         let t = (seed += 0x6d2b79f5);
 

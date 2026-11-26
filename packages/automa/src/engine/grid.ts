@@ -13,4 +13,3 @@ const seedGrid = (grid: Grid, density: number, seed: number): void => {
 };
 
 export { createGrid, seedGrid };
-export type { Grid };

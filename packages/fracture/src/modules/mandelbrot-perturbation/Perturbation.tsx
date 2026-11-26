@@ -45,7 +45,7 @@ interface PerturbationRuntime {
 }
 
 /** Per-frame CPU stats reported back to the PerfHUD via the out-param. */
-export interface PerturbationStats {
+interface PerturbationStats {
     orbitMs: number;
     orbitLength: number;
     maxIterations: number;

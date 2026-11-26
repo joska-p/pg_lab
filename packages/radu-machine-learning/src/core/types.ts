@@ -3,13 +3,7 @@ export type Path = Point[];
 
 export type Label = 'car' | 'fish' | 'house' | 'tree' | 'bicycle' | 'guitar' | 'pencil' | 'clock';
 
-export interface RawSample {
-    session: number;
-    student: string;
-    drawings: Record<Label, Path[]>;
-}
-
-export interface Sample {
+interface Sample {
     readonly id: number;
     readonly label: Label;
     readonly student_id: number;
@@ -22,7 +16,7 @@ export interface Drawing {
     point?: Point;
 }
 
-export interface Student {
+interface Student {
     id: number;
     name: string;
     drawings: Drawing[];
@@ -30,7 +24,7 @@ export interface Student {
 
 export type Students = Record<Student['id'], Student>;
 
-export type FeatureSample = Sample & {
+type FeatureSample = Sample & {
     point: Point;
 };
 

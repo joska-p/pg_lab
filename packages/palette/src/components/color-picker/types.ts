@@ -22,5 +22,5 @@ function isColorPickerSpaceCanvasResponse(value: unknown): value is ColorPickerS
     return value.ok === false && 'error' in value && typeof value.error === 'string';
 }
 
-export type { ColorPickerSpaceCanvasResponse, RenderColorPickerSpaceTask };
+export type { RenderColorPickerSpaceTask };
 export { isColorPickerSpaceCanvasResponse };

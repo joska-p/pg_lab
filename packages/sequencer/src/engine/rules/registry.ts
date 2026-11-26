@@ -21,10 +21,6 @@ const initialRules = [
     sternDiatomicRule,
 ] as const;
 
-export type RuleId = (typeof initialRules)[number]['id'];
-
-export type RuleName = (typeof initialRules)[number]['name'];
-
 const allRules: SequenceRule[] = [...initialRules];
 
 export function registerRule(rule: SequenceRule) {

@@ -3,8 +3,8 @@
 // record is parsed — the mol block sits at the top, so reading by atom/bond
 // count stops before any SDF data fields naturally.
 
-export type Vec3Tuple = [number, number, number];
-export type Bond = [number, number];
+type Vec3Tuple = [number, number, number];
+type Bond = [number, number];
 
 export interface Molecule {
     name: string;

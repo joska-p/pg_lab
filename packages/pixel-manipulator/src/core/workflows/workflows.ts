@@ -80,4 +80,3 @@ const WORKFLOW_PRESETS: WorkflowPreset[] = [
 ];
 
 export { WORKFLOW_PRESETS };
-export type { WorkflowPreset, WorkflowPresetStep };

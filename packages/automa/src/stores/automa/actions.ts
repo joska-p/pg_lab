@@ -18,7 +18,7 @@ const ALIVE_COLOR_FALLBACK = '#d97706';
 
 // ── Engine lifecycle ──
 
-export function destroySimulation(): void {
+function destroySimulation(): void {
     const { engine } = automaStore.getState();
 
     if (!engine) {

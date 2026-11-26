@@ -1,5 +1,5 @@
 import type { ShaderError } from '@repo/surface/gpu/ShaderError';
-import { globalPlaybackStore, usePlayback } from '@repo/surface/react/usePlayback';
+import { globalPlaybackStore } from '@repo/surface/react/usePlayback';
 import { create } from 'zustand';
 
 export interface SurfaceClock {
@@ -68,9 +68,4 @@ export function detachSurface(): void {
     unsubscribeReset?.();
     unsubscribeReset = null;
     store.setState(INITIAL);
-}
-
-/** Connect directly to usePlayback. */
-export function useIsPlaying(): boolean {
-    return usePlayback().isPlaying;
 }

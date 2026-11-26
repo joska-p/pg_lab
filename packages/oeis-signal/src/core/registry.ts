@@ -8,7 +8,3 @@ export type ModuleId = keyof typeof modules;
 export function getModule(id: ModuleId): Module {
     return modules[id];
 }
-
-export function getAllModules(): readonly Module[] {
-    return Object.values(modules);
-}

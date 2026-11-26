@@ -32,4 +32,3 @@ function Output({ imageData }: OutputProps) {
 }
 
 export { Output };
-export type { OutputProps };

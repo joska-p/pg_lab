@@ -3,7 +3,7 @@ import type { Seed } from '@repo/randomart-core/seed';
 import { renderToBlob } from '../renderer/renderOffscreen';
 
 /** Side of the exported square image, in pixels (capped by the GPU's viewport limits). */
-export const EXPORT_SIZE = 2048;
+const EXPORT_SIZE = 2048;
 
 function downloadBlob(blob: Blob, filename: string): void {
     const url = URL.createObjectURL(blob);

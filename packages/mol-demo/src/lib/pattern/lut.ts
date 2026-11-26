@@ -16,7 +16,7 @@ const STOPS: Array<[number, Rgb]> = [
     [1.0, [255, 255, 255]],
 ];
 
-export const XRAY_LUT_GAMMA = 0.72;
+const XRAY_LUT_GAMMA = 0.72;
 
 function buildLut(): Uint8Array {
     const lut = new Uint8Array(256 * 3);
