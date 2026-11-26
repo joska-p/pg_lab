@@ -7,13 +7,13 @@ After the cleanup recorded below, the regenerated Knip report has:
 | Category                              | Count | Status                                                      |
 | :------------------------------------ | ----: | :---------------------------------------------------------- |
 | Unused files                          |     8 | All belong to `packages/three-stage` and are **user-owned** |
-| Unused exports                        |    10 | Only `fracture` `DEFAULT_PARAMS` / `MAX_ZOOM` — declined    |
+| Unused exports                        |     0 | Cleared                                                     |
 | Unused exported types                 |     0 | Cleared                                                     |
 | Unused dependencies / devDependencies |     0 | Cleared                                                     |
 | Duplicate exports                     |     0 | Cleared                                                     |
 | Unused catalog entries                |     0 | Cleared                                                     |
 
-Progression for this cleanup: unused exports 52 → 10, unused exported types 31 → 0.
+Progression for this cleanup: unused exports 52 → 0, unused exported types 31 → 0.
 
 `reports/knip.json` and `reports/knip.md` are generated and gitignored (`/reports/`). `vp run knip` exits 1 while findings remain; that is expected, not a failure. Markdown tables in this file are formatter-managed: `vp check --fix` aligns them.
 
@@ -51,15 +51,12 @@ An "unused export" is not always dead code: it may be used in its own file. Chec
 | Small utility exports                                                | `mulberry32` (atlas) and `hexCorners` made file-private; `checkBounds`, `checkUnitNormals`, `useSource` deleted                                                         |
 | `art-canvas` atlas + `automa` actions                                | 3 atlas setters deleted; `destroySimulation` and `creatures` made file-private                                                                                          |
 | Exported type families                                               | 6 `pixel-manipulator`, 3 `mol-demo`, 4 `sequencer`, 3 `pixel` and 7 remaining file-local types made private or deleted; category cleared                                |
+| `fracture` store constants                                           | 10 `DEFAULT_PARAMS` / `MAX_ZOOM` made file-private (exports 10 → 0); previously declined, approved on review                                                            |
 
 ## Deferred — user-owned
 
 `packages/three-stage/src/components/stage/` (6 files) and `packages/three-stage/src/utils/` (2 files) form one orphan cluster: `Scene.tsx` imports the four lighting components and `Sample.tsx`, which imports both utils; `App.tsx` renders `GetStarted` instead. The user declined the deletion and will handle this cluster separately. Leave it untouched and do not re-propose it unprompted.
 
-## Declined proposal
-
-Making the 10 `DEFAULT_PARAMS` / `MAX_ZOOM` constants in the five `packages/fracture/src/modules/*/store.ts` file-private was proposed and declined. They are each used only in their own file, so that option remains technically valid, but ask before revisiting it.
-
 ## Remaining
 
-Only the 10 declined `fracture` constants and the 8 user-owned `three-stage` files remain. There is no other actionable lot. If asked to continue, ask first about the `fracture` constants; do not touch the `three-stage` cluster.
+Only the 8 user-owned `three-stage` files remain. There is no other actionable lot. Do not touch the `three-stage` cluster unless asked explicitly.

@@ -16,7 +16,7 @@ export interface FractalParams {
     chromaScale: number;
 }
 
-export const DEFAULT_PARAMS: FractalParams = {
+const DEFAULT_PARAMS: FractalParams = {
     iterationBase: 70,
     iterationScale: 30,
     iterationCap: 1200,
@@ -46,7 +46,7 @@ export function setParam(key: ParamKey, value: number): void {
  * Double-single (~48 bit) camera ceiling: far beyond float32, conservatively under what naive f64
  * centers could reach (D10).
  */
-export const MAX_ZOOM = 1e11;
+const MAX_ZOOM = 1e11;
 
 /** Module-owned camera (D4): live reactive Camera2D without brands. */
 export const camera = new Camera2D({ maxZoom: MAX_ZOOM });

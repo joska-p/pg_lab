@@ -16,7 +16,7 @@ export interface FractalParams {
     chromaScale: number;
 }
 
-export const DEFAULT_PARAMS: FractalParams = {
+const DEFAULT_PARAMS: FractalParams = {
     iterationBase: 70,
     iterationScale: 30,
     iterationCap: 1200,
@@ -43,7 +43,7 @@ export function setParam(key: ParamKey, value: number): void {
 }
 
 /** Perturbation (reference orbit + double-single): the deepest honest tier, up to 1e15 (D10). */
-export const MAX_ZOOM = 1e15;
+const MAX_ZOOM = 1e15;
 
 /** Module-owned camera (D4): live reactive Camera2D without brands. */
 export const camera = new Camera2D({ maxZoom: MAX_ZOOM });
