@@ -1,6 +1,7 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
 
+import { PanelChromeProvider } from '../hooks/usePanelChrome';
 import { shellBackground } from '../recipes/shellBackground';
 import type { ShellBackground } from '../recipes/shellBackground';
 import { colors, onColors } from '../tokens/tint.stylex';
@@ -28,8 +29,10 @@ export function ShellWrapper({
     ...props
 }: ShellWrapperProps) {
     return (
-        <div {...props} {...stylex.props(styles.base, shellBackground[background], style)}>
-            {children}
-        </div>
+        <PanelChromeProvider>
+            <div {...props} {...stylex.props(styles.base, shellBackground[background], style)}>
+                {children}
+            </div>
+        </PanelChromeProvider>
     );
 }

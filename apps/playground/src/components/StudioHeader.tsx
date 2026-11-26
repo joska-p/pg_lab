@@ -1,6 +1,7 @@
 import { Button } from '@repo/ui/components/Button';
 import { Select } from '@repo/ui/components/Select';
 import { ThemeToggle } from '@repo/ui/components/ThemeToggle';
+import { usePanelChrome } from '@repo/ui/hooks/usePanelChrome';
 import { surfaceStyle } from '@repo/ui/recipes/surface';
 import { borderWidth, space, typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
@@ -84,16 +85,10 @@ const styles = stylex.create({
 interface StudioHeaderProps {
     readonly currentExperiment: ShellExperiment;
     readonly hasPanel: boolean;
-    readonly panelCollapsed: boolean;
-    readonly onTogglePanel: () => void;
 }
 
-export function StudioHeader({
-    currentExperiment,
-    hasPanel,
-    panelCollapsed,
-    onTogglePanel,
-}: StudioHeaderProps) {
+export function StudioHeader({ currentExperiment, hasPanel }: StudioHeaderProps) {
+    const { collapsed, toggle } = usePanelChrome();
     const navigate = useNavigate();
 
     const navigateToExperiment = (id: string) => {
@@ -156,15 +151,15 @@ export function StudioHeader({
                         radius="md"
                         elevation="flat"
                         aria-label={
-                            panelCollapsed
+                            collapsed
                                 ? 'Afficher les contrôles (Cmd+B)'
                                 : 'Masquer les contrôles (Cmd+B)'
                         }
-                        aria-expanded={!panelCollapsed}
-                        onClick={onTogglePanel}
+                        aria-expanded={!collapsed}
+                        onClick={toggle}
                         style={styles.toggleButton}
                         title={
-                            panelCollapsed
+                            collapsed
                                 ? 'Afficher les contrôles (Cmd+B)'
                                 : 'Masquer les contrôles (Cmd+B)'
                         }
@@ -184,7 +179,7 @@ export function StudioHeader({
                             <path d="M10 2v12" />
                         </svg>
                         <span {...stylex.props(styles.toggleText)}>
-                            {panelCollapsed ? 'Contrôles' : 'Plein écran'}
+                            {collapsed ? 'Contrôles' : 'Plein écran'}
                         </span>
                     </Button>
                 ) : null}

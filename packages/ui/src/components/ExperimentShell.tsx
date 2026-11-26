@@ -1,13 +1,12 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 
+import { usePanelChrome } from '../hooks/usePanelChrome';
 import { surfaceStyle } from '../recipes/surface';
 import { layout, radius, space, motion } from '../tokens/const.stylex';
 import { Button } from './Button';
 
-const COLLAPSED_SIZE = 16;
-const COLLAPSE_BELOW = COLLAPSED_SIZE * 1.5;
 const PORTRAIT_QUERY = '(orientation: portrait)';
 
 const surface = surfaceStyle({
@@ -54,8 +53,6 @@ const styles = stylex.create({
         },
     },
     panel: {
-        '--panel-width': layout.panelWidth,
-        '--panel-height': 'auto',
         position: 'relative',
         zIndex: 1,
         display: 'flex',
@@ -64,14 +61,6 @@ const styles = stylex.create({
         minWidth: 0,
         minHeight: 0,
         borderRadius: radius.md,
-        width: {
-            default: 'var(--panel-width)',
-            '@media (orientation: portrait)': 'auto',
-        },
-        height: {
-            default: null,
-            '@media (orientation: portrait)': 'var(--panel-height)',
-        },
         maxWidth: {
             default: '70%',
             '@media (orientation: portrait)': 'none',
@@ -81,16 +70,16 @@ const styles = stylex.create({
             '@media (orientation: portrait)': layout.panelMaxMobileHeight,
         },
     },
-    panelCollapsed: {
+    panelSize: (sizePx: number) => ({
         width: {
-            default: COLLAPSED_SIZE,
+            default: `${sizePx}px`,
             '@media (orientation: portrait)': 'auto',
         },
         height: {
             default: null,
-            '@media (orientation: portrait)': COLLAPSED_SIZE,
+            '@media (orientation: portrait)': `${sizePx}px`,
         },
-    },
+    }),
     panelContent: {
         display: 'flex',
         flex: 1,
@@ -142,9 +131,7 @@ const styles = stylex.create({
 
 interface Drag {
     vertical: boolean;
-    pointerStart: number;
-    sizeStart: number;
-    hasMoved: boolean;
+    lastPointer: number;
 }
 
 export interface StageProps extends Omit<
@@ -160,9 +147,6 @@ interface ExperimentShellProps extends Omit<React.ComponentProps<'div'>, 'style'
     stageProps?: StageProps;
     panel?: React.ReactNode;
     style?: StyleXStyles;
-    collapsed?: boolean;
-    defaultCollapsed?: boolean;
-    onCollapsedChange?: (collapsed: boolean) => void;
 }
 
 export function ExperimentShell({
@@ -171,59 +155,35 @@ export function ExperimentShell({
     stageProps,
     panel,
     style,
-    collapsed: controlledCollapsed,
-    defaultCollapsed = false,
-    onCollapsedChange,
     ...props
 }: ExperimentShellProps) {
-    const panelRef = useRef<HTMLDivElement>(null);
+    const { collapsed, sizePx, resize, toggle } = usePanelChrome();
     const dragRef = useRef<Drag | null>(null);
-    const [uncontrolledCollapsed, setUncontrolledCollapsed] = useState(defaultCollapsed);
     const { style: stageStyle, ...stageSectionProps } = stageProps ?? {};
 
-    const isControlled = controlledCollapsed !== undefined;
-    const collapsed = isControlled ? controlledCollapsed : uncontrolledCollapsed;
-
-    const setCollapsedState = (next: boolean) => {
-        if (!isControlled) {
-            setUncontrolledCollapsed(next);
-        }
-        onCollapsedChange?.(next);
-    };
-
     const handlePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
-        const panelEl = panelRef.current;
-        if (!panelEl || event.button !== 0) {
+        if (event.button !== 0) {
             return;
         }
 
         const vertical = window.matchMedia(PORTRAIT_QUERY).matches;
-        const rect = panelEl.getBoundingClientRect();
         dragRef.current = {
             vertical,
-            pointerStart: vertical ? event.clientY : event.clientX,
-            sizeStart: vertical ? rect.height : rect.width,
-            hasMoved: false,
+            lastPointer: vertical ? event.clientY : event.clientX,
         };
         event.currentTarget.setPointerCapture(event.pointerId);
     };
 
     const handlePointerMove = (event: React.PointerEvent<HTMLButtonElement>) => {
         const drag = dragRef.current;
-        const panelEl = panelRef.current;
-        if (!drag || !panelEl) {
+        if (!drag) {
             return;
         }
 
         const pointer = drag.vertical ? event.clientY : event.clientX;
-        if (Math.abs(pointer - drag.pointerStart) > 4) {
-            drag.hasMoved = true;
-        }
-
-        const size = Math.max(0, drag.sizeStart + drag.pointerStart - pointer);
-
-        panelEl.style.setProperty(drag.vertical ? '--panel-height' : '--panel-width', `${size}px`);
-        setCollapsedState(size <= COLLAPSE_BELOW);
+        const deltaPx = drag.lastPointer - pointer;
+        drag.lastPointer = pointer;
+        resize(deltaPx);
     };
 
     const handlePointerEnd = (event: React.PointerEvent<HTMLButtonElement>) => {
@@ -236,7 +196,7 @@ export function ExperimentShell({
     const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
-            setCollapsedState(!collapsed);
+            toggle();
         }
     };
 
@@ -251,10 +211,7 @@ export function ExperimentShell({
             </section>
 
             {panel != null && (
-                <div
-                    ref={panelRef}
-                    {...stylex.props(surface, styles.panel, collapsed && styles.panelCollapsed)}
-                >
+                <div {...stylex.props(surface, styles.panel, styles.panelSize(sizePx))}>
                     <Button
                         color="aurora"
                         background="solid"
