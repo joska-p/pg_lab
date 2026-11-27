@@ -1,18 +1,14 @@
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
-import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
-import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
+import { ExperimentWrapper } from '@repo/ui/components/ExperimentWrapper';
 
-import { Controls } from './components/controls/Controls';
-import { Scene } from './components/Scene';
+import { Experiment } from './Experiment';
 
 export function App() {
     return (
-        <ShellWrapper>
+        <ExperimentWrapper>
             <ErrorBoundary showStack={import.meta.env.DEV}>
-                <ExperimentShell stageLabel="sequencer" panel={<Controls />}>
-                    <Scene />
-                </ExperimentShell>
+                <Experiment />
             </ErrorBoundary>
-        </ShellWrapper>
+        </ExperimentWrapper>
     );
 }

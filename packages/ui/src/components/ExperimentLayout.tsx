@@ -154,7 +154,7 @@ export interface StageProps extends Omit<
     style?: StyleXStyles;
 }
 
-interface ExperimentShellProps extends Omit<React.ComponentProps<'div'>, 'style' | 'className'> {
+interface ExperimentLayoutProps extends Omit<React.ComponentProps<'div'>, 'style' | 'className'> {
     children: React.ReactNode;
     stageLabel?: string;
     stageProps?: StageProps;
@@ -165,7 +165,7 @@ interface ExperimentShellProps extends Omit<React.ComponentProps<'div'>, 'style'
     onCollapsedChange?: (collapsed: boolean) => void;
 }
 
-export function ExperimentShell({
+export function ExperimentLayout({
     children,
     stageLabel = 'stage',
     stageProps,
@@ -175,7 +175,7 @@ export function ExperimentShell({
     defaultCollapsed = false,
     onCollapsedChange,
     ...props
-}: ExperimentShellProps) {
+}: ExperimentLayoutProps) {
     const panelRef = useRef<HTMLDivElement>(null);
     const dragRef = useRef<Drag | null>(null);
     const [uncontrolledCollapsed, setUncontrolledCollapsed] = useState(defaultCollapsed);

@@ -7,7 +7,8 @@ import { ControlField } from '@repo/ui/components/ControlField';
 import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
-import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
+import { ExperimentLayout } from '@repo/ui/components/ExperimentLayout';
+import { ExperimentWrapper } from '@repo/ui/components/ExperimentWrapper';
 import { Grid } from '@repo/ui/components/Grid';
 import { Led } from '@repo/ui/components/Led';
 import { NumberField } from '@repo/ui/components/NumberField';
@@ -16,7 +17,6 @@ import { Readout } from '@repo/ui/components/Readout';
 import { SectionHeading } from '@repo/ui/components/SectionHeading';
 import { Segmented } from '@repo/ui/components/Segmented';
 import { Select } from '@repo/ui/components/Select';
-import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { Slider } from '@repo/ui/components/Slider';
 import { Stack } from '@repo/ui/components/Stack';
 import { Swatch } from '@repo/ui/components/Swatch';
@@ -154,8 +154,8 @@ export function Workbench() {
 
     return (
         <ErrorBoundary showStack={import.meta.env.DEV}>
-            <ShellWrapper>
-                <ExperimentShell
+            <ExperimentWrapper>
+                <ExperimentLayout
                     stageLabel="Component Workbench Stage"
                     panel={
                         <ControlPanel
@@ -700,8 +700,8 @@ export function Workbench() {
                             </div>
                         </div>
                     </Card>
-                </ExperimentShell>
-            </ShellWrapper>
+                </ExperimentLayout>
+            </ExperimentWrapper>
         </ErrorBoundary>
     );
 }

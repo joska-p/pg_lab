@@ -14,6 +14,10 @@ function packageJson(name: string): string {
             version: '0.0.0',
             private: true,
             type: 'module',
+            exports: {
+                './App': './src/App.tsx',
+                './Experiment': './src/Experiment.tsx',
+            },
             scripts: {
                 dev: 'vp dev',
                 lint: 'vp lint',
@@ -89,67 +93,62 @@ createRoot(document.getElementById("root")!).render(
 
 const styleCss = `@import '../node_modules/@repo/ui/src/styles.css';`;
 
-function appTsx(name: string): string {
-    return `import { useEffect } from "react";
-import { ShellWrapper } from "@repo/ui/components/ShellWrapper";
-import { useTheme, setTheme } from "./stores/appStore";
-import { ControlPanel } from "@repo/ui/components/ControlPanel";
-import { ExperimentShell } from "@repo/ui/components/ExperimentShell";
-import { ControlSection } from "@repo/ui/components/ControlSection";
-import { Segmented } from "@repo/ui/components/Segmented";
-import { ErrorBoundary } from "@repo/ui/components/ErrorBoundary";
-
-export function App() {
-  const theme = useTheme();
-
-  useEffect(() => {
-    document.documentElement.style.colorScheme = theme === "system" ? "light dark" : theme;
-  }, [theme]);
-
-  return (
-    <ShellWrapper>
-      <ErrorBoundary showStack={import.meta.env.DEV}>
-        <ExperimentShell
-          stageLabel="${name}"
-          panel={
-            <ControlPanel title="${name} controls">
-              <ControlSection title="Theme">
-                <Segmented<"light" | "dark" | "system">
-                  options={["light", "dark", "system"]}
-                  value={theme}
-                  onValueChange={setTheme}
-                />
-              </ControlSection>
-            </ControlPanel>
-          }
-        >
-          <h1>${name}</h1>
-        </ExperimentShell>
-      </ErrorBoundary>
-    </ShellWrapper>
-  );
+function sceneTsx(name: string): string {
+    return `export function Scene() {
+    return <h1>${name}</h1>;
 }
 `;
 }
 
-const appStoreTsx = `import { create } from "zustand";
+const controlsTsx = `export function Controls() {
+    return null;
+}
+`;
 
-type theme = "light" | "dark" | "system";
+function experimentTsx(name: string): string {
+    return `import { ControlPanel } from '@repo/ui/components/ControlPanel';
+import { ExperimentLayout } from '@repo/ui/components/ExperimentLayout';
 
-type appStore = {
-  theme: theme;
-};
+import { Controls } from './components/Controls';
+import { Scene } from './components/Scene';
 
-const appStore = create<appStore>(() => ({
-  theme: "dark",
-}));
-
-export function useTheme(): theme {
-  return appStore((s) => s.theme);
+export interface ExperimentProps {
+    collapsed?: boolean;
+    onCollapsedChange?: (collapsed: boolean) => void;
 }
 
-export function setTheme(theme: theme): void {
-  appStore.setState({ theme });
+export function Experiment({ collapsed, onCollapsedChange }: ExperimentProps) {
+    return (
+        <ExperimentLayout
+            stageLabel="${name}"
+            collapsed={collapsed}
+            onCollapsedChange={onCollapsedChange}
+            panel={
+                <ControlPanel title="${name}">
+                    <Controls />
+                </ControlPanel>
+            }
+        >
+            <Scene />
+        </ExperimentLayout>
+    );
+}
+`;
+}
+
+const appTsx = `import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
+import { ExperimentWrapper } from '@repo/ui/components/ExperimentWrapper';
+
+import { Experiment } from './Experiment';
+
+export function App() {
+    return (
+        <ExperimentWrapper>
+            <ErrorBoundary showStack={import.meta.env.DEV}>
+                <Experiment />
+            </ErrorBoundary>
+        </ExperimentWrapper>
+    );
 }
 `;
 
@@ -210,10 +209,12 @@ export default createTemplate({
                 '.gitignore': gitignore,
                 src: {
                     'main.tsx': mainTsx,
-                    'App.tsx': appTsx(name),
+                    'App.tsx': appTsx,
+                    'Experiment.tsx': experimentTsx(name),
                     'style.css': styleCss,
-                    stores: {
-                        'appStore.tsx': appStoreTsx,
+                    components: {
+                        'Scene.tsx': sceneTsx(name),
+                        'Controls.tsx': controlsTsx,
                     },
                 },
                 public: {},

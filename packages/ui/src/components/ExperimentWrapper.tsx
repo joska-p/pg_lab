@@ -15,18 +15,18 @@ const styles = stylex.create({
     },
 });
 
-interface ShellWrapperProps extends Omit<React.ComponentProps<'div'>, 'style' | 'className'> {
+interface ExperimentWrapperProps extends Omit<React.ComponentProps<'div'>, 'style' | 'className'> {
     children?: React.ReactNode;
     background?: ShellBackground;
     style?: StyleXStyles;
 }
 
-export function ShellWrapper({
+export function ExperimentWrapper({
     children,
     background = 'lava-flow',
     style,
     ...props
-}: ShellWrapperProps) {
+}: ExperimentWrapperProps) {
     return (
         <div {...props} {...stylex.props(styles.base, shellBackground[background], style)}>
             {children}

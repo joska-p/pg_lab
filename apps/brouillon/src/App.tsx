@@ -1,6 +1,6 @@
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
+import { ExperimentWrapper } from '@repo/ui/components/ExperimentWrapper';
 import { Segmented } from '@repo/ui/components/Segmented';
-import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
 import { ThemeToggle } from '@repo/ui/components/ThemeToggle';
 import * as stylex from '@stylexjs/stylex';
 import { useState } from 'react';
@@ -33,9 +33,9 @@ export function App() {
     return (
         <ErrorBoundary showStack={import.meta.env.DEV}>
             {view === 'doc' ? (
-                <ShellWrapper>
+                <ExperimentWrapper>
                     <RandomartPipeline />
-                </ShellWrapper>
+                </ExperimentWrapper>
             ) : (
                 <Workbench />
             )}

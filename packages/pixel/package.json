@@ -17,8 +17,7 @@
         "./react/*": "./src/react/*",
         "./docs/*": "./src/docs/*",
         "./App": "./src/docs/App.tsx",
-        "./Scene": "./src/docs/components/Scene.tsx",
-        "./Controls": "./src/docs/components/Controls.tsx"
+        "./Experiment": "./src/docs/Experiment.tsx"
     },
     "scripts": {
         "dev": "vp dev --host",

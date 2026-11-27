@@ -6,12 +6,10 @@ import {
     experimentOptions,
     experimentPath,
     getExperiment,
-    loadControls,
-    loadScene,
+    loadExperiment,
 } from './experiments';
 
-const sceneModule = { Scene: () => null };
-const controlsModule = { Controls: () => null };
+const experimentModule = { Experiment: () => null };
 
 function definedExperiment(id: string) {
     const experiment = getExperiment(id);
@@ -54,65 +52,30 @@ describe('playground experiment catalogue', () => {
         );
     });
 
-    it('dedupes scene loads by experiment id', async () => {
+    it('dedupes experiment loads by experiment id', async () => {
         const definition = definedExperiment('sequencer');
-        const firstLoad = vi.fn(async () => sceneModule);
-        const secondLoad = vi.fn(async () => sceneModule);
+        const firstLoad = vi.fn(async () => experimentModule);
+        const secondLoad = vi.fn(async () => experimentModule);
 
-        const first = loadScene({ ...definition, loadScene: firstLoad });
-        const second = loadScene({ ...definition, loadScene: secondLoad });
+        const first = loadExperiment({ ...definition, loadExperiment: firstLoad });
+        const second = loadExperiment({ ...definition, loadExperiment: secondLoad });
 
         expect(second).toBe(first);
-        await expect(first).resolves.toBe(sceneModule);
+        await expect(first).resolves.toBe(experimentModule);
         expect(firstLoad).toHaveBeenCalledTimes(1);
         expect(secondLoad).not.toHaveBeenCalled();
     });
 
-    it('evicts a failed scene load so the next call retries', async () => {
+    it('evicts a failed experiment load so the next call retries', async () => {
         const definition = definedExperiment('notebook');
-        const failingLoad = vi.fn(() => Promise.reject(new Error('scene offline')));
-        const retryLoad = vi.fn(async () => sceneModule);
+        const failingLoad = vi.fn(() => Promise.reject(new Error('experiment offline')));
+        const retryLoad = vi.fn(async () => experimentModule);
 
-        await expect(loadScene({ ...definition, loadScene: failingLoad })).rejects.toThrow(
-            'scene offline',
-        );
-        await expect(loadScene({ ...definition, loadScene: retryLoad })).resolves.toBe(sceneModule);
-
-        expect(failingLoad).toHaveBeenCalledTimes(1);
-        expect(retryLoad).toHaveBeenCalledTimes(1);
-    });
-
-    it('returns null for an experiment without a controls loader', async () => {
-        // No catalogue entry omits controls today; override the loader to pin the branch.
-        const definition = definedExperiment('palette');
-
-        await expect(loadControls({ ...definition, loadControls: undefined })).resolves.toBeNull();
-    });
-
-    it('dedupes controls loads by experiment id', async () => {
-        const definition = definedExperiment('oeis-signal');
-        const firstLoad = vi.fn(async () => controlsModule);
-        const secondLoad = vi.fn(async () => controlsModule);
-
-        const first = loadControls({ ...definition, loadControls: firstLoad });
-        const second = loadControls({ ...definition, loadControls: secondLoad });
-
-        expect(second).toBe(first);
-        await expect(first).resolves.toBe(controlsModule);
-        expect(firstLoad).toHaveBeenCalledTimes(1);
-        expect(secondLoad).not.toHaveBeenCalled();
-    });
-
-    it('evicts a failed controls load so the next call retries', async () => {
-        const definition = definedExperiment('pixel-manipulator');
-        const failingLoad = vi.fn(() => Promise.reject(new Error('controls offline')));
-        const retryLoad = vi.fn(async () => controlsModule);
-
-        await expect(loadControls({ ...definition, loadControls: failingLoad })).rejects.toThrow(
-            'controls offline',
-        );
-        await expect(loadControls({ ...definition, loadControls: retryLoad })).resolves.toBe(
-            controlsModule,
+        await expect(
+            loadExperiment({ ...definition, loadExperiment: failingLoad }),
+        ).rejects.toThrow('experiment offline');
+        await expect(loadExperiment({ ...definition, loadExperiment: retryLoad })).resolves.toBe(
+            experimentModule,
         );
 
         expect(failingLoad).toHaveBeenCalledTimes(1);

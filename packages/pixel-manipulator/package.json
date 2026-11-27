@@ -5,8 +5,7 @@
     "type": "module",
     "exports": {
         "./App": "./src/App.tsx",
-        "./Scene": "./src/components/layout/Scene.tsx",
-        "./Controls": "./src/components/layout/Controls.tsx"
+        "./Experiment": "./src/Experiment.tsx"
     },
     "scripts": {
         "dev": "vp dev --host",

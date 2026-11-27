@@ -1,27 +1,14 @@
-import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
-import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
-import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
-import { ThemeToggle } from '@repo/ui/components/ThemeToggle';
+import { ExperimentWrapper } from '@repo/ui/components/ExperimentWrapper';
 
-import { Controls } from './components/Controls';
-import { Scene } from './components/Scene';
+import { Experiment } from './Experiment';
 
 export function App() {
     return (
-        <ShellWrapper>
+        <ExperimentWrapper>
             <ErrorBoundary showStack={import.meta.env.DEV}>
-                <ExperimentShell
-                    stageLabel="smith-tutte"
-                    panel={
-                        <ControlPanel action={<ThemeToggle />}>
-                            <Controls />
-                        </ControlPanel>
-                    }
-                >
-                    <Scene />
-                </ExperimentShell>
+                <Experiment />
             </ErrorBoundary>
-        </ShellWrapper>
+        </ExperimentWrapper>
     );
 }

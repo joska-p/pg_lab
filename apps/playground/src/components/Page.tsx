@@ -1,12 +1,11 @@
-import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
-import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
-import { ShellWrapper } from '@repo/ui/components/ShellWrapper';
+import { ExperimentLayout } from '@repo/ui/components/ExperimentLayout';
+import { ExperimentWrapper } from '@repo/ui/components/ExperimentWrapper';
 import * as stylex from '@stylexjs/stylex';
 import { Suspense, use, useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { loadControls, loadScene } from '../experiments';
+import { loadExperiment } from '../experiments';
 import type { ExperimentDefinition, ShellExperiment } from '../experiments';
 import { StudioHeader } from './StudioHeader';
 
@@ -49,7 +48,7 @@ function Page({
     children,
 }: FrameProps) {
     return (
-        <ShellWrapper>
+        <ExperimentWrapper>
             {/* React 19 : <title> est remonté dans <head>, plus besoin d'effet. */}
             <title>{`${experiment.label} · PG_LAB`}</title>
 
@@ -65,9 +64,9 @@ function Page({
                     <ErrorBoundary key={experiment.id} showStack={import.meta.env.DEV}>
                         <Suspense
                             fallback={
-                                <ExperimentShell stageLabel={experiment.stageLabel}>
+                                <ExperimentLayout stageLabel={experiment.stageLabel}>
                                     <p>Loading…</p>
-                                </ExperimentShell>
+                                </ExperimentLayout>
                             }
                         >
                             {children}
@@ -75,7 +74,7 @@ function Page({
                     </ErrorBoundary>
                 </div>
             </div>
-        </ShellWrapper>
+        </ExperimentWrapper>
     );
 }
 
@@ -91,7 +90,7 @@ interface StaticPageProps {
 export function StaticPage({ experiment, children }: StaticPageProps) {
     return (
         <Page experiment={experiment}>
-            <ExperimentShell stageLabel={experiment.stageLabel}>{children}</ExperimentShell>
+            <ExperimentLayout stageLabel={experiment.stageLabel}>{children}</ExperimentLayout>
         </Page>
     );
 }
@@ -111,32 +110,9 @@ function LoadedExperiment({
     panelCollapsed,
     onCollapsedChange,
 }: LoadedExperimentProps) {
-    // On lance les deux imports AVANT de suspendre, sinon les controls ne
-    // démarrent qu'une fois la scène résolue (waterfall).
-    const scenePromise = loadScene(experiment);
-    const controlsPromise = loadControls(experiment);
+    const { Experiment } = use(loadExperiment(experiment));
 
-    const { Scene, stageProps } = use(scenePromise);
-    const controlsModule = use(controlsPromise);
-    const Controls = controlsModule?.Controls;
-
-    return (
-        <ExperimentShell
-            stageLabel={experiment.stageLabel}
-            stageProps={stageProps}
-            collapsed={panelCollapsed}
-            onCollapsedChange={onCollapsedChange}
-            panel={
-                Controls ? (
-                    <ControlPanel title={experiment.panelTitle}>
-                        <Controls />
-                    </ControlPanel>
-                ) : undefined
-            }
-        >
-            <Scene />
-        </ExperimentShell>
-    );
+    return <Experiment collapsed={panelCollapsed} onCollapsedChange={onCollapsedChange} />;
 }
 
 interface ExperimentPageProps {
@@ -149,7 +125,7 @@ export function ExperimentPage({ experiment }: ExperimentPageProps) {
     return (
         <Page
             experiment={experiment}
-            hasPanel={experiment.loadControls !== undefined}
+            hasPanel={true}
             panelCollapsed={panelCollapsed}
             onTogglePanel={() => setPanelCollapsed((collapsed) => !collapsed)}
         >
