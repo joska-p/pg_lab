@@ -1,16 +1,19 @@
-import { globalPlaybackStore } from '@repo/surface/react/usePlayback';
+import { createPlaybackStore, PlaybackProvider } from '@repo/surface/react/usePlayback';
 import { ExperimentLayout } from '@repo/ui/components/ExperimentLayout';
+import { useState } from 'react';
 
 import { Controls } from './components/Controls';
 import { Scene } from './components/Scene';
 
-// randomart starts paused: animation only runs when the user explicitly presses Play.
-globalPlaybackStore.pause();
-
 export function Experiment() {
+    // Randomart starts paused by experiment choice, scoped to this experiment instance.
+    const [playbackStore] = useState(() => createPlaybackStore(false));
+
     return (
-        <ExperimentLayout stageLabel="randomart" panel={<Controls />}>
-            <Scene />
-        </ExperimentLayout>
+        <PlaybackProvider store={playbackStore}>
+            <ExperimentLayout stageLabel="randomart" panel={<Controls />}>
+                <Scene />
+            </ExperimentLayout>
+        </PlaybackProvider>
     );
 }

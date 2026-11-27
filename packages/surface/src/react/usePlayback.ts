@@ -1,9 +1,9 @@
-import { useSyncExternalStore } from 'react';
+import React, { createContext, useContext, useSyncExternalStore } from 'react';
 
 type Notify = () => void;
 type Unsubscribe = () => void;
 
-/** Global playback state — one channel per page, shared by all GpuCanvas instances. */
+/** Playback state and controls shared by canvases and UI controls within a scope. */
 export interface PlaybackStore {
     isPlaying: boolean;
     togglePlay(): void;
@@ -15,8 +15,8 @@ export interface PlaybackStore {
     getSnapshot(): boolean;
 }
 
-export function createPlaybackStore(): PlaybackStore {
-    let isPlaying = true;
+export function createPlaybackStore(initialIsPlaying = true): PlaybackStore {
+    let isPlaying = initialIsPlaying;
     const listeners = new Set<Notify>();
     const resetListeners = new Set<Notify>();
 
@@ -76,12 +76,29 @@ export function createPlaybackStore(): PlaybackStore {
     };
 }
 
-// Module-level singleton — one clock canal per page, like glaze's useClockStore.
+// Module-level singleton — default playback scope when no PlaybackProvider is present.
 const globalPlaybackStore = createPlaybackStore();
 
+const PlaybackStoreContext = createContext<PlaybackStore | null>(null);
+
+export interface PlaybackProviderProps {
+    store: PlaybackStore;
+    children: React.ReactNode;
+}
+
+/** Scopes playback state for descendant canvases and controls. */
+export function PlaybackProvider({ store, children }: PlaybackProviderProps): React.ReactElement {
+    return React.createElement(PlaybackStoreContext.Provider, { value: store }, children);
+}
+
+/** Returns the nearest scoped playback store, or the global default. */
+export function usePlaybackStore(): PlaybackStore {
+    return useContext(PlaybackStoreContext) ?? globalPlaybackStore;
+}
+
 /**
- * Returns the global playback controls and reactive state. All GpuCanvas instances share the same
- * play/pause state.
+ * Returns playback controls and reactive state for the nearest PlaybackProvider, falling back to
+ * the global default store.
  */
 export function usePlayback(): {
     isPlaying: boolean;
@@ -90,19 +107,21 @@ export function usePlayback(): {
     pause: () => void;
     reset: () => void;
 } {
+    const store = usePlaybackStore();
     const isPlaying = useSyncExternalStore(
-        globalPlaybackStore.subscribe.bind(globalPlaybackStore),
-        globalPlaybackStore.getSnapshot.bind(globalPlaybackStore),
+        store.subscribe.bind(store),
+        store.getSnapshot.bind(store),
+        store.getSnapshot.bind(store),
     );
 
     return {
         isPlaying,
-        togglePlay: globalPlaybackStore.togglePlay.bind(globalPlaybackStore),
-        play: globalPlaybackStore.play.bind(globalPlaybackStore),
-        pause: globalPlaybackStore.pause.bind(globalPlaybackStore),
-        reset: globalPlaybackStore.reset.bind(globalPlaybackStore),
+        togglePlay: store.togglePlay.bind(store),
+        play: store.play.bind(store),
+        pause: store.pause.bind(store),
+        reset: store.reset.bind(store),
     };
 }
 
-/** Direct access to the store (for GpuCanvas to sync the clock). */
+/** Direct access to the default store for compatibility and non-React callers. */
 export { globalPlaybackStore };

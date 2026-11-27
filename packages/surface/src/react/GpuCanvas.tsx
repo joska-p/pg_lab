@@ -8,7 +8,7 @@ import type { RenderFrameArgs } from './renderGpuFrame';
 import { renderGpuFrame } from './renderGpuFrame';
 import { useLatest } from './useLatest';
 import { useNodeResource } from './useNodeResource';
-import { globalPlaybackStore } from './usePlayback';
+import { usePlaybackStore } from './usePlayback';
 
 export type { UniformValue, ShaderError, GpuSurface, Program, RenderFrameArgs };
 
@@ -63,7 +63,7 @@ export interface GpuCanvasProps extends Omit<
  * GpuCanvas — a fullscreen WebGL2 canvas driven by a Shadertoy-compatible fragment shader.
  *
  * Auto-injects: `iResolution`, `iTime`, `iTimeDelta`, `iFrame`, `iMouse`. Syncs play/pause and
- * reset with the global `usePlayback()` store.
+ * reset with the nearest PlaybackProvider, falling back to the global playback store.
  */
 export function GpuCanvas({
     fragmentShader,
@@ -78,12 +78,15 @@ export function GpuCanvas({
     style,
     ...canvasProps
 }: GpuCanvasProps): React.ReactElement {
+    const playbackStore = usePlaybackStore();
+    const playbackStoreRef = useLatest(playbackStore);
+
     // Create a GpuSurface when the canvas node mounts; destroy it when it unmounts.
     // Apply the current playback state immediately so the clock never runs ahead
-    // of the global store — even before the sync effect fires.
+    // of the playback store — even before the sync effect fires.
     const { ref, resource: surface } = useNodeResource((canvas: HTMLCanvasElement) => {
         const s = new GpuSurface(canvas);
-        if (!globalPlaybackStore.isPlaying) {
+        if (!playbackStoreRef.current.isPlaying) {
             s.clock.pause();
         }
         return s;
@@ -156,22 +159,22 @@ export function GpuCanvas({
     }, [surface, fragmentShader, onShaderErrorRef]);
 
     // -------------------------------------------------------------------------
-    // Sync global playback store → surface clock
+    // Sync playback store → surface clock
     useEffect(() => {
         if (!surface) {
             return;
         }
 
         // Apply current state immediately
-        if (globalPlaybackStore.isPlaying) {
+        if (playbackStore.isPlaying) {
             surface.clock.play();
         } else {
             surface.clock.pause();
         }
 
         // Subscribe to play/pause state changes
-        const unsubState = globalPlaybackStore.subscribe(() => {
-            if (globalPlaybackStore.isPlaying) {
+        const unsubState = playbackStore.subscribe(() => {
+            if (playbackStore.isPlaying) {
                 surface.clock.play();
             } else {
                 surface.clock.pause();
@@ -179,7 +182,7 @@ export function GpuCanvas({
         });
 
         // Subscribe to reset signals
-        const unsubReset = globalPlaybackStore.onReset(() => {
+        const unsubReset = playbackStore.onReset(() => {
             surface.clock.reset();
             renderedProgramRef.current = null;
         });
@@ -188,7 +191,7 @@ export function GpuCanvas({
             unsubState();
             unsubReset();
         };
-    }, [surface]);
+    }, [surface, playbackStore]);
 
     // -------------------------------------------------------------------------
     // Animation frame loop

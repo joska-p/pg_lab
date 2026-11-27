@@ -106,7 +106,7 @@ Declarative React component wrapping `GpuSurface`:
 
 - **Render Gate (`shouldRender`)**: Prevents unnecessary continuous redraws for static or demand-rendered scenes (e.g. fractal deep zooms), while guaranteeing one-shot redraws on shader change or context restore.
 - **Custom Render Pass (`renderFrame`)**: Intercepts the default `surface.renderProgram(program, extraUniforms)` call, allowing consumers to route rendering through offscreen `TargetPair` / `RenderTarget` passes before blitting to screen.
-- **Playback Synchronization**: Subscribes to `globalPlaybackStore` play/pause state and reset events (calling `surface.clock.reset()` and scheduling a redraw).
+- **Playback Synchronization**: Subscribes to the nearest `PlaybackProvider` store, falling back to the global `globalPlaybackStore`. Play/pause drives the surface clock, and reset events reset the clock and force a redraw.
 
 ### `CpuSurface` (`@repo/surface/cpu/CpuSurface`)
 
@@ -147,7 +147,16 @@ Declarative React component wrapping `CpuSurface`:
 
 ### `usePlayback` (`@repo/surface/react/usePlayback`)
 
-Shared playback controls across all `GpuCanvas` instances:
+Playback controls for the nearest playback scope, falling back to the global default store:
+
+```tsx
+const playbackStore = useMemo(() => createPlaybackStore(false), []);
+
+<PlaybackProvider store={playbackStore}>
+    <GpuCanvas fragmentShader={shader} />
+    <PlaybackControls />
+</PlaybackProvider>;
+```
 
 ```tsx
 const { isPlaying, togglePlay, play, pause, reset } = usePlayback();
@@ -156,7 +165,10 @@ const { isPlaying, togglePlay, play, pause, reset } = usePlayback();
 <button onClick={reset}>Reset</button>
 ```
 
-- `globalPlaybackStore` provides global synchronization: `play()`, `pause()`, `togglePlay()`, `reset()`, and `onReset(listener)`.
+- `createPlaybackStore(initialIsPlaying = true)` creates an independent playback scope.
+- `PlaybackProvider` scopes playback for descendant canvases and controls.
+- `usePlaybackStore()` returns the nearest scoped store, or the global default.
+- `globalPlaybackStore` remains the default fallback for compatibility and simple global use cases.
 
 ### `Camera2D` & `useCameraControls` (`@repo/surface/core/Camera2D`, `@repo/surface/react/useCameraControls`)
 

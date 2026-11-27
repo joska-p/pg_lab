@@ -184,9 +184,6 @@ export function RandomArtCanvas({
                             get time() {
                                 return surface.clock.time;
                             },
-                            play: () => surface.clock.play(),
-                            pause: () => surface.clock.pause(),
-                            reset: () => surface.clock.reset(),
                         });
                     }}
                     onContextRestored={() => {

@@ -21,11 +21,11 @@ Scene       Controls
 
 ### Stores
 
-| Store          | Responsibility                                                                                                                                                                                  |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `artworkStore` | Single source of truth: `Artwork { grammar, seed, space, expression, shader }`. Mutations go through `editGrammar`, `newSeed`, `setSpace`, `randomizeGrammar`, `applyPreset` (batched via RAF). |
-| `surfaceStore` | Holds the live surface clock time for the PNG export, and syncs the surface clock with `globalPlaybackStore` (play/pause/reset).                                                                |
-| `errorStore`   | Action errors of the latest action (`actionErrors`), replaced by the next failing action and cleared by the next successful one.                                                                |
+| Store          | Responsibility                                                                                                                                                                                              |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `artworkStore` | Single source of truth: `Artwork { grammar, seed, space, expression, shader }`. Mutations go through `editGrammar`, `newSeed`, `setSpace`, `randomizeGrammar`, `applyPreset` (batched via RAF).             |
+| `surfaceStore` | Holds the mounted surface clock for PNG export and the latest shader error. Playback is scoped by `Experiment.tsx` via `PlaybackProvider`/`createPlaybackStore(false)`, not by a global import side effect. |
+| `errorStore`   | Action errors of the latest action (`actionErrors`), replaced by the next failing action and cleared by the next successful one.                                                                            |
 
 ### Components
 
@@ -60,7 +60,7 @@ App
 
 `RandomArtCanvas` wraps `@repo/surface/react/GpuCanvas`:
 
-- **Timed clock** (paused at `time = 0` by default in the app).
+- **Timed clock**: `Experiment.tsx` provides a scoped playback store created with `createPlaybackStore(false)`, so randomart starts paused by experiment choice.
 - **Lazy rendering**: `shouldRender` gate only redraws on time change (animated shaders), resize, or context restore.
 - **Square canvas** via CSS `aspect-ratio: 1/1`.
 - **Time**: `@repo/surface` auto-injects `iTime = surface.clock.time`. The shader's `ra_phase()` hook (from `@repo/randomart-core/glsl`) derives continuous animation time from it.

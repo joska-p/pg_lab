@@ -1,12 +1,26 @@
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vite-plus/test';
 
-import { createPlaybackStore, globalPlaybackStore } from './usePlayback';
+import {
+    createPlaybackStore,
+    globalPlaybackStore,
+    PlaybackProvider,
+    usePlayback,
+    usePlaybackStore,
+} from './usePlayback';
 
 describe('createPlaybackStore', () => {
     it('initializes with isPlaying true and getSnapshot reflecting it', () => {
         const store = createPlaybackStore();
         expect(store.isPlaying).toBe(true);
         expect(store.getSnapshot()).toBe(true);
+    });
+
+    it('supports an explicit initial paused state', () => {
+        const store = createPlaybackStore(false);
+        expect(store.isPlaying).toBe(false);
+        expect(store.getSnapshot()).toBe(false);
     });
 
     it('toggles playback and notifies subscribers', () => {
@@ -108,5 +122,41 @@ describe('globalPlaybackStore', () => {
         expect(resetListener).toHaveBeenCalledTimes(1);
 
         unsubscribe();
+    });
+});
+
+describe('PlaybackProvider/usePlaybackStore', () => {
+    it('falls back to the global store when no provider is present', () => {
+        let store: ReturnType<typeof usePlaybackStore> | undefined;
+
+        function Probe() {
+            store = usePlaybackStore();
+            return null;
+        }
+
+        renderToStaticMarkup(React.createElement(Probe));
+        expect(store).toBe(globalPlaybackStore);
+    });
+
+    it('uses the nearest provided store', () => {
+        const scoped = createPlaybackStore(false);
+        let store: ReturnType<typeof usePlaybackStore> | undefined;
+        let isPlaying: boolean | undefined;
+
+        function Probe() {
+            store = usePlaybackStore();
+            isPlaying = usePlayback().isPlaying;
+            return null;
+        }
+
+        renderToStaticMarkup(
+            React.createElement(PlaybackProvider, {
+                store: scoped,
+                children: React.createElement(Probe),
+            }),
+        );
+
+        expect(store).toBe(scoped);
+        expect(isPlaying).toBe(false);
     });
 });
