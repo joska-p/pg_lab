@@ -1,12 +1,13 @@
 import * as stylex from '@stylexjs/stylex';
 import type { StyleXStyles } from '@stylexjs/stylex';
-import { useEffect, useRef } from 'react';
+import { useRef, useState } from 'react';
 
-import { usePanelChrome } from '../hooks/usePanelChrome';
 import { surfaceStyle } from '../recipes/surface';
 import { layout, radius, space, motion } from '../tokens/const.stylex';
 import { Button } from './Button';
 
+const COLLAPSED_SIZE = 16;
+const COLLAPSE_BELOW = COLLAPSED_SIZE * 1.5;
 const PORTRAIT_QUERY = '(orientation: portrait)';
 
 const surface = surfaceStyle({
@@ -53,6 +54,8 @@ const styles = stylex.create({
         },
     },
     panel: {
+        '--panel-width': layout.panelWidth,
+        '--panel-height': 'auto',
         position: 'relative',
         zIndex: 1,
         display: 'flex',
@@ -61,6 +64,14 @@ const styles = stylex.create({
         minWidth: 0,
         minHeight: 0,
         borderRadius: radius.md,
+        width: {
+            default: 'var(--panel-width)',
+            '@media (orientation: portrait)': 'auto',
+        },
+        height: {
+            default: null,
+            '@media (orientation: portrait)': 'var(--panel-height)',
+        },
         maxWidth: {
             default: '70%',
             '@media (orientation: portrait)': 'none',
@@ -70,16 +81,16 @@ const styles = stylex.create({
             '@media (orientation: portrait)': layout.panelMaxMobileHeight,
         },
     },
-    panelSize: (sizePx: number) => ({
+    panelCollapsed: {
         width: {
-            default: `${sizePx}px`,
+            default: COLLAPSED_SIZE,
             '@media (orientation: portrait)': 'auto',
         },
         height: {
             default: null,
-            '@media (orientation: portrait)': `${sizePx}px`,
+            '@media (orientation: portrait)': COLLAPSED_SIZE,
         },
-    }),
+    },
     panelContent: {
         display: 'flex',
         flex: 1,
@@ -131,7 +142,9 @@ const styles = stylex.create({
 
 interface Drag {
     vertical: boolean;
-    lastPointer: number;
+    pointerStart: number;
+    sizeStart: number;
+    hasMoved: boolean;
 }
 
 export interface StageProps extends Omit<
@@ -147,6 +160,9 @@ interface ExperimentShellProps extends Omit<React.ComponentProps<'div'>, 'style'
     stageProps?: StageProps;
     panel?: React.ReactNode;
     style?: StyleXStyles;
+    collapsed?: boolean;
+    defaultCollapsed?: boolean;
+    onCollapsedChange?: (collapsed: boolean) => void;
 }
 
 export function ExperimentShell({
@@ -155,57 +171,59 @@ export function ExperimentShell({
     stageProps,
     panel,
     style,
+    collapsed: controlledCollapsed,
+    defaultCollapsed = false,
+    onCollapsedChange,
     ...props
 }: ExperimentShellProps) {
-    const { collapsed, sizePx, resize, toggle } = usePanelChrome();
+    const panelRef = useRef<HTMLDivElement>(null);
     const dragRef = useRef<Drag | null>(null);
+    const [uncontrolledCollapsed, setUncontrolledCollapsed] = useState(defaultCollapsed);
     const { style: stageStyle, ...stageSectionProps } = stageProps ?? {};
-    const hasPanel = panel != null;
 
-    useEffect(() => {
-        if (!hasPanel) {
-            return;
+    const isControlled = controlledCollapsed !== undefined;
+    const collapsed = isControlled ? controlledCollapsed : uncontrolledCollapsed;
+
+    const setCollapsedState = (next: boolean) => {
+        if (!isControlled) {
+            setUncontrolledCollapsed(next);
         }
-
-        const handleShortcut = (event: KeyboardEvent) => {
-            if (event.key.toLowerCase() !== 'b' || !(event.metaKey || event.ctrlKey)) {
-                return;
-            }
-
-            event.preventDefault();
-            toggle();
-        };
-
-        document.addEventListener('keydown', handleShortcut);
-
-        return () => {
-            document.removeEventListener('keydown', handleShortcut);
-        };
-    }, [hasPanel, toggle]);
+        onCollapsedChange?.(next);
+    };
 
     const handlePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
-        if (event.button !== 0) {
+        const panelEl = panelRef.current;
+        if (!panelEl || event.button !== 0) {
             return;
         }
 
         const vertical = window.matchMedia(PORTRAIT_QUERY).matches;
+        const rect = panelEl.getBoundingClientRect();
         dragRef.current = {
             vertical,
-            lastPointer: vertical ? event.clientY : event.clientX,
+            pointerStart: vertical ? event.clientY : event.clientX,
+            sizeStart: vertical ? rect.height : rect.width,
+            hasMoved: false,
         };
         event.currentTarget.setPointerCapture(event.pointerId);
     };
 
     const handlePointerMove = (event: React.PointerEvent<HTMLButtonElement>) => {
         const drag = dragRef.current;
-        if (!drag) {
+        const panelEl = panelRef.current;
+        if (!drag || !panelEl) {
             return;
         }
 
         const pointer = drag.vertical ? event.clientY : event.clientX;
-        const deltaPx = drag.lastPointer - pointer;
-        drag.lastPointer = pointer;
-        resize(deltaPx);
+        if (Math.abs(pointer - drag.pointerStart) > 4) {
+            drag.hasMoved = true;
+        }
+
+        const size = Math.max(0, drag.sizeStart + drag.pointerStart - pointer);
+
+        panelEl.style.setProperty(drag.vertical ? '--panel-height' : '--panel-width', `${size}px`);
+        setCollapsedState(size <= COLLAPSE_BELOW);
     };
 
     const handlePointerEnd = (event: React.PointerEvent<HTMLButtonElement>) => {
@@ -218,7 +236,7 @@ export function ExperimentShell({
     const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
-            toggle();
+            setCollapsedState(!collapsed);
         }
     };
 
@@ -232,8 +250,11 @@ export function ExperimentShell({
                 {children}
             </section>
 
-            {hasPanel && (
-                <div {...stylex.props(surface, styles.panel, styles.panelSize(sizePx))}>
+            {panel != null && (
+                <div
+                    ref={panelRef}
+                    {...stylex.props(surface, styles.panel, collapsed && styles.panelCollapsed)}
+                >
                     <Button
                         color="aurora"
                         background="solid"

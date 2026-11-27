@@ -1,4 +1,5 @@
 import { Button } from '@repo/ui/components/Button';
+import { ExperimentShell } from '@repo/ui/components/ExperimentShell';
 import { space, typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
 import * as stylex from '@stylexjs/stylex';
@@ -36,19 +37,23 @@ export function NotFound() {
     const navigate = useNavigate();
 
     return (
-        <div {...stylex.props(styles.container)}>
-            <p {...stylex.props(styles.code)}>404</p>
-            <p {...stylex.props(styles.message)}>Cette page n'existe pas dans la cours de récré.</p>
-            <Button
-                color="aqua"
-                background="solid"
-                border="subtle"
-                radius="md"
-                elevation="raised"
-                onClick={() => void navigate('/')}
-            >
-                Retour à la maison
-            </Button>
-        </div>
+        <ExperimentShell stageLabel="404">
+            <div {...stylex.props(styles.container)}>
+                <p {...stylex.props(styles.code)}>404</p>
+                <p {...stylex.props(styles.message)}>
+                    Cette page n'existe pas dans la cours de récré.
+                </p>
+                <Button
+                    color="aqua"
+                    background="solid"
+                    border="subtle"
+                    radius="md"
+                    elevation="raised"
+                    onClick={() => void navigate('/')}
+                >
+                    Retour à la maison
+                </Button>
+            </div>
+        </ExperimentShell>
     );
 }

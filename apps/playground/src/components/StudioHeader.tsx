@@ -1,7 +1,6 @@
 import { Button } from '@repo/ui/components/Button';
 import { Select } from '@repo/ui/components/Select';
 import { ThemeToggle } from '@repo/ui/components/ThemeToggle';
-import { usePanelChrome } from '@repo/ui/hooks/usePanelChrome';
 import { surfaceStyle } from '@repo/ui/recipes/surface';
 import { borderWidth, space, typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
@@ -85,10 +84,16 @@ const styles = stylex.create({
 interface StudioHeaderProps {
     readonly currentExperiment: ShellExperiment;
     readonly hasPanel: boolean;
+    readonly panelCollapsed: boolean;
+    readonly onTogglePanel: () => void;
 }
 
-export function StudioHeader({ currentExperiment, hasPanel }: StudioHeaderProps) {
-    const { collapsed, toggle } = usePanelChrome();
+export function StudioHeader({
+    currentExperiment,
+    hasPanel,
+    panelCollapsed,
+    onTogglePanel,
+}: StudioHeaderProps) {
     const navigate = useNavigate();
 
     const navigateToExperiment = (id: string) => {
@@ -151,17 +156,17 @@ export function StudioHeader({ currentExperiment, hasPanel }: StudioHeaderProps)
                         radius="md"
                         elevation="flat"
                         aria-label={
-                            collapsed
-                                ? 'Afficher les contrôles (Cmd/Ctrl+B)'
-                                : 'Masquer les contrôles (Cmd/Ctrl+B)'
+                            panelCollapsed
+                                ? 'Afficher les contrôles (Cmd+B)'
+                                : 'Masquer les contrôles (Cmd+B)'
                         }
-                        aria-expanded={!collapsed}
-                        onClick={toggle}
+                        aria-expanded={!panelCollapsed}
+                        onClick={onTogglePanel}
                         style={styles.toggleButton}
                         title={
-                            collapsed
-                                ? 'Afficher les contrôles (Cmd/Ctrl+B)'
-                                : 'Masquer les contrôles (Cmd/Ctrl+B)'
+                            panelCollapsed
+                                ? 'Afficher les contrôles (Cmd+B)'
+                                : 'Masquer les contrôles (Cmd+B)'
                         }
                     >
                         <svg
@@ -179,7 +184,7 @@ export function StudioHeader({ currentExperiment, hasPanel }: StudioHeaderProps)
                             <path d="M10 2v12" />
                         </svg>
                         <span {...stylex.props(styles.toggleText)}>
-                            {collapsed ? 'Contrôles' : 'Plein écran'}
+                            {panelCollapsed ? 'Contrôles' : 'Plein écran'}
                         </span>
                     </Button>
                 ) : null}
