@@ -5,7 +5,7 @@ import { Suspense } from 'react';
 
 import { experimentOptions } from '../experiments';
 import type { ExperimentId } from '../experiments';
-import { setExperimentId, useExperiment } from '../stores/appStore';
+import { useSetExperimentId, useExperiment } from '../stores/useExperimentContext';
 
 export function Controls() {
     const { Controls: ActiveControls, id } = useExperiment();
@@ -15,7 +15,7 @@ export function Controls() {
             action={
                 <Select<ExperimentId>
                     value={id}
-                    onValueChange={setExperimentId}
+                    onValueChange={useSetExperimentId}
                     options={experimentOptions}
                 />
             }
