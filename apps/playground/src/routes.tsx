@@ -4,31 +4,29 @@ import { useParams } from 'react-router';
 import { NotFound } from './components/NotFound';
 import { ExperimentPage, StaticPage } from './components/Page';
 import { getExperiment } from './experiments';
-import type { ShellExperiment } from './experiments';
+import type { PageMeta } from './experiments';
 
 const HomeScene = lazy(() => import('./components/home/Scene').then((m) => ({ default: m.Scene })));
 
-const HOME_EXPERIMENT: ShellExperiment = {
+const HOME_PAGE: PageMeta = {
     id: 'home',
     label: 'Maison',
     stageLabel: 'home',
     tint: 'aqua',
-    summary: '',
     mark: 'home',
 };
 
-const NOT_FOUND_EXPERIMENT: ShellExperiment = {
+const NOT_FOUND_PAGE: PageMeta = {
     id: '404',
     label: 'Introuvable',
     stageLabel: '404',
     tint: 'aqua',
-    summary: '',
     mark: 'home',
 };
 
 export function HomeRoute() {
     return (
-        <StaticPage experiment={HOME_EXPERIMENT}>
+        <StaticPage page={HOME_PAGE}>
             <HomeScene />
         </StaticPage>
     );
@@ -36,7 +34,7 @@ export function HomeRoute() {
 
 export function NotFoundRoute() {
     return (
-        <StaticPage experiment={NOT_FOUND_EXPERIMENT}>
+        <StaticPage page={NOT_FOUND_PAGE}>
             <NotFound />
         </StaticPage>
     );

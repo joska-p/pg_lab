@@ -9,7 +9,7 @@ import type { KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router';
 
 import { experimentPath } from '../../experiments';
-import type { Experiment } from '../../experiments';
+import type { ExperimentEntry } from '../../experiments';
 import { ExperimentVisual } from './ExperimentVisual';
 
 const styles = stylex.create({
@@ -66,7 +66,7 @@ const styles = stylex.create({
 });
 
 interface ExperimentCardProps {
-    readonly item: Experiment;
+    readonly item: ExperimentEntry;
 }
 
 export function ExperimentCard({ item }: ExperimentCardProps) {

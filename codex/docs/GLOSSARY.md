@@ -7,8 +7,12 @@ PG_LAB is a personal creative coding workbench. This glossary defines the canoni
 ### Workbench
 
 **Workbench**:
-The personal creative coding environment: the pages that host the Experiments together with the collection of Experiments available in it. The Workbench is the whole system; a page hosts one open view.
+The personal creative coding environment: the pages that host the Experiments together with the collection of Experiments available in it. The Workbench is the whole system; a Page hosts one open view.
 _Avoid_: framework, project, app
+
+**Page**:
+An open view hosted in the Workbench (such as Home, 404, or a mounted Experiment) with its own presentation metadata.
+_Avoid_: shell, frame, route
 
 **Scratchpad**:
 An area of the Workbench for unpublished trials and dormant ideas. It is not part of the registered Experiment set opened in the published Workbench.

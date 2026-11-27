@@ -8,7 +8,7 @@ import * as stylex from '@stylexjs/stylex';
 import { useNavigate } from 'react-router';
 
 import { experimentOptions, experimentPath, getExperiment } from '../experiments';
-import type { ShellExperiment } from '../experiments';
+import type { PageMeta } from '../experiments';
 import { RandomJumpButton } from './RandomJumpButton';
 
 const styles = stylex.create({
@@ -82,14 +82,14 @@ const styles = stylex.create({
 });
 
 interface StudioHeaderProps {
-    readonly currentExperiment: ShellExperiment;
+    readonly currentPage: PageMeta;
     readonly hasPanel: boolean;
     readonly panelCollapsed: boolean;
     readonly onTogglePanel: () => void;
 }
 
 export function StudioHeader({
-    currentExperiment,
+    currentPage,
     hasPanel,
     panelCollapsed,
     onTogglePanel,
@@ -128,7 +128,7 @@ export function StudioHeader({
                     <Select
                         aria-label="Sélectionner une expérience"
                         font="sans"
-                        value={currentExperiment.id}
+                        value={currentPage.id}
                         onValueChange={navigateToExperiment}
                         options={[{ value: 'home', label: 'Maison' }, ...experimentOptions]}
                     />

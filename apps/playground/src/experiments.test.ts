@@ -53,12 +53,12 @@ describe('playground experiment catalogue', () => {
     });
 
     it('dedupes experiment loads by experiment id', async () => {
-        const definition = definedExperiment('sequencer');
+        const entry = definedExperiment('sequencer');
         const firstLoad = vi.fn(async () => experimentModule);
         const secondLoad = vi.fn(async () => experimentModule);
 
-        const first = loadExperiment({ ...definition, loadExperiment: firstLoad });
-        const second = loadExperiment({ ...definition, loadExperiment: secondLoad });
+        const first = loadExperiment({ ...entry, load: firstLoad });
+        const second = loadExperiment({ ...entry, load: secondLoad });
 
         expect(second).toBe(first);
         await expect(first).resolves.toBe(experimentModule);
@@ -67,16 +67,14 @@ describe('playground experiment catalogue', () => {
     });
 
     it('evicts a failed experiment load so the next call retries', async () => {
-        const definition = definedExperiment('notebook');
+        const entry = definedExperiment('notebook');
         const failingLoad = vi.fn(() => Promise.reject(new Error('experiment offline')));
         const retryLoad = vi.fn(async () => experimentModule);
 
-        await expect(
-            loadExperiment({ ...definition, loadExperiment: failingLoad }),
-        ).rejects.toThrow('experiment offline');
-        await expect(loadExperiment({ ...definition, loadExperiment: retryLoad })).resolves.toBe(
-            experimentModule,
+        await expect(loadExperiment({ ...entry, load: failingLoad })).rejects.toThrow(
+            'experiment offline',
         );
+        await expect(loadExperiment({ ...entry, load: retryLoad })).resolves.toBe(experimentModule);
 
         expect(failingLoad).toHaveBeenCalledTimes(1);
         expect(retryLoad).toHaveBeenCalledTimes(1);

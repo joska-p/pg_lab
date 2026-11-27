@@ -6,7 +6,7 @@ import { Suspense, use, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { loadExperiment } from '../experiments';
-import type { ExperimentDefinition, ShellExperiment } from '../experiments';
+import type { ExperimentEntry, PageMeta } from '../experiments';
 import { StudioHeader } from './StudioHeader';
 
 const styles = stylex.create({
@@ -32,8 +32,8 @@ const noop = () => undefined;
 /* Frame : le chrome commun (titre, header, zone de travail, erreurs, loading) */
 /* -------------------------------------------------------------------------- */
 
-interface FrameProps {
-    readonly experiment: ShellExperiment;
+interface PageProps {
+    readonly page: PageMeta;
     readonly hasPanel?: boolean;
     readonly panelCollapsed?: boolean;
     readonly onTogglePanel?: () => void;
@@ -41,30 +41,30 @@ interface FrameProps {
 }
 
 function Page({
-    experiment,
+    page,
     hasPanel = false,
     panelCollapsed = false,
     onTogglePanel = noop,
     children,
-}: FrameProps) {
+}: PageProps) {
     return (
         <ExperimentWrapper>
             {/* React 19 : <title> est remonté dans <head>, plus besoin d'effet. */}
-            <title>{`${experiment.label} · PG_LAB`}</title>
+            <title>{`${page.label} · PG_LAB`}</title>
 
             <div {...stylex.props(styles.page)}>
                 <StudioHeader
-                    currentExperiment={experiment}
+                    currentPage={page}
                     hasPanel={hasPanel}
                     panelCollapsed={panelCollapsed}
                     onTogglePanel={onTogglePanel}
                 />
                 <div {...stylex.props(styles.workspace)}>
                     {/* key : l'erreur d'une expérience ne doit pas survivre à la navigation. */}
-                    <ErrorBoundary key={experiment.id} showStack={import.meta.env.DEV}>
+                    <ErrorBoundary key={page.id} showStack={import.meta.env.DEV}>
                         <Suspense
                             fallback={
-                                <ExperimentLayout stageLabel={experiment.stageLabel}>
+                                <ExperimentLayout stageLabel={page.stageLabel}>
                                     <p>Loading…</p>
                                 </ExperimentLayout>
                             }
@@ -83,14 +83,14 @@ function Page({
 /* -------------------------------------------------------------------------- */
 
 interface StaticPageProps {
-    readonly experiment: ShellExperiment;
+    readonly page: PageMeta;
     readonly children: ReactNode;
 }
 
-export function StaticPage({ experiment, children }: StaticPageProps) {
+export function StaticPage({ page, children }: StaticPageProps) {
     return (
-        <Page experiment={experiment}>
-            <ExperimentLayout stageLabel={experiment.stageLabel}>{children}</ExperimentLayout>
+        <Page page={page}>
+            <ExperimentLayout stageLabel={page.stageLabel}>{children}</ExperimentLayout>
         </Page>
     );
 }
@@ -100,7 +100,7 @@ export function StaticPage({ experiment, children }: StaticPageProps) {
 /* -------------------------------------------------------------------------- */
 
 interface LoadedExperimentProps {
-    readonly experiment: ExperimentDefinition;
+    readonly experiment: ExperimentEntry;
     readonly panelCollapsed: boolean;
     readonly onCollapsedChange: (collapsed: boolean) => void;
 }
@@ -116,7 +116,7 @@ function LoadedExperiment({
 }
 
 interface ExperimentPageProps {
-    readonly experiment: ExperimentDefinition;
+    readonly experiment: ExperimentEntry;
 }
 
 export function ExperimentPage({ experiment }: ExperimentPageProps) {
@@ -124,7 +124,7 @@ export function ExperimentPage({ experiment }: ExperimentPageProps) {
 
     return (
         <Page
-            experiment={experiment}
+            page={experiment}
             hasPanel={true}
             panelCollapsed={panelCollapsed}
             onTogglePanel={() => setPanelCollapsed((collapsed) => !collapsed)}

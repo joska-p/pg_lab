@@ -1,27 +1,29 @@
 import type { ColorNames } from '@repo/ui/tokens/tint.stylex';
 import type { ComponentType } from 'react';
 
-export interface ExperimentComponentProps {
+/** Minimal metadata needed by the Workbench to render a Page's chrome. */
+export interface PageMeta {
+    readonly id: string;
+    readonly label: string;
+    readonly stageLabel: string;
+    readonly tint: ColorNames;
+    readonly mark: string;
+}
+
+export interface ExperimentProps {
     collapsed?: boolean;
     onCollapsedChange?: (collapsed: boolean) => void;
 }
 
 export interface ExperimentModule {
-    Experiment: ComponentType<ExperimentComponentProps>;
+    Experiment: ComponentType<ExperimentProps>;
 }
 
-export interface Experiment<TId extends string = string> {
+interface ExperimentEntryShape<TId extends string = string> extends PageMeta {
     readonly id: TId;
-    readonly label: string;
-    readonly stageLabel: string;
-    readonly tint: ColorNames;
     readonly summary: string;
-    readonly mark: string;
-    readonly loadExperiment: () => Promise<ExperimentModule>;
+    readonly load: () => Promise<ExperimentModule>;
 }
-
-/** Metadata the Shell needs to render chrome, without requiring an Experiment loader. */
-export type ShellExperiment = Omit<Experiment, 'loadExperiment'>;
 
 export const EXPERIMENTS = [
     {
@@ -32,7 +34,7 @@ export const EXPERIMENTS = [
         summary:
             'Un workbench dans le workbench : le plus versatile du registre. Le plus experimental aussi',
         mark: 'art-canvas',
-        loadExperiment: () => import('@repo/art-canvas/Experiment'),
+        load: () => import('@repo/art-canvas/Experiment'),
     },
     {
         id: 'mosaic-maker',
@@ -41,7 +43,7 @@ export const EXPERIMENTS = [
         tint: 'solder',
         summary: 'Un générateur de mosaïques plus ou moins aléatoire, à coups de « shuffle ».',
         mark: 'mosaic-maker',
-        loadExperiment: () => import('@repo/mosaic-maker/Experiment'),
+        load: () => import('@repo/mosaic-maker/Experiment'),
     },
     {
         id: 'mol-demo',
@@ -51,7 +53,7 @@ export const EXPERIMENTS = [
         summary:
             'Une molécule en 3D et son motif de diffraction. Vol sans honte du mol-demo.js de davidromano.dev.',
         mark: 'mol-demo',
-        loadExperiment: () => import('@repo/mol-demo/Experiment'),
+        load: () => import('@repo/mol-demo/Experiment'),
     },
     {
         id: 'automa',
@@ -61,7 +63,7 @@ export const EXPERIMENTS = [
         summary:
             "Un automate cellulaire discret bricolé, pour faire tourner 'The Game of Life' de John Conway.",
         mark: 'automa',
-        loadExperiment: () => import('@repo/automa/Experiment'),
+        load: () => import('@repo/automa/Experiment'),
     },
     {
         id: 'fracture',
@@ -71,7 +73,7 @@ export const EXPERIMENTS = [
         summary:
             "Un atelier de fractales et une collection de trucs pour repousser le zoom jusqu'à la limite.",
         mark: 'fracture',
-        loadExperiment: () => import('@repo/fracture/Experiment'),
+        load: () => import('@repo/fracture/Experiment'),
     },
     {
         id: 'radu-machine-learning',
@@ -80,7 +82,7 @@ export const EXPERIMENTS = [
         tint: 'amber',
         summary: "Début d'implémentation du cours de machine learning de Radu.",
         mark: 'radu-machine-learning',
-        loadExperiment: () => import('@repo/radu-machine-learning/Experiment'),
+        load: () => import('@repo/radu-machine-learning/Experiment'),
     },
     {
         id: 'randomart',
@@ -90,7 +92,7 @@ export const EXPERIMENTS = [
         summary:
             "Du Random Art d'après Tsoding et le papier de Perrig & Song : une graine donne une formule aléatoire, la formule donne une image.",
         mark: 'randomart',
-        loadExperiment: () => import('@repo/randomart-ui/Experiment'),
+        load: () => import('@repo/randomart-ui/Experiment'),
     },
     {
         id: 'oeis-signal',
@@ -99,7 +101,7 @@ export const EXPERIMENTS = [
         tint: 'aqua',
         summary: "Des suites de nombres de l'OEIS traitées comme des signaux.",
         mark: 'oeis-signal',
-        loadExperiment: () => import('@repo/oeis-signal/Experiment'),
+        load: () => import('@repo/oeis-signal/Experiment'),
     },
     {
         id: 'palette',
@@ -109,7 +111,7 @@ export const EXPERIMENTS = [
         summary:
             'Un générateur de palettes, avec un sélecteur qui travaille dans plusieurs espaces de couleur.',
         mark: 'palette',
-        loadExperiment: () => import('@repo/palette/Experiment'),
+        load: () => import('@repo/palette/Experiment'),
     },
     {
         id: 'pixel',
@@ -118,7 +120,7 @@ export const EXPERIMENTS = [
         tint: 'purple',
         summary: "La doc interactive d'un moteur de filtres d'image.",
         mark: 'pixel',
-        loadExperiment: () => import('@repo/pixel/Experiment'),
+        load: () => import('@repo/pixel/Experiment'),
     },
     {
         id: 'pixel-manipulator',
@@ -127,7 +129,7 @@ export const EXPERIMENTS = [
         tint: 'amber',
         summary: "Un manipulateur d'images par étapes, avec des presets et un comparateur.",
         mark: 'pixel-manipulator',
-        loadExperiment: () => import('@repo/pixel-manipulator/Experiment'),
+        load: () => import('@repo/pixel-manipulator/Experiment'),
     },
     {
         id: 'notebook',
@@ -136,7 +138,7 @@ export const EXPERIMENTS = [
         tint: 'aqua',
         summary: 'Des notes en vrac et ce qui ne va pas ailleurs.',
         mark: 'notebook',
-        loadExperiment: () => import('@repo/notebook/Experiment'),
+        load: () => import('@repo/notebook/Experiment'),
     },
     {
         id: 'sequencer',
@@ -146,7 +148,7 @@ export const EXPERIMENTS = [
         summary:
             'Première tentative pour visualiser des algorithmes : je sépare la suite de la visualisation, sans trop savoir quoi en faire, encore un prétexte pour apprendre à coder.',
         mark: 'sequencer',
-        loadExperiment: () => import('@repo/sequencer/Experiment'),
+        load: () => import('@repo/sequencer/Experiment'),
     },
     {
         id: 'three-stage',
@@ -155,28 +157,25 @@ export const EXPERIMENTS = [
         tint: 'aurora',
         summary: 'Atelier Threejs et r3f.',
         mark: 'three-stage',
-        loadExperiment: () => import('@repo/three-stage/Experiment'),
+        load: () => import('@repo/three-stage/Experiment'),
     },
-] as const satisfies readonly Experiment[];
+] as const satisfies readonly ExperimentEntryShape[];
 
-// Derive the ids from the registry, then use the interface so optional fields stay visible.
-type ExperimentId = (typeof EXPERIMENTS)[number]['id'];
-export type ExperimentDefinition = Experiment<ExperimentId>;
+// Derive the ids from the registry, then specialize the entry type with the union of known ids.
+export type ExperimentId = (typeof EXPERIMENTS)[number]['id'];
+export type ExperimentEntry = ExperimentEntryShape<ExperimentId>;
 
 export const experimentCount = EXPERIMENTS.length;
 
-export function experimentPath(experiment: Experiment): string {
-    return `/${experiment.id}`;
+export function experimentPath(entry: ExperimentEntry): string {
+    return `/${entry.id}`;
 }
 
-const experimentsById = new Map<string, ExperimentDefinition>(
-    EXPERIMENTS.map((experiment): [ExperimentId, ExperimentDefinition] => [
-        experiment.id,
-        experiment,
-    ]),
+const experimentsById = new Map<string, ExperimentEntry>(
+    EXPERIMENTS.map((entry): [ExperimentId, ExperimentEntry] => [entry.id, entry]),
 );
 
-export function getExperiment(id: string | undefined): ExperimentDefinition | undefined {
+export function getExperiment(id: string | undefined): ExperimentEntry | undefined {
     return id === undefined ? undefined : experimentsById.get(id);
 }
 
@@ -214,6 +213,6 @@ function cached<Key, Value>(
 
 const experimentCache = new Map<ExperimentId, Promise<ExperimentModule>>();
 
-export function loadExperiment(experiment: ExperimentDefinition): Promise<ExperimentModule> {
-    return cached(experimentCache, experiment.id, experiment.loadExperiment);
+export function loadExperiment(entry: ExperimentEntry): Promise<ExperimentModule> {
+    return cached(experimentCache, entry.id, entry.load);
 }
