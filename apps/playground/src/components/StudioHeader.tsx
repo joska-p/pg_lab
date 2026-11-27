@@ -2,7 +2,7 @@ import { Button } from '@repo/ui/components/Button';
 import { Select } from '@repo/ui/components/Select';
 import { ThemeToggle } from '@repo/ui/components/ThemeToggle';
 import { surfaceStyle } from '@repo/ui/recipes/surface';
-import { borderWidth, space, typography } from '@repo/ui/tokens/const.stylex';
+import { space, typography } from '@repo/ui/tokens/const.stylex';
 import { surface } from '@repo/ui/tokens/surface.stylex';
 import * as stylex from '@stylexjs/stylex';
 import { useNavigate } from 'react-router';
@@ -18,9 +18,6 @@ const styles = stylex.create({
         justifyContent: 'space-between',
         paddingInline: space['2'],
         paddingBlock: space['1'],
-        borderBottomWidth: borderWidth.hairline,
-        borderBottomStyle: 'solid',
-        borderBottomColor: `color-mix(in oklab, ${surface.foreground} 12%, transparent)`,
         gap: space['2'],
         flexShrink: 0,
         zIndex: 10,
@@ -92,7 +89,7 @@ export function StudioHeader({ currentPage }: StudioHeaderProps) {
                 surfaceStyle({
                     background: 'soft',
                     border: 'none',
-                    elevation: 'flat',
+                    elevation: 'raised',
                 }),
                 styles.header,
             )}

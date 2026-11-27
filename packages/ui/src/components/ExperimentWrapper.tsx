@@ -9,6 +9,8 @@ const styles = stylex.create({
     base: {
         width: '100%',
         height: '100dvh',
+        display: 'flex',
+        flexDirection: 'column',
         boxSizing: 'border-box',
         backgroundColor: colors.neutral,
         color: onColors.neutral,
