@@ -1,106 +1,36 @@
 import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { ExperimentLayout } from '@repo/ui/components/ExperimentLayout';
 import { ExperimentWrapper } from '@repo/ui/components/ExperimentWrapper';
-import * as stylex from '@stylexjs/stylex';
-import { Suspense, use } from 'react';
+import { Suspense } from 'react';
 import type { ReactNode } from 'react';
 
-import { loadExperiment } from '../experiments';
-import type { ExperimentEntry, PageMeta } from '../experiments';
+import type { PageMeta } from '../experiments';
 import { StudioHeader } from './StudioHeader';
-
-const styles = stylex.create({
-    page: {
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden',
-    },
-    workspace: {
-        flex: 1,
-        minHeight: 0,
-        minWidth: 0,
-        position: 'relative',
-        display: 'flex',
-    },
-});
-
-/* -------------------------------------------------------------------------- */
-/* Frame : le chrome commun (titre, header, zone de travail, erreurs, loading) */
-/* -------------------------------------------------------------------------- */
 
 interface PageProps {
     readonly page: PageMeta;
     readonly children: ReactNode;
 }
 
-function Page({ page, children }: PageProps) {
+export function Page({ page, children }: PageProps) {
     return (
         <ExperimentWrapper>
             {/* React 19 : <title> est remonté dans <head>, plus besoin d'effet. */}
             <title>{`${page.label} · PG_LAB`}</title>
 
-            <div {...stylex.props(styles.page)}>
-                <StudioHeader currentPage={page} />
-                <div {...stylex.props(styles.workspace)}>
-                    {/* key : l'erreur d'une expérience ne doit pas survivre à la navigation. */}
-                    <ErrorBoundary key={page.id} showStack={import.meta.env.DEV}>
-                        <Suspense
-                            fallback={
-                                <ExperimentLayout stageLabel={page.stageLabel}>
-                                    <p>Loading…</p>
-                                </ExperimentLayout>
-                            }
-                        >
-                            {children}
-                        </Suspense>
-                    </ErrorBoundary>
-                </div>
-            </div>
+            <StudioHeader currentPage={page} />
+
+            <ErrorBoundary key={page.id} showStack={import.meta.env.DEV}>
+                <Suspense
+                    fallback={
+                        <ExperimentLayout stageLabel={page.stageLabel}>
+                            <p>Loading…</p>
+                        </ExperimentLayout>
+                    }
+                >
+                    {children}
+                </Suspense>
+            </ErrorBoundary>
         </ExperimentWrapper>
-    );
-}
-
-/* -------------------------------------------------------------------------- */
-/* StaticPage : home, 404… du contenu simple, sans panneau de contrôles        */
-/* -------------------------------------------------------------------------- */
-
-interface StaticPageProps {
-    readonly page: PageMeta;
-    readonly children: ReactNode;
-}
-
-export function StaticPage({ page, children }: StaticPageProps) {
-    return (
-        <Page page={page}>
-            <ExperimentLayout stageLabel={page.stageLabel}>{children}</ExperimentLayout>
-        </Page>
-    );
-}
-
-/* -------------------------------------------------------------------------- */
-/* ExperimentPage : une expérience du registre (Scene + Controls en lazy)      */
-/* -------------------------------------------------------------------------- */
-
-interface LoadedExperimentProps {
-    readonly experiment: ExperimentEntry;
-}
-
-function LoadedExperiment({ experiment }: LoadedExperimentProps) {
-    const { Experiment } = use(loadExperiment(experiment));
-
-    return <Experiment />;
-}
-
-interface ExperimentPageProps {
-    readonly experiment: ExperimentEntry;
-}
-
-export function ExperimentPage({ experiment }: ExperimentPageProps) {
-    return (
-        <Page page={experiment}>
-            <LoadedExperiment experiment={experiment} />
-        </Page>
     );
 }

@@ -1,10 +1,11 @@
-import { lazy } from 'react';
+import { ExperimentLayout } from '@repo/ui/components/ExperimentLayout';
+import { lazy, use } from 'react';
 import { useParams } from 'react-router';
 
 import { NotFound } from './components/NotFound';
-import { ExperimentPage, StaticPage } from './components/Page';
-import { getExperiment } from './experiments';
-import type { PageMeta } from './experiments';
+import { Page } from './components/Page';
+import { getExperiment, loadExperiment } from './experiments';
+import type { ExperimentEntry, PageMeta } from './experiments';
 
 const HomeScene = lazy(() => import('./components/home/Scene').then((m) => ({ default: m.Scene })));
 
@@ -26,18 +27,28 @@ const NOT_FOUND_PAGE: PageMeta = {
 
 export function HomeRoute() {
     return (
-        <StaticPage page={HOME_PAGE}>
-            <HomeScene />
-        </StaticPage>
+        <Page page={HOME_PAGE}>
+            <ExperimentLayout stageLabel={HOME_PAGE.stageLabel}>
+                <HomeScene />
+            </ExperimentLayout>
+        </Page>
     );
 }
 
 export function NotFoundRoute() {
     return (
-        <StaticPage page={NOT_FOUND_PAGE}>
-            <NotFound />
-        </StaticPage>
+        <Page page={NOT_FOUND_PAGE}>
+            <ExperimentLayout stageLabel={NOT_FOUND_PAGE.stageLabel}>
+                <NotFound />
+            </ExperimentLayout>
+        </Page>
     );
+}
+
+function LoadedExperiment({ experiment }: { readonly experiment: ExperimentEntry }) {
+    const { Experiment } = use(loadExperiment(experiment));
+
+    return <Experiment />;
 }
 
 export function ExperimentRoute() {
@@ -45,7 +56,9 @@ export function ExperimentRoute() {
     const currentExperiment = getExperiment(experiment);
 
     return currentExperiment ? (
-        <ExperimentPage experiment={currentExperiment} />
+        <Page page={currentExperiment}>
+            <LoadedExperiment experiment={currentExperiment} />
+        </Page>
     ) : (
         <NotFoundRoute />
     );
