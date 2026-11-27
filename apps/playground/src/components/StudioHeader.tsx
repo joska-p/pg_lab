@@ -88,8 +88,9 @@ export function StudioHeader({ currentPage }: StudioHeaderProps) {
             {...stylex.props(
                 surfaceStyle({
                     background: 'soft',
-                    border: 'none',
+                    border: 'subtle',
                     elevation: 'raised',
+                    radius: 'none',
                 }),
                 styles.header,
             )}
