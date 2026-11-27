@@ -6,11 +6,6 @@ import { Controls } from './components/Controls';
 import { Scene } from './components/Scene';
 import { applyDroppedText } from './stores/moleculeStore';
 
-export interface ExperimentProps {
-    collapsed?: boolean;
-    onCollapsedChange?: (collapsed: boolean) => void;
-}
-
 const stageProps = {
     title: 'Drop a .mol/.sdf file here to load it',
     onDragOver: (e) => {
@@ -39,13 +34,11 @@ const stageProps = {
     },
 } satisfies StageProps;
 
-export function Experiment({ collapsed, onCollapsedChange }: ExperimentProps) {
+export function Experiment() {
     return (
         <ExperimentLayout
             stageLabel="mol-demo"
             stageProps={stageProps}
-            collapsed={collapsed}
-            onCollapsedChange={onCollapsedChange}
             panel={
                 <ControlPanel title="Mol Demo">
                     <Controls />

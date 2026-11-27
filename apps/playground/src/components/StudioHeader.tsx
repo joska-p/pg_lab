@@ -65,35 +65,13 @@ const styles = stylex.create({
             display: 'flex',
         },
     },
-    toggleButton: {
-        paddingBlock: space['1'],
-        paddingInline: space['3'],
-        gap: space['2'],
-    },
-    toggleText: {
-        fontFamily: typography.fontFamilySans,
-        fontSize: typography.fontSizeXs,
-        fontWeight: typography.fontWeightMedium,
-        display: {
-            default: 'inline',
-            '@media (max-width: 640px)': 'none',
-        },
-    },
 });
 
 interface StudioHeaderProps {
     readonly currentPage: PageMeta;
-    readonly hasPanel: boolean;
-    readonly panelCollapsed: boolean;
-    readonly onTogglePanel: () => void;
 }
 
-export function StudioHeader({
-    currentPage,
-    hasPanel,
-    panelCollapsed,
-    onTogglePanel,
-}: StudioHeaderProps) {
+export function StudioHeader({ currentPage }: StudioHeaderProps) {
     const navigate = useNavigate();
 
     const navigateToExperiment = (id: string) => {
@@ -148,46 +126,6 @@ export function StudioHeader({
                 >
                     maison
                 </Button>
-
-                {hasPanel ? (
-                    <Button
-                        background="soft"
-                        border="subtle"
-                        radius="md"
-                        elevation="flat"
-                        aria-label={
-                            panelCollapsed
-                                ? 'Afficher les contrôles (Cmd+B)'
-                                : 'Masquer les contrôles (Cmd+B)'
-                        }
-                        aria-expanded={!panelCollapsed}
-                        onClick={onTogglePanel}
-                        style={styles.toggleButton}
-                        title={
-                            panelCollapsed
-                                ? 'Afficher les contrôles (Cmd+B)'
-                                : 'Masquer les contrôles (Cmd+B)'
-                        }
-                    >
-                        <svg
-                            viewBox="0 0 16 16"
-                            width="14"
-                            height="14"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            aria-hidden="true"
-                        >
-                            <rect x="2" y="2" width="12" height="12" rx="2" />
-                            <path d="M10 2v12" />
-                        </svg>
-                        <span {...stylex.props(styles.toggleText)}>
-                            {panelCollapsed ? 'Contrôles' : 'Plein écran'}
-                        </span>
-                    </Button>
-                ) : null}
             </div>
         </header>
     );

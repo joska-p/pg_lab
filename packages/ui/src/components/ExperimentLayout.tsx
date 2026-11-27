@@ -160,9 +160,6 @@ interface ExperimentLayoutProps extends Omit<React.ComponentProps<'div'>, 'style
     stageProps?: StageProps;
     panel?: React.ReactNode;
     style?: StyleXStyles;
-    collapsed?: boolean;
-    defaultCollapsed?: boolean;
-    onCollapsedChange?: (collapsed: boolean) => void;
 }
 
 export function ExperimentLayout({
@@ -171,25 +168,12 @@ export function ExperimentLayout({
     stageProps,
     panel,
     style,
-    collapsed: controlledCollapsed,
-    defaultCollapsed = false,
-    onCollapsedChange,
     ...props
 }: ExperimentLayoutProps) {
     const panelRef = useRef<HTMLDivElement>(null);
     const dragRef = useRef<Drag | null>(null);
-    const [uncontrolledCollapsed, setUncontrolledCollapsed] = useState(defaultCollapsed);
+    const [collapsed, setCollapsed] = useState(false);
     const { style: stageStyle, ...stageSectionProps } = stageProps ?? {};
-
-    const isControlled = controlledCollapsed !== undefined;
-    const collapsed = isControlled ? controlledCollapsed : uncontrolledCollapsed;
-
-    const setCollapsedState = (next: boolean) => {
-        if (!isControlled) {
-            setUncontrolledCollapsed(next);
-        }
-        onCollapsedChange?.(next);
-    };
 
     const handlePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
         const panelEl = panelRef.current;
@@ -223,7 +207,7 @@ export function ExperimentLayout({
         const size = Math.max(0, drag.sizeStart + drag.pointerStart - pointer);
 
         panelEl.style.setProperty(drag.vertical ? '--panel-height' : '--panel-width', `${size}px`);
-        setCollapsedState(size <= COLLAPSE_BELOW);
+        setCollapsed(size <= COLLAPSE_BELOW);
     };
 
     const handlePointerEnd = (event: React.PointerEvent<HTMLButtonElement>) => {
@@ -236,7 +220,7 @@ export function ExperimentLayout({
     const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
-            setCollapsedState(!collapsed);
+            setCollapsed((prev) => !prev);
         }
     };
 

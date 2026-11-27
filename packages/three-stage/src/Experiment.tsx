@@ -4,17 +4,10 @@ import { ExperimentLayout } from '@repo/ui/components/ExperimentLayout';
 import { Controls } from './components/Controls';
 import { Scene } from './components/Scene';
 
-export interface ExperimentProps {
-    collapsed?: boolean;
-    onCollapsedChange?: (collapsed: boolean) => void;
-}
-
-export function Experiment({ collapsed, onCollapsedChange }: ExperimentProps) {
+export function Experiment() {
     return (
         <ExperimentLayout
             stageLabel="three-stage"
-            collapsed={collapsed}
-            onCollapsedChange={onCollapsedChange}
             panel={
                 <ControlPanel title="three-stage">
                     <Controls />

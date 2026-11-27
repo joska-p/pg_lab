@@ -2,7 +2,7 @@ import { ErrorBoundary } from '@repo/ui/components/ErrorBoundary';
 import { ExperimentLayout } from '@repo/ui/components/ExperimentLayout';
 import { ExperimentWrapper } from '@repo/ui/components/ExperimentWrapper';
 import * as stylex from '@stylexjs/stylex';
-import { Suspense, use, useState } from 'react';
+import { Suspense, use } from 'react';
 import type { ReactNode } from 'react';
 
 import { loadExperiment } from '../experiments';
@@ -26,39 +26,23 @@ const styles = stylex.create({
     },
 });
 
-const noop = () => undefined;
-
 /* -------------------------------------------------------------------------- */
 /* Frame : le chrome commun (titre, header, zone de travail, erreurs, loading) */
 /* -------------------------------------------------------------------------- */
 
 interface PageProps {
     readonly page: PageMeta;
-    readonly hasPanel?: boolean;
-    readonly panelCollapsed?: boolean;
-    readonly onTogglePanel?: () => void;
     readonly children: ReactNode;
 }
 
-function Page({
-    page,
-    hasPanel = false,
-    panelCollapsed = false,
-    onTogglePanel = noop,
-    children,
-}: PageProps) {
+function Page({ page, children }: PageProps) {
     return (
         <ExperimentWrapper>
             {/* React 19 : <title> est remonté dans <head>, plus besoin d'effet. */}
             <title>{`${page.label} · PG_LAB`}</title>
 
             <div {...stylex.props(styles.page)}>
-                <StudioHeader
-                    currentPage={page}
-                    hasPanel={hasPanel}
-                    panelCollapsed={panelCollapsed}
-                    onTogglePanel={onTogglePanel}
-                />
+                <StudioHeader currentPage={page} />
                 <div {...stylex.props(styles.workspace)}>
                     {/* key : l'erreur d'une expérience ne doit pas survivre à la navigation. */}
                     <ErrorBoundary key={page.id} showStack={import.meta.env.DEV}>
@@ -101,18 +85,12 @@ export function StaticPage({ page, children }: StaticPageProps) {
 
 interface LoadedExperimentProps {
     readonly experiment: ExperimentEntry;
-    readonly panelCollapsed: boolean;
-    readonly onCollapsedChange: (collapsed: boolean) => void;
 }
 
-function LoadedExperiment({
-    experiment,
-    panelCollapsed,
-    onCollapsedChange,
-}: LoadedExperimentProps) {
+function LoadedExperiment({ experiment }: LoadedExperimentProps) {
     const { Experiment } = use(loadExperiment(experiment));
 
-    return <Experiment collapsed={panelCollapsed} onCollapsedChange={onCollapsedChange} />;
+    return <Experiment />;
 }
 
 interface ExperimentPageProps {
@@ -120,20 +98,9 @@ interface ExperimentPageProps {
 }
 
 export function ExperimentPage({ experiment }: ExperimentPageProps) {
-    const [panelCollapsed, setPanelCollapsed] = useState(false);
-
     return (
-        <Page
-            page={experiment}
-            hasPanel={true}
-            panelCollapsed={panelCollapsed}
-            onTogglePanel={() => setPanelCollapsed((collapsed) => !collapsed)}
-        >
-            <LoadedExperiment
-                experiment={experiment}
-                panelCollapsed={panelCollapsed}
-                onCollapsedChange={setPanelCollapsed}
-            />
+        <Page page={experiment}>
+            <LoadedExperiment experiment={experiment} />
         </Page>
     );
 }

@@ -10,13 +10,8 @@ export interface PageMeta {
     readonly mark: string;
 }
 
-export interface ExperimentProps {
-    collapsed?: boolean;
-    onCollapsedChange?: (collapsed: boolean) => void;
-}
-
 export interface ExperimentModule {
-    Experiment: ComponentType<ExperimentProps>;
+    Experiment: ComponentType;
 }
 
 interface ExperimentEntryShape<TId extends string = string> extends PageMeta {
