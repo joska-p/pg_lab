@@ -2,7 +2,7 @@ import { ControlPanel } from '@repo/ui/components/ControlPanel';
 
 export function Controls() {
     return (
-        <ControlPanel title="OEIS Signal">
+        <ControlPanel>
             <p>No controls yet.</p>
         </ControlPanel>
     );

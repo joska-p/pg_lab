@@ -37,7 +37,7 @@ function Controls() {
         .filter((option): option is { label: string; value: string } => option !== null);
 
     return (
-        <ControlPanel title="Pixel Manipulator">
+        <ControlPanel>
             <ImageSourceControls />
             <ControlSection title="presets">
                 <Grid columns="2">

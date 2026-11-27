@@ -16,7 +16,7 @@ export function Controls() {
     const selectedNoteSlug = useSelectedNoteSlug();
 
     return (
-        <ControlPanel title="Notebook Atelier">
+        <ControlPanel>
             <ControlSection title="Folios & Chroniques">
                 <Segmented<NoteSlug>
                     color="orange"

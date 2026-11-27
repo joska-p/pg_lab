@@ -124,7 +124,7 @@ export function Controls() {
     }
 
     return (
-        <ControlPanel title="Mosaic Maker">
+        <ControlPanel>
             <ControlSection title="Tile set">
                 <TileSetControls />
             </ControlSection>

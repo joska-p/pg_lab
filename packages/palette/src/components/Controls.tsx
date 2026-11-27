@@ -21,7 +21,7 @@ function Controls() {
     }
 
     return (
-        <ControlPanel title="Palette Generator">
+        <ControlPanel>
             {colorPickerSpaceOptions.map((option) => (
                 <ControlSection key={option.label} title={option.label}>
                     <ColorPickerSpaceControls pickerSpaceId={option.value} size={200} />

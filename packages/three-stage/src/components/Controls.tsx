@@ -9,13 +9,14 @@ export function Controls() {
     const { id } = useExperiment();
 
     return (
-        <ControlPanel title="three-stage">
-            <Select<ExperimentId>
-                label="Experiment"
-                value={id}
-                onValueChange={setExperimentId}
-                options={experimentOptions}
-            />
-        </ControlPanel>
+        <ControlPanel
+            action={
+                <Select<ExperimentId>
+                    value={id}
+                    onValueChange={setExperimentId}
+                    options={experimentOptions}
+                />
+            }
+        ></ControlPanel>
     );
 }

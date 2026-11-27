@@ -8,18 +8,20 @@ import type { ExperimentId } from '../experiments';
 import { setExperimentId, useExperiment } from '../stores/appStore';
 
 export function Controls() {
-    const { Controls: ActiveControls, label, id } = useExperiment();
+    const { Controls: ActiveControls, id } = useExperiment();
 
     return (
-        <ControlPanel title="Art Canvas">
-            <Select<ExperimentId>
-                label="Experiment"
-                value={id}
-                onValueChange={setExperimentId}
-                options={experimentOptions}
-            />
+        <ControlPanel
+            action={
+                <Select<ExperimentId>
+                    value={id}
+                    onValueChange={setExperimentId}
+                    options={experimentOptions}
+                />
+            }
+        >
             {ActiveControls != null && (
-                <ControlSection title={label}>
+                <ControlSection>
                     <Suspense fallback={null}>
                         <ActiveControls />
                     </Suspense>

@@ -131,7 +131,7 @@ function Controls() {
     }
 
     return (
-        <ControlPanel title="Pixel Docs">
+        <ControlPanel>
             <Stack direction="vertical" gap="6">
                 {groups.map((group) => {
                     const isExpanded = expandedGroups[group.label] ?? true;

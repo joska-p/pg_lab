@@ -11,7 +11,7 @@ export function Controls() {
     const { Controls: ActiveControls, label, id } = useExperiment();
 
     return (
-        <ControlPanel title="Fracture">
+        <ControlPanel>
             <ControlSection title="Experiment">
                 <Segmented options={experimentOptions} value={id} onValueChange={setExperimentId} />
             </ControlSection>

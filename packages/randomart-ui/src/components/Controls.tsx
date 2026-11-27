@@ -19,7 +19,7 @@ import { ErrorReadout } from './ErrorReadout';
  */
 export function Controls() {
     return (
-        <ControlPanel title="Randomart">
+        <ControlPanel>
             <AppErrorBoundary>
                 <Stack gap="6">
                     {/* Toy-level: the actions and presets a visitor reaches for first. */}

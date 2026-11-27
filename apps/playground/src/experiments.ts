@@ -146,6 +146,15 @@ export const EXPERIMENTS = [
         load: () => import('@repo/sequencer/Experiment'),
     },
     {
+        id: 'string-art',
+        label: 'String art',
+        stageLabel: 'String art',
+        tint: 'purple',
+        summary: 'Simulation de string-art.',
+        mark: 'string-art',
+        load: () => import('@repo/string-art/Experiment'),
+    },
+    {
         id: 'three-stage',
         label: 'three-stage',
         stageLabel: 'three-stage',

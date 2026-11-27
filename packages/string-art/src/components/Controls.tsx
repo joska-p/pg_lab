@@ -22,7 +22,7 @@ function handleImageUpload(file: File): void {
 
 export function Controls() {
     return (
-        <ControlPanel title="String Art">
+        <ControlPanel>
             <ControlSection title="Image">
                 <FileInput accept="image/*" onFile={handleImageUpload} />
             </ControlSection>

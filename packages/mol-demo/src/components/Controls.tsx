@@ -5,7 +5,7 @@ import { PerfHud } from './PerfHud';
 
 export function Controls() {
     return (
-        <ControlPanel title="Mol Demo">
+        <ControlPanel>
             <MoleculeList />
             <PerfHud />
         </ControlPanel>

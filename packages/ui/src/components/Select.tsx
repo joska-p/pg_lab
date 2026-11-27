@@ -32,6 +32,7 @@ const styles = stylex.create({
         display: 'flex',
         flexDirection: 'column',
         gap: space['2'],
+        width: '100%',
     },
     wrap: {
         position: 'relative',

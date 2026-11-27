@@ -353,6 +353,9 @@ importers:
       '@repo/sequencer':
         specifier: workspace:*
         version: link:../../packages/sequencer
+      '@repo/string-art':
+        specifier: workspace:*
+        version: link:../../packages/string-art
       '@repo/three-stage':
         specifier: workspace:*
         version: link:../../packages/three-stage

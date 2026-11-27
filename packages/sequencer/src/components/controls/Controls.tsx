@@ -9,7 +9,7 @@ register();
 
 export function Controls() {
     return (
-        <ControlPanel title="Sequencer">
+        <ControlPanel>
             <SequenceSection />
             <ViewportSection />
             <LayerStackEditor />

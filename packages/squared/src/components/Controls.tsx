@@ -3,7 +3,7 @@ import { ControlSection } from '@repo/ui/components/ControlSection';
 
 export function Controls() {
     return (
-        <ControlPanel title="Squared">
+        <ControlPanel>
             <ControlSection title="placeholder">placeholder</ControlSection>
         </ControlPanel>
     );

@@ -5,7 +5,7 @@ import { Sketchpad } from './Sketchpad';
 
 function Controls() {
     return (
-        <ControlPanel title="Radu Machine Learning">
+        <ControlPanel>
             <Sketchpad />
             <Chart />
         </ControlPanel>

@@ -12,7 +12,7 @@ export function Controls() {
     const generation = useGeneration();
 
     return (
-        <ControlPanel title="Automa Controls">
+        <ControlPanel>
             <ControlSection title="Simulation">
                 <Readout label="Generation" value={generation} />
             </ControlSection>
