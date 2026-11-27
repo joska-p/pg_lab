@@ -2,18 +2,20 @@ import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { Select } from '@repo/ui/components/Select';
 
 import { experimentOptions } from '../experiments';
-import type { ExperimentId } from '../experiments';
-import { setExperimentId, useExperiment } from '../stores/appStore';
+import type { ExperimentDefinition, ExperimentId } from '../experiments';
 
-export function Controls() {
-    const { id } = useExperiment();
+interface ControlsProps {
+    readonly experiment: ExperimentDefinition;
+    readonly onExperimentIdChange: (experimentId: ExperimentId) => void;
+}
 
+export function Controls({ experiment, onExperimentIdChange }: ControlsProps) {
     return (
         <ControlPanel
             action={
                 <Select<ExperimentId>
-                    value={id}
-                    onValueChange={setExperimentId}
+                    value={experiment.id}
+                    onValueChange={onExperimentIdChange}
                     options={experimentOptions}
                 />
             }

@@ -1,12 +1,16 @@
 import { Suspense } from 'react';
 
+import type { ExperimentDefinition } from '../experiments';
 import { setPerfExperiment } from '../lib/perf';
-import { useExperiment } from '../stores/appStore';
 
-export function Scene() {
-    const { Scene: ActiveScene, id } = useExperiment();
+interface SceneProps {
+    readonly experiment: ExperimentDefinition;
+}
 
-    setPerfExperiment(id);
+export function Scene({ experiment }: SceneProps) {
+    const ActiveScene = experiment.Scene;
+
+    setPerfExperiment(experiment.id);
 
     return (
         <Suspense fallback={null}>

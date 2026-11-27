@@ -1,9 +1,13 @@
 import { Suspense } from 'react';
 
-import { useExperiment } from '../stores/appStore';
+import type { ExperimentDefinition } from '../experiments';
 
-export function Scene() {
-    const { Scene: ActiveScene } = useExperiment();
+interface SceneProps {
+    readonly experiment: ExperimentDefinition;
+}
+
+export function Scene({ experiment }: SceneProps) {
+    const ActiveScene = experiment.Scene;
 
     return (
         <Suspense fallback={null}>

@@ -1,12 +1,17 @@
 import { Suspense } from 'react';
 
-import { getExperiment } from '../experiments';
-import { useExperimentContext } from '../stores/useExperimentContext';
+import type { ExperimentDefinition } from '../experiments';
 
-export function Scene() {
-    const { experimentId } = useExperimentContext();
-    const experiment = getExperiment(experimentId);
-    const ActiveScene = experiment?.Scene;
+interface SceneProps {
+    readonly experiment: ExperimentDefinition;
+}
 
-    return <Suspense fallback={null}>{ActiveScene && <ActiveScene />}</Suspense>;
+export function Scene({ experiment }: SceneProps) {
+    const ActiveScene = experiment.Scene;
+
+    return (
+        <Suspense fallback={null}>
+            <ActiveScene />
+        </Suspense>
+    );
 }

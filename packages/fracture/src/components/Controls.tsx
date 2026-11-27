@@ -1,23 +1,32 @@
 import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { ControlSection } from '@repo/ui/components/ControlSection';
-import { Segmented } from '@repo/ui/components/Segmented';
+import { Select } from '@repo/ui/components/Select';
 import { Suspense } from 'react';
 
 import { experimentOptions } from '../experiments';
-import { setExperimentId, useExperiment } from '../stores/appStore';
+import type { ExperimentDefinition, ExperimentId } from '../experiments';
 import { PerfHud } from './PerfHud';
 
-export function Controls() {
-    const { Controls: ActiveControls, label, id } = useExperiment();
+interface ControlsProps {
+    readonly experiment: ExperimentDefinition;
+    readonly onExperimentIdChange: (experimentId: ExperimentId) => void;
+}
+
+export function Controls({ experiment, onExperimentIdChange }: ControlsProps) {
+    const ActiveControls = experiment.Controls;
 
     return (
-        <ControlPanel>
-            <ControlSection title="Experiment">
-                <Segmented options={experimentOptions} value={id} onValueChange={setExperimentId} />
-            </ControlSection>
-
+        <ControlPanel
+            action={
+                <Select<ExperimentId>
+                    value={experiment.id}
+                    onValueChange={onExperimentIdChange}
+                    options={experimentOptions}
+                />
+            }
+        >
             {ActiveControls && (
-                <ControlSection title={label}>
+                <ControlSection>
                     <Suspense fallback={null}>
                         <ActiveControls />
                     </Suspense>

@@ -3,21 +3,23 @@ import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Select } from '@repo/ui/components/Select';
 import { Suspense } from 'react';
 
-import { experimentOptions, getExperiment } from '../experiments';
-import type { ExperimentId } from '../experiments';
-import { useExperimentContext } from '../stores/useExperimentContext';
+import { experimentOptions } from '../experiments';
+import type { ExperimentDefinition, ExperimentId } from '../experiments';
 
-export function Controls() {
-    const { experimentId, setExperimentId } = useExperimentContext();
-    const experiment = getExperiment(experimentId);
-    const ActiveControls = experiment?.Controls;
+interface ControlsProps {
+    readonly experiment: ExperimentDefinition;
+    readonly onExperimentIdChange: (experimentId: ExperimentId) => void;
+}
+
+export function Controls({ experiment, onExperimentIdChange }: ControlsProps) {
+    const ActiveControls = experiment.Controls;
 
     return (
         <ControlPanel
             action={
                 <Select<ExperimentId>
-                    value={experimentId}
-                    onValueChange={setExperimentId}
+                    value={experiment.id}
+                    onValueChange={onExperimentIdChange}
                     options={experimentOptions}
                 />
             }
