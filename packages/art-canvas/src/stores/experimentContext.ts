@@ -1,9 +1,9 @@
 import { createContext } from 'react';
 
-import type { ExperimentDefinition, ExperimentId } from '../experiments';
+import type { ExperimentId } from '../experiments';
 
 export interface ExperimentContextValue {
-    experiment: ExperimentDefinition;
+    experimentId: ExperimentId;
     setExperimentId: (experimentId: ExperimentId) => void;
 }
 

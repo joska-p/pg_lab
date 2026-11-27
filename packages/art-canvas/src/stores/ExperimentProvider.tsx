@@ -1,7 +1,7 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { DEFAULT_EXPERIMENT, getExperiment } from '../experiments';
+import { DEFAULT_EXPERIMENT } from '../experiments';
 import type { ExperimentId } from '../experiments';
 import type { ExperimentContextValue } from './experimentContext';
 import { ExperimentContext } from './experimentContext';
@@ -15,15 +15,11 @@ export function ExperimentProvider({
     children,
     initialExperimentId = DEFAULT_EXPERIMENT.id,
 }: ExperimentProviderProps) {
-    const [experimentId, setExperimentIdState] = useState<ExperimentId>(initialExperimentId);
-
-    const setExperimentId = useCallback((id: ExperimentId) => {
-        setExperimentIdState(id);
-    }, []);
+    const [experimentId, setExperimentId] = useState<ExperimentId>(initialExperimentId);
 
     const value = useMemo<ExperimentContextValue>(
         () => ({
-            experiment: getExperiment(experimentId) ?? DEFAULT_EXPERIMENT,
+            experimentId,
             setExperimentId,
         }),
         [experimentId, setExperimentId],
