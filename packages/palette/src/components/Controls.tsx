@@ -1,4 +1,5 @@
 import { Button } from '@repo/ui/components/Button';
+import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Stack } from '@repo/ui/components/Stack';
 
@@ -20,7 +21,7 @@ function Controls() {
     }
 
     return (
-        <>
+        <ControlPanel title="Palette Generator">
             {colorPickerSpaceOptions.map((option) => (
                 <ControlSection key={option.label} title={option.label}>
                     <ColorPickerSpaceControls pickerSpaceId={option.value} size={200} />
@@ -42,7 +43,7 @@ function Controls() {
                     ))}
                 </Stack>
             </ControlSection>
-        </>
+        </ControlPanel>
     );
 }
 

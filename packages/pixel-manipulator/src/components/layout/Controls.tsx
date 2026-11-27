@@ -1,5 +1,6 @@
 import { getManipulations } from '@repo/pixel/worker';
 import { Button } from '@repo/ui/components/Button';
+import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Grid } from '@repo/ui/components/Grid';
 import { Select } from '@repo/ui/components/Select';
@@ -36,7 +37,7 @@ function Controls() {
         .filter((option): option is { label: string; value: string } => option !== null);
 
     return (
-        <>
+        <ControlPanel title="Pixel Manipulator">
             <ImageSourceControls />
             <ControlSection title="presets">
                 <Grid columns="2">
@@ -96,7 +97,7 @@ function Controls() {
                     Clear Workflow
                 </Button>
             </Grid>
-        </>
+        </ControlPanel>
     );
 }
 

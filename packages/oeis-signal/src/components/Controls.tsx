@@ -1,3 +1,9 @@
+import { ControlPanel } from '@repo/ui/components/ControlPanel';
+
 export function Controls() {
-    return <p>No controls yet.</p>;
+    return (
+        <ControlPanel title="OEIS Signal">
+            <p>No controls yet.</p>
+        </ControlPanel>
+    );
 }

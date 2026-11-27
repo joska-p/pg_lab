@@ -1,3 +1,4 @@
+import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { FileInput } from '@repo/ui/components/FileInput';
 
@@ -21,8 +22,10 @@ function handleImageUpload(file: File): void {
 
 export function Controls() {
     return (
-        <ControlSection title="Image">
-            <FileInput accept="image/*" onFile={handleImageUpload} />
-        </ControlSection>
+        <ControlPanel title="String Art">
+            <ControlSection title="Image">
+                <FileInput accept="image/*" onFile={handleImageUpload} />
+            </ControlSection>
+        </ControlPanel>
     );
 }

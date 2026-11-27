@@ -9,7 +9,7 @@ export function Controls() {
     const { id } = useExperiment();
 
     return (
-        <ControlPanel>
+        <ControlPanel title="three-stage">
             <Select<ExperimentId>
                 label="Experiment"
                 value={id}

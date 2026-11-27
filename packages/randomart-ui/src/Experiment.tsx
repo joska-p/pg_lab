@@ -1,5 +1,4 @@
 import { globalPlaybackStore } from '@repo/surface/react/usePlayback';
-import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { ExperimentLayout } from '@repo/ui/components/ExperimentLayout';
 
 import { Controls } from './components/Controls';
@@ -10,14 +9,7 @@ globalPlaybackStore.pause();
 
 export function Experiment() {
     return (
-        <ExperimentLayout
-            stageLabel="randomart"
-            panel={
-                <ControlPanel title="Randomart">
-                    <Controls />
-                </ControlPanel>
-            }
-        >
+        <ExperimentLayout stageLabel="randomart" panel={<Controls />}>
             <Scene />
         </ExperimentLayout>
     );

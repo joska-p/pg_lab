@@ -11,7 +11,7 @@ export function Controls() {
     const { Controls: ActiveControls, label, id } = useExperiment();
 
     return (
-        <ControlPanel>
+        <ControlPanel title="Art Canvas">
             <Select<ExperimentId>
                 label="Experiment"
                 value={id}

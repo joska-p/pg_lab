@@ -1,4 +1,5 @@
 import { Button } from '@repo/ui/components/Button';
+import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Slider } from '@repo/ui/components/Slider';
 import { borderWidth, radius, space, motion, typography } from '@repo/ui/tokens/const.stylex';
@@ -123,7 +124,7 @@ export function Controls() {
     }
 
     return (
-        <>
+        <ControlPanel title="Mosaic Maker">
             <ControlSection title="Tile set">
                 <TileSetControls />
             </ControlSection>
@@ -174,6 +175,6 @@ export function Controls() {
                     Loading palettes...
                 </div>
             )}
-        </>
+        </ControlPanel>
     );
 }

@@ -1,3 +1,4 @@
+import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Segmented } from '@repo/ui/components/Segmented';
 import { Suspense } from 'react';
@@ -10,7 +11,7 @@ export function Controls() {
     const { Controls: ActiveControls, label, id } = useExperiment();
 
     return (
-        <>
+        <ControlPanel title="Fracture">
             <ControlSection title="Experiment">
                 <Segmented options={experimentOptions} value={id} onValueChange={setExperimentId} />
             </ControlSection>
@@ -25,6 +26,6 @@ export function Controls() {
             <ControlSection title="Perf">
                 <PerfHud />
             </ControlSection>
-        </>
+        </ControlPanel>
     );
 }

@@ -1,4 +1,3 @@
-import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { ExperimentLayout } from '@repo/ui/components/ExperimentLayout';
 import type { StageProps } from '@repo/ui/components/ExperimentLayout';
 
@@ -36,15 +35,7 @@ const stageProps = {
 
 export function Experiment() {
     return (
-        <ExperimentLayout
-            stageLabel="mol-demo"
-            stageProps={stageProps}
-            panel={
-                <ControlPanel title="Mol Demo">
-                    <Controls />
-                </ControlPanel>
-            }
-        >
+        <ExperimentLayout stageLabel="mol-demo" stageProps={stageProps} panel={<Controls />}>
             <Scene />
         </ExperimentLayout>
     );

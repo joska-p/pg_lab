@@ -1,4 +1,5 @@
 import { Badge } from '@repo/ui/components/Badge';
+import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { Stack } from '@repo/ui/components/Stack';
 import { surfaceStyle } from '@repo/ui/recipes/surface';
 import { heading } from '@repo/ui/recipes/typography';
@@ -130,72 +131,78 @@ function Controls() {
     }
 
     return (
-        <Stack direction="vertical" gap="6">
-            {groups.map((group) => {
-                const isExpanded = expandedGroups[group.label] ?? true;
+        <ControlPanel title="Pixel Docs">
+            <Stack direction="vertical" gap="6">
+                {groups.map((group) => {
+                    const isExpanded = expandedGroups[group.label] ?? true;
 
-                return (
-                    <Stack key={group.label} direction="vertical" gap="2">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                toggleGroup(group.label);
-                            }}
-                            aria-expanded={isExpanded}
-                            {...stylex.props(styles.groupToggle)}
-                        >
-                            <span
-                                aria-hidden
-                                {...stylex.props(styles.chevron)}
-                                style={{
-                                    transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
+                    return (
+                        <Stack key={group.label} direction="vertical" gap="2">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    toggleGroup(group.label);
                                 }}
+                                aria-expanded={isExpanded}
+                                {...stylex.props(styles.groupToggle)}
                             >
-                                ▼
-                            </span>
-                            <span {...stylex.props(heading.level3)}>{group.label}</span>
-                        </button>
+                                <span
+                                    aria-hidden
+                                    {...stylex.props(styles.chevron)}
+                                    style={{
+                                        transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
+                                    }}
+                                >
+                                    ▼
+                                </span>
+                                <span {...stylex.props(heading.level3)}>{group.label}</span>
+                            </button>
 
-                        {isExpanded && (
-                            <Stack direction="vertical" gap="2">
-                                {group.items.map((item) => {
-                                    const endpointId = endpointForItem(item);
-                                    const isActive = isActiveEndpoint(activeEndpointId, endpointId);
-                                    const color = TYPE_COLOR[item.type] ?? 'neutral';
+                            {isExpanded && (
+                                <Stack direction="vertical" gap="2">
+                                    {group.items.map((item) => {
+                                        const endpointId = endpointForItem(item);
+                                        const isActive = isActiveEndpoint(
+                                            activeEndpointId,
+                                            endpointId,
+                                        );
+                                        const color = TYPE_COLOR[item.type] ?? 'neutral';
 
-                                    return (
-                                        <button
-                                            key={item.id}
-                                            type="button"
-                                            onClick={() => {
-                                                handleSelect(item);
-                                            }}
-                                            {...stylex.props(
-                                                styles.item,
-                                                isActive && styles.itemActive,
-                                                isActive &&
-                                                    surfaceStyle({
-                                                        color,
-                                                        background: 'soft',
-                                                        border: 'none',
-                                                    }),
-                                            )}
-                                        >
-                                            <Badge color={color} background="solid" radius="sm">
-                                                {TYPE_LABEL[item.type] ?? item.type.toUpperCase()}
-                                            </Badge>
-                                            <span {...stylex.props(styles.itemLabel)}>
-                                                {item.label}
-                                            </span>
-                                        </button>
-                                    );
-                                })}
-                            </Stack>
-                        )}
-                    </Stack>
-                );
-            })}
-        </Stack>
+                                        return (
+                                            <button
+                                                key={item.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    handleSelect(item);
+                                                }}
+                                                {...stylex.props(
+                                                    styles.item,
+                                                    isActive && styles.itemActive,
+                                                    isActive &&
+                                                        surfaceStyle({
+                                                            color,
+                                                            background: 'soft',
+                                                            border: 'none',
+                                                        }),
+                                                )}
+                                            >
+                                                <Badge color={color} background="solid" radius="sm">
+                                                    {TYPE_LABEL[item.type] ??
+                                                        item.type.toUpperCase()}
+                                                </Badge>
+                                                <span {...stylex.props(styles.itemLabel)}>
+                                                    {item.label}
+                                                </span>
+                                            </button>
+                                        );
+                                    })}
+                                </Stack>
+                            )}
+                        </Stack>
+                    );
+                })}
+            </Stack>
+        </ControlPanel>
     );
 }
 

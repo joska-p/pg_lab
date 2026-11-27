@@ -100,35 +100,24 @@ function sceneTsx(name: string): string {
 `;
 }
 
-const controlsTsx = `export function Controls() {
-    return null;
+function controlsTsx(name: string): string {
+    return `import { ControlPanel } from '@repo/ui/components/ControlPanel';
+
+export function Controls() {
+    return <ControlPanel title="${name}" />;
 }
 `;
+}
 
 function experimentTsx(name: string): string {
-    return `import { ControlPanel } from '@repo/ui/components/ControlPanel';
-import { ExperimentLayout } from '@repo/ui/components/ExperimentLayout';
+    return `import { ExperimentLayout } from '@repo/ui/components/ExperimentLayout';
 
 import { Controls } from './components/Controls';
 import { Scene } from './components/Scene';
 
-export interface ExperimentProps {
-    collapsed?: boolean;
-    onCollapsedChange?: (collapsed: boolean) => void;
-}
-
-export function Experiment({ collapsed, onCollapsedChange }: ExperimentProps) {
+export function Experiment() {
     return (
-        <ExperimentLayout
-            stageLabel="${name}"
-            collapsed={collapsed}
-            onCollapsedChange={onCollapsedChange}
-            panel={
-                <ControlPanel title="${name}">
-                    <Controls />
-                </ControlPanel>
-            }
-        >
+        <ExperimentLayout stageLabel="${name}" panel={<Controls />}>
             <Scene />
         </ExperimentLayout>
     );
@@ -214,7 +203,7 @@ export default createTemplate({
                     'style.css': styleCss,
                     components: {
                         'Scene.tsx': sceneTsx(name),
-                        'Controls.tsx': controlsTsx,
+                        'Controls.tsx': controlsTsx(name),
                     },
                 },
                 public: {},

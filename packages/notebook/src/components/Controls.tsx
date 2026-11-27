@@ -1,3 +1,4 @@
+import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { ControlSection } from '@repo/ui/components/ControlSection';
 import { Segmented } from '@repo/ui/components/Segmented';
 
@@ -15,14 +16,16 @@ export function Controls() {
     const selectedNoteSlug = useSelectedNoteSlug();
 
     return (
-        <ControlSection title="Folios & Chroniques">
-            <Segmented<NoteSlug>
-                color="orange"
-                value={selectedNoteSlug}
-                onValueChange={setSelectedNoteSlug}
-                options={NOTE_OPTIONS}
-            />
-            {selectedNoteSlug === 'captains-logs' ? <Commands /> : null}
-        </ControlSection>
+        <ControlPanel title="Notebook Atelier">
+            <ControlSection title="Folios & Chroniques">
+                <Segmented<NoteSlug>
+                    color="orange"
+                    value={selectedNoteSlug}
+                    onValueChange={setSelectedNoteSlug}
+                    options={NOTE_OPTIONS}
+                />
+                {selectedNoteSlug === 'captains-logs' ? <Commands /> : null}
+            </ControlSection>
+        </ControlPanel>
     );
 }

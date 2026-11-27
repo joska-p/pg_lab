@@ -1,3 +1,4 @@
+import { ControlPanel } from '@repo/ui/components/ControlPanel';
 import { Stack } from '@repo/ui/components/Stack';
 
 import { AppErrorBoundary } from './AppErrorBoundary';
@@ -18,23 +19,25 @@ import { ErrorReadout } from './ErrorReadout';
  */
 export function Controls() {
     return (
-        <AppErrorBoundary>
-            <Stack gap="6">
-                {/* Toy-level: the actions and presets a visitor reaches for first. */}
-                <PrimaryActions />
-                <GrammarSelect />
-                <ColorSection />
+        <ControlPanel title="Randomart">
+            <AppErrorBoundary>
+                <Stack gap="6">
+                    {/* Toy-level: the actions and presets a visitor reaches for first. */}
+                    <PrimaryActions />
+                    <GrammarSelect />
+                    <ColorSection />
 
-                {/* Fine controls: everything needed to hand-tune the artwork. */}
-                <PostProcessSection />
-                <SeedSection />
-                <OperatorWeights />
-                <StructureSection />
-                <Inspector />
-                <ShaderSource />
+                    {/* Fine controls: everything needed to hand-tune the artwork. */}
+                    <PostProcessSection />
+                    <SeedSection />
+                    <OperatorWeights />
+                    <StructureSection />
+                    <Inspector />
+                    <ShaderSource />
 
-                <ErrorReadout />
-            </Stack>
-        </AppErrorBoundary>
+                    <ErrorReadout />
+                </Stack>
+            </AppErrorBoundary>
+        </ControlPanel>
     );
 }
