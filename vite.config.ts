@@ -28,6 +28,11 @@ export const sharedViteConfig = {
     resolve: {
         conditions: ['source', 'module', 'browser', 'development|production'],
     },
+    server: {
+        // Écoute sur toutes les interfaces pour être accessible depuis le host
+        // en mode container (coding-box avec network_mode: host).
+        host: true,
+    },
     test: testConfig,
 };
 
